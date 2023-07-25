@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile, conan_version
@@ -138,23 +136,20 @@ class ICCConan(ConanFile):
 
         os = self.settings.os
         if os not in ("Windows", "Linux"):
-            msg = ("OS {} is not supported !!").format(os)
-            raise ConanInvalidConfiguration(msg)
+            raise ConanInvalidConfiguration(f"OS {os} is not supported")
 
         compiler = self.settings.compiler
         try:
             min_version = self._minimum_compilers_version[str(compiler)]
-            if Version(self, compiler.version) < min_version:
-                msg = ("{} requires C++{} features which are not supported by compiler {} {} !!").format(
-                    self.name, self._minimum_cpp_standard, compiler, compiler.version
-                )
-                raise ConanInvalidConfiguration(msg)
+            if Version(compiler.version) < min_version:
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires C++{self._minimum_cpp_standard} features "
+                    f"which are not supported by compiler {compiler} {compiler.version}")
         except KeyError:
-            msg = (
-                "{} recipe lacks information about the {} compiler, "
-                "support for the required C++{} features is assumed"
-            ).format(self.name, compiler, self._minimum_cpp_standard)
-            self.output.warning(msg)
+            self.output.warning(
+                f"{self.name} recipe lacks information about the {compiler} compiler, "
+                f"support for the required C++{self._minimum_cpp_standard} features is assumed"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -162,8 +157,6 @@ class ICCConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["ICC_BUILD_SHARED"] = self.options.shared
-        tc.generate()
-        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -177,7 +170,8 @@ class ICCConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "icc")
-        self.cpp_info.set_property("cmake_target_name", "icc")
+        self.cpp_info.set_property("cmake_target_name", "icc::icc")
+
         if self.options.shared:
             self.cpp_info.libs = ["ICC"]
         else:

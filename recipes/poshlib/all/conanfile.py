@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -51,23 +49,26 @@ class PoshlibConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         replace_in_file(
             self,
             os.path.join(self.source_folder, "posh.h"),
             "defined _ARM",
-            "defined _ARM || defined __arm64",
+            "defined _ARM || defined __arm64 || defined __aarch64__",
         )
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

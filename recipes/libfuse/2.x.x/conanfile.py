@@ -10,10 +10,10 @@ required_conan_version = ">=1.53.0"
 
 class LibfuseConan(ConanFile):
     name = "libfuse"
-    description = "The reference implementation of the Linux FUSE interface"
-    license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libfuse/libfuse"
+    license = "LGPL-2.1"
+    description = "The reference implementation of the Linux FUSE interface"
     topics = ("fuse", "filesystem", "linux")
 
     package_type = "library"
@@ -26,6 +26,10 @@ class LibfuseConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -45,7 +49,10 @@ class LibfuseConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(["--enable-lib", "--disable-util"])
+        tc.configure_args.extend([
+            "--enable-lib",
+            "--disable-util",
+        ])
         tc.generate()
 
     def build(self):

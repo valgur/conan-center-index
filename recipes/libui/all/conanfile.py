@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -12,10 +10,7 @@ required_conan_version = ">=1.53.0"
 
 class libuiConan(ConanFile):
     name = "libui"
-    description = (
-        "Simple and portable GUI library in C that uses the "
-        "native GUI technologies of each platform it supports."
-    )
+    description = "Simple and portable GUI library in C that uses the native GUI technologies of each platform it supports."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/andlabs/libui"
@@ -39,12 +34,15 @@ class libuiConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.options["gtk"].version = 3
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gtk/3.24.24")
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.requires("gtk/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -63,29 +61,27 @@ class libuiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
-        copy(
-            self,
-            pattern="*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self.build_folder,
-            keep_path=False,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=self.source_folder)
+        copy(self, "*.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.build_folder,
+             keep_path=False)
         for pattern in ["*.a", "*.so*", "*.dylib*", "*.lib"]:
-            copy(
-                self,
-                pattern,
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.build_folder,
-                keep_path=False,
-            )
+            copy(self, pattern,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.build_folder,
+                 keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
-        if self.settings.os == "Windows":
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs += ["dl"]
+        elif self.settings.os == "Windows":
             self.cpp_info.system_libs += [
                 "user32",
                 "kernel32",

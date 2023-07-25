@@ -1,7 +1,9 @@
 #include <MagickCore/MagickCore.h>
+
 #include <stdio.h>
 
-int main() {
+int main()
+{
     size_t version, range, depth;
     printf("Imagemagick version      : %s\n", GetMagickVersion(&version));
     printf("ImageMagick release data : %s\n", GetMagickReleaseDate());

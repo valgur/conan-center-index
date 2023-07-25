@@ -5,4 +5,3 @@ find_package(liquid-dsp REQUIRED CONFIG)
 
 add_executable(${CMAKE_PROJECT_NAME} test_package.cpp)
 target_link_libraries(${CMAKE_PROJECT_NAME} liquid-dsp::liquid-dsp)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

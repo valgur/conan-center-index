@@ -3,15 +3,19 @@
 #include <Platform.Delegates.h>
 using namespace Platform::Delegates;
 
-template <typename T> struct EventfulSet : public std::set<T> {
+template<typename T>
+struct EventfulSet : public std::set<T>
+{
     using base = std::set<T>;
 
-    template <typename... Args> EventfulSet(Args &&...args) : base(args...) {}
+    template<typename... Args>
+    EventfulSet(Args&&... args) : base(args...) {}
 
-    MulticastDelegate<void(T &&)> InsertEvent{};
-    MulticastDelegate<void(T &&)> InsertDuplicateEvent{};
+    MulticastDelegate<void(T&&)> InsertEvent{};
+    MulticastDelegate<void(T&&)> InsertDuplicateEvent{};
 
-    void insert(T &&item) {
+    void insert(T&& item)
+    {
         InsertEvent(std::forward<decltype(item)>(item));
 
         if (this->find(std::forward<decltype(item)>(item)) != this->end()) {
@@ -22,13 +26,13 @@ template <typename T> struct EventfulSet : public std::set<T> {
     }
 };
 
-int main() {
+int main()
+{
     std::list<int> duplicates;
 
     EventfulSet<int> set;
-    set.InsertEvent +=
-        std::function{[](int &&item) { std::cout << "insert to list: " << item << std::endl; }};
-    set.InsertDuplicateEvent += std::function{[&](int &&item) { duplicates.push_back(item); }};
+    set.InsertEvent += std::function{[](int&& item) { std::cout << "insert to list: " << item << std::endl; }};
+    set.InsertDuplicateEvent += std::function{[&](int&& item) { duplicates.push_back(item); }};
 
     set.insert(1);
     set.insert(2);

@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "brick_master.h"
 #include "ip_connection.h"
+#include "brick_master.h"
 
 #define HOST "localhost"
 #define PORT 4223
@@ -17,7 +17,7 @@ int main(void) {
     master_create(&master, UID, &ipcon);
 
     // Connect to brickd
-    if (ipcon_connect(&ipcon, HOST, PORT) < 0) {
+    if(ipcon_connect(&ipcon, HOST, PORT) < 0) {
         fprintf(stderr, "Could not connect\n");
         return 0;
     }

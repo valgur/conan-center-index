@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 
@@ -41,9 +40,11 @@ class SplunkOpentelemetryConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("opentelemetry-cpp/1.0.1")
+        self.requires("opentelemetry-cpp/1.0.1", transitive_headers=True)
 
     def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
         if self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Architecture not supported")
 
@@ -62,20 +63,15 @@ class SplunkOpentelemetryConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    def _remove_unnecessary_package_files(self):
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-        self._remove_unnecessary_package_files()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SplunkOpenTelemetry")
-        self.cpp_info.set_property("cmake_target_name", "SplunkOpenTelemetry")
+        self.cpp_info.set_property("cmake_target_name", "SplunkOpenTelemetry::SplunkOpenTelemetry")
         self.cpp_info.libs = ["SplunkOpenTelemetry"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed

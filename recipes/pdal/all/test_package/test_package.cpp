@@ -1,9 +1,10 @@
-#include <iostream>
-#include <pdal/PluginManager.hpp>
-#include <pdal/StageFactory.hpp>
 #include <pdal/pdal_config.hpp>
+#include <pdal/StageFactory.hpp>
+#include <pdal/PluginManager.hpp>
+#include <iostream>
 
-int main() {
+int main()
+{
     std::cout << pdal::Config::fullVersionString() << std::endl;
     std::cout << pdal::Config::debugInformation() << std::endl;
 

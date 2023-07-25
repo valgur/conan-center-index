@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
@@ -47,7 +45,7 @@ class EnchantConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.71.3")
+        self.requires("glib/2.76.3")
         self.requires("hunspell/1.7.0")
 
     def source(self):
@@ -63,7 +61,7 @@ class EnchantConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):

@@ -4,7 +4,7 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class AccessPrivateConan(ConanFile):
@@ -37,12 +37,9 @@ class AccessPrivateConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "access_private.hpp",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include", "access_private"),
-        )
+        copy(self, "access_private.hpp",
+                   src=os.path.join(self.source_folder, "include"),
+                   dst=os.path.join(self.package_folder, "include", "access_private"))
 
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "access_private"))

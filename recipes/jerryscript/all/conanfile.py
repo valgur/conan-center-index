@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -36,7 +34,7 @@ class JerryScriptStackConan(ConanFile):
         "amalgamated": [True, False],
         "debugger": [True, False],
         "keep_line_info": [True, False],
-        "profile": "ANY",
+        "profile": ["ANY"],
         "promise_callback": [True, False],
         "external_context": [True, False],
         "snapshot_execution": [True, False],
@@ -48,10 +46,10 @@ class JerryScriptStackConan(ConanFile):
         "error_messages": [True, False],
         "logging": [True, False],
         "memory_statistics": [True, False],
-        "heap_size": "ANY",
-        "gc_limit": "ANY",
-        "gc_mark_limit": "ANY",
-        "stack_limit": "ANY",
+        "heap_size": ["ANY"],
+        "gc_limit": ["ANY"],
+        "gc_mark_limit": ["ANY"],
+        "stack_limit": ["ANY"],
         "cpointer_32_bit": [True, False],
         "system_allocator": [True, False],
         "valgrind": [True, False],
@@ -67,9 +65,7 @@ class JerryScriptStackConan(ConanFile):
         "default_port_implementation": True,
         "jerry_ext": True,
         "jerry_math": False,  # Initialized in `config_options`
-        "link_time_optimization": (
-            False
-        ),  # Enabled by upstream, but disabled to be confirm cci (add -flto in your profile)
+        "link_time_optimization": False,  # Enabled by upstream, but disabled to be confirm cci (add -flto in your profile)
         "strip_symbols": True,
         "amalgamated": False,
         "debugger": False,
@@ -116,15 +112,15 @@ class JerryScriptStackConan(ConanFile):
             self.options.profile = "es5.1"
             self.options.jerry_math = True
             if is_msvc(self):
-                self.options.rm_safe("jerry_math")  # forced to False
+                del self.options.jerry_math  # forced to False
         else:
             self.options.profile = "es.next"
             self.options.jerry_math = False
 
         if self.settings.os == "Macos":
-            self.options.rm_safe("jerry_math")  # forced to False
-            self.options.rm_safe("link_time_optimization")  # forced to False
-            self.options.rm_safe("strip")  # forced to False
+            del self.options.jerry_math  # forced to False
+            del self.options.link_time_optimization  # forced to False
+            del self.options.strip  # forced to False
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
@@ -133,7 +129,7 @@ class JerryScriptStackConan(ConanFile):
             self.options.rm_safe("fPIC")
 
         if not self.options.debugger:
-            self.options.rm_safe("keep_line_info")
+            del self.options.keep_line_info
 
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("jerryscript shared lib is not yet supported under windows")
@@ -142,8 +138,8 @@ class JerryScriptStackConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        if self.options.profile not in self._predefined_profiles:
-            self.info.options.profile = load(self, str(self.options.profile))
+        if self.info.options.profile not in self._predefined_profiles:
+            self.info.options.profile = load(self, str(self.info.options.profile))
 
     def validate(self):
         # validate integers
@@ -159,15 +155,14 @@ class JerryScriptStackConan(ConanFile):
                     raise ConanInvalidConfiguration(txt)
         except ValueError as e:
             raise ConanInvalidConfiguration(
-                "jerryscript heap size, gc mark limit, stack limit, gc limit should be a positive integer"
+                "jerryscript heap size, gc mark limit, stack limit, "
+                "gc limit should be a positive integer"
             )
         # validate profile file
-        if self.options.profile not in self._predefined_profiles and not os.path.isfile(
-            str(self.options.profile)
-        ):
+        if self.options.profile not in self._predefined_profiles and not os.path.isfile(str(self.options.profile)):
             raise ConanInvalidConfiguration(
-                "Invalid profile option. Feature profile must either be a valid file or one of these:"
-                " es.next, es5.1, minimal"
+                "Invalid profile option. "
+                "Feature profile must either be a valid file or one of these: es.next, es5.1, minimal"
             )
         # validate the use of the system allocator option
         if self.settings.arch == "x86_64" and self.options.system_allocator:
@@ -182,7 +177,7 @@ class JerryScriptStackConan(ConanFile):
         tc = CMakeToolchain(self)
         amalgamation_definition = "ENABLE_AMALGAM"
         libmath_definition = "JERRY_MATH"
-        if Version(self.version) < Version(self, "2.4.0"):
+        if Version(self.version) < "2.4.0":
             amalgamation_definition = "ENABLE_ALL_IN_ONE"
             libmath_definition = "JERRY_LIBM"
         tc.variables["JERRY_CMDLINE"] = self.options.tool_cmdline
@@ -237,9 +232,7 @@ class JerryScriptStackConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.components["libjerry-port-default"].set_property(
-            "pkg_config_name", ["libjerry-port-default"]
-        )
+        self.cpp_info.components["libjerry-port-default"].set_property("pkg_config_name", "libjerry-port-default")
         self.cpp_info.components["libjerry-port-default"].libs = ["jerry-port-default"]
 
         if self._jerry_math:
@@ -250,9 +243,7 @@ class JerryScriptStackConan(ConanFile):
             self.cpp_info.components["libjerry-core"].requires.append("libjerry-math")
 
         if Version(self.version) < "2.4.0":
-            self.cpp_info.components["libjerry-port-default-minimal"].set_property(
-                "pkg_config_name", "libjerry-port-default-minimal"
-            )
+            self.cpp_info.components["libjerry-port-default-minimal"].set_property("pkg_config_name", "libjerry-port-default-minimal")
             self.cpp_info.components["libjerry-port-default-minimal"].libs = ["jerry-port-default-minimal"]
             self.cpp_info.components["libjerry-port-default"].requires.append("libjerry-port-default-minimal")
 

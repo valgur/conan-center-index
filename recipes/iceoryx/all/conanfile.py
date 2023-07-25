@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 import textwrap
 
@@ -18,9 +16,10 @@ from conan.tools.files import (
     rmdir,
     save,
 )
+from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.52.0"
 
 
 class IceoryxConan(ConanFile):
@@ -46,6 +45,7 @@ class IceoryxConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -60,9 +60,9 @@ class IceoryxConan(ConanFile):
 
     def requirements(self):
         if self.options.toml_config:
-            self.requires("cpptoml/0.1.1")
+            self.requires("cpptoml/0.1.1", transitive_headers=True)
         if self.settings.os == "Linux":
-            self.requires("acl/2.3.1")
+            self.requires("acl/2.3.1", transitive_headers=True)
 
     def validate(self):
         compiler = self.settings.compiler
@@ -71,11 +71,8 @@ class IceoryxConan(ConanFile):
         if compiler.get_safe("cppstd"):
             check_min_cppstd(self, 14)
 
-        if compiler == "Visual Studio":
-            if version < "16":
-                raise ConanInvalidConfiguration(
-                    "Iceoryx is just supported for Visual Studio 2019 and higher."
-                )
+        if is_msvc(self):
+            check_min_vs(self, 192)
             if self.options.shared:
                 raise ConanInvalidConfiguration(
                     'Using Iceoryx with Visual Studio currently just possible with "shared=False"'
@@ -103,7 +100,7 @@ class IceoryxConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "2.0.0":
-            self.tool_requires("cmake/3.16.2")
+            self.tool_requires("cmake/[>=3.16]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -115,6 +112,7 @@ class IceoryxConan(ConanFile):
             tc.variables["DOWNLOAD_TOML_LIB"] = False
         tc.generate()
         tc = CMakeDeps(self)
+        tc.set_property("cpptoml", "cmake_target_name", "cpptoml")
         tc.generate()
 
     def _patch_sources(self):
@@ -126,14 +124,13 @@ class IceoryxConan(ConanFile):
             os.path.join("iceoryx_posh", "CMakeLists.txt"),
             os.path.join(iceoryx_utils, "CMakeLists.txt"),
         ]:
-            replace_in_file(
-                self, os.path.join(self.source_folder, cmake_file), "POSITION_INDEPENDENT_CODE ON", ""
-            )
+            replace_in_file(self, os.path.join(self.source_folder, cmake_file),
+                            "POSITION_INDEPENDENT_CODE ON", "")
 
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder="iceoryx_meta")
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
@@ -144,35 +141,25 @@ class IceoryxConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if self.options.toml_config:
             mkdir(self, os.path.join(self.package_folder, "res"))
-            rename(
-                self,
-                os.path.join(self.package_folder, "etc", "roudi_config_example.toml"),
-                os.path.join(self.package_folder, "res", "roudi_config.toml"),
-            )
+            rename(self, os.path.join(self.package_folder, "etc", "roudi_config_example.toml"),
+                         os.path.join(self.package_folder, "res", "roudi_config.toml"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
         # bring to default package structure
         if Version(self.version) >= "2.0.0":
             include_paths = ["iceoryx_binding_c", "iceoryx_hoofs", "iceoryx_posh", "iceoryx_versions.hpp"]
             for include_path in include_paths:
-                rename(
-                    self,
-                    os.path.join(
-                        self.package_folder, "include", "iceoryx", "v{}".format(self.version), include_path
-                    ),
-                    os.path.join(self.package_folder, "include", include_path),
-                )
+                rename(self, os.path.join(self.package_folder, "include", "iceoryx", f"v{self.version}", include_path),
+                             os.path.join(self.package_folder, "include", include_path))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         if Version(self.version) >= "2.0.0":
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {v["target"]: f"iceoryx::{k}" for k, v in self._iceoryx_components["2.0.0"].items()},
-            )
+                {v["target"]: f"iceoryx::{k}" for k, v in self._iceoryx_components["2.0.0"].items()})
         else:
             self._create_cmake_module_alias_targets(
                 os.path.join(self.package_folder, self._module_file_rel_path),
-                {v["target"]: f"iceoryx::{k}" for k, v in self._iceoryx_components["1.0.X"].items()},
-            )
+                {v["target"]: f"iceoryx::{k}" for k, v in self._iceoryx_components["1.0.X"].items()})
 
     @property
     def _iceoryx_components(self):
@@ -310,9 +297,7 @@ class IceoryxConan(ConanFile):
                 self.cpp_info.components[lib_name].system_libs = system_libs
                 self.cpp_info.components[lib_name].requires = requires
                 # TODO: to remove in conan v2 once cmake_find_package* generators removed
-                self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [
-                    self._module_file_rel_path
-                ]
+                self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
                 self.cpp_info.components[lib_name].build_modules["cmake_find_package_multi"] = [
                     self._module_file_rel_path
                 ]

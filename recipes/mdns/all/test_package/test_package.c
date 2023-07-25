@@ -1,28 +1,28 @@
 
 #ifdef _WIN32
-#define _CRT_SECURE_NO_WARNINGS 1
+#  define _CRT_SECURE_NO_WARNINGS 1
 #endif
 
 #include "mdns.h"
 
-#include <errno.h>
 #include <stdio.h>
+#include <errno.h>
 
 #ifdef _WIN32
-#include <iphlpapi.h>
-#define sleep(x) Sleep(x * 1000)
+#  include <iphlpapi.h>
+#  define sleep(x) Sleep(x * 1000)
 #else
-#include <netdb.h>
+#  include <netdb.h>
 #endif
 
 int test() {
 #ifdef _WIN32
-    WORD versionWanted = MAKEWORD(1, 1);
-    WSADATA wsaData;
-    if (WSAStartup(versionWanted, &wsaData)) {
-        printf("Failed to initialize WinSock\n");
-        return -1;
-    }
+	WORD versionWanted = MAKEWORD(1, 1);
+	WSADATA wsaData;
+	if (WSAStartup(versionWanted, &wsaData)) {
+		printf("Failed to initialize WinSock\n");
+		return -1;
+	}
 #endif
 
 	int sock = mdns_socket_open_ipv4(NULL);
@@ -35,7 +35,7 @@ int test() {
 	mdns_socket_close(sock);
 
 #ifdef _WIN32
-    WSACleanup();
+	WSACleanup();
 #endif
 }
 

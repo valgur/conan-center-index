@@ -9,11 +9,6 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
-from conans.errors import ConanInvalidConfiguration
-from conans.model.version import Version
-
-required_conan_version = ">=1.52.0"
-
 
 class ResourcePool(ConanFile):
     name = "resource_pool"

@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -18,7 +16,7 @@ class DatadogOpenTracingConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/DataDog/dd-opentracing-cpp"
-    topics = ("instrumentration", "monitoring", "security", "tracing")
+    topics = ("instrumentation", "monitoring", "security", "tracing")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -36,6 +34,7 @@ class DatadogOpenTracingConan(ConanFile):
         return {
             "gcc": "5",
             "Visual Studio": "15",
+            "msvc": "191",
             "clang": "3.4",
             "apple-clang": "7",
         }
@@ -55,11 +54,11 @@ class DatadogOpenTracingConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("opentracing-cpp/1.6.0")
-        self.requires("zlib/1.2.11")
-        self.requires("libcurl/7.80.0")
-        self.requires("msgpack/3.3.0")
-        self.requires("nlohmann_json/3.10.5")
+        self.requires("opentracing-cpp/1.6.0", transitive_headers=True)
+        self.requires("zlib/1.2.13")
+        self.requires("libcurl/8.1.2")
+        self.requires("msgpack-cxx/6.0.0")
+        self.requires("nlohmann_json/3.11.2")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -116,19 +115,13 @@ class DatadogOpenTracingConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "DataDogOpenTracing"
         self.cpp_info.names["cmake_find_package_multi"] = "DataDogOpenTracing"
         target_suffix = "" if self.options.shared else "-static"
-        self.cpp_info.components["dd_opentracing"].set_property(
-            "cmake_target_name", "dd_opentracing" + target_suffix
-        )
-        self.cpp_info.components["dd_opentracing"].names["cmake_find_package"] = (
-            "dd_opentracing" + target_suffix
-        )
-        self.cpp_info.components["dd_opentracing"].names["cmake_find_package_multi"] = (
-            "dd_opentracing" + target_suffix
-        )
+        self.cpp_info.components["dd_opentracing"].set_property("cmake_target_name", "dd_opentracing" + target_suffix)
+        self.cpp_info.components["dd_opentracing"].names["cmake_find_package"] = "dd_opentracing" + target_suffix
+        self.cpp_info.components["dd_opentracing"].names["cmake_find_package_multi"] = "dd_opentracing" + target_suffix
         self.cpp_info.components["dd_opentracing"].requires = [
             "opentracing-cpp::opentracing-cpp",
             "zlib::zlib",
             "libcurl::libcurl",
-            "msgpack::msgpack",
+            "msgpack-cxx::msgpack-cxx",
             "nlohmann_json::nlohmann_json",
         ]

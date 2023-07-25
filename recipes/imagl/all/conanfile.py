@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -14,7 +12,7 @@ required_conan_version = ">=1.53.0"
 
 class ImaglConan(ConanFile):
     name = "imagl"
-    description = "A lightweight library to load image for OpenGL application."
+    description = "A lightweight library to load images for OpenGL applications."
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Woazim/imaGL"
@@ -40,7 +38,7 @@ class ImaglConan(ConanFile):
         minimum_versions = {
             "gcc": "9",
             "Visual Studio": "16.2",
-            "msvc": "19.22",
+            "msvc": "192.2",
             "clang": "10",
             "apple-clang": "11",
         }
@@ -71,9 +69,9 @@ class ImaglConan(ConanFile):
 
     def requirements(self):
         if self.options.with_png:
-            self.requires("libpng/1.6.37")
+            self.requires("libpng/1.6.40")
         if self._supports_jpeg and self.options.with_jpeg:
-            self.requires("libjpeg/9d")
+            self.requires("libjpeg/9e")
 
     def validate(self):
         if self.settings.compiler.cppstd:

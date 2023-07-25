@@ -17,7 +17,7 @@ class TestPackageConan(ConanFile):
             # Attempting to use @rpath without CMAKE_SHARED_LIBRARY_RUNTIME_C_FLAG being
             # set. This could be because you are using a Mac OS X version less than 10.5
             # or because CMake's platform configuration is corrupt.
-            self.build_requires("cmake/3.20.1")
+            self.build_requires("cmake/[>=3.20]")
 
     def layout(self):
         cmake_layout(self)
@@ -28,12 +28,9 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if can_run(self):
-            return
-
-        bin_path = os.path.join("bin", "test_package")
-        old_path = os.path.join(self.source_folder, "old")
-        patch_path = os.path.join(self.source_folder, "patch")
-        patched_path = os.path.join(self.build_folder, "patched")
-
-        self.run(f"{bin_path} {old_path} {patch_path} {patched_path}", run_environment=True)
+        if not can_run(self):
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
+            old_path = os.path.join(self.source_folder, "old")
+            patch_path = os.path.join(self.source_folder, "patch")
+            patched_path = os.path.join(self.build_folder, "patched")
+            self.run(f"{bin_path} {old_path} {patch_path} {patched_path}", env="conanrun")

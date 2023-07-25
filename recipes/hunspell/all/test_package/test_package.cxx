@@ -1,11 +1,8 @@
 #include <hunspell/hunspell.h>
 #include <stddef.h>
 
-int main(int argc, char const *argv[]) {
-    (void)argc;
-    (void)argv;
-
+int main()
+{
     Hunspell_destroy(NULL);
-
     return 0;
 }

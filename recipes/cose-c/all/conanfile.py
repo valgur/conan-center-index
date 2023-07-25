@@ -1,17 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, rename
 
 required_conan_version = ">=1.53.0"
 
@@ -53,12 +44,12 @@ class CoseCConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cn-cbor/1.0.0")
+        self.requires("cn-cbor/1.0.0", transitive_headers=True)
 
         if self.options.with_ssl == "mbedtls":
-            self.requires("mbedtls/2.23.0")
+            self.requires("mbedtls/2.25.0", transitive_headers=True)
         else:
-            self.requires("openssl/1.1.1h")
+            self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -89,6 +80,8 @@ class CoseCConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        for dll in (self.package_path / "lib").glob("*.dll"):
+            rename(self, dll, self.package_path / "bin" / dll.name)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

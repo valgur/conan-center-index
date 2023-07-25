@@ -10,22 +10,21 @@ required_conan_version = ">=1.53.0"
 class GiflibConan(ConanFile):
     name = "giflib"
     description = "A library and utilities for reading and writing GIF images."
-    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
+    license = "MIT"
     homepage = "http://giflib.sourceforge.net"
     topics = ("gif", "image", "multimedia", "format", "graphics")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "utils": [True, False],
+        "utils" : [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "utils": True,
+        "utils" : True,
     }
 
     def export_sources(self):

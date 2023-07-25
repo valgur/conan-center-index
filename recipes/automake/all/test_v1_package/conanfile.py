@@ -22,10 +22,8 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         self.build_requires(self.tested_reference_str)
-        if self._settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
+        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+            self.build_requires("msys2/cci.latest")
 
     @contextmanager
     def _build_context(self):
@@ -49,7 +47,7 @@ class TestPackageConan(ConanFile):
         if not system_cc:
             system_cc = self._default_cc.get(str(self.settings.compiler))
         return system_cc
-
+    
     @property
     def _user_info(self):
         return getattr(self, "user_info_build", self.deps_user_info)

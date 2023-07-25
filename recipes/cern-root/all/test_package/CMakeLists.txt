@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package CXX)
 
+set(CMAKE_CXX_STANDARD 11)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY bin)
 
@@ -14,4 +16,3 @@ target_link_libraries(Event PRIVATE ROOT::ROOT)
 
 add_executable(testrootdictionaries testrootdictionaries.cpp)
 target_link_libraries(testrootdictionaries PRIVATE Event ROOT::ROOT)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

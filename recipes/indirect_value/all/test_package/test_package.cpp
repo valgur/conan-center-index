@@ -2,7 +2,8 @@
 
 using namespace isocpp_p1950;
 
-int main() {
+int main()
+{
     indirect_value<int> result{new int(EXIT_SUCCESS)};
     return *result;
 }

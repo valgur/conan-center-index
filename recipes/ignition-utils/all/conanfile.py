@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 import textwrap
 
@@ -42,6 +40,7 @@ class IgnitionUitlsConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "Visual Studio": "16",
+            "msvc": "192",
             "gcc": "7",
             "clang": "5",
             "apple-clang": "10",
@@ -62,9 +61,9 @@ class IgnitionUitlsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("doxygen/1.9.2")
+        self.requires("doxygen/1.9.4")
         if self.options.ign_utils_vendor_cli11:
-            self.requires("cli11/2.1.2")
+            self.requires("cli11/2.3.2")
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
@@ -73,14 +72,12 @@ class IgnitionUitlsConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warning(
-                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
-            )
+            self.output.warning(f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support.")
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    f"{self.name} requires c++17 support. The current compiler"
-                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
+                    f"{self.name} requires c++17 support. "
+                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
     def build_requirements(self):
@@ -114,18 +111,17 @@ class IgnitionUitlsConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cli_header_src = os.path.join(self.source_folder, "cli", "include")
-        if int(Version(self.version).minor) == 0:
+        if Version(self.version) >= "1.3.0":
             cli_header_src = os.path.join(cli_header_src, "ignition", "utils", "cli")
         else:
             cli_header_src = os.path.join(cli_header_src, "external-cli", "ignition", "utils", "cli")
-        copy(
-            self,
-            "*.hpp",
-            src=cli_header_src,
-            dst=os.path.join(self.package_folder, "include/ignition/utils1/ignition/utils/cli"),
-        )
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include/ignition/utils1/ignition/utils/cli"),
+             src=cli_header_src)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -137,8 +133,8 @@ class IgnitionUitlsConan(ConanFile):
             rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"), recursive=True)
 
         self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version)
-        )
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            Version(self.version))
 
     @property
     def _module_file_rel_path(self):
@@ -147,44 +143,38 @@ class IgnitionUitlsConan(ConanFile):
     def package_info(self):
         version_major = Version(self.version).major
         lib_name = f"ignition-utils{version_major}"
+        self.cpp_info.set_property("cmake_file_name", lib_name)
+        self.cpp_info.set_property("cmake_target_name", f"{lib_name}::{lib_name}")
         build_dirs = os.path.join(self.package_folder, "lib", "cmake")
         include_dir = os.path.join("include", "ignition", "utils" + version_major)
-        self.cpp_info.set_property("cmake_file_name", lib_name)
-        self.cpp_info.set_property("cmake_target_name", lib_name)
+
+        main_component = self.cpp_info.components[lib_name]
+        main_component.libs = [lib_name]
+        main_component.includedirs.append(include_dir)
+        main_component.requires = ["doxygen::doxygen"]
+        if self.options.ign_utils_vendor_cli11:
+            main_component.requires.append("cli11::cli11")
+
+        cli_component = self.cpp_info.components["cli"]
+        cli_component.includedirs.append(os.path.join(include_dir, "ignition", "utils"))
+        if self.options.ign_utils_vendor_cli11:
+            cli_component.requires.append("cli11::cli11")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = lib_name
         self.cpp_info.names["cmake_find_package_multi"] = lib_name
         self.cpp_info.names["cmake_paths"] = lib_name
-
-        self.cpp_info.components[lib_name].set_property("cmake_target_name", lib_name)
-        self.cpp_info.components[lib_name].names["cmake_find_package"] = lib_name
-        self.cpp_info.components[lib_name].names["cmake_find_package_multi"] = lib_name
-        self.cpp_info.components[lib_name].names["cmake_paths"] = lib_name
-        self.cpp_info.components[lib_name].libs = [lib_name]
-        self.cpp_info.components[lib_name].includedirs.append(include_dir)
-        self.cpp_info.components[lib_name].requires = ["doxygen::doxygen"]
-        if self.options.ign_utils_vendor_cli11:
-            self.cpp_info.components[lib_name].requires.append("cli11::cli11")
-
-        self.cpp_info.components[lib_name].builddirs.append(build_dirs)
-        self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components[lib_name].build_modules["cmake_find_package_multi"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components[lib_name].build_modules["cmake_paths"] = [self._module_file_rel_path]
-
-        self.cpp_info.components["cli"].set_property("cmake_target_name", "cli")
-        self.cpp_info.components["cli"].names["cmake_find_package"] = "cli"
-        self.cpp_info.components["cli"].names["cmake_find_package_multi"] = "cli"
-        self.cpp_info.components["cli"].names["cmake_paths"] = "cli"
-        self.cpp_info.components["cli"].includedirs.append(os.path.join(include_dir, "ignition", "utils"))
-        if self.options.ign_utils_vendor_cli11:
-            self.cpp_info.components["cli"].requires = ["cli11::cli11"]
-
-        self.cpp_info.components["cli"].builddirs.append(build_dirs)
-        self.cpp_info.components["cli"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["cli"].build_modules["cmake_find_package_multi"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components["cli"].build_modules["cmake_paths"] = [self._module_file_rel_path]
+        main_component.names["cmake_find_package"] = lib_name
+        main_component.names["cmake_find_package_multi"] = lib_name
+        main_component.names["cmake_paths"] = lib_name
+        main_component.builddirs.append(build_dirs)
+        main_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        main_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        main_component.build_modules["cmake_paths"] = [self._module_file_rel_path]
+        cli_component.names["cmake_find_package"] = "cli"
+        cli_component.names["cmake_find_package_multi"] = "cli"
+        cli_component.names["cmake_paths"] = "cli"
+        cli_component.builddirs.append(build_dirs)
+        cli_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        cli_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        cli_component.build_modules["cmake_paths"] = [self._module_file_rel_path]

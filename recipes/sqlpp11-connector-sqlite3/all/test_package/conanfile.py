@@ -17,6 +17,9 @@ class TestPackageConan(ConanFile):
     def layout(self):
         cmake_layout(self)
 
+    def validate(self):
+        self._with_sqlcipher = self.dependencies["sqlpp11-connector-sqlite3"].options.with_sqlcipher
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
@@ -32,8 +35,8 @@ class TestPackageConan(ConanFile):
             try:
                 cursor.execute("select * from tab_sample")
             except sqlite3.DatabaseError:
-                assert self.options["sqlpp11-connector-sqlite3"].with_sqlcipher
+                assert self._with_sqlcipher
                 self.output.info("database is encrypted with sqlcipher")
                 return
-            assert not self.options["sqlpp11-connector-sqlite3"].with_sqlcipher
+            assert not self._with_sqlcipher
             self.output.info("database is not encrypted")

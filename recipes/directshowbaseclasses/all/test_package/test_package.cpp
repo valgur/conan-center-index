@@ -1,10 +1,11 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <streams.h>
 #include <windows.h>
+#include <streams.h>
 
-int main() {
+int main()
+{
     BITMAPINFOHEADER bh;
     memset(&bh, 0, sizeof(BITMAPINFOHEADER));
     bh.biSize = sizeof(BITMAPINFOHEADER);

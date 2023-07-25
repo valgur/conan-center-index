@@ -5,4 +5,3 @@ find_package(SPIRV-Headers REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(${PROJECT_NAME} SPIRV-Headers::SPIRV-Headers)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

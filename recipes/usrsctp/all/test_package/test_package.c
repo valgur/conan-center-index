@@ -1,6 +1,7 @@
 #include <usrsctp.h>
 
-int main() {
-    usrsctp_finish();
-    return 0;
+int main(int argc, char **argv)
+{
+  usrsctp_finish();
+  return 0;
 }

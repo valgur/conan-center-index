@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.apple import is_apple_os
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 
 required_conan_version = ">=1.53.0"
@@ -50,25 +48,26 @@ class ConanRecipe(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
-        copy(self, "README.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "README.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["serial"]
 
-        if self.settings.os == "Linux":
-            self.cpp_info.system_libs = ["rt", "pthread"]
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m", "rt", "pthread"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["setupapi"]
-        elif is_apple_os(self.settings.os):
-            self.cpp_info.frameworks = ["IOKit", "Foundation"]
+        elif self.settings.os == "Macos":
+            self.cpp_info.frameworks = ["IOKit", "Foundation", "CoreFoundation"]

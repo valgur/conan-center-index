@@ -1,7 +1,8 @@
-#include "Magnum/Math/StrictWeakOrdering.h"
 #include "Magnum/Math/Vector.h"
+#include "Magnum/Math/StrictWeakOrdering.h"
 #include <Corrade/PluginManager/Manager.h>
 #include <Magnum/Trade/AbstractImporter.h>
+
 #include <iostream>
 
 #include "configure.h"
@@ -25,13 +26,11 @@ int main() {
     }
 
     // Test some plugin
-    Corrade::PluginManager::Manager<Magnum::Trade::AbstractImporter> manager{
-        IMPORTER_PLUGINS_FOLDER};
+    Corrade::PluginManager::Manager<Magnum::Trade::AbstractImporter> manager{IMPORTER_PLUGINS_FOLDER};
     manager.load("ObjImporter");
     auto importer = manager.instantiate("ObjImporter");
 
-    if (!importer)
-        Magnum::Fatal{} << "Cannot load the ObjImporter plugin";
+    if(!importer) Magnum::Fatal{} << "Cannot load the ObjImporter plugin";
 
     importer->openFile(OBJ_FILE);
     std::cout << "Mesh count: " << importer->meshCount() << "\n";

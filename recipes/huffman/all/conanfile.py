@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, export_conandata_patches, get, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -52,22 +50,22 @@ class HuffmanConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+    def _patch_sources(self):
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "huffman.c"),
+            "#ifdef WIN32",
+            "#if defined _WIN32 || defined __CYGWIN__",
+        )
 
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

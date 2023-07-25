@@ -1,57 +1,14 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
-from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, mkdir, rename, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from contextlib import contextmanager
-import os
-import shutil
 
 required_conan_version = ">=1.53.0"
 
@@ -88,10 +45,10 @@ class CoinCbcConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("coin-utils/2.11.4")
-        self.requires("coin-osi/0.108.6")
-        self.requires("coin-clp/1.17.6")
-        self.requires("coin-cgl/0.60.3")
+        self.requires("coin-utils/2.11.6")
+        self.requires("coin-osi/0.108.7")
+        self.requires("coin-clp/1.17.7")
+        self.requires("coin-cgl/0.60.6")
         if is_msvc(self) and self.options.parallel:
             self.requires("pthreads4w/3.0.0")
 
@@ -116,18 +73,33 @@ class CoinCbcConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args += ["--enable-cbc-parallel={}".format(yes_no(self.options.parallel)), "--without-blas", "--without-lapack"]
+        tc.configure_args += [
+            "--enable-cbc-parallel={}".format(yes_no(self.options.parallel)),
+            "--without-blas",
+            "--without-lapack",
+        ]
         if is_msvc(self):
             tc.cxxflags.append("-EHsc")
             tc.configure_args.append(f"--enable-msvc={msvc_runtime_flag(self)}")
             if Version(self.settings.compiler.version) >= 12:
                 tc.cxxflags.append("-FS")
             if self.options.parallel:
-                pthreads_path = os.path.join(self.dependencies["pthreads4w"].cpp_info.libdirs[0], self.dependencies["pthreads4w"].cpp_info.libs[0] + ".lib")
+                pthreads_path = os.path.join(
+                    self.dependencies["pthreads4w"].cpp_info.libdirs[0],
+                    self.dependencies["pthreads4w"].cpp_info.libs[0] + ".lib"
+                )
                 tc.configure_args.append("--with-pthreadsw32-lib={}".format(unix_path(self, pthreads_path)))
-                tc.configure_args.append("--with-pthreadsw32-incdir={}".format(unix_path(self, self.dependencies["pthreads4w"].cpp_info.includedirs[0])))
+                tc.configure_args.append("--with-pthreadsw32-incdir={}".format(
+                    unix_path(self, self.dependencies["pthreads4w"].cpp_info.includedirs[0]))
+                )
+        tc.generate()
+
+        tc = PkgConfigDeps(self)
         tc.generate()
 
         if is_msvc(self):
@@ -147,8 +119,13 @@ class CoinCbcConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        shutil.copy(self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub"))
-        shutil.copy(self.conf_info.get("user.gnu-config:CONFIG_GUESS"), os.path.join(self.source_folder, "config.guess"))
+        for gnu_config in [
+            self.conf.get("user.gnu-config:config_guess", check_type=str),
+            self.conf.get("user.gnu-config:config_sub", check_type=str),
+        ]:
+            if gnu_config:
+                config_folder = os.path.join(self.source_folder, "config")
+                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=config_folder)
 
     def build(self):
         self._patch_sources()
@@ -176,7 +153,9 @@ class CoinCbcConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["libcbc"].libs = ["CbcSolver", "Cbc"]
         self.cpp_info.components["libcbc"].includedirs.append(os.path.join("include", "coin"))
-        self.cpp_info.components["libcbc"].requires = ["coin-clp::osi-clp", "coin-utils::coin-utils", "coin-osi::coin-osi", "coin-cgl::coin-cgl"]
+        self.cpp_info.components["libcbc"].requires = [
+            "coin-clp::osi-clp", "coin-utils::coin-utils", "coin-osi::coin-osi", "coin-cgl::coin-cgl"
+        ]
         self.cpp_info.components["libcbc"].set_property("pkg_config_name", "cbc")
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.parallel:
             self.cpp_info.components["libcbc"].system_libs.append("pthread")
@@ -187,6 +166,7 @@ class CoinCbcConan(ConanFile):
         self.cpp_info.components["osi-cbc"].requires = ["libcbc"]
         self.cpp_info.components["osi-cbc"].set_property("pkg_config_name", "osi-cbc")
 
+        # TODO: remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

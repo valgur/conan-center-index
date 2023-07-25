@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -66,21 +64,21 @@ class LightPcapNgConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "light_pcapng")
-        self.cpp_info.set_property("cmake_target_name", "light_pcapng")
-        self.cpp_info.components["liblight_pcapng"].set_property("cmake_target_name", "light_pcapng")
-        self.cpp_info.components["liblight_pcapng"].names["cmake_find_package"] = "light_pcapng"
-        self.cpp_info.components["liblight_pcapng"].names["cmake_find_package_multi"] = "light_pcapng"
+        self.cpp_info.set_property("cmake_target_name", "light_pcapng::light_pcapng")
         self.cpp_info.components["liblight_pcapng"].libs = ["light_pcapng"]
-
         if self.options.with_zstd:
             self.cpp_info.components["liblight_pcapng"].requires = ["zstd::zstd"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "light_pcapng"
         self.cpp_info.names["cmake_find_package_multi"] = "light_pcapng"
+        self.cpp_info.components["liblight_pcapng"].names["cmake_find_package"] = "light_pcapng"
+        self.cpp_info.components["liblight_pcapng"].names["cmake_find_package_multi"] = "light_pcapng"

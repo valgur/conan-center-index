@@ -5,3 +5,4 @@ sources:
 patches:
   "0.0.8":
     - patch_file: "patches/clang-8-fix.patch"
+    - patch_file: "patches/cmake-fixes.patch"

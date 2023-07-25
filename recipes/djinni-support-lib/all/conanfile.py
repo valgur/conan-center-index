@@ -1,10 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
 
 required_conan_version = ">=1.53.0"
@@ -36,7 +35,7 @@ class DjinniSuppotLib(ConanFile):
     @property
     def _objc_support(self):
         if self.options.target == "auto":
-            return is_apple_os(self.settings.os)
+            return is_apple_os(self)
         else:
             return self.options.target == "objc"
 
@@ -62,8 +61,8 @@ class DjinniSuppotLib(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if not self.options.system_java:
-            self.build_requires("zulu-openjdk/11.0.8@")
+        if not self.options.system_java and self._jni_support:
+            self.tool_requires("zulu-openjdk/11.0.19")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -77,11 +76,12 @@ class DjinniSuppotLib(ConanFile):
         tc.variables["DJINNI_WITH_JNI"] = self._jni_support
         if self._jni_support:
             tc.variables["JAVA_AWT_LIBRARY"] = "NotNeeded"
-            tc.variables["JAVA_AWT_INCLUDE_PATH"] = "NotNeeded"
+            tc.variables["JAVA_AWT_INCLUDE_PATH"] = self.source_folder
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
+        tc = VirtualBuildEnv(self)
+        tc.generate(scope="build")
 
     def build(self):
         apply_conandata_patches(self)
@@ -92,7 +92,9 @@ class DjinniSuppotLib(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

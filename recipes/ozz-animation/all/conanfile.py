@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile, conan_version
@@ -111,6 +109,10 @@ class OzzAnimationConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -122,11 +124,14 @@ class OzzAnimationConan(ConanFile):
         tc.variables["ozz_build_howtos"] = False
         tc.variables["ozz_build_tests"] = False
         tc.variables["ozz_build_cpp11"] = True
+        tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         for before, after in [
             ('string(REGEX REPLACE "/MT" "/MD" ${flag} "${${flag}}")', ""),
             ('string(REGEX REPLACE "/MD" "/MT" ${flag} "${${flag}}")', ""),
+            ("-Werror", ""),
+            ("/WX", ""),
         ]:
             replace_in_file(
                 self,
@@ -134,7 +139,6 @@ class OzzAnimationConan(ConanFile):
                 before,
                 after,
             )
-
         replace_in_file(
             self,
             os.path.join(self.source_folder, "src", "animation", "offline", "tools", "CMakeLists.txt"),
@@ -142,6 +146,8 @@ class OzzAnimationConan(ConanFile):
             "if(NOT CMAKE_CROSSCOMPILING)",
         )
 
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -153,12 +159,9 @@ class OzzAnimationConan(ConanFile):
         os.remove(os.path.join(self.package_folder, "CHANGES.md"))
         os.remove(os.path.join(self.package_folder, "LICENSE.md"))
         os.remove(os.path.join(self.package_folder, "README.md"))
-        copy(
-            self,
-            pattern="LICENSE.md",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+            src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import glob
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 
@@ -62,10 +60,13 @@ class GetDnsConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        self.options.stub_only = self._stub_only
+        self.options.with_libev = self._with_libev
 
     def configure(self):
         if self.options.shared:
@@ -77,29 +78,25 @@ class GetDnsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1j")
+        self.requires("openssl/[>=1.1 <4]")
         if self._with_libev:
             self.requires("libev/4.33")
         if self.options.with_libevent:
             self.requires("libevent/2.1.12")
         if self.options.with_libuv:
-            self.requires("libuv/1.41.0")
+            self.requires("libuv/1.45.0")
         if self.options.with_libidn2:
             self.requires("libidn2/2.3.0")
         if self.options.tls == "gnutls":
-            self.requires("nettle/3.6")
+            self.requires("nettle/3.8.1")
             # FIXME: missing gnutls recipe
             raise ConanInvalidConfiguration("gnutls is not (yet) available on cci")
         if not self._stub_only:
             # FIXME: missing libunbound recipe
             raise ConanInvalidConfiguration("libunbound is not (yet) available on cci")
 
-    def package_id(self):
-        self.info.options.stub_only = self._stub_only
-        self.info.options.with_libev = self._with_libev
-
     def build_requirements(self):
-        self.build_requires("pkgconf/1.9.3")
+        self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -108,7 +105,7 @@ class GetDnsConan(ConanFile):
         tc = CMakeToolchain(self)
         if self.settings.os == "Windows":
             tc.variables["CMAKE_REQUIRED_LIBRARIES"] = "ws2_32"
-        tc.variables["OPENSSL_USE_STATIC_LIBS"] = not self.options["openssl"].shared
+        tc.variables["OPENSSL_USE_STATIC_LIBS"] = not self.dependencies["openssl"].options.shared
         tc.variables["ENABLE_SHARED"] = self.options.shared
         tc.variables["ENABLE_STATIC"] = not self.options.shared
         tc.variables["ENABLE_STUB_ONLY"] = self._stub_only
@@ -120,19 +117,23 @@ class GetDnsConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
         tc = CMakeDeps(self)
+        tc.set_property("libidn2::libidn2", "cmake_target_name", "Libidn2::Libidn2")
         tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         apply_conandata_patches(self)
+
+    def build(self):
+        self._patch_sources()
         # Use FindOpenSSL.cmake to let check_function_exists succeed
         # Remove other cmake modules as they use FindPkgConfig
         for fn in glob.glob("Find*cmake"):
             if "OpenSSL" not in fn:
                 os.unlink(fn)
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):

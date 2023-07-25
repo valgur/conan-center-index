@@ -1,92 +1,14 @@
-# Warnings:
-#   Disallowed attribute '_source_subfolder = 'source_subfolder''
-#   Disallowed attribute '_build_subfolder = 'build_subfolder''
-#   Disallowed attribute 'generators = 'pkg_config''
-#   Unexpected method '_configure_meson'
-
-# TODO: verify the Conan v2 migration
-
 import os
-from contextlib import nullcontext
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import copy, get, replace_in_file, rm, rmdir
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
-import shutil
-import glob
 
 required_conan_version = ">=1.47.0"
 
@@ -94,8 +16,7 @@ required_conan_version = ">=1.47.0"
 class GobjectIntrospectionConan(ConanFile):
     name = "gobject-introspection"
     description = (
-        "GObject introspection is a middleware layer between "
-        "C libraries (using GObject) and language bindings"
+        "GObject introspection is a middleware layer between C libraries (using GObject) and language bindings"
     )
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
@@ -117,9 +38,7 @@ class GobjectIntrospectionConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                f"{self.name} recipe does not support windows. Contributions are welcome!"
-            )
+            raise ConanInvalidConfiguration(f"{self.name} recipe does not support windows. Contributions are welcome!")
 
     def configure(self):
         if self.options.shared:
@@ -131,42 +50,44 @@ class GobjectIntrospectionConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.73.0")
+        self.requires("glib/2.76.3")
 
     def build_requirements(self):
         if Version(self.version) >= "1.71.0":
-            self.build_requires("meson/0.62.2")
+            self.tool_requires("meson/1.1.1")
         else:
             # https://gitlab.gnome.org/GNOME/gobject-introspection/-/issues/414
-            self.build_requires("meson/0.59.3")
-        self.build_requires("pkgconf/1.9.3")
+            self.tool_requires("meson/0.59.3")
+        self.build_requires("pkgconf/1.7.4")
         if self.settings.os == "Windows":
-            self.build_requires("winflexbison/2.5.24")
+            self.tool_requires("winflexbison/2.5.24")
         else:
-            self.build_requires("flex/2.6.4")
-            self.build_requires("bison/3.7.6")
+            self.tool_requires("flex/2.6.4")
+            self.tool_requires("bison/3.8.2")
+        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            self.tool_requires("pkgconf/1.9.3")
+        if hasattr(self, "settings_build") and cross_building(self):
+            self.tool_requires("glib/2.76.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _configure_meson(self):
-        meson = Meson(self)
-        defs = dict()
-        defs["build_introspection_data"] = self.options["glib"].shared
-        defs["datadir"] = os.path.join(self.package_folder, "res")
+    def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+        if not cross_building(self):
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
+        tc = MesonToolchain(self)
+        tc.args = ["--wrap-mode=nofallback"]
+        tc.project_options["build_introspection_data"] = self.dependencies["glib"].options.shared
+        tc.project_options["datadir"] = os.path.join(self.package_folder, "res")
+        tc.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
-        meson.configure(
-            source_folder=self.source_folder,
-            args=["--wrap-mode=nofallback"],
-            build_folder=self._build_subfolder,
-            defs=defs,
-        )
-        return meson
-
-    def build(self):
-        replace_in_file(
-            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
-        )
+    def _patch_sources(self):
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')")
         replace_in_file(
             self,
             os.path.join(self.source_folder, "meson.build"),
@@ -174,41 +95,24 @@ class GobjectIntrospectionConan(ConanFile):
             "if false",
         )
 
-        with environment_append(
-            self,
-            (
-                VisualStudioBuildEnvironment(self).vars
-                if is_msvc(self)
-                else {"PKG_CONFIG_PATH": self.build_folder}
-            ),
-        ):
-            meson = self._configure_meson()
-            meson.build()
+    def build(self):
+        self._patch_sources()
+        meson = Meson(self)
+        meson.configure()
+        meson.build()
 
     def package(self):
-        copy(
-            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        with (
-            environment_append(self, VisualStudioBuildEnvironment(self).vars)
-            if is_msvc(self)
-            else nullcontext()
-        ):
-            meson = self._configure_meson()
-            meson.install()
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        meson = Meson(self)
+        meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        for pdb_file in glob.glob(os.path.join(self.package_folder, "bin", "*.pdb")):
-            os.unlink(pdb_file)
+        rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "gobject-introspection-1.0")
         self.cpp_info.libs = ["girepository-1.0"]
         self.cpp_info.includedirs.append(os.path.join("include", "gobject-introspection-1.0"))
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH env var with: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)
 
         exe_ext = ".exe" if self.settings.os == "Windows" else ""
 
@@ -224,5 +128,10 @@ class GobjectIntrospectionConan(ConanFile):
         }
         self.cpp_info.set_property(
             "pkg_config_custom_content",
-            "\n".join("%s=%s" % (key, value) for key, value in pkgconfig_variables.items()),
+            "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
         )
+
+        # TODO: remove in conan v2
+        bin_path = os.path.join(self.package_folder, "bin")
+        self.output.info(f"Appending PATH env var with: {bin_path}")
+        self.env_info.PATH.append(bin_path)

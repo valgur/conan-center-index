@@ -9,11 +9,11 @@ using namespace unifex;
 using namespace std::chrono_literals;
 
 int main() {
-    timed_single_thread_context context;
-    auto scheduler = context.get_scheduler();
+  timed_single_thread_context context;
+  auto scheduler = context.get_scheduler();
 
-    int count = 0;
-    sync_wait(then(schedule_after(scheduler, 200ms), [&] { ++count; }));
+  int count = 0;
+  sync_wait(then(schedule_after(scheduler, 200ms), [&] { ++count; }));
 
-    return !(count == 1);
+  return !(count == 1);
 }

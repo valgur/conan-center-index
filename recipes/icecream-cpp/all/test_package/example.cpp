@@ -1,3 +1,5 @@
 #include "icecream.hpp"
 
-int main() { IC(); }
+int main() {
+    IC();
+}

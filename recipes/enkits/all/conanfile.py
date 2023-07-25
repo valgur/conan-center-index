@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, export_conandata_patches, get, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -52,22 +50,22 @@ class EnkiTSConan(ConanFile):
         tc.variables["ENKITS_BUILD_SHARED"] = self.options.shared
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+    def _patch_sources(self):
+        replace_in_file(
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            'install(TARGETS enkiTS DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/enkiTS")',
+            "install(TARGETS enkiTS ARCHIVE LIBRARY RUNTIME)",
+        )
 
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="License.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "License.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

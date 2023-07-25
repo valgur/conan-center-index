@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get
+from conan.tools.files import copy, get, rename
 
 required_conan_version = ">=1.53.0"
 
@@ -14,7 +12,7 @@ class QDBMConan(ConanFile):
     description = "QDBM is a library of routines for managing a database."
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://fallabs.com/qdbm/"
+    homepage = "https://dbmx.net/qdbm/"
     topics = ("database", "db")
 
     package_type = "library"
@@ -53,9 +51,9 @@ class QDBMConan(ConanFile):
 
     def requirements(self):
         if self.options.with_iconv:
-            self.requires("libiconv/1.16")
+            self.requires("libiconv/1.17")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.12")
+            self.requires("zlib/1.2.13")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -67,19 +65,20 @@ class QDBMConan(ConanFile):
         tc.variables["MYZLIB"] = self.options.with_zlib
         tc.variables["MYPTHREAD"] = self.options.get_safe("with_pthread", False)
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        for dll in (self.package_path / "lib").glob("*.dll"):
+            rename(self, dll, self.package_path / "bin" / dll.name)
 
     def package_info(self):
         self.cpp_info.libs = ["qdbm"]

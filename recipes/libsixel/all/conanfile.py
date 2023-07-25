@@ -130,27 +130,27 @@ class LibSixelConan(ConanFile):
 
     def requirements(self):
         if self.options.with_curl:
-            self.requires("libcurl/7.83.1")
+            self.requires("libcurl/8.1.2")
         if self.options.with_gd:
-            self.requires("libgd/2.3.2")
+            self.requires("libgd/2.3.3")
         if self.options.with_gdk_pixbuf2:
-            self.requires("gdk-pixbuf/2.42.6")
+            self.requires("gdk-pixbuf/2.42.10")
         if self.options.with_jpeg:
-            self.requires("libjpeg/9d")
+            self.requires("libjpeg/9e")
         if self.options.with_png:
-            self.requires("libpng/1.6.37")
+            self.requires("libpng/1.6.40")
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("Cross-building not implemented")
         if is_msvc(self):
             raise ConanInvalidConfiguration(
-                "{}/{} does not support Visual Studio".format(self.name, self.version)
+                f"{self.ref} does not support Visual Studio"
             )
 
     def build_requirements(self):
-        self.build_requires("meson/0.62.2")
-        self.build_requires("pkgconf/1.9.3")
+        self.tool_requires("meson/1.1.1")
+        self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -164,17 +164,20 @@ class LibSixelConan(ConanFile):
             "img2sixel": "disabled",
             "sixel2png": "disabled",
             "python2": "disabled",
+            "libdir": "lib",
         }
+        tc.generate()
+        tc = PkgConfigDeps(self)
         tc.generate()
 
     def build(self):
-        meson = Meson()
+        meson = Meson(self)
         meson.configure()
         meson.build()
 
     def package(self):
         copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        meson = Meson()
+        meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

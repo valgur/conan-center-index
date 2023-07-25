@@ -1,18 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    export_conandata_patches,
-    get,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir
 
 required_conan_version = ">=1.53.0"
 
@@ -33,7 +23,7 @@ class FltkConan(ConanFile):
         "with_gl": [True, False],
         "with_threads": [True, False],
         "with_gdiplus": [True, False],
-        "abi_version": "ANY",
+        "abi_version": ["ANY"],
     }
     default_options = {
         "shared": False,
@@ -51,6 +41,7 @@ class FltkConan(ConanFile):
             del self.options.fPIC
         else:
             self.options.rm_safe("with_gdiplus")
+
         if self.options.abi_version == None:
             _version_token = self.version.split(".")
             _version_major = int(_version_token[0])
@@ -72,10 +63,10 @@ class FltkConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.12")
-        self.requires("libjpeg/9d")
-        self.requires("libpng/1.6.37")
-        if self.settings.os == "Linux":
+        self.requires("zlib/1.2.13")
+        self.requires("libjpeg/9e")
+        self.requires("libpng/1.6.40")
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("opengl/system")
             self.requires("glu/system")
             self.requires("fontconfig/2.13.93")
@@ -96,21 +87,17 @@ class FltkConan(ConanFile):
         if self.options.abi_version:
             tc.variables["OPTION_ABI_VERSION"] = self.options.abi_version
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
-
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -121,13 +108,10 @@ class FltkConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fltk")
         self.cpp_info.set_property("cmake_target_name", "fltk::fltk")
-
-        self.cpp_info.names["cmake_find_package"] = "fltk"
-        self.cpp_info.names["cmake_find_package_multi"] = "fltk"
+        self.cpp_info.libs = collect_libs(self)
 
         if self.options.shared and self.settings.os == "Windows":
             self.cpp_info.defines.append("FL_DLL")
-        self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ("Linux", "FreeBSD"):
             if self.options.with_threads:
                 self.cpp_info.system_libs.extend(["pthread", "dl"])
@@ -139,3 +123,7 @@ class FltkConan(ConanFile):
             self.cpp_info.system_libs = ["gdi32", "imm32", "msimg32", "ole32", "oleaut32", "uuid"]
             if self.options.get_safe("with_gdiplus"):
                 self.cpp_info.system_libs.append("gdiplus")
+
+        # TODO: to remove in conan v2 once legacy generators removed
+        self.cpp_info.names["cmake_find_package"] = "fltk"
+        self.cpp_info.names["cmake_find_package_multi"] = "fltk"

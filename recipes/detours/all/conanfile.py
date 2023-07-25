@@ -1,13 +1,11 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import chdir, copy, get, replace_in_file
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, VCVars
 
 required_conan_version = ">=1.53.0"
 
@@ -20,7 +18,7 @@ class DetoursConan(ConanFile):
     homepage = "https://github.com/antlr/antlr4/tree/master/runtime/Cpp"
     topics = ("monitoror", "instrumenting", "hook", "injection")
 
-    package_type = "library"
+    package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -41,8 +39,6 @@ class DetoursConan(ConanFile):
     def validate(self):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("Only os=Windows is supported")
-        # if not is_msvc(self):
-        #     raise ConanInvalidConfiguration("Only the MSVC compiler is supported")
         if is_msvc(self) and not is_msvc_static_runtime(self):
             # Debug and/or dynamic runtime is undesired for a hooking library
             raise ConanInvalidConfiguration("Only static runtime is supported (MT)")
@@ -57,11 +53,12 @@ class DetoursConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = CMakeToolchain(self)
-        tc.generate()
-
-        tc = CMakeDeps(self)
-        tc.generate()
+        if is_msvc(self):
+            vcvars = VCVars(self)
+            vcvars.generate()
+        else:
+            tc = CMakeToolchain(self)
+            tc.generate()
 
     def _patch_sources(self):
         if is_msvc(self):
@@ -75,9 +72,8 @@ class DetoursConan(ConanFile):
     def build(self):
         self._patch_sources()
         if is_msvc(self):
-            with vcvars(self):
-                with chdir(self, os.path.join(self.source_folder, "src")):
-                    self.run(f"nmake DETOURS_TARGET_PROCESSOR={self._target_processor}")
+            with chdir(self, os.path.join(self.source_folder, "src")):
+                self.run(f"nmake DETOURS_TARGET_PROCESSOR={self._target_processor}")
         else:
             cmake = CMake(self)
             cmake.configure(build_script_folder=self.source_path.parent)
@@ -86,18 +82,12 @@ class DetoursConan(ConanFile):
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                "detours.lib",
+            copy(self, "detours.lib",
                 src=os.path.join(self.source_folder, f"lib.{self._target_processor}"),
-                dst=os.path.join(self.package_folder, "lib"),
-            )
-            copy(
-                self,
-                "*.h",
+                dst=os.path.join(self.package_folder, "lib"))
+            copy(self, "*.h",
                 src=os.path.join(self.source_folder, "include"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
+                dst=os.path.join(self.package_folder, "include"))
         else:
             cmake = CMake(self)
             cmake.install()

@@ -1,96 +1,12 @@
-# Warnings:
-#   Unexpected method '_is_msvc'
-#   Unexpected method '_is_debug'
-#   Unexpected method '_patch_msvc'
-#   Unexpected method '_build_msvc'
-#   Unexpected method '_configure_autotools'
-#   Unexpected method '_patch_unix'
-#   Unexpected method '_package_msvc'
-#   Unexpected method '_remove'
-#   Unexpected method '_package_unix'
-#   Missing required method 'generate'
-
-# TODO: verify the Conan v2 migration
-
-import functools
 import os
 import stat
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 
 required_conan_version = ">=1.53.0"
 
@@ -137,7 +53,7 @@ class NetSnmpConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1m")
+        self.requires("openssl/1.0.2u")
 
     def validate(self):
         if self.settings.os == "Windows" and not is_msvc(self):
@@ -145,7 +61,7 @@ class NetSnmpConan(ConanFile):
 
     def build_requirements(self):
         if is_msvc(self):
-            self.build_requires("strawberryperl/5.30.0.1")
+            self.tool_requires("strawberryperl/5.32.1.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -153,6 +69,31 @@ class NetSnmpConan(ConanFile):
     @property
     def _is_debug(self):
         return self.settings.build_type == "Debug"
+
+    def generate(self):
+        disabled_link_type = "static" if self.options.shared else "shared"
+        debug_flag = "enable" if self._is_debug else "disable"
+        ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
+        ssl_path = self.dependencies["openssl"].package_folder
+        tc = AutotoolsToolchain(self)
+        tc.configure_args += [
+            "--with-defaults",
+            "--without-rpm",
+            "--without-pcre",
+            "--disable-agent",
+            "--disable-applications",
+            "--disable-manuals",
+            "--disable-scripts",
+            "--disable-mibs",
+            "--disable-embedded-perl",
+            f"--disable-{disabled_link_type}",
+            f"--{debug_flag}-debugging",
+            f"--{ipv6_flag}-ipv6",
+            f"--with-openssl={ssl_path}",
+        ]
+        tc.generate()
+        tc = AutotoolsDeps(self)
+        tc.generate()
 
     def _patch_msvc(self):
         ssl_info = self.dependencies["openssl"]
@@ -184,65 +125,58 @@ class NetSnmpConan(ConanFile):
             self._patch_msvc()
             self.run("perl build.pl", cwd="win32")
         if self.should_build:
-            with vcvars(self):
-                self.run("nmake /nologo libsnmp", cwd="win32")
-
-    def generate(self):
-        disabled_link_type = "static" if self.options.shared else "shared"
-        debug_flag = "enable" if self._is_debug else "disable"
-        ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
-        ssl_path = self.dependencies["openssl"].package_folder
-        tc = AutotoolsToolchain(self)
-        tc.configure_args += [
-            "--with-defaults",
-            "--without-rpm",
-            "--without-pcre",
-            "--disable-agent",
-            "--disable-applications",
-            "--disable-manuals",
-            "--disable-scripts",
-            "--disable-mibs",
-            "--disable-embedded-perl",
-            f"--disable-{disabled_link_type}",
-            f"--{debug_flag}-debugging",
-            f"--{ipv6_flag}-ipv6",
-            f"--with-openssl={ssl_path}",
-        ]
-        tc.generate()
+            autotools = Autotools(self)
+            autotools.make(target="snmplib", args=["NOAUTODEPS=1"])
 
     def _patch_unix(self):
-        replace_in_file(self, "configure", "-install_name \\$rpath/", "-install_name @rpath/")
+        configure_path = os.path.join(self.source_folder, "configure")
+        replace_in_file(self, configure_path,
+                        "-install_name \\$rpath/",
+                        "-install_name @rpath/")
         crypto_libs = self.dependencies["openssl"].cpp_info.system_libs
         if len(crypto_libs) != 0:
             crypto_link_flags = " -l".join(crypto_libs)
-            replace_in_file(
-                self,
-                "configure",
+            replace_in_file(self, configure_path,
                 'LIBCRYPTO="-l${CRYPTO}"',
-                'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,),
-            )
-            replace_in_file(
-                self, "configure", 'LIBS="-lcrypto  $LIBS"', f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"'
-            )
+                'LIBCRYPTO="-l${CRYPTO} -l%s"' % (crypto_link_flags,))
+            replace_in_file(self, configure_path,
+                            'LIBS="-lcrypto  $LIBS"',
+                            f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"')
+
+    def _build_unix(self):
+        self._patch_unix()
+        configure_path = os.path.join(self.source_folder, "configure")
+        os.chmod(configure_path, os.stat(configure_path).st_mode | stat.S_IEXEC)
+        autotools = Autotools(self)
+        autotools.autoreconf()
+        autotools.configure()
+        autotools.make(target="snmplib", args=["NOAUTODEPS=1"])
 
     def build(self):
         apply_conandata_patches(self)
         if is_msvc(self):
             self._build_msvc()
         else:
-            self._patch_unix()
-            os.chmod("configure", os.stat("configure").st_mode | stat.S_IEXEC)
-            autotools = Autotools(self)
-            autotools.make(target="snmplib", args=["NOAUTODEPS=1"])
+            self._build_unix()
 
     def _package_msvc(self):
         cfg = "debug" if self._is_debug else "release"
-        copy(self, "netsnmp.dll", "bin", rf"win32\bin\{cfg}")
-        copy(self, "netsnmp.lib", "lib", rf"win32\lib\{cfg}")
-        copy(self, "include/net-snmp/*.h")
+        copy(self, "netsnmp.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=os.path.join(self.source_folder, rf"win32\bin\{cfg}"))
+        copy(self, "netsnmp.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, rf"win32\lib\{cfg}"))
+        copy(self, "include/net-snmp/*.h",
+             dst=self.package_folder,
+             src=self.source_folder)
         for directory in ["", "agent/", "library/"]:
-            copy(self, f"net-snmp/{directory}*.h", "include", "win32")
-        copy(self, "COPYING", "licenses")
+            copy(self, f"net-snmp/{directory}*.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "win32"))
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def _remove(self, path):
         if os.path.isdir(path):
@@ -253,13 +187,13 @@ class NetSnmpConan(ConanFile):
     def _package_unix(self):
         autotools = Autotools(self)
         autotools.install(args=["NOAUTODEPS=1"])
-        remove_files_by_mask(self.package_folder, "README")
+        rm(self, "README", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "bin"))
         lib_dir = os.path.join(self.package_folder, "lib")
         for entry in os.listdir(lib_dir):
             if not entry.startswith("libnetsnmp.") or entry.endswith(".la"):
                 self._remove(os.path.join(lib_dir, entry))
-        copy(self, "COPYING", "licenses")
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "doc"))
 
     def package(self):
         if is_msvc(self):
@@ -269,4 +203,3 @@ class NetSnmpConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["netsnmp"]
-        self.cpp_info.requires = ["openssl::openssl"]

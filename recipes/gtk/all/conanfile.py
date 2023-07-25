@@ -5,32 +5,10 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
+from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -51,13 +29,7 @@ from conan.tools.files import (
     symlinks,
     unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import (
@@ -116,11 +88,11 @@ class GtkConan(ConanFile):
 
     @property
     def _gtk4(self):
-        return Version(self, "4.0.0") <= Version(self.version) < Version(self, "5.0.0")
+        return Version(self.version).major == 4
 
     @property
     def _gtk3(self):
-        return Version(self, "3.0.0") <= Version(self.version) < Version(self, "4.0.0")
+        return Version(self.version).major == 3
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -148,50 +120,46 @@ class GtkConan(ConanFile):
         if self.settings.os == "Linux":
             if self.options.with_wayland or self.options.with_x11:
                 if not self.options.with_pango:
-                    raise ConanInvalidConfiguration(
-                        "with_pango option is mandatory when with_wayland or with_x11 is used"
-                    )
+                    raise ConanInvalidConfiguration("with_pango option is mandatory when with_wayland or with_x11 is used")
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gdk-pixbuf/2.42.6")
-        self.requires("glib/2.73.0")
+        self.requires("gdk-pixbuf/2.42.10")
+        self.requires("glib/2.76.3", force=True)
         if self._gtk4 or not is_msvc(self):
-            self.requires("cairo/1.17.4")
+            self.requires("cairo/1.17.6")
+            self.requires("libpng/1.6.39", force=True)
         if self._gtk4:
             self.requires("graphene/1.10.8")
             self.requires("fribidi/1.0.12")
-            self.requires("libpng/1.6.37")
-            self.requires("libtiff/4.3.0")
-            self.requires("libjpeg/9d")
+            self.requires("libtiff/4.4.0")
+            self.requires("libjpeg/9e")
         if self.settings.os == "Linux":
             if self._gtk4:
-                self.requires("xkbcommon/1.4.1")
+                self.requires("xkbcommon/1.5.0")
             if self._gtk3:
                 self.requires("at-spi2-atk/2.38.0")
             if self.options.with_wayland:
                 if self._gtk3:
-                    self.requires("xkbcommon/1.4.1")
-                self.requires("wayland/1.20.0")
+                    self.requires("xkbcommon/1.5.0")
+                self.requires("wayland/1.21.0")
             if self.options.with_x11:
                 self.requires("xorg/system")
         if self._gtk3:
             self.requires("atk/2.38.0")
         self.requires("libepoxy/1.5.10")
         if self.options.with_pango:
-            self.requires("pango/1.50.7")
+            self.requires("pango/1.50.10")
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/5.0")
+            self.requires("ffmpeg/5.1")
         if self.options.with_gstreamer:
-            self.requires("gstreamer/1.19.2")
+            self.requires("gstreamer/1.22.3")
 
     def validate(self):
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration(
-                "this recipes does not support GCC before version 5. contributions are welcome"
-            )
+            raise ConanInvalidConfiguration("this recipes does not support GCC before version 5. contributions are welcome")
         if is_msvc(self):
             if Version(self.version) < "4.2":
                 raise ConanInvalidConfiguration("MSVC support of this recipe requires at least gtk/4.2")
@@ -204,96 +172,66 @@ class GtkConan(ConanFile):
                 raise ConanInvalidConfiguration("gtk supports only shared since 4.1.0")
 
     def build_requirements(self):
-        self.build_requires("meson/0.62.2")
+        self.tool_requires("meson/1.1.1")
         if self._gtk4:
-            self.build_requires("libxml2/2.9.14")  # for xmllint
+            self.build_requires("libxml2/2.11.4")  # for xmllint
         self.build_requires("pkgconf/1.9.3")
         if self._gtk4:
-            self.build_requires("sassc/3.6.2")
+            self.tool_requires("sassc/3.6.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # TODO: fill in generate()
-        tc = PkgConfigDeps(self)
-        tc.generate()
-
-    def _configure_meson(self):
-        meson = Meson(self)
-        defs = {}
+        tc = MesonToolchain(self)
         if self.settings.os == "Linux":
-            defs["wayland_backend" if self._gtk3 else "wayland-backend"] = (
-                "true" if self.options.with_wayland else "false"
-            )
-            defs["x11_backend" if self._gtk3 else "x11-backend"] = (
-                "true" if self.options.with_x11 else "false"
-            )
-        defs["introspection"] = "false" if self._gtk3 else "disabled"
-        defs["gtk_doc"] = "false"
-        defs["man-pages" if self._gtk4 else "man"] = "false"
-        defs["tests" if self._gtk3 else "build-tests"] = "false"
-        defs["examples" if self._gtk3 else "build-examples"] = "false"
-        defs["demos"] = "false"
-        defs["datadir"] = os.path.join(self.package_folder, "res", "share")
-        defs["localedir"] = os.path.join(self.package_folder, "res", "share", "locale")
-        defs["sysconfdir"] = os.path.join(self.package_folder, "res", "etc")
+            tc.project_options["wayland_backend" if self._gtk3 else "wayland-backend"] = "true" if self.options.with_wayland else "false"
+            tc.project_options["x11_backend" if self._gtk3 else "x11-backend"] = "true" if self.options.with_x11 else "false"
+        tc.project_options["introspection"] = "false" if self._gtk3 else "disabled"
+        tc.project_options["gtk_doc"] = "false"
+        tc.project_options["man-pages" if self._gtk4 else "man"] = "false"
+        tc.project_options["tests" if self._gtk3 else "build-tests"] = "false"
+        tc.project_options["examples" if self._gtk3 else "build-examples"] = "false"
+        tc.project_options["demos"] = "false"
+        tc.project_options["datadir"] = os.path.join(self.package_folder, "res", "share")
+        tc.project_options["localedir"] = os.path.join(self.package_folder, "res", "share", "locale")
+        tc.project_options["sysconfdir"] = os.path.join(self.package_folder, "res", "etc")
 
         if self._gtk4:
             enabled_disabled = lambda opt: "enabled" if opt else "disabled"
-            defs["media-ffmpeg"] = enabled_disabled(self.options.with_ffmpeg)
-            defs["media-gstreamer"] = enabled_disabled(self.options.with_gstreamer)
-            defs["print-cups"] = enabled_disabled(self.options.with_cups)
+            tc.project_options["media-ffmpeg"] = enabled_disabled(self.options.with_ffmpeg)
+            tc.project_options["media-gstreamer"] = enabled_disabled(self.options.with_gstreamer)
+            tc.project_options["print-cups"] = enabled_disabled(self.options.with_cups)
             if Version(self.version) < "4.3.2":
-                defs["print-cloudprint"] = enabled_disabled(self.options.with_cloudprint)
-        args = []
-        args.append("--wrap-mode=nofallback")
-        meson.configure(
-            defs=defs,
-            build_folder=self._build_subfolder,
-            source_folder=self.source_folder,
-            pkg_config_paths=[self.install_folder],
-            args=args,
-        )
-        return meson
+                tc.project_options["print-cloudprint"] = enabled_disabled(self.options.with_cloudprint)
+        tc.args.append("--wrap-mode=nofallback")
+        tc.generate()
 
-    def build(self):
+        tc = PkgConfigDeps(self)
+        tc.generate()
+
+    def _patch_sources(self):
         apply_conandata_patches(self)
         if self._gtk3:
-            replace_in_file(
-                self, os.path.join(self.source_folder, "meson.build"), "\ntest(\n", "\nfalse and test(\n"
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "\ntest(\n", "\nfalse and test(\n")
         if "4.2.0" <= Version(self.version) < "4.6.1":
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "meson.build"),
-                "gtk_update_icon_cache: true",
-                "gtk_update_icon_cache: false",
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "gtk_update_icon_cache: true", "gtk_update_icon_cache: false")
         if "4.6.2" <= Version(self.version):
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "meson.build"),
-                "dependency(is_msvc_like ? ",
-                "dependency(false ? ",
-            )
-        with environment_append(self, RunEnvironment(self).vars):
-            meson = self._configure_meson()
-            meson.build()
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "dependency(is_msvc_like ? ", "dependency(false ? ")
+
+    def build(self):
+        self._patch_sources()
+        meson = Meson(self)
+        meson.configure()
+        meson.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = self._configure_meson()
-        with environment_append(
-            self, {"PKG_CONFIG_PATH": self.install_folder, "PATH": [os.path.join(self.package_folder, "bin")]}
-        ):
+        with environment_append(self, {"PKG_CONFIG_PATH": self.install_folder, "PATH": [os.path.join(self.package_folder, "bin")]}):
             meson.install()
 
-        copy(
-            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
@@ -309,9 +247,7 @@ class GtkConan(ConanFile):
             if not is_msvc(self):
                 self.cpp_info.components["gdk-3.0"].requires.extend(["cairo::cairo", "cairo::cairo-gobject"])
             if self.settings.os == "Linux":
-                self.cpp_info.components["gdk-3.0"].requires.extend(
-                    ["glib::gio-unix-2.0", "cairo::cairo-xlib"]
-                )
+                self.cpp_info.components["gdk-3.0"].requires.extend(["glib::gio-unix-2.0", "cairo::cairo-xlib"])
                 if self.options.with_x11:
                     self.cpp_info.components["gdk-3.0"].requires.append("xorg::xorg")
             self.cpp_info.components["gdk-3.0"].requires.append("libepoxy::libepoxy")

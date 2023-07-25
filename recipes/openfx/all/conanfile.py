@@ -1,8 +1,7 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 
@@ -30,8 +29,12 @@ class openfx(ConanFile):
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "symbols", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "*",
+             src=os.path.join(self.recipe_folder, "cmake"),
+             dst=os.path.join(self.export_sources_folder, "cmake"))
+        copy(self, "*",
+             src=os.path.join(self.recipe_folder, "symbols"),
+             dst=os.path.join(self.export_sources_folder, "symbols"))
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -46,10 +49,14 @@ class openfx(ConanFile):
 
     def requirements(self):
         self.requires("opengl/system")
-        self.requires("expat/2.4.8")
+        self.requires("expat/2.5.0")
+
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination="source_subfolder", strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -69,20 +76,21 @@ class openfx(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-
-        copy(self, "*.symbols", src="symbols", dst=os.path.join(self.package_folder, "lib/symbols"))
-        copy(self, "*.cmake", src="cmake", dst=os.path.join(self.package_folder, "lib/cmake"))
-        copy(
-            self, "LICENSE", src="source_subfolder/Support", dst=os.path.join(self.package_folder, "licenses")
-        )
-        copy(self, "readme.md")
+        copy(self, "*.symbols",
+             src=os.path.join(self.export_sources_folder, "symbols"),
+             dst=os.path.join(self.package_folder, "lib", "symbols"))
+        copy(self, "*.cmake",
+             src=os.path.join(self.export_sources_folder, "cmake"),
+             dst=os.path.join(self.package_folder, "lib", "cmake"))
+        copy(self, "LICENSE",
+             src=os.path.join(self.source_folder, "Support"),
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "openfx")
-        self.cpp_info.set_property("cmake_target_name", "openfx")
+        self.cpp_info.set_property("cmake_target_name", "openfx::openfx")
         self.cpp_info.set_property("cmake_build_modules", self._build_modules)
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
 

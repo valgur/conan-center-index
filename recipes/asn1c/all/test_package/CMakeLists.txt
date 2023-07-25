@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package C)
 
-find_package(asn1c REQUIRED CONFIG)
-
 set(STANDARD_ASN1_FILES
  BIT_STRING.c
  INTEGER.c
@@ -38,7 +36,7 @@ set(GENERATED_FILES
 
 add_custom_command(
   OUTPUT ${GENERATED_FILES} ${STANDARD_ASN1_FILES}
-  COMMAND asn1c -S ${SUPPORT_PATH} MyModule.asn1
+  COMMAND asn1c -S $ENV{SUPPORT_PATH} MyModule.asn1
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS MyModule.asn1
 )

@@ -1,60 +1,27 @@
 import os
-from contextlib import contextmanager
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, cross_building
-from conan.tools.cmake import cmake_layout
-from conan.tools.files import chdir
-from conan.tools.microsoft import is_msvc
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import unix_path
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "VirtualRunEnv"
     test_type = "explicit"
 
-    def requirements(self):
-        self.requires(self.tested_reference_str)
-
     def build_requirements(self):
-        self.tool_requires("ninja/1.10.2")
+        self.tool_requires(self.tested_reference_str)
+        self.tool_requires("ninja/1.11.1")
 
     def layout(self):
-        cmake_layout(self)
-
-    @contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            with vcvars(self.settings):
-                yield
-        else:
-            compiler_defaults = {}
-            if self.settings.compiler == "gcc":
-                compiler_defaults = {
-                    "CC": "gcc",
-                    "CXX": "g++",
-                    "AR": "ar",
-                    "LD": "g++",
-                }
-            elif self.settings.compiler in ("apple-clang", "clang"):
-                compiler_defaults = {
-                    "CC": "clang",
-                    "CXX": "clang++",
-                    "AR": "ar",
-                    "LD": "clang++",
-                }
-            env = {}
-            for k in ("CC", "CXX", "AR", "LD"):
-                v = get_env(self, k, compiler_defaults.get(k, None))
-                if v:
-                    env[k] = v
-            with environment_append(self, env):
-                yield
+        basic_layout(self)
 
     @property
     def _target_os(self):
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             return "mac"
         # Assume gn knows about the os
         return {
@@ -68,17 +35,14 @@ class TestPackageConan(ConanFile):
         }.get(str(self.settings.arch), str(self.settings.arch))
 
     def build(self):
-        if not cross_building(self.settings):
-            with chdir(self, self.source_folder):
-                gn_args = [
-                    os.path.relpath(os.path.join(self.build_folder, "bin"), os.getcwd()).replace("\\", "/"),
-                    '--args="target_os=\\"{os_}\\" target_cpu=\\"{cpu}\\""'.format(
-                        os_=self._target_os, cpu=self._target_cpu
-                    ),
-                ]
-                self.run("gn gen {}".format(" ".join(gn_args)), env="conanrun")
-            with self._build_context():
-                self.run("ninja -v -j{} -C bin".format(cpu_count(self)), env="conanrun")
+        if not cross_building(self):
+            rel_bindir = unix_path(self, os.path.relpath(os.path.join(self.cpp.build.bindir), os.getcwd()))
+            gn_args = [
+                rel_bindir,
+                f'--args="target_os=\\"{self._target_os}\\" target_cpu=\\"{self._target_cpu}\\""',
+            ]
+            self.run("gn gen " + " ".join(gn_args))
+            self.run(f"ninja -v -j{os.cpu_count()} -C {rel_bindir}")
 
     def test(self):
         if can_run(self):

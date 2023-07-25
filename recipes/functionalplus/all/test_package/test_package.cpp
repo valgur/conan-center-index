@@ -4,7 +4,8 @@
 #include <list>
 #include <string>
 
-int main() {
+int main()
+{
     std::list<std::string> things = {"same old", "same old"};
     if (fplus::all_the_same(things)) {
         std::cout << "All things being equal." << std::endl;

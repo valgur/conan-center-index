@@ -1,93 +1,15 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from contextlib import contextmanager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
 import os
 import re
 import shlex
-import shutil
+
+from conan import ConanFile
+from conan.errors import ConanException
+from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, replace_in_file, rmdir, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=1.53.0"
 
@@ -119,6 +41,8 @@ class LibUSBCompatConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "CMakeLists.txt.in", src=self.recipe_folder, dst=self.export_sources_folder)
+
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -134,14 +58,14 @@ class LibUSBCompatConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.24")
+        self.requires("libusb/1.0.26")
         if is_msvc(self):
             self.requires("dirent/1.23.2")
 
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20210814")
         self.tool_requires("libtool/2.4.7")
-        self.build_requires("pkgconf/1.9.3")
+        self.tool_requires("pkgconf/1.9.3")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -174,7 +98,7 @@ class LibUSBCompatConan(ConanFile):
         return absolute_libs
 
     def generate(self):
-        tc = CMakeToolchain(self, source_dir=os.path.join(self.source_folder, "libusb"))
+        tc = CMakeToolchain(self)
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
@@ -212,8 +136,7 @@ class LibUSBCompatConan(ConanFile):
     def _extract_makefile_variable(self, makefile, variable):
         makefile_contents = load(self, makefile)
         match = re.search(
-            '{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9'
-            ' \t.=/_-])|(?:\\"))*)*)\n'.format(variable),
+            '{}[ \t]*=[ \t]*((?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\\\"))*(?:\\\\\n(?:(?:[a-zA-Z0-9 \t.=/_-])|(?:\\"))*)*)\n'.format(variable),
             makefile_contents,
         )
         if not match:
@@ -229,13 +152,14 @@ class LibUSBCompatConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
-        )
-        shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_GUESS"),
-            os.path.join(self.source_folder, "config.guess"),
-        )
+        for gnu_config in [
+            self.conf.get("user.gnu-config:config_guess", check_type=str),
+            self.conf.get("user.gnu-config:config_sub", check_type=str),
+        ]:
+            if gnu_config:
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=self.source_folder)
         if self.settings.os == "Windows":
             api = "__declspec(dllexport)" if self.options.shared else ""
             replace_in_file(
@@ -257,9 +181,10 @@ class LibUSBCompatConan(ConanFile):
         self._patch_sources()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
+            autotools.autoreconf()
             autotools.configure()
         if self.settings.os == "Windows":
-            cmakelists_in = load(self, "CMakeLists.txt.in")
+            cmakelists_in = load(self, os.path.join(self.export_sources_folder, "CMakeLists.txt.in"))
             sources, headers = self._extract_autotools_variables()
             save(
                 self,
@@ -275,7 +200,9 @@ class LibUSBCompatConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()
@@ -283,10 +210,10 @@ class LibUSBCompatConan(ConanFile):
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
                 autotools.install()
-
             os.unlink(os.path.join(self.package_folder, "bin", "libusb-config"))
             os.unlink(os.path.join(self.package_folder, "lib", "libusb.la"))
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+            fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libusb")

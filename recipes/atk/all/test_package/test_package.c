@@ -1,5 +1,5 @@
-#include <atk/atk.h>
 #include <stdio.h>
+#include <atk/atk.h>
 
 int main()
 {

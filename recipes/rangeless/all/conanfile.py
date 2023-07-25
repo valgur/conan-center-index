@@ -10,9 +10,6 @@ from conan.tools.scm import Version
 required_conan_version = ">=1.52.0"
 
 
-required_conan_version = ">=1.52.0"
-
-
 class RangelessConan(ConanFile):
     name = "rangeless"
     description = "c++ LINQ -like library of higher-order functions for data manipulation"

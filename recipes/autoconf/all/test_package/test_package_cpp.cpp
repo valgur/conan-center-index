@@ -6,7 +6,9 @@ extern "C" {
 int hello_from_c(void);
 }
 
-void hello_from_cxx() { std::cout << "Hello world (" PACKAGE_NAME ") from c++!\n"; }
+void hello_from_cxx() {
+    std::cout << "Hello world (" PACKAGE_NAME ") from c++!\n";
+}
 
 int main() {
     hello_from_cxx();

@@ -1,20 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, download, export_conandata_patches, get, save
 
 required_conan_version = ">=1.53.0"
 
@@ -34,20 +24,20 @@ class MicroprofileConan(ConanFile):
         "fPIC": [True, False],
         "microprofile_enabled": [True, False],
         "with_miniz": [True, False],
-        "thread_buffer_size": "ANY",
-        "thread_gpu_buffer_size": "ANY",
-        "max_frame_history": "ANY",
-        "webserver_port": "ANY",
-        "webserver_maxframes": "ANY",
-        "webserver_socket_buffer_size": "ANY",
-        "gpu_frame_delay": "ANY",
-        "name_max_length": "ANY",
-        "max_timers": "ANY",
-        "max_threads": "ANY",
-        "max_string_length": "ANY",
-        "timeline_max_tokens": "ANY",
-        "thread_log_frames_reuse": "ANY",
-        "max_groups": "ANY",
+        "thread_buffer_size": ["ANY"],
+        "thread_gpu_buffer_size": ["ANY"],
+        "max_frame_history": ["ANY"],
+        "webserver_port": ["ANY"],
+        "webserver_maxframes": ["ANY"],
+        "webserver_socket_buffer_size": ["ANY"],
+        "gpu_frame_delay": ["ANY"],
+        "name_max_length": ["ANY"],
+        "max_timers": ["ANY"],
+        "max_threads": ["ANY"],
+        "max_string_length": ["ANY"],
+        "timeline_max_tokens": ["ANY"],
+        "thread_log_frames_reuse": ["ANY"],
+        "max_groups": ["ANY"],
         "use_big_endian": [True, False],
         "enable_gpu_timer_callbacks": [True, False],
         "enable_timer": [None, "gl", "d3d11", "d3d12", "vulkan"],
@@ -78,6 +68,10 @@ class MicroprofileConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
+
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -92,11 +86,11 @@ class MicroprofileConan(ConanFile):
 
     def requirements(self):
         if self.options.with_miniz:
-            self.requires("miniz/2.2.0")
+            self.requires("miniz/3.0.2")
         if self.options.enable_timer == "gl":
             self.requires("opengl/system")
         if self.options.enable_timer == "vulkan":
-            self.requires("vulkan-loader/1.2.182")
+            self.requires("vulkan-loader/1.3.239.0")
 
     def _validate_int_options(self):
         positive_int_options = [
@@ -139,12 +133,7 @@ class MicroprofileConan(ConanFile):
             raise ConanInvalidConfiguration("microprofile:webserver_port must be between 0 and 65535.")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version][0],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
         download(self, filename="LICENSE", **self.conan_data["sources"][self.version][1])
 
     def generate(self):
@@ -152,7 +141,6 @@ class MicroprofileConan(ConanFile):
         tc.variables["MP_MINIZ"] = self.options.with_miniz
         tc.variables["MP_GPU_TIMERS_VULKAN"] = self.options.enable_timer == "vulkan"
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -209,14 +197,8 @@ class MicroprofileConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
-        self.cpp_info.set_property("cmake_file_name", self.name)
-        self.cpp_info.set_property("cmake_target_name", self.name)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]
         elif self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread"]
         self.cpp_info.defines.append("MICROPROFILE_USE_CONFIG")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = self.name
-        self.cpp_info.names["cmake_find_package_multi"] = self.name

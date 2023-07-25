@@ -1,9 +1,7 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 
 required_conan_version = ">=1.52.0"
@@ -55,12 +53,10 @@ class HunspellConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CONAN_hunspell_VERSION"] = self.version
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):

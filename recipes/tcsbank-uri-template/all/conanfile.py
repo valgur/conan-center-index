@@ -1,11 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import collect_libs, copy, export_conandata_patches, get, rmdir
 from conan.tools.scm import Version
 
@@ -55,13 +53,13 @@ class TCSBankUriTemplateConan(ConanFile):
             check_min_cppstd(self, min_req_cppstd)
         else:
             self.output.warning(
-                f"{self.name} recipe lacks information about the {compiler_name} compiler "
-                "standard version support."
+                f"{self.name} recipe lacks information about the {compiler_name} compiler standard version support."
             )
 
-        # Exclude not supported compilers
+        # Exclude unsupported compilers
         compilers_required = {
             "Visual Studio": "16",
+            "msvc": "192",
             "gcc": "7.3",
             "clang": "6.0",
             "apple-clang": "10.0",
@@ -79,8 +77,7 @@ class TCSBankUriTemplateConan(ConanFile):
             )
         elif compiler_name == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
             raise ConanInvalidConfiguration(
-                f'Using {self.name} with Clang requires either "compiler.libcxx=libstdc++11" '
-                'or "compiler.libcxx=libc++"'
+                f'Using {self.name} with Clang requires either "compiler.libcxx=libstdc++11" or "compiler.libcxx=libc++"'
             )
 
     def source(self):
@@ -89,9 +86,6 @@ class TCSBankUriTemplateConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["URITEMPLATE_BUILD_TESTING"] = False
-        tc.generate()
-
-        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -108,7 +102,7 @@ class TCSBankUriTemplateConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "uri-template")
-        self.cpp_info.set_property("cmake_target_name", "uri-template")
+        self.cpp_info.set_property("cmake_target_name", "uri-template::uri-template")
         self.cpp_info.set_property("pkg_config_name", "uri-template")
         self.cpp_info.libs = collect_libs(self)
 

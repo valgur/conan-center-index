@@ -14,9 +14,8 @@ required_conan_version = ">=1.52.0"
 class CTPGConan(ConanFile):
     name = "ctpg"
     description = (
-        "Compile Time Parser Generator is a C++ single header library which takes a language description as a"
-        " C++ code and turns it into a LR1 table parser with a deterministic finite automaton lexical"
-        " analyzer, all in compile time."
+        "Compile Time Parser Generator is a C++ single header library which takes a language description as a C++ code "
+        "and turns it into a LR1 table parser with a deterministic finite automaton lexical analyzer, all in compile time."
     )
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"

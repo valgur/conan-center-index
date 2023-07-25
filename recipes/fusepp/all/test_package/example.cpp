@@ -1,6 +1,9 @@
-#include "Fuse-impl.h"
 #include "Fuse.h"
+#include "Fuse-impl.h"
 
-class MyFilesystem : public Fusepp::Fuse<MyFilesystem> {};
+class MyFilesystem : public Fusepp::Fuse<MyFilesystem> {
+};
 
-int main() { MyFilesystem(); }
+int main() {
+    MyFilesystem();
+}

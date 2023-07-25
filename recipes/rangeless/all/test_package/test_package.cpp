@@ -1,10 +1,10 @@
-#include <fn.hpp>
-#include <utility>
 #include <vector>
+#include <utility>
+#include <fn.hpp>
 
 namespace fn = rangeless::fn;
-using fn::operators::operator%;  // arg % fn   equivalent to fn(std::forward<Arg>(arg))
-using fn::operators::operator%=; // arg %= fn; equivalent to arg = fn( std::move(arg));
+using fn::operators::operator%;   // arg % fn   equivalent to fn(std::forward<Arg>(arg))
+using fn::operators::operator%=;  // arg %= fn; equivalent to arg = fn( std::move(arg));
 
 int main() {
     auto values = std::vector<int>{0,1,2,3,4,5,6,7,8,9,10};

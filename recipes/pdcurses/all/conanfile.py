@@ -1,84 +1,13 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 import os
 import re
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.tools.apple import is_apple_os
+from conan.tools.files import chdir, copy, get, load, replace_in_file, rmdir, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path
 
 required_conan_version = ">=1.53.0"
 
@@ -93,18 +22,8 @@ class PDCursesConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "enable_widec": [True, False],
-        "with_sdl": [None, "1", "2"],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "enable_widec": False,
-        "with_sdl": None,
-    }
+    options = {"shared": [True, False], "fPIC": [True, False], "enable_widec": [True, False], "with_sdl": [None, "1", "2"]}
+    default_options = {"shared": False, "fPIC": True, "enable_widec": False, "with_sdl": None}
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -113,7 +32,7 @@ class PDCursesConan(ConanFile):
             self.options.rm_safe("enable_widec")
 
     def configure(self):
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             raise ConanInvalidConfiguration("pdcurses does not support Apple")
         if self.options.with_sdl:
             raise ConanInvalidConfiguration("conan-center-index has no packages for sdl (yet)")
@@ -131,75 +50,46 @@ class PDCursesConan(ConanFile):
 
     def build_requirements(self):
         if not is_msvc(self):
-            self.build_requires("make/4.2.1")
+            self.tool_requires("make/4.2.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args += [
-            "--enable-widec" if self.options.enable_widec else "--disable-widec",
-        ]
+        tc.configure_args.append("--prefix={}".format(unix_path(self, self.package_folder)))
+        tc.configure_args.append("--enable-widec" if self.options.enable_widec else "--disable-widec")
+        if self.settings.os == "Windows" and self.options.shared:
+            tc.make_args.append("DLL=Y")
         tc.generate()
-
-    def _build_windows(self):
-        with chdir(self, os.path.join(self.source_folder, "wincon")):
-            args = []
-            if self.options.shared:
-                args.append("DLL=Y")
-            args = " ".join(args)
-            if is_msvc(self):
-                with vcvars(self):
-                    self.run(f"nmake -f Makefile.vc {args}")
-            else:
-                self.run("{} libs {}".format(os.environ["CONAN_MAKE_PROGRAM"], args))
 
     def _patch_sources(self):
         if is_msvc(self):
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "wincon", "Makefile.vc"),
-                "$(CFLAGS)",
-                "$(CFLAGS) -{}".format(msvc_runtime_flag(self)),
-            )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "x11", "Makefile.in"),
-            "$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
-            "-$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "x11", "Makefile.in"),
-            "\nall:\t",
-            "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"),
-        )
+            replace_in_file(self, os.path.join(self.source_folder, "wincon", "Makefile.vc"),
+                            "$(CFLAGS)",
+                            "$(CFLAGS) -{}".format(msvc_runtime_flag(self)))
+        replace_in_file(self, os.path.join(self.source_folder, "x11", "Makefile.in"),
+                        "$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
+                        "-$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a")
+        replace_in_file(self, os.path.join(self.source_folder, "x11", "Makefile.in"),
+                        "\nall:\t",
+                        "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"))
 
     def build(self):
         self._patch_sources()
-        if self.settings.os == "Windows":
-            self._build_windows()
-        else:
-            with chdir(self, os.path.join(self.source_folder, "x11")):
-                autotools = Autotools(self)
-                autotools.configure()
-                autotools.make()
+        with chdir(self, os.path.join(self.source_folder, "x11")):
+            autotools = Autotools(self)
+            autotools.configure(build_script_folder=os.path.join(self.source_folder, "x11"))
+            autotools.make()
 
     @property
     def _subsystem_folder(self):
-        return {
-            "Windows": "wincon",
-        }.get(str(self.settings.os), "x11")
+        return {"Windows": "wincon"}.get(str(self.settings.os), "x11")
 
     @property
     def _license_text(self):
         readme = load(self, os.path.join(self.source_folder, self._subsystem_folder, "README.md"))
-        match = re.search(
-            r"Distribution Status\n[\-]+(?:[\r\n])+((?:[0-9a-z .,;*]+[\r\n])+)",
-            readme,
-            re.IGNORECASE | re.MULTILINE,
-        )
+        match = re.search(r"Distribution Status\n[\-]+(?:[\r\n])+((?:[0-9a-z .,;*]+[\r\n])+)", readme, re.IGNORECASE | re.MULTILINE)
         if not match:
             raise ConanException("Cannot extract distribution status")
         return match.group(1).strip() + "\n"
@@ -208,21 +98,13 @@ class PDCursesConan(ConanFile):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
         if self.settings.os == "Windows":
-            copy(
-                self,
-                pattern="curses.h",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "include"),
-            )
-            copy(self, pattern="*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-
+            copy(self, "curses.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+            copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder, keep_path=False)
+            copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
+            copy(self, "*.a", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
             if not is_msvc(self):
-                os.rename(
-                    os.path.join(self.package_folder, "lib", "pdcurses.a"),
-                    os.path.join(self.package_folder, "lib", "libpdcurses.a"),
-                )
+                os.rename(os.path.join(self.package_folder, "lib", "pdcurses.a"),
+                          os.path.join(self.package_folder, "lib", "libpdcurses.a"))
         else:
             with chdir(self, os.path.join(self.source_folder, "x11")):
                 autotools = Autotools(self)

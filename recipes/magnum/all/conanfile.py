@@ -5,32 +5,10 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
+from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
+from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -51,13 +29,7 @@ from conan.tools.files import (
     symlinks,
     unzip,
 )
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import (
@@ -77,18 +49,13 @@ from conan.tools.microsoft import (
 )
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import functools
 import os
 import re
 import textwrap
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class MagnumConan(ConanFile):
@@ -97,20 +64,7 @@ class MagnumConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://magnum.graphics"
-    topics = (
-        "magnum",
-        "graphics",
-        "middleware",
-        "graphics",
-        "rendering",
-        "gamedev",
-        "opengl",
-        "3d",
-        "2d",
-        "opengl",
-        "game-engine",
-        "pre-built",
-    )
+    topics = ("magnum", "graphics", "middleware", "graphics", "rendering", "gamedev", "opengl", "3d", "2d", "opengl", "game-engine", "pre-built")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -227,8 +181,7 @@ class MagnumConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake/*", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         # Doc says that 'distance_field_converter' is only available with "desktop GL" (the same is said for 'font_converter', but it builds)
@@ -277,15 +230,15 @@ class MagnumConan(ConanFile):
 
     @property
     def _executables(self):
-        #            (executable, option name)
-        all_execs = (
+        # (executable, option name)
+        all_execs = [
             ("gl-info", "gl_info"),
             ("al-info", "al_info"),
             ("distancefieldconverter", "distance_field_converter"),
             ("fontconverter", "font_converter"),
             ("imageconverter", "image_converter"),
             ("sceneconverter", "scene_converter"),
-        )
+        ]
         return [executable for executable, opt_name in all_execs if self.options.get_safe(opt_name)]
 
     def configure(self):
@@ -296,9 +249,9 @@ class MagnumConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("corrade/{}".format(self.version))
+        self.requires(f"corrade/{self.version}")
         if self.options.audio:
-            self.requires("openal/1.21.1")
+            self.requires("openal/1.22.2")
         if self.options.gl:
             self.requires("opengl/system")
         if self.options.vk:
@@ -327,13 +280,11 @@ class MagnumConan(ConanFile):
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5.0":
             raise ConanInvalidConfiguration("GCC older than 5 is not supported (missing C++11 features)")
 
-        if self.options.shared and not self.options["corrade"].shared:
+        if self.options.shared and not self.dependencies["corrade"].options.shared:
             # To fix issue with resource management, see here: https://github.com/mosra/magnum/issues/304#issuecomment-451768389
             raise ConanInvalidConfiguration("If using 'shared=True', corrade should be shared as well")
 
-        if not self.options.gl and (
-            self.options.target_gl or self.options.get_safe("target_headless", False)
-        ):
+        if not self.options.gl and (self.options.target_gl or self.options.get_safe("target_headless", False)):
             raise ConanInvalidConfiguration("Option 'gl=True' is required")
 
         if self.options.target_gl in ["gles2", "gles3"] and self.settings.os == "Macos":
@@ -358,7 +309,7 @@ class MagnumConan(ConanFile):
             raise ConanInvalidConfiguration("magnum_font_converter requires tga_image_converter")
 
     def build_requirements(self):
-        self.build_requires("corrade/{}".format(self.version))
+        self.build_requires(f"corrade/{self.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -402,24 +353,12 @@ class MagnumConan(ConanFile):
         tc.variables["WITH_GLXAPPLICATION"] = self.options.get_safe("glx_application", False)
         tc.variables["WITH_SDL2APPLICATION"] = self.options.sdl2_application
         tc.variables["WITH_XEGLAPPLICATION"] = self.options.get_safe("xegl_application", False)
-        tc.variables["WITH_WINDOWLESSCGLAPPLICATION"] = self.options.get_safe(
-            "windowless_cgl_application", False
-        )
-        tc.variables["WITH_WINDOWLESSEGLAPPLICATION"] = self.options.get_safe(
-            "windowless_egl_application", False
-        )
-        tc.variables["WITH_WINDOWLESSGLXAPPLICATION"] = self.options.get_safe(
-            "windowless_glx_application", False
-        )
-        tc.variables["WITH_WINDOWLESSIOSAPPLICATION"] = self.options.get_safe(
-            "windowless_ios_application", False
-        )
-        tc.variables["WITH_WINDOWLESSWGLAPPLICATION"] = self.options.get_safe(
-            "windowless_wgl_application", False
-        )
-        tc.variables["WITH_WINDOWLESSWINDOWSEGLAPPLICATION"] = self.options.get_safe(
-            "windowless_windows_egl_application", False
-        )
+        tc.variables["WITH_WINDOWLESSCGLAPPLICATION"] = self.options.get_safe("windowless_cgl_application", False)
+        tc.variables["WITH_WINDOWLESSEGLAPPLICATION"] = self.options.get_safe("windowless_egl_application", False)
+        tc.variables["WITH_WINDOWLESSGLXAPPLICATION"] = self.options.get_safe("windowless_glx_application", False)
+        tc.variables["WITH_WINDOWLESSIOSAPPLICATION"] = self.options.get_safe("windowless_ios_application", False)
+        tc.variables["WITH_WINDOWLESSWGLAPPLICATION"] = self.options.get_safe("windowless_wgl_application", False)
+        tc.variables["WITH_WINDOWLESSWINDOWSEGLAPPLICATION"] = self.options.get_safe("windowless_windows_egl_application", False)
 
         tc.variables["WITH_CGLCONTEXT"] = self.options.get_safe("cgl_context", False)
         tc.variables["WITH_EGLCONTEXT"] = self.options.get_safe("egl_context", False)
@@ -450,74 +389,31 @@ class MagnumConan(ConanFile):
         tc.generate()
 
         tc = CMakeDeps(self)
+        tc.set_property("glfw", "cmake_file_name", "GLFW")
+        tc.set_property("glfw", "cmake_target_name", "GLFW::GLFW")
+        tc.set_property("glfw", "cmake_target_aliases", ["glfw"])
+        tc.set_property("egl", "cmake_file_name", "EGL")
+        tc.set_property("egl", "cmake_target_name", "EGL::EGL")
         tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
 
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})',
-            "",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})', "")
         # Get rid of cmake_dependent_option, it can activate features when we try to disable them,
         #   let the Conan user decide what to use and what not.
         with open(os.path.join(self.source_folder, "CMakeLists.txt"), "r+", encoding="utf-8") as f:
             text = f.read()
-            text = re.sub(
-                r"cmake_dependent_option(([0-9A-Z_]+) .*)",
-                r'option(\1 "Option \1 disabled by Conan" OFF)',
-                text,
-            )
+            text = re.sub(r"cmake_dependent_option(([0-9A-Z_]+) .*)", r'option(\1 "Option \1 disabled by Conan" OFF)', text)
             f.seek(0)
             f.write(text)
             f.truncate()
 
-        # GLFW naming
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
-            "find_package(GLFW)",
-            "find_package(glfw3)",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
-            "GLFW_FOUND",
-            "glfw3_FOUND",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
-            "GLFW::GLFW",
-            "glfw",
-        )
-
-        # EGL naming
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
-            "find_package(EGL)",
-            "find_package(egl_system)",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
-            "EGL_FOUND",
-            "egl_system_FOUND",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "Magnum", "Platform", "CMakeLists.txt"),
-            "EGL::EGL",
-            "egl::egl",
-        )
-
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):
@@ -527,288 +423,150 @@ class MagnumConan(ConanFile):
         build_modules_folder = os.path.join(self.package_folder, "lib", "cmake")
         os.makedirs(build_modules_folder)
         for executable in self._executables:
-            build_module_path = os.path.join(build_modules_folder, "conan-magnum-{}.cmake".format(executable))
-            with open(build_module_path, "w+", encoding="utf-8") as f:
-                f.write(textwrap.dedent("""\
-                    if(NOT TARGET Magnum::{exec})
-                        if(CMAKE_CROSSCOMPILING)
-                            find_program(MAGNUM_EXEC_PROGRAM magnum-{exec} PATHS ENV PATH NO_DEFAULT_PATH)
-                        endif()
-                        if(NOT MAGNUM_EXEC_PROGRAM)
-                            set(MAGNUM_EXEC_PROGRAM "${{CMAKE_CURRENT_LIST_DIR}}/../../bin/magnum-{exec}")
-                        endif()
-                        get_filename_component(MAGNUM_EXEC_PROGRAM "${{MAGNUM_EXEC_PROGRAM}}" ABSOLUTE)
-                        add_executable(Magnum::{exec} IMPORTED)
-                        set_property(TARGET Magnum::{exec} PROPERTY IMPORTED_LOCATION ${{MAGNUM_EXEC_PROGRAM}})
+            build_module_path = os.path.join(build_modules_folder, f"conan-magnum-{executable}.cmake")
+            save(self, build_module_path, encoding="utf-8", content=textwrap.dedent(f"""\
+                if(NOT TARGET Magnum::{executable})
+                    if(CMAKE_CROSSCOMPILING)
+                        find_program(MAGNUM_EXEC_PROGRAM magnum-{executable} PATHS ENV PATH NO_DEFAULT_PATH)
                     endif()
-                """.format(exec=executable)))
+                    if(NOT MAGNUM_EXEC_PROGRAM)
+                        set(MAGNUM_EXEC_PROGRAM "${{CMAKE_CURRENT_LIST_DIR}}/../../bin/magnum-{executable}")
+                    endif()
+                    get_filename_component(MAGNUM_EXEC_PROGRAM "${{MAGNUM_EXEC_PROGRAM}}" ABSOLUTE)
+                    add_executable(Magnum::{executable} IMPORTED)
+                    set_property(TARGET Magnum::{executable} PROPERTY IMPORTED_LOCATION ${{MAGNUM_EXEC_PROGRAM}})
+                endif()
+            """))
 
         if not self.options.shared_plugins:
             for component, target, library, _, _ in self._plugins:
-                build_module_path = os.path.join(
-                    build_modules_folder, "conan-magnum-plugins-{}.cmake".format(component)
-                )
-                with open(build_module_path, "w+", encoding="utf-8") as f:
-                    f.write(textwrap.dedent("""\
-                        if(NOT ${{CMAKE_VERSION}} VERSION_LESS "3.0")
-                            if(TARGET Magnum::{target})
-                                set_target_properties(Magnum::{target} PROPERTIES INTERFACE_SOURCES
-                                                    "${{CMAKE_CURRENT_LIST_DIR}}/../../include/MagnumPlugins/{library}/importStaticPlugin.cpp")
-                            endif()
+                build_module_path = os.path.join(build_modules_folder, f"conan-magnum-plugins-{component}.cmake")
+                save(self, encoding="utf-8", content=textwrap.dedent(f"""\
+                    if(NOT ${{CMAKE_VERSION}} VERSION_LESS "3.0")
+                        if(TARGET Magnum::{target})
+                            set_target_properties(Magnum::{target} PROPERTIES INTERFACE_SOURCES
+                                                "${{CMAKE_CURRENT_LIST_DIR}}/../../include/MagnumPlugins/{library}/importStaticPlugin.cpp")
                         endif()
-                    """.format(target=target, library=library)))
+                    endif()
+                """))
 
         rmdir(self, os.path.join(self.package_folder, "share"))
-        copy(self, "*.cmake", src=os.path.join(self.source_folder, "cmake"), dst=os.path.join("lib", "cmake"))
+        copy(self, "*.cmake", src=os.path.join(self.export_sources_folder, "cmake"), dst=os.path.join(self.package_folder, "lib", "cmake"))
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Magnum")
+        self.cpp_info.set_property("cmake_target_name", "Magnum::Magnum")
         self.cpp_info.names["cmake_find_package"] = "Magnum"
         self.cpp_info.names["cmake_find_package_multi"] = "Magnum"
 
-        magnum_plugin_libdir = (
-            "magnum-d" if self.settings.build_type == "Debug" and self.options.shared_plugins else "magnum"
-        )
-        plugin_lib_suffix = (
-            "-d" if self.settings.build_type == "Debug" and not self.options.shared_plugins else ""
-        )
+        magnum_plugin_libdir = "magnum-d" if self.settings.build_type == "Debug" and self.options.shared_plugins else "magnum"
+        plugin_lib_suffix = "-d" if self.settings.build_type == "Debug" and not self.options.shared_plugins else ""
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
+
+        def _add_component(component_name, lib_name, requires):
+            component = self.cpp_info.components[component_name]
+            component.set_property("cmake_target_name", f"Magnum::{lib_name}")
+            component.names["cmake_find_package"] = lib_name
+            component.names["cmake_find_package_multi"] = lib_name
+            component.libs = [f"Magnum{lib_name}{lib_suffix}"]
+            component.requires = requires
 
         build_modules = []
 
+        def _add_cmake_module(component, module_name):
+            cmake_mod = os.path.join("lib", "cmake", module_name)
+            build_modules.append(cmake_mod)
+            self.cpp_info.components[component].set_property("cmake_build_modules", [cmake_mod])
+            self.cpp_info.components[component].build_modules["cmake_find_package"].append(cmake_mod)
+            self.cpp_info.components[component].build_modules["cmake_find_package_multi"].append(cmake_mod)
+
         # The FindMagnum.cmake file provided by the library populates some extra stuff
-        build_modules.append(os.path.join("lib", "cmake", "conan-magnum-vars.cmake"))
-        self.cpp_info.components["_magnum"].build_modules.append(
-            os.path.join("lib", "cmake", "conan-magnum-vars.cmake")
-        )
+        _add_cmake_module("_magnum", "conan-magnum-vars.cmake")
 
         # Magnum contains just the main library
         self.cpp_info.components["magnum_main"].set_property("cmake_target_name", "Magnum::Magnum")
         self.cpp_info.components["magnum_main"].names["cmake_find_package"] = "Magnum"
         self.cpp_info.components["magnum_main"].names["cmake_find_package_multi"] = "Magnum"
-        self.cpp_info.components["magnum_main"].libs = ["Magnum{}".format(lib_suffix)]
+        self.cpp_info.components["magnum_main"].libs = [f"Magnum{lib_suffix}"]
         self.cpp_info.components["magnum_main"].requires = ["_magnum", "corrade::utility"]
-        build_modules.append(os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake"))
-        self.cpp_info.components["magnum_main"].build_modules["cmake_find_package"].append(
-            os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake")
-        )
+        _add_cmake_module("magnum_main", "conan-bugfix-global-target.cmake")
 
-        # Audio
         if self.options.audio:
-            self.cpp_info.components["audio"].set_property("cmake_target_name", "Magnum::Audio")
-            self.cpp_info.components["audio"].names["cmake_find_package"] = "Audio"
-            self.cpp_info.components["audio"].names["cmake_find_package_multi"] = "Audio"
-            self.cpp_info.components["audio"].libs = ["MagnumAudio{}".format(lib_suffix)]
-            self.cpp_info.components["audio"].requires = [
-                "magnum_main",
-                "corrade::plugin_manager",
-                "openal::openal",
-            ]
+            _add_component("audio", "Audio",
+                           ["magnum_main", "corrade::plugin_manager", "openal::openal"])
             if self.options.scene_graph:
                 self.cpp_info.components["audio"].requires += ["scene_graph"]
-
-        # DebugTools
         if self.options.debug_tools:
-            self.cpp_info.components["debug_tools"].set_property("cmake_target_name", "Magnum::DebugTools")
-            self.cpp_info.components["debug_tools"].names["cmake_find_package"] = "DebugTools"
-            self.cpp_info.components["debug_tools"].names["cmake_find_package_multi"] = "DebugTools"
-            self.cpp_info.components["debug_tools"].libs = ["MagnumDebugTools{}".format(lib_suffix)]
-            self.cpp_info.components["debug_tools"].requires = ["magnum_main"]
-            if self.options["corrade"].with_testsuite and self.options.trade:
+            _add_component("debug_tools", "DebugTools",
+                           ["magnum_main"])
+            if self.dependencies["corrade"].options.with_testsuite and self.options.trade:
                 self.cpp_info.components["debug_tools"].requires += ["corrade::test_suite", "trade"]
-
-        # GL
         if self.options.gl:
-            self.cpp_info.components["gl"].set_property("cmake_target_name", "Magnum::GL")
-            self.cpp_info.components["gl"].names["cmake_find_package"] = "GL"
-            self.cpp_info.components["gl"].names["cmake_find_package_multi"] = "GL"
-            self.cpp_info.components["gl"].libs = ["MagnumGL{}".format(lib_suffix)]
-            self.cpp_info.components["gl"].requires = ["magnum_main", "opengl::opengl"]
-
-        # MeshTools
+            _add_component("gl", "GL",
+                           ["magnum_main", "opengl::opengl"])
         if self.options.mesh_tools:
-            self.cpp_info.components["mesh_tools"].set_property("cmake_target_name", "Magnum::MeshTools")
-            self.cpp_info.components["mesh_tools"].names["cmake_find_package"] = "MeshTools"
-            self.cpp_info.components["mesh_tools"].names["cmake_find_package_multi"] = "MeshTools"
-            self.cpp_info.components["mesh_tools"].libs = ["MagnumMeshTools{}".format(lib_suffix)]
-            self.cpp_info.components["mesh_tools"].requires = ["magnum_main", "trade", "gl"]
-
-        # Primitives
+            _add_component("mesh_tools", "MeshTools",
+                           ["magnum_main", "trade", "gl"])
         if self.options.primitives:
-            self.cpp_info.components["primitives"].set_property("cmake_target_name", "Magnum::Primitives")
-            self.cpp_info.components["primitives"].names["cmake_find_package"] = "Primitives"
-            self.cpp_info.components["primitives"].names["cmake_find_package_multi"] = "Primitives"
-            self.cpp_info.components["primitives"].libs = ["MagnumPrimitives{}".format(lib_suffix)]
-            self.cpp_info.components["primitives"].requires = ["magnum_main", "mesh_tools", "trade"]
-
-        # SceneGraph
+            _add_component("primitives", "Primitives",
+                           ["magnum_main", "mesh_tools", "trade"])
         if self.options.scene_graph:
-            self.cpp_info.components["scene_graph"].set_property("cmake_target_name", "Magnum::SceneGraph")
-            self.cpp_info.components["scene_graph"].names["cmake_find_package"] = "SceneGraph"
-            self.cpp_info.components["scene_graph"].names["cmake_find_package_multi"] = "SceneGraph"
-            self.cpp_info.components["scene_graph"].libs = ["MagnumSceneGraph{}".format(lib_suffix)]
-            self.cpp_info.components["scene_graph"].requires = ["magnum_main"]
-
-        # Shaders
+            _add_component("scene_graph", "SceneGraph",
+                           ["magnum_main"])
         if self.options.shaders:
-            self.cpp_info.components["shaders"].set_property("cmake_target_name", "Magnum::Shaders")
-            self.cpp_info.components["shaders"].names["cmake_find_package"] = "Shaders"
-            self.cpp_info.components["shaders"].names["cmake_find_package_multi"] = "Shaders"
-            self.cpp_info.components["shaders"].libs = ["MagnumShaders{}".format(lib_suffix)]
-            self.cpp_info.components["shaders"].requires = ["magnum_main", "gl"]
-
-        # Text
+            _add_component("shaders", "Shaders",
+                           ["magnum_main", "gl"])
         if self.options.text:
-            self.cpp_info.components["text"].set_property("cmake_target_name", "Magnum::Text")
-            self.cpp_info.components["text"].names["cmake_find_package"] = "Text"
-            self.cpp_info.components["text"].names["cmake_find_package_multi"] = "Text"
-            self.cpp_info.components["text"].libs = ["MagnumText{}".format(lib_suffix)]
-            self.cpp_info.components["text"].requires = [
-                "magnum_main",
-                "texture_tools",
-                "corrade::plugin_manager",
-                "gl",
-            ]
-
-        # TextureTools
+            _add_component("text", "Text",
+                           ["magnum_main", "texture_tools", "corrade::plugin_manager", "gl"])
         if self.options.texture_tools:
-            self.cpp_info.components["texture_tools"].set_property(
-                "cmake_target_name", "Magnum::TextureTools"
-            )
-            self.cpp_info.components["texture_tools"].names["cmake_find_package"] = "TextureTools"
-            self.cpp_info.components["texture_tools"].names["cmake_find_package_multi"] = "TextureTools"
-            self.cpp_info.components["texture_tools"].libs = ["MagnumTextureTools{}".format(lib_suffix)]
-            self.cpp_info.components["texture_tools"].requires = ["magnum_main"]
+            _add_component("texture_tools", "TextureTools",
+                           ["magnum_main", "corrade::plugin_manager", "gl"])
             if self.options.gl:
                 self.cpp_info.components["texture_tools"].requires += ["gl"]
-
-        # Trade
         if self.options.trade:
-            self.cpp_info.components["trade"].set_property("cmake_target_name", "Magnum::Trade")
-            self.cpp_info.components["trade"].names["cmake_find_package"] = "Trade"
-            self.cpp_info.components["trade"].names["cmake_find_package_multi"] = "Trade"
-            self.cpp_info.components["trade"].libs = ["MagnumTrade{}".format(lib_suffix)]
-            self.cpp_info.components["trade"].requires = ["magnum_main", "corrade::plugin_manager"]
-
-        # VK
+            _add_component("trade", "Trade",
+                           ["magnum_main", "corrade::plugin_manager"])
         if self.options.vk:
-            self.cpp_info.components["vk"].set_property("cmake_target_name", "Magnum::Vk")
-            self.cpp_info.components["vk"].names["cmake_find_package"] = "Vk"
-            self.cpp_info.components["vk"].names["cmake_find_package_multi"] = "Vk"
-            self.cpp_info.components["vk"].libs = ["MagnumVk{}".format(lib_suffix)]
-            self.cpp_info.components["vk"].requires = ["magnum_main", "vulkan-loader::vulkan-loader"]
+            _add_component("vk", "Vk",
+                           ["magnum_main", "vulkan-loader::vulkan-loader"])
 
         #### APPLICATIONS ####
         if self.options.get_safe("android_application", False):
             raise Exception("Recipe doesn't define this component")
-
         if self.options.get_safe("emscripten_application", False):
             raise Exception("Recipe doesn't define this component")
-
         if self.options.get_safe("windowless_ios_application", False):
             raise Exception("Recipe doesn't define this component")
-
         if self.options.get_safe("glx_application", False):
-            self.cpp_info.components["glx_application"].set_property(
-                "cmake_target_name", "Magnum::GlxApplication"
-            )
-            self.cpp_info.components["glx_application"].names["cmake_find_package"] = "GlxApplication"
-            self.cpp_info.components["glx_application"].names["cmake_find_package_multi"] = "GlxApplication"
-            self.cpp_info.components["glx_application"].libs = ["MagnumGlxApplication{}".format(lib_suffix)]
-            self.cpp_info.components["glx_application"].requires = ["gl"]  # TODO: Add x11
-
+            _add_component("glx_application", "GlxApplication",
+                           ["gl"]) # TODO: Add x11 requirement
         if self.options.glfw_application:
-            self.cpp_info.components["glfw_application"].set_property(
-                "cmake_target_name", "Magnum::GlfwApplication"
-            )
-            self.cpp_info.components["glfw_application"].names["cmake_find_package"] = "GlfwApplication"
-            self.cpp_info.components["glfw_application"].names["cmake_find_package_multi"] = "GlfwApplication"
-            self.cpp_info.components["glfw_application"].libs = ["MagnumGlfwApplication{}".format(lib_suffix)]
-            self.cpp_info.components["glfw_application"].requires = ["magnum_main", "glfw::glfw"]
+            _add_component("glfw_application", "GlfwApplication",
+                           ["magnum_main", "glfw::glfw"])
             if self.options.target_gl:
                 self.cpp_info.components["glfw_application"].requires.append("gl")
-
         if self.options.sdl2_application:
-            self.cpp_info.components["sdl2_application"].set_property(
-                "cmake_target_name", "Magnum::Sdl2Application"
-            )
-            self.cpp_info.components["sdl2_application"].names["cmake_find_package"] = "Sdl2Application"
-            self.cpp_info.components["sdl2_application"].names["cmake_find_package_multi"] = "Sdl2Application"
-            self.cpp_info.components["sdl2_application"].libs = ["MagnumSdl2Application{}".format(lib_suffix)]
-            self.cpp_info.components["sdl2_application"].requires = ["magnum_main", "sdl::sdl"]
+            _add_component("sdl2_application", "Sdl2Application",
+                           ["magnum_main", "sdl::sdl"])
             if self.options.target_gl:
                 self.cpp_info.components["sdl2_application"].requires += ["gl"]
-
         if self.options.get_safe("xegl_application", False):
-            self.cpp_info.components["xegl_application"].set_property(
-                "cmake_target_name", "Magnum::XEglApplication"
-            )
-            self.cpp_info.components["xegl_application"].names["cmake_find_package"] = "XEglApplication"
-            self.cpp_info.components["xegl_application"].names["cmake_find_package_multi"] = "XEglApplication"
-            self.cpp_info.components["xegl_application"].libs = ["MagnumXEglApplication{}".format(lib_suffix)]
-            self.cpp_info.components["xegl_application"].requires = ["gl", "egl::egl"]  # TODO: Add x11
-
+            _add_component("xegl_application", "XEglApplication",
+                           ["gl", "egl::egl"]) # TODO: Add x11 requirement
         if self.options.get_safe("windowless_cgl_application", False):
-            self.cpp_info.components["windowless_cgl_application"].set_property(
-                "cmake_target_name", "Magnum::WindowlessCglApplication"
-            )
-            self.cpp_info.components["windowless_cgl_application"].names[
-                "cmake_find_package"
-            ] = "WindowlessCglApplication"
-            self.cpp_info.components["windowless_cgl_application"].names[
-                "cmake_find_package_multi"
-            ] = "WindowlessCglApplication"
-            self.cpp_info.components["windowless_cgl_application"].libs = [
-                "MagnumWindowlessCglApplication{}".format(lib_suffix)
-            ]
-            self.cpp_info.components["windowless_cgl_application"].requires = ["gl"]
-
+            _add_component("windowless_cgl_application", "WindowlessCglApplication",
+                           ["gl"])
         if self.options.get_safe("windowless_egl_application", False):
-            self.cpp_info.components["windowless_egl_application"].set_property(
-                "cmake_target_name", "Magnum::WindowlessEglApplication"
-            )
-            self.cpp_info.components["windowless_egl_application"].names[
-                "cmake_find_package"
-            ] = "WindowlessEglApplication"
-            self.cpp_info.components["windowless_egl_application"].names[
-                "cmake_find_package_multi"
-            ] = "WindowlessEglApplication"
-            self.cpp_info.components["windowless_egl_application"].libs = [
-                "MagnumWindowlessEglApplication{}".format(lib_suffix)
-            ]
-            self.cpp_info.components["windowless_egl_application"].requires = ["gl", "egl::egl"]
-
+            _add_component("windowless_egl_application", "WindowlessEglApplication",
+                           ["gl", "egl::egl"])
         if self.options.get_safe("windowless_glx_application", False):
-            self.cpp_info.components["windowless_glx_application"].set_property(
-                "cmake_target_name", "Magnum::WindowlessGlxApplication"
-            )
-            self.cpp_info.components["windowless_glx_application"].names[
-                "cmake_find_package"
-            ] = "WindowlessGlxApplication"
-            self.cpp_info.components["windowless_glx_application"].names[
-                "cmake_find_package_multi"
-            ] = "WindowlessGlxApplication"
-            self.cpp_info.components["windowless_glx_application"].libs = [
-                "MagnumWindowlessGlxApplication{}".format(lib_suffix)
-            ]
-            self.cpp_info.components["windowless_glx_application"].requires = ["gl"]  # TODO: Add x11
-
+            _add_component("windowless_glx_application", "WindowlessGlxApplication",
+                           ["gl"]) # TODO: Add x11 requirement
         if self.options.get_safe("windowless_wgl_application", False):
-            self.cpp_info.components["windowless_wgl_application"].set_property(
-                "cmake_target_name", "Magnum::WindowlessWglApplication"
-            )
-            self.cpp_info.components["windowless_wgl_application"].names[
-                "cmake_find_package"
-            ] = "WindowlessWglApplication"
-            self.cpp_info.components["windowless_wgl_application"].names[
-                "cmake_find_package_multi"
-            ] = "WindowlessWglApplication"
-            self.cpp_info.components["windowless_wgl_application"].libs = [
-                "MagnumWindowlessWglApplication{}".format(lib_suffix)
-            ]
-            self.cpp_info.components["windowless_wgl_application"].requires = ["gl"]
-
+            _add_component("windowless_wgl_application", "WindowlessWglApplication",
+                           ["gl"])
         if self.options.get_safe("windowless_windows_egl_application", False):
             raise Exception("Recipe doesn't define this component")
 
@@ -819,148 +577,57 @@ class MagnumConan(ConanFile):
 
         #### CONTEXTS ####
         if self.options.get_safe("cgl_context", False):
-            self.cpp_info.components["cgl_context"].set_property("cmake_target_name", "Magnum::CglContext")
-            self.cpp_info.components["cgl_context"].names["cmake_find_package"] = "CglContext"
-            self.cpp_info.components["cgl_context"].names["cmake_find_package_multi"] = "CglContext"
-            self.cpp_info.components["cgl_context"].libs = ["MagnumCglContext{}".format(lib_suffix)]
-            self.cpp_info.components["cgl_context"].requires = ["gl"]
-
+            _add_component("cgl_context", "CglContext",
+                           ["gl"])
         if self.options.get_safe("egl_context", False):
-            self.cpp_info.components["egl_context"].set_property("cmake_target_name", "Magnum::EglContext")
-            self.cpp_info.components["egl_context"].names["cmake_find_package"] = "EglContext"
-            self.cpp_info.components["egl_context"].names["cmake_find_package_multi"] = "EglContext"
-            self.cpp_info.components["egl_context"].libs = ["MagnumEglContext{}".format(lib_suffix)]
-            self.cpp_info.components["egl_context"].requires = ["gl", "egl::egl"]
-
+            _add_component("egl_context", "EglContext",
+                           ["gl", "egl::egl"])
         if self.options.glx_context:
-            self.cpp_info.components["glx_context"].set_property("cmake_target_name", "Magnum::GlxContext")
-            self.cpp_info.components["glx_context"].names["cmake_find_package"] = "GlxContext"
-            self.cpp_info.components["glx_context"].names["cmake_find_package_multi"] = "GlxContext"
-            self.cpp_info.components["glx_context"].libs = ["MagnumGlxContext{}".format(lib_suffix)]
-            self.cpp_info.components["glx_context"].requires = ["gl"]
-
+            _add_component("glx_context", "GlxContext",
+                           ["gl"])
         if self.options.get_safe("wgl_context", False):
-            self.cpp_info.components["wgl_context"].set_property("cmake_target_name", "Magnum::WglContext")
-            self.cpp_info.components["wgl_context"].names["cmake_find_package"] = "WglContext"
-            self.cpp_info.components["wgl_context"].names["cmake_find_package_multi"] = "WglContext"
-            self.cpp_info.components["wgl_context"].libs = ["MagnumWglContext{}".format(lib_suffix)]
-            self.cpp_info.components["wgl_context"].requires = ["gl"]
+            _add_component("wgl_context", "WglContext",
+                           ["gl"])
 
         ######## PLUGINS ########
         for component, target, library, folder, deps in self._plugins:
             self.cpp_info.components[component].set_property("cmake_target_name", f"Magnum::{target}")
             self.cpp_info.components[component].names["cmake_find_package"] = target
             self.cpp_info.components[component].names["cmake_find_package_multi"] = target
-            self.cpp_info.components[component].libs = ["{}{}".format(library, plugin_lib_suffix)]
-            self.cpp_info.components[component].libdirs = [
-                os.path.join(self.package_folder, "lib", magnum_plugin_libdir, folder)
-            ]
+            self.cpp_info.components[component].libs = [f"{library}{plugin_lib_suffix}"]
+            self.cpp_info.components[component].libdirs = [os.path.join(self.package_folder, "lib", magnum_plugin_libdir, folder)]
             self.cpp_info.components[component].requires = deps
             if not self.options.shared_plugins:
-                build_modules.append(
-                    os.path.join("lib", "cmake", "conan-magnum-plugins-{}.cmake".format(component))
-                )
-                self.cpp_info.components[component].build_modules.append(
-                    os.path.join("lib", "cmake", "conan-magnum-plugins-{}.cmake".format(component))
-                )
+                _add_cmake_module(component, f"conan-magnum-plugins-{component}.cmake")
         plugin_dir = "bin" if self.settings.os == "Windows" else "lib"
         self.user_info.plugins_basepath = os.path.join(self.package_folder, plugin_dir, magnum_plugin_libdir)
         self.conf_info.define("user.magnum:plugins_basepath", self.user_info.plugins_basepath)
 
         #### EXECUTABLES ####
         bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
+        self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)
 
         for executable in self._executables:
-            build_modules.append(os.path.join("lib", "cmake", "conan-magnum-{}.cmake".format(executable)))
-            self.cpp_info.components["_magnum"].build_modules.append(
-                os.path.join("lib", "cmake", "conan-magnum-{}.cmake".format(executable))
-            )
+            _add_cmake_module("_magnum", f"conan-magnum-{executable}.cmake")
 
         # build modules for CMakeDeps
         self.cpp_info.set_property("cmake_build_modules", build_modules)
 
     @property
     def _plugins(self):
-        #   (opt_name, (component, target, library, folder, deps))
-        all_plugins = (
-            (
-                "any_audio_importer",
-                (
-                    "any_audio_importer",
-                    "AnyAudioImporter",
-                    "AnyAudioImporter",
-                    "audioimporters",
-                    ["magnum_main", "audio"],
-                ),
-            ),
-            (
-                "any_image_converter",
-                (
-                    "any_image_converter",
-                    "AnyImageConverter",
-                    "AnyImageConverter",
-                    "imageconverters",
-                    ["trade"],
-                ),
-            ),
-            (
-                "any_image_importer",
-                ("any_image_importer", "AnyImageImporter", "AnyImageImporter", "importers", ["trade"]),
-            ),
-            (
-                "any_scene_converter",
-                (
-                    "any_scene_converter",
-                    "AnySceneConverter",
-                    "AnySceneConverter",
-                    "sceneconverters",
-                    ["trade"],
-                ),
-            ),
-            (
-                "any_scene_importer",
-                ("any_scene_importer", "AnySceneImporter", "AnySceneImporter", "importers", ["trade"]),
-            ),
-            (
-                "magnum_font",
-                ("magnum_font", "MagnumFont", "MagnumFont", "fonts", ["magnum_main", "trade", "text"]),
-            ),
-            (
-                "magnum_font_converter",
-                (
-                    "magnum_font_converter",
-                    "MagnumFontConverter",
-                    "MagnumFontConverter",
-                    "fontconverters",
-                    ["magnum_main", "trade", "text", "tga_image_converter"],
-                ),
-            ),
-            (
-                "obj_importer",
-                ("obj_importer", "ObjImporter", "ObjImporter", "importers", ["trade", "mesh_tools"]),
-            ),
+        # (opt_name, (component, target, library, folder, deps))
+        all_plugins = [
+            ("any_audio_importer", ("any_audio_importer", "AnyAudioImporter", "AnyAudioImporter", "audioimporters", ["magnum_main", "audio"])),
+            ("any_image_converter", ("any_image_converter", "AnyImageConverter", "AnyImageConverter", "imageconverters", ["trade"])),
+            ("any_image_importer", ("any_image_importer", "AnyImageImporter", "AnyImageImporter", "importers", ["trade"])),
+            ("any_scene_converter", ("any_scene_converter", "AnySceneConverter", "AnySceneConverter", "sceneconverters", ["trade"])),
+            ("any_scene_importer", ("any_scene_importer", "AnySceneImporter", "AnySceneImporter", "importers", ["trade"])),
+            ("magnum_font", ("magnum_font", "MagnumFont", "MagnumFont", "fonts", ["magnum_main", "trade", "text"])),
+            ("magnum_font_converter", ("magnum_font_converter", "MagnumFontConverter", "MagnumFontConverter", "fontconverters", ["magnum_main", "trade", "text", "tga_image_converter"])),
+            ("obj_importer", ("obj_importer", "ObjImporter", "ObjImporter", "importers", ["trade", "mesh_tools"])),
             ("tga_importer", ("tga_importer", "TgaImporter", "TgaImporter", "importers", ["trade"])),
-            (
-                "tga_image_converter",
-                (
-                    "tga_image_converter",
-                    "TgaImageConverter",
-                    "TgaImageConverter",
-                    "imageconverters",
-                    ["trade"],
-                ),
-            ),
-            (
-                "wav_audio_importer",
-                (
-                    "wav_audio_importer",
-                    "WavAudioImporter",
-                    "WavAudioImporter",
-                    "audioimporters",
-                    ["magnum_main", "audio"],
-                ),
-            ),
-        )
+            ("tga_image_converter", ("tga_image_converter", "TgaImageConverter", "TgaImageConverter", "imageconverters", ["trade"])),
+            ("wav_audio_importer", ("wav_audio_importer", "WavAudioImporter", "WavAudioImporter", "audioimporters", ["magnum_main", "audio"])),
+        ]
         return [plugin for opt_name, plugin in all_plugins if self.options.get_safe(opt_name)]

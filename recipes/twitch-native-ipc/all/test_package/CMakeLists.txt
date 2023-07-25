@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(PackageTest LANGUAGES CXX)
+project(PackageTest)
 
 find_package(twitch-native-ipc REQUIRED CONFIG)
 

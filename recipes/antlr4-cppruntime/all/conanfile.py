@@ -30,6 +30,7 @@ class Antlr4CppRuntimeConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -43,7 +44,7 @@ class Antlr4CppRuntimeConan(ConanFile):
                 "gcc": "7",
                 "clang": "5",
                 "apple-clang": "9.1",
-            }
+            },
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
@@ -114,24 +115,8 @@ class Antlr4CppRuntimeConan(ConanFile):
         cmake.configure(build_script_folder="runtime/Cpp")
         cmake.build()
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=os.path.join(self.source_folder),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", src=os.path.join(self.source_folder), dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if self.options.shared:
@@ -154,12 +139,19 @@ class Antlr4CppRuntimeConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* generatores removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                (
-                    "antlr4_shared" if self.options.shared else "antlr4_static"
-                ): "antlr4-cppruntime::antlr4-cppruntime"
-            },
+            {"antlr4_shared" if self.options.shared else "antlr4_static": "antlr4-cppruntime::antlr4-cppruntime"}
         )
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
@@ -167,9 +159,7 @@ class Antlr4CppRuntimeConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "antlr4-runtime")
-        self.cpp_info.set_property(
-            "cmake_target_name", "antlr4_shared" if self.options.shared else "antlr4_static"
-        )
+        self.cpp_info.set_property("cmake_target_name", "antlr4_shared" if self.options.shared else "antlr4_static")
         libname = "antlr4-runtime"
         if is_msvc(self) and not self.options.shared:
             libname += "-static"

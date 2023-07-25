@@ -1,9 +1,7 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 
 required_conan_version = ">=1.53.0"
@@ -54,8 +52,7 @@ class UsrsctpConan(ConanFile):
         tc.variables["sctp_build_shared_lib"] = self.options.shared
         tc.variables["sctp_build_programs"] = False
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        tc.generate()
-        tc = CMakeDeps(self)
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0091"] = "NEW"
         tc.generate()
 
     def build(self):
@@ -65,7 +62,9 @@ class UsrsctpConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -73,8 +72,8 @@ class UsrsctpConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "usrsctp")
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
-        elif self.settings.os == "Linux":
-            self.cpp_info.system_libs.extend(["pthread"])
+            self.cpp_info.system_libs = ["ws2_32", "iphlpapi"]
+        elif self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["pthread"]
         suffix = "_import" if self.settings.os == "Windows" and self.options.shared else ""
         self.cpp_info.libs = ["usrsctp" + suffix]

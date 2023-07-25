@@ -20,7 +20,7 @@ int main() {
             printf("Long poll started\n");
             longPoll.start();
         }
-    } catch (TgBot::TgException &e) {
+    } catch (TgBot::TgException& e) {
         printf("error: %s\n", e.what());
     }
     return 0;

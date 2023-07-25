@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -35,14 +33,12 @@ class CozConan(ConanFile):
         self.requires("libelfin/0.3")
 
     def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
         compiler = self.settings.compiler
         compiler_version = Version(self.settings.compiler.version)
         if self.settings.os == "Macos" or is_msvc(self) or (compiler == "gcc" and compiler_version < "5.0"):
-            raise ConanInvalidConfiguration(
-                f"coz doesn't support compiler: {self.settings.compiler} on OS: {self.settings.os}."
-            )
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, "11")
+            raise ConanInvalidConfiguration(f"coz doesn't support compiler: {self.settings.compiler} on OS: {self.settings.os}.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -64,13 +60,13 @@ class CozConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "coz")
-        self.cpp_info.set_property("cmake_target_name", "coz")
+        # https://github.com/plasma-umass/coz/#cmake
+        self.cpp_info.set_property("cmake_file_name", "coz-profiler")
+        self.cpp_info.set_property("cmake_target_name", "coz::coz")
 
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-        self.cpp_info.includedirs = []
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "coz-profiler"

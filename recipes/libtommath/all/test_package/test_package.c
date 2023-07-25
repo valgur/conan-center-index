@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define check(V)                                                                                   \
-    if ((V) != MP_OKAY) {                                                                          \
-        fprintf(stderr, #V " FAILURE\n");                                                          \
-        return 1;                                                                                  \
+#define check(V)                            \
+    if ((V) != MP_OKAY) {                   \
+        fprintf(stderr, #V " FAILURE\n");   \
+        return 1;                           \
     }
 
 int main() {

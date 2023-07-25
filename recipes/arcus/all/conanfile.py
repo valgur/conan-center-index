@@ -11,11 +11,9 @@ required_conan_version = ">=1.53.0"
 
 class ArcusConan(ConanFile):
     name = "arcus"
-    description = (
-        "This library contains C++ code and Python3 bindings for "
-        "creating a socket in a thread and using this socket to send "
-        "and receive messages based on the Protocol Buffers library."
-    )
+    description = "This library contains C++ code and Python3 bindings for " \
+                  "creating a socket in a thread and using this socket to send " \
+                  "and receive messages based on the Protocol Buffers library."
     license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Ultimaker/libArcus"
@@ -73,6 +71,18 @@ class ArcusConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def package(self):
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+
+        # TODO: to remove in conan v2 once cmake_find_package* generators removed
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {"Arcus": "Arcus::Arcus"}
+        )
+
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
@@ -83,17 +93,6 @@ class ArcusConan(ConanFile):
                 endif()
             """)
         save(self, module_file, content)
-
-    def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        cmake = CMake(self)
-        cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"Arcus": "Arcus::Arcus"}
-        )
 
     @property
     def _module_file_rel_path(self):

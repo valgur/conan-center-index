@@ -6,17 +6,18 @@
  *        can be consumed
  */
 
-#include <ignition/math.hh>
-#include <ignition/math/Angle.hh>
 #include <iostream>
+#include <ignition/math/Angle.hh>
+#include <ignition/math.hh>
 
-int main() {
+int main(int argc, char** argv)
+{
     std::cout << "hello world from ignition-math test_package\n";
 
     ignition::math::Vector3d point1{1, 3, 5};
     ignition::math::Vector3d point2{2, 4, 6};
 
     double distance = point1.Distance(point2);
-    std::cout << "Distance from (" << point1 << ") to " << point2 << " is " << distance
-              << std::endl;
+    std::cout << "Distance from (" << point1 << ") to "
+              << point2 << " is " << distance << std::endl;
 }

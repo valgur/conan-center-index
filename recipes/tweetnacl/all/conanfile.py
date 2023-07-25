@@ -1,83 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, download, save
 
 required_conan_version = ">=1.53.0"
 
@@ -85,7 +11,7 @@ required_conan_version = ">=1.53.0"
 class TweetnaclConan(ConanFile):
     name = "tweetnacl"
     description = "TweetNaCl is the world's first auditable high-security cryptographic library"
-    license = "Unlicense"
+    license = "Public domain"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tweetnacl.cr.yp.to"
     topics = ("nacl", "encryption", "signature", "hashing")
@@ -102,7 +28,9 @@ class TweetnaclConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -121,14 +49,12 @@ class TweetnaclConan(ConanFile):
         if self.settings.os in ("Windows", "Macos"):
             if self.options.shared:
                 raise ConanInvalidConfiguration(
-                    "tweetnacl does not support shared on Windows and Madcos: "
-                    "it needs a randombytes implementation"
+                    "tweetnacl does not support shared on Windows and Macos: it needs a randombytes implementation"
                 )
 
     def source(self):
         for url_sha in self.conan_data["sources"][self.version]:
-            download(self, url_sha["url"], os.path.basename(url_sha["url"]))
-            check_sha256(self, os.path.basename(url_sha["url"]), url_sha["sha256"])
+            download(self, **url_sha, filename=os.path.basename(url_sha["url"]))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -139,11 +65,13 @@ class TweetnaclConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "UNLICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        save(self,
+             os.path.join(self.package_folder, "licenses", "LICENSE"),
+             "TweetNaCl is a self-contained public-domain C library.")
         cmake = CMake(self)
         cmake.install()
 

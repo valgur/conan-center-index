@@ -1,5 +1,6 @@
-#include <iostream>
 #include <nativeipc/ConnectionFactory.h>
+
+#include <iostream>
 
 int main() {
     using namespace Twitch::IPC;

@@ -5,16 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
@@ -27,12 +18,10 @@ required_conan_version = ">=1.53.0"
 class CairoConan(ConanFile):
     name = "cairo"
     description = "Cairo is a 2D graphics library with support for multiple output devices"
-    license = ("LGPL-2.1-only", "MPL-1.1")
+    topics = ("cairo", "graphics")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://cairographics.org/"
-    topics = ("graphics",)
-
-    package_type = "library"
+    license = ("LGPL-2.1-only", "MPL-1.1")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -66,6 +55,7 @@ class CairoConan(ConanFile):
         "with_symbol_lookup": False,
         "tee": False,
     }
+    short_paths = True
 
     @property
     def _settings_build(self):
@@ -78,12 +68,12 @@ class CairoConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            self.options.rm_safe("with_xlib")
-            self.options.rm_safe("with_xlib_xrender")
-            self.options.rm_safe("with_xcb")
-            self.options.rm_safe("with_symbol_lookup")
+            del self.options.with_xlib
+            del self.options.with_xlib_xrender
+            del self.options.with_xcb
+            del self.options.with_symbol_lookup
         if self.settings.os in ["Macos", "Windows"]:
-            self.options.rm_safe("with_opengl")
+            del self.options.with_opengl
 
     def configure(self):
         if self.options.shared:
@@ -103,30 +93,28 @@ class CairoConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/1.2.13")
         if self.options.with_freetype:
-            self.requires("freetype/2.13.0")
+            self.requires("freetype/2.13.0", transitive_headers=True)
         if self.options.with_fontconfig:
-            self.requires("fontconfig/2.14.2")
+            self.requires("fontconfig/2.14.2", transitive_headers=True)
         if self.options.with_png:
             self.requires("libpng/1.6.40")
         if self.options.with_glib:
             self.requires("glib/2.76.3")
         if self.settings.os == "Linux":
             if self.options.with_xlib or self.options.with_xlib_xrender or self.options.with_xcb:
-                self.requires("xorg/system")
+                self.requires("xorg/system", transitive_headers=True)
         if self.options.get_safe("with_opengl") == "desktop":
-            self.requires("opengl/system")
+            self.requires("opengl/system", transitive_headers=True)
             if self.settings.os == "Windows":
                 self.requires("glext/cci.20210420")
                 self.requires("wglext/cci.20200813")
                 self.requires("khrplatform/cci.20200529")
         if self.options.get_safe("with_opengl") and self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("egl/system")
+            self.requires("egl/system", transitive_headers=True)
 
     def validate(self):
         if self.options.get_safe("with_xlib_xrender") and not self.options.get_safe("with_xlib"):
-            raise ConanInvalidConfiguration(
-                "'with_xlib_xrender' option requires 'with_xlib' option to be enabled as well!"
-            )
+            raise ConanInvalidConfiguration("'with_xlib_xrender' option requires 'with_xlib' option to be enabled as well!")
         if self.options.with_glib:
             if self.dependencies["glib"].options.shared:
                 if is_msvc_static_runtime(self):
@@ -214,12 +202,9 @@ class CairoConan(ConanFile):
 
         # Dependency freetype2 found: NO found 2.11.0 but need: '>= 9.7.3'
         if self.options.with_freetype:
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "meson.build"),
-                "freetype_required_version = '>= 9.7.3'",
-                f"freetype_required_version = '>= {self.dependencies['freetype'].ref.version}'",
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                                  "freetype_required_version = '>= 9.7.3'",
+                                  f"freetype_required_version = '>= {self.dependencies['freetype'].ref.version}'")
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -241,9 +226,7 @@ class CairoConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        base_requirements = {
-            "pixman::pixman",
-        }
+        base_requirements = {"pixman::pixman"}
         base_system_libs = {}
 
         def add_component_and_base_requirements(component, requirements, system_libs=None):
@@ -300,19 +283,13 @@ class CairoConan(ConanFile):
             self.cpp_info.components["cairo-quartz"].set_property("pkg_config_name", "cairo-quartz")
             self.cpp_info.components["cairo-quartz"].requires = ["cairo_"]
 
-            self.cpp_info.components["cairo-quartz-image"].set_property(
-                "pkg_config_name", "cairo-quartz-image"
-            )
+            self.cpp_info.components["cairo-quartz-image"].set_property("pkg_config_name", "cairo-quartz-image")
             self.cpp_info.components["cairo-quartz-image"].requires = ["cairo_"]
 
             self.cpp_info.components["cairo-quartz-font"].set_property("pkg_config_name", "cairo-quartz-font")
             self.cpp_info.components["cairo-quartz-font"].requires = ["cairo_"]
 
-            self.cpp_info.components["cairo_"].frameworks += [
-                "ApplicationServices",
-                "CoreFoundation",
-                "CoreGraphics",
-            ]
+            self.cpp_info.components["cairo_"].frameworks += ["ApplicationServices", "CoreFoundation", "CoreGraphics"]
 
         if self.settings.os == "Windows":
             self.cpp_info.components["cairo-win32"].set_property("pkg_config_name", "cairo-win32")
@@ -334,9 +311,7 @@ class CairoConan(ConanFile):
                     add_component_and_base_requirements("cairo-glx", ["opengl::opengl"])
 
                 if self.settings.os == "Windows":
-                    add_component_and_base_requirements(
-                        "cairo-wgl", ["glext::glext", "wglext::wglext", "khrplatform::khrplatform"]
-                    )
+                    add_component_and_base_requirements("cairo-wgl", ["glext::glext", "wglext::wglext", "khrplatform::khrplatform"])
 
             elif self.options.with_opengl == "gles3":
                 add_component_and_base_requirements("cairo-glesv3", [], ["GLESv2"])
@@ -349,9 +324,7 @@ class CairoConan(ConanFile):
             add_component_and_base_requirements("cairo-script", ["zlib::zlib"])
             add_component_and_base_requirements("cairo-ps", ["zlib::zlib"])
             add_component_and_base_requirements("cairo-pdf", ["zlib::zlib"])
-            self.cpp_info.components["cairo-script-interpreter"].set_property(
-                "pkg_config_name", "cairo-script-interpreter"
-            )
+            self.cpp_info.components["cairo-script-interpreter"].set_property("pkg_config_name", "cairo-script-interpreter")
             self.cpp_info.components["cairo-script-interpreter"].libs = ["cairo-script-interpreter"]
             self.cpp_info.components["cairo-script-interpreter"].requires = ["cairo_"]
 
@@ -367,11 +340,7 @@ class CairoConan(ConanFile):
         if self.options.with_glib:
             self.cpp_info.components["cairo-gobject"].set_property("pkg_config_name", "cairo-gobject")
             self.cpp_info.components["cairo-gobject"].libs = ["cairo-gobject"]
-            self.cpp_info.components["cairo-gobject"].requires = [
-                "cairo_",
-                "glib::gobject-2.0",
-                "glib::glib-2.0",
-            ]
+            self.cpp_info.components["cairo-gobject"].requires = ["cairo_", "glib::gobject-2.0", "glib::glib-2.0"]
 
         self.cpp_info.components["cairo_"].requires += list(base_requirements)
         self.cpp_info.components["cairo_"].system_libs += list(base_system_libs)

@@ -1,11 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get
+from conan.tools.files import copy, get, rm
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
@@ -37,6 +35,8 @@ class S2let(ConanFile):
             del self.options.fPIC
 
     def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
@@ -44,7 +44,7 @@ class S2let(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("astro-informatics-so3/1.3.4")
+        self.requires("astro-informatics-so3/1.3.4", transitive_headers=True)
         if self.options.with_cfitsio:
             self.requires("cfitsio/3.490")
 
@@ -60,7 +60,6 @@ class S2let(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.variables["cfitsio"] = self.options.with_cfitsio
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -70,17 +69,14 @@ class S2let(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
+        rm(self, "*.cmake", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "s2let")
-        self.cpp_info.set_property("cmake_target_name", "s2let")
         self.cpp_info.libs = ["s2let"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "s2let"
-        self.cpp_info.names["cmake_find_package_multi"] = "s2let"

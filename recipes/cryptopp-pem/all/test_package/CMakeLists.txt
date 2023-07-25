@@ -7,4 +7,3 @@ find_package(cryptopp-pem)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(${PROJECT_NAME} cryptopp-pem::cryptopp-pem)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

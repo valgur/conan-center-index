@@ -1,74 +1,22 @@
-# Warnings:
-#   Unexpected method '_cc'
-#   Unexpected method '_lib_path_arg'
-#   Unexpected method '_build_context'
-#   Unexpected method '_static_ext'
-#   Unexpected method '_shared_ext'
-#   Unexpected method '_version_major'
-#   Missing required method 'generate'
-
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os, to_apple_arch
-from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from contextlib import contextmanager, nullcontext
-import glob
 import os
 import re
+
+from conan import ConanFile
+from conan.tools.apple import is_apple_os
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, mkdir, rm, rmdir, save
+from conan.tools.gnu import AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, unix_path, msvs_toolset
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
 
 class SerfConan(ConanFile):
     name = "serf"
-    description = "The serf library is a high performance C-based HTTP client library built upon the Apache Portable Runtime (APR) library."
+    description = ("The serf library is a high performance C-based HTTP client library "
+                   "built upon the Apache Portable Runtime (APR) library.")
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://serf.apache.org/"
@@ -102,77 +50,77 @@ class SerfConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("apr-util/1.6.1")
-        self.requires("zlib/1.2.12")
-        self.requires("openssl/3.0.3")
+        self.requires("apr-util/1.6.1", transitive_headers=True)
+        self.requires("zlib/1.2.13")
+        self.requires("openssl/[>=1.1 <4]")
 
     def build_requirements(self):
-        self.build_requires("scons/4.3.0")
+        self.tool_requires("scons/4.3.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    @property
+    def _cc(self):
+        if "CC" in os.environ:
+            return os.environ["CC"]
+        if is_apple_os(self):
+            return "clang"
+        if is_msvc(self):
+            return "cl"
+        return str(self.settings.compiler)
+
+    def _lib_path_arg(self, path):
+        argname = "LIBPATH:" if is_msvc(self) else "L"
+        return "-{}'{}'".format(argname, unix_path(self, path))
+
     def generate(self):
-        # TODO: fill in generate()
-        pass
+        env = VirtualBuildEnv(self)
+        env.generate()
+
+        autotools = AutotoolsToolchain(self)
+        args = ["-Y", self.source_folder]
+        libdirs = sum([dep.cpp_info.libdirs for dep in self.dependencies.values()], [])
+        sharedlinkflags = sum([dep.cpp_info.sharedlinkflags for dep in self.dependencies.values()], [])
+        includedirs = sum([dep.cpp_info.includedirs for dep in self.dependencies.values()], [])
+        cflags = sum([dep.cpp_info.cflags for dep in self.dependencies.values()], [])
+        cflags += autotools.cflags
+        if self.options.get_safe("fPIC"):
+            cflags.append("-fPIC")
+        kwargs = {
+            "APR": unix_path(self, self.dependencies["apr"].package_folder),
+            "APU": unix_path(self, self.dependencies["apr-util"].package_folder),
+            "OPENSSL": unix_path(self, self.dependencies["openssl"].package_folder),
+            "PREFIX": unix_path(self, self.package_folder),
+            "LIBDIR": unix_path(self, os.path.join(self.package_folder, "lib")),
+            "ZLIB": unix_path(self, self.dependencies["zlib"].package_folder),
+            "DEBUG": self.settings.build_type == "Debug",
+            "APR_STATIC": not self.dependencies["apr"].options.shared,
+            "CFLAGS": " ".join(cflags),
+            "LINKFLAGS": " ".join(sharedlinkflags + [self._lib_path_arg(l) for l in libdirs]),
+            "CPPFLAGS": " ".join([f"-D{d}" for d in autotools.defines] + [f"-I'{unix_path(self, inc)}'" for inc in includedirs]),
+            "CC": self._cc,
+            "SOURCE_LAYOUT": "False",
+        }
+
+        if is_msvc(self):
+            kwargs["TARGET_ARCH"] = str(self.settings.arch)
+            kwargs["MSVC_VERSION"] = "{:.1f}".format(float(msvs_toolset(self).lstrip("v")) / 10)
+            kwargs["OPENSSL_LIBS"] = os.pathsep.join(f"{lib}.lib" for lib in self.dependencies["openssl"].cpp_info.libs)
+
+        escape_str = lambda x: f'"{x}"'
+        scons_args = " ".join([escape_str(s) for s in args] + [f"{k}={escape_str(v)}" for k, v in kwargs.items()])
+        save(self, os.path.join(self.source_folder, "scons_args"), scons_args)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
         pc_in = os.path.join(self.source_folder, "build", "serf.pc.in")
         save(self, pc_in, load(self, pc_in))
 
-    @property
-    def _cc(self):
-        if os.environ.get("CC"):
-            return os.environ.get("CC")
-        if is_apple_os(self.settings.os):
-            return "clang"
-        return {"Visual Studio": "cl"}.get(str(self.settings.compiler), str(self.settings.compiler))
-
-    def _lib_path_arg(self, path):
-        argname = "LIBPATH:" if is_msvc(self) else "L"
-        return "-{}'{}'".format(argname, path.replace("\\", "/"))
-
-    @contextmanager
-    def _build_context(self):
-        extra_env = {}
-        if is_msvc(self):
-            extra_env["OPENSSL_LIBS"] = ";".join("{}.lib".format(lib) for lib in self.dependencies["openssl"].cpp_info.libs)
-        with environment_append(self, extra_env):
-            with vcvars(self.settings) if is_msvc(self) else nullcontext():
-                yield
-
     def build(self):
         self._patch_sources()
-        autotools = AutoToolsBuildEnvironment(self)
-        args = ["-Y", self.source_folder]
-        libdirs = sum([dep.cpp_info.libdirs for dep in self.dependencies.values()], [])
-        sharedlinkflags = sum([dep.cpp_info.sharedlinkflags for dep in self.dependencies.values()], [])
-        includedirs = sum([dep.cpp_info.includedirs for dep in self.dependencies.values()], [])
-        kwargs = {
-            "APR": self.dependencies["apr"].cpp_info.rootpath.replace("\\", "/"),
-            "APU": self.dependencies["apr-util"].cpp_info.rootpath.replace("\\", "/"),
-            "OPENSSL": self.dependencies["openssl"].cpp_info.rootpath.replace("\\", "/"),
-            "PREFIX": self.package_folder.replace("\\", "/"),
-            "LIBDIR": os.path.join(self.package_folder, "lib").replace("\\", "/"),
-            "ZLIB": self.dependencies["zlib"].cpp_info.rootpath.replace("\\", "/"),
-            "DEBUG": self.settings.build_type == "Debug",
-            "APR_STATIC": not self.options["apr"].shared,
-            "CFLAGS": " ".join(
-                sum([dep.cpp_info.cflags for dep in self.dependencies.values()], []) + (["-fPIC"] if self.options.get_safe("fPIC") else []) + autotools.flags
-            ),
-            "LINKFLAGS": " ".join(sharedlinkflags) + " " + " ".join(self._lib_path_arg(l) for l in libdirs),
-            "CPPFLAGS": " ".join("-D{}".format(d) for d in autotools.defines) + " " + " ".join("-I'{}'".format(inc.replace("\\", "/")) for inc in includedirs),
-            "CC": self._cc,
-            "SOURCE_LAYOUT": "False",
-        }
-
-        if is_msvc(self):
-            kwargs.update({"TARGET_ARCH": str(self.settings.arch), "MSVC_VERSION": "{:.1f}".format(float(msvs_toolset(self.settings).lstrip("v")) / 10)})
-
-        escape_str = lambda x: '"{}"'.format(x)
         with chdir(self, self.source_folder):
-            self.run("scons {} {}".format(" ".join(escape_str(s) for s in args), " ".join("{}={}".format(k, escape_str(v)) for k, v in kwargs.items())))
+            self.run("scons {}".format(load(self, "scons_args")))
 
     @property
     def _static_ext(self):
@@ -180,9 +128,11 @@ class SerfConan(ConanFile):
 
     @property
     def _shared_ext(self):
-        if is_apple_os(self.settings.os):
+        if is_apple_os(self):
             return "dylib"
-        return {"Windows": "dll"}.get(str(self.settings.os), "so")
+        if self.settings.os == "Windows":
+            return "dll"
+        return "so"
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -191,38 +141,29 @@ class SerfConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows":
-            for file in glob.glob(os.path.join(self.package_folder, "lib", "*.exp")):
-                os.unlink(file)
-            for file in glob.glob(os.path.join(self.package_folder, "lib", "*.pdb")):
-                os.unlink(file)
+            rm(self, "*.exp", os.path.join(self.package_folder, "lib"), recursive=True)
+            rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
             if self.options.shared:
-                for file in glob.glob(os.path.join(self.package_folder, "lib", "serf-{}.*".format(self._version_major))):
-                    os.unlink(file)
+                rm(self, f"serf-{self._version_major}.*", os.path.join(self.package_folder, "lib"), recursive=True)
                 mkdir(self, os.path.join(self.package_folder, "bin"))
-                os.rename(
-                    os.path.join(self.package_folder, "lib", "libserf-{}.dll".format(self._version_major)),
-                    os.path.join(self.package_folder, "bin", "libserf-{}.dll".format(self._version_major)),
-                )
+                os.rename(os.path.join(self.package_folder, "lib", f"libserf-{self._version_major}.dll"),
+                          os.path.join(self.package_folder, "bin", f"libserf-{self._version_major}.dll"))
             else:
-                for file in glob.glob(os.path.join(self.package_folder, "lib", "libserf-{}.*".format(self._version_major))):
-                    os.unlink(file)
+                rm(self, f"libserf-{self._version_major}.*", os.path.join(self.package_folder, "lib"), recursive=True)
         else:
             ext_to_remove = self._static_ext if self.options.shared else self._shared_ext
             for fn in os.listdir(os.path.join(self.package_folder, "lib")):
-                if any(re.finditer("\\.{}(\.?|$)".format(ext_to_remove), fn)):
+                if any(re.finditer(rf"\\.{ext_to_remove}(\.?|$)", fn)):
                     os.unlink(os.path.join(self.package_folder, "lib", fn))
-
-    @property
-    def _version_major(self):
-        return self.version.split(".", 1)[0]
 
     def package_info(self):
         libprefix = ""
         if self.settings.os == "Windows" and self.options.shared:
             libprefix = "lib"
-        libname = f"{libprefix}serf-{self._version_major}"
+        version_major = Version(self.version).major
+        libname = f"{libprefix}serf-{version_major}"
         self.cpp_info.libs = [libname]
-        self.cpp_info.includedirs.append(os.path.join("include", "serf-{}".format(self._version_major)))
+        self.cpp_info.includedirs.append(os.path.join("include", f"serf-{version_major}"))
         self.cpp_info.set_property("pkg_config_name", libname)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["user32", "advapi32", "gdi32", "ws2_32", "crypt32", "mswsock", "rpcrt4", "secur32"]

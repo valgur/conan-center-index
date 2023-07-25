@@ -12,12 +12,11 @@ required_conan_version = ">=1.47.0"
 
 class B2Conan(ConanFile):
     name = "b2"
+    homepage = "https://www.bfgroup.xyz/b2/"
     description = "B2 makes it easy to build C++ projects, everywhere."
     topics = ("installer", "builder", "build", "build-system")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.bfgroup.xyz/b2/"
-    topics = ("installer", "builder")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,10 +31,8 @@ class B2Conan(ConanFile):
         ]
     }
     default_options = {
-        "shared": False,
-        "fPIC": True,
-        "use_cxx_env": False,
-        "toolset": "auto",
+        'use_cxx_env': False,
+        'toolset': 'auto'
     }
     options_description = {
         'use_cxx_env': (
@@ -68,15 +65,7 @@ class B2Conan(ConanFile):
 
         if self.options.toolset in ['cxx', 'cross-cxx'] and not self.options.use_cxx_env:
             raise ConanInvalidConfiguration(
-                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'"
-            )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
-    def package_id(self):
-        del self.info.options.use_cxx_env
-        del self.info.options.toolset
+                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

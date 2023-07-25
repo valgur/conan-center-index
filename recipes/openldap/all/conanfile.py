@@ -1,82 +1,11 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 
 required_conan_version = ">=1.53.0"
 
@@ -113,13 +42,15 @@ class OpenldapConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1q")
+        self.requires("openssl/[>=1.1 <4]")
         if self.options.with_cyrus_sasl:
             self.requires("cyrus-sasl/2.1.27")
 
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.name} is only supported on Linux")
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -134,25 +65,27 @@ class OpenldapConan(ConanFile):
             "--without-fetch",
             "--with-tls=openssl",
             "--enable-auditlog",
+            f"systemdsystemunitdir={os.path.join(self.package_folder, 'res')}",
         ]
-        self._configure_vars = self._autotools.vars
-        self._configure_vars["systemdsystemunitdir"] = os.path.join(self.package_folder, "res")
-
         # Need to link to -pthread instead of -lpthread for gcc 8 shared=True
         # on CI job. Otherwise, linking fails.
-        tc.libs.remove("pthread")
-        self._configure_vars["LIBS"] = self._configure_vars["LIBS"].replace("-lpthread", "-pthread")
-
+        # tc.libs.remove("pthread")
+        # self._configure_vars["LIBS"] = self._configure_vars["LIBS"].replace("-lpthread", "-pthread")
+        tc.generate()
+        tc = AutotoolsDeps(self)
         tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
-        autotools = Autotools(self)
-        autotools.make()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make()
 
     def package(self):
-        autotools = Autotools()
-        autotools.install()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         for folder in ["var", "share", "etc", "lib/pkgconfig", "res"]:
@@ -160,10 +93,11 @@ class OpenldapConan(ConanFile):
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-
         self.cpp_info.libs = ["ldap", "lber"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
+
+        # TODO: to remove in conan v2
+        bin_path = os.path.join(self.package_folder, "bin")
+        self.env_info.PATH.append(bin_path)
+        self.output.info(f"Appending PATH environment variable: {bin_path}")

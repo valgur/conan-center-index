@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -47,10 +45,10 @@ class ZyreConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("czmq/4.2.0")
+        self.requires("czmq/4.2.1", transitive_headers=True)
         self.requires("zeromq/4.3.4")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("libsystemd/249.7")
+            self.requires("libsystemd/253.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -61,7 +59,7 @@ class ZyreConan(ConanFile):
         if Version(self.version) >= "2.0.1":
             tc.variables["ZYRE_BUILD_SHARED"] = self.options.shared
             tc.variables["ZYRE_BUILD_STATIC"] = not self.options.shared
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
         if not self.options.shared:
             tc.preprocessor_definitions["ZYRE_STATIC"] = ""
         tc.generate()
@@ -75,9 +73,9 @@ class ZyreConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

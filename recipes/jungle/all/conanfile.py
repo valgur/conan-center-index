@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -66,18 +64,17 @@ class JungleConan(ConanFile):
         cmake.build()
 
     def package(self):
-        src_dir = self.source_folder
-        copy(self, "LICENSE*", src_dir, os.path.join(self.package_folder, "licenses"))
-
-        hdr_src = os.path.join(src_dir, "include")
-        copy(self, "*.h", hdr_src, os.path.join(self.package_folder, "include"), keep_path=True)
-
-        lib_dir = os.path.join(self.package_folder, "lib")
-        copy(self, "*.a", self.build_folder, lib_dir, keep_path=False)
-        copy(self, "*.lib", self.build_folder, lib_dir, keep_path=False)
-        copy(self, "*.so*", self.build_folder, lib_dir, keep_path=False)
-        copy(self, "*.dylib*", self.build_folder, lib_dir, keep_path=False)
-        copy(self, "*.dll*", self.build_folder, os.path.join(self.package_folder, "bin"), keep_path=False)
+        copy(self, "LICENSE*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
+        for pattern in ["*.a", "*.lib", "*.so*", "*.dylib*", "*.dll*"]:
+            copy(self, pattern,
+                 src=self.build_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["jungle"]

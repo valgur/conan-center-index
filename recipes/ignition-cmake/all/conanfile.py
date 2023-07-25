@@ -118,18 +118,6 @@ class IgnitionCmakeConan(ConanFile):
         self.cpp_info.components["utilities"].includedirs.append(f"include/ignition/cmake{version_major}")
 
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path, ign_cmake_file])
-        self.cpp_info.components["utilities"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path,
-            ign_cmake_file,
-            utils_targets_file,
-        ]
-        self.cpp_info.components["utilities"].build_modules["cmake_find_package_multi"] = [
-            self._module_file_rel_path,
-            ign_cmake_file,
-            utils_targets_file,
-        ]
-        self.cpp_info.components["utilities"].build_modules["cmake_paths"] = [
-            self._module_file_rel_path,
-            ign_cmake_file,
-            utils_targets_file,
-        ]
+        self.cpp_info.components["utilities"].build_modules["cmake_find_package"] = [self._module_file_rel_path, ign_cmake_file, utils_targets_file]
+        self.cpp_info.components["utilities"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path, ign_cmake_file, utils_targets_file]
+        self.cpp_info.components["utilities"].build_modules["cmake_paths"] = [self._module_file_rel_path, ign_cmake_file, utils_targets_file]

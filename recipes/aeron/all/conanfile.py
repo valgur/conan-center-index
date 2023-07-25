@@ -15,10 +15,10 @@ required_conan_version = ">=1.53.0"
 class AeronConan(ConanFile):
     name = "aeron"
     description = "Efficient reliable UDP unicast, UDP multicast, and IPC message transport"
-    license = "Apache-2.0"
+    topics = ("udp", "messaging", "low-latency")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/real-logic/aeron/wiki"
-    topics = ("udp", "messaging", "low-latency", "pre-built")
+    license = "Apache-2.0"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -69,9 +69,7 @@ class AeronConan(ConanFile):
             )
 
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration(
-                "This platform (os=Macos arch=armv8) is not yet supported by this recipe"
-            )
+            raise ConanInvalidConfiguration("This platform (os=Macos arch=armv8) is not yet supported by this recipe")
 
     def build_requirements(self):
         self.tool_requires("zulu-openjdk/11.0.15")
@@ -112,15 +110,8 @@ class AeronConan(ConanFile):
         archive_resources_dir = os.path.join(self.source_folder, "aeron-archive", "src", "main", "resources")
         copy(self, "*", src=archive_resources_dir, dst=os.path.join(self.package_folder, "res"))
 
-        archive_include_dir = os.path.join(
-            self.source_folder, "aeron-archive", "src", "main", "cpp", "client"
-        )
-        copy(
-            self,
-            "*.h",
-            src=archive_include_dir,
-            dst=os.path.join(self.package_folder, "include", "aeron-archive"),
-        )
+        archive_include_dir = os.path.join(self.source_folder, "aeron-archive", "src", "main", "cpp", "client")
+        copy(self, "*.h", src=archive_include_dir, dst=os.path.join(self.package_folder, "include", "aeron-archive"))
 
         lib_folder = os.path.join(self.package_folder, "lib")
         bin_folder = os.path.join(self.package_folder, "bin")

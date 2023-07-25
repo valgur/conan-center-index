@@ -17,8 +17,10 @@ int main() {
         return 0;
     }
 
-    rc = elzma_compress_config(hand, ELZMA_LC_DEFAULT, ELZMA_LP_DEFAULT, ELZMA_PB_DEFAULT, 5,
-                               (1 << 20) /* 1mb */, format, inLen);
+    rc = elzma_compress_config(hand, ELZMA_LC_DEFAULT,
+                               ELZMA_LP_DEFAULT, ELZMA_PB_DEFAULT,
+                               5, (1 << 20) /* 1mb */,
+                               format, inLen);
 
     if (rc != ELZMA_E_OK) {
         printf("Config failed with error code: %d \n", rc);

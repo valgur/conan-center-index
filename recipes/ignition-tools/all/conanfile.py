@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -20,7 +18,7 @@ class IgnitionToolsConan(ConanFile):
     homepage = "https://ignitionrobotics.org/libs/tools"
     topics = ("ignition", "robotics", "tools")
 
-    package_type = "library"
+    package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -39,6 +37,7 @@ class IgnitionToolsConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "Visual Studio": "16",
+            "msvc": "192",
             "gcc": "7",
             "clang": "5",
             "apple-clang": "10",
@@ -106,18 +105,24 @@ class IgnitionToolsConan(ConanFile):
             rm(self, dll_pattern_to_remove, os.path.join(self.package_folder, "bin"), recursive=True)
 
     def package_info(self):
+        self.cpp_info.includedirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.bindirs = []
+
         version_major = Version(self.version).major
-        self.cpp_info.set_property("cmake_file_name", f"ignition-tools{version_major}")
-        self.cpp_info.set_property("cmake_target_name", f"ignition-tools{version_major}")
+        pkg_name = f"ignition-tools{version_major}"
+        self.cpp_info.set_property("cmake_file_name", pkg_name)
+        self.cpp_info.set_property("cmake_target_name", f"{pkg_name}::{pkg_name}")
 
         component = self.cpp_info.components["libignition-tools"]
         component.libs = ["ignition-tools-backward"]
         component.includedirs.append(f"include/ignition/tools{version_major}")
-        component.set_property("cmake_target_name", f"ignition-tools{version_major}")
-        component.names["cmake_find_package"] = f"ignition-tools{version_major}"
-        component.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
-        component.set_property("pkg_config_name", f"ignition-tools{version_major}")
+        component.set_property("cmake_target_name", pkg_name)
+        component.set_property("pkg_config_name", pkg_name)
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = f"ignition-tools{version_major}"
-        self.cpp_info.names["cmake_find_package_multi"] = f"ignition-tools{version_major}"
+        self.cpp_info.names["cmake_find_package"] = pkg_name
+        self.cpp_info.names["cmake_find_package_multi"] = pkg_name
+        component.names["cmake_find_package"] = pkg_name
+        component.names["cmake_find_package_multi"] = pkg_name

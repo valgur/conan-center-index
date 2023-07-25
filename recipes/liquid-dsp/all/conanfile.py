@@ -1,84 +1,13 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rename
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from contextlib import contextmanager
-import os
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=1.53.0"
 
@@ -86,10 +15,10 @@ required_conan_version = ">=1.53.0"
 class LiquidDspConan(ConanFile):
     name = "liquid-dsp"
     description = "Digital signal processing library for software-defined radios (and more)"
-    license = ("MIT",)
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jgaeddert/liquid-dsp"
-    topics = ("dsp", "sdr", "liquid-dsp")
+    topics = ("dsp", "sdr")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -157,13 +86,23 @@ class LiquidDspConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
-            self.build_requires("mingw-w64/8.1")
+            self.tool_requires("mingw-w64/8.1")
             self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.extra_cflags += ["-static-libgcc"]
+        if self.settings.build_type == "Debug":
+            tc.configure_args.append("--enable-debug-messages")
+            tc.extra_cflags += ["-g", "-O0"]
+        else:
+            tc.extra_cflags += ["-s", "-O2", "-DNDEBUG"]
+        if self.options.simdoverride:
+            tc.configure_args.append("--enable-simdoverride")
+        tc.generate()
 
         if is_msvc(self):
             env = Environment()
@@ -185,15 +124,12 @@ class LiquidDspConan(ConanFile):
             apply_conandata_patches(self)
 
     def _gen_link_library(self):
-        if not is_msvc(self) or (not self.options.shared):
-            return
-        self.run("cmd /c generate_link_library.bat")
-        with chdir(self, self.source_folder):
-            self.run(
-                "{} /def:libliquid.def /out:libliquid.lib /machine:{}".format(
-                    os.getenv("AR"), "X86" if self.settings.arch == "x86" else "X64"
-                ),
-            )
+        if is_msvc(self) and self.options.shared:
+            self.run("cmd /c generate_link_library.bat")
+            with chdir(self, self.source_folder):
+                self.run("{} /def:libliquid.def /out:libliquid.lib /machine:{}".format(
+                    os.getenv("AR"), "X86" if self.settings.arch == "x86" else "X64")
+                )
 
     def _rename_libraries(self):
         with chdir(self, self.source_folder):
@@ -204,67 +140,31 @@ class LiquidDspConan(ConanFile):
             elif self.settings.os == "Macos" and not self.options.shared:
                 rename(self, "libliquid.ar", "libliquid.a")
 
-    @contextmanager
-    def _build_context(self):
-        if is_msvc(self):
-            env = {
-                "CC": "gcc",
-                "CXX": "g++",
-                "LD": "ld",
-                "AR": "ar",
-            }
-            with environment_append(self, env):
-                yield
-        else:
-            yield
-
     def build(self):
         self._patch_sources()
-        ncpus = cpu_count(self)
-        configure_args = []
-        cflags = ["-static-libgcc"]
-        if self.settings.build_type == "Debug":
-            configure_args.append("--enable-debug-messages")
-            cflags.extend(["-g", "-O0"])
-        else:
-            cflags.extend(["-s", "-O2", "-DNDEBUG"])
-        if self.options.simdoverride:
-            configure_args.append("--enable-simdoverride")
-        if is_msvc(self):
-            configure_args.append("CFLAGS='{}'".format(" ".join(cflags)))
-        configure_args_str = " ".join(configure_args)
         with chdir(self, self.source_folder):
             self.run("./bootstrap.sh")
-            self.run("./configure {}".format(configure_args_str))
-            self.run("make {} -j{}".format(self._target_name, ncpus))
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make(self._target_name)
         self._rename_libraries()
-        with self._msvc_context():
-            self._gen_link_library()
+        self._gen_link_library()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
-        copy(
-            self,
-            pattern="liquid.h",
-            dst=os.path.join("include", "liquid"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="libliquid.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern=self._lib_pattern,
-            dst=os.path.join(self.package_folder, "lib"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "liquid.h",
+             dst=os.path.join(self.package_folder, "include", "liquid"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "libliquid.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.source_folder)
+        copy(self, self._lib_pattern,
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = [self._libname]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

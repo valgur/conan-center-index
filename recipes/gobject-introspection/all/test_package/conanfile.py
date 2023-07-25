@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
+from conan.tools.gnu import PkgConfig
 
 
 class TestPackageConan(ConanFile):
@@ -18,17 +19,11 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         if self.settings.os != "Windows":
-            with environment_append(
-                self,
-                {
-                    "PKG_CONFIG_PATH": ".",
-                },
-            ):
-                pkg_config = PkgConfig(self, "gobject-introspection-1.0")
-                for tool in ["g_ir_compiler", "g_ir_generate", "g_ir_scanner"]:
-                    self.run("%s --version" % pkg_config.variables[tool], env="conanrun")
-                self.run("g-ir-annotation-tool --version", env="conanrun")
-                self.run("g-ir-inspect -h", env="conanrun")
+            pkg_config = PkgConfig(self, "gobject-introspection-1.0", pkg_config_path=self.generators_folder)
+            for tool in ["g_ir_compiler", "g_ir_generate", "g_ir_scanner"]:
+                self.run("%s --version" % pkg_config.variables[tool], env="conanrun")
+            self.run("g-ir-annotation-tool --version", env="conanrun")
+            self.run("g-ir-inspect -h", env="conanrun")
 
         cmake = CMake(self)
         cmake.configure()

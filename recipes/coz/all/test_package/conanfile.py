@@ -17,8 +17,9 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        # To work properly Coz tool requires debug information https://github.com/plasma-umass/coz
-        cmake = CMake(self, build_type="RelWithDebInfo")
+        # FIXME: To work properly Coz tool requires debug information https://github.com/plasma-umass/coz
+        # cmake = CMake(self, build_type="RelWithDebInfo")
+        cmake = CMake(self)
         cmake.configure()
         cmake.build()
 

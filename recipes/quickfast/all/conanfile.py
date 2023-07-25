@@ -1,6 +1,3 @@
-# TODO: verify the Conan v2 migration
-
-import glob
 import os
 
 from conan import ConanFile
@@ -17,16 +14,7 @@ class QuickfastConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://objectcomputing.com/"
-    topics = (
-        "conan",
-        "QuickFAST",
-        "FAST",
-        "FIX",
-        "Fix Adapted for STreaming",
-        "Financial Information Exchange",
-        "libraries",
-        "cpp",
-    )
+    topics = ("conan", "QuickFAST", "FAST", "FIX", "Fix Adapted for STreaming", "Financial Information Exchange", "libraries", "cpp")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -47,16 +35,16 @@ class QuickfastConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def configure(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, "11")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.75.0")
-        self.requires("xerces-c/3.2.3")
+        self.requires("boost/1.82.0")
+        self.requires("xerces-c/3.2.4")
+
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -70,13 +58,15 @@ class QuickfastConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build(target="quickfast")
 
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "license.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "license.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

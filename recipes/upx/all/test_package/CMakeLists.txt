@@ -5,6 +5,4 @@ if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
     add_link_options(-static)
 endif()
 
-find_package(upx REQUIRED CONFIG)
-
 add_executable(${PROJECT_NAME} test_package.c)

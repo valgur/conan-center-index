@@ -1,97 +1,13 @@
-# Warnings:
-#   Unexpected method '_bits'
-#   Unexpected method '_custom_api_file'
-#   Unexpected method '_headers_dir'
-#   Unexpected method '_platform'
-#   Unexpected method '_target'
-#   Unexpected method '_use_llvm'
-#   Unexpected method '_use_mingw'
-#   Unexpected method '_libname'
-#   Unexpected method '_godot_headers'
-#   Missing required method 'config_options'
-#   Missing required method 'configure'
-#   Missing required method 'generate'
-
-# TODO: verify the Conan v2 migration
-
-import glob
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
 
 required_conan_version = ">=1.53.0"
 
@@ -127,13 +43,13 @@ class GodotCppConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("godot_headers/{}".format(self.version))
+        self.requires(f"godot_headers/{self.version}", transitive_headers=True)
 
     def package_id(self):
-        if self._target == "release":
-            self.info.settings.build_type = "Release"
-        else:
+        if self.info.settings.build_type == "Debug":
             self.info.settings.build_type = "Debug"
+        else:
+            self.info.settings.build_type = "Release"
 
     def validate(self):
         minimal_cpp_standard = 14
@@ -144,6 +60,7 @@ class GodotCppConan(ConanFile):
             "gcc": "5",
             "clang": "4",
             "apple-clang": "10",
+            "msvc": "191",
             "Visual Studio": "15",
         }
 
@@ -168,19 +85,19 @@ class GodotCppConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("scons/3.1.2")
+        self.tool_requires("scons/4.3.0")
 
     @property
     def _bits(self):
-        return 64 if self.settings.get_safe("arch") in ["x86_64", "armv8"] else 32
+        return 32 if self.settings.arch in ["x86"] else 64
 
     @property
     def _custom_api_file(self):
-        return "{}/api.json".format(self._godot_headers.res_paths[0])
+        return f"{self._godot_headers.resdirs[0]}/api.json"
 
     @property
     def _headers_dir(self):
-        return self._godot_headers.include_paths[0]
+        return self._godot_headers.includedirs[0]
 
     @property
     def _platform(self):
@@ -189,25 +106,23 @@ class GodotCppConan(ConanFile):
             "Linux": "linux",
             "Macos": "osx",
         }
-        return flag_map[self.settings.get_safe("os")]
+        return flag_map[str(self.settings.os)]
 
     @property
     def _target(self):
-        return "debug" if self.settings.get_safe("build_type") == "Debug" else "release"
+        return "debug" if self.settings.build_type == "Debug" else "release"
 
     @property
     def _use_llvm(self):
-        return self.settings.get_safe("compiler") in ["clang", "apple-clang"]
+        return self.settings.compiler in ["clang", "apple-clang"]
 
     @property
     def _use_mingw(self):
-        return self._platform == "windows" and self.settings.compiler == "gcc"
+        return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     @property
     def _libname(self):
-        return "godot-cpp.{platform}.{target}.{bits}".format(
-            platform=self._platform, target=self._target, bits=self._bits
-        )
+        return f"godot-cpp.{self._platform}.{self._target}.{self._bits}"
 
     @property
     def _godot_headers(self):
@@ -217,53 +132,41 @@ class GodotCppConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # TODO: fill in generate()
-        pass
+        VirtualBuildEnv(self).generate()
 
     def build(self):
         self.run("python  --version")
         if self.settings.os == "Macos":
             self.run("which python")
         self.run("scons  --version")
-        self.run(
-            " ".join(
-                [
-                    "scons",
-                    f"-C{self.source_folder}",
-                    f"-j{cpu_count(self)}",
-                    "generate_bindings=yes",
-                    "use_custom_api_file=yes",
-                    f"bits={self._bits}",
-                    f"custom_api_file={self._custom_api_file}",
-                    f"headers_dir={self._headers_dir}",
-                    f"platform={self._platform}",
-                    f"target={self._target}",
-                    f"use_llvm={self._use_llvm}",
-                    f"use_mingw={self._use_mingw}",
-                ]
-            )
-        )
+        self.run(" ".join([
+            "scons",
+            f"-C{self.source_folder}",
+            f"-j{os.cpu_count()}",
+            "generate_bindings=yes",
+            "use_custom_api_file=yes",
+            f"bits={self._bits}",
+            f"custom_api_file={self._custom_api_file}",
+            f"headers_dir={self._headers_dir}",
+            f"platform={self._platform}",
+            f"target={self._target}",
+            f"use_llvm={self._use_llvm}",
+            f"use_mingw={self._use_mingw}",
+        ]))
 
     def package(self):
-        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            "*.hpp",
-            dst=os.path.join(self.package_folder, "include/godot-cpp"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            "*.a",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.source_folder, "bin"),
-        )
-        copy(
-            self,
-            "*.lib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.source_folder, "bin"),
-        )
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include/godot-cpp"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, "bin"))
+        copy(self, "*.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, "bin"))
 
     def package_info(self):
         if is_msvc(self):

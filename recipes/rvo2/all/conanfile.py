@@ -1,10 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy, get, replace_in_file
+from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -46,13 +45,9 @@ class Rvo2Conan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def _patch_sources(self):
-        replace_in_file(
-            self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(examples)", ""
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(examples)", "")
         replace_in_file(
             self,
             os.path.join(self.source_folder, "src", "CMakeLists.txt"),
@@ -76,6 +71,7 @@ class Rvo2Conan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
-        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.libs = ["RVO"]

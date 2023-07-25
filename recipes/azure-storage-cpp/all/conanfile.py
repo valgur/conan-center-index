@@ -1,88 +1,12 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
 
 required_conan_version = ">=1.53.0"
 
@@ -115,12 +39,12 @@ class AzureStorageCppConan(ConanFile):
         return {
             "gcc": "5",
             "Visual Studio": "14",
+            "msvc": "190",
             "clang": "3.4",
             "apple-clang": "5.1",
         }
 
     def export_sources(self):
-        copy(self, "cmake-wrapper.cmd", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -135,13 +59,13 @@ class AzureStorageCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cpprestsdk/2.10.18")
+        self.requires("cpprestsdk/2.10.18", transitive_headers=True)
         if self.settings.os != "Windows":
-            self.requires("boost/1.76.0")
-            self.requires("libxml2/2.9.10")
-            self.requires("libuuid/1.0.3")
+            self.requires("boost/1.81.0", transitive_headers=True)
+            self.requires("libxml2/2.11.4", transitive_headers=True)
+            self.requires("libuuid/1.0.3", transitive_headers=True)
         if self.settings.os == "Macos":
-            self.requires("libgettext/0.20.1")
+            self.requires("libgettext/0.21")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -149,29 +73,21 @@ class AzureStorageCppConan(ConanFile):
         min_version = self._minimum_compiler_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warning(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:
             if Version(self.settings.compiler.version) < min_version:
                 raise ConanInvalidConfiguration(
-                    "{} requires C++{} support. The current compiler {} {} does not support it.".format(
-                        self.name,
-                        self._minimum_cpp_standard,
-                        self.settings.compiler,
-                        self.settings.compiler.version,
-                    )
+                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
+                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
                 )
 
         # FIXME: Visual Studio 2015 & 2017 are supported but CI of CCI lacks several Win SDK components
         # https://github.com/conan-io/conan-center-index/issues/4195
-        if is_msvc(self) and Version(self.settings.compiler.version) < "16":
+        if not check_min_vs(self, 192, raise_invalid=False):
             raise ConanInvalidConfiguration("Visual Studio < 2019 not yet supported in this recipe")
         if self.options.shared and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(
-                "Visual Studio build for shared library with MT runtime is not supported"
-            )
+            raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -192,11 +108,14 @@ class AzureStorageCppConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=os.path.join(
+            self.source_folder, "Microsoft.WindowsAzure.Storage"))
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

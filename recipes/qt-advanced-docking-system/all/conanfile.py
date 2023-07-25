@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile, conan_version
@@ -106,8 +104,25 @@ class QtADS(ConanFile):
         "fPIC": True,
     }
 
+    @property
+    def _min_cppstd(self):
+        return 14
+
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            "Visual Studio": "15",
+            "msvc": "14.1",
+            "gcc": "5",
+            "clang": "5",
+            "apple-clang": "5.1",
+        }
+
+    @property
+    def _qt_version(self):
+        return "5.15.9"
+
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -122,18 +137,27 @@ class QtADS(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"qt/{self._qt_version}")
+        self.requires(f"qt/{self._qt_version}", transitive_headers=True)
+        self.requires(f"libpng/1.6.40", override=True)
+
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["ADS_VERSION"] = self.version
+        tc.cache_variables["ADS_VERSION"] = self.version
         tc.variables["BUILD_EXAMPLES"] = "OFF"
         tc.variables["BUILD_STATIC"] = not self.options.shared
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -142,7 +166,7 @@ class QtADS(ConanFile):
 
         replace_in_file(
             self,
-            f"{self.source_folder}/{self.source_folder}/src/ads_globals.cpp",
+            os.path.join(self.source_folder, "src", "ads_globals.cpp"),
             "#include <qpa/qplatformnativeinterface.h>",
             f"#include <{self._qt_version}/QtGui/qpa/qplatformnativeinterface.h>",
         )
@@ -150,7 +174,7 @@ class QtADS(ConanFile):
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):

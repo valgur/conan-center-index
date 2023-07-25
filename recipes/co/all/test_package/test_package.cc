@@ -2,6 +2,6 @@
 #include <iostream>
 
 int main() {
-    std::cout << str::from(123) << std::endl;
-    return 0;
+  std::cout << str::from(123) << std::endl;
+  return 0;
 }

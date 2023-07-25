@@ -1,9 +1,7 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 
 required_conan_version = ">=1.53.0"
@@ -55,8 +53,6 @@ class LibpropertiesConan(ConanFile):
         tc.variables["LIBPROPERTIES_INSTALL"] = True
         tc.variables["LIBPROPERTIES_TEST"] = False
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -65,10 +61,11 @@ class LibpropertiesConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):

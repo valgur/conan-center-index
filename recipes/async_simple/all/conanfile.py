@@ -68,15 +68,13 @@ class AsyncSimpleConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(
             self,
             pattern="*.h",
             dst=os.path.join(self.package_folder, "include/async_simple"),
             src=os.path.join(self.source_folder, "async_simple"),
-            excludes=("test", "executors", "uthread"),
+            excludes=("test", "executors", "uthread")
         )
 
     def package_info(self):
@@ -92,13 +90,6 @@ class AsyncSimpleConan(ConanFile):
         self.cpp_info.filenames["cmake_find_package_multi"] = "async_simple"
         self.cpp_info.names["cmake_find_package"] = "async_simple"
         self.cpp_info.names["cmake_find_package_multi"] = "async_simple"
-        self.cpp_info.components["_async_simple"].set_property(
-            "cmake_target_name", "async_simple_header_only"
-        )
         self.cpp_info.components["_async_simple"].names["cmake_find_package"] = "async_simple_header_only"
-        self.cpp_info.components["_async_simple"].names[
-            "cmake_find_package_multi"
-        ] = "async_simple_header_only"
-        self.cpp_info.components["_async_simple"].set_property(
-            "cmake_target_name", "async_simple::async_simple_header_only"
-        )
+        self.cpp_info.components["_async_simple"].names["cmake_find_package_multi"] = "async_simple_header_only"
+        self.cpp_info.components["_async_simple"].set_property("cmake_target_name", "async_simple::async_simple_header_only")

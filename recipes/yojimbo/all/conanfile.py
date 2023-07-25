@@ -1,83 +1,13 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 import yaml
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import chdir, collect_libs, copy, get, replace_in_file, rmdir
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, is_msvc
+from conan.tools.microsoft.visual import msvc_version_to_vs_ide_version
 
 required_conan_version = ">=1.53.0"
 
@@ -88,7 +18,7 @@ class YojimboConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/networkprotocol/yojimbo"
-    topics = ("yojimbo", "game", "udp", "protocol", "client-server", "multiplayer-game-server")
+    topics = ("game", "udp", "protocol", "client-server", "multiplayer-game-server")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -125,9 +55,9 @@ class YojimboConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-        submodule_filename = os.path.join(self.recipe_folder, "submoduledata.yml")
+        submodule_filename = os.path.join(self.export_sources_folder, "submoduledata.yml")
         with open(submodule_filename, "r") as submodule_stream:
-            submodules_data = yaml.load(submodule_stream)
+            submodules_data = yaml.load(submodule_stream, Loader=yaml.Loader)
             for path, submodule in submodules_data["submodules"][self.version].items():
                 submodule_data = {
                     "url": submodule["url"],
@@ -141,40 +71,33 @@ class YojimboConan(ConanFile):
                 rmdir(self, submodule_source)
 
     def generate(self):
-        # TODO: fill in generate()
-        pass
+        if is_msvc(self):
+            tc = MSBuildToolchain(self)
+            tc.generate()
+            tc = MSBuildDeps(self)
+            tc.generate()
+        else:
+            tc = AutotoolsToolchain(self)
+            tc.generate()
+            tc = AutotoolsDeps(self)
+            tc.generate()
 
     def build(self):
         # Before building we need to make some edits to the premake file to build using conan dependencies rather than local/bundled
 
-        # Generate the list of dependency include and library paths as strings
-        include_path_str = ", ".join(
-            f'"{p}"'
-            for p in self.dependencies["libsodium"].cpp_info.includedirs
-            + self.dependencies["mbedtls"].cpp_info.includedirs
-        )
-        lib_path_str = ", ".join(
-            f'"{p}"'
-            for p in self.dependencies["libsodium"].lib_paths + self.dependencies["mbedtls"].cpp_info.libdirs
-        )
-
         premake_path = os.path.join(self.source_folder, "premake5.lua")
 
         if self.settings.os == "Windows":
-            # Replace Windows directory seperator
-            include_path_str = include_path_str.replace("\\", "/")
-            lib_path_str = lib_path_str.replace("\\", "/")
-
             # Edit the premake script to use conan rather than bundled dependencies
             replace_in_file(
                 self,
                 premake_path,
                 'includedirs { ".", "./windows"',
-                'includedirs { ".", %s' % include_path_str,
+                'includedirs { ".", ',
                 strict=True,
             )
             replace_in_file(
-                self, premake_path, 'libdirs { "./windows" }', "libdirs { %s }" % lib_path_str, strict=True
+                self, premake_path, 'libdirs { "./windows" }', "libdirs { }", strict=True
             )
 
             # Edit the premake script to change the name of libsodium
@@ -182,12 +105,13 @@ class YojimboConan(ConanFile):
 
         else:
             # Edit the premake script to use  conan rather than local dependencies
-            replace_in_file(self, premake_path, '"/usr/local/include"', include_path_str, strict=True)
+            replace_in_file(self, premake_path, '"/usr/local/include"', "", strict=True)
 
         # Build using premake
 
         if is_msvc(self):
             generator = "vs" + {
+                "17": "2022",
                 "16": "2019",
                 "15": "2017",
                 "14": "2015",
@@ -196,35 +120,36 @@ class YojimboConan(ConanFile):
                 "10": "2010",
                 "9": "2008",
                 "8": "2005",
-            }.get(str(self.settings.compiler.version))
+            }.get(msvc_version_to_vs_ide_version(str(self.settings.compiler.version)))
         else:
             generator = "gmake2"
 
         with chdir(self, self.source_folder):
-            self.run("premake5 %s" % generator)
-
+            self.run(f"premake5 {generator}")
             if is_msvc(self):
                 msbuild = MSBuild(self)
                 msbuild.build("Yojimbo.sln")
             else:
                 config = "debug" if self.settings.build_type == "Debug" else "release"
                 config += "_x64"
-                env_build = AutoToolsBuildEnvironment(self)
-                env_build.make(args=[f"config={config}"])
+                autotools = Autotools(self)
+                autotools.make(args=[f"config={config}"])
 
     def package(self):
-        copy(
-            self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="yojimbo.h",
+        copy(self, "LICENCE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "yojimbo.h",
             dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
-
-        copy(self, pattern="*/yojimbo.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*/libyojimbo.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            src=self.source_folder)
+        copy(self, "*/yojimbo.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.source_folder,
+             keep_path=False)
+        copy(self, "*/libyojimbo.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.source_folder,
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

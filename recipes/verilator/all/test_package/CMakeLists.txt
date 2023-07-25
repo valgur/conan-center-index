@@ -11,10 +11,10 @@ verilate(blinky SOURCES blinky.v TRACE)
 option(BUILD_SYSTEMC "Build SystemC example" ON)
 
 if(BUILD_SYSTEMC)
+    find_package(SystemCLanguage REQUIRED CONFIG)
     add_executable(blinky_sc
         blinky_sc.cpp
     )
     verilate(blinky_sc SOURCES blinky.v SYSTEMC)
-    target_link_libraries(blinky_sc PRIVATE systemc::systemc)
+    target_link_libraries(blinky_sc PRIVATE SystemC::systemc)
 endif()
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

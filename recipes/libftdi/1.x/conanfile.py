@@ -1,10 +1,10 @@
 import os
+
 from conan import ConanFile
-from conan.tools.files import get, rmdir, export_conandata_patches
-from conan.tools.files import apply_conandata_patches, copy
-from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
-from conan.tools.microsoft import is_msvc
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
+from conan.tools.files import get, rmdir, export_conandata_patches, apply_conandata_patches, copy
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -15,23 +15,23 @@ class LibFtdiConan(ConanFile):
     license = ("LGPL-2.0-only", "GPLv2-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.intra2net.com/en/developer/libftdi/"
-    topics = ("ftdi",)
+    topics = "ftdi"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "enable_cpp_wrapper": [True, False],
-        "build_eeprom_tool": [True, False],
-        "use_streaming": [True, False],
+            "shared"             : [True, False],
+            "fPIC"               : [True, False],
+            "enable_cpp_wrapper" : [True, False],
+            "build_eeprom_tool"  : [True, False],
+            "use_streaming"      : [True, False],
     }
     default_options = {
-        "shared": False,
-        "fPIC": True,
-        "enable_cpp_wrapper": True,
-        "build_eeprom_tool": False,
-        "use_streaming": True,
+            "shared": False,
+            "fPIC": True,
+            "enable_cpp_wrapper": True,
+            "build_eeprom_tool" : False,
+            "use_streaming"     : True,
     }
 
     def export_sources(self):
@@ -46,19 +46,18 @@ class LibFtdiConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.license = (
-            ("LGPL-2.1-only", "GPL-2.0-only")
-            if self.options.build_eeprom_tool or self.options.enable_cpp_wrapper
-            else ("LGPL-2.1-only")
-        )
+        if self.options.build_eeprom_tool or self.options.enable_cpp_wrapper:
+            self.license = ("LGPL-2.1-only", "GPL-2.0-only")
+        else:
+            self.license = "LGPL-2.1-only"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
+        self.requires("libusb/1.0.26", transitive_headers=True)
         if self.options.enable_cpp_wrapper:
-            self.requires("boost/1.80.0")
+            self.requires("boost/1.82.0")
 
     def validate(self):
         if is_msvc(self) and self.options.use_streaming:
@@ -97,11 +96,8 @@ class LibFtdiConan(ConanFile):
         rmdir(self, os.path.join(lib_folder, "pkgconfig"))
 
     def package_info(self):
-        # Remove "self.cpp_info.filenames.." statements in Conan V2
-        self.cpp_info.filenames["cmake_find_package"] = "LibFTDI1"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "LibFTDI1"
-
         self.cpp_info.set_property("cmake_file_name", "LibFTDI1")
+
         self.cpp_info.components["ftdi"].set_property("pkg_config_name", "libftdi1")
         self.cpp_info.components["ftdi"].libs = ["ftdi1"]
         self.cpp_info.components["ftdi"].requires = ["libusb::libusb"]
@@ -113,3 +109,7 @@ class LibFtdiConan(ConanFile):
             self.cpp_info.components["ftdipp"].requires = ["ftdi", "boost::headers"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["ftdipp"].system_libs.append("m")
+
+        # TODO: Remove "self.cpp_info.filenames.." statements in Conan V2
+        self.cpp_info.filenames["cmake_find_package"] = "LibFTDI1"
+        self.cpp_info.filenames["cmake_find_package_multi"] = "LibFTDI1"

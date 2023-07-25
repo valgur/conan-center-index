@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -62,17 +60,17 @@ class IosCMakeConan(ConanFile):
     def export_sources(self):
         copy(self, "cmake-wrapper", src=self.recipe_folder, dst=self.export_sources_folder)
 
-    def configure(self):
-        if not is_apple_os(self.settings.os):
-            raise ConanInvalidConfiguration("This package only supports Apple operating systems")
-
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def validate(self):
+        if not is_apple_os(self):
+            raise ConanInvalidConfiguration("This package only supports Apple operating systems")
 
     def package_id(self):
         self.info.clear()
         # TODO: since we have 2 profiles I am not sure that this is still required
-        #       since this will always be / has to be  a build profile
+        #       since this will always be / has to be a build profile
 
     def _guess_toolchain_target(self, os, arch):
         if os == "iOS":
@@ -92,7 +90,8 @@ class IosCMakeConan(ConanFile):
             else:
                 return "SIMULATOR_TVOS"
         raise ConanInvalidConfiguration(
-            "Can not guess toolchain_target. Please set the option explicit (or check our os settings)"
+            "Can not guess toolchain_target. "
+            "Please set the option explicit (or check our os settings)"
         )
 
     def source(self):
@@ -102,7 +101,7 @@ class IosCMakeConan(ConanFile):
         pass  # there is nothing to build
 
     def package(self):
-        copy(self, "cmake-wrapper", dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "cmake-wrapper", src=self.export_sources_folder, dst=os.path.join(self.package_folder, "bin"))
         copy(
             self,
             "ios.toolchain.cmake",
@@ -125,7 +124,7 @@ class IosCMakeConan(ConanFile):
     def package_info(self):
         if self.settings.os == "Macos":
             if not getattr(self, "settings_target", None):
-                #  not a build_require , but can be fine since its build as a ppr:b, but nothing to do
+                #  not a build_require, but can be fine since its build as a ppr:b, but nothing to do
                 return
             # this is where I want to be, expecting this as a build_require for a host
             target_os = str(self.settings_target.os)
@@ -165,9 +164,9 @@ class IosCMakeConan(ConanFile):
         )
 
         self.env_info.CONAN_USER_CMAKE_FLAGS = cmake_flags
-        self.output.info("Setting toolchain options to: {}".format(cmake_flags))
+        self.output.info(f"Setting toolchain options to: {cmake_flags}")
         cmake_wrapper = os.path.join(self.package_folder, "bin", "cmake-wrapper")
-        self.output.info("Setting CONAN_CMAKE_PROGRAM to: {}".format(cmake_wrapper))
+        self.output.info(f"Setting CONAN_CMAKE_PROGRAM to: {cmake_wrapper}")
         self.env_info.CONAN_CMAKE_PROGRAM = cmake_wrapper
         tool_chain = os.path.join(self.package_folder, "lib", "cmake", "ios-cmake", "ios.toolchain.cmake")
         self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = tool_chain

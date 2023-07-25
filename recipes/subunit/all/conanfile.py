@@ -1,85 +1,15 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import contextlib
 import glob
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -122,7 +52,7 @@ class SubunitConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cppunit/1.15.1")
+        self.requires("cppunit/1.15.1", transitive_headers=True)
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -146,18 +76,27 @@ class SubunitConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+
+        if not cross_building(self):
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
+
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            tc.cxxflags.append("-FS")
-            tc.cxxflags.append("-EHsc")
-        tc.defines.append("CHECK_CFLAGS=' '")
-        tc.defines.append("CHECK_LIBS=' '")
-        tc.defines.append("CPPUNIT_CFLAGS='{}'".format(
-            " ".join(f"-I{inc}" for inc in self.dependencies["cppunit"].cpp_info.includedirs).replace(
-                "\\", "/"
-            )
-        ))
-        tc.defines.append("CPPUNIT_LIBS='{}'".format(" ".join(self.dependencies["cppunit"].cpp_info.libs)))
+            tc.extra_cxxflags.append("-FS")
+            tc.extra_cxxflags.append("-EHsc")
+        tc.configure_args.append("CHECK_CFLAGS= ")
+        tc.configure_args.append("CHECK_LIBS= ")
+        cppunit_info = self.dependencies["cppunit"].cpp_info
+        tc.configure_args.append("CPPUNIT_CFLAGS='{}'".format(
+            " ".join(f"-I{unix_path(self, inc)}" for inc in cppunit_info.includedirs))
+        )
+        tc.configure_args.append("CPPUNIT_LIBS='{}'".format(" ".join(cppunit_info.libs)))
+        tc.generate()
+
+        tc = AutotoolsDeps(self)
         tc.generate()
 
         if is_msvc(self):
@@ -189,36 +128,33 @@ class SubunitConan(ConanFile):
             autotools.configure()
             # Avoid installing i18n + perl things in arch-dependent folders or in a `local` subfolder
             install_args = [
-                "INSTALLARCHLIB={}".format(os.path.join(self.package_folder, "lib").replace("\\", "/")),
-                "INSTALLSITEARCH={}".format(os.path.join(self.build_folder, "archlib").replace("\\", "/")),
-                "INSTALLVENDORARCH={}".format(os.path.join(self.build_folder, "archlib").replace("\\", "/")),
-                "INSTALLSITEBIN={}".format(os.path.join(self.package_folder, "bin").replace("\\", "/")),
-                "INSTALLSITESCRIPT={}".format(os.path.join(self.package_folder, "bin").replace("\\", "/")),
-                "INSTALLSITEMAN1DIR={}".format(
-                    os.path.join(self.build_folder, "share", "man", "man1").replace("\\", "/")
-                ),
-                "INSTALLSITEMAN3DIR={}".format(
-                    os.path.join(self.build_folder, "share", "man", "man3").replace("\\", "/")
-                ),
+                "INSTALLARCHLIB={}".format(unix_path(self, os.path.join(self.package_folder, "lib"))),
+                "INSTALLSITEARCH={}".format(unix_path(self, os.path.join(self.build_folder, "archlib"))),
+                "INSTALLVENDORARCH={}".format(unix_path(self, os.path.join(self.build_folder, "archlib"))),
+                "INSTALLSITEBIN={}".format(unix_path(self, os.path.join(self.package_folder, "bin"))),
+                "INSTALLSITESCRIPT={}".format(unix_path(self, os.path.join(self.package_folder, "bin"))),
+                "INSTALLSITEMAN1DIR={}".format(unix_path(self, os.path.join(self.build_folder, "share", "man", "man1"))),
+                "INSTALLSITEMAN3DIR={}".format(unix_path(self, os.path.join(self.build_folder, "share", "man", "man3"))),
             ]
             autotools.install(args=install_args)
 
         rm(self, "*.la", self.package_folder, recursive=True)
-        rm(self, "*.pod", os.path.join(self.package_folder, "lib"), recursive=True)
+        rm(self, "*.pod", self.package_folder, recursive=True)
         for d in glob.glob(os.path.join(self.package_folder, "lib", "python*")):
             rmdir(self, d)
         for d in glob.glob(os.path.join(self.package_folder, "lib", "*")):
             if os.path.isdir(d):
                 rmdir(self, d)
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "Library"))
+        for d in glob.glob(os.path.join(self.package_folder, "*")):
+            if os.path.isdir(d) and os.path.basename(d) not in ["bin", "include", "lib", "licenses"]:
+                rmdir(self, d)
 
     def package_info(self):
         self.cpp_info.components["libsubunit"].libs = ["subunit"]
-        self.cpp_info.components["libsubunit"].names["pkgconfig"] = "libsubunit"
+        self.cpp_info.components["libsubunit"].set_property("pkg_config_name", "libsubunit")
         self.cpp_info.components["libcppunit_subunit"].libs = ["cppunit_subunit"]
         self.cpp_info.components["libcppunit_subunit"].requires = ["cppunit::cppunit"]
-        self.cpp_info.components["libcppunit_subunit"].names["pkgconfig"] = "libcppunit_subunit"
+        self.cpp_info.components["libcppunit_subunit"].set_property("pkg_config_name", "libcppunit_subunit")
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")

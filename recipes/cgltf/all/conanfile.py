@@ -1,13 +1,8 @@
-# Warnings:
-#   Unexpected method '_create_source_files'
-
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, export_conandata_patches, get, load, replace_in_file, save
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, export_conandata_patches, get, load, replace_in_file, save, rename
 
 required_conan_version = ">=1.53.0"
 
@@ -60,8 +55,6 @@ class CgltfConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         self._create_source_files()
@@ -78,12 +71,7 @@ class CgltfConan(ConanFile):
             self,
             header_fullpath,
             implementation,
-            (
-                "/**\n"
-                " * Implementation removed by conan during packaging.\n"
-                " * Don't forget to link libs provided in this package.\n"
-                " */\n\n"
-            ),
+            "/**\n * Implementation removed by conan during packaging.\n * Don't forget to link libs provided in this package.\n */\n\n",
         )
 
     def package(self):
@@ -93,6 +81,8 @@ class CgltfConan(ConanFile):
         for header_file in ["cgltf.h", "cgltf_write.h"]:
             header_fullpath = os.path.join(self.package_folder, "include", header_file)
             self._remove_implementation(header_fullpath)
+        for dll in (self.package_path / "lib").glob("*.dll"):
+            rename(self, dll, self.package_path / "bin" / dll.name)
 
     def package_info(self):
         self.cpp_info.libs = ["cgltf"]

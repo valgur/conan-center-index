@@ -1,18 +1,26 @@
 #include <AppxPackaging.hpp>
 
-LPVOID STDMETHODCALLTYPE MyAllocate(SIZE_T cb) { return std::malloc(cb); }
+LPVOID STDMETHODCALLTYPE MyAllocate(SIZE_T cb) {
+	return std::malloc(cb);
+}
 
-void STDMETHODCALLTYPE MyFree(LPVOID pv) { std::free(pv); }
+void STDMETHODCALLTYPE MyFree(LPVOID pv) {
+	std::free(pv);
+}
 
 int main() {
-    IAppxFactory *appxFactory;
+	IAppxFactory* appxFactory;
 
-    HRESULT creationResult = CoCreateAppxFactoryWithHeap(
-        MyAllocate, MyFree, MSIX_VALIDATION_OPTION::MSIX_VALIDATION_OPTION_FULL, &appxFactory);
+	HRESULT creationResult = CoCreateAppxFactoryWithHeap(
+		MyAllocate,
+		MyFree,
+		MSIX_VALIDATION_OPTION::MSIX_VALIDATION_OPTION_FULL,
+		&appxFactory
+	);
 
-    if (FAILED(creationResult)) {
-        return creationResult;
-    }
+	if (FAILED(creationResult)) {
+		return creationResult;
+	}
 
-    return 0;
+	return 0;
 }

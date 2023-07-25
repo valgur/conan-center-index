@@ -33,9 +33,6 @@ class Seqan3Conan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-
     def package_id(self):
         self.info.clear()
 

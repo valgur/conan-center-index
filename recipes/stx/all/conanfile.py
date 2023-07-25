@@ -1,13 +1,11 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
-from conan.tools.microsoft import is_msvc
+from conan.tools.files import collect_libs, copy, get
+from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -38,9 +36,6 @@ class STXConan(ConanFile):
         "visible_panic_hook": False,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -54,7 +49,7 @@ class STXConan(ConanFile):
 
     def requirements(self):
         if self.options.backtrace:
-            self.requires("abseil/20200923.1")
+            self.requires("abseil/20230125.3")
 
     def validate(self):
         if self.options.panic_handler == "backtrace" and not self.options.backtrace:
@@ -66,10 +61,7 @@ class STXConan(ConanFile):
         if compiler.get_safe("cppstd"):
             check_min_cppstd(self, 17)
 
-        if is_msvc(self) and compiler_version < 16:
-            raise ConanInvalidConfiguration(
-                "STX requires C++17 language and standard library features which VS < 2019 lacks"
-            )
+        check_min_vs(self, 192)
 
         if compiler == "gcc" and compiler_version < 8:
             raise ConanInvalidConfiguration(
@@ -97,10 +89,10 @@ class STXConan(ConanFile):
                 "which apple-clang < 12 with libc++ lacks"
             )
 
-        if is_msvc(self) and self.options.shared and Version(self.version) <= "1.0.1":
-            raise ConanInvalidConfiguration(
-                "shared library build does not work on windows with STX version <= 1.0.1"
-            )
+        # if is_msvc(self) and self.options.shared and Version(self.version) <= "1.0.1":
+        #     raise ConanInvalidConfiguration(
+        #         "shared library build does not work on windows with STX version <= 1.0.1"
+        #     )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -113,30 +105,21 @@ class STXConan(ConanFile):
         tc.variables["STX_OVERRIDE_PANIC_HANDLER"] = self.options.panic_handler == None
         tc.variables["STX_VISIBLE_PANIC_HOOK"] = self.options.visible_panic_hook
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "*.h",
+        copy(self, "*.h",
             dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-
-        copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-        copy(self, "*.so", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.dylib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.a", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-
+            src=os.path.join(self.source_folder, "include"))
+        for pattern in ["*.lib", "*.so", "*.dylib", "*.a"]:
+            copy(self, pattern, dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
+        copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), src=self.build_folder, keep_path=False)
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):

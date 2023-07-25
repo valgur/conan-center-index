@@ -3,16 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    rename,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rename, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -60,7 +51,7 @@ class AravisConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
-            self.options.rm_safe("packet_socket")
+            del self.options.packet_socket
 
     def configure(self):
         if self.options.shared:
@@ -116,14 +107,12 @@ class AravisConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["usb"] = "enabled" if self.options.usb else "disabled"
         tc.project_options["gst-plugin"] = "enabled" if self.options.gst_plugin else "disabled"
-        tc.project_options["packet-socket"] = (
-            "enabled" if self.options.get_safe("packet_socket") else "disabled"
-        )
+        tc.project_options["packet-socket"] = "enabled" if self.options.get_safe("packet_socket") else "disabled"
         tc.project_options["introspection"] = "enabled" if self.options.introspection else "disabled"
         tc.project_options["viewer"] = "disabled"
         tc.project_options["tests"] = False
         tc.project_options["documentation"] = "disabled"
-        if msvc_runtime_flag(self):
+        if self.settings.get_safe("compiler.runtime"):
             tc.project_options["b_vscrt"] = msvc_runtime_flag(self).lower()
         tc.generate()
 

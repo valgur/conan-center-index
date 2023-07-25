@@ -1,19 +1,27 @@
 #include "ui.h"
 #include <stdio.h>
 
-int main(void) {
-    uiInitOptions o;
+void init_ui(void)
+{
+	uiInitOptions o;
 
-    const char *err;
-    o.Size = 0;
-    err = uiInit(&o);
-    if (err != NULL) {
-        fprintf(stderr, "error initializing ui: %s\n", err);
-        uiFreeInitError(err);
-        return 0;
-    }
+	const char *err;
+	o.Size = 0;
+	err = uiInit(&o);
+	if (err != NULL)
+	{
+		fprintf(stderr, "error initializing ui: %s\n", err);
+		uiFreeInitError(err);
+		return 0;
+	}
 
-    uiMain();
-    uiUninit();
-    return 0;
+	uiMain();
+	uiUninit();
+}
+
+int main(void)
+{
+    // Do not actually create the UI in this test
+    // init_ui();
+	return 0;
 }

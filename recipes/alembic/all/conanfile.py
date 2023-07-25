@@ -9,10 +9,10 @@ required_conan_version = ">=1.53.0"
 
 class AlembicConan(ConanFile):
     name = "alembic"
-    description = "Open framework for storing and sharing scene data."
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.alembic.io"
+    description = "Open framework for storing and sharing scene data."
     topics = ("3d", "scene", "geometry", "graphics")
 
     package_type = "library"
@@ -65,7 +65,7 @@ class AlembicConan(ConanFile):
         tc.variables["USE_HDF5"] = self.options.with_hdf5
         tc.variables["USE_TESTS"] = False
         tc.variables["ALEMBIC_BUILD_LIBS"] = True
-        tc.variables["ALEMBIC_ILMBASE_LINK_STATIC"] = True  # for -DOPENEXR_DLL, handled by OpenEXR package
+        tc.variables["ALEMBIC_ILMBASE_LINK_STATIC"] = True # for -DOPENEXR_DLL, handled by OpenEXR package
         tc.variables["ALEMBIC_SHARED_LIBS"] = self.options.shared
         tc.variables["ALEMBIC_USING_IMATH_3"] = False
         tc.variables["ALEMBIC_ILMBASE_FOUND"] = 1

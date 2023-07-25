@@ -3,8 +3,10 @@
 
 using namespace uvm;
 
-int main() {
-    std::cout << "uvm-systemc version " << uvm_revision_string() << " loaded successfully.";
+int main(int, char*[])
+{
+  std::cout << "uvm-systemc version " << uvm_revision_string() << " loaded successfully.";
 
-    return 0;
+  return 0;
 }
+

@@ -2,7 +2,8 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.build import cross_building
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import get, rmdir, export_conandata_patches, apply_conandata_patches, copy, chdir, replace_in_file, rm
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.microsoft import unix_path, is_msvc
@@ -18,21 +19,11 @@ class LibIdnConan(ConanFile):
     topics = ("libidn", "encode", "decode", "internationalized", "domain", "name")
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "threads": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "threads": True,
-    }
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {"shared": [True, False], "fPIC": [True, False], "threads": [True, False]}
+    default_options = {"shared": False, "fPIC": True, "threads": True}
 
     @property
     def _settings_build(self):
@@ -72,18 +63,21 @@ class LibIdnConan(ConanFile):
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
+        if not cross_building(self):
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
         tc = AutotoolsToolchain(self)
         tc.libs = []
         if not self.options.shared:
             tc.defines.append("LIBIDN_STATIC")
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= "12":
-                tc.cflags.append("-FS")
-            tc.ldflags.extend("-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.lib_paths)
+                tc.extra_cflags.append("-FS")
+            tc.extra_ldflags += ["-L{}".format(p.replace("\\", "/")) for p in self.deps_cpp_info.lib_paths]
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
             "--enable-threads={}".format(yes_no(self.options.threads)),
-            "--with-libiconv-prefix={}".format(unix_path(self, self.dependencies["libiconv"].cpp_info.libdirs[0])), # FIXME
+            "--with-libiconv-prefix={}".format(unix_path(self, self.dependencies["libiconv"].cpp_info.libdirs[0])),  # FIXME
             "--disable-nls",
             "--disable-rpath",
         ]
@@ -127,7 +121,7 @@ class LibIdnConan(ConanFile):
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        rm(self, os.path.join(self.package_folder, "lib"), "*.la", recursive=True)
+        rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["idn"]
@@ -139,6 +133,7 @@ class LibIdnConan(ConanFile):
             if not self.options.shared:
                 self.cpp_info.defines = ["LIBIDN_STATIC"]
 
+        # TODO: to remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

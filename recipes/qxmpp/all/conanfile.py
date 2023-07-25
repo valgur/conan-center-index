@@ -1,27 +1,16 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    mkdir,
-    rename,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, rmdir
 
 required_conan_version = ">=1.53.0"
 
 
 class QxmppConan(ConanFile):
     name = "qxmpp"
-    description = (
-        "Cross-platform C++ XMPP client and server library. It is written in C++ and uses Qt framework."
-    )
+    description = ("Cross-platform C++ XMPP client and server library. "
+                   "It is written in C++ and uses Qt framework.")
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/qxmpp-project/qxmpp"
@@ -55,10 +44,10 @@ class QxmppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/6.2.4")
+        self.requires("qt/[^6.5]")
         if self.options.with_gstreamer:
-            self.requires("gstreamer/1.19.2")
-            self.requires("glib/2.70.1")
+            self.requires("gstreamer/1.22.3")
+            self.requires("glib/2.76.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -91,11 +80,9 @@ class QxmppConan(ConanFile):
 
         if self.options.shared and self.settings.os == "Windows":
             mkdir(self, os.path.join(self.package_folder, "bin"))
-            rename(
-                self,
+            rename(self,
                 os.path.join(self.package_folder, "lib", "qxmpp.dll"),
-                os.path.join(self.package_folder, "bin", "qxmpp.dll"),
-            )
+                os.path.join(self.package_folder, "bin", "qxmpp.dll"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "QXmpp")

@@ -6,7 +6,11 @@ struct big_type {
     char i_wanna_be_big[256];
     std::string value;
 
-    big_type() : value(std::string(300, 'b')) { i_wanna_be_big[0] = i_wanna_be_big[50] = 'k'; }
+    big_type() :
+        value(std::string(300, 'b'))
+    {
+        i_wanna_be_big[0] = i_wanna_be_big[50] = 'k';
+    }
 };
 
 int main() {

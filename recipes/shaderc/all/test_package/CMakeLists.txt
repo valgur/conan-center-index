@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(test_package LANGUAGES CXX)
+project(test_package LANGUAGES CXX C)
 
 find_package(shaderc REQUIRED CONFIG)
 

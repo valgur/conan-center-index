@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -18,7 +16,7 @@ class DimeConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin3d/dime"
-    topics = ("dxf", "coin3d", "opengl", "graphics", "pre-built")
+    topics = ("dxf", "coin3d", "opengl", "graphics")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,9 +30,6 @@ class DimeConan(ConanFile):
         "fPIC": True,
         "fixbig": False,
     }
-
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,27 +53,29 @@ class DimeConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["DIME_BUILD_SHARED_LIBS"] = self.options.shared
         if self.options.fixbig:
-            tc.variables["CMAKE_CXX_FLAGS"] = "-DDIME_FIXBIG"
+            tc.preprocessor_definitions["DIME_FIXBIG"] = ""
+        tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         replace_in_file(
             self,
             os.path.join(self.source_folder, "CMakeLists.txt"),
-            (
-                "configure_file(${CMAKE_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in"
-                " ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)"
-            ),
-            (
-                "configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in"
-                " ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)"
-            ),
+            ("configure_file(${CMAKE_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in"
+             " ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)"),
+            ("configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME_LOWER}.pc.cmake.in"
+             " ${CMAKE_BINARY_DIR}/${PROJECT_NAME_LOWER}.pc @ONLY)")
         )
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -98,10 +95,10 @@ class DimeConan(ConanFile):
         self.cpp_info.libs = [libname]
 
         if self.settings.os == "Windows":
-            self.cpp_info.cxxflags.append("-DDIME_DLL" if self.options.shared else "-DDIME_NOT_DLL")
+            self.cpp_info.defines.append("DIME_DLL" if self.options.shared else "DIME_NOT_DLL")
         if self.options.fixbig:
-            self.cpp_info.cxxflags.append("-DDIME_FIXBIG")
+            self.cpp_info.defines.append("DIME_FIXBIG")
 
         bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
+        self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)

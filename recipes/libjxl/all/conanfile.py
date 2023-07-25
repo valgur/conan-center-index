@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import glob
 import os
 import shutil
@@ -48,7 +46,7 @@ class LibjxlConan(ConanFile):
     def requirements(self):
         self.requires("brotli/1.0.9")
         self.requires("highway/0.12.2")
-        self.requires("lcms/2.11")
+        self.requires("lcms/2.14")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -67,7 +65,6 @@ class LibjxlConan(ConanFile):
         if cross_building(self):
             tc.variables["CMAKE_SYSTEM_PROCESSOR"] = str(self.settings.arch)
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 

@@ -1,82 +1,9 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.tools.build import stdcpp_library
+from conan.tools.files import chdir, copy, get, replace_in_file, rm, rmdir, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
 import os
 import re
 
@@ -124,61 +51,69 @@ class LibsassConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    @property
+    def _msbuild_configuration(self):
+        return "Debug" if self.settings.build_type == "Debug" else "Release"
+
     def generate(self):
-        tc = AutotoolsToolchain(self)
-        tc.configure_args += ["--disable-tests"]
-        tc.generate()
+        if not is_msvc(self):
+            tc = AutotoolsToolchain(self)
+            tc.configure_args += ["--disable-tests"]
+            env = tc.environment()
+            if self._is_mingw:
+                env.define("BUILD", "shared" if self.options.shared else "static")
+                # Don't force static link to mingw libs, leave this decision to consumer (through LDFLAGS in env)
+                env.define("STATIC_ALL", "0")
+                env.define("STATIC_LIBGCC", "0")
+                env.define("STATIC_LIBSTDCPP", "0")
+            tc.generate(env)
+        else:
+            with chdir(self, self.source_folder):
+                tc = MSBuildToolchain(self)
+                tc.configuration = self._msbuild_configuration
+                tc.properties["LIBSASS_STATIC_LIB"] = "" if self.options.shared else "true"
+                wpo_enabled = any(re.finditer("(^| )[/-]GL($| )", os.environ.get("CFLAGS", "")))
+                tc.properties["WholeProgramOptimization"] = "true" if wpo_enabled else "false"
+                tc.generate()
 
-    def _build_autotools(self):
-        with chdir(self, self.source_folder):
-            save(self, path="VERSION", content=f"{self.version}")
-            self.run(f"{get_env(self, 'AUTORECONF')} -fiv")
-            autotools = Autotools(self)
-            autotools.configure()
-            autotools.make()
-
-    def _build_mingw(self):
-        makefile = os.path.join(self.source_folder, "Makefile")
-        replace_in_file(self, makefile, "CFLAGS   += -O2", "")
-        replace_in_file(self, makefile, "CXXFLAGS += -O2", "")
-        replace_in_file(self, makefile, "LDFLAGS  += -O2", "")
-        with chdir(self, self.source_folder):
-            env_vars = AutoToolsBuildEnvironment(self).vars
-            env_vars.update(
-                {
-                    "BUILD": "shared" if self.options.shared else "static",
-                    "PREFIX": unix_path(self, os.path.join(self.package_folder)),
-                    # Don't force static link to mingw libs, leave this decision to consumer (through LDFLAGS in env)
-                    "STATIC_ALL": "0",
-                    "STATIC_LIBGCC": "0",
-                    "STATIC_LIBSTDCPP": "0",
-                }
-            )
-            with environment_append(self, env_vars):
-                self.run(f"{self._make_program} -f Makefile")
-
-    def _build_visual_studio(self):
-        with chdir(self, self.source_folder):
-            properties = {
-                "LIBSASS_STATIC_LIB": "" if self.options.shared else "true",
-                "WholeProgramOptimization": (
-                    "true" if any(re.finditer("(^| )[/-]GL($| )", os.environ.get("CFLAGS", ""))) else "false"
-                ),
-            }
-            platforms = {
-                "x86": "Win32",
-                "x86_64": "Win64",
-            }
-            msbuild = MSBuild(self)
-            msbuild.build(os.path.join("win", "libsass.sln"), platforms=platforms, properties=properties)
+    def _patch_sources(self):
+        if is_msvc(self):
+            # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
+            vcxproj_files = [os.path.join(self.source_folder, "win", "libsass.vcxproj")]
+            platform_toolset = MSBuildToolchain(self).toolset
+            import_conan_generators = ""
+            for props_file in ["conantoolchain.props", "conandeps.props"]:
+                props_path = os.path.join(self.generators_folder, props_file)
+                if os.path.exists(props_path):
+                    import_conan_generators += f'<Import Project="{props_path}" />'
+            for vcxproj_file in vcxproj_files:
+                for exiting_toolset in ["v120", "v140", "v141", "v142", "v143"]:
+                    replace_in_file(self, vcxproj_file,
+                        f"<PlatformToolset>{exiting_toolset}</PlatformToolset>",
+                        f"<PlatformToolset>{platform_toolset}</PlatformToolset>")
+                if props_path:
+                    replace_in_file(self, vcxproj_file,
+                        '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                        f'{import_conan_generators}<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />')
+        else:
+            makefile = os.path.join(self.source_folder, "Makefile")
+            replace_in_file(self, makefile, "CFLAGS   += -O2", "")
+            replace_in_file(self, makefile, "CXXFLAGS += -O2", "")
+            replace_in_file(self, makefile, "LDFLAGS  += -O2", "")
 
     def build(self):
-        if self._is_mingw:
-            self._build_mingw()
-        elif is_msvc(self):
-            self._build_visual_studio()
-        else:
-            self._build_autotools()
+        self._patch_sources()
+        with chdir(self, self.source_folder):
+            if is_msvc(self):
+                msbuild = MSBuild(self)
+                msbuild.build_type = self._msbuild_configuration
+                msbuild.build(sln=os.path.join("win", "libsass.sln"))
+            else:
+                save(self, path="VERSION", content=f"{self.version}")
+                autotools = Autotools(self)
+                autotools.autoreconf()
+                autotools.configure()
+                autotools.make()
 
     def _install_autotools(self):
         with chdir(self, self.source_folder):
@@ -188,53 +123,37 @@ class LibsassConan(ConanFile):
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def _install_mingw(self):
-        copy(
-            self,
-            "*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            "*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=os.path.join(self.source_folder, "lib"),
-        )
-        copy(
-            self,
-            "*.a",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.source_folder, "lib"),
-        )
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=os.path.join(self.source_folder, "lib"))
+        copy(self, "*.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, "lib"))
 
-    def _install_visual_studio(self):
-        copy(
-            self,
-            "*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            "*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=os.path.join(self.source_folder, "win", "bin"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.lib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.source_folder, "win", "bin"),
-            keep_path=False,
-        )
+    def _install_msvc(self):
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=os.path.join(self.source_folder, "win", "bin"),
+             keep_path=False)
+        copy(self, "*.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, "win", "bin"),
+             keep_path=False)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self._is_mingw:
             self._install_mingw()
         elif is_msvc(self):
-            self._install_visual_studio()
+            self._install_msvc()
         else:
             self._install_autotools()
 

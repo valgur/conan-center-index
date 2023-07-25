@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -76,18 +74,18 @@ class SDLMixerConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("sdl/2.0.20")
+        self.requires("sdl/2.26.5", transitive_headers=True)
         if self.options.flac:
-            self.requires("flac/1.3.3")
+            self.requires("flac/1.4.2")
         if self.options.mpg123:
-            self.requires("mpg123/1.29.3")
+            self.requires("mpg123/1.31.2")
         if self.options.mad:
             self.requires("libmad/0.15.1b")
         if self.options.ogg:
             self.requires("ogg/1.3.5")
             self.requires("vorbis/1.3.7")
         if self.options.opus:
-            self.requires("openssl/1.1.1q")
+            self.requires("openssl/[>=1.1 <4]")
             self.requires("opus/1.3.1")
             self.requires("opusfile/0.12")
         if self.options.mikmod:
@@ -102,7 +100,6 @@ class SDLMixerConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
         rmdir(self, os.path.join(self.source_folder, "external"))
 
     def generate(self):
@@ -123,19 +120,13 @@ class SDLMixerConan(ConanFile):
         else:
             tc.variables["MID_TINYMIDI"] = False
             tc.variables["MID_NATIVE"] = self.options.nativemidi
-
-        tc.variables["FLAC_DYNAMIC"] = self.options["flac"].shared if self.options.flac else False
-        tc.variables["MP3_MPG123_DYNAMIC"] = self.options["mpg123"].shared if self.options.mpg123 else False
-        tc.variables["OGG_DYNAMIC"] = self.options["ogg"].shared if self.options.ogg else False
-        tc.variables["OPUS_DYNAMIC"] = self.options["opus"].shared if self.options.opus else False
-        tc.variables["MOD_MIKMOD_DYNAMIC"] = (
-            self.options["libmikmod"].shared if self.options.mikmod else False
-        )
-        tc.variables["MOD_MODPLUG_DYNAMIC"] = (
-            self.options["libmodplug"].shared if self.options.modplug else False
-        )
+        tc.variables["FLAC_DYNAMIC"] = self.dependencies["flac"].options.shared if self.options.flac else False
+        tc.variables["MP3_MPG123_DYNAMIC"] = self.dependencies["mpg123"].options.shared if self.options.mpg123 else False
+        tc.variables["OGG_DYNAMIC"] = self.dependencies["ogg"].options.shared if self.options.ogg else False
+        tc.variables["OPUS_DYNAMIC"] = self.dependencies["opus"].options.shared if self.options.opus else False
+        tc.variables["MOD_MIKMOD_DYNAMIC"] = self.dependencies["libmikmod"].options.shared if self.options.mikmod else False
+        tc.variables["MOD_MODPLUG_DYNAMIC"] = self.dependencies["libmodplug"].options.shared if self.options.modplug else False
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -145,22 +136,21 @@ class SDLMixerConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="COPYING.txt",
+        copy(self, "COPYING.txt",
             dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+            src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "SDL2_mixer")
         self.cpp_info.set_property("cmake_file_name", "SDL2_mixer")
         self.cpp_info.set_property("cmake_target_name", "SDL2_mixer::SDL2_mixer")
         self.cpp_info.set_property("pkg_config_name", "SDL2_mixer")
+
         self.cpp_info.libs = ["SDL2_mixer"]
         self.cpp_info.includedirs.append(os.path.join("include", "SDL2"))
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m"]
 
         self.cpp_info.names["cmake_find_package"] = "SDL2_mixer"
         self.cpp_info.names["cmake_find_package_multi"] = "SDL2_mixer"

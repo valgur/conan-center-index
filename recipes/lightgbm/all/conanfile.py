@@ -1,12 +1,11 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.files import copy, get, replace_in_file, save
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -36,9 +35,6 @@ class LightGBMConan(ConanFile):
         "with_openmp": True,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -52,10 +48,11 @@ class LightGBMConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0")
-        self.requires("fast_double_parser/0.6.0")
-        self.requires("fmt/9.0.0")
-        if self.options.with_openmp and self.settings.compiler in ("clang", "apple-clang"):
-            self.requires("llvm-openmp/11.1.0")
+        self.requires("fast_double_parser/0.7.0", transitive_headers=True)
+        self.requires("fmt/10.0.0", transitive_headers=True)
+        # FIXME: enable when llvm-openmp has been migrated to Conan v2
+        # if self.options.with_openmp and self.settings.compiler in ("clang", "apple-clang"):
+        #     self.requires("llvm-openmp/12.0.1")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -66,18 +63,41 @@ class LightGBMConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_STATIC_LIB"] = not self.options.shared
-        tc.variables["USE_DEBUG"] = self.settings.build_type == "Debug"
-        tc.variables["USE_OPENMP"] = self.options.with_openmp
+        tc.cache_variables["BUILD_STATIC_LIB"] = not self.options.shared
+        tc.cache_variables["USE_DEBUG"] = self.settings.build_type in ["Debug", "RelWithDebInfo"]
+        tc.cache_variables["USE_OPENMP"] = self.options.with_openmp
+        tc.cache_variables["BUILD_CLI"] = False
         if self.settings.os == "Macos":
-            tc.variables["APPLE_OUTPUT_DYLIB"] = True
+            tc.cache_variables["APPLE_OUTPUT_DYLIB"] = True
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
+        cmakelists_path = os.path.join(self.source_folder, "CMakeLists.txt")
+        # Fix OpenMP detection for Clang
+        replace_in_file(self, cmakelists_path, "AppleClang", "Clang|AppleClang")
+        # Fix vendored dependency includes
+        common_h = os.path.join(self.source_folder, "include", "LightGBM", "utils", "common.h")
+        for lib in ["fmt", "fast_double_parser"]:
+            replace_in_file(self, common_h, f"../../../external_libs/{lib}/include/", "")
+        # Add dependencies
+        extra_cmake_content = (
+            "find_package(fmt REQUIRED CONFIG)\n"
+            "find_package(Eigen3 REQUIRED CONFIG)\n"
+            "find_package(fast_double_parser REQUIRED CONFIG)\n"
+        )
+        if Version(self.version).major >= 4:
+            targets = ["lightgbm_objs", "lightgbm_capi_objs"]
+        else:
+            targets = ["lightgbm", "_lightgbm"]
+        for target in targets:
+            extra_cmake_content += (
+                f"target_link_libraries({target} PRIVATE "
+                "fmt::fmt Eigen3::Eigen fast_double_parser::fast_double_parser)\n"
+            )
+        save(self, cmakelists_path, extra_cmake_content, append=True)
+
 
     def build(self):
         self._patch_sources()
@@ -86,7 +106,9 @@ class LightGBMConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

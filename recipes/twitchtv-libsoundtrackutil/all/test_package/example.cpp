@@ -2,6 +2,7 @@
 
 using namespace Twitch::Audio;
 
-int main() {
+int main()
+{
     SoundtrackIPC soundtrackIPC({[]() {}, []() {}, [](TwitchAudioPacket audioPacket) {}});
 }

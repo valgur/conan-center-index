@@ -1,4 +1,3 @@
-
 import os
 
 from conan import ConanFile
@@ -6,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, rmdir, chdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.47.0"
 
@@ -21,10 +20,6 @@ class Asn1cConan(ConanFile):
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _datarootdir(self):
-        return os.path.join(self.package_folder, "res")
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
@@ -50,7 +45,7 @@ class Asn1cConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.configure_args += [f"--datarootdir={unix_path(self, self._datarootdir)}"]
+        tc.configure_args += ["--datarootdir=${prefix}/res"]
         tc.generate()
 
     def build(self):
@@ -69,15 +64,17 @@ class Asn1cConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "res", "man"))
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-        self.env_info.PATH.append(bin_path)
+        self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = ["res"]
 
         # asn1c cannot use environment variables to specify support files path
         # so `SUPPORT_PATH` should be propagated to command line invocation to `-S` argument
-        self.env_info.SUPPORT_PATH = os.path.join(self.package_folder, "res/asn1c")
+        support_path = os.path.join(self.package_folder, "res", "asn1c")
+        self.buildenv_info.define_path("SUPPORT_PATH", support_path)
+
+        # TODO: to remove in conan v2
+        bin_path = os.path.join(self.package_folder, "bin")
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
+        self.env_info.PATH.append(bin_path)

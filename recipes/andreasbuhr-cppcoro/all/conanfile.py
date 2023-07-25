@@ -1,20 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.files import (
-    copy,
-    get,
-    rmdir,
-)
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -45,6 +34,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "Visual Studio": "15",
+            "msvc": "191",
             "gcc": "10",
             "clang": "8",
             "apple-clang": "10",
@@ -66,9 +56,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warning(
-                "{} recipe lacks information about the {} compiler support.".format(
-                    self.name, self.settings.compiler
-                )
+                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
             )
         else:
             if Version(self.settings.compiler.version) < min_version:
@@ -82,7 +70,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
         # This should be removed after both gcc and clang implements the final coroutine TS
         if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libstdc++":
             raise ConanInvalidConfiguration(
-                "{} does not support clang with libstdc++. Use libc++ instead.".format(self.name)
+                f"{self.name} does not support clang with libstdc++. Use libc++ instead."
             )
 
     def source(self):
@@ -90,9 +78,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = (
-            self.settings.os == "Windows" and self.options.shared
-        )
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
@@ -110,7 +96,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "cppcoro")
-        self.cpp_info.set_property("cmake_target_name", "cppcoro")
+        self.cpp_info.set_property("cmake_target_name", "cppcoro::cppcoro")
 
         comp = self.cpp_info.components["cppcoro"]
         comp.set_property("cmake_target_name", "cppcoro")

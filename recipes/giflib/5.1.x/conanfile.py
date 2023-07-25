@@ -1,84 +1,14 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 import os
 import shutil
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import chdir, copy, get, rename, replace_in_file, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=1.53.0"
 
@@ -133,128 +63,109 @@ class GiflibConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+            if is_msvc(self):
+                self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def build(self):
-        # disable util build - tools and internal libs
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "Makefile.in"),
-            "SUBDIRS = lib util pic $(am__append_1)",
-            "SUBDIRS = lib pic $(am__append_1)",
-        )
-
+    def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+        if not cross_building(self):
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
+        tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            self._build_visual()
-        else:
-            self._build_autotools()
-
-    def _build_visual(self):
-        # fully replace gif_lib.h for VS, with patched version
-        ver_components = self.version.split(".")
-        replace_in_file(self, "gif_lib.h", "@GIFLIB_MAJOR@", ver_components[0])
-        replace_in_file(self, "gif_lib.h", "@GIFLIB_MINOR@", ver_components[1])
-        replace_in_file(self, "gif_lib.h", "@GIFLIB_RELEASE@", ver_components[2])
-        shutil.copy("gif_lib.h", os.path.join(self.source_folder, "lib"))
-        # add unistd.h for VS
-        shutil.copy("unistd.h", os.path.join(self.source_folder, "lib"))
-
-        with chdir(self, self.source_folder):
             if self.settings.arch == "x86":
                 host = "i686-w64-mingw32"
             elif self.settings.arch == "x86_64":
                 host = "x86_64-w64-mingw32"
+            elif self.settings.arch == "armv8":
+                host = "aarch64-w64-mingw32"
+            elif self.settings.arch == "armv7":
+                host = "armv7-w64-mingw32"
             else:
-                raise ConanInvalidConfiguration("unsupported architecture %s" % self.settings.arch)
-            if self.options.shared:
-                options = "--disable-static --enable-shared"
-            else:
-                options = "--enable-static --disable-shared"
+                raise ConanInvalidConfiguration(f"Unsupported architecture {self.settings.arch}")
+            tc.defines.append("USE_GIF_DLL" if self.options.shared else "USE_GIF_LIB")
+            tc.configure_args += [
+                f"--host={host}",
+                "--prefix=/"
+            ]
+        tc.generate()
 
-            cflags = ""
-            if not self.options.shared:
-                cflags = "-DUSE_GIF_LIB"
+        if is_msvc(self):
+            env = Environment()
+            automake_conf = self.dependencies.build["automake"].conf_info
+            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
+            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
+            env.define("CC", f"{compile_wrapper} cl -nologo")
+            env.define("CXX", f"{compile_wrapper} cl -nologo")
+            env.define("LD", "link -nologo")
+            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("NM", "dumpbin -symbols")
+            env.define("OBJDUMP", ":")
+            env.define("RANLIB", ":")
+            env.define("STRIP", ":")
+            env.vars(self).save_script("conanbuild_msvc")
 
-            prefix = unix_path(self, os.path.abspath(self.package_folder))
-            with vcvars(self.settings):
-                command = (
-                    "./configure "
-                    "{options} "
-                    "--host={host} "
-                    "--prefix={prefix} "
-                    'CC="$PWD/compile cl -nologo" '
-                    'CFLAGS="-{runtime} {cflags}" '
-                    'CXX="$PWD/compile cl -nologo" '
-                    'CXXFLAGS="-{runtime} {cflags}" '
-                    'CPPFLAGS="-I{prefix}/include" '
-                    'LDFLAGS="-L{prefix}/lib" '
-                    'LD="link" '
-                    'NM="dumpbin -symbols" '
-                    'STRIP=":" '
-                    'AR="$PWD/ar-lib lib" '
-                    'RANLIB=":" '.format(
-                        host=host,
-                        prefix=prefix,
-                        options=options,
-                        runtime=msvc_runtime_flag(self),
-                        cflags=cflags,
-                    )
-                )
-                self.run(command, win_bash=True)
-                self.run("make", win_bash=True)
-                self.run("make install", win_bash=True)
+    def _patch_sources(self):
+        # disable util build - tools and internal libs
+        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"),
+                        "SUBDIRS = lib util pic $(am__append_1)",
+                        "SUBDIRS = lib pic $(am__append_1)")
 
-    def _build_autotools(self):
-        shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
-        )
-        shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_GUESS"),
-            os.path.join(self.source_folder, "config.guess"),
-        )
-        env_build = AutoToolsBuildEnvironment(self)
-        yes_no = lambda v: "yes" if v else "no"
-        args = []
-        with chdir(self, self.source_folder):
-            if is_apple_os(self.settings.os):
+        if is_msvc(self):
+            # fully replace gif_lib.h for VS, with patched version
+            ver_components = self.version.split(".")
+            replace_in_file(self, "gif_lib.h", "@GIFLIB_MAJOR@", ver_components[0])
+            replace_in_file(self, "gif_lib.h", "@GIFLIB_MINOR@", ver_components[1])
+            replace_in_file(self, "gif_lib.h", "@GIFLIB_RELEASE@", ver_components[2])
+            shutil.copy("gif_lib.h", os.path.join(self.source_folder, "lib"))
+            # add unistd.h for VS
+            shutil.copy("unistd.h", os.path.join(self.source_folder, "lib"))
+        else:
+            for gnu_config in [
+                self.conf.get("user.gnu-config:config_guess", check_type=str),
+                self.conf.get("user.gnu-config:config_sub", check_type=str)
+            ]:
+                if gnu_config:
+                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+            if self.settings.os == "Macos":
                 # relocatable shared lib on macOS
-                replace_in_file(
-                    self, "configure", "-install_name \\$rpath/\\$soname", "-install_name \\@rpath/\\$soname"
-                )
+                replace_in_file(self, os.path.join(self.source_folder, "configure"),
+                                "-install_name \\$rpath/\\$soname",
+                                "-install_name \\@rpath/\\$soname")
 
-            self.run("chmod +x configure")
-            env_build.configure(args=args)
-            env_build.make()
-            env_build.make(args=["install"])
+    def build(self):
+        self._patch_sources()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make()
 
     def package(self):
-        copy(
-            self,
-            pattern="COPYING*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            ignore_case=True,
-            keep_path=False,
-        )
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
+        copy(self, "COPYING*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder, keep_path=False)
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share"))
         if is_msvc(self) and self.options.shared:
-            rename(
-                self,
-                os.path.join(self.package_folder, "lib", "gif.dll.lib"),
-                os.path.join(self.package_folder, "lib", "gif.lib"),
-            )
+            rename(self, os.path.join(self.package_folder, "lib", "gif.dll.lib"),
+                         os.path.join(self.package_folder, "lib", "gif.lib"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "GIF")
         self.cpp_info.set_property("cmake_target_name", "GIF::GIF")
 
-        self.cpp_info.names["cmake_find_package"] = "GIF"
-        self.cpp_info.names["cmake_find_package_multi"] = "GIF"
-
         self.cpp_info.libs = ["gif"]
         if is_msvc(self):
             self.cpp_info.defines.append("USE_GIF_DLL" if self.options.shared else "USE_GIF_LIB")
+
+        # TODO: to remove in conan v2
+        self.cpp_info.names["cmake_find_package"] = "GIF"
+        self.cpp_info.names["cmake_find_package_multi"] = "GIF"

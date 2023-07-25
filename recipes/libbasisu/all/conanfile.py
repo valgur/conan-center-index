@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -49,9 +47,8 @@ class LibBasisUniversalConan(ConanFile):
         }
 
     def _use_custom_iterator_debug_level(self):
-        return self.options.get_safe(
-            "custom_iterator_debug_level", default=self.default_options["custom_iterator_debug_level"]
-        )
+        return self.options.get_safe("custom_iterator_debug_level",
+                                     default=self.default_options["custom_iterator_debug_level"])
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -65,6 +62,10 @@ class LibBasisUniversalConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def requirements(self):
+        if self.options.with_zstd:
+            self.requires("zstd/1.5.5")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -94,7 +95,6 @@ class LibBasisUniversalConan(ConanFile):
         tc.variables["ENABLE_ENCODER"] = self.options.enable_encoder
         tc.variables["NO_ITERATOR_DEBUG_LEVEL"] = not self._use_custom_iterator_debug_level()
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -105,48 +105,29 @@ class LibBasisUniversalConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            "*.h",
-            dst=os.path.join("include", self.name, "transcoder"),
-            src=os.path.join(self.source_folder, "transcoder"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+            dst=os.path.join(self.package_folder, "include", self.name, "transcoder"),
+            src=os.path.join(self.source_folder, "transcoder"))
         if self.options.enable_encoder:
-            copy(
-                self,
-                "*.h",
-                dst=os.path.join("include", self.name, "encoder"),
-                src=os.path.join(self.source_folder, "encoder"),
-            )
+            copy(self,"*.h",
+                dst=os.path.join(self.package_folder, "include", self.name, "encoder"),
+                src=os.path.join(self.source_folder, "encoder"))
         for pattern in ["*.a", "*.so*", "*.dylib*", "*.lib"]:
-            copy(
-                self,
-                pattern,
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.build_folder,
-                keep_path=False,
-            )
-        copy(
-            self,
-            pattern="*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self.build_folder,
-            keep_path=False,
-        )
+            copy(self, pattern,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.build_folder, keep_path=False)
+        copy(self, "*.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.build_folder, keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
-        self.cpp_info.set_property("cmake_file_name", self.name)
-        self.cpp_info.set_property("cmake_target_name", self.name)
         self.cpp_info.includedirs = ["include", os.path.join("include", self.name)]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m", "pthread"]
         self.cpp_info.defines.append(
-            "BASISU_NO_ITERATOR_DEBUG_LEVEL={}".format(
-                "1" if self._use_custom_iterator_debug_level() else "0"
-            )
+            "BASISU_NO_ITERATOR_DEBUG_LEVEL={}".format("1" if self._use_custom_iterator_debug_level() else "0")
         )
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = self.name
-        self.cpp_info.names["cmake_find_package_multi"] = self.name

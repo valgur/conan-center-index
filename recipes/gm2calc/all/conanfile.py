@@ -1,10 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -43,8 +42,12 @@ class Gm2calcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.75.0")
-        self.requires("eigen/3.3.9")
+        self.requires("boost/1.82.0")
+        self.requires("eigen/3.4.0", transitive_headers=True)
+
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -56,26 +59,27 @@ class Gm2calcConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"), "EIGEN3", "Eigen3")
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "GM2Calc")
-        self.cpp_info.set_property("cmake_target_name", "GM2Calc")
+        self.cpp_info.set_property("cmake_target_name", "GM2Calc::GM2Calc")
         self.cpp_info.set_property("pkg_config_name", "gm2calc")
         self.cpp_info.libs = ["gm2calc"]
-        self.cpp_info.requires = ["boost::headers", "eigen::eigen"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "GM2Calc"

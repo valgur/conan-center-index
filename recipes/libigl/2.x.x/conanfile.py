@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import copy, get, rm, rmdir, replace_in_file
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -41,6 +39,7 @@ class LibiglConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "Visual Studio": "16",
+            "msvc": "192",
             "gcc": "6",
             "clang": "3.4",
             "apple-clang": "5.1",
@@ -48,7 +47,6 @@ class LibiglConan(ConanFile):
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -62,10 +60,10 @@ class LibiglConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("eigen/3.3.9")
+        self.requires("eigen/3.4.0", transitive_headers=True)
 
     def package_id(self):
-        if self.options.header_only:
+        if self.info.options.header_only:
             self.info.clear()
 
     def validate(self):
@@ -86,7 +84,7 @@ class LibiglConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
         if "arm" in self.settings.arch or "x86" is self.settings.arch:
             raise ConanInvalidConfiguration(
-                "Not available for arm. Requested arch: {}".format(self.settings.arch)
+                f"Not available for arm. Requested arch: {self.settings.arch}"
             )
 
     def source(self):
@@ -117,11 +115,15 @@ class LibiglConan(ConanFile):
         tc.variables["LIBIGL_WITH_XML"] = False
         tc.variables["LIBIGL_WITH_PYTHON"] = "OFF"
         tc.variables["LIBIGL_WITH_PREDICATES"] = False
+        tc.generate()
+
         tc = CMakeDeps(self)
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
+        libigl_cmake = os.path.join(self.source_folder, "cmake", "libigl.cmake")
+        replace_in_file(self, libigl_cmake, "-fPIC", "")
+        replace_in_file(self, libigl_cmake, "INTERFACE_POSITION_INDEPENDENT_CODE ON", "")
 
     def build(self):
         self._patch_sources()
@@ -142,23 +144,18 @@ class LibiglConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libigl")
-        self.cpp_info.set_property("cmake_target_name", "igl")
+        self.cpp_info.set_property("cmake_target_name", "igl::igl")
 
-        self.cpp_info.components["igl_common"].set_property("cmake_target_name", "common")
-        self.cpp_info.components["igl_common"].names["cmake_find_package"] = "common"
-        self.cpp_info.components["igl_common"].names["cmake_find_package_multi"] = "common"
-        self.cpp_info.components["igl_common"].libs = []
-        self.cpp_info.components["igl_common"].requires = ["eigen::eigen"]
+        self.cpp_info.components["common"].set_property("cmake_target_name", "igl::common")
+        self.cpp_info.components["common"].requires = ["eigen::eigen"]
         if self.settings.os == "Linux":
-            self.cpp_info.components["igl_common"].system_libs = ["pthread"]
+            self.cpp_info.components["common"].system_libs = ["pthread"]
 
-        self.cpp_info.components["igl_core"].set_property("cmake_target_name", "core")
-        self.cpp_info.components["igl_core"].names["cmake_find_package"] = "core"
-        self.cpp_info.components["igl_core"].names["cmake_find_package_multi"] = "core"
-        self.cpp_info.components["igl_core"].requires = ["igl_common"]
+        self.cpp_info.components["core"].set_property("cmake_target_name", "igl::core")
+        self.cpp_info.components["core"].requires = ["common"]
         if not self.options.header_only:
-            self.cpp_info.components["igl_core"].libs = ["igl"]
-            self.cpp_info.components["igl_core"].defines.append("IGL_STATIC_LIBRARY")
+            self.cpp_info.components["core"].libs = ["igl"]
+            self.cpp_info.components["core"].defines.append("IGL_STATIC_LIBRARY")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "libigl"

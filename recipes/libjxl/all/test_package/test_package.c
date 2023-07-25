@@ -4,7 +4,8 @@
 #include "jxl/decode.h"
 #include "jxl/thread_parallel_runner.h"
 
-static int ReadFile(const char filename[], uint8_t *data[], size_t *size) {
+static int ReadFile(const char filename[], uint8_t *data[], size_t *size)
+{
     FILE *fp = fopen(filename, "rb");
     if (!fp)
         return 0;
@@ -40,7 +41,8 @@ static int ReadFile(const char filename[], uint8_t *data[], size_t *size) {
     return 1;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     int ret = EXIT_FAILURE;
 
     if (argc < 2) {
@@ -60,8 +62,10 @@ int main(int argc, char *argv[]) {
     if (JxlDecoderSubscribeEvents(dec, JXL_DEC_BASIC_INFO) != JXL_DEC_SUCCESS)
         goto Exit;
 
-    runner = JxlThreadParallelRunnerCreate(NULL, JxlThreadParallelRunnerDefaultNumWorkerThreads());
-    if (JxlDecoderSetParallelRunner(dec, JxlThreadParallelRunner, runner) != JXL_DEC_SUCCESS)
+    runner = JxlThreadParallelRunnerCreate(
+        NULL, JxlThreadParallelRunnerDefaultNumWorkerThreads());
+    if (JxlDecoderSetParallelRunner(dec, JxlThreadParallelRunner, runner)
+            != JXL_DEC_SUCCESS)
         goto Exit;
 
     if (JxlDecoderSetInput(dec, data, size) != JXL_DEC_SUCCESS)

@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -43,13 +41,11 @@ class LibProtobufMutatorConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("protobuf/3.17.1")
+        self.requires("protobuf/3.21.9", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler != "clang":
-            raise ConanInvalidConfiguration("Only clang allowed")
         if self.settings.compiler.libcxx != "libstdc++11":
-            raise ConanInvalidConfiguration("Requires either compiler.libcxx=libstdc++11")
+            raise ConanInvalidConfiguration("Requires compiler.libcxx=libstdc++11")
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
 
@@ -76,20 +72,20 @@ class LibProtobufMutatorConan(ConanFile):
         replace_in_file(
             self,
             os.path.join(self.source_folder, "CMakeLists.txt"),
-            """include_directories(${PROTOBUF_INCLUDE_DIRS})""",
-            """include_directories(${protobuf_INCLUDE_DIRS})""",
+            "include_directories(${PROTOBUF_INCLUDE_DIRS})",
+            "include_directories(${protobuf_INCLUDE_DIRS})",
         )
         replace_in_file(
             self,
             os.path.join(self.source_folder, "CMakeLists.txt"),
-            """set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""",
-            """# (disabled by conan) set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)""",
+            "set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)",
+            "# (disabled by conan) set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)",
         )
         replace_in_file(
             self,
             os.path.join(self.source_folder, "CMakeLists.txt"),
-            """add_subdirectory(examples EXCLUDE_FROM_ALL)""",
-            """# (disabled by conan) add_subdirectory(examples EXCLUDE_FROM_ALL)""",
+            "add_subdirectory(examples EXCLUDE_FROM_ALL)",
+            "# (disabled by conan) add_subdirectory(examples EXCLUDE_FROM_ALL)",
         )
 
     def build(self):
@@ -99,21 +95,12 @@ class LibProtobufMutatorConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "OFF"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "libprotobuf-mutator")
-        self.cpp_info.set_property("cmake_target_name", "libprotobuf-mutator")
-
         self.cpp_info.libs = ["protobuf-mutator-libfuzzer", "protobuf-mutator"]
         self.cpp_info.includedirs.append(os.path.join("include", "libprotobuf-mutator"))
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "libprotobuf-mutator"
-        self.cpp_info.names["cmake_find_package_multi"] = "libprotobuf-mutator"

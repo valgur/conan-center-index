@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
+from conan.tools.files import copy, get, rm
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -23,7 +21,7 @@ class OpenVDBConan(ConanFile):
     license = "MPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AcademySoftwareFoundation/openvdb"
-    topics = ("voxel", "voxelizer", "volume-rendering", "fx")
+    topics = ("voxel", "voxelizer", "volume-rendering", "fx", "vdb")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -54,11 +52,8 @@ class OpenVDBConan(ConanFile):
             "gcc": "6.3.1",
             "clang": "3.8",
             "apple-clang": "3.8",
-            "intel": "17",
+            "intel-cc": "17",
         }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -72,18 +67,23 @@ class OpenVDBConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.79.0")
-        self.requires("onetbb/2020.3")
-        self.requires("openexr/2.5.7")  # required for IlmBase::Half
+        self.requires("boost/1.82.0", transitive_headers=True)
+        # onetbb/2021.x fails with "'tbb::split' has not been declared"
+        self.requires("onetbb/2020.3", transitive_headers=True)
+        if Version(self.version) >= "8.2.0":
+            self.requires("openexr/3.1.7", transitive_headers=True)
+        else:
+            self.requires("openexr/2.5.7", transitive_headers=True)
         if self.options.with_zlib:
-            self.requires("zlib/1.2.12")
+            self.requires("zlib/1.2.13")
         if self.options.with_exr:
             # Not necessary now. Required for IlmBase::IlmImf
-            self.requires("openexr/2.5.7")
+            # self.requires("openexr/2.5.7", transitive_headers=True)
+            pass
         if self.options.with_blosc:
-            self.requires("c-blosc/1.21.1")
+            self.requires("c-blosc/1.21.4")
         if self.options.with_log4cplus:
-            self.requires("log4cplus/2.0.7")
+            self.requires("log4cplus/2.1.0", transitive_headers=True)
 
     def _check_compilier_version(self):
         compiler = str(self.settings.compiler)
@@ -139,47 +139,24 @@ class OpenVDBConan(ConanFile):
         tc.variables["USE_PKGCONFIG"] = False
         tc.variables["OPENVDB_INSTALL_CMAKE_MODULES"] = False
 
-        tc.variables["Boost_USE_STATIC_LIBS"] = not self.options["boost"].shared
-        tc.variables["OPENEXR_USE_STATIC_LIBS"] = not self.options["openexr"].shared
+        tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
+        tc.variables["OPENEXR_USE_STATIC_LIBS"] = not self.dependencies["openexr"].options.shared
 
         tc.variables["OPENVDB_DISABLE_BOOST_IMPLICIT_LINKING"] = True
 
+        tc.variables["OPENVDB_FUTURE_DEPRECATION"] = False
+
         tc.generate()
+
         tc = CMakeDeps(self)
+        tc.set_property("c-blosc", "cmake_file_name", "Blosc")
+        tc.set_property("c-blosc", "cmake_target_name", "Blosc::blosc")
+        tc.set_property("openexr", "cmake_file_name", "IlmBase")
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Remove FindXXX files from OpenVDB. Let Conan do the job
         rm(self, "Find*", os.path.join(self.source_folder, "cmake"), recursive=True)
-        with open("FindBlosc.cmake", "w") as f:
-            f.write("""find_package(c-blosc)
-if(c-blosc_FOUND)
-    add_library(blosc INTERFACE)
-    target_link_libraries(blosc INTERFACE c-blosc::c-blosc)
-    add_library(Blosc::blosc ALIAS blosc)
-endif()
-""")
-        with open("FindIlmBase.cmake", "w") as f:
-            f.write("""find_package(OpenEXR)
-if(OpenEXR_FOUND)
-  add_library(Half INTERFACE)
-  add_library(IlmThread INTERFACE)
-  add_library(Iex INTERFACE)
-  add_library(Imath INTERFACE)
-  add_library(IlmImf INTERFACE)
-  target_link_libraries(Half INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(IlmThread INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(Iex INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(Imath INTERFACE OpenEXR::OpenEXR)
-  target_link_libraries(IlmImf INTERFACE OpenEXR::OpenEXR)
-  add_library(IlmBase::Half ALIAS Half)
-  add_library(IlmBase::IlmThread ALIAS IlmThread)
-  add_library(IlmBase::Iex ALIAS Iex)
-  add_library(IlmBase::Imath ALIAS Imath)
-  add_library(OpenEXR::IlmImf ALIAS IlmImf)
- endif()
- """)
 
     def build(self):
         self._patch_sources()
@@ -188,7 +165,9 @@ if(OpenEXR_FOUND)
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -199,44 +178,45 @@ if(OpenEXR_FOUND)
 
         # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         lib_prefix = "lib" if is_msvc(self) and not self.options.shared else ""
-        self.cpp_info.components["openvdb-core"].libs = [lib_prefix + "openvdb"]
+        main_component = self.cpp_info.components["openvdb-core"]
+        main_component.libs = [lib_prefix + "openvdb"]
 
         lib_define = "OPENVDB_DLL" if self.options.shared else "OPENVDB_STATICLIB"
-        self.cpp_info.components["openvdb-core"].defines.append(lib_define)
+        main_component.defines.append(lib_define)
 
         if self.settings.os == "Windows":
-            self.cpp_info.components["openvdb-core"].defines.append("_WIN32")
-            self.cpp_info.components["openvdb-core"].defines.append("NOMINMAX")
+            main_component.defines.append("_WIN32")
+            main_component.defines.append("NOMINMAX")
 
-        if not self.options["openexr"].shared:
-            self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_OPENEXR_STATICLIB")
+        if not self.dependencies["openexr"].options.shared:
+            main_component.defines.append("OPENVDB_OPENEXR_STATICLIB")
         if self.options.with_exr:
-            self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_TOOLS_RAYTRACER_USE_EXR")
+            main_component.defines.append("OPENVDB_TOOLS_RAYTRACER_USE_EXR")
         if self.options.with_log4cplus:
-            self.cpp_info.components["openvdb-core"].defines.append("OPENVDB_USE_LOG4CPLUS")
+            main_component.defines.append("OPENVDB_USE_LOG4CPLUS")
 
-        self.cpp_info.components["openvdb-core"].requires = [
+        main_component.requires = [
             "boost::iostreams",
             "boost::system",
             "onetbb::onetbb",
             "openexr::openexr",  # should be "openexr::Half",
         ]
         if self.settings.os == "Windows":
-            self.cpp_info.components["openvdb-core"].requires.append("boost::disable_autolinking")
+            main_component.requires.append("boost::disable_autolinking")
 
         if self.options.with_zlib:
-            self.cpp_info.components["openvdb-core"].requires.append("zlib::zlib")
+            main_component.requires.append("zlib::zlib")
         if self.options.with_blosc:
-            self.cpp_info.components["openvdb-core"].requires.append("c-blosc::c-blosc")
+            main_component.requires.append("c-blosc::c-blosc")
         if self.options.with_log4cplus:
-            self.cpp_info.components["openvdb-core"].requires.append("log4cplus::log4cplus")
+            main_component.requires.append("log4cplus::log4cplus")
 
         if self.settings.os in ("Linux", "FreeBSD"):
-            self.cpp_info.components["openvdb-core"].system_libs = ["pthread"]
+            main_component.system_libs = ["pthread"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenVDB"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenVDB"
-        self.cpp_info.components["openvdb-core"].names["cmake_find_package"] = "openvdb"
-        self.cpp_info.components["openvdb-core"].names["cmake_find_package_multi"] = "openvdb"
-        self.cpp_info.components["openvdb-core"].set_property("cmake_target_name", "OpenVDB::openvdb")
+        main_component.names["cmake_find_package"] = "openvdb"
+        main_component.names["cmake_find_package_multi"] = "openvdb"
+        main_component.set_property("cmake_target_name", "OpenVDB::openvdb")

@@ -1,13 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches
-from conan.tools.files import get, copy
+from conan.tools.files import replace_in_file, get, copy
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -47,9 +44,6 @@ class OpenTDFConan(ConanFile):
             "apple-clang": "12.0.0",
         }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -62,20 +56,19 @@ class OpenTDFConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1q")
+        self.requires("openssl/[>=1.1 <3]")
         self.requires("ms-gsl/2.1.0")
-        self.requires("nlohmann_json/3.11.1")
+        self.requires("nlohmann_json/3.11.2")
         self.requires("jwt-cpp/0.4.0")
         # Use newer boost+libxml2 after 1.3.6
         if Version(self.version) <= "1.3.6":
             self.requires("boost/1.79.0")
             self.requires("libxml2/2.9.14")
         else:
-            self.requires("boost/1.81.0")
-            self.requires("libxml2/2.10.3")
+            self.requires("boost/1.82.0")
+            self.requires("libxml2/2.11.4")
 
     def validate(self):
-        # check minimum cpp standard supported by compiler
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._minimum_cpp_standard)
         # check minimum version of compiler
@@ -99,13 +92,27 @@ class OpenTDFConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_CXX_STANDARD"] = 17
+        if not self.settings.get_safe("compiler.cppstd"):
+            tc.variables["CMAKE_CXX_STANDARD"] = 17
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
 
+    def _patch_sources(self):
+        replace_in_file(self, os.path.join(self.source_folder, "src", "lib", "CMakeLists.txt"),
+            "set(CMAKE_CXX_STANDARD 17)",
+            (
+                "find_package(Boost REQUIRED)\n"
+                "find_package(OpenSSL REQUIRED)\n"
+                "find_package(Microsoft.GSL REQUIRED)\n"
+                "find_package(nlohmann_json REQUIRED)\n"
+                "find_package(libxml2 REQUIRED)\n"
+                "find_package(jwt-cpp REQUIRED)\n"
+                "link_libraries(Boost::boost OpenSSL::SSL Microsoft.GSL::GSL nlohmann_json::nlohmann_json LibXml2::LibXml2 jwt-cpp::jwt-cpp)\n"
+            ))
+
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -113,28 +120,19 @@ class OpenTDFConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self,
-            "*",
+        copy(self, "*",
             dst=os.path.join(self.package_folder, "lib"),
             src=os.path.join(os.path.join(self.source_folder, "tdf-lib-cpp"), "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*",
+            keep_path=False)
+        copy(self, "*",
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(os.path.join(self.source_folder, "tdf-lib-cpp"), "include"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "LICENSE",
+            keep_path=False)
+        copy(self, "LICENSE",
             dst=os.path.join(self.package_folder, "licenses"),
             src=self.source_folder,
             ignore_case=True,
-            keep_path=False,
-        )
+            keep_path=False)
 
     # TODO - this only advertises the static lib, add dynamic lib also
     def package_info(self):
@@ -143,10 +141,7 @@ class OpenTDFConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "opentdf-client")
 
         self.cpp_info.components["libopentdf"].libs = ["opentdf_static"]
-        self.cpp_info.components["libopentdf"].set_property(
-            "cmake_target_name", "copentdf-client::opentdf-client"
-        )
-        self.cpp_info.components["libopentdf"].set_property("cmake_target_name", "opentdf-client")
+        self.cpp_info.components["libopentdf"].set_property("cmake_target_name", "copentdf-client::opentdf-client")
         self.cpp_info.components["libopentdf"].names["cmake_find_package"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].names["cmake_find_package_multi"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].requires = [

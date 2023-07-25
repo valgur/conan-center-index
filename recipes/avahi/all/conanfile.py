@@ -12,8 +12,10 @@ required_conan_version = ">=1.53.0"
 
 class AvahiConan(ConanFile):
     name = "avahi"
+    # --enable-compat-libdns_sd means that this recipe provides the mdnsresponder compile interface
+    provides = "mdnsresponder"
     description = "Avahi - Service Discovery for Linux using mDNS/DNS-SD -- compatible with Bonjour"
-    license = "LGPL-2.1-only"
+    topics = ("bonjour", "dns", "dns-sd", "mdns")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lathiat/avahi"
     license = "LGPL-2.1-only"
@@ -28,38 +30,6 @@ class AvahiConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    # --enable-compat-libdns_sd means that this recipe provides the mdnsresponder compile interface
-    provides = "mdnsresponder"
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def configure(self):
         if self.options.shared:

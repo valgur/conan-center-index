@@ -129,7 +129,7 @@ index d8ef047..a81aa8e 100644
      )
      LIST(APPEND SOURCES
        src/flextGL.cpp
-@@ -292,19 +292,19 @@ IF(ENABLE_OPENGL)
+@@ -292,19 +292,20 @@ IF(ENABLE_OPENGL)
        src/shader/stage1.fs
        src/shader/stage2.fs
      )
@@ -140,7 +140,8 @@ index d8ef047..a81aa8e 100644
  SET(HAVE_OpenCL disabled)
  IF(ENABLE_OPENCL)
 -  FIND_PACKAGE(OpenCL)
-+  find_package(opencl-icd-loader REQUIRED)
++  find_package(OpenCLICDLoader REQUIRED)
++  find_package(OpenCLHeaders REQUIRED)
  
    SET(HAVE_OpenCL no)
 -  IF(OpenCL_FOUND)
@@ -167,7 +168,7 @@ index d8ef047..a81aa8e 100644
  
      LIST(APPEND LIBRARIES
 -      ${OpenCL_LIBRARIES}
-+      opencl-icd-loader::opencl-icd-loader
++      opencl-icd-loader::opencl-icd-loader opencl-headers::opencl-headers
      )
  
      LIST(APPEND RESOURCES

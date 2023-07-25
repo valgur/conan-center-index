@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
-from conan.tools.microsoft import msvc_runtime_flag
+from conan.tools.microsoft import is_msvc_static_runtime
 
 required_conan_version = ">=1.53.0"
 
@@ -51,9 +49,9 @@ class CoConan(ConanFile):
 
     def requirements(self):
         if self.options.with_libcurl:
-            self.requires("libcurl/7.79.1")
+            self.requires("libcurl/[>=7]")
         if self.options.with_openssl:
-            self.requires("openssl/1.1.1l")
+            self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         if self.options.with_libcurl:
@@ -71,7 +69,7 @@ class CoConan(ConanFile):
     def build_requirements(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             #  The OSX_ARCHITECTURES target property is now respected for the ASM language
-            self.build_requires("cmake/3.20.1")
+            self.tool_requires("cmake/[>=3.20]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -80,13 +78,10 @@ class CoConan(ConanFile):
         tc = CMakeToolchain(self)
         if not self.options.shared:
             tc.variables["FPIC"] = self.options.get_safe("fPIC", False)
-        runtime = msvc_runtime_flag(self)
-        if runtime:
-            tc.variables["STATIC_VS_CRT"] = "MT" in runtime
+        tc.variables["STATIC_VS_CRT"] = is_msvc_static_runtime(self)
         tc.variables["WITH_LIBCURL"] = self.options.with_libcurl
         tc.variables["WITH_OPENSSL"] = self.options.with_openssl
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -97,15 +92,13 @@ class CoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "co")
-        self.cpp_info.set_property("cmake_target_name", "co")
         self.cpp_info.libs = ["co"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "co"
-        self.cpp_info.names["cmake_find_package_multi"] = "co"
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs = ["ws2_32"]

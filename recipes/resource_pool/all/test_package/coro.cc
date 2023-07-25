@@ -1,8 +1,8 @@
 #include <yamail/resource_pool/async/pool.hpp>
 
 #include <iostream>
-#include <memory>
 #include <thread>
+#include <memory>
 
 using ofstream_pool = yamail::resource_pool::async::pool<std::unique_ptr<std::ostream>>;
 using time_traits = yamail::resource_pool::time_traits;
@@ -29,8 +29,7 @@ int main() {
             }
             handle.reset(std::move(stream));
         }
-        *(handle.get()) << (time_traits::time_point::min() - time_traits::now()).count()
-                        << std::endl;
+        *(handle.get()) << (time_traits::time_point::min() - time_traits::now()).count() << std::endl;
         if (handle.get()->good()) {
             handle.recycle();
         }

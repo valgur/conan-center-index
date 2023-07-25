@@ -1,7 +1,6 @@
-// (adapted) code taken from
-// https://gitlab.com/eidheim/Simple-WebSocket-Server/blob/master/ws_examples.cpp
-#include <simple-websocket-server/client_ws.hpp>
+// (adapted) code taken from https://gitlab.com/eidheim/Simple-WebSocket-Server/blob/master/ws_examples.cpp
 #include <simple-websocket-server/server_ws.hpp>
+#include <simple-websocket-server/client_ws.hpp>
 
 using namespace std;
 
@@ -21,22 +20,19 @@ int main() {
     //   ws.send("test");
     auto &echo = server.endpoint["^/echo/?$"];
 
-    echo.on_message = [](shared_ptr<WsServer::Connection> connection,
-                         shared_ptr<WsServer::InMessage> in_message) {
+    echo.on_message = [](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
         auto out_message = in_message->string();
 
-        cout << "Server: Message received: \"" << out_message << "\" from " << connection.get()
-             << endl;
+        cout << "Server: Message received: \"" << out_message << "\" from " << connection.get() << endl;
 
         cout << "Server: Sending message \"" << out_message << "\" to " << connection.get() << endl;
 
         // connection->send is an asynchronous function
         connection->send(out_message, [](const SimpleWeb::error_code &ec) {
-            if (ec) {
+            if(ec) {
                 cout << "Server: Error sending message. " <<
-                    // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html,
-                    // Error Codes for error code meanings
-                    "Error: " << ec << ", error message: " << ec.message() << endl;
+                     // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
+                     "Error: " << ec << ", error message: " << ec.message() << endl;
             }
         });
 
@@ -51,46 +47,39 @@ int main() {
     };
 
     // See RFC 6455 7.4.1. for status codes
-    echo.on_close = [&server](shared_ptr<WsServer::Connection> connection, int status,
-                              const string & /*reason*/) {
-        cout << "Server: Closed connection " << connection.get() << " with status code " << status
-             << endl;
+    echo.on_close = [&server](shared_ptr<WsServer::Connection> connection, int status, const string & /*reason*/) {
+        cout << "Server: Closed connection " << connection.get() << " with status code " << status << endl;
         server.stop();
     };
 
     // Can modify handshake response headers here if needed
-    echo.on_handshake = [](shared_ptr<WsServer::Connection> /*connection*/,
-                           SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
+    echo.on_handshake = [](shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap & /*response_header*/) {
         return SimpleWeb::StatusCode::information_switching_protocols; // Upgrade to websocket
     };
 
-    // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for
-    // error code meanings
-    echo.on_error = [&server](shared_ptr<WsServer::Connection> connection,
-                              const SimpleWeb::error_code &ec) {
+    // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
+    echo.on_error = [&server](shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code &ec) {
         cout << "Server: Error in connection " << connection.get() << ". "
              << "Error: " << ec << ", error message: " << ec.message() << endl;
         server.stop();
     };
 
     // Example 2: Echo thrice
-    // Demonstrating queuing of messages by sending a received message three times back to the
-    // client. Concurrent send operations are automatically queued by the library. Test with the
-    // following JavaScript:
+    // Demonstrating queuing of messages by sending a received message three times back to the client.
+    // Concurrent send operations are automatically queued by the library.
+    // Test with the following JavaScript:
     //   var ws=new WebSocket("ws://localhost:8080/echo_thrice");
     //   ws.onmessage=function(evt){console.log(evt.data);};
     //   ws.send("test");
     auto &echo_thrice = server.endpoint["^/echo_thrice/?$"];
-    echo_thrice.on_message = [](shared_ptr<WsServer::Connection> connection,
-                                shared_ptr<WsServer::InMessage> in_message) {
+    echo_thrice.on_message = [](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
         auto out_message = make_shared<string>(in_message->string());
 
         connection->send(*out_message, [connection, out_message](const SimpleWeb::error_code &ec) {
-            if (!ec)
+            if(!ec)
                 connection->send(*out_message); // Sent after the first send operation is finished
         });
-        connection->send(
-            *out_message); // Most likely queued. Sent after the first send operation is finished.
+        connection->send(*out_message); // Most likely queued. Sent after the first send operation is finished.
     };
 
     // Example 3: Echo to all WebSocket endpoints
@@ -100,13 +89,11 @@ int main() {
     //   ws.onmessage=function(evt){console.log(evt.data);};
     //   ws.send("test");
     auto &echo_all = server.endpoint["^/echo_all/?$"];
-    echo_all.on_message = [&server](shared_ptr<WsServer::Connection> /*connection*/,
-                                    shared_ptr<WsServer::InMessage> in_message) {
+    echo_all.on_message = [&server](shared_ptr<WsServer::Connection> /*connection*/, shared_ptr<WsServer::InMessage> in_message) {
         auto out_message = in_message->string();
 
-        // echo_all.get_connections() can also be used to solely receive connections on this
-        // endpoint
-        for (auto &a_connection : server.get_connections())
+        // echo_all.get_connections() can also be used to solely receive connections on this endpoint
+        for(auto &a_connection : server.get_connections())
             a_connection->send(out_message);
     };
 
@@ -130,8 +117,7 @@ int main() {
     //   Server: Closed connection 0x7fcf21600380 with status code 1000
     //   Client: Closed connection with status code 1000
     WsClient client("localhost:8080/echo");
-    client.on_message = [](shared_ptr<WsClient::Connection> connection,
-                           shared_ptr<WsClient::InMessage> in_message) {
+    client.on_message = [](shared_ptr<WsClient::Connection> connection, shared_ptr<WsClient::InMessage> in_message) {
         cout << "Client: Message received: \"" << in_message->string() << "\"" << endl;
 
         cout << "Client: Sending close connection" << endl;
@@ -147,16 +133,13 @@ int main() {
         connection->send(out_message);
     };
 
-    client.on_close = [&client](shared_ptr<WsClient::Connection> /*connection*/, int status,
-                                const string & /*reason*/) {
+    client.on_close = [&client](shared_ptr<WsClient::Connection> /*connection*/, int status, const string & /*reason*/) {
         cout << "Client: Closed connection with status code " << status << endl;
         client.stop();
     };
 
-    // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for
-    // error code meanings
-    client.on_error = [&client](shared_ptr<WsClient::Connection> /*connection*/,
-                                const SimpleWeb::error_code &ec) {
+    // See http://www.boost.org/doc/libs/1_55_0/doc/html/boost_asio/reference.html, Error Codes for error code meanings
+    client.on_error = [&client](shared_ptr<WsClient::Connection> /*connection*/, const SimpleWeb::error_code &ec) {
         cout << "Client: Error: " << ec << ", error message: " << ec.message() << endl;
         client.stop();
     };
@@ -164,5 +147,5 @@ int main() {
     client.start();
 
     server_thread.join();
-    return 0;
+	return 0;
 }

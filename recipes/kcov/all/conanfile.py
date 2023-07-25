@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -27,22 +25,22 @@ class KcovConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def configure(self):
-        if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("kcov can not be built on windows.")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.12")
+        self.requires("zlib/1.2.13")
         self.requires("libiberty/9.1.0")
-        self.requires("libcurl/7.83.1")
-        self.requires("elfutils/0.180")
+        self.requires("libcurl/[>=7]")
+        self.requires("elfutils/0.186")
 
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+
+    def validate(self):
+        if self.settings.os == "Windows":
+            raise ConanInvalidConfiguration("kcov can not be built on windows.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -66,10 +64,12 @@ class KcovConan(ConanFile):
         copy(self, "COPYING*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
         self.cpp_info.includedirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
+
+        # TODO: to remove in conan v2
+        bindir = os.path.join(self.package_folder, "bin")
+        self.output.info(f"Appending PATH environment variable: {bindir}")
+        self.env_info.PATH.append(bindir)

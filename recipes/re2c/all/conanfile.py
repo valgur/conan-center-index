@@ -1,86 +1,13 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from contextlib import contextmanager
-import os
+from conan.tools.microsoft import is_msvc, unix_path
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.53.0"
 
 
 class Re2CConan(ConanFile):
@@ -100,6 +27,7 @@ class Re2CConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "msvc_cl.sh", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -134,16 +62,13 @@ class Re2CConan(ConanFile):
         if is_msvc(self):
             env = Environment()
             automake_conf = self.dependencies.build["automake"].conf_info
-            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
             ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
-            env.define("CC", f"{compile_wrapper} cl -nologo")
-            env.define("CXX", f"{compile_wrapper} cl -nologo")
-            env.define("LD", "link -nologo")
+            msvc_cl_path = unix_path(self, os.path.join(self.source_folder, "msvc_cl.sh"))
+            env.define("CC", msvc_cl_path)
+            env.define("CXX", msvc_cl_path)
+            env.define("LD", msvc_cl_path)
+            env.define("CXXLD", msvc_cl_path)
             env.define("AR", f'{ar_wrapper} "lib -nologo"')
-            env.define("NM", "dumpbin -symbols")
-            env.define("OBJDUMP", ":")
-            env.define("RANLIB", ":")
-            env.define("STRIP", ":")
             env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
@@ -154,24 +79,17 @@ class Re2CConan(ConanFile):
             autotools.make(args=["V=1"])
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
+        copy(self, "LICENSE",
             src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "NO_WARRANTY",
+            keep_path=False)
+        copy(self, "NO_WARRANTY",
             src=self.source_folder,
             dst=os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
+            keep_path=False)
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
-
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
@@ -179,6 +97,8 @@ class Re2CConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
+
+        # TODO: to remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

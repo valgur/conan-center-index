@@ -1,95 +1,20 @@
-# TODO: verify the Conan v2 migration
-
 import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import functools
 from itertools import product
-import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
 
 class OpenFstConan(ConanFile):
     name = "openfst"
-    description = (
-        "A library for constructing, combining, optimizing and searching weighted finite-state-transducers"
-        " (FSTs)."
-    )
+    description = "A library for constructing, combining, optimizing and searching weighted finite-state-transducers (FSTs)."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.openfst.org/twiki/bin/view/FST/WebHome"
@@ -167,8 +92,8 @@ class OpenFstConan(ConanFile):
                 )
         else:
             self.output.warning(
-                f"{self.name} requires c++17, but this compiler is unknown to this recipe. Assuming your"
-                " compiler supports c++17."
+                f"{self.name} requires c++17, but this compiler is unknown to this recipe."
+                f" Assuming your compiler supports c++17."
             )
 
         # Check stdlib ABI compatibility
@@ -176,14 +101,9 @@ class OpenFstConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f'Using {self.name} with GCC requires "compiler.libcxx=libstdc++11"'
             )
-        elif self.settings.compiler == "clang" and self.settings.compiler.libcxx not in [
-            "libstdc++11",
-            "libc++",
-        ]:
+        elif self.settings.compiler == "clang" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]:
             raise ConanInvalidConfiguration(
-                'Using %s with Clang requires either "compiler.libcxx=libstdc++11"'
-                ' or "compiler.libcxx=libc++"'
-                % self.name
+                f'Using {self.name} with Clang requires either "compiler.libcxx=libstdc++11" or "compiler.libcxx=libc++"'
             )
 
     def source(self):
@@ -219,9 +139,10 @@ class OpenFstConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+
         autotools = Autotools(self)
         autotools.install()
 
@@ -229,7 +150,9 @@ class OpenFstConan(ConanFile):
         lib_subdir = os.path.join(self.package_folder, "lib", "fst")
         if os.path.exists(lib_subdir):
             for fn in os.listdir(lib_subdir):
-                rename(self, os.path.join(lib_subdir, fn), os.path.join(lib_dir, "lib{}".format(fn)))
+                rename(self,
+                       os.path.join(lib_subdir, fn),
+                       os.path.join(lib_dir, f"lib{fn}"))
             rmdir(self, lib_subdir)
 
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -241,12 +164,11 @@ class OpenFstConan(ConanFile):
 
     @property
     def _get_compact_fsts_libs(self):
-        return [
-            f"compact{n}_{fst}-fst"
-            for n, fst in product(
-                [8, 16, 64], ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"]
-            )
-        ]
+        return [f"compact{n}_{fst}-fst"
+                for n, fst in product(
+                    [8, 16, 64],
+                    ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"]
+                )]
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenFst")
@@ -287,8 +209,9 @@ class OpenFstConan(ConanFile):
             if self.options.enable_pdt or self.options.enable_grm:
                 self.cpp_info.libs.append("fstpdtscript")
 
-            bindir = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment var: {bindir}")
-            self.env_info.PATH.append(bindir)
-
         self.cpp_info.system_libs = ["pthread", "dl", "m"]
+
+        # TODO: Legacy, to be removed on Conan 2.0
+        bindir = os.path.join(self.package_folder, "bin")
+        self.output.info(f"Appending PATH environment var: {bindir}")
+        self.env_info.PATH.append(bindir)

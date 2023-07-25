@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -45,6 +43,7 @@ class HexlConan(ConanFile):
         return {
             "gcc": "7",
             "Visual Studio": "15.7",
+            "msvc": "191",
             "clang": "7",
             "apple-clang": "11",
         }
@@ -64,7 +63,7 @@ class HexlConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cpu_features/0.7.0")
+        self.requires("cpu_features/0.8.0")
 
         if self.settings.build_type == "Debug":
             self.requires("easyloggingpp/9.97.0")
@@ -90,7 +89,7 @@ class HexlConan(ConanFile):
             raise ConanInvalidConfiguration("Hexl only supports static linking with msvc")
 
     def build_requirements(self):
-        self.build_requires("cmake/3.22.0")
+        self.tool_requires("cmake/[>=3.24]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

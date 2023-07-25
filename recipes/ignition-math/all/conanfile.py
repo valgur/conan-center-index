@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 import textwrap
 
@@ -15,7 +13,7 @@ required_conan_version = ">=1.53.0"
 
 class IgnitionMathConan(ConanFile):
     name = "ignition-math"
-    description = " Math classes and functions for robot applications"
+    description = "Math classes and functions for robot applications"
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gazebosim.org/libs/math"
@@ -23,14 +21,8 @@ class IgnitionMathConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-    }
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {"shared": False, "fPIC": True}
 
     @property
     def _minimum_cpp_standard(self):
@@ -38,12 +30,7 @@ class IgnitionMathConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {
-            "Visual Studio": "16",
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "10",
-        }
+        return {"Visual Studio": "16", "msvc": "192", "gcc": "7", "clang": "5", "apple-clang": "10"}
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -59,33 +46,28 @@ class IgnitionMathConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
-            self.output.warning(
-                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
-            )
+            self.output.warning(f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support.")
         else:
             if Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires c++17 support. The current compiler"
-                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
-                )
+                raise ConanInvalidConfiguration(f"{self.name} requires c++17 support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("eigen/3.3.9")
-        self.requires("doxygen/1.8.17")
-        self.requires("swig/4.0.2")
+        self.requires("eigen/3.4.0")
+        self.requires("swig/4.1.0")
 
     def validate(self):
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("sorry, M1 builds are not currently supported, give up!")
 
     def build_requirements(self):
-        if int(Version(self.version).minor) <= 8:
-            self.build_requires("ignition-cmake/2.5.0")
+        if Version(self.version).minor <= 8:
+            self.tool_requires("ignition-cmake/2.5.0")
         else:
-            self.build_requires("ignition-cmake/2.10.0")
+            self.tool_requires("ignition-cmake/2.10.0")
+        self.tool_requires("doxygen/1.9.4")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -121,9 +103,7 @@ class IgnitionMathConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path), Version(self.version))
 
         # Remove MS runtime files
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
@@ -144,40 +124,30 @@ class IgnitionMathConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", lib_name)
         self.cpp_info.set_property("cmake_target_name", lib_name)
 
+        main_component = self.cpp_info.components[lib_name]
+        main_component.libs = [lib_name]
+        main_component.includedirs.append(os.path.join("include", "ignition", "math" + version_major))
+        main_component.requires = ["swig::swig", "eigen::eigen", "doxygen::doxygen"]
+
+        eigen3_component = self.cpp_info.components["eigen3"]
+        eigen3_component.includedirs.append(os.path.join("include", "ignition", "math" + version_major))
+        eigen3_component.requires = ["eigen::eigen"]
+
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = lib_name
         self.cpp_info.names["cmake_find_package_multi"] = lib_name
         self.cpp_info.names["cmake_paths"] = lib_name
-
-        self.cpp_info.components[lib_name].set_property("cmake_target_name", lib_name)
-        self.cpp_info.components[lib_name].names["cmake_find_package"] = lib_name
-        self.cpp_info.components[lib_name].names["cmake_find_package_multi"] = lib_name
-        self.cpp_info.components[lib_name].names["cmake_paths"] = lib_name
-        self.cpp_info.components[lib_name].libs = [lib_name]
-        self.cpp_info.components[lib_name].includedirs.append(
-            os.path.join("include", "ignition", "math" + version_major)
-        )
-        self.cpp_info.components[lib_name].requires = ["swig::swig", "eigen::eigen", "doxygen::doxygen"]
-
-        self.cpp_info.components[lib_name].builddirs = [self._module_file_rel_dir]
-        self.cpp_info.components[lib_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components[lib_name].build_modules["cmake_find_package_multi"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components[lib_name].build_modules["cmake_paths"] = [self._module_file_rel_path]
-
-        self.cpp_info.components["eigen3"].set_property("cmake_target_name", "eigen3")
-        self.cpp_info.components["eigen3"].names["cmake_find_package"] = "eigen3"
-        self.cpp_info.components["eigen3"].names["cmake_find_package_multi"] = "eigen3"
-        self.cpp_info.components["eigen3"].names["cmake_paths"] = "eigen3"
-        self.cpp_info.components["eigen3"].includedirs.append(
-            os.path.join("include", "ignition", "math" + version_major)
-        )
-        self.cpp_info.components["eigen3"].requires = ["eigen::eigen"]
-
-        self.cpp_info.components["eigen3"].builddirs = [self._module_file_rel_dir]
-        self.cpp_info.components["eigen3"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["eigen3"].build_modules["cmake_find_package_multi"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components["eigen3"].build_modules["cmake_paths"] = [self._module_file_rel_path]
+        main_component.names["cmake_find_package"] = lib_name
+        main_component.names["cmake_find_package_multi"] = lib_name
+        main_component.names["cmake_paths"] = lib_name
+        main_component.builddirs = [self._module_file_rel_dir]
+        main_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        main_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        main_component.build_modules["cmake_paths"] = [self._module_file_rel_path]
+        eigen3_component.names["cmake_find_package"] = "eigen3"
+        eigen3_component.names["cmake_find_package_multi"] = "eigen3"
+        eigen3_component.names["cmake_paths"] = "eigen3"
+        eigen3_component.builddirs = [self._module_file_rel_dir]
+        eigen3_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        eigen3_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        eigen3_component.build_modules["cmake_paths"] = [self._module_file_rel_path]

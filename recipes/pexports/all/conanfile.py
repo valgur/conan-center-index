@@ -1,15 +1,14 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.env import Environment
+from conan.tools.build import cross_building
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, chdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path, is_msvc
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=1.52.0"
 
 
 class PExportsConan(ConanFile):
@@ -56,9 +55,16 @@ class PExportsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], filename=filename, strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+        if not cross_building(self):
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
+
         tc = AutotoolsToolchain(self)
+        tc.configure_args.append(f"--prefix={unix_path(self, self.package_folder)}")
         if is_msvc(self):
-            tc.defines.append("YY_NO_UNISTD_H")
+            tc.extra_defines.append("YY_NO_UNISTD_H")
         tc.generate()
 
         if is_msvc(self):
@@ -91,8 +97,12 @@ class PExportsConan(ConanFile):
             autotools.install()
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
 
+        # TODO: to remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

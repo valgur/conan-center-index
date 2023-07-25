@@ -11,17 +11,15 @@ required_conan_version = ">=1.53.0"
 
 class OneTBBConan(ConanFile):
     name = "onetbb"
-    description = (
-        "oneAPI Threading Building Blocks (oneTBB) lets you easily write parallel C++"
-        " programs that take full advantage of multicore performance, that are portable, composable"
-        " and have future-proof scalability."
-    )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/oneapi-src/oneTBB"
+    description = (
+        "oneAPI Threading Building Blocks (oneTBB) lets you easily write parallel C++"
+        " programs that take full advantage of multicore performance, that are portable, composable"
+        " and have future-proof scalability.")
     topics = ("tbb", "threading", "parallelism", "tbbmalloc")
 
-    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -45,16 +43,16 @@ class OneTBBConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "2021.6.0" or self.settings.os == "Android":
-            self.options.rm_safe("interprocedural_optimization")
+            del self.options.interprocedural_optimization
         if Version(self.version) < "2021.2.0":
-            self.options.rm_safe("shared")
+            del self.options.shared
             self.options.rm_safe("fPIC")
 
     def configure(self):
         if self.options.get_safe("shared", True):
             self.options.rm_safe("fPIC")
         else:
-            self.options.rm_safe("tbbproxy")
+            del self.options.tbbproxy
         if not self.options.tbbmalloc:
             self.options.rm_safe("tbbproxy")
 
@@ -123,11 +121,12 @@ class OneTBBConan(ConanFile):
         tbb.set_property("cmake_target_name", "TBB::tbb")
         tbb.libs = [lib_name("tbb")]
         if self.settings.os == "Windows":
-            version_info = load(
-                self, os.path.join(self.package_folder, "include", "oneapi", "tbb", "version.h")
-            )
+            version_info = load(self,
+                os.path.join(self.package_folder, "include", "oneapi", "tbb",
+                             "version.h"))
             binary_version = re.sub(
-                r".*" + re.escape("#define __TBB_BINARY_VERSION ") + r"(\d+).*",
+                r".*" + re.escape("#define __TBB_BINARY_VERSION ") +
+                r"(\d+).*",
                 r"\1",
                 version_info,
                 flags=re.MULTILINE | re.DOTALL,
@@ -158,5 +157,6 @@ class OneTBBConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "TBB"
         self.cpp_info.names["cmake_find_package_multi"] = "TBB"
+        self.cpp_info.names["pkg_config"] = "tbb"
         tbb.names["cmake_find_package"] = "tbb"
         tbb.names["cmake_find_package_multi"] = "tbb"

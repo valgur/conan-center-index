@@ -67,7 +67,7 @@ class LibXpmConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):
@@ -81,9 +81,6 @@ class LibXpmConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.libs = ["Xpm"]
         if self.settings.os == "Windows":
             self.cpp_info.defines = ["FOR_MSW"]

@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, rename
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -35,9 +33,10 @@ class PlayrhoConan(ConanFile):
     def _compilers_minimum_versions(self):
         return {
             "gcc": "8",
-            "Visual Studio": "16",
             "clang": "7",
             "apple-clang": "12",
+            "msvc": "192",
+            "Visual Studio": "16",
         }
 
     def export_sources(self):
@@ -91,16 +90,15 @@ class PlayrhoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.txt",
+        copy(self, "LICENSE.txt",
             dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+            src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "PlayRho"))
+        for dll in (self.package_path / "lib").glob("*.dll"):
+            rename(self, dll, self.package_path / "bin" / dll.name)
 
     def package_info(self):
         self.cpp_info.libs = ["PlayRho"]

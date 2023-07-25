@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -48,11 +46,11 @@ class FuseppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libfuse/3.10.5")
+        self.requires("libfuse/3.10.5", transitive_headers=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+            check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc":
             if Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration("gcc < 6 is unsupported")
@@ -68,7 +66,7 @@ class FuseppConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
@@ -78,9 +76,12 @@ class FuseppConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["fusepp"]
+        self.cpp_info.set_property("cmake_file_name", "fusepp")
+        self.cpp_info.set_property("cmake_target_name", "fusepp::fusepp")
+
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m"]
+
         # TODO: Remove after Conan 2.0
         self.cpp_info.names["cmake_find_package"] = "fusepp"
         self.cpp_info.names["cmake_find_package_multi"] = "fusepp"
-
-        self.cpp_info.set_property("cmake_file_name", "fusepp")
-        self.cpp_info.set_property("cmake_target_name", "fusepp")

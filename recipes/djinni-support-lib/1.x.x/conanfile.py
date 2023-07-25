@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -7,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
@@ -27,7 +26,6 @@ class DjinniSuppotLib(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "target": ["jni", "objc", "python", "cppcli", "auto", "deprecated"],
         "with_jni": [True, False, "auto"],
         "with_objc": [True, False, "auto"],
         "with_python": [True, False, "auto"],
@@ -37,7 +35,6 @@ class DjinniSuppotLib(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "target": "deprecated",
         "with_jni": "auto",
         "with_objc": "auto",
         "with_python": "auto",
@@ -53,36 +50,37 @@ class DjinniSuppotLib(ConanFile):
 
     @property
     def _objc_support(self):
-        if self.options.with_objc == "auto" or self.options.target == "auto":
-            return is_apple_os(self.settings.os)
+        if self.options.with_objc == "auto":
+            return is_apple_os(self)
         else:
-            return self.options.with_objc == True or self.options.target == "objc"
+            return self.options.with_objc
 
     @property
     def _jni_support(self):
-        if self.options.with_jni == "auto" or self.options.target == "auto":
+        if self.options.with_jni == "auto":
             return self.settings.os == "Android"
         else:
-            return self.options.with_jni == True or self.options.target == "jni"
+            return self.options.with_jni
 
     @property
     def _python_support(self):
-        return self.options.with_python == True or self.options.target == "python"
+        return self.options.with_python
 
     @property
     def _cppcli_support(self):
-        if self.options.with_cppcli == "auto" or self.options.target == "auto":
+        if self.options.with_cppcli == "auto":
             return self.settings.os == "Windows"
         else:
-            return self.options.with_cppcli == True or self.options.target == "cppcli"
+            return self.options.with_cppcli
 
     @property
     def _supported_compilers(self):
         return {
             "gcc": "8",
             "clang": "7",
-            "Visual Studio": "15",
             "apple-clang": "10",
+            "msvc": "191",
+            "Visual Studio": "15",
         }
 
     def configure(self):
@@ -93,11 +91,6 @@ class DjinniSuppotLib(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.options.target != "deprecated":
-            self.output.warning(
-                "The 'target' option is deprecated and will be removed soon. "
-                "Use 'with_jni', 'with_objc', 'with_python' or 'with_cppcli' options instead."
-            )
         if not (self._objc_support or self._jni_support or self._python_support or self._cppcli_support):
             raise ConanInvalidConfiguration(
                 "Target language could not be determined automatically. Set at least one of 'with_jni',"
@@ -138,14 +131,14 @@ class DjinniSuppotLib(ConanFile):
 
     def build_requirements(self):
         if not self.options.system_java and self._jni_support:
-            self.build_requires("zulu-openjdk/11.0.12@")
+            self.build_requires("zulu-openjdk/11.0.19")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
         tc.variables["DJINNI_WITH_OBJC"] = self._objc_support
         tc.variables["DJINNI_WITH_JNI"] = self._jni_support
         tc.variables["DJINNI_WITH_PYTHON"] = self._python_support
@@ -155,9 +148,10 @@ class DjinniSuppotLib(ConanFile):
             tc.variables["JAVA_AWT_LIBRARY"] = "NotNeeded"
             tc.variables["JAVA_AWT_INCLUDE_PATH"] = "NotNeeded"
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
+        tc = VirtualBuildEnv(self)
+        tc.generate(scope="build")
 
     def build(self):
         cmake = CMake(self)
@@ -167,7 +161,9 @@ class DjinniSuppotLib(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

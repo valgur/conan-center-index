@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -45,8 +43,8 @@ class SystemccciConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("systemc/2.3.3")
-        self.requires("rapidjson/1.1.0")
+        self.requires("systemc/2.3.4", transitive_headers=True)
+        self.requires("rapidjson/cci.20220822")
 
     def validate(self):
         if self.settings.os == "Macos":
@@ -57,6 +55,7 @@ class SystemccciConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CONAN_PACKAGE_VERSION"] = self.version
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
@@ -64,12 +63,16 @@ class SystemccciConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "NOTICE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "NOTICE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

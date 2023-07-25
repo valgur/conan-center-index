@@ -10,9 +10,7 @@ required_conan_version = ">=1.53.0"
 
 class Argtable3Conan(ConanFile):
     name = "argtable3"
-    description = (
-        "A single-file, ANSI C, command-line parsing library that parses GNU-style command-line options."
-    )
+    description = "A single-file, ANSI C, command-line parsing library that parses GNU-style command-line options."
     license = "BSD-3-clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.argtable.org/"
@@ -77,9 +75,7 @@ class Argtable3Conan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -90,7 +86,7 @@ class Argtable3Conan(ConanFile):
         target_name = "argtable3" if self.options.shared else "argtable3_static"
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {target_name: "argtable3::argtable3"},
+            {target_name: "argtable3::argtable3"}
         )
 
     def package_info(self):
@@ -106,9 +102,7 @@ class Argtable3Conan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Argtable3")
         self.cpp_info.set_property("cmake_target_name", "argtable3::argtable3")
         # These targets were for versions < 3.2.1 (newer create argtable3::argtable3)
-        self.cpp_info.set_property(
-            "cmake_target_aliases", ["argtable3" if self.options.shared else "argtable3_static"]
-        )
+        self.cpp_info.set_property("cmake_target_aliases", ["argtable3" if self.options.shared else "argtable3_static"])
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "Argtable3"

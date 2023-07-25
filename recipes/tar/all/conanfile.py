@@ -1,98 +1,25 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import apply_conandata_patches, copy, get, replace_in_file, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
 
 class TarConan(ConanFile):
     name = "tar"
-    description = (
-        "GNU Tar provides the ability to create tar archives, as well as various other kinds of manipulation."
-    )
+    description = "GNU Tar provides the ability to create tar archives, as well as various other kinds of manipulation."
     license = "GPL-3-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/tar/"
     topics = "archive"
 
-    package_type = "library"
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -106,26 +33,26 @@ class TarConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def requirements(self):
-        self.requires("bzip2/1.0.8")
-        self.requires("lzip/1.21")
-        self.requires("xz_utils/5.2.5")
-
     def package_id(self):
         del self.info.settings.compiler
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "This recipe does not support Windows builds of tar"
-            )  # FIXME: fails on MSVC and mingw-w64
-        if not self.options["bzip2"].build_executable:
-            raise ConanInvalidConfiguration("bzip2:build_executable must be enabled")
+            raise ConanInvalidConfiguration("This recipe does not support Windows builds of tar")  # FIXME: fails on MSVC and mingw-w64
+        # if not self.dependencies["bzip2"].options.build_executable:
+        #     raise ConanInvalidConfiguration("bzip2:build_executable must be enabled")
+
+    def build_requirements(self):
+        self.tool_requires("bzip2/1.0.8")
+        self.tool_requires("lzip/1.22")
+        self.tool_requires("xz_utils/5.2.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
         bzip2_exe = "bzip2"  # FIXME: get from bzip2 recipe
@@ -148,7 +75,7 @@ class TarConan(ConanFile):
         ]
         tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         apply_conandata_patches(self)
         if is_msvc(self):
             replace_in_file(
@@ -157,6 +84,9 @@ class TarConan(ConanFile):
                 "_GL_INCLUDING_UNISTD_H",
                 "_GL_INCLUDING_UNISTD_H_NOP",
             )
+
+    def build(self):
+        self._patch_sources()
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -165,7 +95,6 @@ class TarConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):

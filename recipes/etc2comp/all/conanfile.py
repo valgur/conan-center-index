@@ -1,11 +1,8 @@
-# TODO: verify the Conan v2 migration
-
-import glob
 import os
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
 
 required_conan_version = ">=1.53.0"
@@ -40,20 +37,19 @@ class Etc2compConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.generate()
-
-        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -63,33 +59,19 @@ class Etc2compConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         for pattern in ["*.lib", "*.a", "*.so*", "*.dylib"]:
-            copy(
-                self,
-                pattern,
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.build_folder,
-                keep_path=False,
-            )
-        copy(
-            self,
-            "*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self.build_folder,
-            keep_path=False,
-        )
+            copy(self, pattern, dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
+        copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), src=self.build_folder, keep_path=False)
         copy(
             self,
             "*.h",
-            dst=os.path.join("include"),
+            dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "EtcLib"),
             keep_path=False,
         )
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
-        if self.settings.os == "Linux":
-            self.cpp_info.system_libs.append("pthread")
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["pthread"]

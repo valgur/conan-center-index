@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rename
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -15,7 +13,7 @@ required_conan_version = ">=1.53.0"
 
 class TwitchNativeIpcConan(ConanFile):
     name = "twitch-native-ipc"
-    description = "Twitch natve ipc library"
+    description = "Twitch native IPC library"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/twitchtv/twitch-native-ipc"
@@ -38,6 +36,7 @@ class TwitchNativeIpcConan(ConanFile):
             "gcc": "8",
             "clang": "8",
             "apple-clang": "10",
+            "msvc": "191",
             "Visual Studio": "15",
         }
 
@@ -66,7 +65,7 @@ class TwitchNativeIpcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libuv/1.40.0")
+        self.requires("libuv/1.45.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -75,12 +74,9 @@ class TwitchNativeIpcConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_CODE_FORMATTING"] = False
         tc.variables["BUILD_TESTING"] = False
-
         if self.settings.os == "Windows":
             tc.variables["MSVC_DYNAMIC_RUNTIME"] = not is_msvc_static_runtime(self)
-
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -95,6 +91,8 @@ class TwitchNativeIpcConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
+        for dll in (self.package_path / "lib").glob("*.dll"):
+            rename(self, dll, self.package_path / "bin" / dll.name)
 
     def package_info(self):
         self.cpp_info.libs = ["nativeipc"]

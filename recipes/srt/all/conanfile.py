@@ -1,17 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -69,7 +60,7 @@ class SrtConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1q")
+        self.requires("openssl/[>=1.1 <4]")
         if not self._has_posix_threads and not self._has_stdcxx_sync:
             self.requires("pthreads4w/3.0.0")
 
@@ -90,11 +81,6 @@ class SrtConan(ConanFile):
             # required to avoid warnings when srt shared, even if openssl shared,
             # otherwise upstream CMakeLists would add /DELAYLOAD:libeay32.dll to link flags
             tc.variables["OPENSSL_USE_STATIC_LIBS"] = True
-        if not self._has_posix_threads and not self._has_stdcxx_sync:
-            # TODO
-            # set(PTHREAD_LIBRARY "${CONAN_LIBS_PTHREADS4W}")
-            # set(PTHREAD_INCLUDE_DIR "${CONAN_INCLUDE_DIRS_PTHREADS4W}")
-            pass
         tc.generate()
 
         tc = CMakeDeps(self)
@@ -108,6 +94,11 @@ class SrtConan(ConanFile):
             'set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")',
             'list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts")',
         )
+        if not self._has_posix_threads and not self._has_stdcxx_sync:
+            save(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                "find_package(pthreads4w REQUIRED)\n"
+                "link_libraried(pthreads4w::pthreads4w)\n",
+                append=True)
 
     def build(self):
         self._patch_sources()

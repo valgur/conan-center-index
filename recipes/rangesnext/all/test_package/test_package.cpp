@@ -1,11 +1,11 @@
 #include <cor3ntin/rangesnext/enumerate.hpp>
-#include <iostream>
 
 #include <iostream>
 
 namespace rangesnext = cor3ntin::rangesnext;
 
-template <class RangeT> bool test_enumerate_with(RangeT &&range) {
+template <class RangeT>
+bool test_enumerate_with(RangeT &&range) {
     auto enumerated_range = rangesnext::enumerate(range);
 
     std::size_t idx_ref = 0;

@@ -5,4 +5,3 @@ find_package(quickfix REQUIRED CONFIG)
 
 add_executable(executor ${PROJECT_SOURCE_DIR}/executor.cpp)
 target_link_libraries(executor PRIVATE quickfix::quickfix)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

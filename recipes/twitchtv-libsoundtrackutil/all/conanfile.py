@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -38,6 +36,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
             "gcc": "8",
             "clang": "8",
             "apple-clang": "10",
+            "msvc": "191",
             "Visual Studio": "15",
         }
 
@@ -56,8 +55,8 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("twitch-native-ipc/3.1.1")
-        self.requires("ms-gsl/2.0.0")
+        self.requires("twitch-native-ipc/3.1.1", transitive_headers=True)
+        self.requires("ms-gsl/4.0.0", transitive_headers=True)
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -90,7 +89,9 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)

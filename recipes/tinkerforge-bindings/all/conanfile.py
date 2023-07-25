@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc_static_runtime
 
@@ -56,8 +54,6 @@ class TinkerforgeBindingsConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -65,13 +61,16 @@ class TinkerforgeBindingsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "license.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tinkerforge-bindings")
         self.cpp_info.set_property("cmake_target_name", "tinkerforge::bindings")
+
         self.cpp_info.components["_bindings"].set_property("cmake_target_name", "bindings")
         self.cpp_info.components["_bindings"].names["cmake_find_package"] = "bindings"
         self.cpp_info.components["_bindings"].names["cmake_find_package_multi"] = "bindings"

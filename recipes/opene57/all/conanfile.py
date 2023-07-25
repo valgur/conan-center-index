@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -16,9 +14,7 @@ required_conan_version = ">=1.53.0"
 
 class Opene57Conan(ConanFile):
     name = "opene57"
-    description = (
-        "A C++ library for reading and writing E57 files, fork of the original libE57 (http://libe57.org)"
-    )
+    description = "A C++ library for reading and writing E57 files, a fork of the original libE57 (http://libe57.org)"
     license = ("MIT", "BSL-1.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/openE57/openE57"
@@ -64,12 +60,12 @@ class Opene57Conan(ConanFile):
 
     def requirements(self):
         if self.options.with_tools:
-            self.requires("boost/1.78.0")
+            self.requires("boost/1.82.0")
 
         if self.settings.os == "Linux" or is_apple_os(self.settings.os):
-            self.requires("icu/70.1")
+            self.requires("icu/73.2")
 
-        self.requires("xerces-c/3.2.3")
+        self.requires("xerces-c/3.2.4")
 
     def validate(self):
         if self.options.shared:
@@ -80,9 +76,7 @@ class Opene57Conan(ConanFile):
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warning(
-                "C++17 support required. Your compiler is unknown. Assuming it supports C++17."
-            )
+            self.output.warning("C++17 support required. Your compiler is unknown. Assuming it supports C++17.")
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++17 support required, which your compiler does not support.")
 
@@ -110,28 +104,22 @@ class Opene57Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="LICENSE.libE57",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.libE57", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         os.remove(os.path.join(self.package_folder, "CHANGELOG.md"))
         rm(self, "*.dll", os.path.join(self.package_folder, "bin"), recursive=True)
 
     def package_info(self):
-        if self.options.with_tools:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH env: {bin_path}")
-            self.env_info.PATH.append(bin_path)
-
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
         self.cpp_info.libs = [f"openE57{lib_suffix}", f"openE57las{lib_suffix}"]
 
         self.cpp_info.defines.append(f"E57_REFIMPL_REVISION_ID={self.name}-{self.version}")
         self.cpp_info.defines.append("XERCES_STATIC_LIBRARY")
+
+        # TODO: to remove in conan v2
+        if self.options.with_tools:
+            bin_path = os.path.join(self.package_folder, "bin")
+            self.output.info(f"Appending PATH env: {bin_path}")
+            self.env_info.PATH.append(bin_path)

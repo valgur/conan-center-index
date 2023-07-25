@@ -1,23 +1,14 @@
-import os
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc_static_runtime, is_msvc, msvc_runtime_flag
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
+import os
 
 required_conan_version = ">=1.53.0"
 
@@ -25,10 +16,11 @@ required_conan_version = ">=1.53.0"
 class AtkConan(ConanFile):
     name = "atk"
     description = "set of accessibility interfaces that are implemented by other toolkits and applications"
-    license = "LGPL-2.1-or-later"
+    topics = ("accessibility",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.atk.org"
-    topics = ("accessibility",)
+    license = "LGPL-2.1-or-later"
+    deprecated = "at-spi2-core"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -40,7 +32,6 @@ class AtkConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    deprecated = "at-spi2-core"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -81,6 +72,8 @@ class AtkConan(ConanFile):
         self.tool_requires("meson/1.1.1")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/1.9.3")
+        if hasattr(self, "settings_build") and cross_building(self):
+            self.tool_requires("glib/2.76.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -101,9 +94,7 @@ class AtkConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        replace_in_file(
-            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')")
 
     def build(self):
         self._patch_sources()
@@ -128,17 +119,16 @@ class AtkConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not msvc_runtime_flag(conanfile):
+    if not conanfile.settings.get_safe("compiler.runtime"):
         return
     from conan.tools.files import rename
     import glob
-
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:
         for ext in [".dll.a", ".dll.lib", ".a"]:
             full_folder = os.path.join(conanfile.package_folder, libdir)
             for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0 : -len(ext)]
+                libname = os.path.basename(filepath)[0:-len(ext)]
                 if remove_lib_prefix and libname[0:3] == "lib":
                     libname = libname[3:]
                 rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

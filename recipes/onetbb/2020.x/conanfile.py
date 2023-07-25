@@ -1,84 +1,16 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
+import glob
 import os
 import textwrap
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import chdir, copy, get, replace_in_file, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.intel import IntelCC
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import VCVars, is_msvc, msvc_runtime_flag
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -141,11 +73,11 @@ class OneTBBConan(ConanFile):
         del self.info.options.tbbproxy
 
     def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
         if self.settings.os == "Macos":
             if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
-                raise ConanInvalidConfiguration(
-                    f"{self.name} {self.version} couldn't be built by apple-clang < 8.0"
-                )
+                raise ConanInvalidConfiguration(f"{self.name} {self.version} couldn't be built by apple-clang < 8.0")
         if not self.options.shared:
             self.output.warning("oneTBB strongly discourages usage of static linkage")
         if self.options.tbbproxy and (not self.options.shared or not self.options.tbbmalloc):
@@ -153,38 +85,21 @@ class OneTBBConan(ConanFile):
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
-            if "CONAN_MAKE_PROGRAM" not in os.environ and not legacy_tools.which("make"):
-                self.tool_requires("make/4.2.1")
+            if not self.conf_info.get("tools.gnu:make_program", check_type=str):
+                self.tool_requires("make/4.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    def build(self):
-        def add_flag(name, value):
-            if name in os.environ:
-                os.environ[name] += " " + value
-            else:
-                os.environ[name] = value
-
-        # Get the version of the current compiler instead of gcc
-        linux_include = os.path.join(self.source_folder, "build", "linux.inc")
-        replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
-        replace_in_file(self, linux_include, "= gcc", "= $(CC)")
-
-        if self.version != "2019_u9" and self.settings.build_type == "Debug":
-            replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "release", "debug")
-
+        tc = AutotoolsToolchain(self)
         if str(self._base_compiler) in ["Visual Studio", "msvc"]:
             save(
                 self,
                 os.path.join(self.source_folder, "build", "big_iron_msvc.inc"),
                 # copy of big_iron.inc adapted for MSVC
                 textwrap.dedent(f"""\
-                    LIB_LINK_CMD = {"xilib" if self.settings.compiler == "intel" else "lib"}.exe
+                    LIB_LINK_CMD = {"xilib" if self.settings.compiler == "intel-cc" else "lib"}.exe
                     LIB_OUTPUT_KEY = /OUT:
                     LIB_LINK_FLAGS =
                     LIB_LINK_LIBS =
@@ -207,9 +122,11 @@ class OneTBBConan(ConanFile):
                     MALLOCPROXY.DEF =
                 """),
             )
-            extra = "" if self.options.shared else "extra_inc=big_iron_msvc.inc"
+            if not self.options.shared:
+                tc.make_args.append("extra_inc=big_iron_msvc.inc")
         else:
-            extra = "" if self.options.shared else "extra_inc=big_iron.inc"
+            if not self.options.shared:
+                tc.make_args.append("extra_inc=big_iron.inc")
 
         arch = {
             "x86": "ia32",
@@ -217,23 +134,23 @@ class OneTBBConan(ConanFile):
             "armv7": "armv7",
             "armv8": "arm64" if (self.settings.os == "iOS" or self.settings.os == "Macos") else "aarch64",
         }[str(self.settings.arch)]
-        extra += " arch=%s" % arch
+        tc.make_args.append(f"arch={arch}")
 
         if self.settings.os == "iOS":
-            extra += " target=ios"
+            tc.make_args.append("target=ios")
 
         if str(self._base_compiler) in ("gcc", "clang", "apple-clang"):
             if str(self._base_compiler.libcxx) in ("libstdc++", "libstdc++11"):
-                extra += " stdlib=libstdc++"
+                tc.make_args.append("stdlib=libstdc++")
             elif str(self._base_compiler.libcxx) == "libc++":
-                extra += " stdlib=libc++"
+                tc.make_args.append("stdlib=libc++")
 
-            if str(self.settings.compiler) == "intel":
-                extra += " compiler=icc"
+            if str(self.settings.compiler) == "intel-cc":
+                tc.make_args.append("compiler=icc")
             elif str(self.settings.compiler) in ("clang", "apple-clang"):
-                extra += " compiler=clang"
+                tc.make_args.append("compiler=clang")
             else:
-                extra += " compiler=gcc"
+                tc.make_args.append("compiler=gcc")
 
             if self.settings.os == "Linux":
                 # runtime is supposed to track the version of the c++ stdlib,
@@ -243,9 +160,9 @@ class OneTBBConan(ConanFile):
                 # TBB computes the value of this variable using gcc, which we
                 # don't necessarily want to require when building this recipe.
                 # Setting it to a dummy value prevents TBB from calling gcc.
-                extra += " runtime=gnu"
+                tc.make_args.append("runtime=gnu")
         elif str(self._base_compiler) in ["Visual Studio", "msvc"]:
-            if is_msvc_static_runtime(self):
+            if "MT" in msvc_runtime_flag(self):
                 runtime = "vc_mt"
             else:
                 if is_msvc(self):
@@ -265,27 +182,42 @@ class OneTBBConan(ConanFile):
                         "191": "vc14.1",
                         "192": "vc14.2",
                     }.get(str(self._base_compiler.version), "vc14.2")
-            extra += f" runtime={runtime}"
+            tc.make_args.append(f"runtime={runtime}")
 
-            if self.settings.compiler == "intel":
-                extra += " compiler=icl"
+            if self.settings.compiler == "intel-cc":
+                tc.make_args.append("compiler=icl")
             else:
-                extra += " compiler=cl"
-        cxx_std_flag = legacy_tools.cppstd_flag(self.settings)
-        if cxx_std_flag:
-            cxx_std_value = (
-                cxx_std_flag.split("=")[1]
-                if "=" in cxx_std_flag
-                else cxx_std_flag.split(":")[1] if ":" in cxx_std_flag else None
-            )
-            if cxx_std_value:
-                extra += f" stdver={cxx_std_value}"
+                tc.make_args.append("compiler=cl")
 
-        make = legacy_tools.get_env(
-            "CONAN_MAKE_PROGRAM", legacy_tools.which("make") or legacy_tools.which("mingw32-make")
-        )
-        if not make:
-            raise ConanException("This package needs 'make' in the path to build")
+        tc.generate()
+
+        if self.settings.compiler == "intel-cc":
+            intelcc = IntelCC(self)
+            intelcc.generate()
+        elif is_msvc(self):
+            # intentionally not using vcvars for clang-cl yet
+            vcvars = VCVars(self)
+            vcvars.generate()
+
+    def _patch_sources(self):
+        # Get the version of the current compiler instead of gcc
+        linux_include = os.path.join(self.source_folder, "build", "linux.inc")
+        replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
+        replace_in_file(self, linux_include, "= gcc", "= $(CC)")
+        if self.version != "2019_u9" and self.settings.build_type == "Debug":
+            replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "release", "debug")
+        for inc_file in glob.glob(os.path.join(self.source_folder, "build", "*.inc")):
+            # Fix 'ar: two different operation options specified' due to unrecognized -m64 flag in 2020.04
+            replace_in_file(self, inc_file, "LIB_LINK_FLAGS += -m64", "LIB_LINK_FLAGS += ", strict=False)
+
+    def build(self):
+        self._patch_sources()
+
+        def add_flag(name, value):
+            if name in os.environ:
+                os.environ[name] += " " + value
+            else:
+                os.environ[name] = value
 
         with chdir(self, self.source_folder):
             # intentionally not using AutoToolsBuildEnvironment for now - it's broken for clang-cl
@@ -293,15 +225,9 @@ class OneTBBConan(ConanFile):
                 add_flag("CFLAGS", "-mrtm")
                 add_flag("CXXFLAGS", "-mrtm")
 
-            targets = ["tbb", "tbbmalloc", "tbbproxy"]
-            context = legacy_tools.no_op()
-            if self.settings.compiler == "intel":
-                context = legacy_tools.intel_compilervars(self)
-            elif is_msvc(self):
-                # intentionally not using vcvars for clang-cl yet
-                context = legacy_tools.vcvars(self)
-            with context:
-                self.run("%s %s %s" % (make, extra, " ".join(targets)))
+            autotools = Autotools(self)
+            for target in ["tbb", "tbbmalloc", "tbbproxy"]:
+                autotools.make(target)
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
@@ -371,32 +297,31 @@ class OneTBBConan(ConanFile):
                 with chdir(self, outputlibdir):
                     for fpath in os.listdir(outputlibdir):
                         filepath = fpath[0 : fpath.rfind("." + extension) + len(extension) + 1]
-                        self.run(f'ln -s "{fpath}" "{filepath}"', run_environment=True)
+                        self.run(f'ln -s "{fpath}" "{filepath}"')
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "TBB")
+        self.cpp_info.set_property("cmake_target_name", "TBB::TBB")
 
         suffix = "_debug" if self.settings.build_type == "Debug" else ""
 
         # tbb
         self.cpp_info.components["libtbb"].set_property("cmake_target_name", "TBB::tbb")
-        self.cpp_info.components["libtbb"].libs = ["tbb{}".format(suffix)]
+        self.cpp_info.components["libtbb"].libs = [f"tbb{suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libtbb"].system_libs = ["dl", "rt", "pthread"]
 
         # tbbmalloc
         if self.options.tbbmalloc:
             self.cpp_info.components["tbbmalloc"].set_property("cmake_target_name", "TBB::tbbmalloc")
-            self.cpp_info.components["tbbmalloc"].libs = ["tbbmalloc{}".format(suffix)]
+            self.cpp_info.components["tbbmalloc"].libs = [f"tbbmalloc{suffix}"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["tbbmalloc"].system_libs = ["dl", "pthread"]
 
             # tbbmalloc_proxy
             if self.options.tbbproxy:
-                self.cpp_info.components["tbbmalloc_proxy"].set_property(
-                    "cmake_target_name", "TBB::tbbmalloc_proxy"
-                )
-                self.cpp_info.components["tbbmalloc_proxy"].libs = ["tbbmalloc_proxy{}".format(suffix)]
+                self.cpp_info.components["tbbmalloc_proxy"].set_property("cmake_target_name", "TBB::tbbmalloc_proxy")
+                self.cpp_info.components["tbbmalloc_proxy"].libs = [f"tbbmalloc_proxy{suffix}"]
                 self.cpp_info.components["tbbmalloc_proxy"].requires = ["tbbmalloc"]
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

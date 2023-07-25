@@ -18,11 +18,15 @@ int to_int(std::string_view sv) {
     return i;
 }
 
-constexpr ctpg::parser p(list, terms(',', number), nterms(list),
-                         rules(
-                             list(number) >= to_int,
-                             list(list, ',', number) >=
-                                 [](int sum, char, const auto &n) { return sum + to_int(n); }));
+constexpr ctpg::parser p(
+    list,
+    terms(',', number),
+    nterms(list),
+    rules(
+        list(number) >= to_int,
+        list(list, ',', number) >= [](int sum, char, const auto& n){ return sum + to_int(n); }
+    )
+);
 
 int main() {
     auto res = p.parse(ctpg::buffers::string_buffer("10, 20, 30"), std::cerr);

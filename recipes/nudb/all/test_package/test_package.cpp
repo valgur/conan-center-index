@@ -1,5 +1,5 @@
-#include "nudb/nudb.hpp"
 #include <iostream>
+#include "nudb/nudb.hpp"
 
 int main() {
     auto uuid = nudb::make_uid();

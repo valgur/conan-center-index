@@ -13,119 +13,27 @@ required_conan_version = ">=1.47.0"
 
 class B2Conan(ConanFile):
     name = "b2"
+    homepage = "https://www.bfgroup.xyz/b2/"
     description = "B2 makes it easy to build C++ projects, everywhere."
+    topics = ("installer", "builder", "build", "build-system")
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://www.bfgroup.xyz/b2/"
-    topics = ("installer", "builder", "build", "build-system", "pre-built")
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        # Indicates if the build will use the CXX and
-        # CXXFLAGS environment variables. The common use is to add additional flags
-        # for building on specific platforms or for additional optimization options.
-        "use_cxx_env": [False, True],
-        # Specifies the toolset to use for building. The default of 'auto' detects
-        # a usable compiler for building and should be preferred. The 'cxx' toolset
-        # uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx'
-        # toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx'
-        # toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the
-        # 'CXX' and 'CXXFLAGS' variables for use in subprocesses.
-        "toolset": [
-            "auto",
-            "cxx",
-            "cross-cxx",
-            "acc",
-            "borland",
-            "clang",
-            "como",
-            "gcc-nocygwin",
-            "gcc",
-            "intel-darwin",
-            "intel-linux",
-            "intel-win32",
-            "kcc",
-            "kylix",
-            "mingw",
-            "mipspro",
-            "pathscale",
-            "pgi",
-            "qcc",
-            "sun",
-            "sunpro",
-            "tru64cxx",
-            "vacpp",
-            "vc12",
-            "vc14",
-            "vc141",
-            "vc142",
-            "vc143",
-        ],
+        'use_cxx_env': [False, True],
+        'toolset': [
+            'auto', 'cxx', 'cross-cxx',
+            'acc', 'borland', 'clang', 'como', 'gcc-nocygwin', 'gcc',
+            'intel-darwin', 'intel-linux', 'intel-win32', 'kcc', 'kylix',
+            'mingw', 'mipspro', 'pathscale', 'pgi', 'qcc', 'sun', 'sunpro',
+            'tru64cxx', 'vacpp', 'vc12', 'vc14', 'vc141', 'vc142', 'vc143',
+        ]
     }
     default_options = {
-        "use_cxx_env": False,
-        "toolset": "auto",
-    }
-    options_description = {
-        'use_cxx_env': (
-            "Indicates if the build will use the CXX and "
-            "CXXFLAGS environment variables. The common use is to add additional flags "
-            "for building on specific platforms or for additional optimization options."
-        ),
-        'toolset': (
-            "Specifies the toolset to use for building. The default of 'auto' detects "
-            "a usable compiler for building and should be preferred. The 'cxx' toolset "
-            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
-            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
-            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
-            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
-        ),
-    }
-    options_description = {
-        'use_cxx_env': (
-            "Indicates if the build will use the CXX and "
-            "CXXFLAGS environment variables. The common use is to add additional flags "
-            "for building on specific platforms or for additional optimization options."
-        ),
-        'toolset': (
-            "Specifies the toolset to use for building. The default of 'auto' detects "
-            "a usable compiler for building and should be preferred. The 'cxx' toolset "
-            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
-            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
-            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
-            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
-        ),
-    }
-    options_description = {
-        'use_cxx_env': (
-            "Indicates if the build will use the CXX and "
-            "CXXFLAGS environment variables. The common use is to add additional flags "
-            "for building on specific platforms or for additional optimization options."
-        ),
-        'toolset': (
-            "Specifies the toolset to use for building. The default of 'auto' detects "
-            "a usable compiler for building and should be preferred. The 'cxx' toolset "
-            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
-            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
-            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
-            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
-        ),
-    }
-    options_description = {
-        'use_cxx_env': (
-            "Indicates if the build will use the CXX and "
-            "CXXFLAGS environment variables. The common use is to add additional flags "
-            "for building on specific platforms or for additional optimization options."
-        ),
-        'toolset': (
-            "Specifies the toolset to use for building. The default of 'auto' detects "
-            "a usable compiler for building and should be preferred. The 'cxx' toolset "
-            "uses the 'CXX' and 'CXXFLAGS' solely for building. Using the 'cxx' "
-            "toolset will also turn on the 'use_cxx_env' option. And the 'cross-cxx' "
-            "toolset uses the 'BUILD_CXX' and 'BUILD_CXXFLAGS' vars. This frees the "
-            "'CXX' and 'CXXFLAGS' variables for use in subprocesses."
-        ),
+        'use_cxx_env': False,
+        'toolset': 'auto'
     }
     options_description = {
         'use_cxx_env': (
@@ -158,8 +66,7 @@ class B2Conan(ConanFile):
 
         if self.options.toolset in ['cxx', 'cross-cxx'] and not self.options.use_cxx_env:
             raise ConanInvalidConfiguration(
-                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'"
-            )
+                "Option toolset 'cxx' and 'cross-cxx' requires 'use_cxx_env=True'")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -189,12 +96,9 @@ class B2Conan(ConanFile):
         os.environ.update({"VSCMD_START_DIR": os.getcwd()})
         if not self.options.use_cxx_env:
             # To avoid using the CXX env vars we clear them out for the build.
-            os.environ.update(
-                {
-                    "CXX": "",
-                    "CXXFLAGS": "",
-                }
-            )
+            os.environ.update({
+                "CXX": "",
+                "CXXFLAGS": ""})
         try:
             yield
         finally:
@@ -209,8 +113,8 @@ class B2Conan(ConanFile):
         self.output.info("Build engine..")
         command = ""
         b2_toolset = self.options.toolset
-        use_windows_commands = os.name == "nt"
-        if b2_toolset == "auto":
+        use_windows_commands = os.name == 'nt'
+        if b2_toolset == 'auto':
             if use_windows_commands:
                 # For windows auto-detection it can evaluate to a msvc version
                 # that it's not aware of. Most likely because it's a future one
@@ -220,16 +124,16 @@ class B2Conan(ConanFile):
                 with chdir(self, self._b2_engine_dir):
                     with self._bootstrap_env():
                         buf = StringIO()
-                        self.run("guess_toolset && set", buf)
-                        guess_vars = map(lambda x: x.strip(), buf.getvalue().split("\n"))
+                        self.run('guess_toolset && set', buf)
+                        guess_vars = map(
+                            lambda x: x.strip(), buf.getvalue().split("\n"))
                         if "B2_TOOLSET=vcunk" in guess_vars:
-                            b2_toolset = "msvc"
+                            b2_toolset = 'msvc'
                             for kv in guess_vars:
                                 if kv.startswith("B2_TOOLSET_ROOT="):
                                     b2_vcvars = os.path.join(
-                                        kv.split("=")[1].strip(), "Auxiliary", "Build", "vcvars32.bat"
-                                    )
-                                    command += '"' + b2_vcvars + '" && '
+                                        kv.split('=')[1].strip(), 'Auxiliary', 'Build', 'vcvars32.bat')
+                                    command += '"'+b2_vcvars+'" && '
         command += "build" if use_windows_commands else "./build.sh"
 
         if self.options.use_cxx_env:
@@ -240,23 +144,23 @@ class B2Conan(ConanFile):
             if cxxflags:
                 command += f" --cxxflags={cxxflags}"
 
-        if b2_toolset != "auto":
-            command += " " + str(b2_toolset)
+        if b2_toolset != 'auto':
+            command += " "+str(b2_toolset)
         with chdir(self, self._b2_engine_dir):
             with self._bootstrap_env():
                 self.run(command)
 
         self.output.info("Install..")
-        command = os.path.join(self._b2_engine_dir, "b2.exe" if use_windows_commands else "b2")
+        command = os.path.join(
+            self._b2_engine_dir, "b2.exe" if use_windows_commands else "b2")
         if b2_toolset not in ["auto", "cxx", "cross-cxx"]:
             command += " toolset=" + str(b2_toolset)
-        full_command = (
-            f"{command} --ignore-site-config "
-            + f"--prefix={self._b2_output_dir} "
-            + "--abbreviate-paths "
-            + "install "
-            + "b2-install-layout=portable"
-        )
+        full_command = \
+            (f"{command} --ignore-site-config " +
+             f"--prefix={self._b2_output_dir} " +
+             "--abbreviate-paths " +
+             "install " +
+             "b2-install-layout=portable")
         with chdir(self, self._b2_dir):
             self.run(full_command)
 

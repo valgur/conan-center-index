@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 import textwrap
 
@@ -37,6 +35,7 @@ class Log4cxxConan(ConanFile):
         return {
             "gcc": "7",
             "Visual Studio": "15",
+            "msvc": "191",
             "clang": "5",
             "apple-clang": "10",
         }
@@ -58,9 +57,9 @@ class Log4cxxConan(ConanFile):
     def requirements(self):
         self.requires("apr/1.7.0")
         self.requires("apr-util/1.6.1")
-        self.requires("expat/2.4.2")
+        self.requires("expat/2.5.0")
         if self.settings.os != "Windows":
-            self.requires("odbc/2.3.9")
+            self.requires("odbc/2.3.11")
 
     def validate(self):
         # TODO: if compiler doesn't support C++17, boost can be used instead
@@ -76,7 +75,7 @@ class Log4cxxConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.os != "Windows":
-            self.build_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
         # OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:
@@ -132,6 +131,7 @@ class Log4cxxConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "log4cxx")
         self.cpp_info.set_property("cmake_target_name", "log4cxx")
         self.cpp_info.set_property("pkg_config_name", "liblog4cxx")
+
         if not self.options.shared:
             self.cpp_info.defines = ["LOG4CXX_STATIC"]
         self.cpp_info.libs = ["log4cxx"]

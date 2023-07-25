@@ -1,84 +1,14 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
+from conan.tools.microsoft import is_msvc, unix_path
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
-from contextlib import contextmanager
-import os
 
 required_conan_version = ">=1.53.0"
 
@@ -146,24 +76,24 @@ class LibIdn(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+        if not cross_building(self):
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
         tc = AutotoolsToolchain(self)
         if not self.options.shared:
-            tc.defines.append("IDN2_STATIC")
+            tc.extra_defines.append("IDN2_STATIC")
         if is_msvc(self):
             if Version(self.settings.compiler.version) >= "12":
-                tc.cxxflags.append("-FS")
-            for dep in self.dependencies.values():
-                tc.ldflags.extend(
-                    "-L{}".format(p.replace("\\", "/")) for p in dep.cpp_info.aggregated_components().libdirs
-                )
-        yes_no = lambda v: "yes" if v else "no"
+                tc.extra_cxxflags.append("-FS")
         tc.configure_args += [
-            "--with-libiconv-prefix={}".format(
-                unix_path(self, self.dependencies["libiconv"].cpp_info.rootpath)
-            ),
+            "--with-libiconv-prefix={}".format(unix_path(self, self.dependencies["libiconv"].package_folder)),
             "--disable-nls",
             "--disable-rpath",
         ]
+        tc.generate()
+        tc = AutotoolsDeps(self)
         tc.generate()
 
         if is_msvc(self):
@@ -195,7 +125,6 @@ class LibIdn(ConanFile):
             autotools.install()
 
         os.unlink(os.path.join(self.package_folder, "lib", "libidn2.la"))
-
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 

@@ -1,11 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy, get
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, rename
 
 required_conan_version = ">=1.53.0"
 
@@ -13,7 +12,7 @@ required_conan_version = ">=1.53.0"
 class libb2Conan(ConanFile):
     name = "libb2"
     description = (
-        "libb2 is a library that implemets the BLAKE2 cryptographic hash function, which is faster than MD5, "
+        "libb2 is a library that implements the BLAKE2 cryptographic hash function, which is faster than MD5, "
         "SHA-1, SHA-2, and SHA-3, yet is at least as secure as the latest standard SHA-3"
     )
     license = ["CC0-1.0", "OpenSSL", "APSL-2.0"]
@@ -44,15 +43,21 @@ class libb2Conan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, 11)
         if self.options.use_neon and not "arm" in self.settings.arch:
             raise ConanInvalidConfiguration("Neon sources only supported on arm-based CPUs")
         if self.options.use_neon and self.options.use_sse:
             raise ConanInvalidConfiguration("Neon and SSE can not be used together.")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -62,19 +67,19 @@ class libb2Conan(ConanFile):
         tc.variables["USE_SSE"] = self.options.use_sse
         tc.variables["USE_NEON"] = self.options.use_neon
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
+        for dll in (self.package_path / "lib").glob("*.dll"):
+            rename(self, dll, self.package_path / "bin" / dll.name)
 
     def package_info(self):
-        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.libs = ["b2"]
         self.cpp_info.includedirs = ["include", os.path.join("include", "libb2")]

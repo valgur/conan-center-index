@@ -1,6 +1,7 @@
 #include <taskflow/taskflow.hpp>
 
-int main() {
+int main()
+{
     tf::Executor executor;
     tf::Taskflow taskflow;
 

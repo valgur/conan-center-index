@@ -5,4 +5,3 @@ find_package(scc REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} example.cpp)
 target_link_libraries(${PROJECT_NAME} scc::scc)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)

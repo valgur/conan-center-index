@@ -1,19 +1,15 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get, replace_in_file, collect_libs
 
 required_conan_version = ">=1.53.0"
 
 
 class DuktapeConan(ConanFile):
     name = "duktape"
-    description = (
-        "Duktape is an embeddable Javascript engine, with a focus on portability and compact footprint."
-    )
+    description = "Duktape is an embeddable Javascript engine, with a focus on portability and compact footprint."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://duktape.org"
@@ -53,10 +49,7 @@ class DuktapeConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
-
-    def build(self):
+    def _patch_sources(self):
         # Duktape has configure script with a number of options.
         # However it requires python 2 and PyYAML package
         # which is quite an unusual combination to have.
@@ -68,16 +61,21 @@ class DuktapeConan(ConanFile):
                 "#undef DUK_F_DLL_BUILD",
                 "#define DUK_F_DLL_BUILD",
             )
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=self.export_sources_folder)
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["duktape"]
-        if not self.options.shared and str(self.settings.os) in ("Linux", "FreeBSD", "SunOS"):
+        self.cpp_info.libs = collect_libs(self)
+        if not self.options.shared and self.settings.os in ("Linux", "FreeBSD", "SunOS"):
             self.cpp_info.system_libs = ["m"]

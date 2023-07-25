@@ -30,54 +30,55 @@
  */
 
 #include "openldap.h"
-#include <cstdlib>
+
 #include <stdio.h>
+#include <cstdlib>
 
 static int do_uri_create(LDAPURLDesc *lud) {
-    char *uri;
+  char *uri;
 
-    if (lud->lud_scheme == NULL) {
-        lud->lud_scheme = "ldap";
+  if (lud->lud_scheme == NULL) {
+    lud->lud_scheme = "ldap";
+  }
+
+  if (lud->lud_port == -1) {
+    if (strcasecmp(lud->lud_scheme, "ldap") == 0) {
+      lud->lud_port = LDAP_PORT;
+
+    } else if (strcasecmp(lud->lud_scheme, "ldaps") == 0) {
+      lud->lud_port = LDAPS_PORT;
+
+    } else if (strcasecmp(lud->lud_scheme, "ldapi") == 0) {
+      lud->lud_port = 0;
+
+    } else {
+      /* forgiving... */
+      lud->lud_port = 0;
     }
+  }
 
-    if (lud->lud_port == -1) {
-        if (strcasecmp(lud->lud_scheme, "ldap") == 0) {
-            lud->lud_port = LDAP_PORT;
+  if (lud->lud_scope == -1) {
+    lud->lud_scope = LDAP_SCOPE_DEFAULT;
+  }
 
-        } else if (strcasecmp(lud->lud_scheme, "ldaps") == 0) {
-            lud->lud_port = LDAPS_PORT;
+  uri = ldap_url_desc2str(lud);
 
-        } else if (strcasecmp(lud->lud_scheme, "ldapi") == 0) {
-            lud->lud_port = 0;
+  if (uri == NULL) {
+    fprintf(stderr, "unable to generate URI\n");
+    exit(EXIT_FAILURE);
+  }
 
-        } else {
-            /* forgiving... */
-            lud->lud_port = 0;
-        }
-    }
+  printf("%s\n", uri);
+  free(uri);
 
-    if (lud->lud_scope == -1) {
-        lud->lud_scope = LDAP_SCOPE_DEFAULT;
-    }
-
-    uri = ldap_url_desc2str(lud);
-
-    if (uri == NULL) {
-        fprintf(stderr, "unable to generate URI\n");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("%s\n", uri);
-    free(uri);
-
-    return 0;
+  return 0;
 }
 
 int main() {
-    LDAPURLDesc lud = {0};
+  LDAPURLDesc lud = {0};
 
-    lud.lud_port = -1;
-    lud.lud_scope = -1;
+  lud.lud_port = -1;
+  lud.lud_scope = -1;
 
-    return do_uri_create(&lud);
+  return do_uri_create(&lud);
 }

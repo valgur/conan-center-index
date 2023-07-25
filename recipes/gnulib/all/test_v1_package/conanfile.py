@@ -13,11 +13,9 @@ class TestPackageConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
-        self.build_requires("automake/1.16.5")
+        if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+            self.build_requires("msys2/cci.latest")
+        self.build_requires("automake/1.16.4")
 
     @contextlib.contextmanager
     def _build_context(self):
@@ -39,8 +37,9 @@ class TestPackageConan(ConanFile):
             yield
 
     def build(self):
+        source_folder = os.path.join(self.source_folder, "..", "test_package")
         for src in self.exports_sources:
-            shutil.copy(os.path.join(self.source_folder, src), dst=os.path.join(self.build_folder, src))
+            shutil.copy(os.path.join(source_folder, src), dst=os.path.join(self.build_folder, src))
         with tools.chdir(self.build_folder):
             for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
                 tools.save(fn, "\n")

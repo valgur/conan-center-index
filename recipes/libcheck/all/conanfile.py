@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.47.0"
@@ -49,7 +47,7 @@ class LibCheckConan(ConanFile):
 
     def requirements(self):
         if self.options.with_subunit:
-            self.requires("subunit/1.4.0")
+            self.requires("subunit/1.4.0", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -61,7 +59,6 @@ class LibCheckConan(ConanFile):
         tc.variables["CHECK_ENABLE_TIMEOUT_TESTS"] = False
         tc.variables["HAVE_SUBUNIT"] = self.options.with_subunit
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
@@ -72,12 +69,9 @@ class LibCheckConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, "COPYING.LESSER", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "COPYING.LESSER", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -97,6 +91,7 @@ class LibCheckConan(ConanFile):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["liblibcheck"].system_libs = ["m", "pthread", "rt"]
 
+        # TODO: to remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

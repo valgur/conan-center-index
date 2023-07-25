@@ -69,9 +69,7 @@ class AwsCS3(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-s3"))
@@ -93,7 +91,7 @@ class AwsCS3(ConanFile):
             "aws-c-common::aws-c-common-lib",
             "aws-c-io::aws-c-io-lib",
             "aws-c-http::aws-c-http-lib",
-            "aws-c-auth::aws-c-auth-lib",
+            "aws-c-auth::aws-c-auth-lib"
         ]
         if Version(self.version) >= "0.1.36":
             self.cpp_info.components["aws-c-s3-lib"].requires.append("aws-checksums::aws-checksums-lib")

@@ -5,7 +5,7 @@ from conan.tools.layout import basic_layout
 import os
 import textwrap
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class ArgparseConan(ConanFile):
@@ -36,6 +36,16 @@ class ArgparseConan(ConanFile):
     def build(self):
         pass
 
+    def package(self):
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "argh.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+
+        # TODO: to remove in conan v2 once cmake_find_package* generators removed
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {"argh": "argh::argh"},
+        )
+
     def _create_cmake_module_alias_targets(self, module_file, targets):
         content = ""
         for alias, aliased in targets.items():
@@ -46,15 +56,6 @@ class ArgparseConan(ConanFile):
                 endif()
             """)
         save(self, module_file, content)
-
-    def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "argh.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"argh": "argh::argh"}
-        )
 
     @property
     def _module_file_rel_path(self):

@@ -1,103 +1,21 @@
-# TODO: verify the Conan v2 migration
-
-import os
-
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
-from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
 import os
 import shutil
 import textwrap
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, collect_libs, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
 
 class CryptoPPPEMConan(ConanFile):
     name = "cryptopp-pem"
-    description = (
-        "The PEM Pack is a partial implementation of message encryption "
-        "which allows you to read and write PEM encoded keys and parameters, "
-        "including encrypted private keys."
-    )
-    license = "Unlicense"
+    description = ("The PEM Pack is a partial implementation of message encryption "
+                   "which allows you to read and write PEM encoded keys and parameters, "
+                   "including encrypted private keys.")
+    license = "Public domain"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.cryptopp.com/wiki/PEM_Pack"
     topics = ("cryptopp", "crypto", "cryptographic", "security", "PEM")
@@ -128,37 +46,21 @@ class CryptoPPPEMConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"cryptopp/{self.version}")
+        self.requires(f"cryptopp/{self.version}", transitive_headers=True)
 
     def source(self):
         suffix = f"CRYPTOPP_{self.version.replace('.', '_')}"
 
         # Get sources
-        get(
-            self,
-            **self.conan_data["sources"][self.version]["source"],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
 
         # Get CMakeLists
         get(self, **self.conan_data["sources"][self.version]["cmake"])
         src_folder = os.path.join(self.source_folder, "cryptopp-cmake-" + suffix)
         dst_folder = self.source_folder
         shutil.move(os.path.join(src_folder, "CMakeLists.txt"), os.path.join(dst_folder, "CMakeLists.txt"))
-        shutil.move(
-            os.path.join(src_folder, "cryptopp-config.cmake"),
-            os.path.join(dst_folder, "cryptopp-config.cmake"),
-        )
+        shutil.move(os.path.join(src_folder, "cryptopp-config.cmake"), os.path.join(dst_folder, "cryptopp-config.cmake"))
         rmdir(self, src_folder)
-
-        # Get license
-        download(
-            self,
-            "https://unlicense.org/UNLICENSE",
-            "UNLICENSE",
-            sha256="7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c",
-        )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -180,19 +82,11 @@ class CryptoPPPEMConan(ConanFile):
     def _patch_sources(self):
         if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
             shutil.copyfile(
-                os.path.join(
-                    os.environ.get("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"
-                ),
-                os.path.join(self.source_folder, "cpu-features.h"),
-            )
+                os.path.join(os.environ.get("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"),
+                os.path.join(self.source_folder, "cpu-features.h"))
         apply_conandata_patches(self)
         # Honor fPIC option
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)",
-            "",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
 
     def build(self):
         self._patch_sources()
@@ -201,7 +95,9 @@ class CryptoPPPEMConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="UNLICENSE", dst=os.path.join(self.package_folder, "licenses"))
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"),
+             "Everything in this repo is release under Public Domain code. "
+             "If the license or terms is unpalatable for you, then don't feel obligated to use it or commit.")
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -210,18 +106,28 @@ class CryptoPPPEMConan(ConanFile):
             os.path.join(self.package_folder, self._module_file_rel_path),
             {
                 "cryptopp-pem-shared": "cryptopp-pem::cryptopp-pem-shared",
-                "cryptopp-pem-static": "cryptopp-pem::cryptopp-pem-static",
-            },
+                "cryptopp-pem-static": "cryptopp-pem::cryptopp-pem-static"
+            }
         )
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", "conan-official-{}-targets.cmake".format(self.name))
+        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         cmake_target = "cryptopp-pem-shared" if self.options.shared else "cryptopp-pem-static"
-        self.cpp_info.set_property("cmake_file_name", "cryptopp-pem")
-        self.cpp_info.set_property("cmake_target_name", cmake_target)
+        self.cpp_info.set_property("cmake_target_aliases", [cmake_target])
         self.cpp_info.set_property("pkg_config_name", "libcryptopp-pem")
 
         # TODO: back to global scope once cmake_find_package* generators removed
@@ -236,12 +142,8 @@ class CryptoPPPEMConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.components["libcryptopp-pem"].names["cmake_find_package"] = cmake_target
         self.cpp_info.components["libcryptopp-pem"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["libcryptopp-pem"].build_modules["cmake_find_package"] = [
-            self._module_file_rel_path
-        ]
-        self.cpp_info.components["libcryptopp-pem"].build_modules["cmake_find_package_multi"] = [
-            self._module_file_rel_path
-        ]
+        self.cpp_info.components["libcryptopp-pem"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        self.cpp_info.components["libcryptopp-pem"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
         self.cpp_info.components["libcryptopp-pem"].set_property("cmake_target_name", cmake_target)
         self.cpp_info.components["libcryptopp-pem"].set_property("pkg_config_name", "libcryptopp-pem")
 

@@ -7,7 +7,6 @@ from conan.tools.files import copy, get, rmdir
 
 required_conan_version = ">=1.53.0"
 
-
 class AggConan(ConanFile):
     name = "aggeom-agg"
     description = "AGG Anti-Grain Geometry Library"

@@ -3,7 +3,8 @@
 #include <cstdio>
 #include <cstdlib>
 
-int main() {
+int main(int argc, char *argv[])
+{
     OsiCbcSolverInterface im;
     if (im.getNumCols() != 0) {
         fprintf(stderr, "Wrong #columns\n");

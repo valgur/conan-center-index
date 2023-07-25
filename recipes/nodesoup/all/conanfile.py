@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -15,7 +13,7 @@ required_conan_version = ">=1.53.0"
 class NodesoupConan(ConanFile):
     name = "nodesoup"
     description = "Force-directed graph layout with Fruchterman-Reingold"
-    license = ("MIT",)
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/olvb/nodesoup"
     topics = ("graph", "visualization", "layout", "kamada", "kawai", "fruchterman", "reingold")
@@ -49,10 +47,8 @@ class NodesoupConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 14)
         if self.settings.compiler == "clang":
-            if Version(self.settings.compiler.version) < "5.0" and self.settings.compiler.libcxx in (
-                "libstdc++",
-                "libstdc++11",
-            ):
+            if (Version(self.settings.compiler.version) < "5.0" and
+                    self.settings.compiler.libcxx in ("libstdc++", "libstdc++11")):
                 raise ConanInvalidConfiguration(
                     "The version of libstdc++(11) of the current compiler does not support building nodesoup"
                 )
@@ -62,7 +58,7 @@ class NodesoupConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
@@ -74,9 +70,9 @@ class NodesoupConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -84,9 +80,3 @@ class NodesoupConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "nodesoup"))
         self.cpp_info.libs = ["nodesoup"]
-        self.cpp_info.set_property("cmake_file_name", "nodesoup")
-        self.cpp_info.set_property("cmake_target_name", "nodesoup")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "nodesoup"
-        self.cpp_info.names["cmake_find_package_multi"] = "nodesoup"

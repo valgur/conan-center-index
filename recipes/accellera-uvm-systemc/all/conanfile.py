@@ -48,16 +48,16 @@ class UvmSystemC(ConanFile):
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
-    def build_requirements(self):
-        self.tool_requires("cmake/3.24.0")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
         systemc_root = os.path.dirname(self.dependencies["systemc"].cpp_info.libdirs[0])
-        tc.configure_args += [f"--with-systemc={systemc_root}"]
+        tc.configure_args = [
+            f"--with-systemc={systemc_root}",
+            "--prefix=/",
+        ]
         tc.generate()
 
     def build(self):

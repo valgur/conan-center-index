@@ -12,8 +12,8 @@ required_conan_version = ">=1.47.0"
 class MoldConan(ConanFile):
     name = "mold"
     description = (
-        "mold is a faster drop-in replacement for existing Unix linkers. It is several times faster than the"
-        " LLVM lld linker"
+        "mold is a faster drop-in replacement for existing Unix linkers. "
+        "It is several times faster than the LLVM lld linker."
     )
     license = "AGPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
@@ -34,11 +34,11 @@ class MoldConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/1.2.13")
-        self.requires("openssl/1.1.1q")
+        self.requires("openssl/[>=1.1 <4]")
         self.requires("xxhash/0.8.1")
-        self.requires("onetbb/2021.3.0")
+        self.requires("onetbb/2021.9.0")
         if self.options.with_mimalloc:
-            self.requires("mimalloc/2.0.6")
+            self.requires("mimalloc/2.1.2")
 
     def package_id(self):
         del self.info.settings.compiler
@@ -102,17 +102,22 @@ class MoldConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        bindir = os.path.join(self.package_folder, "bin")
-        mold_location = os.path.join(bindir, "mold")
-
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
-        self.env_info.LD = mold_location
-        self.buildenv_info.prepend_path("MOLD_ROOT", bindir)
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = []
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
+            self.cpp_info.system_libs = ["m", "pthread", "dl"]
+
+        bindir = os.path.join(self.package_folder, "bin")
+        mold_executable = os.path.join(bindir, "mold")
+        self.conf_info.define("user.mold:mold", mold_executable)
+        self.buildenv_info.define_path("MOLD_ROOT", bindir)
+        self.buildenv_info.define("LD", mold_executable)
+
+        # For legacy Conan 1.x consumers only:
+        self.output.info(f"Appending PATH environment variable: {bindir}")
+        self.env_info.PATH.append(bindir)
+        self.env_info.MOLD_ROOT = bindir
+        self.env_info.LD = mold_executable

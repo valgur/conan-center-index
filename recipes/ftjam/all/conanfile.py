@@ -1,83 +1,13 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
-from conan import ConanFile, conan_version
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.android import android_abi
-from conan.tools.apple import (
-    XCRun,
-    fix_apple_shared_install_name,
-    is_apple_os,
-    to_apple_arch,
-)
-from conan.tools.build import (
-    build_jobs,
-    can_run,
-    check_min_cppstd,
-    cross_building,
-    default_cppstd,
-    stdcpp_library,
-    valid_min_cppstd,
-)
-from conan.tools.cmake import (
-    CMake,
-    CMakeDeps,
-    CMakeToolchain,
-    cmake_layout,
-)
-from conan.tools.env import (
-    Environment,
-    VirtualBuildEnv,
-    VirtualRunEnv,
-)
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    collect_libs,
-    copy,
-    download,
-    export_conandata_patches,
-    get,
-    load,
-    mkdir,
-    patch,
-    patches,
-    rename,
-    replace_in_file,
-    rm,
-    rmdir,
-    save,
-    symlinks,
-    unzip,
-)
-from conan.tools.gnu import (
-    Autotools,
-    AutotoolsDeps,
-    AutotoolsToolchain,
-    PkgConfig,
-    PkgConfigDeps,
-)
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, replace_in_file, save
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import (
-    MSBuild,
-    MSBuildDeps,
-    MSBuildToolchain,
-    NMakeDeps,
-    NMakeToolchain,
-    VCVars,
-    check_min_vs,
-    is_msvc,
-    is_msvc_static_runtime,
-    msvc_runtime_flag,
-    unix_path,
-    unix_path_package_info_legacy,
-    vs_layout,
-)
-from conan.tools.scm import Version
-from conan.tools.system import package_manager
-import os
+from conan.tools.microsoft import VCVars, is_msvc
 
 required_conan_version = ">=1.47.0"
 
@@ -124,88 +54,86 @@ class FtjamConan(ConanFile):
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
         if self.settings.os != "Windows":
-            self.build_requires("bison/3.7.1")
+            self.tool_requires("bison/3.8.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
+        if is_msvc(self):
+            vcvars = VCVars(self)
+            vcvars.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "jamgram.c"), "\n#line", "\n//#line")
 
-    def build(self):
-        self._patch_sources()
-        with chdir(self, self.source_folder):
-            if self.settings.os == "Windows":
-                # toolset name of the system building ftjam
-                jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
-                autotools = AutoToolsBuildEnvironment(self)
-                autotools.libs = []
-                env = autotools.vars
-                with environment_append(self, env):
-                    if is_msvc(self):
-                        with vcvars(self.settings):
-                            self.run("nmake -f builds/win32-visualc.mk JAM_TOOLSET={}".format(jam_toolset))
-                    else:
-                        with environment_append(self, {"PATH": [os.getcwd()]}):
-                            autotools.make(
-                                args=["JAM_TOOLSET={}".format(jam_toolset), "-f", "builds/win32-gcc.mk"]
-                            )
-            else:
-                with chdir(self, os.path.join(self.build_folder, "builds", "unix")):
-                    autotools = Autotools(self)
-                    autotools.configure()
-                    autotools.make()
-
-    def package(self):
-        txt = load(self, os.path.join(self.source_folder, "jam.c"))
-        license_txt = txt[: txt.find("*/") + 3]
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_txt)
-        if self.settings.os == "Windows":
-            if is_msvc(self):
-                pass
-            else:
-                copy(
-                    self,
-                    "*.exe",
-                    src=os.path.join(self.source_folder, "bin.nt"),
-                    dst=os.path.join(self.package_folder, "bin"),
-                )
-        else:
-            with chdir(self, self.source_folder):
-                autotools = Autotools(self)
-                autotools.install()
-
     def _jam_toolset(self, os, compiler):
         if is_msvc(self):
             return "VISUALC"
-        if compiler == "intel":
+        if compiler == "intel-cc":
             return "INTELC"
         if os == "Windows":
             return "MINGW"
         return None
+
+    def build(self):
+        self._patch_sources()
+        if self.settings.os == "Windows":
+            with chdir(self, self.source_folder):
+                # toolset name of the system building ftjam
+                jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
+                if is_msvc(self):
+                    self.run(f"nmake -f builds/win32-visualc.mk JAM_TOOLSET={jam_toolset}")
+                else:
+                    os.environ["PATH"] += os.pathsep + os.getcwd()
+                    autotools = Autotools(self)
+                    autotools.make(args=[f"JAM_TOOLSET={jam_toolset}", "-f", "builds/win32-gcc.mk"])
+        else:
+            autotools = Autotools(self)
+            autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
+            with chdir(self, self.source_folder):
+                autotools.make()
+
+    def _extract_license(self):
+        txt = load(self, os.path.join(self.source_folder, "jam.c"))
+        license_txt = txt[: txt.find("*/") + 3]
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_txt)
+
+    def package(self):
+        self._extract_license()
+        if self.settings.os == "Windows":
+            if not is_msvc(self):
+                copy(self, "*.exe",
+                    src=os.path.join(self.source_folder, "bin.nt"),
+                    dst=os.path.join(self.package_folder, "bin"))
+        else:
+            copy(self, "jam",
+                 src=os.path.join(self.source_folder, "bin.unix"),
+                 dst=os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
+
         jam_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(jam_path))
+        self.output.info(f"Appending PATH environment variable: {jam_path}")
         self.env_info.PATH.append(jam_path)
 
         jam_bin = os.path.join(jam_path, "jam")
         if self.settings.os == "Windows":
             jam_bin += ".exe"
-        self.output.info("Setting JAM environment variable: {}".format(jam_bin))
+        self.output.info(f"Setting JAM environment variable: {jam_bin}")
         self.env_info.JAM = jam_bin
 
         # toolset of the system using ftjam
         jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
         if jam_toolset:
-            self.output.info("Setting JAM_TOOLSET environment variable: {}".format(jam_toolset))
+            self.output.info(f"Setting JAM_TOOLSET environment variable: {jam_toolset}")
             self.env_info.JAM_TOOLSET = jam_toolset

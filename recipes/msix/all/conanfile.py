@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
@@ -31,7 +30,7 @@ class MsixConan(ConanFile):
         "skip_bundles": [True, False],
         "use_external_zlib": [True, False],
         "use_validation_parser": [True, False],
-        "xml_parser": ["applexml", "javaxml", "msxml6", "xerces"],
+        "xml_parser": ["auto", "applexml", "javaxml", "msxml6", "xerces"],
     }
     default_options = {
         "shared": False,
@@ -41,17 +40,53 @@ class MsixConan(ConanFile):
         "skip_bundles": False,
         "use_external_zlib": True,
         "use_validation_parser": False,
-        "xml_parser": "msxml6",
+        "xml_parser": "auto",
     }
 
     @property
     def _minimum_compilers_version(self):
         return {
             "Visual Studio": "15",
+            "msvc": "191",
         }
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+            self.options.crypto_lib = "crypt32"
+
+        if self.options.xml_parser == "auto":
+            if self.settings.os == "Android":
+                self.options.xml_parser = "javaxml"
+            elif is_apple_os(self):
+                self.options.xml_parser = "applexml"
+            elif self.settings.os == "Windows":
+                self.options.xml_parser = "msxml6"
+            else:
+                self.options.xml_parser = "xerces"
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+
+        if self.options.xml_parser == "xerces":
+            self.options["xerces-c"].char_type = "char16_t"
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.settings.os == "Linux" and not self.options.skip_bundles:
+            self.requires("icu/73.2")
+        if self.options.crypto_lib == "openssl":
+            self.requires("openssl/[>=1.1 <4]")
+        if self.options.use_external_zlib:
+            self.requires("zlib/1.2.13")
+        if self.options.xml_parser == "xerces":
+            self.requires("xerces-c/3.2.4")
 
     def _validate_compiler_settings(self):
         compiler = self.settings.compiler
@@ -69,39 +104,17 @@ class MsixConan(ConanFile):
                 f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
             )
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-            self.options.crypto_lib = "crypt32"
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
-    def requirements(self):
-        if self.settings.os == "Linux" and not self.options.skip_bundles:
-            self.requires("icu/71.1")
-        if self.options.crypto_lib == "openssl":
-            self.requires("openssl/1.1.1q")
-        if self.options.use_external_zlib:
-            self.requires("zlib/1.2.12")
-        if self.options.xml_parser == "xerces":
-            self.requires("xerces-c/3.2.3")
-
     def validate(self):
-        if self.settings.os != "Android" and self.options.xml_parser == "javaxml":
-            raise ConanInvalidConfiguration("javaxml is supported only for Android")
         if self.settings.os == "Linux" and self.settings.compiler != "clang":
             raise ConanInvalidConfiguration("Only clang is supported on Linux")
+        if self.settings.os != "Android" and self.options.xml_parser == "javaxml":
+            raise ConanInvalidConfiguration("javaxml is supported only for Android")
         if self.settings.os != "Macos" and self.options.xml_parser == "applexml":
             raise ConanInvalidConfiguration("applexml is supported only for MacOS")
-        if self.settings.os != "Windows" and self.options.crypto_lib == "crypt32":
-            raise ConanInvalidConfiguration("crypt32 is supported only for Windows")
         if self.settings.os != "Windows" and self.options.xml_parser == "msxml6":
             raise ConanInvalidConfiguration("msxml6 is supported only for Windows")
+        if self.settings.os != "Windows" and self.options.crypto_lib == "crypt32":
+            raise ConanInvalidConfiguration("crypt32 is supported only for Windows")
         if self.options.pack:
             if self.settings.os == "Macos":
                 if not self.options.use_external_zlib:
@@ -112,7 +125,7 @@ class MsixConan(ConanFile):
                     raise ConanInvalidConfiguration("Xerces is the only supported parser for MacOS pack")
             if not self.options.use_validation_parser:
                 raise ConanInvalidConfiguration("Packaging requires validation parser")
-        if self.options.xml_parser == "xerces" and self.options["xerces-c"].char_type != "char16_t":
+        if self.options.xml_parser == "xerces" and self.dependencies["xerces-c"].options.char_type != "char16_t":
             raise ConanInvalidConfiguration("Only char16_t is supported for xerces-c")
 
         self._validate_compiler_settings()
@@ -134,7 +147,7 @@ class MsixConan(ConanFile):
         tc.variables["MSIX_TESTS"] = False
         tc.variables["SKIP_BUNDLES"] = self.options.skip_bundles
         tc.variables["USE_MSIX_SDK_ZLIB"] = self.options.use_external_zlib
-        tc.variables["USE_SHARED_ZLIB"] = self.options["zlib"].shared
+        tc.variables["USE_SHARED_ZLIB"] = self.dependencies["zlib"].options.shared
         tc.variables["USE_VALIDATION_PARSER"] = self.options.use_validation_parser
         tc.variables["XML_PARSER"] = self.options.xml_parser
         tc.variables["CALCULATE_VERSION"] = False

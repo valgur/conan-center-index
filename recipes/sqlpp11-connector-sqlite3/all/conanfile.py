@@ -1,13 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
-from conan.tools.build import (
-    check_min_cppstd,
-)
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -43,18 +39,20 @@ class sqlpp11Conan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
+
     def requirements(self):
-        self.requires("sqlpp11/0.59")
+        self.requires("sqlpp11/[<=0.60]", transitive_headers=True)
         if self.options.with_sqlcipher:
-            self.requires("sqlcipher/4.4.0")
+            self.requires("sqlcipher/4.5.1")
         else:
-            self.requires("sqlite3/3.32.3")
+            self.requires("sqlite3/3.42.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -65,26 +63,29 @@ class sqlpp11Conan(ConanFile):
         tc.variables["SQLCIPHER"] = self.options.with_sqlcipher
         tc.variables["SQLPP11_INCLUDE_DIR"] = self.dependencies["sqlpp11"].cpp_info.includedirs[0]
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "Sqlite3", "SQLite3")
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["sqlpp11-connector-sqlite3"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
         if self.options.with_sqlcipher:
             self.cpp_info.defines = ["SQLPP_USE_SQLCIPHER"]

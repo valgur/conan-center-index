@@ -1,11 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 
 required_conan_version = ">=1.53.0"
 
@@ -46,10 +44,11 @@ class KealibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("hdf5/1.12.0")
+        self.requires("hdf5/1.14.1", transitive_headers=True)
 
     def validate(self):
-        if not (self.options["hdf5"].enable_cxx and self.options["hdf5"].hl):
+        hdf5_opts = self.dependencies["hdf5"].options
+        if not (hdf5_opts.enable_cxx and hdf5_opts.hl):
             raise ConanInvalidConfiguration("kealib requires hdf5 with cxx and hl enabled.")
 
     def source(self):
@@ -57,9 +56,8 @@ class KealibConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = not self.options["hdf5"].shared
-        # TODO: rely on self.options["hdf5"].parallel when implemented in hdf5 recipe
-        tc.variables["HDF5_PREFER_PARALLEL"] = False
+        tc.variables["HDF5_USE_STATIC_LIBRARIES"] = not self.dependencies["hdf5"].options.shared
+        tc.variables["HDF5_PREFER_PARALLEL"] = self.dependencies["hdf5"].options.parallel
         tc.variables["LIBKEA_WITH_GDAL"] = False
         tc.generate()
 
@@ -73,9 +71,11 @@ class KealibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.libs = ["kea"]

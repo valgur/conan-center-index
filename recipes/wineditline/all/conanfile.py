@@ -1,9 +1,9 @@
-# TODO: verify the Conan v2 migration
+import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, get
 
 required_conan_version = ">=1.53.0"
 
@@ -24,9 +24,12 @@ class WineditlineConan(ConanFile):
     default_options = {
         "shared": False,
     }
+    provides = "editline"
 
     def export_sources(self):
-        export_conandata_patches(self)
+        copy(self, "CMakeLists.txt",
+             dst=os.path.join(self.export_sources_folder, "src"),
+             src=self.recipe_folder)
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
@@ -37,28 +40,24 @@ class WineditlineConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Windows":
-            message = "wineditline is supported only on Windows."
-            raise ConanInvalidConfiguration(message)
+            raise ConanInvalidConfiguration("wineditline is supported only on Windows.")
 
     def source(self):
-        root = self.source_folder
-        get_args = self.conan_data["sources"][self.version]
-        get(self, **get_args, destination=root, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", "licenses", self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -86,6 +84,7 @@ class FlatccConan(ConanFile):
         tc.variables["FLATCC_IGNORE_CONST_COND"] = self.options.ignore_const_condition
         tc.variables["FLATCC_TEST"] = False
         tc.variables["FLATCC_ALLOW_WERROR"] = False
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -101,14 +100,15 @@ class FlatccConan(ConanFile):
                 os.path.join(self.package_folder, "bin", f"flatcc{debug_suffix}"),
                 os.path.join(self.package_folder, "bin", "flatcc"),
             )
-        # Copy license file
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-        self.env_info.PATH.append(bin_path)
         debug_suffix = "_d" if self.settings.build_type == "Debug" else ""
         if not self.options.runtime_lib_only:
             self.cpp_info.libs.append(f"flatcc{debug_suffix}")
         self.cpp_info.libs.append(f"flatccrt{debug_suffix}")
+
+        # TODO: to remove in conan v2
+        bin_path = os.path.join(self.package_folder, "bin")
+        self.output.info(f"Appending PATH environment variable: {bin_path}")
+        self.env_info.PATH.append(bin_path)

@@ -1,10 +1,11 @@
 #include <iostream>
+
 #include <openE57/openE57.h>
 
 using namespace e57;
 using namespace std;
 
-int main(int /*argc*/, char ** /*argv*/) {
+int main() {
     E57Utilities utilities{};
 
     int astmMajor{0};

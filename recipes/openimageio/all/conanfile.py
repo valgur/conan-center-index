@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -7,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -62,9 +60,7 @@ class OpenImageIOConan(ConanFile):
         "with_ffmpeg": True,
         "with_giflib": True,
         "with_libheif": True,
-        "with_raw": (
-            False
-        ),  # libraw is available under CDDL-1.0 or LGPL-2.1, for this reason it is disabled by default
+        "with_raw": False,  # libraw is available under CDDL-1.0 or LGPL-2.1, for this reason it is disabled by default
         "with_openjpeg": True,
         "with_openvdb": False,  # FIXME: broken on M1
         "with_ptex": True,
@@ -72,7 +68,6 @@ class OpenImageIOConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -89,17 +84,17 @@ class OpenImageIOConan(ConanFile):
     def requirements(self):
         # Required libraries
         self.requires("zlib/1.2.13")
-        self.requires("boost/1.78.0")
+        self.requires("boost/1.82.0")
         self.requires("libtiff/4.5.1")
         self.requires("openexr/2.5.7")
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_libjpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/2.1.5")
-        self.requires("pugixml/1.12.1")
+        self.requires("pugixml/1.13")
         self.requires("libsquish/1.15")
-        self.requires("tsl-robin-map/1.0.1")
-        self.requires("fmt/8.1.1")
+        self.requires("tsl-robin-map/1.2.1")
+        self.requires("fmt/10.0.0")
 
         # Optional libraries
         if self.options.with_libpng:
@@ -107,31 +102,31 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_freetype:
             self.requires("freetype/2.13.0")
         if self.options.with_hdf5:
-            self.requires("hdf5/1.12.1")
+            self.requires("hdf5/1.14.1")
         if self.options.with_opencolorio:
-            if Version(self.version) < "2.3.7.2":
-                self.requires("opencolorio/1.1.1")
-            else:
+            if Version(self.version) >= "2.3.7.2":
                 self.requires("opencolorio/2.1.0")
+            else:
+                self.requires("opencolorio/1.1.1")
         if self.options.with_opencv:
             self.requires("opencv/4.5.5")
         if self.options.with_tbb:
             self.requires("onetbb/2020.3")
         if self.options.with_dicom:
-            self.requires("dcmtk/3.6.6")
+            self.requires("dcmtk/3.6.7")
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/4.4")
+            self.requires("ffmpeg/5.1")
         # TODO: Field3D dependency
         if self.options.with_giflib:
             self.requires("giflib/5.2.1")
         if self.options.with_libheif:
-            self.requires("libheif/1.12.0")
+            self.requires("libheif/1.13.0")
         if self.options.with_raw:
-            self.requires("libraw/0.20.2")
+            self.requires("libraw/0.21.1")
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.0")
         if self.options.with_openvdb:
-            self.requires("openvdb/8.0.1")
+            self.requires("openvdb/8.2.0")
         if self.options.with_ptex:
             self.requires("ptex/2.4.0")
         if self.options.with_libwebp:
@@ -168,9 +163,7 @@ class OpenImageIOConan(ConanFile):
 
         # OIIO CMake files are patched to check USE_* flags to require or not use dependencies
         tc.variables["USE_JPEGTURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
-        tc.variables["USE_JPEG"] = (
-            True  # Needed for jpeg.imageio plugin, libjpeg/libjpeg-turbo selection still works
-        )
+        tc.variables["USE_JPEG"] = True  # Needed for jpeg.imageio plugin, libjpeg/libjpeg-turbo selection still works
         tc.variables["USE_HDF5"] = self.options.with_hdf5
         tc.variables["USE_OPENCOLORIO"] = self.options.with_opencolorio
         tc.variables["USE_OPENCV"] = self.options.with_opencv

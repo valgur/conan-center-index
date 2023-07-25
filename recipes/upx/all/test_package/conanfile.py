@@ -6,11 +6,11 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
 
-    def requirements(self):
-        self.requires(self.tested_reference_str)
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
 
     def layout(self):
         cmake_layout(self)
@@ -25,12 +25,11 @@ class TestPackageConan(ConanFile):
             bin_ext = ".exe" if self.settings.os == "Windows" else ""
             bin_path = os.path.join(self.cpp.build.bindir, f"test_package{bin_ext}")
 
-            upx_bin = self.conf_info.get("user.upx:upx")
-            self.run(f"{upx_bin} --help", env="conanrun")
+            self.run(f"upx --help")
 
             original_size = os.stat(bin_path).st_size
 
-            self.run(f"{upx_bin} {bin_path}", env="conanrun")
+            self.run(f"upx {bin_path}")
 
             packed_size = os.stat(bin_path).st_size
 
