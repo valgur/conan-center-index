@@ -113,7 +113,7 @@ class LibAssertConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "assert"
         self.cpp_info.names["cmake_find_package_multi"] = "assert"
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("dl")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("dbghelp")

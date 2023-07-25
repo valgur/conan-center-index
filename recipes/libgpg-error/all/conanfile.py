@@ -43,7 +43,7 @@ class GPGErrorConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
                 "This recipe only support Linux. You can contribute Windows and/or Macos support."
             )
@@ -65,7 +65,7 @@ class GPGErrorConan(ConanFile):
         if self.options.get_safe("fPIC", True):
             tc.configure_args.append("--with-pic")
         host = None
-        if self.settings.os == "Linux" and self.settings.arch == "x86":
+        if self.settings.os in ["Linux", "FreeBSD"] and self.settings.arch == "x86":
             host = "i686-linux-gnu"
         tc.update_configure_args({"--host": host})
         tc.generate()

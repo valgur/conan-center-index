@@ -202,7 +202,7 @@ class MagnumConan(ConanFile):
             self.options.rm_safe("cgl_context")
             self.options.rm_safe("windowless_cgl_application")
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.options.rm_safe("cgl_context")
             self.options.rm_safe("windowless_cgl_application")
             self.options.rm_safe("wgl_context")

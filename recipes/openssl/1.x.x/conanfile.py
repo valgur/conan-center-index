@@ -556,7 +556,7 @@ class OpenSSLConan(ConanFile):
                 )
 
     def _get_default_openssl_dir(self):
-        if self.settings.os == "Linux" and self._full_version >= "1.1.0":
+        if self.settings.os in ["Linux", "FreeBSD"] and self._full_version >= "1.1.0":
             return "/etc/ssl"
         return "res"
 

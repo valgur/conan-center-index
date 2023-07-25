@@ -330,7 +330,7 @@ class CPythonConan(ConanFile):
             for dep in ("tcl", "tk", "zlib"):
                 tcltk_includes += [f"-I{d}" for d in self.dependencies[dep].cpp_info.includedirs]
                 tcltk_libs += [f"-l{lib}" for lib in self.dependencies[dep].cpp_info.libs]
-            if self.settings.os == "Linux" and not self.options["tk"].shared:
+            if self.settings.os in ["Linux", "FreeBSD"] and not self.options["tk"].shared:
                 # FIXME: use info from xorg.components (x11, xscrnsaver)
                 tcltk_libs.extend([f"-l{lib}" for lib in ("X11", "Xss")])
             tc.configure_args.extend(
@@ -885,7 +885,7 @@ class CPythonConan(ConanFile):
             self.cpp_info.components["python"].defines.append("Py_ENABLE_SHARED")
         else:
             self.cpp_info.components["python"].defines.append("Py_NO_ENABLE_SHARED")
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["python"].system_libs.extend(["dl", "m", "pthread", "util"])
             elif self.settings.os == "Windows":
                 self.cpp_info.components["python"].system_libs.extend(

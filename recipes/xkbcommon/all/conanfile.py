@@ -49,7 +49,7 @@ class XkbcommonConan(ConanFile):
     def config_options(self):
         if not self._has_xkbregistry_option:
             self.options.rm_safe("xkbregistry")
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_wayland")
 
     def configure(self):

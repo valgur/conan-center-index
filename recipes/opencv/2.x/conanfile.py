@@ -99,7 +99,7 @@ class OpenCVConan(ConanFile):
             self.options.rm_safe("gpu")
             self.options.rm_safe("superres")
             self.options.rm_safe("ts")
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_gtk")
 
     @property
@@ -178,7 +178,7 @@ class OpenCVConan(ConanFile):
                 "system_libs": [
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
-                    (self.settings.os == "Linux", ["dl", "m", "pthread", "rt"]),
+                    (self.settings.os in ["Linux", "FreeBSD"], ["dl", "m", "pthread", "rt"]),
                 ],
             },
             "features2d": {

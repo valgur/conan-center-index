@@ -27,13 +27,13 @@ class LibmnlConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def configure(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libmnl is only supported on Linux")
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-    
+
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.generate()

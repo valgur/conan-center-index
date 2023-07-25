@@ -111,7 +111,7 @@ class SwigConan(ConanFile):
             tc.extra_ldflags.append("-static")
 
         tc.configure_args += [f"--host={self.settings.arch}", f"--with-swiglibdir={self._swiglibdir}"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc.configure_args.append("LIBS=-ldl")
 
         if is_msvc(self):

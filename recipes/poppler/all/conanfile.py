@@ -281,7 +281,7 @@ class PopplerConan(ConanFile):
         if not self.options.shared:
             self.cpp_info.components["libpoppler"].defines = ["POPPLER_STATIC"]
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libpoppler"].system_libs = ["pthread"]
         elif self.settings.os == "Windows":
             self.cpp_info.components["libpoppler"].system_libs = ["gdi32"]

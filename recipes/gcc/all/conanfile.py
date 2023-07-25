@@ -68,7 +68,7 @@ class GccConan(ConanFile):
             raise ConanInvalidConfiguration("GCC can't be built with MSVC")
 
     def build_requirements(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             # binutils recipe is broken for Macos, and Windows uses tools
             # distributed with msys/mingw
             self.tool_requires("binutils/2.38")

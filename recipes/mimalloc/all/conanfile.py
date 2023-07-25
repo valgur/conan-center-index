@@ -274,10 +274,10 @@ class MimallocConan(ConanFile):
         else:
             self.cpp_info.libs = collect_libs(self)
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
         if not self.options.shared:
             if self.settings.os == "Windows":
                 self.cpp_info.system_libs.extend(["psapi", "shell32", "user32", "bcrypt"])
-            elif self.settings.os == "Linux":
+            elif self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs.append("rt")

@@ -39,7 +39,7 @@ class LibsecretConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             # libgcrypt recipe is currently only available on Linux
             self.options.rm_safe("with_libgcrypt")
 

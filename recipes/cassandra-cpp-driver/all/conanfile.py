@@ -73,7 +73,7 @@ class CassandraCppDriverConan(ConanFile):
     def validate(self):
         if self.options.use_atomic == "boost":
             # Compilation error on Linux
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 raise ConanInvalidConfiguration("Boost.Atomic is not supported on Linux at the moment")
         elif self.options.use_atomic == "std":
             if self.settings.compiler.get_safe("cppstd"):
@@ -104,7 +104,7 @@ class CassandraCppDriverConan(ConanFile):
         tc.variables["CASS_USE_LIBSSH2"] = False
         # FIXME: To use kerberos, its conan package is needed. Uncomment this when kerberos conan package is ready.
         # tc.variables["CASS_USE_KERBEROS"] = self.options.with_kerberos
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["CASS_USE_TIMERFD"] = self.options.use_timerfd
         tc.generate()
         tc = CMakeDeps(self)

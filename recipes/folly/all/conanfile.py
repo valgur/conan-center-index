@@ -92,7 +92,7 @@ class FollyConan(ConanFile):
         self.requires("libsodium/1.0.18")
         self.requires("xz_utils/5.2.5")
         # FIXME: Causing compilation issues on clang: self.requires("jemalloc/5.2.1")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libiberty/9.1.0")
             self.requires("libunwind/1.5.0")
         if Version(self.version) >= "2020.08.10.00":
@@ -123,7 +123,7 @@ class FollyConan(ConanFile):
                     )
                 )
 
-        if Version(self.version) < "2022.01.31.00" and self.settings.os != "Linux":
+        if Version(self.version) < "2022.01.31.00" and self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
                 "Conan support for non-Linux platforms starts with Folly version 2022.01.31.00"
             )
@@ -251,7 +251,7 @@ class FollyConan(ConanFile):
         if Version(self.version) == "2019.10.21.00":
             self.cpp_info.components["libfolly"].libs = ["follybenchmark", "folly_test_util", "folly"]
         elif Version(self.version) >= "2020.08.10.00":
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libfolly"].libs = [
                     "folly_exception_counter",
                     "folly_exception_tracer",
@@ -280,7 +280,7 @@ class FollyConan(ConanFile):
         ]
         if not is_msvc(self):
             self.cpp_info.components["libfolly"].requires.append("libdwarf::libdwarf")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libfolly"].requires.extend(
                 ["libiberty::libiberty", "libunwind::libunwind"]
             )
@@ -288,14 +288,14 @@ class FollyConan(ConanFile):
 
         if Version(self.version) >= "2020.08.10.00":
             self.cpp_info.components["libfolly"].requires.append("fmt::fmt")
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libfolly"].defines.extend(["FOLLY_HAVE_ELF", "FOLLY_HAVE_DWARF"])
 
         elif self.settings.os == "Windows":
             self.cpp_info.components["libfolly"].system_libs.extend(["ws2_32", "iphlpapi", "crypt32"])
 
         if (
-            self.settings.os == "Linux"
+            self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "clang"
             and self.settings.compiler.libcxx == "libstdc++"
         ) or (
@@ -341,7 +341,7 @@ class FollyConan(ConanFile):
             self.cpp_info.components["folly_test_util"].libs = ["folly_test_util"]
             self.cpp_info.components["folly_test_util"].requires = ["libfolly"]
 
-        if Version(self.version) >= "2020.08.10.00" and self.settings.os == "Linux":
+        if Version(self.version) >= "2020.08.10.00" and self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["folly_exception_tracer_base"].set_property(
                 "cmake_target_name", "Folly::folly_exception_tracer_base"
             )

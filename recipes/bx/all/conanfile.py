@@ -336,7 +336,7 @@ class bxConan(ConanFile):
                 self.cpp_info.includedirs.extend(["include/compat/mingw"])
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "pthread"])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.includedirs.extend(["include/compat/linux"])
             else:
                 self.cpp_info.includedirs.extend(["include/compat/freebsd"])

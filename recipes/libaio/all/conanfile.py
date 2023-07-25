@@ -43,7 +43,7 @@ class LibaioConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.info.settings.os != "Linux":
+        if self.info.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.info.settings.os}.")
 
     def source(self):

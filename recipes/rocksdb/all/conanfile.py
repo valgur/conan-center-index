@@ -178,7 +178,7 @@ class RocksDB(ConanFile):
 
         if (
             self.version == "6.0.2"
-            and self.settings.os == "Linux"
+            and self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "clang"
             and Version(self.settings.compiler.version) > "9"
         ):
@@ -188,7 +188,7 @@ class RocksDB(ConanFile):
 
         if (
             self.version == "6.20.3"
-            and self.settings.os == "Linux"
+            and self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "gcc"
             and Version(self.settings.compiler.version) < "5"
         ):

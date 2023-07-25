@@ -29,7 +29,7 @@ class NodejsConan(ConanFile):
 
     @property
     def _nodejs_arch(self):
-        if str(self.settings.os) == "Linux":
+        if str(self.settings.os) in ["Linux", "FreeBSD"]:
             if str(self.settings.arch).startswith("armv7"):
                 return "armv7"
             if str(self.settings.arch).startswith("armv8") and "32" not in str(self.settings.arch):
@@ -54,7 +54,7 @@ class NodejsConan(ConanFile):
             )
 
         if Version(self.version) >= "18.0.0":
-            if str(self.settings.os) == "Linux":
+            if str(self.settings.os) in ["Linux", "FreeBSD"]:
                 if Version(self._glibc_version) < "2.27":
                     raise ConanInvalidConfiguration(
                         "Binaries for this combination of architecture/version/os not available"

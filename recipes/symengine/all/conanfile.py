@@ -88,5 +88,5 @@ class SymengineConan(ConanFile):
         self.cpp_info.libs = ["symengine"]
         if any("teuchos" in v for v in collect_libs(self)):
             self.cpp_info.libs.append("teuchos")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

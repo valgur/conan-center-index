@@ -24,7 +24,7 @@ class TestPackageConan(ConanFile):
             self.source_folder, "Lin64_1.asm"
         )  # content from https://www.japheth.de/JWasm/Lin64_1.html
         self.run(f"jwasm -elf64 -Fo={obj_file} {asm_file}")
-        if self._settings_build.os == "Linux" and self._settings_build.arch == "x86_64":
+        if self._settings_build.os in ["Linux", "FreeBSD"] and self._settings_build.arch == "x86_64":
             bin_file = os.path.join(self.build_folder, "Lin64_1")
             self.run(f"ld {obj_file} -o {bin_file}")
             self.run(bin_file, ignore_errors=True)

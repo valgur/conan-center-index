@@ -58,7 +58,7 @@ class OpenGrmConan(ConanFile):
         self.requires("openfst/1.8.2")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("OpenGrm is only supported on linux")
 
         if not self.dependencies["openfst"].options.enable_grm:

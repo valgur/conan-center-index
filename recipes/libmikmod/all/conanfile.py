@@ -55,7 +55,7 @@ class LibmikmodConan(ConanFile):
         else:
             self.options.rm_safe("with_dsound")
             self.options.rm_safe("with_mmsound")
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_alsa")
         # Non-Apple Unices
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -75,7 +75,7 @@ class LibmikmodConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_alsa:
                 self.requires("libalsa/1.2.7.2")
             if self.options.with_pulse:

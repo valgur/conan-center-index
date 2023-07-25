@@ -43,7 +43,7 @@ class LibgcryptConan(ConanFile):
         self.requires("libgpg-error/1.36", transitive_headers=True)
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
                 "This recipe only support Linux. You can contribute Windows and/or Macos support."
             )

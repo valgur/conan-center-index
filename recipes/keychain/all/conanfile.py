@@ -32,12 +32,12 @@ class KeychainConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def requirements(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libsecret/0.20.4")
             self.requires("glib/2.76.0")
 
     def build_requirements(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.tool_requires("pkgconf/1.9.3")
 
     def layout(self):

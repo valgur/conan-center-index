@@ -61,7 +61,7 @@ class CppCommon(ConanFile):
             self.requires("fmt/8.1.1")
         else:
             self.requires("fmt/10.0.0")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libuuid/1.0.3")
 
     def validate(self):

@@ -65,7 +65,7 @@ class VulkanLoaderConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_wsi_xcb")
             self.options.rm_safe("with_wsi_xlib")
             self.options.rm_safe("with_wsi_wayland")
@@ -124,7 +124,7 @@ class VulkanLoaderConan(ConanFile):
         ].package_folder.replace("\\", "/")
         tc.variables["BUILD_TESTS"] = False
         tc.variables["USE_CCACHE"] = False
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["BUILD_WSI_XCB_SUPPORT"] = self.options.with_wsi_xcb
             tc.variables["BUILD_WSI_XLIB_SUPPORT"] = self.options.with_wsi_xlib
             tc.variables["BUILD_WSI_WAYLAND_SUPPORT"] = self.options.with_wsi_wayland

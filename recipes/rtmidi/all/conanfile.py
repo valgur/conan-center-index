@@ -36,7 +36,7 @@ class RtMidiConan(ConanFile):
 
     @property
     def _with_alsa(self):
-        return self.settings.os == "Linux"
+        return self.settings.os in ["Linux", "FreeBSD"]
 
     def export_sources(self):
         export_conandata_patches(self)

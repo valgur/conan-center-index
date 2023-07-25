@@ -1921,7 +1921,7 @@ class BoostConan(ConanFile):
             if is_msvc(self) or self._is_clang_cl:
                 # https://github.com/conan-community/conan-boost/issues/127#issuecomment-404750974
                 self.cpp_info.components["_libboost"].system_libs.append("bcrypt")
-            elif self.settings.os == "Linux":
+            elif self.settings.os in ["Linux", "FreeBSD"]:
                 # https://github.com/conan-community/community/issues/135
                 self.cpp_info.components["_libboost"].system_libs.append("rt")
                 if self.options.multithreading:

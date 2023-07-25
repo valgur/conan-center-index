@@ -224,7 +224,7 @@ class ArmadilloConan(ConanFile):
         tc.variables["USE_SYSTEM_SUPERLU"] = self.options.use_superlu
         tc.variables["USE_SYSTEM_OPENBLAS"] = False
         tc.variables["USE_SYSTEM_FLEXIBLAS"] = self.options.use_blas == "system_flexiblas"
-        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = self.options.use_blas == "system_flexiblas" and self.settings.os == "Linux"
+        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = self.options.use_blas == "system_flexiblas" and self.settings.os in ["Linux", "FreeBSD"]
         tc.variables["ALLOW_OPENBLAS_MACOS"] = self.options.use_blas == "openblas" and is_apple_os(self)
         tc.variables["OPENBLAS_PROVIDES_LAPACK"] = self.options.use_lapack == "openblas"
         tc.variables["ALLOW_BLAS_LAPACK_MACOS"] = self.options.use_blas != "framework_accelerate"

@@ -23,7 +23,7 @@ class LinuxSyscallSupportConan(ConanFile):
     no_copy_source = True
 
     def configure(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("{} supported only on Linux".format(self.name))
 
     def layout(self):

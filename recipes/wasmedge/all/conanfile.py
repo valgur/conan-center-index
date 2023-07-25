@@ -81,7 +81,7 @@ class WasmedgeConan(ConanFile):
             keep_path=True,
         )
 
-        srclibdir = os.path.join(self.source_folder, "lib64" if self.settings.os == "Linux" else "lib")
+        srclibdir = os.path.join(self.source_folder, "lib64" if self.settings.os in ["Linux", "FreeBSD"] else "lib")
         srcbindir = os.path.join(self.source_folder, "bin")
         dstlibdir = os.path.join(self.package_folder, "lib")
         dstbindir = os.path.join(self.package_folder, "bin")

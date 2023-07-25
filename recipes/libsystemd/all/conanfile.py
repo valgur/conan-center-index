@@ -67,7 +67,7 @@ class LibsystemdConan(ConanFile):
             self.requires("zstd/1.5.5")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Only Linux supported")
 
     def build_requirements(self):

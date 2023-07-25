@@ -119,7 +119,7 @@ class NativefiledialogConan(ConanFile):
         return "source_subfolder"
 
     def requirements(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("gtk/3.24.24")
 
     def build_requirements(self):

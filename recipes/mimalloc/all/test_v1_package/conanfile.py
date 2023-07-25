@@ -53,7 +53,7 @@ class TestPackageConan(ConanFile):
         environment = {"MIMALLOC_VERBOSE": "1"}
 
         if self._mimalloc_option("inject"):
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 environment["LD_PRELOAD"] = f"{self._lib_name}.so"
             elif is_apple_os(self):
                 env_build = RunEnvironment(self)

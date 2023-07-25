@@ -126,7 +126,7 @@ class AwsCdiSdkConan(ConanFile):
         self.requires("aws-sdk-cpp/1.8.130")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
                 "This recipe currently only supports Linux. Feel free to contribute other platforms!"
             )
@@ -237,7 +237,7 @@ class AwsCdiSdkConan(ConanFile):
         cSdk = self.cpp_info.components["cdisdk"]
         cSdk.libs = ["cdisdk"]
         cSdk.requires = ["aws-cpp-sdk-cdi"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             cSdk.defines = ["_LINUX"]
 
         cSdk.set_property("cmake_target_name", "AWS::aws-cdi-sdk")

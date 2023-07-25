@@ -196,7 +196,7 @@ class DuckdbConan(ConanFile):
                 self.cpp_info.libs.append("httpfs_extension")
             if self.options.with_visualizer:
                 self.cpp_info.libs.append("visualizer_extension")
-            if Version(self.version) >= "0.6.0" and self.settings.os == "Linux":
+            if Version(self.version) >= "0.6.0" and self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.libs.append("jemalloc_extension")
             if self.options.with_json:
                 self.cpp_info.libs.append("json_extension")

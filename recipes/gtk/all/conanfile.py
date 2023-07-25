@@ -108,7 +108,7 @@ class GtkConan(ConanFile):
             # The upstream meson file does not create a static library
             # See https://github.com/GNOME/gtk/commit/14f0a0addb9a195bad2f8651f93b95450b186bd6
             self.options.shared = True
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_wayland")
             self.options.rm_safe("with_x11")
 
@@ -117,7 +117,7 @@ class GtkConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_wayland or self.options.with_x11:
                 if not self.options.with_pango:
                     raise ConanInvalidConfiguration("with_pango option is mandatory when with_wayland or with_x11 is used")
@@ -136,7 +136,7 @@ class GtkConan(ConanFile):
             self.requires("fribidi/1.0.12")
             self.requires("libtiff/4.4.0")
             self.requires("libjpeg/9e")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self._gtk4:
                 self.requires("xkbcommon/1.5.0")
             if self._gtk3:
@@ -184,7 +184,7 @@ class GtkConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc.project_options["wayland_backend" if self._gtk3 else "wayland-backend"] = "true" if self.options.with_wayland else "false"
             tc.project_options["x11_backend" if self._gtk3 else "x11-backend"] = "true" if self.options.with_x11 else "false"
         tc.project_options["introspection"] = "false" if self._gtk3 else "disabled"
@@ -246,7 +246,7 @@ class GtkConan(ConanFile):
             self.cpp_info.components["gdk-3.0"].requires.append("gdk-pixbuf::gdk-pixbuf")
             if not is_msvc(self):
                 self.cpp_info.components["gdk-3.0"].requires.extend(["cairo::cairo", "cairo::cairo-gobject"])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["gdk-3.0"].requires.extend(["glib::gio-unix-2.0", "cairo::cairo-xlib"])
                 if self.options.with_x11:
                     self.cpp_info.components["gdk-3.0"].requires.append("xorg::xorg")
@@ -258,12 +258,12 @@ class GtkConan(ConanFile):
             if not is_msvc(self):
                 self.cpp_info.components["gtk+-3.0"].requires.extend(["cairo::cairo", "cairo::cairo-gobject"])
             self.cpp_info.components["gtk+-3.0"].requires.extend(["gdk-pixbuf::gdk-pixbuf", "glib::gio-2.0"])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["gtk+-3.0"].requires.append("at-spi2-atk::at-spi2-atk")
             self.cpp_info.components["gtk+-3.0"].requires.append("libepoxy::libepoxy")
             if self.options.with_pango:
                 self.cpp_info.components["gtk+-3.0"].requires.append("pango::pangoft2")
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["gtk+-3.0"].requires.append("glib::gio-unix-2.0")
             self.cpp_info.components["gtk+-3.0"].includedirs = [os.path.join("include", "gtk-3.0")]
             self.cpp_info.components["gtk+-3.0"].set_property("pkg_config_name", "gtk+-3.0")

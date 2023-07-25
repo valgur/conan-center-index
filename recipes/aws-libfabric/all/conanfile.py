@@ -49,7 +49,7 @@ class LibfabricConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.options.efa = True
 
     def configure(self):

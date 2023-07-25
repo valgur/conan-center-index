@@ -74,7 +74,7 @@ class PistacheConan(ConanFile):
             "gcc": "7",
             "clang": "6",
         }
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.ref} is only support on Linux.")
 
         if self.settings.compiler == "clang":
@@ -176,7 +176,7 @@ class PistacheConan(ConanFile):
         if self.options.with_ssl:
             self.cpp_info.components["libpistache"].requires.append("openssl::openssl")
             self.cpp_info.components["libpistache"].defines = ["PISTACHE_USE_SSL=1"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libpistache"].system_libs = ["pthread"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed

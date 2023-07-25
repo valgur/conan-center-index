@@ -48,7 +48,7 @@ class PackageConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if Version(self.version) < "2.6.4" and self.settings.os != "Linux":
+        if Version(self.version) < "2.6.4" and self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported by {self.settings.os}; Try the version >= 2.6.4")
         if Version(self.version) >= "2.6.4" and self.settings.os not in ["Linux", "Windows"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported by {self.settings.os}.")

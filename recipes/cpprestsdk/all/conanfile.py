@@ -141,7 +141,7 @@ class CppRestSDKConan(ConanFile):
             "cpprestsdk_boost_internal",
             "cpprestsdk_openssl_internal",
         ]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["cpprest"].system_libs.append("pthread")
         elif self.settings.os == "Windows":
             if self.options.get_safe("http_client_impl") == "winhttp":

@@ -245,7 +245,7 @@ class Open62541Conan(ConanFile):
             if Version(self.settings.compiler.version) < "5":
                 raise ConanInvalidConfiguration("Older clang compiler version than 5.0 are not supported")
 
-        if self.options.pub_sub != False and self.settings.os != "Linux":
+        if self.options.pub_sub != False and self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("PubSub over Ethernet is not supported for your OS!")
 
         if self.options.web_socket:
@@ -354,9 +354,9 @@ class Open62541Conan(ConanFile):
         tc.variables["UA_ENABLE_PUBSUB_ENCRYPTION"] = self.options.pub_sub_encryption != False
 
         if self.options.pub_sub != False:
-            if self.settings.os == "Linux" and self.options.pub_sub == "Ethernet":
+            if self.settings.os in ["Linux", "FreeBSD"] and self.options.pub_sub == "Ethernet":
                 tc.variables["UA_ENABLE_PUBSUB_ETH_UADP"] = True
-            elif self.settings.os == "Linux" and self.options.pub_sub == "Ethernet_XDP":
+            elif self.settings.os in ["Linux", "FreeBSD"] and self.options.pub_sub == "Ethernet_XDP":
                 tc.variables["UA_ENABLE_PUBSUB_ETH_UADP_XDP"] = True
         tc.variables["UA_ENABLE_DA"] = self.options.data_access
 

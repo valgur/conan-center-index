@@ -388,7 +388,7 @@ class LLVMCoreConan(ConanFile):
 
         if self.options.shared:
             self.cpp_info.libs = collect_libs(self)
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs = ["pthread", "rt", "dl", "m"]
             elif is_apple_os(self):
                 self.cpp_info.system_libs = ["m"]

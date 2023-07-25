@@ -57,7 +57,7 @@ class SfmlConan(ConanFile):
             # FIXME: use cci's glad
             if self.settings.os in ["Windows", "Linux", "FreeBSD", "Macos"]:
                 self.requires("opengl/system")
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.requires("libudev/system")
                 self.requires("xorg/system")
         if self.options.graphics:
@@ -149,10 +149,10 @@ class SfmlConan(ConanFile):
             return ["ws2_32"] if self.settings.os == "Windows" else []
 
         def libudev():
-            return ["libudev::libudev"] if self.settings.os == "Linux" else []
+            return ["libudev::libudev"] if self.settings.os in ["Linux", "FreeBSD"] else []
 
         def xorg():
-            return ["xorg::xorg"] if self.settings.os == "Linux" else []
+            return ["xorg::xorg"] if self.settings.os in ["Linux", "FreeBSD"] else []
 
         def pthread():
             return ["pthread"] if self.settings.os in ["Linux", "FreeBSD"] else []

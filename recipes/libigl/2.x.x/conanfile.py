@@ -148,7 +148,7 @@ class LibiglConan(ConanFile):
 
         self.cpp_info.components["common"].set_property("cmake_target_name", "igl::common")
         self.cpp_info.components["common"].requires = ["eigen::eigen"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["common"].system_libs = ["pthread"]
 
         self.cpp_info.components["core"].set_property("cmake_target_name", "igl::core")

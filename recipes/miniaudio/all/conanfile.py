@@ -104,7 +104,7 @@ class MiniaudioConan(ConanFile):
     def package_info(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread"])
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("dl")
         if is_apple_os(self):
             self.cpp_info.frameworks.extend(["CoreFoundation", "CoreAudio", "AudioUnit"])

@@ -80,7 +80,7 @@ class BShoshanyThreadPoolConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed

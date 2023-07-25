@@ -173,7 +173,7 @@ class FreetypeConan(ConanFile):
         freetype_config = os.path.join(self.package_folder, "bin", "freetype-config")
         rename(self, freetype_config_in, freetype_config)
         libs = "-lfreetyped" if self.settings.build_type == "Debug" else "-lfreetype"
-        staticlibs = f"-lm {libs}" if self.settings.os == "Linux" else libs
+        staticlibs = f"-lm {libs}" if self.settings.os in ["Linux", "FreeBSD"] else libs
         replace_in_file(self, freetype_config, r"%PKG_CONFIG%", r"/bin/false")  # never use pkg-config
         replace_in_file(self, freetype_config, r"%prefix%", r"$conan_prefix")
         replace_in_file(self, freetype_config, r"%exec_prefix%", r"$conan_exec_prefix")

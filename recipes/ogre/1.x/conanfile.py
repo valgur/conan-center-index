@@ -539,7 +539,7 @@ class ogrecmakeconan(ConanFile):
             ]
             self.cpp_info.components[comp].build_modules["cmake_paths"] = [self._module_file_rel_path]
             self.cpp_info.components[comp].builddirs.append(self._module_file_rel_path)
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components[comp].system_libs.append("pthread")
 
         if self.options.install_tools:

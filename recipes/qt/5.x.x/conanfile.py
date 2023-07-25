@@ -204,7 +204,7 @@ class QtConan(ConanFile):
             self.options.with_mysql = False
             self.options.opengl = "dynamic"
             self.options.rm_safe("with_gssapi")
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.qtwayland = False
             self.options.with_atspi = False
 
@@ -219,7 +219,7 @@ class QtConan(ConanFile):
             self.options.rm_safe("android_sdk")
 
     def configure(self):
-        # if self.settings.os != "Linux":
+        # if self.settings.os not in ["Linux", "FreeBSD"]:
         #         self.options.with_libiconv = False # QTBUG-84708
 
         if not self.options.gui:
@@ -622,7 +622,7 @@ class QtConan(ConanFile):
             return "make"
 
     def _xplatform(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.settings.compiler == "gcc":
                 return {
                     "x86": "linux-g++-32",
@@ -982,7 +982,7 @@ class QtConan(ConanFile):
                     'QMAKE_LINK_SHLIB="' + value + '"',
                 ]
 
-        if self._settings_build.os == "Linux" and self.settings.compiler == "clang":
+        if self._settings_build.os in ["Linux", "FreeBSD"] and self.settings.compiler == "clang":
             args += ['QMAKE_CXXFLAGS+="-ftemplate-depth=1024"']
 
         if self.options.qtwebengine and self.settings.os in ["Linux", "FreeBSD"]:
@@ -1610,7 +1610,7 @@ Examples = bin/datadir/examples""",
             _create_module("Sensors")
             _create_plugin("genericSensorPlugin", "qtsensors_generic", "sensors", [])
             _create_plugin("IIOSensorProxySensorPlugin", "qtsensors_iio-sensor-proxy", "sensors", [])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 _create_plugin("LinuxSensorPlugin", "qtsensors_linuxsys", "sensors", [])
             _create_plugin("QtSensorGesturePlugin", "qtsensorgestures_plugin", "sensorgestures", [])
             _create_plugin("QShakeSensorGesturePlugin", "qtsensorgestures_shakeplugin", "sensorgestures", [])
@@ -1626,7 +1626,7 @@ Examples = bin/datadir/examples""",
 
         if self.options.qtgamepad:
             _create_module("Gamepad", ["Gui"])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 _create_plugin("QEvdevGamepadBackendPlugin", "evdevgamepad", "gamepads", [])
             if is_apple_os(self):
                 _create_plugin("QDarwinGamepadBackendPlugin", "darwingamepad", "gamepads", [])
@@ -1679,7 +1679,7 @@ Examples = bin/datadir/examples""",
                 _create_plugin("QGstreamerAudioDecoderServicePlugin", "gstaudiodecoder", "mediaservice", [])
                 _create_plugin("QGstreamerCaptureServicePlugin", "gstmediacapture", "mediaservice", [])
                 _create_plugin("QGstreamerPlayerServicePlugin", "gstmediaplayer", "mediaservice", [])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 _create_plugin("CameraBinServicePlugin", "gstcamerabin", "mediaservice", [])
                 _create_plugin("QAlsaPlugin", "qtaudio_alsa", "audio", [])
             if self.settings.os == "Windows":

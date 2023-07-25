@@ -106,7 +106,7 @@ class SDLConan(ConanFile):
             self.options.rm_safe("fPIC")
             if is_msvc(self):
                 self.options.rm_safe("iconv")
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("alsa")
             self.options.rm_safe("jack")
             self.options.rm_safe("pulse")
@@ -141,7 +141,7 @@ class SDLConan(ConanFile):
     def requirements(self):
         if self.options.get_safe("iconv", False):
             self.requires("libiconv/1.17")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.alsa:
                 self.requires("libalsa/1.2.7.2")
             if self.options.pulse:
@@ -172,7 +172,7 @@ class SDLConan(ConanFile):
                 "{}/{} requires xcode 12 or higher".format(self.name, self.version)
             )
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.sndio:
                 raise ConanInvalidConfiguration("Package for 'sndio' is not available (yet)")
             if self.options.jack:
@@ -190,7 +190,7 @@ class SDLConan(ConanFile):
             # or because CMake's platform configuration is corrupt.
             # FIXME: Remove once CMake on macOS/M1 CI runners is upgraded.
             self.tool_requires("cmake/3.25.3")
-        if self.settings.os == "Linux" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
+        if self.settings.os in ["Linux", "FreeBSD"] and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/1.9.3")
         if hasattr(self, "settings_build") and self.options.get_safe("wayland"):
             self.build_requires("wayland/1.21.0")  # Provides wayland-scanner
@@ -256,7 +256,7 @@ class SDLConan(ConanFile):
     def _define_toolchain(self):
         tc = CMakeToolchain(self)
         if (
-            self.settings.os == "Linux"
+            self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "gcc"
             and Version(self.settings.compiler.version) < 5.0
         ):
@@ -284,7 +284,7 @@ class SDLConan(ConanFile):
         tc.variables["SDL_OPENGL"] = self.options.opengl
         tc.variables["SDL_OPENGLES"] = self.options.opengles
         tc.variables["SDL_VULKAN"] = self.options.vulkan
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             # See https://github.com/bincrafters/community/issues/696
             tc.variables["SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS"] = 1
 
@@ -433,7 +433,7 @@ class SDLConan(ConanFile):
         self.cpp_info.components["libsdl2"].libs = ["SDL2" + lib_postfix]
         if self.options.get_safe("iconv", False):
             self.cpp_info.components["libsdl2"].requires.append("libiconv::libiconv")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libsdl2"].system_libs = ["dl", "rt", "pthread"]
             if self.options.alsa:
                 self.cpp_info.components["libsdl2"].requires.append("libalsa::libalsa")

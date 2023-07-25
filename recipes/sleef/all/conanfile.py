@@ -89,5 +89,5 @@ class SleefConan(ConanFile):
         self.cpp_info.libs = ["sleef"]
         if self.settings.os == "Windows" and not self.options.shared:
             self.cpp_info.defines = ["SLEEF_STATIC_LIBS"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]

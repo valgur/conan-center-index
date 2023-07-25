@@ -108,7 +108,7 @@ class GStPluginsBaseConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_libalsa")
             self.options.rm_safe("with_wayland")
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -352,21 +352,21 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstaudioresample"].libs = ["gstaudioresample"]
         self.cpp_info.components["gstaudioresample"].libdirs.append(gst_plugin_path)
         self.cpp_info.components["gstaudioresample"].requires = ["gstreamer::gstreamer-base-1.0", "gstreamer-audio-1.0"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstaudioresample"].system_libs = ["m"]
         gst_plugins.append("gstaudioresample")
 
         self.cpp_info.components["gstaudiotestsrc"].libs = ["gstaudiotestsrc"]
         self.cpp_info.components["gstaudiotestsrc"].libdirs.append(gst_plugin_path)
         self.cpp_info.components["gstaudiotestsrc"].requires = ["gstreamer::gstreamer-base-1.0", "gstreamer-audio-1.0"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstaudiotestsrc"].system_libs = ["m"]
         gst_plugins.append("gstaudiotestsrc")
 
         self.cpp_info.components["gstcompositor"].libs = ["gstcompositor"]
         self.cpp_info.components["gstcompositor"].libdirs.append(gst_plugin_path)
         self.cpp_info.components["gstcompositor"].requires = ["gstreamer::gstreamer-base-1.0", "gstreamer-video-1.0"]  # TODO: orc
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstcompositor"].system_libs = ["m"]
         gst_plugins.append("gstcompositor")
 
@@ -433,7 +433,7 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstvideotestsrc"].libs = ["gstvideotestsrc"]
         self.cpp_info.components["gstvideotestsrc"].libdirs.append(gst_plugin_path)
         self.cpp_info.components["gstvideotestsrc"].requires = ["gstreamer::gstreamer-1.0", "gstreamer::gstreamer-base-1.0", "gstreamer-video-1.0", "glib::glib-2.0", "glib::gobject-2.0"]  # TODO: orc
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstvideotestsrc"].system_libs = ["m"]
         gst_plugins.append("gstvideotestsrc")
 
@@ -487,7 +487,7 @@ class GStPluginsBaseConan(ConanFile):
                 self.cpp_info.components["gstopengl"].requires.append("libjpeg-turbo::libjpeg-turbo")
             if self.options.get_safe("with_xorg"):
                 self.cpp_info.components["gstopengl"].requires.append("xorg::x11")
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["gstopengl"].system_libs = ["m"]
             gst_plugins.append("gstopengl")
 
@@ -529,7 +529,7 @@ class GStPluginsBaseConan(ConanFile):
                 "glib::glib-2.0",
                 "glib::gobject-2.0",
             ]
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["gstopus"].system_libs = ["m"]
             gst_plugins.append("gstopus")
 
@@ -544,7 +544,7 @@ class GStPluginsBaseConan(ConanFile):
                 "glib::glib-2.0",
                 "glib::gobject-2.0",
             ]
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["gstpango"].system_libs = ["m"]
             gst_plugins.append("gstpango")
 
@@ -614,7 +614,7 @@ class GStPluginsBaseConan(ConanFile):
                 "glib::glib-2.0",
                 "glib::gobject-2.0",
             ]
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["gstxvimagesink"].system_libs = ["m"]
             gst_plugins.append("gstxvimagesink")
 
@@ -645,7 +645,7 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstreamer-audio-1.0"].libs = ["gstaudio-1.0"]
         self.cpp_info.components["gstreamer-audio-1.0"].requires = ["gstreamer::gstreamer-1.0", "gstreamer::gstreamer-base-1.0", "gstreamer-tag-1.0"]  # TODO: orc
         self.cpp_info.components["gstreamer-audio-1.0"].includedirs = [gst_include_path]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstreamer-audio-1.0"].system_libs = ["m"]
         self.cpp_info.components["gstreamer-audio-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)
 
@@ -653,7 +653,7 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstreamer-fft-1.0"].libs = ["gstfft-1.0"]
         self.cpp_info.components["gstreamer-fft-1.0"].requires = ["gstreamer::gstreamer-1.0"]
         self.cpp_info.components["gstreamer-fft-1.0"].includedirs = [gst_include_path]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstreamer-fft-1.0"].system_libs = ["m"]
         self.cpp_info.components["gstreamer-fft-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)
 
@@ -726,7 +726,7 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstreamer-rtsp-1.0"].set_property("pkg_config_name", "gstreamer-rtsp-1.0")
         self.cpp_info.components["gstreamer-rtsp-1.0"].libs = ["gstrtsp-1.0"]
         self.cpp_info.components["gstreamer-rtsp-1.0"].requires = ["gstreamer::gstreamer-1.0", "gstreamer::gstreamer-base-1.0", "gstreamer-sdp-1.0", "glib::gio-2.0"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstreamer-rtsp-1.0"].system_libs = ["m"]
         elif self.settings.os == "Windows":
             self.cpp_info.components["gstreamer-rtsp-1.0"].system_libs = ["ws2_32"]
@@ -742,7 +742,7 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstreamer-tag-1.0"].set_property("pkg_config_name", "gstreamer-tag-1.0")
         self.cpp_info.components["gstreamer-tag-1.0"].libs = ["gsttag-1.0"]
         self.cpp_info.components["gstreamer-tag-1.0"].requires = ["gstreamer::gstreamer-1.0", "gstreamer::gstreamer-base-1.0", "zlib::zlib"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstreamer-tag-1.0"].system_libs = ["m"]
         self.cpp_info.components["gstreamer-tag-1.0"].includedirs = [gst_include_path]
         self.cpp_info.components["gstreamer-tag-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)
@@ -750,7 +750,7 @@ class GStPluginsBaseConan(ConanFile):
         self.cpp_info.components["gstreamer-video-1.0"].set_property("pkg_config_name", "gstreamer-video-1.0")
         self.cpp_info.components["gstreamer-video-1.0"].libs = ["gstvideo-1.0"]
         self.cpp_info.components["gstreamer-video-1.0"].requires = ["gstreamer::gstreamer-1.0", "gstreamer::gstreamer-base-1.0"]  # TODO: orc
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gstreamer-video-1.0"].system_libs = ["m"]
         self.cpp_info.components["gstreamer-video-1.0"].includedirs = [gst_include_path]
         self.cpp_info.components["gstreamer-video-1.0"].set_property("pkg_config_custom_content", pkgconfig_custom_content)

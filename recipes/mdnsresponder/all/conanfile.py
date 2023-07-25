@@ -191,7 +191,7 @@ class MdnsResponderConan(ConanFile):
         msbuild.build(sln, targets=self._msvc_targets)
 
     def generate(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc = AutotoolsToolchain(self)
             # fix for error: 'for' loop initial declarations are only allowed in C99 or C11 mode
             tc.extra_cflags.append("-std=gnu99")
@@ -210,7 +210,7 @@ class MdnsResponderConan(ConanFile):
         if self.options.with_opt_patches:
             for patchfile in self.conan_data.get("patches", {}).get(f"{self.version}-opt", []):
                 patch(self, **patchfile)
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self._build_make()
         elif self.settings.os == "Windows":
             self._build_msvc()
@@ -273,7 +273,7 @@ class MdnsResponderConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self._install_make()
         elif self.settings.os == "Windows":
             self._install_msvc()
@@ -286,7 +286,7 @@ class MdnsResponderConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "DNSSD")
         self.cpp_info.set_property("cmake_target_name", "DNSSD::DNSSD")
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.libs = ["dns_sd"]
         elif self.settings.os == "Windows":
             self.cpp_info.libs = ["dnssd"]

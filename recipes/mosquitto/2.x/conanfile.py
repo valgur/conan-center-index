@@ -137,7 +137,7 @@ class Mosquitto(ConanFile):
             self.cpp_info.components["libmosquitto"].defines = ["LIBMOSQUITTO_STATIC"]
         if self.options.ssl:
             self.cpp_info.components["libmosquitto"].requires = ["openssl::openssl"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libmosquitto"].system_libs = ["pthread", "m"]
         elif self.settings.os == "Windows":
             self.cpp_info.components["libmosquitto"].system_libs = ["ws2_32"]
@@ -146,7 +146,7 @@ class Mosquitto(ConanFile):
             self.cpp_info.components["libmosquittopp"].set_property("pkg_config_name", "libmosquittopp")
             self.cpp_info.components["libmosquittopp"].libs = [f"mosquittopp{lib_suffix}"]
             self.cpp_info.components["libmosquittopp"].requires = ["libmosquitto"]
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libmosquittopp"].system_libs = ["pthread", "m"]
             elif self.settings.os == "Windows":
                 self.cpp_info.components["libmosquittopp"].system_libs = ["ws2_32"]

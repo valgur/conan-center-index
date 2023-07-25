@@ -42,7 +42,7 @@ class Libfreenect2Conan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_vaapi")
 
     def configure(self):
@@ -114,7 +114,7 @@ class Libfreenect2Conan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "freenect2::freenect2")
         self.cpp_info.set_property("pkg_config_name", "freenect2")
         self.cpp_info.libs = collect_libs(self)
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
         elif is_apple_os(self):
             self.cpp_info.frameworks.extend(["VideoToolbox", "CoreFoundation", "CoreMedia", "CoreVideo"])

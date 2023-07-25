@@ -112,7 +112,7 @@ class DrogonConan(ConanFile):
         self.requires("jsoncpp/1.9.5", transitive_headers=True, transitive_libs=True)
         self.requires("openssl/[>=1.1 <4]")
         self.requires("zlib/1.2.13")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libuuid/1.0.3")
         if self.options.with_profile:
             self.requires("coz/cci.20210322")

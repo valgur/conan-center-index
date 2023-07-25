@@ -238,7 +238,7 @@ class LibtoolConan(ConanFile):
             if self.settings.os == "Windows":
                 self.cpp_info.defines = ["LIBLTDL_DLL_IMPORT"]
         else:
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs = ["dl"]
 
         # Define environment variables such that libtool m4 files are seen by Automake

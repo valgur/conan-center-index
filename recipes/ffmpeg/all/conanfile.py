@@ -624,7 +624,7 @@ class FFMpegConan(ConanFile):
         if ranlib:
             args.append(f"--ranlib={unix_path(self, ranlib)}")
         # for some reason pkgconf from conan can't find .pc files on Linux in the context of ffmpeg configure...
-        if self._settings_build.os != "Linux":
+        if self._settings_build.os not in ["Linux", "FreeBSD"]:
             pkg_config = self.conf.get(
                 "tools.gnu:pkg_config", default=buildenv_vars.get("PKG_CONFIG"), check_type=str
             )

@@ -39,7 +39,7 @@ class PciUtilsConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
                 "Platform {} is currently not supported by this recipe".format(self.settings.os)
             )

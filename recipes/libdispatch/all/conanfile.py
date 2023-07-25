@@ -75,7 +75,7 @@ class LibDispatchConan(ConanFile):
         else:
             self.cpp_info.libs = ["dispatch", "BlocksRuntime"]
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "rt"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["shlwapi", "ws2_32", "winmm", "synchronization"]

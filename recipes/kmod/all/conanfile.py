@@ -59,7 +59,7 @@ class KModConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("kmod is Linux-only!")
 
     def build_requirements(self):

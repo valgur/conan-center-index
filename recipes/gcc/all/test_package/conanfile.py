@@ -62,7 +62,7 @@ class TestPackageConan(ConanFile):
             if not cross_building(self):
                 chmod_plus_x(f"{files['bin']}")
 
-                if self.settings.os == "Linux":
+                if self.settings.os in ["Linux", "FreeBSD"]:
                     if shutil.which("readelf"):
                         self.run(f"readelf -l {files['bin']}", env="conanrun")
                     else:

@@ -48,7 +48,7 @@ class LibpqConan(ConanFile):
     @property
     def _is_clang8_x86(self):
         return (
-            self.settings.os == "Linux"
+            self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "clang"
             and self.settings.compiler.version == "8"
             and self.settings.arch == "x86"

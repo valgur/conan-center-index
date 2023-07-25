@@ -127,7 +127,7 @@ class DateConan(ConanFile):
             self.cpp_info.components["date-tz"].names["cmake_find_package_multi"] = "date-tz"
             lib_name = "{}tz".format("date-" if Version(self.version) >= "3.0.0" else "")
             self.cpp_info.components["date-tz"].libs = [lib_name]
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["date-tz"].system_libs.append("pthread")
                 self.cpp_info.components["date-tz"].system_libs.append("m")
 

@@ -215,7 +215,7 @@ class Mpg123Conan(ConanFile):
         self.cpp_info.components["libsyn123"].names["cmake_find_package_multi"] = "libsyn123"
         self.cpp_info.components["libsyn123"].requires = ["libmpg123"]
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libmpg123"].system_libs = ["m"]
             if self.settings.arch in ["x86", "x86_64"]:
                 self.cpp_info.components["libsyn123"].system_libs = ["mvec"]

@@ -433,7 +433,7 @@ class BotanConan(ConanFile):
     @property
     def _is_linux_clang_libcxx(self):
         return (
-            self.settings.os == "Linux"
+            self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "clang"
             and self.settings.compiler.libcxx == "libc++"
         )
@@ -563,7 +563,7 @@ class BotanConan(ConanFile):
         major_version = Version(self.version).major
         self.cpp_info.set_property("pkg_config_name", f"botan-{major_version}")
         self.cpp_info.libs = ["botan" if is_msvc(self) else f"botan-{major_version}"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "rt", "pthread"])
         if is_apple_os(self):
             self.cpp_info.frameworks = ["Security", "CoreFoundation"]

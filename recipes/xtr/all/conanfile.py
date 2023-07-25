@@ -131,7 +131,7 @@ class XtrConan(ConanFile):
         # done to detect if the host kernel supports io_uring.
         if (
             Version(self.version) >= "2.0.0"
-            and self.settings.os == "Linux"
+            and self.settings.os in ["Linux", "FreeBSD"]
             and self.options.get_safe("enable_io_uring")
         ):
             self.requires("liburing/2.1")

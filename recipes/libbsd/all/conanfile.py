@@ -47,7 +47,7 @@ class LibBsdConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if not is_apple_os(self) and self.settings.os != "Linux":
+        if not is_apple_os(self) and self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
                 f"{self.ref} is only available for GNU-like operating systems (e.g. Linux)"
             )
@@ -100,7 +100,7 @@ class LibBsdConan(ConanFile):
         if self.settings.compiler != "apple-clang":
             self.cpp_info.components["libbsd-ctor"].libs = ["bsd-ctor"]
             self.cpp_info.components["libbsd-ctor"].requires = ["bsd"]
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libbsd-ctor"].exelinkflags = [
                     "-Wl,-z,nodlopen",
                     "-Wl,-u,libbsd_init_func",

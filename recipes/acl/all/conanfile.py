@@ -42,7 +42,7 @@ class AclConan(ConanFile):
         self.requires("libattr/2.5.1")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libacl is just supported for Linux")
 
     def source(self):

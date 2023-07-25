@@ -63,7 +63,7 @@ class DiligentCoreConan(ConanFile):
 
     def requirements(self):
         self.requires("opengl/system")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("wayland/1.21.0")
 
         self.requires("spirv-cross/1.3.239.0")
@@ -120,7 +120,7 @@ class DiligentCoreConan(ConanFile):
             return "PLATFORM_WIN32"
         elif is_apple_os(self):
             return "PLATFORM_MACOS"
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             return "PLATFORM_LINUX"
         elif self.settings.os == "Android":
             return "PLATFORM_ANDROID"
@@ -236,7 +236,7 @@ class DiligentCoreConan(ConanFile):
             self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore", "Platforms", "Apple", "interface"))
         elif self.settings.os == "Emscripten":
             self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore", "Platforms", "Emscripten", "interface"))
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore", "Platforms", "Linux", "interface"))
         elif self.settings.os == "Windows":
             self.cpp_info.includedirs.append(os.path.join("include", "DiligentCore", "Platforms", "Win32", "interface"))

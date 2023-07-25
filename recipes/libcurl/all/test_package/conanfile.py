@@ -40,7 +40,7 @@ class TestPackageConan(ConanFile):
             if is_apple_os(self) and self.settings.arch == "armv8":
                 assert "Mach-O 64-bit executable arm64" in output, f"Not found in output: {output}"
 
-            elif self.settings.os == "Linux":
+            elif self.settings.os in ["Linux", "FreeBSD"]:
                 if self.settings.arch == "armv8_32":
                     assert re.search(r"Machine:\s+ARM", output), f"Not found in output: {output}"
                 elif "armv8" in self.settings.arch:

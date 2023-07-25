@@ -118,7 +118,7 @@ class SrtConan(ConanFile):
         self.cpp_info.libs = ["srt" + suffix]
         if self.options.shared:
             self.cpp_info.defines = ["SRT_DYNAMIC"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]

@@ -55,7 +55,7 @@ class Libx265Conan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_numa")
         # FIXME: Disable assembly by default if host is arm and compiler apple-clang for the moment.
         # Indeed, apple-clang is not able to understand some asm instructions of libx265
@@ -101,7 +101,7 @@ class Libx265Conan(ConanFile):
         tc.variables["ENABLE_SVT_HEVC"] = self.options.SVG_HEVC_encoder
         if is_msvc(self):
             tc.variables["STATIC_LINK_CRT"] = is_msvc_static_runtime(self)
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["PLATFORM_LIBS"] = "dl"
         if "arm" in self.settings.arch:
             tc.variables["CROSS_COMPILE_ARM"] = cross_building(self)

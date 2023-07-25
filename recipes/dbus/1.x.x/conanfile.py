@@ -212,7 +212,7 @@ class DbusConan(ConanFile):
         ])
         self.cpp_info.resdirs = ["res"]
         self.cpp_info.libs = ["dbus-1"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("rt")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["iphlpapi", "ws2_32"])

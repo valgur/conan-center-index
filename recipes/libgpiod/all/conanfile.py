@@ -31,7 +31,7 @@ class LibgpiodConan(ConanFile):
     }
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libgpiod supports only Linux")
 
     def configure(self):

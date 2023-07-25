@@ -106,6 +106,6 @@ class LibunifexConan(ConanFile):
         self.cpp_info.components["unifex"].names["cmake_find_package"] = "unifex"
         self.cpp_info.components["unifex"].names["cmake_find_package_multi"] = "unifex"
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["unifex"].system_libs = ["pthread"]
         #    self.cpp_info.components["unifex"].requires.append("liburing::liburing")

@@ -31,7 +31,7 @@ class LinuxHeadersGenericConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("linux-headers-generic supports only Linux")
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("linux-headers-generic can not be cross-compiled")

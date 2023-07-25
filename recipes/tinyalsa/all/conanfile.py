@@ -44,7 +44,7 @@ class TinyAlsaConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("{} only works for Linux.".format(self.name))
 
     def source(self):

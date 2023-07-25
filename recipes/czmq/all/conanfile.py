@@ -50,7 +50,7 @@ class CzmqConan(ConanFile):
             del self.options.fPIC
             # libuuid is not available on Windows
             self.options.rm_safe("with_libuuid")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_systemd")
 
     def configure(self):

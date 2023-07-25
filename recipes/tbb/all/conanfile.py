@@ -241,7 +241,7 @@ class TBBConan(ConanFile):
             else:
                 extra += " compiler=gcc"
 
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 # runtime is supposed to track the version of the c++ stdlib,
                 # the version of glibc, and the version of the linux kernel.
                 # However, it isn't actually used anywhere other than for
@@ -348,7 +348,7 @@ class TBBConan(ConanFile):
                 keep_path=False,
             )
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             extension = "so"
             if self.options.shared:
                 copy(self, f"*{build_type}*.{extension}.*", "lib", build_folder, keep_path=False)

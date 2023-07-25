@@ -57,7 +57,7 @@ class SDLMixerConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("tinymidi")
         else:
             self.options.rm_safe("nativemidi")
@@ -94,7 +94,7 @@ class SDLMixerConan(ConanFile):
             self.requires("libmodplug/0.8.9.0")
         if self.options.fluidsynth:
             self.requires("fluidsynth/2.2")  # TODO: this package is missing on the conan-center-index
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.tinymidi:
                 self.requires("tinymidi/cci.20130325")
 
@@ -114,7 +114,7 @@ class SDLMixerConan(ConanFile):
         tc.variables["MOD_MIKMOD"] = self.options.mikmod
         tc.variables["MOD_MODPLUG"] = self.options.modplug
         tc.variables["MID_FLUIDSYNTH"] = self.options.fluidsynth
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["MID_TINYMIDI"] = self.options.tinymidi
             tc.variables["MID_NATIVE"] = False
         else:

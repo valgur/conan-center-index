@@ -90,7 +90,7 @@ class IMGUIConan(ConanFile):
         self.conf_info.define("user.imgui:with_docking", bool(self._match_docking_branch()))
 
         self.cpp_info.libs = ["imgui"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("imm32")

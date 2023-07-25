@@ -155,7 +155,7 @@ class GoogleAPIS(ConanFile):
             deactivate_library("//google/storagetransfer/v1:storagetransfer_cc_proto")
         #  - Inconvenient macro names from /usr/include/math.h : DOMAIN
         if (
-            self.settings.os == "Linux"
+            self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "clang"
             and self.settings.compiler.libcxx == "libc++"
         ) or is_msvc(self):

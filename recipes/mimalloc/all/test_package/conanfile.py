@@ -54,7 +54,7 @@ class TestPackageConan(ConanFile):
         env = Environment()
         env.define("MIMALLOC_VERBOSE", "1")
         if self.dependencies["mimalloc"].options.get_safe("inject"):
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 env.define("LD_PRELOAD", f"{self._lib_name}.so")
             elif is_apple_os(self):
                 env.define("DYLD_FORCE_FLAT_NAMESPACE", "1")

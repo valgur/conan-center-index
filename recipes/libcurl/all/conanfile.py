@@ -503,7 +503,7 @@ class LibcurlConan(ConanFile):
 
         # Cross building flags
         if cross_building(self):
-            if self.settings.os == "Linux" and "arm" in self.settings.arch:
+            if self.settings.os in ["Linux", "FreeBSD"] and "arm" in self.settings.arch:
                 tc.configure_args.append(f"--host={self._get_linux_arm_host()}")
             elif self.settings.os == "iOS":
                 tc.configure_args.append("--enable-threaded-resolver")
@@ -538,7 +538,7 @@ class LibcurlConan(ConanFile):
 
     def _get_linux_arm_host(self):
         arch = None
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             arch = "arm-linux-gnu"
             # aarch64 could be added by user
             if "aarch64" in self.settings.arch:

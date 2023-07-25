@@ -122,7 +122,7 @@ class KtxConan(ConanFile):
                 self.cpp_info.components["libktx"].system_libs.append(libcxx)
         if self.settings.os == "Windows":
             self.cpp_info.components["libktx"].defines.append("BASISU_NO_ITERATOR_DEBUG_LEVEL")
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libktx"].system_libs.extend(["m", "dl", "pthread"])
 
         # TODO: to remove in conan v2

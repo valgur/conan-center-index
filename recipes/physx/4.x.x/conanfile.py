@@ -276,7 +276,7 @@ class PhysXConan(ConanFile):
         physx_build_type = self._get_physx_build_type()
         compiler_version = self.settings.compiler.version
 
-        if self.settings.os == "Linux" and self.settings.arch == "x86_64":
+        if self.settings.os in ["Linux", "FreeBSD"] and self.settings.arch == "x86_64":
             package_dst_lib_dir = os.path.join(self.package_folder, "lib")
             physx_gpu_dir = os.path.join(external_bin_dir, "linux.clang", physx_build_type)
             copy(self, pattern="*PhysXGpu*.so", dst=package_dst_lib_dir, src=physx_gpu_dir, keep_path=False)
@@ -324,7 +324,7 @@ class PhysXConan(ConanFile):
             "cmake_target_name", "PhysX::PhysXFoundation"
         )
         self.cpp_info.components["physxfoundation"].libs = ["PhysXFoundation"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["physxfoundation"].system_libs = ["m", "pthread", "rt"]
         elif self.settings.os == "Android":
             self.cpp_info.components["physxfoundation"].system_libs = ["log"]
@@ -334,7 +334,7 @@ class PhysXConan(ConanFile):
         # PhysXCommon
         self.cpp_info.components["physxcommon"].set_property("cmake_target_name", "PhysX::PhysXCommon")
         self.cpp_info.components["physxcommon"].libs = ["PhysXCommon"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["physxcommon"].system_libs = ["m"]
         self.cpp_info.components["physxcommon"].requires = ["physxfoundation"]
 
@@ -346,7 +346,7 @@ class PhysXConan(ConanFile):
         # PhysX
         self.cpp_info.components["physxmain"].set_property("cmake_target_name", "PhysX::PhysX")
         self.cpp_info.components["physxmain"].libs = ["PhysX"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["physxmain"].system_libs = ["m"]
             if self.settings.arch == "x86_64":
                 self.cpp_info.components["physxmain"].system_libs.append("dl")
@@ -372,7 +372,7 @@ class PhysXConan(ConanFile):
         # PhysXCooking
         self.cpp_info.components["physxcooking"].set_property("cmake_target_name", "PhysX::PhysXCooking")
         self.cpp_info.components["physxcooking"].libs = ["PhysXCooking"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["physxcooking"].system_libs = ["m"]
         self.cpp_info.components["physxcooking"].requires = ["physxfoundation", "physxcommon"]
 

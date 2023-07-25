@@ -42,7 +42,7 @@ class LibNlConan(ConanFile):
         self.tool_requires("flex/2.6.4")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Libnl is only supported on Linux")
 
     def build_requirements(self):

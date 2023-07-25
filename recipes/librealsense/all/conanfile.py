@@ -140,7 +140,7 @@ class LibrealsenseConan(ConanFile):
         self.cpp_info.components["realsense2"].requires = ["libusb::libusb"]
         if not self.options.shared:
             self.cpp_info.components["realsense2"].requires.extend(["realsense-file", "fw"])
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["realsense2"].system_libs.extend(["m", "pthread", "udev"])
         elif self.settings.os == "Windows":
             self.cpp_info.components["realsense2"].system_libs.extend(

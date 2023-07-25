@@ -63,7 +63,7 @@ class LiburingConan(ConanFile):
     def validate(self):
         # FIXME: use kernel version of build/host machine.
         # kernel version should be encoded in profile
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("liburing is supported only on linux")
 
     def source(self):

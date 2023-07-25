@@ -77,7 +77,7 @@ class XnnpackConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         if self.settings.arch == "armv8":
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 tc.variables["CONAN_XNNPACK_SYSTEM_PROCESSOR"] = "aarch64"
             else:
                 # Not defined by Conan for Apple Silicon. See https://github.com/conan-io/conan/pull/8026

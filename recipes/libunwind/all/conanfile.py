@@ -119,7 +119,7 @@ class LiunwindConan(ConanFile):
             self.cpp_info.components["unwind"].requires.append("xz_utils::xz_utils")
         if self.options.zlibdebuginfo:
             self.cpp_info.components["unwind"].requires.append("zlib::zlib")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["unwind"].system_libs.append("pthread")
         self.cpp_info.components["generic"].set_property("pkg_config_name", "libunwind-generic")
         self.cpp_info.components["generic"].libs = ["unwind-generic"]

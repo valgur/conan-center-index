@@ -49,7 +49,7 @@ class LibPcapConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("enable_libusb")
 
     def configure(self):
@@ -123,9 +123,9 @@ class LibPcapConan(ConanFile):
                 ]
             )
             if cross_building(self):
-                target_os = "linux" if self.settings.os == "Linux" else "null"
+                target_os = "linux" if self.settings.os in ["Linux", "FreeBSD"] else "null"
                 tc.configure_args.append(f"--with-pcap={target_os}")
-            elif "arm" in self.settings.arch and self.settings.os == "Linux":
+            elif "arm" in self.settings.arch and self.settings.os in ["Linux", "FreeBSD"]:
                 tc.configure_args.append("--host=arm-linux")
             tc.generate()
 

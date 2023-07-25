@@ -135,7 +135,7 @@ class AtSpi2CoreConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
 
     def build_requirements(self):

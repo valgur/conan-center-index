@@ -119,7 +119,7 @@ class TkConan(ConanFile):
 
     def requirements(self):
         self.requires("tcl/{}".format(self.version))
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("fontconfig/2.13.93")
             self.requires("xorg/system")
 
@@ -251,7 +251,7 @@ class TkConan(ConanFile):
             "--enable-threads",
             "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),
             "--enable-64bit={}".format(yes_no(self.settings.arch == "x86_64")),
-            "--with-x={}".format(yes_no(self.settings.os == "Linux")),
+            "--with-x={}".format(yes_no(self.settings.os in ["Linux", "FreeBSD"])),
             "--enable-aqua={}".format(yes_no(is_apple_os(self))),
         ]
 

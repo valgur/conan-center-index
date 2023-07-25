@@ -168,7 +168,7 @@ class QtConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.opengl = "dynamic"
             del self.options.with_gssapi
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.qtwayland = False
 
         for m in self._submodules:
@@ -251,7 +251,7 @@ class QtConan(ConanFile):
 
             if not (self.options.gui and self.options.qtdeclarative and self.options.qtwebchannel):
                 raise ConanInvalidConfiguration("option qt:qtwebengine requires also qt:gui, qt:qtdeclarative and qt:qtwebchannel")
-            if not self.options.with_dbus and self.settings.os == "Linux":
+            if not self.options.with_dbus and self.settings.os in ["Linux", "FreeBSD"]:
                 raise ConanInvalidConfiguration("option qt:webengine requires also qt:with_dbus on Linux")
 
             if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
@@ -348,7 +348,7 @@ class QtConan(ConanFile):
             self.requires("wayland/1.22.0")
         if self.options.with_brotli:
             self.requires("brotli/1.0.9")
-        if self.options.get_safe("qtwebengine") and self.settings.os == "Linux":
+        if self.options.get_safe("qtwebengine") and self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("expat/2.5.0")
             self.requires("opus/1.3.1")
             self.requires("xorg-proto/2022.2")
@@ -628,7 +628,7 @@ class QtConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "qtbase", "src", "gui", "configure.cmake"), "FONTCONFIG_FOUND", "Fontconfig_FOUND")
 
     def _xplatform(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.settings.compiler == "gcc":
                 return {"x86": "linux-g++-32",
                         "armv6": "linux-arm-gnueabi-g++",
@@ -1205,7 +1205,7 @@ class QtConan(ConanFile):
                 _create_plugin("QGstreamerAudioDecoderServicePlugin", "gstaudiodecoder", "mediaservice", [])
                 _create_plugin("QGstreamerCaptureServicePlugin", "gstmediacapture", "mediaservice", [])
                 _create_plugin("QGstreamerPlayerServicePlugin", "gstmediaplayer", "mediaservice", [])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 _create_plugin("CameraBinServicePlugin", "gstcamerabin", "mediaservice", [])
                 _create_plugin("QAlsaPlugin", "qtaudio_alsa", "audio", [])
             if self.settings.os == "Windows":
@@ -1227,7 +1227,7 @@ class QtConan(ConanFile):
             _create_module("Sensors", [])
             _create_plugin("genericSensorPlugin", "qtsensors_generic", "sensors", [])
             _create_plugin("IIOSensorProxySensorPlugin", "qtsensors_iio-sensor-proxy", "sensors", [])
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 _create_plugin("LinuxSensorPlugin", "qtsensors_linuxsys", "sensors", [])
             _create_plugin("QtSensorGesturePlugin", "qtsensorgestures_plugin", "sensorgestures", [])
             _create_plugin("QShakeSensorGesturePlugin", "qtsensorgestures_shakeplugin", "sensorgestures", [])
@@ -1257,7 +1257,7 @@ class QtConan(ConanFile):
             webenginereqs = ["Gui", "Quick", "WebChannel"]
             if self.options.get_safe("qtpositioning"):
                 webenginereqs.append("Positioning")
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 webenginereqs.extend(["expat::expat", "opus::libopus", "xorg-proto::xorg-proto", "libxshmfence::libxshmfence", \
                                       "nss::nss", "libdrm::libdrm"])
             _create_module("WebEngineCore", webenginereqs)

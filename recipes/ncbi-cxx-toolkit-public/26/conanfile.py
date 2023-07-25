@@ -198,7 +198,7 @@ class NcbiCxxToolkit(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.components["ORIGLIBS"].system_libs = ["ws2_32", "dbghelp"]
             self.cpp_info.components["NETWORKLIBS"].system_libs = []
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ORIGLIBS"].system_libs = ["dl", "rt", "m", "pthread"]
             self.cpp_info.components["NETWORKLIBS"].system_libs = ["resolv"]
         elif is_apple_os(self):

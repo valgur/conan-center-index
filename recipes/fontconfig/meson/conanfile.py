@@ -59,7 +59,7 @@ class FontconfigConan(ConanFile):
     def requirements(self):
         self.requires("freetype/2.13.0")
         self.requires("expat/2.5.0")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libuuid/1.0.3")
 
     def build_requirements(self):

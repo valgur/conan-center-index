@@ -56,7 +56,7 @@ class GLibConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_mount")
             self.options.rm_safe("with_selinux")
         if is_msvc(self):
@@ -84,7 +84,7 @@ class GLibConan(ConanFile):
             self.requires("libmount/2.36.2")
         if self.options.get_safe("with_selinux"):
             self.requires("libselinux/3.3")
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             # for Linux, gettext is provided by libc
             self.requires("libgettext/0.21", transitive_headers=True, transitive_libs=True)
 
@@ -129,7 +129,7 @@ class GLibConan(ConanFile):
                 os.path.join(self.source_folder, "gio", "meson.build"),
             ]:
                 replace_in_file(self, filename, "subdir('tests')", "#subdir('tests')")
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             # allow to find gettext
             replace_in_file(
                 self,
@@ -273,7 +273,7 @@ class GLibConan(ConanFile):
         else:
             self.cpp_info.components["glib-2.0"].requires.append("pcre::pcre")
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["gio-2.0"].system_libs.append("resolv")
         else:
             self.cpp_info.components["glib-2.0"].requires.append("libgettext::libgettext")

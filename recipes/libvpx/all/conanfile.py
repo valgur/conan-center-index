@@ -161,7 +161,7 @@ class LibVPXConan(ConanFile):
             else:
                 # Unrecognized toolchain 'arm64-darwin11-gcc', see list of toolchains in ./configure --help
                 os_name = "darwin"
-        elif host_os == "Linux":
+        elif host_os in ["Linux", "FreeBSD"]:
             os_name = "linux"
         elif host_os == "Solaris":
             os_name = "solaris"

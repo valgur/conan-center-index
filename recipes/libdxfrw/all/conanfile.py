@@ -77,7 +77,7 @@ class LibdxfrwConan(ConanFile):
 
         self.cpp_info.set_property("pkg_config_name", "libdxfrw")
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
 
         bin_path = os.path.join(self.package_folder, "bin")

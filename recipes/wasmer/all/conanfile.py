@@ -62,7 +62,7 @@ class WasmerConan(ConanFile):
                 f"Shared Windows build of {self.ref} are non-working atm (no import libraries are available)"
             )
 
-        if self.settings.os == "Linux" and self.options.shared and "2.3.0" <= Version(self.version):
+        if self.settings.os in ["Linux", "FreeBSD"] and self.options.shared and "2.3.0" <= Version(self.version):
             raise ConanInvalidConfiguration(
                 f"Shared Linux build of {self.ref} are not working. It requires glibc >= 2.25"
             )
@@ -104,7 +104,7 @@ class WasmerConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["wasmer"]
         if not self.options.shared:
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs = ["pthread", "dl", "m"]
                 if Version(self.version) >= "2.3.0":
                     self.cpp_info.system_libs.append("rt")

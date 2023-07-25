@@ -35,7 +35,7 @@ class BreakpadConan(ConanFile):
         self.requires("linux-syscall-support/cci.20200813", transitive_headers=True)
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
                 "Breakpad can only be built on Linux. For other OSs check sentry-breakpad"
             )

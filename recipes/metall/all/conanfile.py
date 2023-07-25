@@ -92,7 +92,7 @@ class MetallConan(ConanFile):
             self.cpp_info.system_libs.append("pthread")
 
         if self.settings.compiler == "gcc" or (
-            self.settings.os == "Linux" and self.settings.compiler == "clang"
+            self.settings.os in ["Linux", "FreeBSD"] and self.settings.compiler == "clang"
         ):
             if Version(self.settings.compiler.version) < "9":
                 self.cpp_info.system_libs += ["stdc++fs"]

@@ -79,7 +79,7 @@ class MsixConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.settings.os == "Linux" and not self.options.skip_bundles:
+        if self.settings.os in ["Linux", "FreeBSD"] and not self.options.skip_bundles:
             self.requires("icu/73.2")
         if self.options.crypto_lib == "openssl":
             self.requires("openssl/[>=1.1 <4]")
@@ -105,7 +105,7 @@ class MsixConan(ConanFile):
             )
 
     def validate(self):
-        if self.settings.os == "Linux" and self.settings.compiler != "clang":
+        if self.settings.os in ["Linux", "FreeBSD"] and self.settings.compiler != "clang":
             raise ConanInvalidConfiguration("Only clang is supported on Linux")
         if self.settings.os != "Android" and self.options.xml_parser == "javaxml":
             raise ConanInvalidConfiguration("javaxml is supported only for Android")
@@ -137,7 +137,7 @@ class MsixConan(ConanFile):
         tc = CMakeToolchain(self)
         if self.settings.os == "Android":
             tc.variables["AOSP"] = True
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["LINUX"] = True
         if is_apple_os(self):
             tc.variables["MACOS"] = True

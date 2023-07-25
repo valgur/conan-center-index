@@ -69,7 +69,7 @@ class LibnetConan(ConanFile):
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--disable-doxygen-doc")
         if cross_building(self):
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 link_layer = "linux"
             elif self.settings.os == "Windows":
                 link_layer = "win32"

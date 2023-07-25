@@ -85,7 +85,7 @@ class UsocketsConan(ConanFile):
         if self.options.eventloop == "syscall" and self.settings.os == "Windows":
             raise ConanInvalidConfiguration("syscall is not supported on Windows")
 
-        if self.options.eventloop == "gcd" and (self.settings.os != "Linux" or self.settings.compiler != "clang"):
+        if self.options.eventloop == "gcd" and (self.settings.os not in ["Linux", "FreeBSD"] or self.settings.compiler != "clang"):
             raise ConanInvalidConfiguration("eventloop=gcd is only supported on Linux with clang")
 
         if Version(self.version) < "0.8.0" and self.options.eventloop not in ("syscall", "libuv", "gcd"):

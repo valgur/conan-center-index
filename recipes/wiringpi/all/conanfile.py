@@ -43,7 +43,7 @@ class WiringpiConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.ref} only works for Linux")
 
     def source(self):
@@ -77,5 +77,5 @@ class WiringpiConan(ConanFile):
             self.cpp_info.libs.append("wiringPiDevLib")
         if self.options.wpi_extensions:
             self.cpp_info.libs.append("crypt")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m", "rt"]

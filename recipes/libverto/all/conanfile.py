@@ -61,7 +61,7 @@ class LibVertoConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("pthread")
 
     def configure(self):
@@ -163,7 +163,7 @@ class LibVertoConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["verto"].set_property("pkg_config_name", "libverto")
         self.cpp_info.components["verto"].libs = ["verto"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["verto"].system_libs.append("dl")
             if self.options.pthread:
                 self.cpp_info.components["verto"].system_libs.append("pthread")

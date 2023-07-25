@@ -87,7 +87,7 @@ class OpenMPIConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["mpi", "open-rte", "open-pal"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "pthread", "rt", "util"]
 
         self.output.info(f"Creating MPI_HOME environment variable: {self.package_folder}")

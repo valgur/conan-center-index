@@ -147,7 +147,7 @@ class OpenTelemetryCppConan(ConanFile):
             check_min_cppstd(self, self._minimum_cpp_standard)
         check_min_vs(self, "192")
 
-        if self.settings.os != "Linux" and self.options.shared:
+        if self.settings.os not in ["Linux", "FreeBSD"] and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} supports building shared libraries only on Linux")
 
         if self.options.get_safe("with_otlp_grpc") and not self.options.with_otlp:
@@ -220,7 +220,7 @@ class OpenTelemetryCppConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             env = Environment()
             if self.dependencies["grpc"].options.shared:
                 env.append_path(

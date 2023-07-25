@@ -338,7 +338,7 @@ class OpenSSLConan(ConanFile):
         return ancestor
 
     def _get_default_openssl_dir(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             return "/etc/ssl"
         return os.path.join(self.package_folder, "res")
 
@@ -660,7 +660,7 @@ class OpenSSLConan(ConanFile):
             self.cpp_info.components["crypto"].system_libs.extend(
                 ["crypt32", "ws2_32", "advapi32", "user32", "bcrypt"]
             )
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["crypto"].system_libs.extend(["dl", "rt"])
             self.cpp_info.components["ssl"].system_libs.append("dl")
             if not self.options.no_threads:

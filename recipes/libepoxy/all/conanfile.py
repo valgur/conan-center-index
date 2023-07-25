@@ -43,7 +43,7 @@ class EpoxyConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
             self.options.shared = True
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("glx")
             self.options.rm_safe("egl")
             self.options.rm_safe("x11")
@@ -59,7 +59,7 @@ class EpoxyConan(ConanFile):
 
     def requirements(self):
         self.requires("opengl/system")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.x11:
                 self.requires("xorg/system")
             if self.options.egl:
@@ -105,7 +105,7 @@ class EpoxyConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["epoxy"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl"]
         self.cpp_info.set_property("pkg_config_name", "epoxy")
         pkgconfig_variables = {

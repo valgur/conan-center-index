@@ -38,7 +38,7 @@ class BenchmarkConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux" or Version(self.version) < "1.5.4":
+        if self.settings.os not in ["Linux", "FreeBSD"] or Version(self.version) < "1.5.4":
             self.options.rm_safe("enable_libpfm")
 
     def configure(self):

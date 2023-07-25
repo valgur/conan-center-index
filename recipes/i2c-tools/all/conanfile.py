@@ -43,7 +43,7 @@ class I2cConan(ConanFile):
         self.requires("linux-headers-generic/5.14.9")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("i2c-tools only support Linux")
 
     def source(self):

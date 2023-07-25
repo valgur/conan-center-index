@@ -74,7 +74,7 @@ class DiligentFxConan(ConanFile):
             return "PLATFORM_WIN32"
         elif is_apple_os(self):
             return "PLATFORM_MACOS"
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             return "PLATFORM_LINUX"
         elif self.settings.os == "Android":
             return "PLATFORM_ANDROID"

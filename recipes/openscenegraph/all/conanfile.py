@@ -115,7 +115,7 @@ class OpenSceneGraphConanFile(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.enable_windowing_system and self.settings.os == "Linux":
+        if self.options.enable_windowing_system and self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
         self.requires("opengl/system")
 
@@ -320,19 +320,19 @@ class OpenSceneGraphConanFile(ConanFile):
         library = self.cpp_info.components["OpenThreads"]
         library.libs = ["OpenThreads" + postfix]
         library.set_property("pkg_config_name", "openthreads")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             library.system_libs = ["pthread"]
 
         library = setup_library("osg")
         library.requires = ["OpenThreads", "opengl::opengl"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             library.system_libs = ["m", "rt", "dl"]
         if not self.options.shared:
             library.defines.append("OSG_LIBRARY_STATIC")
 
         library = setup_library("osgDB")
         library.requires = ["osg", "osgUtil", "OpenThreads"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             library.system_libs = ["dl"]
         elif is_apple_os(self):
             library.frameworks = ["Carbon", "Cocoa"]
@@ -350,7 +350,7 @@ class OpenSceneGraphConanFile(ConanFile):
         library = setup_library("osgViewer")
         library.requires = ["osgGA", "osgText", "osgDB", "osgUtil", "osg"]
         if self.options.enable_windowing_system:
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 library.requires.append("xorg::xorg")
             elif is_apple_os(self):
                 library.frameworks = ["Cocoa"]

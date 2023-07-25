@@ -80,7 +80,7 @@ class Stlab(ConanFile):
 
     def _validate_task_system(self):
         if self.options.task_system == "libdispatch":
-            if self.settings.os == "Linux" and self.settings.compiler != "clang":
+            if self.settings.os in ["Linux", "FreeBSD"] and self.settings.compiler != "clang":
                 raise ConanInvalidConfiguration(
                     f"{self.ref} task_system=libdispatch needs Clang compiler when using OS:"
                     f" {self.settings.os}. Use Clang compiler or switch to task_system=portable"
@@ -98,7 +98,7 @@ class Stlab(ConanFile):
         if any(
             [
                 self.options.thread_system == "pthread-apple" and not is_apple_os(self),
-                self.options.thread_system == "pthread" and self.settings.os != "Linux",
+                self.options.thread_system == "pthread" and self.settings.os not in ["Linux", "FreeBSD"],
                 self.options.thread_system == "win32" and self.settings.os != "Windows",
                 self.options.thread_system == "pthread-emscripten" and self.settings.os != "Emscripten",
             ]
@@ -210,5 +210,5 @@ class Stlab(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.defines = ["NOMINMAX"]
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]

@@ -47,7 +47,7 @@ class OpenldapConan(ConanFile):
             self.requires("cyrus-sasl/2.1.27")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.name} is only supported on Linux")
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)

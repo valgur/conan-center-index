@@ -24,7 +24,7 @@ class LibUDEVConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libudev is only supported on Linux.")
 
     def system_requirements(self):

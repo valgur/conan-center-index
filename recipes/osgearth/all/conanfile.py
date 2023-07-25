@@ -473,5 +473,5 @@ class OsgearthConan(ConanFile):
                     "bin/osgPlugins-{}".format(self.dependencies["openscenegraph"].cpp_info.version),
                 )
             )
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))

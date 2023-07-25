@@ -61,7 +61,7 @@ class XercesCConan(ConanFile):
             self.options.network_accessor = "cfurl"
             self.options.transcoder = "macosunicodeconverter"
             self.options.mutex_manager = "posix"
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.options.mutex_manager = "posix"
 
     def configure(self):

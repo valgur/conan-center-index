@@ -136,7 +136,7 @@ class LibGphoto2(ConanFile):
         self.cpp_info.libs = ["gphoto2", "gphoto2_port"]
         self.cpp_info.includedirs.append(os.path.join("include", "gphoto2"))
         self.cpp_info.resdirs = ["res"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl"]
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs = ["m"]

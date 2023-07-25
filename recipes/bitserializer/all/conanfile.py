@@ -175,7 +175,7 @@ class BitserializerConan(ConanFile):
         self.cpp_info.components["bitserializer-core"].bindirs = []
         self.cpp_info.components["bitserializer-core"].libdirs = []
         if self.settings.compiler == "gcc" or (
-            self.settings.os == "Linux" and self.settings.compiler == "clang"
+            self.settings.os in ["Linux", "FreeBSD"] and self.settings.compiler == "clang"
         ):
             if Version(self.settings.compiler.version) < 9:
                 self.cpp_info.components["bitserializer-core"].system_libs = ["stdc++fs"]

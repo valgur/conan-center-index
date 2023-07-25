@@ -143,7 +143,7 @@ class BackwardCppConan(ConanFile):
         self.cpp_info.defines.append(f"BACKWARD_HAS_PDB_SYMBOL={int(self.settings.os == 'Windows')}")
 
         self.cpp_info.libs = ["backward"]
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m"])
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["psapi", "dbghelp"])

@@ -74,7 +74,7 @@ class LibUSBConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.enable_udev:
                 self.requires("libudev/system")
 

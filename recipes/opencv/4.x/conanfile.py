@@ -137,7 +137,7 @@ class OpenCVConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_gtk")
             self.options.rm_safe("with_v4l")
         if self.settings.os != "Windows":
@@ -1393,7 +1393,7 @@ class OpenCVConan(ConanFile):
                         os.path.join("include", "opencv4")
                     )
                 self.cpp_info.components[conan_component].requires = requires
-                if self.settings.os == "Linux":
+                if self.settings.os in ["Linux", "FreeBSD"]:
                     self.cpp_info.components[conan_component].system_libs = ["dl", "m", "pthread", "rt"]
 
                 if self.settings.os == "Android":

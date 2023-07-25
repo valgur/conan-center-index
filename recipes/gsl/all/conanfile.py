@@ -68,7 +68,7 @@ class GslConan(ConanFile):
             tc.extra_defines.extend(["HAVE_WIN_IEEE_INTERFACE", "WIN32"])
             if self.options.shared:
                 tc.extra_defines.append("GSL_DLL")
-        if self.settings.os == "Linux" and "x86" in self.settings.arch:
+        if self.settings.os in ["Linux", "FreeBSD"] and "x86" in self.settings.arch:
             tc.extra_defines.append("HAVE_GNUX86_IEEE_INTERFACE")
         if is_msvc(self):
             tc.configure_args.extend(

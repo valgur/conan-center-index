@@ -29,7 +29,7 @@ class TestPackageConan(ConanFile):
     @contextmanager
     def _add_ld_search_path(self):
         env = {}
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             env["LD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]
         elif is_apple_os(self):
             env["DYLD_LIBRARY_PATH"] = [os.path.join(os.getcwd(), "build")]

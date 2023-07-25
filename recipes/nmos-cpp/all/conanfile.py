@@ -42,7 +42,7 @@ class NmosCppConan(ConanFile):
 
         if is_apple_os(self):
             self.options.rm_safe("with_dnssd")
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.options.with_dnssd = "avahi"
         elif self.settings.os == "Windows":
             self.options.with_dnssd = "mdnsresponder"

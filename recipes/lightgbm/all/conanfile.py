@@ -124,7 +124,7 @@ class LightGBMConan(ConanFile):
         self.cpp_info.libs = ["lib_lightgbm"] if is_msvc(self) else ["_lightgbm"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
         if not self.options.shared and self.options.with_openmp:
             if is_msvc(self):

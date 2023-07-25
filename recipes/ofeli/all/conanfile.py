@@ -47,7 +47,7 @@ class OfeliConan(ConanFile):
         return os.path.join(self.source_folder, "doc")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Ofeli is just supported for Linux")
         if self.settings.compiler != "gcc":
             raise ConanInvalidConfiguration("Ofeli is just supported for GCC")

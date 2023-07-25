@@ -51,7 +51,7 @@ class DacapClipConan(ConanFile):
     def requirements(self):
         if self.options.get_safe("with_png", False):
             self.requires("libpng/1.6.37")
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
 
     def validate(self):

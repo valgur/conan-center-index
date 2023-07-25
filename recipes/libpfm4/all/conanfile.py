@@ -39,7 +39,7 @@ class Libpfm4Conan(ConanFile):
     def validate(self):
         # The library doesn't really make much sense without perf_events API
         # and currently does not compile on modern Mac OS X && Windows
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("This library is Linux only")
 
     def source(self):

@@ -36,7 +36,7 @@ class Libnetfilter_queueConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libnetfilter_queue is only supported on Linux")
         if self.options.shared:
             self.options.rm_safe("fPIC")

@@ -154,7 +154,7 @@ class EmbreeConan(ConanFile):
         check_min_vs(self, 191)
 
         if (
-            self.settings.os == "Linux"
+            self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "clang"
             and self.settings.compiler.libcxx == "libc++"
         ):

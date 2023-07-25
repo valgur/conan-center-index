@@ -45,7 +45,7 @@ class TensorpipeConan(ConanFile):
     }
 
     def config_options(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("ibv")
             self.options.rm_safe("shm")
             self.options.rm_safe("cma")

@@ -46,7 +46,7 @@ class LibbpfConan(ConanFile):
         self.requires("zlib/1.2.13")
 
     def validate(self):
-        if self.settings.os != "Linux":
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.ref} is only available on Linux")
 
     def build_requirements(self):

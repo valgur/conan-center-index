@@ -298,5 +298,5 @@ class XorgConan(ConanFile):
                 ),
             )
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["sm"].requires.append("uuid")

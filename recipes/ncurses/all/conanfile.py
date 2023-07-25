@@ -362,7 +362,7 @@ class NCursesConan(ConanFile):
         )
         if not self.options.shared:
             self.cpp_info.components["libcurses"].defines = ["NCURSES_STATIC"]
-            if self.settings.os == "Linux":
+            if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libcurses"].system_libs = ["dl", "m"]
         if self._with_tinfo:
             self.cpp_info.components["libcurses"].requires.append("tinfo")

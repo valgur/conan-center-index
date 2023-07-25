@@ -68,7 +68,7 @@ class SdbusCppConan(ConanFile):
         self.requires("libsystemd/253.3")
 
     def validate(self):
-        if self.info.settings.os != "Linux":
+        if self.info.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.name} only supports Linux")
 
         if self.info.settings.compiler.get_safe("cppstd"):
