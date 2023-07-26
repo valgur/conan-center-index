@@ -3,6 +3,7 @@ import shutil
 from contextlib import contextmanager
 
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout
 from conan.tools.files import chdir
@@ -36,7 +37,7 @@ class TestPackageConan(ConanFile):
     def _add_ld_search_path(self, extra_path):
         if self.settings.os in ["Linux", "FreeBSD"]:
             var = "LD_LIBRARY_PATH"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             var = "DYLD_LIBRARY_PATH"
         else:
             yield
