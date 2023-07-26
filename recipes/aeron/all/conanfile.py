@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -68,7 +69,7 @@ class AeronConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
+        if is_apple_os(self) and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("This platform (os=Macos arch=armv8) is not yet supported by this recipe")
 
     def build_requirements(self):
