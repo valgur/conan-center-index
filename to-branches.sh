@@ -13,6 +13,7 @@ git checkout mass-migration
 
 # Copy recipes to $migrated_root
 rm -rf "$migrated_root"
+mkdir -p "$migrated_root"
 cp recipes -rf "$migrated_root"
 
 git switch master
