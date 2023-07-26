@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir, apply_conandata_patches, export_conandata_patches
 from conan.tools.build import check_min_cppstd
@@ -88,7 +89,7 @@ class ArmadilloConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             # Macos will default to Accelerate framework
             self.options.use_blas = "framework_accelerate"
             self.options.use_lapack = "framework_accelerate"
@@ -107,7 +108,7 @@ class ArmadilloConan(ConanFile):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
 
-        if self.settings.os != "Macos" and (
+        if not is_apple_os(self) and (
             self.options.use_blas == "framework_accelerate"
             or self.options.use_lapack == "framework_accelerate"
         ):
@@ -211,7 +212,7 @@ class ArmadilloConan(ConanFile):
         tc.variables["ARMA_USE_ACCELERATE"] = (
             self.options.use_blas == "framework_accelerate"
             or self.options.use_lapack == "framework_accelerate"
-        ) and self.settings.os == "Macos"
+        ) and is_apple_os(self)
         tc.variables["DETECT_HDF5"] = self.options.use_hdf5
         tc.variables["USE_OPENBLAS"] = (self.options.use_blas == "openblas")
         tc.variables["USE_MKL"] = self.options.use_blas == "intel_mkl" and self.options.use_lapack == "intel_mkl"
@@ -223,8 +224,8 @@ class ArmadilloConan(ConanFile):
         tc.variables["USE_SYSTEM_SUPERLU"] = self.options.use_superlu
         tc.variables["USE_SYSTEM_OPENBLAS"] = False
         tc.variables["USE_SYSTEM_FLEXIBLAS"] = self.options.use_blas == "system_flexiblas"
-        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = self.options.use_blas == "system_flexiblas" and self.settings.os == "Linux"
-        tc.variables["ALLOW_OPENBLAS_MACOS"] = self.options.use_blas == "openblas" and self.settings.os == "Macos"
+        tc.variables["ALLOW_FLEXIBLAS_LINUX"] = self.options.use_blas == "system_flexiblas" and self.settings.os in ["Linux", "FreeBSD"]
+        tc.variables["ALLOW_OPENBLAS_MACOS"] = self.options.use_blas == "openblas" and is_apple_os(self)
         tc.variables["OPENBLAS_PROVIDES_LAPACK"] = self.options.use_lapack == "openblas"
         tc.variables["ALLOW_BLAS_LAPACK_MACOS"] = self.options.use_blas != "framework_accelerate"
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
