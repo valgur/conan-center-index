@@ -16,7 +16,8 @@ rm -rf "$migrated_root"
 mkdir -p "$migrated_root"
 cp recipes -rf "$migrated_root"
 
-git switch master
+git branch -D master || true
+git checkout -b master
 git reset --hard upstream/master
 for recipe_dir in recipes/*; do
     recipe=$(basename $recipe_dir)
