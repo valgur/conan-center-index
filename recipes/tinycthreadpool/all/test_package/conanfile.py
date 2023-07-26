@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class ThreadpoolTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
 
     def layout(self):
         cmake_layout(self)

@@ -29,7 +29,7 @@ class FoxgloveSchemasProtobufConan(ConanFile):
     }
 
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps"
+    generators = "CMakeDeps", "VirtualRunEnv"
     package_type = "library"
 
     @property

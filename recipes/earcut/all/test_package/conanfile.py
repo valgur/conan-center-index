@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class EarcutTestPackage(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
 
     def build(self):

@@ -7,7 +7,7 @@ from conan.tools.build import can_run
 
 class wiringPiTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
 
     def requirements(self):

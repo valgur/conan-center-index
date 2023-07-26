@@ -25,7 +25,7 @@ class TreeSitterConan(ConanFile):
         "shared": False,
     }
 
-    generators = "CMakeToolchain"
+    generators = "CMakeToolchain", "VirtualRunEnv"
     exports_sources = "CMakeLists.txt"
 
     def config_options(self):

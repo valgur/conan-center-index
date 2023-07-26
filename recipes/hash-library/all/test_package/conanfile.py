@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class HashLibraryTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
     test_type = "explicit"
 
     def requirements(self):

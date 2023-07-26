@@ -9,7 +9,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps"
+    generators = "CMakeDeps", "VirtualRunEnv"
     test_type = "explicit"
 
     def layout(self):

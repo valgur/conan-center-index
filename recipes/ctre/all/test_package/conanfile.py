@@ -7,7 +7,7 @@ from conan.tools.cmake import cmake_layout
 
 class CtreTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps"
+    generators = "CMakeDeps", "VirtualRunEnv"
     test_type = "explicit"
 
     def requirements(self):
