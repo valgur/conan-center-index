@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc
@@ -34,7 +35,7 @@ class ArchicadApidevkitConan(ConanFile):
         if is_msvc(self):
             # Approximate requirement for toolset >= v142
             check_min_vs(self, "192")
-        if not self.info.settings.os in ("Macos", "Windows"):
+        if not (self.settings.os == "Windows" or is_apple_os(self)):
             raise ConanInvalidConfiguration(
                 f"{self.ref} is not supported by the OS {self.info.settings.os}")
         if not str(self.settings.arch) in ("x86_64"):
@@ -59,7 +60,7 @@ class ArchicadApidevkitConan(ConanFile):
         # These are dependencies of third party vendored libraries
         self.cpp_info.system_libs = [
             "WinMM", "MSImg32", "WS2_32", "USP10", "DNSApi"]
-        if self.settings.os == "Macos":
+        if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreText", "CoreFoundation", "CoreServices",
                                         "ApplicationServices", "Carbon", "CoreGraphics", "AppKit", "Foundation"]
         else:
