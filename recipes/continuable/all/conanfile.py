@@ -113,7 +113,7 @@ class ContinuableConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        if self.settings.os == "Linux":
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
         if self.options.no_exceptions:
             self.cpp_info.defines.append("CONTINUABLE_WITH_NO_EXCEPTIONS")
