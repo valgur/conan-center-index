@@ -308,13 +308,15 @@ class GdalConan(ConanFile):
         if self.options.with_hdf4:
             self.requires("hdf4/4.2.15")
         if self.options.with_hdf5:
-            self.requires("hdf5/1.14.1")
+            # hdf5 v1.14+ is not compatible
+            self.requires("hdf5/1.13.1", force=True)
         if self.options.with_kea:
             self.requires("kealib/1.4.14")
         if self.options.with_netcdf:
             self.requires("netcdf/4.8.1")
         if self.options.with_jasper:
-            self.requires("jasper/4.0.0")
+            # jasper v3+ is not compatible
+            self.requires("jasper/2.0.33")
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.0")
         # if self.options.with_fgdb:
