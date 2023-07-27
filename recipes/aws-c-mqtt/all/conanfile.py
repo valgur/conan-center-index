@@ -86,8 +86,8 @@ class AwsCMQTT(ConanFile):
 
         self.cpp_info.components["aws-c-mqtt-lib"].libs = ["aws-c-mqtt"]
         self.cpp_info.components["aws-c-mqtt-lib"].requires = [
-            "aws-c-common::aws-c-common-lib",
-            "aws-c-cal::aws-c-cal-lib",
-            "aws-c-io::aws-c-io-lib",
-            "aws-c-http::aws-c-http-lib"
+            "aws-c-common::aws-c-common",
+            "aws-c-cal::aws-c-cal",
+            "aws-c-io::aws-c-io",
+            "aws-c-http::aws-c-http",
         ]
