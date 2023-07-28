@@ -4,6 +4,7 @@ from conan import ConanFile, tools
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
@@ -31,7 +32,7 @@ class Crc_CppConan(ConanFile):
     def _supported_compiler(self):
         compiler = str(self.settings.compiler)
         version = Version(self.settings.compiler.version)
-        if compiler == "Visual Studio" and version >= "15":
+        if check_min_vs(self, 191, raise_invalid=False):
             return True
         elif compiler == "gcc" and version >= "9":
             return True

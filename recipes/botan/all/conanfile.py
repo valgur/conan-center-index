@@ -507,7 +507,7 @@ class BotanConan(ConanFile):
         compiler = self.settings.compiler
         version = Version(self.settings.compiler.version)
 
-        if compiler == "Visual Studio" and version < "14":
+        if check_min_vs(self, 190, raise_invalid=False):
             raise ConanInvalidConfiguration("Botan doesn't support MSVC < 14")
 
         elif compiler == "gcc" and version >= "5" and compiler.libcxx != "libstdc++11":

@@ -16,7 +16,7 @@ from conan.tools.files import (
 )
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, is_msvc
+from conan.tools.microsoft import MSBuild, is_msvc, check_min_vs
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -65,12 +65,9 @@ class LibStudXmlConan(ConanFile):
         self.requires("expat/2.5.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if (
-            self.info.settings.compiler == "Visual Studio"
-            and Version(self.info.settings.compiler.version) < "9"
-        ):
+        if check_min_vs(self, 150):
             raise ConanInvalidConfiguration(
-                f"Visual Studio {self.info.settings.compiler.version} is not supported."
+                f"{self.settings.compiler} {self.info.settings.compiler.version} is not supported."
             )
 
     def build_requirements(self):

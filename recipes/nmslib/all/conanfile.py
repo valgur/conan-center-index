@@ -6,7 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, check_min_vs
 
 required_conan_version = ">=1.53.0"
 
@@ -49,10 +49,7 @@ class Nmslib(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            if self.settings.compiler.version == "14":
-                raise ConanInvalidConfiguration(
-                    "Visual Studio 14 builds are not supported"
-                )  # TODO: add reason in message
+            check_min_vs(self, 190)  # TODO: add reason in message
             if self.options.shared:
                 raise ConanInvalidConfiguration(
                     "Visual Studio shared builds are not supported (.lib artifacts missing)"

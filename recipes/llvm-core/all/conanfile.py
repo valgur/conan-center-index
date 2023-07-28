@@ -108,7 +108,8 @@ class LLVMCoreConan(ConanFile):
             [compiler == "gcc", major_rev < 5],
             [compiler == "clang", major_rev < 4],
             [compiler == "apple-clang", major_rev < 9],
-            [compiler == "Visual Studio", major_rev < 15],
+            [str(compiler) == "msvc", major_rev < 191],
+            [str(compiler) == "Visual Studio", major_rev < 15],
         ]
         if any(all(combination) for combination in unsupported_combinations):
             message = 'unsupported compiler: "{}", version "{}"'

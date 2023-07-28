@@ -7,7 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import unix_path
+from conan.tools.microsoft import unix_path, is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.47.0"
@@ -83,7 +83,7 @@ class ElfutilsConan(ConanFile):
 
     def validate(self):
         if Version(self.version) >= "0.186":
-            if self.settings.compiler in ["Visual Studio", "apple-clang", "msvc"]:
+            if is_msvc(self) or self.settings.compiler == "apple-clang":
                 raise ConanInvalidConfiguration(
                     f"Compiler {self.settings.compiler} not supported. elfutils only supports gcc and clang"
                 )

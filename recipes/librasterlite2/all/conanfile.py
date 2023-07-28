@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, rmdir
+from conan.tools.microsoft import is_msvc
 from conans import AutoToolsBuildEnvironment, tools
 import functools
 import os
@@ -46,10 +47,6 @@ class Librasterlite2Conan(ConanFile):
         return "source_subfolder"
 
     @property
-    def _is_msvc(self):
-        return str(self.settings.compiler) in ["Visual Studio", "msvc"]
-
-    @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
@@ -92,7 +89,7 @@ class Librasterlite2Conan(ConanFile):
             self.requires("zstd/1.5.5")
 
     def validate(self):
-        if self._is_msvc:
+        if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio not supported yet")
 
     def build_requirements(self):
