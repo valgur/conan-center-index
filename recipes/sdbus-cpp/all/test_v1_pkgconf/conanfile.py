@@ -84,7 +84,8 @@ class SdbusCppTestConan(ConanFile):
     generators = ("cmake", "pkg_config")
 
     def build_requirements(self):
-        self.tool_requires("pkgconf/1.9.3")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/1.9.3")
 
     def build(self):
         cmake = CMake(self)

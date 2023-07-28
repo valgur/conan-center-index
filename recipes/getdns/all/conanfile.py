@@ -96,7 +96,8 @@ class GetDnsConan(ConanFile):
             raise ConanInvalidConfiguration("libunbound is not (yet) available on cci")
 
     def build_requirements(self):
-        self.tool_requires("pkgconf/1.9.5")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
