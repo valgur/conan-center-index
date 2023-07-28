@@ -52,21 +52,21 @@ class NcbiCxxToolkit(ConanFile):
         "BZ2":          "bzip2/1.0.8",
         "CASSANDRA":    "cassandra-cpp-driver/2.15.3",
         "GIF":          "giflib/5.2.1",
-        "JPEG":         "libjpeg/9r",
+        "JPEG":         "libjpeg/9e",
         "LMDB":         "lmdb/0.9.29",
         "LZO":          "lzo/2.10",
         "MySQL":        "libmysqlclient/8.0.31",
         "NGHTTP2":      "libnghttp2/1.55.1",
         "PCRE":         "pcre/8.45",
         "PNG":          "libpng/1.6.40",
-        "SQLITE3":      "sqlite3/3.37.2",
-        "TIFF":         "libtiff/4.3.0",
-        "XML":          "libxml2/2.9.12",
+        "SQLITE3":      "sqlite3/3.42.0",
+        "TIFF":         "libtiff/4.5.1",
+        "XML":          "libxml2/2.10.3",
         "XSLT":         "libxslt/1.1.34",
         "UV":           "libuv/1.45.0",
-        "Z":            "zlib/1.2.11",
-        "OpenSSL":      "openssl/1.1.1l",
-        "ZSTD":         "zstd/1.5.2"
+        "Z":            "zlib/1.2.13",
+        "OpenSSL":      "openssl/[>=1.1 <4]",
+        "ZSTD":         "zstd/1.5.5"
     }
 
     @property
@@ -134,7 +134,7 @@ class NcbiCxxToolkit(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["NCBI_PTBCFG_PACKAGING"] = "TRUE"
+        tc.variables["NCBI_PTBCFG_PACKAGING"] = True
         if self.options.with_projects != "":
             tc.variables["NCBI_PTBCFG_PROJECT_LIST"] = self.options.with_projects
         if self.options.with_targets != "":
@@ -145,7 +145,7 @@ class NcbiCxxToolkit(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure()
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, "src"))
         # Visual Studio sometimes runs "out of heap space"
         if is_msvc(self):
             cmake.parallel = False
