@@ -54,7 +54,8 @@ class LibTomMathConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not is_msvc(self):
+        if (self._settings_build.os == "Windows" and not is_msvc(self)
+                and not self.conf.get("tools.gnu:make_program", check_type=str)):
             self.tool_requires("make/4.3")
         if not is_msvc(self) and self.settings.os != "Windows" and self.options.shared:
             self.tool_requires("libtool/2.4.7")

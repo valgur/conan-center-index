@@ -50,7 +50,8 @@ class LibbpfConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is only available on Linux")
 
     def build_requirements(self):
-        self.tool_requires("make/4.3")
+        if not self.conf.get("tools.gnu:make_program", check_type=str):
+            self.tool_requires("make/4.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
