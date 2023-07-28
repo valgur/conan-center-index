@@ -27,7 +27,7 @@ class NcbiCxxToolkit(ConanFile):
         "NCBI C++ Toolkit -- a cross-platform application framework and "
         "a collection of libraries for working with biological data."
     )
-    license = "CC0-1.0"
+    license = "Public-domain"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://ncbi.github.io/cxx-toolkit"
     topics = ("ncbi", "biotechnology", "bioinformatics", "genbank", "gene", "genome",
@@ -52,22 +52,35 @@ class NcbiCxxToolkit(ConanFile):
         "BZ2":          "bzip2/1.0.8",
         "CASSANDRA":    "cassandra-cpp-driver/2.15.3",
         "GIF":          "giflib/5.2.1",
-        "JPEG":         "libjpeg/9d",
+        "JPEG":         "libjpeg/9r",
         "LMDB":         "lmdb/0.9.29",
         "LZO":          "lzo/2.10",
-        "MySQL":        "libmysqlclient/8.0.25",
-        "NGHTTP2":      "libnghttp2/1.46.0",
+        "MySQL":        "libmysqlclient/8.0.31",
+        "NGHTTP2":      "libnghttp2/1.55.1",
         "PCRE":         "pcre/8.45",
         "PNG":          "libpng/1.6.40",
         "SQLITE3":      "sqlite3/3.37.2",
         "TIFF":         "libtiff/4.3.0",
         "XML":          "libxml2/2.9.12",
         "XSLT":         "libxslt/1.1.34",
-        "UV":           "libuv/1.42.0",
+        "UV":           "libuv/1.45.0",
         "Z":            "zlib/1.2.11",
         "OpenSSL":      "openssl/1.1.1l",
         "ZSTD":         "zstd/1.5.2"
     }
+
+    @property
+    def _min_cppstd(self):
+        return 17
+
+    @property
+    def _compilers_minimum_version(self):
+        return {
+            "Visual Studio": "16",
+            "msvc": "192",
+            "gcc": "7",
+        }
+
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -102,18 +115,19 @@ class NcbiCxxToolkit(ConanFile):
         return None
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
-        if self.settings.os not in ["Linux", "Macos", "Windows"]:
+        if self.settings.os not in ["Linux", "FreeBSD", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("This operating system is not supported")
-        if is_msvc(self) and Version(self.settings.compiler.version) < "16":
-            raise ConanInvalidConfiguration("This version of Visual Studio is not supported")
-        if self.options.shared and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("This configuration is not supported")
-        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
-            raise ConanInvalidConfiguration("This version of GCC is not supported")
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
             raise ConanInvalidConfiguration("Cross compilation is not supported")
+        if self.options.shared and is_msvc_static_runtime(self):
+            raise ConanInvalidConfiguration(f"Static MSVC runtime (MT) with shared=True is not supported")
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -138,6 +152,9 @@ class NcbiCxxToolkit(ConanFile):
         cmake.build()
 
     def package(self):
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=os.path.join(self.source_folder, "doc", "public"))
         cmake = CMake(self)
         cmake.install()
 
