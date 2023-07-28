@@ -79,7 +79,7 @@ class QCoroConan(ConanFile):
             print(f"Your compiler is {str(self.settings.compiler)} {compiler_version} and is compatible.")
 
     def build_requirements(self):
-        self.build_requires("cmake/[>=3.23]")
+        self.tool_requires("cmake/[>=3.23]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -309,7 +309,7 @@ class MagnumConan(ConanFile):
             raise ConanInvalidConfiguration("magnum_font_converter requires tga_image_converter")
 
     def build_requirements(self):
-        self.build_requires(f"corrade/{self.version}")
+        self.tool_requires(f"corrade/{self.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

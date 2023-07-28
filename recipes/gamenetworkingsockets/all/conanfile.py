@@ -62,7 +62,7 @@ class GameNetworkingSocketsConan(ConanFile):
             raise ConanInvalidConfiguration("bcrypt is only valid on Windows")
 
     def build_requirements(self):
-        self.build_requires("protobuf/3.21.12")
+        self.tool_requires("protobuf/3.21.12")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

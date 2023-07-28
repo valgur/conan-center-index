@@ -131,7 +131,7 @@ class DjinniSuppotLib(ConanFile):
 
     def build_requirements(self):
         if not self.options.system_java and self._jni_support:
-            self.build_requires("zulu-openjdk/11.0.19")
+            self.tool_requires("zulu-openjdk/11.0.19")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

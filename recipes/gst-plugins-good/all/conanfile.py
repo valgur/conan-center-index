@@ -157,16 +157,16 @@ class GStPluginsGoodConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.build_requires("meson/1.2.0")
+        self.tool_requires("meson/1.2.0")
         if not shutil.which(self, "pkg-config"):
-            self.build_requires("pkgconf/1.9.5")
+            self.tool_requires("pkgconf/1.9.5")
         if self.settings.os == "Windows":
-            self.build_requires("winflexbison/2.5.24")
+            self.tool_requires("winflexbison/2.5.24")
         else:
-            self.build_requires("bison/3.8.2")
-            self.build_requires("flex/2.6.4")
+            self.tool_requires("bison/3.8.2")
+            self.tool_requires("flex/2.6.4")
         if self.options.with_introspection:
-            self.build_requires("gobject-introspection/1.72.0")
+            self.tool_requires("gobject-introspection/1.72.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

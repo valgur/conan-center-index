@@ -87,7 +87,7 @@ class NmosCppConan(ConanFile):
 
     def build_requirements(self):
         # nmos-cpp needs CMake 3.17 or higher but CCI doesn't allow version ranges
-        self.build_requires("cmake/3.24.2")
+        self.tool_requires("cmake/[>=3.24]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

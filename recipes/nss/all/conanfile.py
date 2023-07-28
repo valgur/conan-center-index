@@ -155,9 +155,9 @@ class NSSConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if self.settings.os == "Windows":
-            self.build_requires("mozilla-build/3.3")
+            self.tool_requires("mozilla-build/3.3")
         if hasattr(self, "settings_build"):
-            self.build_requires("sqlite3/3.42.0")
+            self.tool_requires("sqlite3/3.42.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

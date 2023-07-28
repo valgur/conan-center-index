@@ -75,7 +75,7 @@ class LzmaSdkConan(ConanFile):
         if not is_msvc(self) and self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.build_requires("msys2/cci.latest")
+                self.tool_requires("msys2/cci.latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

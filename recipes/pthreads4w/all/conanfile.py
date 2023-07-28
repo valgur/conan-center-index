@@ -47,7 +47,7 @@ class Pthreads4WConan(ConanFile):
 
     def build_requirements(self):
         if not is_msvc(self):
-            self.build_requires("autoconf/2.71")
+            self.tool_requires("autoconf/2.71")
             if self._settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):

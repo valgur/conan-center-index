@@ -100,13 +100,12 @@ class LibId3TagConan(ConanFile):
             msbuild.build(project_file="libid3tag.vcxproj", **kwargs)
 
     def _build_autotools(self):
-        shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_SUB"), os.path.join(self.source_folder, "config.sub")
-        )
-        shutil.copy(
-            self.conf_info.get("user.gnu-config:CONFIG_GUESS"),
-            os.path.join(self.source_folder, "config.guess"),
-        )
+        for gnu_config in [
+            self.conf.get("user.gnu-config:config_guess", check_type=str),
+            self.conf.get("user.gnu-config:config_sub", check_type=str),
+        ]:
+            if gnu_config:
+                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
         autotools = Autotools(self)
         autotools.make()
 

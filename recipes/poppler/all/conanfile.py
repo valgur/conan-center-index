@@ -167,7 +167,7 @@ class PopplerConan(ConanFile):
             raise ConanInvalidConfiguration("nss is not (yet) available on cci")
 
     def build_requirements(self):
-        self.build_requires("pkgconf/1.9.5")
+        self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

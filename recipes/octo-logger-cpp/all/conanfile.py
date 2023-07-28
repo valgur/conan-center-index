@@ -88,7 +88,7 @@ class OctoLoggerCPPConan(ConanFile):
                 raise ConanInvalidConfiguration(f"{self.name} requires the option aws-sdk-cpp:logs=True")
 
     def build_requirements(self):
-        self.build_requires("cmake/3.24.0")
+        self.tool_requires("cmake/[>=3.24]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

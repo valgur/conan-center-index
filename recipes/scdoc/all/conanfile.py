@@ -46,7 +46,7 @@ class ScdocInstallerConan(ConanFile):
             raise ConanInvalidConfiguration(f"Builds aren't supported on {self.settings.os}")
 
     def build_requirements(self):
-        self.build_requires("make/4.3")
+        self.tool_requires("make/4.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

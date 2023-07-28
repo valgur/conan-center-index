@@ -123,7 +123,7 @@ class NativefiledialogConan(ConanFile):
             self.requires("gtk/4.7.0")
 
     def build_requirements(self):
-        self.build_requires("premake/5.0.0-alpha15")
+        self.tool_requires("premake/5.0.0-alpha15")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

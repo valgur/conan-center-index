@@ -170,8 +170,8 @@ class CrashpadConan(ConanFile):
             check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        self.build_requires("ninja/1.11.1")
-        self.build_requires("gn/cci.20210429")
+        self.tool_requires("ninja/1.11.1")
+        self.tool_requires("gn/cci.20210429")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["crashpad"], strip_root=True)

@@ -79,7 +79,7 @@ class WaylandConan(ConanFile):
         if cross_building(self):
             pkg_config_deps.build_context_activated = ["wayland"]
         elif self.dependencies["expat"].is_build_context:  # wayland is being built as build_require
-            # If wayland is the build_require, all its dependencies are treated as build_requires
+            # If wayland is the build_require, all its dependencies are treated as tool_requires
             pkg_config_deps.build_context_activated = [
                 dep.ref.name for _, dep in self.dependencies.host.items()
             ]
