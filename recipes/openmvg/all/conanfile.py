@@ -69,7 +69,7 @@ class Openmvgconan(ConanFile):
         self.requires("coin-clp/1.17.7")
         self.requires("coin-lemon/1.3.1")
         self.requires("coin-osi/0.108.7")
-        self.requires("coin-utils/2.11.6")
+        self.requires("coin-utils/2.11.9")
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("flann/1.9.2", transitive_headers=True, transitive_libs=True)
         self.requires("libjpeg/9e")

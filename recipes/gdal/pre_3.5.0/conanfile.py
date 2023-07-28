@@ -260,32 +260,32 @@ class GdalConan(ConanFile):
         self.requires("json-c/0.16")
         self.requires("libgeotiff/1.7.1")
         # self.requires("libopencad/0.0.2") # TODO: use conan recipe when available instead of internal one
-        self.requires("libtiff/4.4.0")
-        self.requires("proj/9.1.1")
+        self.requires("libtiff/4.5.1")
+        self.requires("proj/9.2.1")
         if Version(self.version) >= "3.1.0":
-            self.requires("flatbuffers/2.0.5")
+            self.requires("flatbuffers/23.5.26")
         if self.options.get_safe("with_zlib", True):
             self.requires("zlib/1.2.13")
         if self.options.get_safe("with_libdeflate"):
-            self.requires("libdeflate/1.17")
+            self.requires("libdeflate/1.18")
         if self.options.with_libiconv:
             self.requires("libiconv/1.17")
         if self.options.get_safe("with_zstd"):
-            self.requires("zstd/1.5.2")
+            self.requires("zstd/1.5.5")
         if self.options.get_safe("with_blosc"):
-            self.requires("c-blosc/1.21.3")
+            self.requires("c-blosc/1.21.4")
         if self.options.get_safe("with_lz4"):
             self.requires("lz4/1.9.4")
         if self.options.with_pg:
-            self.requires("libpq/14.5")
+            self.requires("libpq/15.3")
         # if self.options.with_libgrass:
         #     self.requires("libgrass/x.x.x")
         if self.options.with_cfitsio:
-            self.requires("cfitsio/4.1.0")
+            self.requires("cfitsio/4.2.0")
         # if self.options.with_pcraster:
         #     self.requires("pcraster-rasterformat/1.3.2")
         if self.options.get_safe("with_png", True):
-            self.requires("libpng/1.6.39")
+            self.requires("libpng/1.6.40")
         if self.options.with_dds:
             self.requires("crunch/cci.20190615")
         if self.options.with_gta:
@@ -295,11 +295,11 @@ class GdalConan(ConanFile):
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/2.1.4")
+            self.requires("libjpeg-turbo/2.1.5")
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.1")
         if self.options.with_charls:
-            self.requires("charls/2.4.1")
+            self.requires("charls/2.4.2")
         if self.options.with_gif:
             self.requires("giflib/5.2.1")
         # if self.options.with_ogdi:
@@ -307,11 +307,11 @@ class GdalConan(ConanFile):
         # if self.options.with_sosi:
         #     self.requires("fyba/4.1.1")
         if self.options.with_mongocxx:
-            self.requires("mongo-cxx-driver/3.6.7")
+            self.requires("mongo-cxx-driver/3.7.2")
         if self.options.with_hdf4:
             self.requires("hdf4/4.2.15")
         if self.options.with_hdf5:
-            self.requires("hdf5/1.14.0")
+            self.requires("hdf5/1.14.1")
         if self.options.with_kea:
             self.requires("kealib/1.4.14")
         if self.options.with_netcdf:
@@ -325,7 +325,7 @@ class GdalConan(ConanFile):
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/8.0.31")
         elif self.options.with_mysql == "mariadb-connector-c":
-            self.requires("mariadb-connector-c/3.1.12")
+            self.requires("mariadb-connector-c/3.3.3")
         if self.options.with_xerces:
             self.requires("xerces-c/3.2.4")
         if self.options.with_expat:
@@ -337,13 +337,13 @@ class GdalConan(ConanFile):
         # if self.options.with_dods_root:
         #     self.requires("libdap/3.20.6")
         if self.options.with_curl:
-            self.requires("libcurl/7.87.0")
+            self.requires("libcurl/8.2.0")
         if self.options.with_xml2:
-            self.requires("libxml2/2.10.3")
+            self.requires("libxml2/2.11.4")
         # if self.options.with_spatialite:
-        #     self.requires("libspatialite/4.3.0a")
+        #     self.requires("libspatialite/5.0.1")
         if self.options.get_safe("with_sqlite3"):
-            self.requires("sqlite3/3.40.1")
+            self.requires("sqlite3/3.42.0")
         # if self.options.with_rasterlite2:
         #     self.requires("rasterlite2/x.x.x")
         if self.options.get_safe("with_pcre"):
@@ -351,16 +351,16 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_pcre2"):
             self.requires("pcre2/10.42")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.0")
+            self.requires("libwebp/1.3.1")
         if self.options.with_geos:
-            self.requires("geos/3.11.1")
+            self.requires("geos/3.11.2")
         # if self.options.with_sfcgal:
         #     self.requires("sfcgal/1.3.7")
         if self.options.with_qhull:
             self.requires("qhull/8.0.1")
         if self.options.with_opencl:
-            self.requires("opencl-headers/2022.09.30")
-            self.requires("opencl-icd-loader/2022.09.30")
+            self.requires("opencl-headers/2023.04.17")
+            self.requires("opencl-icd-loader/2023.04.17")
         if self.options.with_freexl:
             self.requires("freexl/1.0.6")
         if self.options.with_poppler:
@@ -368,21 +368,21 @@ class GdalConan(ConanFile):
         if self.options.with_podofo:
             self.requires("podofo/0.9.7")
         # if self.options.with_pdfium:
-        #     self.requires("pdfium/x.x.x")
+        #     self.requires("pdfium/cci.20210730")
         # if self.options.get_safe("with_tiledb"):
         #     self.requires("tiledb/2.0.2")
         # if self.options.with_rasdaman:
         #     self.requires("raslib/x.x.x")
         # if self.options.with_armadillo:
-        #     self.requires("armadillo/9.880.1")
+        #     self.requires("armadillo/11.4.3")
         if self.options.with_cryptopp:
             self.requires("cryptopp/8.7.0")
         if self.options.with_crypto:
-            self.requires("openssl/1.1.1s")
+            self.requires("openssl/[>=1.1 <4]")
         # if not self.options.without_lerc:
-        #     self.requires("lerc/2.1") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
+        #     self.requires("lerc/4.0.0") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
         if self.options.get_safe("with_exr"):
-            self.requires("openexr/3.1.5")
+            self.requires("openexr/3.1.9")
         if self.options.get_safe("with_heif"):
             self.requires("libheif/1.13.0")
 
@@ -427,7 +427,7 @@ class GdalConan(ConanFile):
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/1.9.3")
+                self.tool_requires("pkgconf/1.9.5")
             if self._settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):

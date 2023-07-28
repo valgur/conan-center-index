@@ -46,9 +46,9 @@ class Tixi3Conan(ConanFile):
         cmake_layout(self)
 
     def requirements(self):
-        self.requires("libxml2/2.9.14")
+        self.requires("libxml2/2.11.4")
         self.requires("libxslt/1.1.34")
-        self.requires("libcurl/7.84.0")
+        self.requires("libcurl/8.2.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

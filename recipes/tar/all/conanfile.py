@@ -45,7 +45,7 @@ class TarConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("bzip2/1.0.8")
         self.tool_requires("lzip/1.22")
-        self.tool_requires("xz_utils/5.2.5")
+        self.tool_requires("xz_utils/5.4.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

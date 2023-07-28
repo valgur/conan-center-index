@@ -75,11 +75,11 @@ class GlibmmConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.76.0")
+        self.requires("glib/2.77.0")
         if self._abi_version == "2.68":
             self.requires("libsigcpp/3.0.7")
         else:
-            self.requires("libsigcpp/2.10.8")
+            self.requires("libsigcpp/3.0.7")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -99,9 +99,9 @@ class GlibmmConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("meson/1.0.0")
+        self.tool_requires("meson/1.2.0")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

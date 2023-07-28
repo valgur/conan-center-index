@@ -52,8 +52,8 @@ class TmxliteConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("miniz/2.2.0")
-        self.requires("pugixml/1.12.1")
+        self.requires("miniz/3.0.2")
+        self.requires("pugixml/1.13")
 
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):

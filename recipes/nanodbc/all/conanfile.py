@@ -78,9 +78,9 @@ class NanodbcConan(ConanFile):
 
     def requirements(self):
         if self.options.with_boost:
-            self.requires("boost/1.76.0")
+            self.requires("boost/1.82.0")
         if self.settings.os != "Windows":
-            self.requires("odbc/2.3.9")
+            self.requires("odbc/2.3.11")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

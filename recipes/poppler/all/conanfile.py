@@ -114,37 +114,37 @@ class PopplerConan(ConanFile):
 
     def requirements(self):
         self.requires("poppler-data/0.4.11")
-        self.requires("freetype/2.12.1")
+        self.requires("freetype/2.13.0")
         if self.options.get_safe("with_libiconv"):
             self.requires("libiconv/1.17")
         if self.options.fontconfiguration == "fontconfig":
-            self.requires("fontconfig/2.13.93")
+            self.requires("fontconfig/2.14.2")
         if self.options.with_cairo:
-            self.requires("cairo/1.17.4")
+            self.requires("cairo/1.17.6")
         if self.options.get_safe("with_glib"):
-            self.requires("glib/2.73.2")
+            self.requires("glib/2.77.0")
         if self.options.get_safe("with_gobject_introspection"):
             self.requires("gobject-introspection/1.72.0")
         if self.options.with_qt:
-            self.requires("qt/6.3.1")
+            self.requires("qt/6.5.1")
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/4.7.0")
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.0")
         if self.options.with_lcms:
-            self.requires("lcms/2.13.1")
+            self.requires("lcms/2.14")
         if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/9d")
+            self.requires("libjpeg/9e")
         if self.options.with_png:
-            self.requires("libpng/1.6.37")
+            self.requires("libpng/1.6.40")
         if self.options.with_tiff:
-            self.requires("libtiff/4.3.0")
+            self.requires("libtiff/4.5.1")
         if self.options.splash:
-            self.requires("boost/1.79.0")
+            self.requires("boost/1.82.0")
         if self.options.with_libcurl:
-            self.requires("libcurl/7.84.0")
+            self.requires("libcurl/8.2.0")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.12")
+            self.requires("zlib/1.2.13")
 
     def validate(self):
         if self.options.fontconfiguration == "win32" and self.settings.os != "Windows":
@@ -167,7 +167,7 @@ class PopplerConan(ConanFile):
             raise ConanInvalidConfiguration("nss is not (yet) available on cci")
 
     def build_requirements(self):
-        self.build_requires("pkgconf/1.9.3")
+        self.build_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

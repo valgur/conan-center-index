@@ -331,20 +331,20 @@ class ITKConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("dcmtk/3.6.6")
-        self.requires("double-conversion/3.2.0")
+        self.requires("dcmtk/3.6.7")
+        self.requires("double-conversion/3.3.0")
         self.requires("eigen/3.4.0")
-        self.requires("expat/2.4.8")
-        self.requires("fftw/3.3.9")
-        self.requires("gdcm/3.0.9")
-        self.requires("hdf5/1.12.0")
-        self.requires("icu/71.1")  # TODO: to remove? Seems to be a transitivie dependency through dcmtk
-        self.requires("libjpeg/9d")
-        self.requires("libpng/1.6.37")
-        self.requires("libtiff/4.3.0")
-        self.requires("openjpeg/2.4.0")
-        self.requires("onetbb/2020.3")
-        self.requires("zlib/1.2.12")
+        self.requires("expat/2.5.0")
+        self.requires("fftw/3.3.10")
+        self.requires("gdcm/3.0.21")
+        self.requires("hdf5/1.14.1")
+        self.requires("icu/73.2")  # TODO: to remove? Seems to be a transitivie dependency through dcmtk
+        self.requires("libjpeg/9e")
+        self.requires("libpng/1.6.40")
+        self.requires("libtiff/4.5.1")
+        self.requires("openjpeg/2.5.0")
+        self.requires("onetbb/2021.9.0")
+        self.requires("zlib/1.2.13")
 
     def validate(self):
         if self.options.shared and not self.dependencies["hdf5"].options.shared:

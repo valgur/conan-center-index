@@ -74,11 +74,11 @@ class LibrdkafkaConan(ConanFile):
         if self._depends_on_cyrus_sasl:
             self.requires("cyrus-sasl/2.1.27")
         if self.options.get_safe("curl", False):
-            self.requires("libcurl/8.0.1")
+            self.requires("libcurl/8.2.0")
 
     def build_requirements(self):
         if self._depends_on_cyrus_sasl:
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

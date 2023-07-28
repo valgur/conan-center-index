@@ -33,7 +33,7 @@ class CppItertoolsConan(ConanFile):
 
     def requirements(self):
         if self.options.zip_longest:
-            self.requires("boost/1.75.0")
+            self.requires("boost/1.82.0")
 
     def package_id(self):
         self.info.clear()

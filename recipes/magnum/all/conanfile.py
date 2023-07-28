@@ -255,7 +255,7 @@ class MagnumConan(ConanFile):
         if self.options.gl:
             self.requires("opengl/system")
         if self.options.vk:
-            self.requires("vulkan-loader/1.3.211.0")
+            self.requires("vulkan-loader/1.3.239.0")
 
         if (
             self.options.get_safe("egl_context", False)
@@ -268,10 +268,10 @@ class MagnumConan(ConanFile):
             self.requires("egl/system")
 
         if self.options.glfw_application:
-            self.requires("glfw/3.3.7")
+            self.requires("glfw/3.3.8")
 
         if self.options.sdl2_application:
-            self.requires("sdl/2.0.20")
+            self.requires("sdl/2.26.5")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

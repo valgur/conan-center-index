@@ -148,16 +148,16 @@ class PocoConan(ConanFile):
         if self.options.enable_xml:
             self.requires("expat/2.5.0")
         if self.options.enable_data_sqlite:
-            self.requires("sqlite3/3.41.2")
+            self.requires("sqlite3/3.42.0")
         if self.options.enable_apacheconnector:
-            self.requires("apr/1.7.0")
+            self.requires("apr/1.7.4")
             self.requires("apr-util/1.6.1")
         if self.options.enable_netssl or self.options.enable_crypto or self.options.get_safe("enable_jwt"):
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
         if self.options.enable_data_odbc and self.settings.os != "Windows":
             self.requires("odbc/2.3.11")
         if self.options.get_safe("enable_data_postgresql"):
-            self.requires("libpq/14.7")
+            self.requires("libpq/15.3")
         if self.options.get_safe("enable_data_mysql"):
             self.requires("libmysqlclient/8.0.31")
 

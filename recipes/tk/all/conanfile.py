@@ -120,7 +120,7 @@ class TkConan(ConanFile):
     def requirements(self):
         self.requires("tcl/{}".format(self.version))
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("fontconfig/2.13.93")
+            self.requires("fontconfig/2.14.2")
             self.requires("xorg/system")
 
     def validate(self):

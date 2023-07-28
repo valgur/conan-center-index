@@ -54,7 +54,7 @@ class PbcConan(ConanFile):
         self.requires("gmp/6.2.1")
 
     def build_requirements(self):
-        self.build_requires("bison/3.7.6")
+        self.build_requires("bison/3.8.2")
         self.build_requires("flex/2.6.4")
 
     def source(self):

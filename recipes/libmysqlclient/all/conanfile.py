@@ -71,14 +71,14 @@ class LibMysqlClientCConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "8.0.30":
-            self.requires("openssl/1.1.1t")
+            self.requires("openssl/[>=1.1 <4]")
         else:
             self.requires("openssl/[>=1.1 <4]")
         self.requires("zlib/1.2.13")
         self.requires("zstd/1.5.5")
         self.requires("lz4/1.9.4")
         if self.settings.os == "FreeBSD":
-            self.requires("libunwind/1.6.2")
+            self.requires("libunwind/1.7.0")
 
     def validate(self):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -110,7 +110,7 @@ class LibMysqlClientCConan(ConanFile):
         if is_apple_os(self):
             self.tool_requires("cmake/[>=3.18 <4]")
         if self.settings.os == "FreeBSD" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

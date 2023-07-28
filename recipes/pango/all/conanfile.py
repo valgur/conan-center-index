@@ -79,8 +79,8 @@ class PangoConan(ConanFile):
             self.requires("xorg/system")  # for xorg::xrender
         if self.options.with_cairo:
             self.requires("cairo/1.17.6", transitive_headers=True)
-        self.requires("harfbuzz/7.3.0", transitive_headers=True)
-        self.requires("glib/2.76.3", transitive_headers=True)
+        self.requires("harfbuzz/8.0.1", transitive_headers=True)
+        self.requires("glib/2.77.0", transitive_headers=True)
         self.requires("fribidi/1.0.12")
 
     def validate(self):
@@ -104,8 +104,8 @@ class PangoConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("pkgconf/1.9.3")
-        self.tool_requires("meson/1.1.1")
+        self.tool_requires("pkgconf/1.9.5")
+        self.tool_requires("meson/1.2.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

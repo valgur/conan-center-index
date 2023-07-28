@@ -120,7 +120,7 @@ class NativefiledialogConan(ConanFile):
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("gtk/3.24.24")
+            self.requires("gtk/4.7.0")
 
     def build_requirements(self):
         self.build_requires("premake/5.0.0-alpha15")

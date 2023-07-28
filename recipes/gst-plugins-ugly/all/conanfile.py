@@ -129,9 +129,9 @@ class GStPluginsUglyConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.70.1")
-        self.requires("gstreamer/1.19.1")
-        self.requires("gst-plugins-base/1.19.1")
+        self.requires("glib/2.77.0")
+        self.requires("gstreamer/1.22.3")
+        self.requires("gst-plugins-base/1.19.2")
 
     def validate(self):
         if (
@@ -157,16 +157,16 @@ class GStPluginsUglyConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.build_requires("meson/0.54.2")
+        self.build_requires("meson/1.2.0")
         if not shutil.which(self, "pkg-config"):
-            self.build_requires("pkgconf/1.9.3")
+            self.build_requires("pkgconf/1.9.5")
         if self.settings.os == "Windows":
             self.build_requires("winflexbison/2.5.24")
         else:
-            self.build_requires("bison/3.7.6")
+            self.build_requires("bison/3.8.2")
             self.build_requires("flex/2.6.4")
         if self.options.with_introspection:
-            self.build_requires("gobject-introspection/1.68.0")
+            self.build_requires("gobject-introspection/1.72.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -57,7 +57,7 @@ class AvcppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("ffmpeg/5.0")
+        self.requires("ffmpeg/6.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

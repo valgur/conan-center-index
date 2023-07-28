@@ -53,13 +53,13 @@ class ApprovalTestsCppConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_boosttest"):
-            self.requires("boost/1.81.0")
+            self.requires("boost/1.82.0")
         if self.options.with_catch2:
-            self.requires("catch2/2.13.10")
+            self.requires("catch2/3.4.0")
         if self.options.with_gtest:
-            self.requires("gtest/1.12.1")
+            self.requires("gtest/1.13.0")
         if self.options.with_doctest:
-            self.requires("doctest/2.4.10")
+            self.requires("doctest/2.4.11")
         if self.options.get_safe("with_cpputest"):
             self.requires("cpputest/4.0")
 

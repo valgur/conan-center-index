@@ -196,21 +196,21 @@ class ogrecmakeconan(ConanFile):
     def requirements(self):
         self.requires("cppunit/1.15.1")
         self.requires("freeimage/3.18.0")
-        self.requires("boost/1.75.0")
-        self.requires("openexr/2.5.7")
-        self.requires("freetype/2.11.1")
-        self.requires("poco/1.11.2")
+        self.requires("boost/1.82.0")
+        self.requires("openexr/3.1.9")
+        self.requires("freetype/2.13.0")
+        self.requires("poco/1.12.4")
         self.requires("tbb/2020.3")
-        self.requires("zlib/1.2.12")
-        self.requires("zziplib/0.13.71")
-        self.requires("openssl/1.1.1o", override=True)
+        self.requires("zlib/1.2.13")
+        self.requires("zziplib/0.13.72")
+        self.requires("openssl/[>=1.1 <4]", override=True)
         self.requires("xorg/system")
         self.requires("glu/system")
-        self.requires("sdl/2.0.20")
+        self.requires("sdl/2.26.5")
         if self.options.glsupport_use_egl and self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("egl/system")
         else:
-            self.requires("libglvnd/1.4.0")
+            self.requires("libglvnd/1.5.0")
 
     def validate(self):
         """

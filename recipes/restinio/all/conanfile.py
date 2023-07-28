@@ -60,7 +60,7 @@ class RestinioConan(ConanFile):
         if self.options.with_pcre == 1:
             self.requires("pcre/8.45")
         elif self.options.with_pcre == 2:
-            self.requires("pcre2/10.40")
+            self.requires("pcre2/10.42")
 
     def package_id(self):
         self.info.clear()

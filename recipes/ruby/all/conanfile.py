@@ -78,10 +78,10 @@ class RubyConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.12")
-        self.requires("gmp/6.1.2")
+        self.requires("zlib/1.2.13")
+        self.requires("gmp/6.2.1")
         if self.options.with_openssl:
-            self.requires("openssl/1.1.1o")
+            self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         if is_msvc_static_runtime(self):

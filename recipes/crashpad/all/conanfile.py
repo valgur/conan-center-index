@@ -133,15 +133,15 @@ class CrashpadConan(ConanFile):
 
     def requirements(self):
         # FIXME: use mini_chromium conan package instead of embedded package (if possible)
-        self.requires("zlib/1.2.12")
+        self.requires("zlib/1.2.13")
         if self.settings.os in ("Linux", "FreeBSD"):
             self.requires("linux-syscall-support/cci.20200813")
         if self.options.http_transport != "socket":
             self.options.rm_safe("with_tls")
         if self.options.http_transport == "libcurl":
-            self.requires("libcurl/7.82.0")
+            self.requires("libcurl/8.2.0")
         if self.options.get_safe("with_tls") == "openssl":
-            self.requires("openssl/1.1.1o")
+            self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         if is_msvc(self):
@@ -170,7 +170,7 @@ class CrashpadConan(ConanFile):
             check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        self.build_requires("ninja/1.10.2")
+        self.build_requires("ninja/1.11.1")
         self.build_requires("gn/cci.20210429")
 
     def source(self):

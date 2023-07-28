@@ -47,7 +47,7 @@ class HiponyEnumerateConan(ConanFile):
 
     def requirements(self):
         if self.options.aggregates:
-            self.requires("pfr/2.0.3")
+            self.requires("pfr/2.1.0")
 
     def package_id(self):
         self.info.clear()

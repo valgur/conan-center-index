@@ -64,7 +64,7 @@ class CairommConan(ConanFile):
         if self._abi_version == "1.16":
             self.requires("libsigcpp/3.0.7", transitive_headers=True)
         else:
-            self.requires("libsigcpp/2.10.8", transitive_headers=True)
+            self.requires("libsigcpp/3.0.7", transitive_headers=True)
         # FIXME: freetype should be available as a transitive dependency of cairo
         self.requires("freetype/2.13.0", transitive_headers=True)
 
@@ -80,9 +80,9 @@ class CairommConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("meson/1.1.1")
+        self.tool_requires("meson/1.2.0")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -45,12 +45,12 @@ class CrowConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.81.0")
+        self.requires("boost/1.82.0")
         if self.version == "0.2":
-            self.requires("openssl/1.1.1s")
+            self.requires("openssl/[>=1.1 <4]")
         if Version(self.version) >= "1.0":
             if self.options.with_ssl:
-                self.requires("openssl/1.1.1s")
+                self.requires("openssl/[>=1.1 <4]")
             if self.options.with_compression:
                 self.requires("zlib/1.2.13")
 

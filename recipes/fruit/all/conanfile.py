@@ -54,7 +54,7 @@ class FruitConan(ConanFile):
 
     def requirements(self):
         if self.options.with_boost:
-            self.requires("boost/1.80.0")
+            self.requires("boost/1.82.0")
 
     def package_id(self):
         del self.info.options.use_boost

@@ -58,7 +58,7 @@ class LibcoroConan(ConanFile):
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
         self.requires("c-ares/1.19.1", transitive_headers=True)
-        self.requires("tl-expected/1.1.0", transitive_headers=True)
+        self.requires("tl-expected/20190710", transitive_headers=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

@@ -84,10 +84,10 @@ class mFASTConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.75.0")
+        self.requires("boost/1.82.0")
         self.requires("tinyxml2/9.0.0")
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.40.1")
+            self.requires("sqlite3/3.42.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

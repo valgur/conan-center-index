@@ -215,39 +215,39 @@ class CPythonConan(ConanFile):
         return self._supports_modules and (not is_msvc(self) or Version(self._version_number_only) >= "3.8")
 
     def requirements(self):
-        self.requires("zlib/1.2.11")
+        self.requires("zlib/1.2.13")
         if self._supports_modules:
-            self.requires("openssl/1.1.1l")
-            self.requires("expat/2.4.1")
+            self.requires("openssl/[>=1.1 <4]")
+            self.requires("expat/2.5.0")
             if self._with_libffi:
-                self.requires("libffi/3.2.1")
+                self.requires("libffi/3.4.4")
             if Version(self._version_number_only) < "3.8":
-                self.requires("mpdecimal/2.4.2")
+                self.requires("mpdecimal/2.5.1")
             elif Version(self._version_number_only) < "3.10":
-                self.requires("mpdecimal/2.5.0")
+                self.requires("mpdecimal/2.5.1")
             else:
-                self.requires("mpdecimal/2.5.0")  # FIXME: no 2.5.1 to troubleshoot apple
+                self.requires("mpdecimal/2.5.1")  # FIXME: no 2.5.1 to troubleshoot apple
         if self.settings.os != "Windows":
             if not is_apple_os(self):
                 self.requires("libuuid/1.0.3")
-            self.requires("libxcrypt/4.4.25")
+            self.requires("libxcrypt/4.4.35")
         if self.options.get_safe("with_bz2"):
             self.requires("bzip2/1.0.8")
         if self.options.get_safe("with_gdbm", False):
-            self.requires("gdbm/1.19")
+            self.requires("gdbm/1.23")
         if self.options.get_safe("with_nis", False):
             # TODO: Add nis when available.
             raise ConanInvalidConfiguration("nis is not available on CCI (yet)")
         if self.options.get_safe("with_sqlite3"):
-            self.requires("sqlite3/3.36.0")
+            self.requires("sqlite3/3.42.0")
         if self.options.get_safe("with_tkinter"):
             self.requires("tk/8.6.10")
         if self.options.get_safe("with_curses", False):
-            self.requires("ncurses/6.2")
+            self.requires("ncurses/6.4")
         if self.options.get_safe("with_bsddb", False):
             self.requires("libdb/5.3.28")
         if self.options.get_safe("with_lzma", False):
-            self.requires("xz_utils/5.2.5")
+            self.requires("xz_utils/5.4.2")
 
     def package_id(self):
         del self.info.settings.compiler

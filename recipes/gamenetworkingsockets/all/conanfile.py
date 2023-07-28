@@ -48,11 +48,11 @@ class GameNetworkingSocketsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("protobuf/3.17.1")
+        self.requires("protobuf/3.21.12")
         if self.options.encryption == "openssl":
-            self.requires("openssl/1.1.1l")
+            self.requires("openssl/[>=1.1 <4]")
         elif self.options.encryption == "libsodium":
-            self.requires("libsodium/1.0.18")
+            self.requires("libsodium/cci.20220430")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -62,7 +62,7 @@ class GameNetworkingSocketsConan(ConanFile):
             raise ConanInvalidConfiguration("bcrypt is only valid on Windows")
 
     def build_requirements(self):
-        self.build_requires("protobuf/3.17.1")
+        self.build_requires("protobuf/3.21.12")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

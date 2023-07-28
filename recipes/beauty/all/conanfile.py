@@ -57,8 +57,8 @@ class BeautyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.79.0"),
-        self.requires("openssl/1.1.1s")
+        self.requires("boost/1.82.0"),
+        self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

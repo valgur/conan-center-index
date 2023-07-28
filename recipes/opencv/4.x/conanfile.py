@@ -202,7 +202,7 @@ class OpenCVConan(ConanFile):
         if self.options.with_openexr:
             if Version(self.version) < "4.5.3":
                 # opencv < 4.5.3 doesn't support openexr >= 3
-                self.requires("openexr/2.5.7")
+                self.requires("openexr/3.1.9")
             else:
                 self.requires("openexr/3.1.9")
         if self.options.get_safe("with_tiff"):
@@ -211,7 +211,7 @@ class OpenCVConan(ConanFile):
             self.requires("eigen/3.4.0")
         if self.options.get_safe("with_ffmpeg"):
             # opencv doesn't support ffmpeg >= 5.0.0 for the moment (until 4.5.5 at least)
-            self.requires("ffmpeg/4.4.3")
+            self.requires("ffmpeg/6.0")
         if self.options.parallel == "tbb":
             self.requires("onetbb/2021.9.0")
         if self.options.with_ipp == "intel-ipp":
@@ -220,12 +220,12 @@ class OpenCVConan(ConanFile):
             self.requires("libwebp/1.3.1")
         if self.options.get_safe("contrib_freetype"):
             self.requires("freetype/2.13.0")
-            self.requires("harfbuzz/6.0.0")
+            self.requires("harfbuzz/8.0.1")
         if self.options.get_safe("contrib_sfm"):
             self.requires("gflags/2.2.2")
             self.requires("glog/0.6.0")
         if self.options.with_quirc:
-            self.requires("quirc/1.1")
+            self.requires("quirc/1.2")
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/system")
         if self.options.dnn:

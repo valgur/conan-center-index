@@ -71,7 +71,7 @@ class GccConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             # binutils recipe is broken for Macos, and Windows uses tools
             # distributed with msys/mingw
-            self.tool_requires("binutils/2.38")
+            self.tool_requires("binutils/2.40")
         self.tool_requires("flex/2.6.4")
 
     def source(self):

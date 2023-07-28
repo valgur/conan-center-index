@@ -53,12 +53,12 @@ class XlsxioConan(ConanFile):
 
     def requirements(self):
         if self.options.with_libzip:
-            self.requires("libzip/1.7.3")
+            self.requires("libzip/1.9.2")
         elif Version(self.version) >= "0.2.34" and self.options.with_minizip_ng:
-            self.requires("minizip-ng/3.0.8")
+            self.requires("minizip-ng/4.0.0")
         else:
-            self.requires("minizip/1.2.12")
-        self.requires("expat/2.4.9")
+            self.requires("minizip/1.2.13")
+        self.requires("expat/2.5.0")
         if self.options.with_wide:
             self.options["expat"].char_type = "ushort"
 

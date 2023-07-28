@@ -54,7 +54,7 @@ class PciUtilsConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/1.2.11")
+            self.requires("zlib/1.2.13")
         if self.options.with_udev:
             # TODO: Enable libudev option when available
             raise ConanInvalidConfiguration("libudev requires conan-io/conan-center-index#2468")

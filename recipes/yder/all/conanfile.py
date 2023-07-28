@@ -57,7 +57,7 @@ class YderConan(ConanFile):
     def requirements(self):
         self.requires("orcania/2.3.1")
         if self.options.get_safe("with_libsystemd"):
-            self.requires("libsystemd/251.4")
+            self.requires("libsystemd/253.6")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

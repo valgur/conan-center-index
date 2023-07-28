@@ -74,8 +74,8 @@ class LibGlvndConan(ConanFile):
             raise ConanInvalidConfiguration("libglvnd is only compatible with Linux and FreeBSD")
 
     def build_requirements(self):
-        self.build_requires("meson/0.63.2")
-        self.build_requires("pkgconf/1.9.3")
+        self.build_requires("meson/1.2.0")
+        self.build_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

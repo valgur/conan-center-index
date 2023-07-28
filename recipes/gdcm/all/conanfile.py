@@ -60,7 +60,7 @@ class GDCMConan(ConanFile):
         self.requires("expat/2.5.0")
         self.requires("openjpeg/2.5.0")
         if self.options.with_zlibng:
-            self.requires("zlib-ng/2.0.7")
+            self.requires("zlib-ng/2.1.3")
         else:
             self.requires("zlib/1.2.13")
         if self.settings.os != "Windows":

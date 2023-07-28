@@ -54,7 +54,7 @@ class TaoCPPTaopqConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpq/14.5")
+        self.requires("libpq/15.3")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

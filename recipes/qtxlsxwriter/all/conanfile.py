@@ -45,7 +45,7 @@ class QtXlsxWriterConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/5.15.7")
+        self.requires("qt/6.5.1")
 
     def validate(self):
         if not self.dependencies["qt"].options.gui:
@@ -56,7 +56,7 @@ class QtXlsxWriterConan(ConanFile):
 
     def build_requirements(self):
         if hasattr(self, "settings_build") and cross_building(self):
-            self.tool_requires("qt/5.15.7")
+            self.tool_requires("qt/6.5.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)

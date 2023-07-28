@@ -57,7 +57,7 @@ class OctoLoggerCPPConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/9.0.0")
+        self.requires("fmt/10.0.0")
         if self.options.get_safe("with_aws"):
             self.requires("nlohmann_json/3.11.2")
             self.requires("aws-sdk-cpp/1.9.234")

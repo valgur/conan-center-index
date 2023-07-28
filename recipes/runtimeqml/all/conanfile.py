@@ -57,9 +57,9 @@ class RuntimeQml(ConanFile):
 
     def requirements(self):
         if Version(self.version) <= "cci.20211220":
-            self.requires("qt/5.15.5")
+            self.requires("qt/6.5.1")
         else:
-            self.requires("qt/6.3.1")
+            self.requires("qt/6.5.1")
 
     def validate(self):
         if self.info.settings.compiler.cppstd:

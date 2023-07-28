@@ -36,7 +36,7 @@ class VisitStructConan(ConanFile):
 
     def requirements(self):
         if self.options.with_boost_fusion or self.options.with_boost_hana:
-            self.requires("boost/1.81.0")
+            self.requires("boost/1.82.0")
 
     def package_id(self):
         self.info.clear()

@@ -25,7 +25,7 @@ class PngppConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpng/1.6.38")
+        self.requires("libpng/1.6.40")
 
     def package_id(self):
         self.info.clear()

@@ -99,7 +99,7 @@ class LeptonicaConan(ConanFile):
     def build_requirements(self):
         if self.options.with_webp or self.options.with_openjpeg:
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/1.9.3")
+                self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

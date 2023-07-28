@@ -126,7 +126,7 @@ class XtrConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/7.1.3")
+        self.requires("fmt/10.0.0")
         # Require liburing on any Linux system as a run-time check will be
         # done to detect if the host kernel supports io_uring.
         if (
@@ -134,7 +134,7 @@ class XtrConan(ConanFile):
             and self.settings.os in ["Linux", "FreeBSD"]
             and self.options.get_safe("enable_io_uring")
         ):
-            self.requires("liburing/2.1")
+            self.requires("liburing/2.2")
 
     def validate(self):
         if self.settings.os not in ("FreeBSD", "Linux"):

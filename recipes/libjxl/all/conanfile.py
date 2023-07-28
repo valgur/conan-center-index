@@ -45,7 +45,7 @@ class LibjxlConan(ConanFile):
 
     def requirements(self):
         self.requires("brotli/1.0.9")
-        self.requires("highway/0.12.2")
+        self.requires("highway/1.0.5")
         self.requires("lcms/2.14")
 
     def source(self):

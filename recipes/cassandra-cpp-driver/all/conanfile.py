@@ -56,7 +56,7 @@ class CassandraCppDriverConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libuv/1.45.0")
+        self.requires("libuv/1.46.0")
         self.requires("http_parser/2.9.4")
         self.requires("rapidjson/cci.20220822")
 

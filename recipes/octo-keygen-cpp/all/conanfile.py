@@ -51,9 +51,9 @@ class OctoKeygenCPPConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("octo-logger-cpp/1.1.0")
+        self.requires("octo-logger-cpp/1.4.0")
         self.requires("octo-encryption-cpp/1.1.0")
-        self.requires("fmt/9.0.0")
+        self.requires("fmt/10.0.0")
         self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):

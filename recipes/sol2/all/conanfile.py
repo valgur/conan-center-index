@@ -63,9 +63,9 @@ class Sol2Conan(ConanFile):
         if self.options.with_lua == "lua":
             if Version(self.version) < "3.1.0":
                 # v2.x.x & v3.0.x supports up to Lua 5.3
-                self.requires("lua/5.3.6")
+                self.requires("lua/5.4.6")
             else:
-                self.requires("lua/5.4.4")
+                self.requires("lua/5.4.6")
         elif self.options.with_lua == "luajit":
             self.requires("luajit/2.1.0-beta3")
 

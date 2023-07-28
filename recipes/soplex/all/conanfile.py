@@ -64,7 +64,7 @@ class SoPlexConan(ConanFile):
             # see https://github.com/conan-io/conan-center-index/pull/16017#issuecomment-1495688452
             self.requires("gmp/6.2.1", transitive_headers=True, transitive_libs=True)
         if self.options.with_boost:
-            self.requires("boost/1.81.0", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
+            self.requires("boost/1.82.0", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
 
     def _determine_lib_name(self):
         if self.options.shared:

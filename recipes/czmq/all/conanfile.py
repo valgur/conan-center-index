@@ -68,13 +68,13 @@ class CzmqConan(ConanFile):
         if self.options.get_safe("with_libmicrohttpd"):
             self.requires("libmicrohttpd/0.9.75")
         if self.options.get_safe("with_libcurl"):
-            self.requires("libcurl/7.87.0")
+            self.requires("libcurl/8.2.0")
         if self.options.with_lz4:
             self.requires("lz4/1.9.4")
         if self.options.get_safe("with_libuuid"):
             self.requires("libuuid/1.0.3")
         if self.options.get_safe("with_systemd"):
-            self.requires("libsystemd/252.4")
+            self.requires("libsystemd/253.6")
 
     def validate(self):
         if is_apple_os(self) and self.options.shared and self.settings.build_type == "Debug":

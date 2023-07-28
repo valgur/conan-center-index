@@ -55,7 +55,7 @@ class LibaomAv1Conan(ConanFile):
         if self.options.get_safe("assembly", False):
             self.tool_requires("nasm/2.15.05")
         if self._settings_build.os == "Windows":
-            self.tool_requires("strawberryperl/5.30.0.1")
+            self.tool_requires("strawberryperl/5.32.1.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=Version(self.version) >= "3.3.0")

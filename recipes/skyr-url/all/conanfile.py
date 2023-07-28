@@ -74,7 +74,7 @@ class SkyrUrlConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("tl-expected/1.1.0", transitive_headers=True)
+        self.requires("tl-expected/20190710", transitive_headers=True)
         self.requires("range-v3/0.12.0", transitive_headers=True)
         if self.options.with_json:
             self.requires("nlohmann_json/3.11.2")

@@ -127,7 +127,7 @@ class GStPluginsBaseConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/1.2.13")
-        self.requires("glib/2.76.3", override=True)
+        self.requires("glib/2.77.0", override=True)
         self.requires("gstreamer/1.22.3")
         if self.options.get_safe("with_libalsa"):
             self.requires("libalsa/1.2.7.2")
@@ -141,7 +141,7 @@ class GStPluginsBaseConan(ConanFile):
             if self.options.get_safe("with_egl"):
                 self.requires("egl/system")
             if self.options.get_safe("with_wayland"):
-                self.requires("wayland/1.21.0")
+                self.requires("wayland/1.22.0")
                 self.requires("wayland-protocols/1.31")
             if self.options.with_graphene:
                 self.requires("graphene/1.10.8")
@@ -160,7 +160,7 @@ class GStPluginsBaseConan(ConanFile):
         if self.options.with_vorbis:
             self.requires("vorbis/1.3.7")
         if self.options.with_pango:
-            self.requires("pango/1.50.10")
+            self.requires("pango/1.50.14")
 
     def validate(self):
         if not self.dependencies["glib"].options.shared and self.options.shared:
@@ -175,9 +175,9 @@ class GStPluginsBaseConan(ConanFile):
             raise ConanInvalidConfiguration("OpenGL support with Wayland requires 'with_egl' turned on!")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.1.1")
+        self.tool_requires("meson/1.2.0")
         if not shutil.which("pkg-config"):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
         if self.settings.os == "Windows":
             self.tool_requires("winflexbison/2.5.24")
         else:

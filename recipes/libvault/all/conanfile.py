@@ -50,8 +50,8 @@ class LibvaultConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libcurl/7.86.0")
-        self.requires("catch2/3.2.0")
+        self.requires("libcurl/8.2.0")
+        self.requires("catch2/3.4.0")
 
     def validate(self):
         compiler = str(self.info.settings.compiler)

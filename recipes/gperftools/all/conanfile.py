@@ -90,7 +90,7 @@ class GperftoolsConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("enable_libunwind", False):
-            self.requires("libunwind/1.6.2")
+            self.requires("libunwind/1.7.0")
 
     def validate(self):
         if self.settings.os == "Windows":

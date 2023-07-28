@@ -69,16 +69,16 @@ class LibGit2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.12")
+        self.requires("zlib/1.2.13")
         self.requires("http_parser/2.9.4")
         if self.options.with_libssh2:
-            self.requires("libssh2/1.10.0")
+            self.requires("libssh2/1.11.0")
         if self._need_openssl:
-            self.requires("openssl/1.1.1o")
+            self.requires("openssl/[>=1.1 <4]")
         if self._need_mbedtls:
-            self.requires("mbedtls/3.1.0")
+            self.requires("mbedtls/3.2.1")
         if is_apple_os(self) and self.options.with_iconv:
-            self.requires("libiconv/1.16")
+            self.requires("libiconv/1.17")
 
     def validate(self):
         if self.options.with_https == "security":

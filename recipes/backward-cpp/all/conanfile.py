@@ -67,14 +67,14 @@ class BackwardCppConan(ConanFile):
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD", "Android"]:
             if self._has_stack_walking("libunwind"):
-                self.requires("libunwind/1.6.2", transitive_headers=True)
+                self.requires("libunwind/1.7.0", transitive_headers=True)
             if self._has_stack_details("dwarf"):
                 self.requires("libdwarf/20191104", transitive_headers=True, transitive_libs=True)
                 self.requires("libelf/0.8.13")
             if self._has_stack_details("dw"):
                 self.requires("elfutils/0.186", transitive_headers=True, transitive_libs=True)
             if self._has_stack_details("bfd"):
-                self.requires("binutils/2.38", transitive_headers=True, transitive_libs=True)
+                self.requires("binutils/2.40", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.os not in self._supported_os:

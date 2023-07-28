@@ -44,8 +44,8 @@ class CubicInterpolationConan(ConanFile):
 
     def requirements(self):
         # TODO: update boost dependency as soon as we deprecate conan1.x (see discussion in #11207)
-        self.requires("boost/1.75.0")
-        self.requires("eigen/3.3.9")
+        self.requires("boost/1.82.0")
+        self.requires("eigen/3.4.0")
 
     @property
     def _required_boost_components(self):

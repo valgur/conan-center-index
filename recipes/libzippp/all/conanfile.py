@@ -47,7 +47,7 @@ class LibZipppConan(ConanFile):
     def requirements(self):
         self.requires("zlib/1.2.13")
         if Version(self.version) == "4.0":
-            self.requires("libzip/1.7.3")
+            self.requires("libzip/1.9.2")
         else:
             versions = str(self.version).split("-")
             if len(versions) == 2:

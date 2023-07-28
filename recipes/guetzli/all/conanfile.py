@@ -30,7 +30,7 @@ class GoogleGuetzliConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpng/1.6.37")
+        self.requires("libpng/1.6.40")
 
     def package_id(self):
         del self.info.settings.compiler

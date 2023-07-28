@@ -60,9 +60,9 @@ class RapidcheckConan(ConanFile):
 
     def requirements(self):
         if self.options.enable_catch:
-            self.requires("catch2/2.13.10")
+            self.requires("catch2/3.4.0")
         if self.options.enable_gmock or self.options.enable_gtest:
-            self.requires("gtest/1.12.1")
+            self.requires("gtest/1.13.0")
 
     def validate(self):
         if self.settings.compiler.cppstd:

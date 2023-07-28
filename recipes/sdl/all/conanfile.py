@@ -151,11 +151,11 @@ class SDLConan(ConanFile):
             if self.options.nas:
                 self.requires("nas/1.9.5")
             if self.options.wayland:
-                self.requires("wayland/1.21.0")
-                self.requires("xkbcommon/1.4.1")
+                self.requires("wayland/1.22.0")
+                self.requires("xkbcommon/1.5.0")
                 self.requires("egl/system")
             if self.options.libunwind:
-                self.requires("libunwind/1.6.2")
+                self.requires("libunwind/1.7.0")
 
     def package_id(self):
         if Version(self.version) < "2.0.22":
@@ -191,9 +191,9 @@ class SDLConan(ConanFile):
             # FIXME: Remove once CMake on macOS/M1 CI runners is upgraded.
             self.tool_requires("cmake/3.25.3")
         if self.settings.os in ["Linux", "FreeBSD"] and not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
         if hasattr(self, "settings_build") and self.options.get_safe("wayland"):
-            self.build_requires("wayland/1.21.0")  # Provides wayland-scanner
+            self.build_requires("wayland/1.22.0")  # Provides wayland-scanner
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

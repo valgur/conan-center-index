@@ -65,7 +65,7 @@ class GlogConan(ConanFile):
         if self.options.get_safe("with_unwind") or (
             Version(self.version) < "0.5.0" and self.settings.os in ["Linux", "FreeBSD"]
         ):
-            self.requires("libunwind/1.6.2")
+            self.requires("libunwind/1.7.0")
 
     def build_requirements(self):
         if Version(self.version) >= "0.6.0":

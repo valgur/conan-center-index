@@ -68,10 +68,10 @@ class RmluiConan(ConanFile):
 
     def requirements(self):
         if self.options.font_interface == "freetype":
-            self.requires("freetype/2.10.1")
+            self.requires("freetype/2.13.0")
 
         if self.options.with_lua_bindings:
-            self.requires("lua/5.3.5")
+            self.requires("lua/5.4.6")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

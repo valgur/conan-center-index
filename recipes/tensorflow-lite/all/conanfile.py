@@ -75,21 +75,21 @@ class TensorflowLiteConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("abseil/20230125.1")
+        self.requires("abseil/20230125.3")
         self.requires("eigen/3.4.0")
         self.requires("farmhash/cci.20190513")
         self.requires("fft/cci.20061228")
-        self.requires("flatbuffers/23.3.3", transitive_headers=True)
+        self.requires("flatbuffers/23.5.26", transitive_headers=True)
         self.requires("gemmlowp/cci.20210928")
         self.requires("ruy/cci.20220628")
         if self.settings.arch in ("x86", "x86_64"):
             self.requires("intel-neon2sse/cci.20210225")
         if self.options.with_xnnpack:
-            self.requires("xnnpack/cci.20220801")
+            self.requires("xnnpack/cci.20230718")
             # https://github.com/tensorflow/tensorflow/blob/359c3cdfc5fabac82b3c70b3b6de2b0a8c16874f/tensorflow/lite/delegates/xnnpack/xnnpack_delegate.cc#L165
             self.requires("pthreadpool/cci.20210218")
         if self.options.with_xnnpack or self.options.get_safe("with_nnapi", False):
-            self.requires("fp16/cci.20210320")
+            self.requires("fp16/cci.20200514")
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):

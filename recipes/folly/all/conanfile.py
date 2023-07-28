@@ -76,27 +76,27 @@ class FollyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.78.0")
+        self.requires("boost/1.82.0")
         self.requires("bzip2/1.0.8")
-        self.requires("double-conversion/3.2.0")
+        self.requires("double-conversion/3.3.0")
         self.requires("gflags/2.2.2")
-        self.requires("glog/0.4.0")
+        self.requires("glog/0.6.0")
         self.requires("libevent/2.1.12")
-        self.requires("openssl/1.1.1q")
-        self.requires("lz4/1.9.3")
-        self.requires("snappy/1.1.9")
-        self.requires("zlib/1.2.12")
-        self.requires("zstd/1.5.2")
+        self.requires("openssl/[>=1.1 <4]")
+        self.requires("lz4/1.9.4")
+        self.requires("snappy/1.1.10")
+        self.requires("zlib/1.2.13")
+        self.requires("zstd/1.5.5")
         if not is_msvc(self):
             self.requires("libdwarf/20191104")
-        self.requires("libsodium/1.0.18")
-        self.requires("xz_utils/5.2.5")
-        # FIXME: Causing compilation issues on clang: self.requires("jemalloc/5.2.1")
+        self.requires("libsodium/cci.20220430")
+        self.requires("xz_utils/5.4.2")
+        # FIXME: Causing compilation issues on clang: self.requires("jemalloc/5.3.0")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libiberty/9.1.0")
-            self.requires("libunwind/1.5.0")
+            self.requires("libunwind/1.7.0")
         if Version(self.version) >= "2020.08.10.00":
-            self.requires("fmt/7.1.3")
+            self.requires("fmt/10.0.0")
 
     @property
     def _required_boost_components(self):

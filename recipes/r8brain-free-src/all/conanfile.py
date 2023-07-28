@@ -42,7 +42,7 @@ class R8brainFreeSrcConan(ConanFile):
 
     def requirements(self):
         if self.options.fft == "pffft":
-            self.requires("pffft/cci.20210511")
+            self.requires("pffft/cci.20201015")
         # TODO: use pffft_double package when possible
 
     def validate(self):

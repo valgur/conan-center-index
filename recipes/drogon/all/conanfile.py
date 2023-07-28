@@ -121,13 +121,13 @@ class DrogonConan(ConanFile):
         if self.options.with_brotli:
             self.requires("brotli/1.0.9")
         if self.options.get_safe("with_postgres"):
-            self.requires("libpq/14.7")
+            self.requires("libpq/15.3")
         if self.options.get_safe("with_mysql"):
             self.requires("libmysqlclient/8.0.31")
         if self.options.get_safe("with_sqlite"):
             self.requires("sqlite3/3.42.0")
         if self.options.get_safe("with_redis"):
-            self.requires("hiredis/1.1.0")
+            self.requires("hiredis/1.2.0")
         if self.options.with_yaml_cpp:
             self.requires("yaml-cpp/0.7.0")
 

@@ -55,7 +55,7 @@ class Log4cxxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("apr/1.7.0")
+        self.requires("apr/1.7.4")
         self.requires("apr-util/1.6.1")
         self.requires("expat/2.5.0")
         if self.settings.os != "Windows":
@@ -75,7 +75,7 @@ class Log4cxxConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.os != "Windows":
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         # OSError: [WinError 123] The filename, directory name, or volume label syntax is incorrect:

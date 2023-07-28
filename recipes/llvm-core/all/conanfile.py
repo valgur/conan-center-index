@@ -128,11 +128,11 @@ class LLVMCoreConan(ConanFile):
 
     def requirements(self):
         if self.options.with_ffi:
-            self.requires("libffi/3.3")
+            self.requires("libffi/3.4.4")
         if self.options.get_safe("with_zlib", False):
-            self.requires("zlib/1.2.12")
+            self.requires("zlib/1.2.13")
         if self.options.get_safe("with_xml2", False):
-            self.requires("libxml2/2.9.10")
+            self.requires("libxml2/2.11.4")
 
     def package_id(self):
         del self.info.options.use_llvm_cmake_files

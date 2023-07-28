@@ -96,7 +96,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_lcms:
             self.requires("lcms/2.14")
         if self.options.with_openexr:
-            self.requires("openexr/3.1.7")
+            self.requires("openexr/3.1.9")
         if self.options.with_heic:
             self.requires("libheif/1.13.0")
         if self.options.with_jbig:
@@ -108,13 +108,13 @@ class ImageMagicConan(ConanFile):
         if self.options.with_openjp2:
             self.requires("openjpeg/2.5.0")
         if self.options.with_pango:
-            self.requires("pango/1.50.10")
+            self.requires("pango/1.50.14")
         if self.options.with_png:
-            self.requires("libpng/1.6.39")
+            self.requires("libpng/1.6.40")
         if self.options.with_tiff:
-            self.requires("libtiff/4.5.0")
+            self.requires("libtiff/4.5.1")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.0")
+            self.requires("libwebp/1.3.1")
         if self.options.with_xml2:
             self.requires("libxml2/2.11.4")
         if self.options.with_freetype:

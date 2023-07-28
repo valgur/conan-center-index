@@ -71,7 +71,7 @@ class Librasterlite2Conan(ConanFile):
         self.requires("cairo/1.17.6")
         self.requires("freetype/2.13.0")
         self.requires("giflib/5.2.1")
-        self.requires("libcurl/8.1.2")
+        self.requires("libcurl/8.2.0")
         self.requires("libgeotiff/1.7.1")
         self.requires("libjpeg/9e")
         self.requires("libpng/1.6.40")
@@ -97,7 +97,7 @@ class Librasterlite2Conan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
-        self.build_requires("pkgconf/1.9.3")
+        self.build_requires("pkgconf/1.9.5")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

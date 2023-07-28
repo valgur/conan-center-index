@@ -62,13 +62,13 @@ class EnjinCppSdk(ConanFile):
 
     def requirements(self):
         if self.options.with_default_http_client:
-            self.requires("cpp-httplib/0.12.5")
+            self.requires("cpp-httplib/0.13.1")
 
         if self.options.with_default_ws_client:
             self.requires("ixwebsocket/11.4.3")
 
-        self.requires("rapidjson/1.1.0")
-        self.requires("spdlog/1.11.0")
+        self.requires("rapidjson/cci.20220822")
+        self.requires("spdlog/1.12.0")
 
     def validate(self):
         # Validations for OS

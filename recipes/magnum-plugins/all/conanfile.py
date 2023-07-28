@@ -212,17 +212,17 @@ class MagnumConan(ConanFile):
     def requirements(self):
         self.requires("magnum/{}".format(self.version))
         if self.options.assimp_importer:
-            self.requires("assimp/5.0.1")
+            self.requires("assimp/5.2.2")
         if self.options.harfbuzz_font:
-            self.requires("harfbuzz/2.8.2")
+            self.requires("harfbuzz/8.0.1")
         if self.options.freetype_font:
-            self.requires("freetype/2.11.0")
+            self.requires("freetype/2.13.0")
         if self.options.jpeg_importer or self.options.jpeg_imageconverter:
-            self.requires("libjpeg/9d")
+            self.requires("libjpeg/9e")
         if self.options.meshoptimizer_sceneconverter:
-            self.requires("meshoptimizer/0.15")
+            self.requires("meshoptimizer/0.17")
         if self.options.png_imageconverter:
-            self.requires("libpng/1.6.37")
+            self.requires("libpng/1.6.40")
         if self.options.basis_imageconverter or self.options.basis_importer:
             raise ConanInvalidConfiguration("Requires 'basisuniversal', not available in ConanCenter yet")
         if self.options.devil_imageimporter:

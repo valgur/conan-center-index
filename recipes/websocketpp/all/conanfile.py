@@ -42,9 +42,9 @@ class WebsocketPPConan(ConanFile):
             self.requires("zlib/1.2.13", transitive_headers=True, transitive_libs=True)
 
         if self.options.asio == "standalone":
-            self.requires("asio/1.27.0", transitive_headers=True)
+            self.requires("asio/1.28.0", transitive_headers=True)
         elif self.options.asio == "boost":
-            self.requires("boost/1.81.0", transitive_headers=True)
+            self.requires("boost/1.82.0", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()

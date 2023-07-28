@@ -24,7 +24,7 @@ class XpropertyConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("xtl/0.7.4", transitive_headers=True, transitive_libs=True)
+        self.requires("xtl/0.7.5", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
         self.info.clear()

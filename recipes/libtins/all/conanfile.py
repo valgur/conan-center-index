@@ -51,12 +51,12 @@ class LibTinsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpcap/1.10.1", transitive_headers=True, transitive_libs=True)
+        self.requires("libpcap/1.10.4", transitive_headers=True, transitive_libs=True)
         if self.options.with_ack_tracker or self.options.with_tcp_stream_custom_data:
             # Used in two public headers:
             # - https://github.com/mfontanini/libtins/blob/v4.4/include/tins/tcp_ip/ack_tracker.h#L38
             # - https://github.com/mfontanini/libtins/blob/v4.4/include/tins/tcp_ip/stream.h#L48
-            self.requires("boost/1.81.0", transitive_headers=True)
+            self.requires("boost/1.82.0", transitive_headers=True)
         if self.options.with_wpa2:
             self.requires("openssl/[>=1.1 <4]")
 

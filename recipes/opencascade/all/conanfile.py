@@ -167,25 +167,25 @@ class OpenCascadeConan(ConanFile):
         self.requires("tcl/8.6.11")
         if self._link_tk:
             self.requires("tk/8.6.10")
-        self.requires("freetype/2.11.1")
+        self.requires("freetype/2.13.0")
         if self._link_opengl:
             self.requires("opengl/system")
         if self._is_linux:
-            self.requires("fontconfig/2.13.93")
+            self.requires("fontconfig/2.14.2")
             self.requires("xorg/system")
         # TODO: add vtk support?
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/5.0")
+            self.requires("ffmpeg/6.0")
         if self.options.with_freeimage:
             self.requires("freeimage/3.18.0")
         if self.options.with_openvr:
             self.requires("openvr/1.16.8")
         if self.options.with_rapidjson:
-            self.requires("rapidjson/1.1.0")
+            self.requires("rapidjson/cci.20220822")
         if self.options.get_safe("with_draco"):
-            self.requires("draco/1.5.2")
+            self.requires("draco/1.5.6")
         if self.options.with_tbb:
-            self.requires("onetbb/2020.3")
+            self.requires("onetbb/2021.9.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

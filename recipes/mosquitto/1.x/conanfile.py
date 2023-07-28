@@ -46,7 +46,7 @@ class MosquittoConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tls:
-            self.requires("openssl/1.1.1s")
+            self.requires("openssl/[>=1.1 <4]")
         if self.options.with_websockets:
             self.requires("libwebsockets/4.3.2")
 

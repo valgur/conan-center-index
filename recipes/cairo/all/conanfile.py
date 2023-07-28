@@ -82,7 +82,7 @@ class CairoConan(ConanFile):
             if self.options.with_xlib or self.options.with_xlib_xrender or self.options.with_xcb:
                 self.requires("xorg/system", transitive_headers=True)
         if self.options.get_safe("with_glib", True):
-            self.requires("glib/2.76.3", transitive_headers=True)
+            self.requires("glib/2.77.0", transitive_headers=True)
         self.requires("zlib/1.2.13")
         self.requires("pixman/0.40.0")
         self.requires("libpng/1.6.40")
@@ -100,7 +100,7 @@ class CairoConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):

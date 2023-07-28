@@ -45,7 +45,7 @@ class KplotConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cairo/1.17.4")
+        self.requires("cairo/1.17.6")
 
     def validate(self):
         if is_msvc(self):

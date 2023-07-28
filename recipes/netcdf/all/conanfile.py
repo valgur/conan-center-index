@@ -67,12 +67,12 @@ class NetcdfConan(ConanFile):
                 # but when the byterange feature is enabled,
                 # it triggers a compile error that was later patched in 4.8.x
                 # So we will require the older hdf5 to keep the older behaviour.
-                self.requires("hdf5/1.12.0")
+                self.requires("hdf5/1.14.1")
             else:
-                self.requires("hdf5/1.14.0")
+                self.requires("hdf5/1.14.1")
 
         if self.options.dap or self.options.byterange:
-            self.requires("libcurl/7.88.1")
+            self.requires("libcurl/8.2.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

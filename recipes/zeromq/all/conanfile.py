@@ -67,7 +67,7 @@ class ZeroMQConan(ConanFile):
 
     def requirements(self):
         if self.options.encryption == "libsodium":
-            self.requires("libsodium/1.0.18")
+            self.requires("libsodium/cci.20220430")
         if self.options.with_norm:
             self.requires("norm/1.5.9")
 

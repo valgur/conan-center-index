@@ -101,14 +101,14 @@ class GrpcConan(ConanFile):
     def requirements(self):
         # abseil is public. See https://github.com/conan-io/conan-center-index/pull/17284#issuecomment-1526082638
         if is_msvc(self) and Version(self.version) < "1.47":
-            self.requires("abseil/20211102.0", transitive_headers=True, transitive_libs=True)
+            self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
         else:
-            self.requires("abseil/20220623.0", transitive_headers=True, transitive_libs=True)
-        self.requires("c-ares/1.19.0")
+            self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
+        self.requires("c-ares/1.19.1")
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("re2/20230301")
+        self.requires("re2/20230701")
         self.requires("zlib/1.2.13")
-        self.requires("protobuf/3.21.9", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True, run=can_run(self))
 
     def package_id(self):
         del self.info.options.secure
@@ -135,7 +135,7 @@ class GrpcConan(ConanFile):
 
     def build_requirements(self):
         if not can_run(self):
-            self.tool_requires("protobuf/3.21.9")
+            self.tool_requires("protobuf/3.21.12")
         if cross_building(self):
             # when cross compiling we need pre compiled grpc plugins for protoc
             self.tool_requires(f"grpc/{self.version}")

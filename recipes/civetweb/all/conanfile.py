@@ -84,7 +84,7 @@ class CivetwebConan(ConanFile):
     def requirements(self):
         if self.options.with_ssl:
             if Version(self.version) < "1.16":
-                self.requires("openssl/1.1.1t")
+                self.requires("openssl/[>=1.1 <4]")
             else:
                 self.requires("openssl/[>=1 <4]")
         if self.options.get_safe("with_zlib"):

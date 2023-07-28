@@ -66,11 +66,11 @@ class PdalConan(ConanFile):
     def requirements(self):
         self.requires("boost/1.82.0")
         self.requires("eigen/3.4.0", transitive_headers=True)
-        self.requires("gdal/3.4.3", transitive_headers=True)
-        self.requires("libcurl/8.1.2", force=True)  # mandatory dependency of arbiter (to remove if arbiter is unvendored)
+        self.requires("gdal/3.5.2", transitive_headers=True)
+        self.requires("libcurl/8.2.0", force=True)  # mandatory dependency of arbiter (to remove if arbiter is unvendored)
         self.requires("openssl/[>=1.1 <4]")
         self.requires("libgeotiff/1.7.1")
-        self.requires("nanoflann/1.4.3")
+        self.requires("nanoflann/1.5.0")
         if self.options.with_xml:
             self.requires("libxml2/2.11.4", transitive_headers=True)
         if self.options.with_zstd:
@@ -82,7 +82,7 @@ class PdalConan(ConanFile):
         if self.options.with_lzma:
             self.requires("xz_utils/5.4.2")
         if self.options.get_safe("with_unwind"):
-            self.requires("libunwind/1.6.2")
+            self.requires("libunwind/1.7.0")
         # TODO package improvements:
         # - switch from vendored arbiter (not in CCI)
         # - unvendor nlohmann_json
@@ -90,7 +90,7 @@ class PdalConan(ConanFile):
         # - add openscenegraph
 
         # Handle conflicts between gdal and other deps
-        self.requires("libtiff/4.5.0", override=True)
+        self.requires("libtiff/4.5.1", override=True)
         self.requires("libdeflate/1.18", override=True)
         self.requires("sqlite3/3.42.0", override=True)
 

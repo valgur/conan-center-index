@@ -309,7 +309,7 @@ class QtConan(ConanFile):
         if self.options.with_glib:
             self.requires("glib/2.77.0")
         # if self.options.with_libiconv: # QTBUG-84708
-        #     self.requires("libiconv/1.16")# QTBUG-84708
+        #     self.requires("libiconv/1.17")# QTBUG-84708
         if self.options.with_doubleconversion and not self.options.multiconfiguration:
             self.requires("double-conversion/3.3.0")
         if self.options.get_safe("with_freetype", False) and not self.options.multiconfiguration:
@@ -353,7 +353,7 @@ class QtConan(ConanFile):
             if not self.options.qtwayland:
                 self.requires("xorg-proto/2022.2")
             self.requires("libxshmfence/1.3")
-            self.requires("nss/3.89")
+            self.requires("nss/3.91")
             self.requires("libdrm/2.4.114")
             self.requires("egl/system")
         if self.options.get_safe("with_gstreamer", False):

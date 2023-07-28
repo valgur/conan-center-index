@@ -72,7 +72,7 @@ class GnuTLSConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/1.2.13")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.4")
+            self.requires("zstd/1.5.5")
         if self.options.with_brotli:
             self.requires("brotli/1.0.9")
 
@@ -82,7 +82,7 @@ class GnuTLSConan(ConanFile):
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

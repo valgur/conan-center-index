@@ -125,10 +125,10 @@ class AtSpi2CoreConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.76.3")
+        self.requires("glib/2.77.0")
         if self.options.with_x11:
             self.requires("xorg/system")
-        self.requires("dbus/1.15.2")
+        self.requires("dbus/1.15.6")
 
     def validate(self):
         if self.options.shared and not self.dependencies["glib"].options.shared:
@@ -139,8 +139,8 @@ class AtSpi2CoreConan(ConanFile):
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
 
     def build_requirements(self):
-        self.build_requires("meson/1.1.1")
-        self.build_requires("pkgconf/1.9.3")
+        self.build_requires("meson/1.2.0")
+        self.build_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

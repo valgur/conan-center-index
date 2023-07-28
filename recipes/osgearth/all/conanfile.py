@@ -248,40 +248,40 @@ class OsgearthConan(ConanFile):
 
     def requirements(self):
         self.requires("opengl/system")
-        self.requires("gdal/3.4.3")
+        self.requires("gdal/3.5.2")
         self.requires("openscenegraph/3.6.5")
-        self.requires("libcurl/7.83.1")
-        self.requires("lerc/2.2")
-        self.requires("rapidjson/1.1.0")
+        self.requires("libcurl/8.2.0")
+        self.requires("lerc/4.0.0")
+        self.requires("rapidjson/cci.20220822")
 
-        self.requires("zlib/1.2.12", override=True)
-        self.requires("libtiff/4.3.0", override=True)
-        self.requires("openssl/1.1.1l", override=True)
+        self.requires("zlib/1.2.13", override=True)
+        self.requires("libtiff/4.5.1", override=True)
+        self.requires("openssl/[>=1.1 <4]", override=True)
 
         # if self.options.build_triton_nodekit:
         #     self.requires("triton_nodekit")
         # if self.options.build_silverlining_nodekit:
         #     self.requires("silverlining_nodekit")
         if self.options.build_leveldb_cache:
-            self.requires("leveldb/1.22")
+            self.requires("leveldb/1.23")
         if self.options.build_rocksdb_cache:
-            self.requires("rocksdb/6.20.3")
+            self.requires("rocksdb/6.29.5")
         if self.options.build_zip_plugin:
-            self.requires("zstd/1.4.9")  # override
+            self.requires("zstd/1.5.5")  # override
         if self.options.with_geos:
-            self.requires("geos/3.10.2")
+            self.requires("geos/3.11.2")
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.38.5")
+            self.requires("sqlite3/3.42.0")
         if self.options.with_draco:
-            self.requires("draco/1.4.3")
+            self.requires("draco/1.5.6")
         # if self.options.with_basisu:
         #     self.requires("basisu")
         # if self.options.with_glew:
         #     self.requires("glew/2.2.0")
         if self.options.with_protobuf:
-            self.requires("protobuf/3.17.1")
+            self.requires("protobuf/3.21.12")
         if self.options.with_webp:
-            self.requires("libwebp/1.2.0")
+            self.requires("libwebp/1.3.1")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

@@ -51,7 +51,7 @@ class LdnsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1t")
+        self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         if self.settings.os == "Windows":

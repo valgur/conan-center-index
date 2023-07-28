@@ -121,7 +121,7 @@ class NSSConan(ConanFile):
 
     def requirements(self):
         self.requires("nspr/4.35")
-        self.requires("sqlite3/3.41.2")
+        self.requires("sqlite3/3.42.0")
         self.requires("zlib/1.2.13")
 
     def validate(self):
@@ -157,7 +157,7 @@ class NSSConan(ConanFile):
         if self.settings.os == "Windows":
             self.build_requires("mozilla-build/3.3")
         if hasattr(self, "settings_build"):
-            self.build_requires("sqlite3/3.41.2")
+            self.build_requires("sqlite3/3.42.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

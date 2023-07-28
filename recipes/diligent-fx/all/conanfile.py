@@ -57,7 +57,7 @@ class DiligentFxConan(ConanFile):
 
     def requirements(self):
         if self.version == "cci.20220219" or self.version == "cci.20211112":
-            self.requires("diligent-tools/2.5.2")
+            self.requires("diligent-tools/api.252009")
         else:
             self.requires("diligent-tools/{}".format(self.version))
 

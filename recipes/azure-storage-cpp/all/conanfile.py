@@ -62,11 +62,11 @@ class AzureStorageCppConan(ConanFile):
     def requirements(self):
         self.requires("cpprestsdk/2.10.18", transitive_headers=True)
         if self.settings.os != "Windows":
-            self.requires("boost/1.81.0", transitive_headers=True)
+            self.requires("boost/1.82.0", transitive_headers=True)
             self.requires("libxml2/2.11.4", transitive_headers=True)
             self.requires("libuuid/1.0.3", transitive_headers=True)
         if is_apple_os(self):
-            self.requires("libgettext/0.21")
+            self.requires("libgettext/0.22")
 
     def validate(self):
         if self.settings.compiler.cppstd:

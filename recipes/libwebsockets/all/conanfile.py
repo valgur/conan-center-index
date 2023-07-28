@@ -225,7 +225,7 @@ class LibwebsocketsConan(ConanFile):
 
     def requirements(self):
         if self.options.with_libuv:
-            self.requires("libuv/1.44.1")
+            self.requires("libuv/1.46.0")
 
         if self.options.with_libevent == "libevent":
             self.requires("libevent/2.1.12")
@@ -235,21 +235,21 @@ class LibwebsocketsConan(ConanFile):
         if self.options.with_zlib == "zlib":
             self.requires("zlib/1.2.13")
         elif self.options.with_zlib == "miniz":
-            self.requires("miniz/2.2.0")
+            self.requires("miniz/3.0.2")
 
         if self.options.with_libmount:
-            self.requires("libmount/2.36.2")
+            self.requires("libmount/2.39")
 
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.37.2")
+            self.requires("sqlite3/3.42.0")
 
         if self.options.with_ssl == "openssl":
             # Cannot add the [>=1.1 <4] range, as it seems openssl3 makes it fail
-            self.requires("openssl/1.1.1t", transitive_headers=True)
+            self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
         elif self.options.with_ssl == "mbedtls":
-            self.requires("mbedtls/2.25.0")
+            self.requires("mbedtls/3.2.1")
         elif self.options.with_ssl == "wolfssl":
-            self.requires("wolfssl/4.8.1")
+            self.requires("wolfssl/5.6.3")
 
     def validate(self):
         if (

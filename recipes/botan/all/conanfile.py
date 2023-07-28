@@ -479,13 +479,13 @@ class BotanConan(ConanFile):
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")
         if self.options.with_openssl:
-            self.requires("openssl/1.1.1o")
+            self.requires("openssl/[>=1.1 <4]")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.12")
+            self.requires("zlib/1.2.13")
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.38.5")
+            self.requires("sqlite3/3.42.0")
         if self.options.with_boost:
-            self.requires("boost/1.79.0")
+            self.requires("boost/1.82.0")
 
     def validate(self):
         if self.options.with_boost:

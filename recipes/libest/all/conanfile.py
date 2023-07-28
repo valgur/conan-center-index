@@ -50,7 +50,7 @@ class LibEstConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1q")
+        self.requires("openssl/[>=1.1 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

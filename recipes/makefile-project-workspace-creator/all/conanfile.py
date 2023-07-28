@@ -24,7 +24,7 @@ class MPCGeneratorConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == "Windows":
-            self.requires("strawberryperl/5.30.0.1")
+            self.requires("strawberryperl/5.32.1.1")
 
     def package_id(self):
         del self.info.settings.compiler

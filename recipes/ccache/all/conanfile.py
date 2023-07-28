@@ -52,7 +52,7 @@ class CcacheConan(ConanFile):
     def requirements(self):
         self.requires("zstd/1.5.5")
         if self.options.redis_storage_backend:
-            self.requires("hiredis/1.1.0")
+            self.requires("hiredis/1.2.0")
 
     def validate(self):
         if self.settings.compiler.cppstd:

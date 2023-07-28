@@ -59,7 +59,7 @@ class fastgltf(ConanFile):
         cmake_layout(self, src_folder='src')
 
     def requirements(self):
-        self.requires("simdjson/3.2.0")
+        self.requires("simdjson/3.2.1")
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):

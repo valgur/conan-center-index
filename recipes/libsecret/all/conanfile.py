@@ -53,7 +53,7 @@ class LibsecretConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.76.0", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.77.0", transitive_headers=True, transitive_libs=True)
         if self._use_gcrypt:
             self.requires("libgcrypt/1.8.4")
 
@@ -62,9 +62,9 @@ class LibsecretConan(ConanFile):
             raise ConanInvalidConfiguration("libsecret recipe is not yet compatible with Windows.")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.0.0")
+        self.tool_requires("meson/1.2.0")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
         self.tool_requires("glib/<host_version>")
 
         if is_apple_os(self):

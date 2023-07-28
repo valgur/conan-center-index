@@ -82,10 +82,10 @@ class FreeImageConan(ConanFile):
             self.requires("libwebp/1.3.1")
         if self.options.with_tiff or self.options.with_openexr:
             # can't upgrade to openexr/3.x.x because plugin tiff requires openexr/2.x.x header files
-            self.requires("openexr/2.5.7")
+            self.requires("openexr/3.1.9")
         if self.options.with_raw:
             # can't upgrade to libraw >= 0.21 (error: no member named 'shot_select' in 'libraw_output_params_t')
-            self.requires("libraw/0.20.2")
+            self.requires("libraw/0.21.1")
         if self.options.with_jxr:
             self.requires("jxrlib/cci.20170615")
         if self.options.with_tiff:

@@ -42,7 +42,7 @@ class LAConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("mdspan/0.5.0")
+        self.requires("mdspan/0.6.0")
 
     def package_id(self):
         self.info.clear()

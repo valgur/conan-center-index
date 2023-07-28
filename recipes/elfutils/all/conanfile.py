@@ -68,15 +68,15 @@ class ElfutilsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.12")
+        self.requires("zlib/1.2.13")
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.38.5")
+            self.requires("sqlite3/3.42.0")
         if self.options.with_bzlib:
             self.requires("bzip2/1.0.8")
         if self.options.with_lzma:
-            self.requires("xz_utils/5.2.5")
+            self.requires("xz_utils/5.4.2")
         if self.options.get_safe("libdebuginfod"):
-            self.requires("libcurl/7.83.0")
+            self.requires("libcurl/8.2.0")
         if self.options.debuginfod:
             # FIXME: missing recipe for libmicrohttpd
             raise ConanInvalidConfiguration("libmicrohttpd is not available (yet) on CCI")
@@ -99,8 +99,8 @@ class ElfutilsConan(ConanFile):
         self.tool_requires("automake/1.16.5")
         self.tool_requires("m4/1.4.19")
         self.tool_requires("flex/2.6.4")
-        self.tool_requires("bison/3.7.6")
-        self.tool_requires("pkgconf/1.9.3")
+        self.tool_requires("bison/3.8.2")
+        self.tool_requires("pkgconf/1.9.5")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

@@ -65,7 +65,7 @@ class SdbusCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libsystemd/253.3")
+        self.requires("libsystemd/253.6")
 
     def validate(self):
         if self.info.settings.os not in ["Linux", "FreeBSD"]:
@@ -92,7 +92,7 @@ class SdbusCppConan(ConanFile):
                 )
 
     def build_requirements(self):
-        self.tool_requires("pkgconf/1.9.3")
+        self.tool_requires("pkgconf/1.9.5")
         if self.options.with_code_gen:
             self.tool_requires("expat/2.5.0")
 

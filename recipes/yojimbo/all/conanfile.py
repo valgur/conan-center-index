@@ -46,8 +46,8 @@ class YojimboConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libsodium/1.0.18")
-        self.requires("mbedtls/2.25.0")
+        self.requires("libsodium/cci.20220430")
+        self.requires("mbedtls/3.2.1")
 
     def build_requirements(self):
         self.tool_requires("premake/5.0.0-alpha15")

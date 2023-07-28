@@ -31,7 +31,7 @@ class BrigandConan(ConanFile):
     def requirements(self):
         if self.options.with_boost:
             # TODO: add transitive_headers=True & bump required_conan_version to >=1.52.0
-            self.requires("boost/1.79.0")
+            self.requires("boost/1.82.0")
 
     def package_id(self):
         self.info.clear()

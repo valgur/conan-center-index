@@ -41,7 +41,7 @@ class ClickHouseCppConan(ConanFile):
 
     def build_requirements(self):
         if self.options.enable_benchmark:
-            self.requires("benchmark/1.8.0")
+            self.requires("benchmark/1.8.2")
 
     @property
     def _min_cppstd(self):

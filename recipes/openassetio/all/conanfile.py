@@ -64,12 +64,12 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("tomlplusplus/3.2.0")
+        self.requires("tomlplusplus/3.3.0")
         if self.options.with_python:
             # TODO: cpython requires ncurses/6.2 but no pre-built package exists.
-            self.requires("ncurses/6.3")
-            self.requires("cpython/3.9.7")
-            self.requires("pybind11/2.10.1")
+            self.requires("ncurses/6.4")
+            self.requires("cpython/3.10.0")
+            self.requires("pybind11/2.10.4")
 
     def package_id(self):
         if self.options.with_python:

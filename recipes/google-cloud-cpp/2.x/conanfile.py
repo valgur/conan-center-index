@@ -98,12 +98,12 @@ class GoogleCloudCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("protobuf/3.21.9", transitive_headers=True)
+        self.requires("protobuf/3.21.12", transitive_headers=True)
         self.requires("grpc/1.50.1", transitive_headers=True)
-        self.requires("nlohmann_json/3.10.0")
-        self.requires("crc32c/1.1.1")
-        self.requires("abseil/20220623.0", transitive_headers=True)
-        self.requires("libcurl/7.88.1")
+        self.requires("nlohmann_json/3.11.2")
+        self.requires("crc32c/1.1.2")
+        self.requires("abseil/20230125.3", transitive_headers=True)
+        self.requires("libcurl/8.2.0")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("zlib/1.2.13")
 

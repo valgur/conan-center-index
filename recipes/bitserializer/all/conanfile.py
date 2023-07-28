@@ -86,7 +86,7 @@ class BitserializerConan(ConanFile):
         if self.options.with_pugixml:
             self.requires("pugixml/1.13", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_rapidyaml"):
-            self.requires("rapidyaml/0.4.1", transitive_headers=True, transitive_libs=True)
+            self.requires("rapidyaml/0.5.0", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
         if self._is_header_only(info=True):

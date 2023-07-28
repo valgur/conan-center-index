@@ -63,7 +63,7 @@ class LibfabricConan(ConanFile):
 
     def requirements(self):
         if self.options.with_libnl:
-            self.requires("libnl/3.2.25")
+            self.requires("libnl/3.7.0")
 
     def validate(self):
         if self.settings.os == "Windows":

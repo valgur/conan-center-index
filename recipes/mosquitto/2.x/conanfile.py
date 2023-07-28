@@ -66,9 +66,9 @@ class Mosquitto(ConanFile):
         if self.options.ssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("cjson"):
-            self.requires("cjson/1.7.14")
+            self.requires("cjson/1.7.16")
         if self.options.get_safe("websockets"):
-            self.requires("libwebsockets/4.2.0")
+            self.requires("libwebsockets/4.3.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

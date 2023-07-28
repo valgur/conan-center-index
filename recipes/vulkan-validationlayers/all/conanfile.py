@@ -124,7 +124,7 @@ class VulkanValidationLayersConan(ConanFile):
         if self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib"):
             self.requires("xorg/system")
         if self._needs_wayland_for_build:
-            self.requires("wayland/1.21.0")
+            self.requires("wayland/1.22.0")
 
     def _require(self, recipe_name):
         if recipe_name not in self._dependencies_versions:
@@ -155,7 +155,7 @@ class VulkanValidationLayersConan(ConanFile):
 
     def build_requirements(self):
         if self._needs_pkg_config and not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
         if Version(self.version) >= "1.3.239":
             self.tool_requires("cmake/[>=3.17.2 <4]")
 
