@@ -261,7 +261,7 @@ class JemallocConan(ConanFile):
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not self.conf.get(
-            "tools.microsoft.bash:path", default=False, check_type=bool
+            "tools.microsoft.bash:path", default=False, check_type=str
         ):
             self.tool_requires("msys2/cci.latest")
 

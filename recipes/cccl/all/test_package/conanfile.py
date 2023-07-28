@@ -17,13 +17,13 @@ class CcclTestConan(ConanFile):
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
         if self._settings_build.os == "Windows" and not self.conf.get(
-            "tools.microsoft.bash:path", default=False, check_type=bool
+            "tools.microsoft.bash:path", default=False, check_type=str
         ):
             self.tool_requires("msys2/cci.latest")
 
     def build(self):
         if self._settings_build.os == "Windows" and not self.conf.get(
-            "tools.microsoft.bash:path", default=False, check_type=bool
+            "tools.microsoft.bash:path", default=False, check_type=str
         ):
             return  # cccl needs a bash if there isn't a bash we can't build
         cxx = "cccl "
@@ -32,7 +32,7 @@ class CcclTestConan(ConanFile):
 
     def test(self):
         if self._settings_build.os == "Windows" and not self.conf.get(
-            "tools.microsoft.bash:path", default=False, check_type=bool
+            "tools.microsoft.bash:path", default=False, check_type=str
         ):
             return  # cccl needs a bash if there isn't a bash we can't build
         if can_run(self):
