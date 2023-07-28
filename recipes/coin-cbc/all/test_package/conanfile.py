@@ -13,7 +13,7 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        self.tool_requires("pkgconf/1.9.3")
+        self.tool_requires("pkgconf/1.9.5")
 
     def layout(self):
         cmake_layout(self)

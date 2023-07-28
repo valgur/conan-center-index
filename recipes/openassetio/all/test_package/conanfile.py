@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
         if self.dependencies["openassetio"].options.get_safe("with_python"):
-            self.requires("cpython/3.9.7")
+            self.requires("cpython/3.10.0")
 
     def layout(self):
         cmake_layout(self)

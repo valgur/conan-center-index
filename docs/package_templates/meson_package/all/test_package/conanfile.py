@@ -19,7 +19,7 @@ class TestPackageConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/0.63.3")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def build(self):
         meson = Meson(self)

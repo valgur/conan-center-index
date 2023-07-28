@@ -14,7 +14,7 @@ class TestPackageConan(ConanFile):
 
     def requirements(self):
         self.requires(self.tested_reference_str)
-        self.requires("stb/cci.20210910")
+        self.requires("stb/cci.20220909")
 
     def build(self):
         cmake = CMake(self)

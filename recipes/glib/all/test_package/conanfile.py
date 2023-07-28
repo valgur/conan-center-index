@@ -21,7 +21,7 @@ class TestPackageConan(ConanFile):
         if self.settings.os != "Windows" and not self.conf.get(
             "tools.gnu:pkg_config", default=False, check_type=str
         ):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def generate(self):
         tc = CMakeToolchain(self)
