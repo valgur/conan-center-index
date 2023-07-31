@@ -11,6 +11,9 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
 
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
+
     def layout(self):
         cmake_layout(self)
 
@@ -22,8 +25,8 @@ class TestPackageConan(ConanFile):
     def test(self):
         if not cross_building(self):
             # test executable
-            self.run("ruby --version", env="conanrun")
+            self.run("ruby --version")
 
             # test library
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
