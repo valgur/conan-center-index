@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 
 required_conan_version = ">=1.53.0"
@@ -32,9 +30,6 @@ class GameNetworkingSocketsConan(ConanFile):
         "fPIC": True,
         "encryption": "openssl",
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -62,18 +57,19 @@ class GameNetworkingSocketsConan(ConanFile):
             raise ConanInvalidConfiguration("bcrypt is only valid on Windows")
 
     def build_requirements(self):
-        self.tool_requires("protobuf/3.21.12")
+        self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_STATIC"] = not self.options.shared
-        tc.variables["BUILD_SHARED"] = self.options.shared
+        tc.variables["BUILD_STATIC_LIB"] = not self.options.shared
+        tc.variables["BUILD_SHARED_LIB"] = self.options.shared
         tc.variables["GAMENETWORKINGSOCKETS_BUILD_EXAMPLES"] = False
         tc.variables["GAMENETWORKINGSOCKETS_BUILD_TESTS"] = False
         tc.variables["Protobuf_USE_STATIC_LIBS"] = not self.dependencies["protobuf"].options.shared
+        tc.variables["Protobuf_IMPORT_DIRS"] = os.path.join(self.source_folder, "src", "common").replace("\\", "/")
         crypto = {
             "openssl": "OpenSSL",
             "libsodium": "libsodium",
@@ -98,7 +94,9 @@ class GameNetworkingSocketsConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
+        # Disable MSVC runtime override
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "configure_msvc_runtime()", "")
 
     def build(self):
         self._patch_sources()
@@ -107,14 +105,16 @@ class GameNetworkingSocketsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "GameNetworkingSockets")
-        self.cpp_info.set_property("cmake_target_name", "GameNetworkingSockets")
+        self.cpp_info.set_property("cmake_target_name", "GameNetworkingSockets::GameNetworkingSockets")
         self.cpp_info.set_property("pkg_config_name", "GameNetworkingSockets")
         self.cpp_info.includedirs.append(os.path.join("include", "GameNetworkingSockets"))
         if self.options.shared:
