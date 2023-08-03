@@ -118,9 +118,7 @@ class MsixConan(ConanFile):
         if self.options.pack:
             if is_apple_os(self):
                 if not self.options.use_external_zlib:
-                    raise ConanInvalidConfiguration(
-                        "Using libCompression APIs and packaging features is not supported"
-                    )
+                    raise ConanInvalidConfiguration("Using libCompression APIs and packaging features is not supported")
                 if self.options.xml_parser != "xerces":
                     raise ConanInvalidConfiguration("Xerces is the only supported parser for MacOS pack")
             if not self.options.use_validation_parser:
@@ -153,7 +151,6 @@ class MsixConan(ConanFile):
         tc.variables["CALCULATE_VERSION"] = False
         tc.variables["ENABLE_NUGET_PACKAGING"] = False
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
