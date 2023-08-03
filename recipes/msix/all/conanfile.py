@@ -145,7 +145,6 @@ class MsixConan(ConanFile):
         tc.variables["MSIX_TESTS"] = False
         tc.variables["SKIP_BUNDLES"] = self.options.skip_bundles
         tc.variables["USE_MSIX_SDK_ZLIB"] = self.options.use_external_zlib
-        tc.variables["USE_SHARED_ZLIB"] = self.dependencies["zlib"].options.shared
         tc.variables["USE_VALIDATION_PARSER"] = self.options.use_validation_parser
         tc.variables["XML_PARSER"] = self.options.xml_parser
         tc.variables["CALCULATE_VERSION"] = False

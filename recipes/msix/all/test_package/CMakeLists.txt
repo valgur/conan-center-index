@@ -4,4 +4,4 @@ project(test_package CXX)
 find_package(msix REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} example.cpp)
-conan_target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE msix::msix)
