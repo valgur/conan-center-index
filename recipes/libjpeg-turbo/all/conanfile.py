@@ -16,9 +16,9 @@ class LibjpegTurboConan(ConanFile):
     license = "BSD-3-Clause, Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://libjpeg-turbo.org"
-    topics = ("jpeg", "libjpeg", "image", "multimedia", "format", "graphics")
-
+    topics = ("jpeg", "libjpeg", "image", "multimedia", "format", "graphics")mpdecimal
     package_type = "library"
+    provides = "libjpeg"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -46,11 +46,13 @@ class LibjpegTurboConan(ConanFile):
         "java": False,
         "enable12bit": False,
     }
-    provides = "libjpeg"
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if Version(self.version) >= "3.0.0":
+            del self.options.enable12bit
+            del self.options.mem_src_dst
 
     def configure(self):
         if self.options.shared:
@@ -58,18 +60,14 @@ class LibjpegTurboConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
-        if self.options.enable12bit:
-            self.options.rm_safe("java")
-            self.options.rm_safe("turbojpeg")
-        if self.options.enable12bit or self.settings.os == "Emscripten":
-            self.options.rm_safe("SIMD")
-        if (
-            self.options.enable12bit
-            or self.options.libjpeg7_compatibility
-            or self.options.libjpeg8_compatibility
-        ):
-            self.options.rm_safe("arithmetic_encoder")
-            self.options.rm_safe("arithmetic_decoder")
+        if self.options.get_safe("enable12bit"):
+            del self.options.java
+            del self.options.turbojpeg
+        if self.options.get_safe("enable12bit") or self.settings.os == "Emscripten":
+            del self.options.SIMD
+        if self.options.get_safe("enable12bit") or self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility:
+            del self.options.arithmetic_encoder
+            del self.options.arithmetic_decoder
         if self.options.libjpeg8_compatibility:
             self.options.rm_safe("mem_src_dst")
 
@@ -77,9 +75,7 @@ class LibjpegTurboConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.options.enable12bit and (
-            self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility
-        ):
+        if self.options.get_safe("enable12bit") and (self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility):
             raise ConanInvalidConfiguration("12-bit samples is not allowed with libjpeg v7/v8 API/ABI")
         if self.options.get_safe("java") and not self.options.shared:
             raise ConanInvalidConfiguration("java wrapper requires shared libjpeg-turbo")
@@ -121,33 +117,26 @@ class LibjpegTurboConan(ConanFile):
         tc.variables["WITH_ARITH_DEC"] = self._is_arithmetic_decoding_enabled
         tc.variables["WITH_JPEG7"] = self.options.libjpeg7_compatibility
         tc.variables["WITH_JPEG8"] = self.options.libjpeg8_compatibility
-        tc.variables["WITH_MEM_SRCDST"] = self.options.get_safe("mem_src_dst", False)
         tc.variables["WITH_TURBOJPEG"] = self.options.get_safe("turbojpeg", False)
         tc.variables["WITH_JAVA"] = self.options.get_safe("java", False)
-        tc.variables["WITH_12BIT"] = self.options.enable12bit
+        if Version(self.version) < "3.0.0":
+            tc.variables["WITH_MEM_SRCDST"] = self.options.get_safe("mem_src_dst", False)
+            tc.variables["WITH_12BIT"] = self.options.enable12bit
         if is_msvc(self):
-            tc.variables["WITH_CRT_DLL"] = True  # avoid replacing /MD by /MT in compiler flags
+            tc.variables["WITH_CRT_DLL"] = True # avoid replacing /MD by /MT in compiler flags
         if Version(self.version) <= "2.1.0":
-            tc.variables["CMAKE_MACOSX_BUNDLE"] = (
-                False  # avoid configuration error if building for iOS/tvOS/watchOS
-            )
+            tc.variables["CMAKE_MACOSX_BUNDLE"] = False # avoid configuration error if building for iOS/tvOS/watchOS
         tc.generate()
 
     def _patch_sources(self):
         # use standard GNUInstallDirs.cmake - custom one is broken
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "include(cmakescripts/GNUInstallDirs.cmake)",
-            "include(GNUInstallDirs)",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                              "include(cmakescripts/GNUInstallDirs.cmake)",
+                              "include(GNUInstallDirs)")
         # do not override /MT by /MD if shared
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "sharedlib", "CMakeLists.txt"),
-            """string(REGEX REPLACE "/MT" "/MD" ${var} "${${var}}")""",
-            "",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "sharedlib", "CMakeLists.txt"),
+                              """string(REGEX REPLACE "/MT" "/MD" ${var} "${${var}}")""",
+                              "")
 
     def build(self):
         self._patch_sources()
@@ -165,15 +154,7 @@ class LibjpegTurboConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "doc"))
         # remove binaries and pdb files
-        for pattern_to_remove in [
-            "cjpeg*",
-            "djpeg*",
-            "jpegtran*",
-            "tjbench*",
-            "wrjpgcom*",
-            "rdjpgcom*",
-            "*.pdb",
-        ]:
+        for pattern_to_remove in ["cjpeg*", "djpeg*", "jpegtran*", "tjbench*", "wrjpgcom*", "rdjpgcom*", "*.pdb"]:
             rm(self, pattern_to_remove, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
@@ -185,16 +166,12 @@ class LibjpegTurboConan(ConanFile):
         lib_suffix = "-static" if is_msvc(self) and not self.options.shared else ""
 
         self.cpp_info.components["jpeg"].set_property("cmake_module_target_name", "JPEG::JPEG")
-        self.cpp_info.components["jpeg"].set_property(
-            "cmake_target_name", f"libjpeg-turbo::jpeg{cmake_target_suffix}"
-        )
+        self.cpp_info.components["jpeg"].set_property("cmake_target_name", f"libjpeg-turbo::jpeg{cmake_target_suffix}")
         self.cpp_info.components["jpeg"].set_property("pkg_config_name", "libjpeg")
         self.cpp_info.components["jpeg"].libs = [f"jpeg{lib_suffix}"]
 
         if self.options.get_safe("turbojpeg"):
-            self.cpp_info.components["turbojpeg"].set_property(
-                "cmake_target_name", f"libjpeg-turbo::turbojpeg{cmake_target_suffix}"
-            )
+            self.cpp_info.components["turbojpeg"].set_property("cmake_target_name", f"libjpeg-turbo::turbojpeg{cmake_target_suffix}")
             self.cpp_info.components["turbojpeg"].set_property("pkg_config_name", "libturbojpeg")
             self.cpp_info.components["turbojpeg"].libs = [f"turbojpeg{lib_suffix}"]
 
@@ -204,9 +181,5 @@ class LibjpegTurboConan(ConanFile):
         self.cpp_info.components["jpeg"].names["cmake_find_package"] = "JPEG"
         self.cpp_info.components["jpeg"].names["cmake_find_package_multi"] = f"jpeg{cmake_target_suffix}"
         if self.options.get_safe("turbojpeg"):
-            self.cpp_info.components["turbojpeg"].names[
-                "cmake_find_package"
-            ] = f"turbojpeg{cmake_target_suffix}"
-            self.cpp_info.components["turbojpeg"].names[
-                "cmake_find_package_multi"
-            ] = f"turbojpeg{cmake_target_suffix}"
+            self.cpp_info.components["turbojpeg"].names["cmake_find_package"] = f"turbojpeg{cmake_target_suffix}"
+            self.cpp_info.components["turbojpeg"].names["cmake_find_package_multi"] = f"turbojpeg{cmake_target_suffix}"
