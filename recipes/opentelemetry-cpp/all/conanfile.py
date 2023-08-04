@@ -106,9 +106,9 @@ class OpenTelemetryCppConan(ConanFile):
         if self.options.with_otlp:
             self.requires("protobuf/3.21.12")
             if Version(self.version) <= "1.4.1":
-                self.requires("opentelemetry-proto/0.20.0")
+                self.requires("opentelemetry-proto/0.11.0")
             else:
-                self.requires("opentelemetry-proto/0.20.0")
+                self.requires("opentelemetry-proto/1.0.0")
 
             if self.options.get_safe("with_otlp_grpc"):
                 self.requires("grpc/1.50.1")
