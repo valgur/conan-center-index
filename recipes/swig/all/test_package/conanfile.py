@@ -12,6 +12,9 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
 
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
+
     def layout(self):
         cmake_layout(self)
 
@@ -25,13 +28,11 @@ class TestPackageConan(ConanFile):
             self.run("swig -swiglib")
             if self._can_build:
                 cmake = CMake(self)
-                cmake.verbose = True
                 cmake.configure()
                 cmake.build()
 
     def test(self):
         if can_run(self):
             if self._can_build:
-                cmake = CMake(self)
-                cmake.test(output_on_failure=True)
+                self.run(f"ctest --no-tests=error -C {self.settings.build_type}")
             self.run("swig -version")
