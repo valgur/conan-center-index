@@ -31,7 +31,7 @@ class SimpleWebSocketServerConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/1.1.1q")
+        self.requires("openssl/[>=1.1 <4]")
         # only version 2.0.2 upwards is able to build against asio 1.18.0 or higher
         if Version(self.version) <= "2.0.1":
             if self.options.use_asio_standalone:
