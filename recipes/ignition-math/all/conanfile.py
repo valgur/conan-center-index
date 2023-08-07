@@ -57,7 +57,7 @@ class IgnitionMathConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0")
-        self.requires("swig/4.1.0")
+        self.requires("swig/4.1.1")
 
     def validate(self):
         if is_apple_os(self) and self.settings.arch == "armv8":

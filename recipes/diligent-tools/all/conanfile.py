@@ -65,11 +65,11 @@ class DiligentToolsConan(ConanFile):
     def requirements(self):
         if self.version == "cci.20211009":
             self.requires("diligent-core/api.252009")
-            self.requires("imgui/1.89.7")
+            self.requires("imgui/1.89.8")
         else:
             self.requires("diligent-core/{}".format(self.version))
-            self.requires("taywee-args/6.3.0")
-            self.requires("imgui/1.85")
+            self.requires("taywee-args/6.4.6")
+            self.requires("imgui/1.89.8")
 
         if self.options.jpeg == "libjpeg":
             self.requires("libjpeg/9e")

@@ -41,7 +41,7 @@ class AwsCMQTT(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.8.2")
+        self.requires("aws-c-common/0.9.0")
         self.requires("aws-c-cal/0.5.20")
         if Version(self.version) < "0.7.12":
             self.requires("aws-c-io/0.13.4")

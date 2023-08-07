@@ -214,7 +214,7 @@ class MagnumConan(ConanFile):
         if self.options.assimp_importer:
             self.requires("assimp/5.2.2")
         if self.options.harfbuzz_font:
-            self.requires("harfbuzz/8.0.1")
+            self.requires("harfbuzz/8.1.1")
         if self.options.freetype_font:
             self.requires("freetype/2.13.0")
         if self.options.jpeg_importer or self.options.jpeg_imageconverter:

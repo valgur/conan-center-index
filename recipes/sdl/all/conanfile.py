@@ -155,7 +155,7 @@ class SDLConan(ConanFile):
                 self.requires("xkbcommon/1.5.0")
                 self.requires("egl/system")
             if self.options.libunwind:
-                self.requires("libunwind/1.7.0")
+                self.requires("libunwind/1.7.2")
 
     def package_id(self):
         if Version(self.version) < "2.0.22":

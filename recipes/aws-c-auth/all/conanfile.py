@@ -44,7 +44,7 @@ class AwsCAuth(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
         self.requires("aws-c-cal/0.5.20")
         if Version(self.version) < "0.6.17":
             self.requires("aws-c-io/0.13.4", transitive_headers=True)

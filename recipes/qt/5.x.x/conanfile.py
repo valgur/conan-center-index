@@ -307,7 +307,7 @@ class QtConan(ConanFile):
             if is_apple_os(self):
                 self.requires("moltenvk/1.2.2")
         if self.options.with_glib:
-            self.requires("glib/2.77.0")
+            self.requires("glib/2.77.1")
         # if self.options.with_libiconv: # QTBUG-84708
         #     self.requires("libiconv/1.17")# QTBUG-84708
         if self.options.with_doubleconversion and not self.options.multiconfiguration:
@@ -319,7 +319,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_icu", False):
             self.requires("icu/73.2")
         if self.options.get_safe("with_harfbuzz", False) and not self.options.multiconfiguration:
-            self.requires("harfbuzz/8.0.1")
+            self.requires("harfbuzz/8.1.1")
         if self.options.get_safe("with_libjpeg", False) and not self.options.multiconfiguration:
             if self.options.with_libjpeg == "libjpeg-turbo":
                 self.requires("libjpeg-turbo/3.0.0")
@@ -353,7 +353,7 @@ class QtConan(ConanFile):
             if not self.options.qtwayland:
                 self.requires("xorg-proto/2022.2")
             self.requires("libxshmfence/1.3")
-            self.requires("nss/3.91")
+            self.requires("nss/3.92")
             self.requires("libdrm/2.4.114")
             self.requires("egl/system")
         if self.options.get_safe("with_gstreamer", False):

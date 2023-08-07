@@ -125,7 +125,7 @@ class AtSpi2CoreConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.77.0")
+        self.requires("glib/2.77.1")
         if self.options.with_x11:
             self.requires("xorg/system")
         self.requires("dbus/1.15.6")

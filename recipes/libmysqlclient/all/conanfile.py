@@ -78,7 +78,7 @@ class LibMysqlClientCConan(ConanFile):
         self.requires("zstd/1.5.5")
         self.requires("lz4/1.9.4")
         if self.settings.os == "FreeBSD":
-            self.requires("libunwind/1.7.0")
+            self.requires("libunwind/1.7.2")
 
     def validate(self):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)

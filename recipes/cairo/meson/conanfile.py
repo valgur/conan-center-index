@@ -99,7 +99,7 @@ class CairoConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/1.6.40")
         if self.options.with_glib:
-            self.requires("glib/2.77.0")
+            self.requires("glib/2.77.1")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_xlib or self.options.with_xlib_xrender or self.options.with_xcb:
                 self.requires("xorg/system", transitive_headers=True)

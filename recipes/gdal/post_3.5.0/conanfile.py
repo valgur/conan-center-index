@@ -205,7 +205,7 @@ class GdalConan(ConanFile):
         self.requires("libgeotiff/1.7.1")
 
         if self.options.with_armadillo:
-            self.requires("armadillo/11.4.3")
+            self.requires("armadillo/12.2.0")
 
         if self.options.with_arrow:
             self.requires("arrow/12.0.0")

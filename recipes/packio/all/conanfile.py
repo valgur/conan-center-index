@@ -80,7 +80,7 @@ class PackioConan(ConanFile):
             self.requires("boost/1.82.0")
 
         if self.options.get_safe("standalone_asio"):
-            self.requires("asio/1.28.0")
+            self.requires("asio/1.28.1")
 
     def package_id(self):
         self.info.clear()

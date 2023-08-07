@@ -46,7 +46,7 @@ class AwsChecksums(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.8.2")
+        self.requires("aws-c-common/0.9.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

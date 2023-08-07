@@ -41,7 +41,7 @@ class AwsCHttp(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
         self.requires("aws-c-compression/0.2.15")
         if Version(self.version) < "0.6.22":
             self.requires("aws-c-io/0.13.4", transitive_headers=True)

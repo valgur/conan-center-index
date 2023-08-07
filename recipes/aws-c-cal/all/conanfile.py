@@ -49,9 +49,9 @@ class AwsCCal(ConanFile):
             # transitive_libs probably not strictly required, but it's impossible to write a robust test package
             # without it for conan v2 (we would have to required aws-c-common in test package, but we can't know
             # which version to require in test package)
-            self.requires("aws-c-common/0.8.2", transitive_headers=True, transitive_libs=True)
+            self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
         else:
-            self.requires("aws-c-common/0.8.2", transitive_headers=True, transitive_libs=True)
+            self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
         if self._needs_openssl:
             self.requires("openssl/[>=1.1 <4]")
 

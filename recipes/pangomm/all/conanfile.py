@@ -65,7 +65,7 @@ class PangommConan(ConanFile):
         # once dependencies versions are bumped remove these requirements
         self.requires("expat/2.5.0", override=True)
         self.requires("zlib/1.2.13", override=True)
-        self.requires("glib/2.77.0", override=True)
+        self.requires("glib/2.77.1", override=True)
 
         if self._is_2_48_api:
             self.requires("glibmm/2.75.0", transitive_headers=True)

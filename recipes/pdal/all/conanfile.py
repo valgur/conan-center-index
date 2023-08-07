@@ -82,7 +82,7 @@ class PdalConan(ConanFile):
         if self.options.with_lzma:
             self.requires("xz_utils/5.4.2")
         if self.options.get_safe("with_unwind"):
-            self.requires("libunwind/1.7.0")
+            self.requires("libunwind/1.7.2")
         # TODO package improvements:
         # - switch from vendored arbiter (not in CCI)
         # - unvendor nlohmann_json

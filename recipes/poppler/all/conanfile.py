@@ -122,7 +122,7 @@ class PopplerConan(ConanFile):
         if self.options.with_cairo:
             self.requires("cairo/1.17.6")
         if self.options.get_safe("with_glib"):
-            self.requires("glib/2.77.0")
+            self.requires("glib/2.77.1")
         if self.options.get_safe("with_gobject_introspection"):
             self.requires("gobject-introspection/1.72.0")
         if self.options.with_qt:

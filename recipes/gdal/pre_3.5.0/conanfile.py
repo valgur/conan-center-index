@@ -340,11 +340,11 @@ class GdalConan(ConanFile):
         if self.options.with_xml2:
             self.requires("libxml2/2.11.4")
         # if self.options.with_spatialite:
-        #     self.requires("libspatialite/4.3.0a")
+        #     self.requires("libspatialite/5.0.1")
         if self.options.get_safe("with_sqlite3"):
             self.requires("sqlite3/3.42.0")
         # if self.options.with_rasterlite2:
-        #     self.requires("librasterlite2/x.x.x")
+        #     self.requires("librasterlite2/1.1.0-beta1")
         if self.options.get_safe("with_pcre"):
             self.requires("pcre/8.45")
         if self.options.get_safe("with_pcre2"):
@@ -352,7 +352,7 @@ class GdalConan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/1.3.1")
         if self.options.with_geos:
-            self.requires("geos/3.11.1")
+            self.requires("geos/3.11.2")
         # if self.options.with_sfcgal:
         #     self.requires("sfcgal/1.3.7")
         if self.options.with_qhull:
@@ -367,19 +367,19 @@ class GdalConan(ConanFile):
         if self.options.with_podofo:
             self.requires("podofo/0.9.7")
         # if self.options.with_pdfium:
-        #     self.requires("pdfium/x.x.x")
+        #     self.requires("pdfium/cci.20210730")
         # if self.options.get_safe("with_tiledb"):
         #     self.requires("tiledb/2.0.2")
         # if self.options.with_rasdaman:
         #     self.requires("raslib/x.x.x")
         # if self.options.with_armadillo:
-        #     self.requires("armadillo/9.880.1")
+        #     self.requires("armadillo/12.2.0")
         if self.options.with_cryptopp:
             self.requires("cryptopp/8.7.0")
         if self.options.with_crypto:
             self.requires("openssl/[>=1.1 <4]")
         # if not self.options.without_lerc:
-        #     self.requires("lerc/2.1") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
+        #     self.requires("lerc/4.0.0") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
         if self.options.get_safe("with_exr"):
             self.requires("openexr/3.1.9")
         if self.options.get_safe("with_heif"):
@@ -422,7 +422,7 @@ class GdalConan(ConanFile):
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/1.9.3")
+                self.tool_requires("pkgconf/1.9.5")
             if self._settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):

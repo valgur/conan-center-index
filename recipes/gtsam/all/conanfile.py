@@ -148,7 +148,7 @@ class GtsamConan(ConanFile):
         # if self.options.support_nested_dissection and not self.options.use_vendored_metis:
         #     # Used in a public header here:
         #     # https://github.com/borglab/gtsam/blob/4.2a9/gtsam_unstable/partition/FindSeparator-inl.h#L23-L27
-        #     self.requires("metis/5.1.1", transitive_headers=True)
+        #     self.requires("metis/5.2.1", transitive_headers=True)
 
     @property
     def _required_boost_components(self):

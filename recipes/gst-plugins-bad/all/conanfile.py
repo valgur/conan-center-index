@@ -129,7 +129,7 @@ class GStPluginsBadConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.77.0")
+        self.requires("glib/2.77.1")
         self.requires("gstreamer/1.22.3")
         self.requires("gst-plugins-base/1.19.2")
 

@@ -43,7 +43,7 @@ class AwsCSDKUtils(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

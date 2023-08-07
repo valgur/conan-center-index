@@ -127,7 +127,7 @@ class GtkConan(ConanFile):
 
     def requirements(self):
         self.requires("gdk-pixbuf/2.42.10")
-        self.requires("glib/2.77.0", force=True)
+        self.requires("glib/2.77.1", force=True)
         if self._gtk4 or not is_msvc(self):
             self.requires("cairo/1.17.6")
             self.requires("libpng/1.6.40", force=True)

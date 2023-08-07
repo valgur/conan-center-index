@@ -124,7 +124,7 @@ class GStLibAVConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.77.0")
+        self.requires("glib/2.77.1")
         self.requires(f"gstreamer/{self.version}")
         self.requires(f"gst-plugins-base/{self.version}")
         self.requires("ffmpeg/6.0")
