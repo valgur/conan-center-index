@@ -171,7 +171,7 @@ class ArmadilloConan(ConanFile):
 
         if self.options.use_hdf5:
             # Use the conan dependency if the system lib isn't being used
-            self.requires("hdf5/1.14.0")
+            self.requires("hdf5/1.14.1")
 
         if self.options.use_blas == "openblas":
             self.requires("openblas/0.3.20")
