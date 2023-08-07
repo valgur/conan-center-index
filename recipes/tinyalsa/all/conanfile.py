@@ -1,10 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir, rm
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
@@ -45,13 +43,14 @@ class TinyAlsaConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("{} only works for Linux.".format(self.name))
+            raise ConanInvalidConfiguration(f"{self.name} only works for Linux.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
+        tc.make_args = ["PREFIX=/"]
         tc.generate()
 
     def build(self):
@@ -72,18 +71,17 @@ class TinyAlsaConan(ConanFile):
         if not self.options.with_utils:
             rmdir(self, os.path.join(self.package_folder, "bin"))
 
-        with chdir(self, os.path.join(self.package_folder, "lib")):
-            files = os.listdir()
-            for f in files:
-                if (self.options.shared and f.endswith(".a")) or (
-                    not self.options.shared and not f.endswith(".a")
-                ):
-                    os.unlink(f)
+        if self.options.shared:
+            rm(self, "*.a", os.path.join(self.package_folder, "lib"))
+        else:
+            rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["tinyalsa"]
         if Version(self.version) >= "2.0.0":
             self.cpp_info.system_libs.append("dl")
+
+        # TODO: Legacy, to be removed on Conan 2.0
         if self.options.with_utils:
             bin_path = os.path.join(self.package_folder, "bin")
             self.output.info(f"Appending PATH environment variable: {bin_path}")

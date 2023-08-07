@@ -1,11 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import chdir, copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -48,8 +46,11 @@ class OpenMPIConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        # FIXME : self.requires("libevent/2.1.12") - try to use libevent from conan
+        self.requires("libevent/2.1.12")
         self.requires("zlib/1.2.13")
+        self.requires("hwloc/2.9.2")
+        self.requires("rdma-core/47.0")
+        self.requires("libnl/3.7.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -60,12 +61,16 @@ class OpenMPIConan(ConanFile):
         args = ["--disable-wrapper-rpath", "--disable-wrapper-runpath"]
         if self.settings.build_type == "Debug":
             args.append("--enable-debug")
-        args.append("--with-pic" if self.options.get_safe("fPIC", True) else "--without-pic")
-        args.append("--enable-mpi-fortran={}".format(str(self.options.fortran)))
-        args.append("--with-zlib={}".format(self.dependencies["zlib"].cpp_info.rootpath))
-        args.append("--with-zlib-libdir={}".format(self.dependencies["zlib"].cpp_info.libdirs[0]))
+        args.append("--enable-mpi-fortran={}".format(self.options.fortran))
+        args.append("--with-libevent=external")
+        args.append("--with-hwloc=external")
+        # TODO: add --enable-mpi-cxx
+        args.append("--exec-prefix=/")
         args.append("--datarootdir=${prefix}/res")
         tc.configure_args += args
+        tc.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         with chdir(self, self.source_folder):
@@ -74,27 +79,40 @@ class OpenMPIConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
+        rmdir(self, os.path.join(self.package_folder, "res", "man"))
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
+        # Based on https://cmake.org/cmake/help/latest/module/FindMPI.html#variables-for-using-mpi
+        self.cpp_info.set_property("cmake_find_mode", "both")
+        self.cpp_info.set_property("cmake_file_name", "MPI")
+        self.cpp_info.set_property("cmake_target_name", "MPI::MPI")
+        self.cpp_info.set_property("cmake_target_aliases", ["MPI::MPI_C", "MPI::MPI_CXX"])
+        # TODO: export a .cmake module to correctly set all variables set by CMake's FindMPI.cmake
+
+        self.cpp_info.resdirs = ["res"]
         self.cpp_info.libs = ["mpi", "open-rte", "open-pal"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "pthread", "rt", "util"]
 
+        mpi_bin = os.path.join(self.package_folder, "bin")
+        self.runenv.define_path("MPI_HOME", self.package_folder)
+        self.runenv.define_path("MPI_BIN", mpi_bin)
+
+        # TODO: Legacy, to be removed on Conan 2.0
         self.output.info(f"Creating MPI_HOME environment variable: {self.package_folder}")
         self.env_info.MPI_HOME = self.package_folder
         self.output.info(f"Creating OPAL_PREFIX environment variable: {self.package_folder}")
         self.env_info.OPAL_PREFIX = self.package_folder
-        mpi_bin = os.path.join(self.package_folder, "bin")
         self.output.info(f"Creating MPI_BIN environment variable: {mpi_bin}")
         self.env_info.MPI_BIN = mpi_bin
         self.output.info(f"Appending PATH environment variable: {mpi_bin}")

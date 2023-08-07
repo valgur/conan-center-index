@@ -1,13 +1,12 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import unix_path, is_msvc
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=1.53.0"
 
@@ -71,32 +70,32 @@ class LibRHashConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+
         tc = AutotoolsToolchain(self)
         if self.settings.compiler in ("apple-clang",):
-            if self.settings.arch in ("armv7",):
+            if self.settings.arch == "armv7":
                 tc.build_type_link_flags.append("-arch armv7")
-            elif self.settings.arch in ("armv8",):
+            elif self.settings.arch == "armv8":
                 tc.build_type_link_flags.append("-arch arm64")
-        vars = tc.vars
-        tc.configure_args += [
-            (
-                # librhash's configure script does not understand `--enable-opt1=yes`
-                "--enable-openssl"
-                if self.options.with_openssl
-                else "--disable-openssl"
-            ),
+        tc.configure_args = [
+            # librhash's configure script does not understand `--enable-opt1=yes`
+            "--{}-openssl".format("enable" if self.options.with_openssl else "disable"),
             "--disable-gettext",
             # librhash's configure script is custom and does not understand "--bindir=${prefix}/bin" arguments
             f"--prefix={unix_path(self, self.package_folder)}",
-            f"--bindir={unix_path(self, os.path.join(self.package_folder, 'bin'))}",
-            f"--libdir={unix_path(self, os.path.join(self.package_folder, 'lib'))}",
-            # the configure script does not use CPPFLAGS, so add it to CFLAGS/CXXFLAGS
-            f"--extra-cflags={'{} {}'.format(vars['CFLAGS'], vars['CPPFLAGS'])}",
-            f"--extra-ldflags={vars['LDFLAGS']}",
+            f"--bindir=/bin",
+            f"--libdir=/lib",
         ]
-
-        # with environment_append(self, {"BUILD_TARGET": get_gnu_triplet(self, str(self.settings.os), str(self.settings.arch), str(self.settings.compiler))}):
+        if self.options.shared:
+            tc.configure_args += ["--enable-lib-shared", "--disable-lib-static"]
+        else:
+            tc.configure_args += ["--disable-lib-shared", "--enable-lib-static"]
         tc.generate()
+
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -114,13 +113,13 @@ class LibRHashConan(ConanFile):
             with chdir(self, "librhash"):
                 if self.options.shared:
                     autotools.make(target="install-so-link")
-        rmdir(self, os.path.join(self.package_folder, "bin"))
-        rmdir(self, os.path.join(self.package_folder, "etc"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        for path in self.package_path.iterdir():
+            if path.is_dir() and path.name not in ["include", "lib", "licenses"]:
+                rmdir(self, path)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LibRHash")
-        self.cpp_info.set_property("cmake_target_name", "LibRHash")
+        self.cpp_info.set_property("cmake_target_name", "LibRHash::LibRHash")
         self.cpp_info.set_property("pkg_config_name", "librhash")
         self.cpp_info.libs = ["rhash"]
 

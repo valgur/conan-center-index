@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.microsoft import unix_path
 import os
 
 required_conan_version = ">=1.52.0"
@@ -61,7 +62,7 @@ class PopplerDataConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = ["res"]
-        self.cpp_info.defines = ["POPPLER_DATADIR={}".format(self._poppler_datadir.replace("\\", "//"))]
+        self.cpp_info.defines = ["POPPLER_DATADIR={}".format(unix_path(self, self._poppler_datadir))]
         self.conf_info.define("user.poppler-data:datadir", self._poppler_datadir)
 
         # TODO: to remove in conan v2

@@ -3,11 +3,6 @@ project(test_package LANGUAGES CXX)
 
 find_package(OpenSceneGraph REQUIRED)
 
-include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
-link_libraries(${OPENSCENEGRAPH_LIBRARIES})
-add_compile_definitions(${OPENSCENEGRAPH_COMPILE_DEFINITIONS})
-
-
 get_property(cache_variables DIRECTORY PROPERTY CACHE_VARIABLES)
 foreach(cache_variable ${cache_variables})
 	if("${cache_variable}" MATCHES "^OSG_HAS_(WITH_.+)$")
@@ -16,4 +11,4 @@ foreach(cache_variable ${cache_variables})
 endforeach()
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
+target_link_libraries(${PROJECT_NAME} OPENSCENEGRAPH::OPENSCENEGRAPH)

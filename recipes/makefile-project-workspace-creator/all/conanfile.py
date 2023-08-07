@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.files import copy, get
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.47.0"
 
@@ -13,14 +12,14 @@ class MPCGeneratorConan(ConanFile):
     description = "The Makefile, Project and Workspace Creator"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://objectcomputing.com/"
-    topics = ("objectcomputing", "installer", "pre-built")
+    homepage = "https://github.com/objectcomputing/MPC"
+    topics = ("objectcomputing", "installer")
 
-    package_type = "application"
+    package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.settings.os == "Windows":
@@ -34,20 +33,22 @@ class MPCGeneratorConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
-        copy(
-            self,
-            pattern="LICENSE",
+        copy(self, "*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "LICENSE",
             src=os.path.join(self.source_folder, "docs"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+            dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
+
         bin_path = os.path.join(self.package_folder, "bin")
+        self.buildenv_info.define("MPC_ROOT", bin_path)
+
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
         self.env_info.MPC_ROOT = bin_path

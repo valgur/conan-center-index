@@ -1,13 +1,11 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, chdir, copy, get, export_conandata_patches
-from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.files import chdir, copy, get, replace_in_file
+from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, MSBuildDeps
 
 required_conan_version = ">=1.47.0"
 
@@ -23,9 +21,6 @@ class GoogleGuetzliConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -38,62 +33,77 @@ class GoogleGuetzliConan(ConanFile):
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD", "Windows"]:
             raise ConanInvalidConfiguration(
-                f"conan recipe for guetzli v{self.version} is not available in {self.settings.os}."
+                f"conan recipe for {self.ref} is not available in {self.settings.os}."
             )
-        if self.settings.compiler.get_safe("libcxx") == "libc++":
+        if str(self.settings.compiler.get_safe("libcxx")) == "libc++":
             raise ConanInvalidConfiguration(
-                f"conan recipe for guetzli v{self.version} cannot be built with libc++"
+                f"conan recipe for {self.ref} cannot be built with libc++"
             )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
     def generate(self):
         if is_msvc(self):
             tc = MSBuildToolchain(self)
+            tc.configuration = "Debug" if self.settings.build_type == "Debug" else "Release"
             tc.generate()
+            deps = MSBuildDeps(self)
+            deps.generate()
         else:
             tc = AutotoolsToolchain(self)
-            tc.make_args = ["config=release", "verbose=1',"]
             tc.generate()
+            deps = AutotoolsDeps(self)
+            deps.generate()
+
+    def _patch_sources(self):
+        if is_msvc(self):
+            # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client
+            platform_toolset = MSBuildToolchain(self).toolset
+            import_conan_generators = ""
+            for props_file in ["conantoolchain.props", "conandeps.props"]:
+                props_path = os.path.join(self.generators_folder, props_file)
+                if os.path.exists(props_path):
+                    import_conan_generators += f"<Import Project=\"{props_path}\" />"
+            vcxproj_file = os.path.join(self.source_folder, "guetzli.vcxproj")
+            replace_in_file(self, vcxproj_file,
+                            "<PlatformToolset>v140</PlatformToolset>",
+                            f"<PlatformToolset>{platform_toolset}</PlatformToolset>")
+            if props_path:
+                replace_in_file(self, vcxproj_file,
+                                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                                f'{import_conan_generators}<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />')
+        else:
+            if self.settings.build_type not in ["Debug", "RelWithDebInfo"]:
+                replace_in_file(self, os.path.join(self.source_folder, "guetzli.make"), " -g ", " ")
 
     def build(self):
         self._patch_sources()
         if is_msvc(self):
             msbuild = MSBuild(self)
             with chdir(self, self.source_folder):
-                msbuild.build("guetzli.sln", build_type="Release")
+                msbuild.build("guetzli.sln")
         else:
-            autotools = Autotools(self)
-            autotools.make()
+            with chdir(self, self.source_folder):
+                autotools = Autotools(self)
+                autotools.make()
 
     def package(self):
-        if is_msvc(self):
-            copy(
-                self,
-                os.path.join(self.source_folder, "bin", str(self.settings.arch), "Release", "guetzli.exe"),
-                dst=os.path.join(self.package_folder, "bin"),
-                src=self.build_folder,
-                keep_path=False,
-            )
-        else:
-            copy(
-                self,
-                os.path.join(self.source_folder, "bin", "Release", "guetzli"),
-                dst=os.path.join(self.package_folder, "bin"),
-                src=self.build_folder,
-                keep_path=False,
-            )
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        for path in (self.source_path / "bin").rglob("guetzli*"):
+            copy(self, path.name,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=path.parent)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
+
+        # TODO: Legacy, to be removed on Conan 2.0
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bindir}")
         self.env_info.PATH.append(bindir)

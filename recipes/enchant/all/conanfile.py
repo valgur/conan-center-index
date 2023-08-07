@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
@@ -65,7 +67,9 @@ class EnchantConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.LIB", "licenses", self.source_folder)
+        copy(self, "COPYING.LIB",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

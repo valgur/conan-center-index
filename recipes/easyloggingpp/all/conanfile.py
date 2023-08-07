@@ -9,17 +9,15 @@ required_conan_version = ">=1.53.0"
 
 class EasyloggingppConan(ConanFile):
     name = "easyloggingpp"
-    description = "Single header C++ logging library."
+    description = "Single-header C++ logging library."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/amrayn/easyloggingpp"
     topics = ("logging", "stacktrace", "efficient-logging")
 
-    package_type = "library"
+    package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
         "enable_crash_log": [True, False],
         "enable_thread_safe": [True, False],
         "enable_debug_errors": [True, False],
@@ -35,8 +33,6 @@ class EasyloggingppConan(ConanFile):
         "lib_utc_datetime": [True, False],
     }
     default_options = {
-        "shared": False,
-        "fPIC": True,
         "enable_crash_log": False,
         "enable_thread_safe": False,
         "enable_debug_errors": False,
@@ -52,25 +48,14 @@ class EasyloggingppConan(ConanFile):
         "lib_utc_datetime": False,
     }
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
-    def _defines(self):
+    def _public_defines(self):
         defines = []
         if self.options.enable_crash_log:
             defines.append("ELPP_FEATURE_CRASH_LOG")
@@ -103,8 +88,8 @@ class EasyloggingppConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["build_static_lib"] = True
-        for d in self._defines:
-            tc.preprocessor_definitions[d] = ""
+        for d in self._public_defines:
+            tc.preprocessor_definitions[d] = "1"
         tc.generate()
 
     def _patch_sources(self):
@@ -121,8 +106,8 @@ class EasyloggingppConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["easyloggingpp"]
-        self.cpp_info.defines = self._defines
+        self.cpp_info.defines = self._public_defines

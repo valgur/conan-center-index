@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -90,25 +89,17 @@ class PupnpConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
         tc = AutotoolsToolchain(self)
-        tc.configure_args += ["--disable-samples"]
-
-        def enable_disable(opt):
-            what = "enable" if getattr(self.options, opt) else "disable"
-            return f"--{what}-{opt}"
-
-        tc.configure_args.extend(
-            map(
-                enable_disable,
-                ("ipv6", "reuseaddr", "webserver", "client", "device", "largefile", "tools", "debug"),
-            )
-        )
-
-        tc.configure_args.append(
-            "--%s-blocking_tcp_connections"
-            % ("enable" if getattr(self.options, "blocking-tcp") else "disable")
-        )
-
+        features = {}
+        features["samples"] = False
+        features["blocking_tcp_connections"] = self.options["blocking-tcp"]
+        for opt in ("ipv6", "reuseaddr", "webserver", "client", "device", "largefile", "tools", "debug"):
+            features[opt] = self.options[opt]
+        for feature, enabled in features.items():
+            what = "enable" if enabled else "disable"
+            tc.configure_args.append(f"--{what}-{feature}")
         tc.generate()
 
     def build(self):

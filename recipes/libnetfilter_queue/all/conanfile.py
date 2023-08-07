@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -20,6 +18,7 @@ class Libnetfilter_queueConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://netfilter.org/projects/libnetfilter_queue/index.html"
     topics = "netfilter"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -36,7 +35,7 @@ class Libnetfilter_queueConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
+        if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("libnetfilter_queue is only supported on Linux")
         if self.options.shared:
             self.options.rm_safe("fPIC")

@@ -1,5 +1,3 @@
-import os
-
 from conan import ConanFile
 
 
@@ -12,7 +10,4 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
 
     def test(self):
-        bin_path = os.path.join(
-            self.dependencies["objectbox-generator"].package_folder, "bin", "objectbox-generator"
-        )
-        self.run(f"{bin_path} -help")
+        self.run("objectbox-generator -help")

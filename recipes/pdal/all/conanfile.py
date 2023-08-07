@@ -188,10 +188,10 @@ class PdalConan(ConanFile):
                             ("${PDAL_BASE_LIB_NAME} ${PDAL_UTIL_LIB_NAME} "
                              "${PDAL_ARBITER_LIB_NAME} ${PDAL_KAZHDAN_LIB_NAME}"))
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "macros.cmake"),
-                "install(TARGETS ${_name}",
-                ("endif()\n"
-                 'if (PDAL_LIB_TYPE STREQUAL "STATIC" OR NOT ${_library_type} STREQUAL "STATIC")\n'
-                 "    install(TARGETS ${_name}"))
+                            "install(TARGETS ${_name}",
+                            ("endif()\n"
+                             'if (PDAL_LIB_TYPE STREQUAL "STATIC" OR NOT ${_library_type} STREQUAL "STATIC")\n'
+                             "    install(TARGETS ${_name}"))
             replace_in_file(self, util_cmakelists,
                             "PDAL_ADD_FREE_LIBRARY(${PDAL_UTIL_LIB_NAME} SHARED ${PDAL_UTIL_SOURCES})",
                             "PDAL_ADD_FREE_LIBRARY(${PDAL_UTIL_LIB_NAME} ${PDAL_LIB_TYPE} ${PDAL_UTIL_SOURCES})")
@@ -205,9 +205,9 @@ class PdalConan(ConanFile):
     def package(self):
         copy(self, "LICENSE.txt",
              src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            ignore_case=True,
-            keep_path=False)
+             dst=os.path.join(self.package_folder, "licenses"),
+             ignore_case=True,
+             keep_path=False)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -18,6 +17,7 @@ class UserspaceRCUConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://liburcu.org/"
     topics = "urcu"
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -49,6 +49,8 @@ class UserspaceRCUConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
 
@@ -60,12 +62,9 @@ class UserspaceRCUConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE*",
+        copy(self, "LICENSE*",
             src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+            dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 

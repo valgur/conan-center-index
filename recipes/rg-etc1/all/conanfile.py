@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy, get, save
+from conan.tools.files import copy, get, save, load
 
 required_conan_version = ">=1.53.0"
 
@@ -58,12 +58,9 @@ class RgEtc1Conan(ConanFile):
         cmake.build()
 
     def _extract_license(self):
-        with open(os.path.join(self.source_folder, "rg_etc1.h")) as f:
-            content_lines = f.readlines()
-        license_content = []
-        for i in range(52, 75):
-            license_content.append(content_lines[i][2:-1])
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), "\n".join(license_content))
+        content_lines = load(self, os.path.join(self.source_folder, "rg_etc1.h")).split("\n")
+        license_content = "\n".join(l[3:] for l in content_lines[52:75])
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_content)
 
     def package(self):
         self._extract_license()

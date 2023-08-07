@@ -1,19 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
@@ -54,13 +43,17 @@ class HiredisConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("hiredis {} is not supported on Windows.".format(self.version))
+            raise ConanInvalidConfiguration(f"hiredis {self.version} is not supported on Windows.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
+        tc.make_args = [
+            "PREFIX=/",
+            f"DESTDIR={unix_path(self, self.package_folder)}",
+        ]
         tc.generate()
 
     def _patch_sources(self):
@@ -80,7 +73,7 @@ class HiredisConan(ConanFile):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
-            autotools.install(args={"DESTDIR": unix_path(self, self.package_folder), "PREFIX": ""})
+            autotools.install()
         if self.options.shared:
             rm(self, "*.so*", os.path.join(self.package_folder, "lib"), recursive=True)
             rm(self, "*.dylib*", os.path.join(self.package_folder, "lib"), recursive=True)

@@ -6,14 +6,8 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.microsoft import unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -156,9 +150,7 @@ class PopplerConan(ConanFile):
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
-            self.output.warning(
-                "C++14 support required. Your compiler is unknown. Assuming it supports C++14."
-            )
+            self.output.warning("C++14 support required. Your compiler is unknown. Assuming it supports C++14.")
         elif Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("C++14 support required, which your compiler does not support.")
 
@@ -202,29 +194,23 @@ class PopplerConan(ConanFile):
         tc.variables["WITH_NSS3"] = self.options.with_nss
         tc.variables["WITH_Cairo"] = self.options.with_cairo
         tc.variables["ENABLE_GLIB"] = self.options.get_safe("with_glib", False)
-        tc.variables["ENABLE_GOBJECT_INTROSPECTION"] = self.options.get_safe(
-            "with_gobject_introspection", False
-        )
+        tc.variables["ENABLE_GOBJECT_INTROSPECTION"] = self.options.get_safe("with_gobject_introspection", False)
         tc.variables["WITH_GTK"] = self.options.get_safe("with_gtk", False)
         tc.variables["WITH_Iconv"] = self.options.get_safe("with_libiconv")
         tc.variables["ENABLE_ZLIB"] = self.options.with_zlib
         tc.variables["ENABLE_LIBOPENJPEG"] = "openjpeg2" if self.options.with_openjpeg else "none"
         if self.options.with_openjpeg:
             # FIXME: openjpeg's cmake_find_package should provide these variables
-            tc.variables["OPENJPEG_MAJOR_VERSION"] = Version(self.requires["openjpeg"].ref.version).major
+            tc.variables["OPENJPEG_MAJOR_VERSION"] = Version(self.dependencies["openjpeg"].ref.version).major
         tc.variables["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
         tc.variables["ENABLE_LIBCURL"] = self.options.with_libcurl
 
-        tc.variables["POPPLER_DATADIR"] = self.conf_info.get("user.poppler-data:datadir").replace("\\", "/")
+        tc.variables["POPPLER_DATADIR"] = unix_path(self, self.dependencies["poppler-data"].conf_info.get("user.poppler-data:datadir"))
         tc.variables["FONT_CONFIGURATION"] = self.options.fontconfiguration
         tc.variables["BUILD_CPP_TESTS"] = False
         tc.variables["ENABLE_GTK_DOC"] = False
-        tc.variables["ENABLE_QT5"] = (
-            self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == "5"
-        )
-        tc.variables["ENABLE_QT6"] = (
-            self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == "6"
-        )
+        tc.variables["ENABLE_QT5"] = self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == "5"
+        tc.variables["ENABLE_QT6"] = self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == "6"
 
         tc.variables["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
         tc.variables["ENABLE_DCTDECODER"] = self._dct_decoder
@@ -256,12 +242,7 @@ class PopplerConan(ConanFile):
             poppler_global = os.path.join(self.source_folder, "cpp", "poppler-global.h")
             replace_in_file(self, poppler_global, "__declspec(dllimport)", "")
             replace_in_file(self, poppler_global, "__declspec(dllexport)", "")
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "FREETYPE_INCLUDE_DIRS",
-            "Freetype_INCLUDE_DIRS",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "FREETYPE_INCLUDE_DIRS", "Freetype_INCLUDE_DIRS")
 
     def build(self):
         self._patch_sources()
@@ -309,9 +290,7 @@ class PopplerConan(ConanFile):
 
         if self.options.cpp:
             self.cpp_info.components["libpoppler-cpp"].libs = ["poppler-cpp"]
-            self.cpp_info.components["libpoppler-cpp"].includedirs.append(
-                os.path.join("include", "poppler", "cpp")
-            )
+            self.cpp_info.components["libpoppler-cpp"].includedirs.append(os.path.join("include", "poppler", "cpp"))
             self.cpp_info.components["libpoppler-cpp"].set_property("pkg_config_name", "poppler-cpp")
             self.cpp_info.components["libpoppler-cpp"].requires = ["libpoppler"]
             if self.options.get_safe("with_libiconv"):
@@ -320,10 +299,7 @@ class PopplerConan(ConanFile):
         if self.options.splash:
             self.cpp_info.components["libpoppler-splash"].libs = []
             self.cpp_info.components["libpoppler-splash"].set_property("pkg_config_name", "poppler-splash")
-            self.cpp_info.components["libpoppler-splash"].requires = [
-                "libpoppler",
-                "boost::boost",
-            ]  # FIXME: should be boost::headers, see https://github.com/conan-io/conan-center-index/pull/2097
+            self.cpp_info.components["libpoppler-splash"].requires = ["libpoppler", "boost::boost"]  # FIXME: should be boost::headers, see https://github.com/conan-io/conan-center-index/pull/2097
 
         if self.options.with_cairo:
             self.cpp_info.components["libpoppler-cairo"].libs = []
@@ -337,23 +313,15 @@ class PopplerConan(ConanFile):
             if self.options.get_safe("with_gtk"):
                 self.cpp_info.components["libpoppler-glib"].requires.append("gtk::gtk")
             if self.options.get_safe("with_gobject_introspection"):
-                self.cpp_info.components["libpoppler-glib"].requires.append(
-                    "gobject-introspection::gobject-introspection"
-                )
+                self.cpp_info.components["libpoppler-glib"].requires.append("gobject-introspection::gobject-introspection")
 
         if self.options.with_qt:
             qt_major = Version(self.dependencies["qt"].ref.version).major
             self.cpp_info.components["libpoppler-qt"].libs = ["poppler-qt{}".format(qt_major)]
-            self.cpp_info.components["libpoppler-qt"].set_property(
-                "pkg_config_name", "poppler-qt{}".format(qt_major)
-            )
-            self.cpp_info.components["libpoppler-qt"].requires = [
-                "libpoppler",
-                "qt::qtCore",
-                "qt::qtGui",
-                "qt::qtWidgets",
-            ]
+            self.cpp_info.components["libpoppler-qt"].set_property("pkg_config_name", "poppler-qt{}".format(qt_major))
+            self.cpp_info.components["libpoppler-qt"].requires = ["libpoppler", "qt::qtCore", "qt::qtGui", "qt::qtWidgets"]
 
-        datadir = self.conf_info.get("user.poppler-data:datadir")
-        self.output.info("Setting POPPLER_DATADIR env var: {}".format(datadir))
+        datadir = self.dependencies["poppler-data"].conf_info.get("user.poppler-data:datadir")
+        self.runenv.define_path("POPPLER_DATADIR", datadir)
+        self.output.info(f"Setting POPPLER_DATADIR env var: {datadir}")
         self.env_info.POPPLER_DATADIR = datadir

@@ -2,7 +2,8 @@
 
 #include <stdio.h>
 
-int main() {
+int main()
+{
     printf("id3tag version: %s\n", id3_version);
     printf("id3tag copyright: %s\n", id3_copyright);
     printf("id3tag author: %s\n", id3_author);

@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, export_conandata_patches, get, rmdir, rename
+from conan.tools.files import copy, export_conandata_patches, get, rmdir, rename, mkdir
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -92,20 +92,15 @@ class rpclibConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        for dll in (self.package_path / "lib").glob("*.dll"):
-            rename(self, dll, self.package_path / "bin" / dll.name)
+        if self.settings.os == "Windows" and self.options.shared:
+            mkdir(self, self.package_path / "bin")
+            for dll in (self.package_path / "lib").glob("*.dll"):
+                rename(self, dll, self.package_path / "bin" / dll.name)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rpclib")
         self.cpp_info.set_property("cmake_target_name", "rpclib::rpc")
         self.cpp_info.set_property("pkg_config_name", "rpclib")
-
-        # Fix for installing dll to lib folder
-        # - Default CMAKE installs the dll to the lib folder
-        #   causing the test_package to fail
-        if self.settings.os in ["Windows"]:
-            if self.options.shared:
-                self.cpp_info.components["_rpc"].bindirs.append(os.path.join(self.package_folder, "lib"))
 
         # TODO: Remove after Conan 2.0
         self.cpp_info.components["_rpc"].names["cmake_find_package"] = "rpc"
@@ -113,5 +108,3 @@ class rpclibConan(ConanFile):
         self.cpp_info.components["_rpc"].libs = ["rpc"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_rpc"].system_libs = ["pthread"]
-        elif self.settings.os == "Windows":
-            self.cpp_info.components["_rpc"].system_libs = ["ws2_32", "mswsock"]

@@ -43,7 +43,7 @@ class Cc65Conan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if is_msvc(self) and not self.conf.get("tools.gnu:make_program", check_type=str):
+        if is_msvc(self):
             self.tool_requires("make/4.3")
 
     def source(self):
@@ -55,9 +55,9 @@ class Cc65Conan(ConanFile):
             tc.generate()
         tc = AutotoolsToolchain(self)
         tc.make_args += [
-            "PREFIX=/",
-            "datadir=/bin/share/cc65",
-            "samplesdir=/samples",
+            f"PREFIX=/",
+            f"datadir=/bin/share/cc65",
+            f"samplesdir=/samples",
         ]
         if self.settings.os == "Windows":
             tc.make_args.append("EXE_SUFFIX=.exe")

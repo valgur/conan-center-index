@@ -1,13 +1,12 @@
-# TODO: verify the Conan v2 migration
-
 import os
+import re
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -87,16 +86,16 @@ class OpenSceneGraphConanFile(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            self.options.rm_safe("with_asio")
+            del self.options.with_asio
 
             # Default to false with fontconfig until it is supported on Windows
             self.options.use_fontconfig = False
 
         if is_apple_os(self):
             # osg uses imageio on Apple platforms
-            self.options.rm_safe("with_gif")
-            self.options.rm_safe("with_jpeg")
-            self.options.rm_safe("with_png")
+            del self.options.with_gif
+            del self.options.with_jpeg
+            del self.options.with_png
 
             # imageio supports tiff files so the tiff plugin isn't needed on Apple platforms
             self.options.with_tiff = False
@@ -154,12 +153,13 @@ class OpenSceneGraphConanFile(ConanFile):
     def validate(self):
         if self.options.get_safe("with_asio", False):
             raise ConanInvalidConfiguration(
-                "ASIO support in OSG is broken, see"
-                " https://github.com/openscenegraph/OpenSceneGraph/issues/921"
+                "ASIO support in OSG is broken, "
+                "see https://github.com/openscenegraph/OpenSceneGraph/issues/921"
             )
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration(
-                "openscenegraph recipe cannot be cross-built yet. Contributions are welcome."
+                "openscenegraph recipe cannot be cross-built yet. "
+                "Contributions are welcome."
             )
 
     def source(self):
@@ -178,9 +178,7 @@ class OpenSceneGraphConanFile(ConanFile):
         tc.variables["OSG_NOTIFY_DISABLED"] = not self.options.enable_notify
         tc.variables["OSG_USE_DEPRECATED_API"] = self.options.enable_deprecated_api
         tc.variables["OSG_PROVIDE_READFILE"] = self.options.enable_readfile
-        tc.variables["OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION"] = (
-            self.options.enable_ref_ptr_implicit_output_conversion
-        )
+        tc.variables["OSG_USE_REF_PTR_IMPLICIT_OUTPUT_CONVERSION"] = self.options.enable_ref_ptr_implicit_output_conversion
         tc.variables["OSG_USE_REF_PTR_SAFE_DEREFERENCE"] = self.options.enable_ref_ptr_safe_dereference
         tc.variables["OSG_ENVVAR_SUPPORTED"] = self.options.enable_envvar_support
 
@@ -215,7 +213,7 @@ class OpenSceneGraphConanFile(ConanFile):
         tc.variables["OSG_WITH_ASIO"] = self.options.get_safe("with_asio", False)
         tc.variables["OSG_WITH_ZEROCONF"] = False
         tc.variables["OSG_WITH_LIBLAS"] = False
-        tc.variables["OSG_WITH_GIF"] = self.options.get_safe("with_gif", False)
+        tc.variables["OSG_WITH_GIFLIB"] = self.options.get_safe("with_gif", False)
         tc.variables["OSG_WITH_JPEG"] = self.options.get_safe("with_jpeg", False)
         tc.variables["OSG_WITH_PNG"] = self.options.get_safe("with_png", False)
         tc.variables["OSG_WITH_TIFF"] = self.options.with_tiff
@@ -225,34 +223,49 @@ class OpenSceneGraphConanFile(ConanFile):
             tc.variables["CMAKE_DISABLE_FIND_PACKAGE_QuickTime"] = True
 
         tc.variables["OSG_MSVC_VERSIONED_DLL"] = False
+
+        if is_apple_os(self):
+            tc.preprocessor_definitions["GL_SILENCE_DEPRECATION"] = "1"
+
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("freetype", "cmake_module_file_name", "FREETYPE")
+        deps.set_property("giflib", "cmake_file_name", "GIFLIB")
+        deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         for package in ("Fontconfig", "Freetype", "GDAL", "GIFLIB", "GTA", "Jasper", "OpenEXR"):
             # Prefer conan's find package scripts over osg's
-            os.unlink(os.path.join(self.source_folder, "CMakeModules", "Find{}.cmake".format(package)))
+            os.unlink(os.path.join(self.source_folder, "CMakeModules", f"Find{package}.cmake"))
+        for path in (self.source_path / "src" / "osgPlugins").rglob("CMakeLists.txt"):
+            content = path.read_text()
+            # Correct usage of *_LIBRARY variables to *_LIBRARIES
+            content = content.replace("_LIBRARY", "_LIBRARIES")
+            # Allow explicit control of plugins via OSG_WITH_* variables
+            # e.g. replace IF(FFMPEG_FOUND) with IF(OSG_WITH_FFMPEG)
+            content = re.sub(r"\b([A-Z]+)_FOUND\b", r"OSG_WITH_\1", content)
+            path.write_text(content)
+        # Fix file(to_cmake_path ...) usage
+        path = self.source_path / "CMakeModules" / "OsgMacroUtils.cmake"
+        content = path.read_text()
+        content = re.sub(r'FILE\(TO_CMAKE_PATH TMPVAR "CMAKE_(\w+)_OUTPUT_DIRECTORY/\$\{RELATIVE_OUTDIR}"\)',
+                         r'FILE(TO_CMAKE_PATH "\${CMAKE_\1_OUTPUT_DIRECTORY}/\${RELATIVE_OUTDIR}" TMPVAR)',
+                         content)
+        path.write_text(content)
+        apply_conandata_patches(self)
 
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):
         cmake = CMake(self)
         cmake.install()
 
-        copy(
-            self,
-            pattern="LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, True)
@@ -267,9 +280,8 @@ class OpenSceneGraphConanFile(ConanFile):
         # Unfortunately, the cmake_find_package generators don't currently allow directly setting variables,
         # but it will set the last three of these if the name of the package is OPENSCENEGRAPH (it uses
         # the filename for the first, so OpenSceneGraph_FOUND gets set, not OPENSCENEGRAPH_FOUND)
-        # TODO: set OPENSCENEGRAPH_FOUND in cmake_find_package and cmake_find_package_multi
         self.cpp_info.set_property("cmake_file_name", "OpenSceneGraph")
-        self.cpp_info.set_property("cmake_target_name", "OPENSCENEGRAPH")
+        self.cpp_info.set_property("cmake_target_name", "OPENSCENEGRAPH::OPENSCENEGRAPH")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "OpenSceneGraph"
@@ -292,23 +304,23 @@ class OpenSceneGraphConanFile(ConanFile):
             plugin_library.libs = [] if self.options.shared else [lib + postfix]
             plugin_library.requires = ["OpenThreads", "osg", "osgDB", "osgUtil"]
             if not self.options.shared:
-                plugin_library.libdirs = [os.path.join("lib", "osgPlugins-{}".format(self.version))]
+                plugin_library.libdirs = [os.path.join("lib", f"osgPlugins-{self.version}")]
             return plugin_library
 
         def setup_serializers(lib):
             plugins = []
             if lib not in ("osgDB", "osgWidget", "osgPresentation"):
-                plugins.append("serializers_{}".format(lib.lower()))
+                plugins.append(f"serializers_{lib.lower()}")
             if self.options.enable_deprecated_serializers:
                 if lib not in ("osgUtil", "osgDB", "osgGA", "osgManipulator", "osgUI", "osgPresentation"):
-                    plugins.append("deprecated_{}".format(lib.lower()))
+                    plugins.append(f"deprecated_{lib.lower()}")
             for plugin in plugins:
                 setup_plugin(plugin).requires.append(lib)
 
         def setup_library(lib):
             library = self.cpp_info.components[lib]
             library.libs = [lib + postfix]
-            library.set_property("pkg_config_name", "openscenegraph-{}".format(lib))
+            library.set_property("pkg_config_name", f"openscenegraph-{lib}")
             setup_serializers(lib)
             return library
 
@@ -361,34 +373,14 @@ class OpenSceneGraphConanFile(ConanFile):
         setup_library("osgFX").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
         setup_library("osgManipulator").requires = ["osgViewer", "osgGA", "osgUtil", "osg", "OpenThreads"]
         setup_library("osgParticle").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
-        setup_library("osgUI").requires = [
-            "osgDB",
-            "osgGA",
-            "osgUtil",
-            "osgText",
-            "osgViewer",
-            "osg",
-            "OpenThreads",
-        ]
+        setup_library("osgUI").requires = ["osgDB", "osgGA", "osgUtil", "osgText", "osgViewer", "osg", "OpenThreads"]
         setup_library("osgVolume").requires = ["osgGA", "osgDB", "osgUtil", "osg", "OpenThreads"]
         setup_library("osgShadow").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
         setup_library("osgSim").requires = ["osgText", "osgUtil", "osgDB", "osg", "OpenThreads"]
         setup_library("osgTerrain").requires = ["osgUtil", "osgDB", "osg", "OpenThreads"]
         setup_library("osgWidget").requires = ["osgText", "osgViewer", "osgDB", "osg", "OpenThreads"]
-        setup_library("osgPresentation").requires = [
-            "osgViewer",
-            "osgUI",
-            "osgWidget",
-            "osgManipulator",
-            "osgVolume",
-            "osgFX",
-            "osgText",
-            "osgGA",
-            "osgUtil",
-            "osgDB",
-            "osg",
-            "OpenThreads",
-        ]
+        setup_library("osgPresentation").requires = ["osgViewer", "osgUI", "osgWidget", "osgManipulator", "osgVolume",
+                                                     "osgFX", "osgText", "osgGA", "osgUtil", "osgDB", "osg", "OpenThreads"]
 
         # Start of plugins
 
@@ -462,9 +454,7 @@ class OpenSceneGraphConanFile(ConanFile):
 
         # 3rd party 3d plugins
         setup_plugin("3dc")
-        setup_plugin("p3d").requires.extend(
-            ("osgGA", "osgText", "osgVolume", "osgFX", "osgViewer", "osgPresentation")
-        )
+        setup_plugin("p3d").requires.extend(("osgGA", "osgText", "osgVolume", "osgFX", "osgViewer", "osgPresentation"))
 
         if self.options.with_curl:
             plugin = setup_plugin("curl")

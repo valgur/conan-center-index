@@ -54,33 +54,23 @@ class UvmSystemC(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        systemc_root = os.path.dirname(self.dependencies["systemc"].cpp_info.libdirs[0])
-        tc.configure_args = [
-            f"--with-systemc={systemc_root}",
-            "--prefix=/",
-        ]
+        systemc_root = self.dependencies["systemc"].package_folder
+        tc.configure_args.append(f"--with-systemc={systemc_root}")
         tc.generate()
 
     def build(self):
         autotools = Autotools(self)
         autotools.configure()
         # Replace lib-linux64/ with lib/ for the systemc dependency
-        replace_in_file(
-            self,
-            os.path.join(self.build_folder, "src", "uvmsc", "Makefile"),
-            "-linux64",
-            "",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "src", "uvmsc", "Makefile"),
+                        "-linux64", "")
         autotools.make()
 
     def package(self):
         for license in ["LICENSE", "NOTICE", "COPYING"]:
-            copy(
-                self,
-                license,
-                src=os.path.join(self.build_folder, self.source_folder),
-                dst=os.path.join(self.package_folder, "licenses"),
-            )
+            copy(self, license,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "licenses"))
 
         autotools = Autotools(self)
         autotools.install()
@@ -96,11 +86,9 @@ class UvmSystemC(ConanFile):
         rm(self, "RELEASENOTES", self.package_folder)
         rm(self, "README", self.package_folder)
         rm(self, "INSTALL", self.package_folder)
-        rename(
-            self,
-            os.path.join(self.package_folder, "lib-linux64"),
-            os.path.join(self.package_folder, "lib"),
-        )
+        rename(self,
+               os.path.join(self.package_folder, "lib-linux64"),
+               os.path.join(self.package_folder, "lib"))
         rm(self, "libuvm-systemc.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

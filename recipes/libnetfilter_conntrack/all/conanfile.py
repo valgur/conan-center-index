@@ -1,11 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -46,8 +44,8 @@ class Libnetfilter_conntrackConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libmnl/1.0.4")
-        self.requires("libnfnetlink/1.0.2")
+        self.requires("libmnl/1.0.4", transitive_headers=True)
+        self.requires("libnfnetlink/1.0.2", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -55,6 +53,8 @@ class Libnetfilter_conntrackConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         autotools = Autotools(self)
@@ -62,7 +62,9 @@ class Libnetfilter_conntrackConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         autotools = Autotools(self)
         autotools.install()
 

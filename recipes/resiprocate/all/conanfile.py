@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.files import copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.files import copy, get, rm, rmdir, chdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -20,7 +18,7 @@ class ResiprocateConan(ConanFile):
     )
     license = "VSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.resiprocate.org"
+    homepage = "https://github.com/resiprocate/resiprocate/wiki/"
     topics = ("sip", "voip", "communication", "signaling")
 
     package_type = "library"
@@ -48,7 +46,7 @@ class ResiprocateConan(ConanFile):
         if self.settings.os == "Windows" or is_apple_os(self):
             # FIXME: Visual Studio project & Mac support seems available in resiprocate
             raise ConanInvalidConfiguration(
-                "reSIProcate recipe does not currently support {}.".format(self.settings.os)
+                f"reSIProcate recipe does not currently support {self.settings.os}."
             )
         if self.options.shared:
             self.options.rm_safe("fPIC")
@@ -76,18 +74,22 @@ class ResiprocateConan(ConanFile):
             tc.configure_args.append("--with-mysql")
         if self.options.with_postgresql:
             tc.configure_args.append("--with-postgresql")
-
         tc.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
-        autotools = Autotools(self)
-        autotools.configure()
-        autotools.make()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.autoreconf()
+            autotools.configure()
+            autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
-        autotools.install()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
         rmdir(self, os.path.join(os.path.join(self.package_folder, "share")))
         rm(self, "*.la", os.path.join(self.package_folder), recursive=True)
 
@@ -95,6 +97,8 @@ class ResiprocateConan(ConanFile):
         self.cpp_info.libs = ["resip", "rutil", "dum", "resipares"]
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs = ["pthread"]
+
+        # TODO: Legacy, to be removed on Conan 2.0
         bin_path = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

@@ -15,4 +15,4 @@ class TestPackageConan(ConanFile):
     def test(self):
         if can_run(self):
             bees_path = os.path.join(self.source_folder, "bees.png")
-            self.run(f"guetzli --quality 84 {bees_path} bees.jpg", env="conanrun")
+            self.run(f"guetzli --quality 84 {bees_path} bees.jpg")

@@ -1,9 +1,8 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.microsoft import is_msvc, check_min_vs
@@ -48,12 +47,11 @@ class Nmslib(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if is_msvc(self):
-            check_min_vs(self, 190)  # TODO: add reason in message
-            if self.options.shared:
-                raise ConanInvalidConfiguration(
-                    "Visual Studio shared builds are not supported (.lib artifacts missing)"
-                )
+        check_min_vs(self, 190)  # TODO: add reason in message
+        if is_msvc(self) and self.options.shared:
+            raise ConanInvalidConfiguration(
+                "Visual Studio shared builds are not supported (.lib artifacts missing)"
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -62,23 +60,22 @@ class Nmslib(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["WITHOUT_TESTS"] = True
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder="similarity_search")
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, "similarity_search"))
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["NonMetricSpaceLib"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread", "m", "mvec"]

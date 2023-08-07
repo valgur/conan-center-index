@@ -7,7 +7,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, replace_in_file, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import VCVars, is_msvc
+from conan.tools.microsoft import is_msvc, NMakeToolchain
 
 required_conan_version = ">=1.47.0"
 
@@ -42,18 +42,16 @@ class FtjamConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
+            # Build fails with
+            # NMAKE : fatal error U1077: 'jam0 JamFile' : return code '0xc0000005'
             raise ConanInvalidConfiguration("ftjam doesn't build with Visual Studio yet")
         if hasattr(self, "settings_build") and cross_building(self):
             raise ConanInvalidConfiguration("ftjam can't be cross-built")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
-        if is_msvc(self):
-            self.tool_requires("automake/1.16.5")
-        if self.settings.os != "Windows":
+            self.tool_requires("winflexbison/2.5.24")
+        else:
             self.tool_requires("bison/3.8.2")
 
     def source(self):
@@ -62,11 +60,12 @@ class FtjamConan(ConanFile):
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
-        tc = AutotoolsToolchain(self)
-        tc.generate()
         if is_msvc(self):
-            vcvars = VCVars(self)
-            vcvars.generate()
+            tc = NMakeToolchain(self)
+            tc.generate()
+        else:
+            tc = AutotoolsToolchain(self)
+            tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -83,8 +82,8 @@ class FtjamConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        if self.settings.os == "Windows":
-            with chdir(self, self.source_folder):
+        with chdir(self, self.source_folder):
+            if self.settings.os == "Windows":
                 # toolset name of the system building ftjam
                 jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
                 if is_msvc(self):
@@ -93,10 +92,9 @@ class FtjamConan(ConanFile):
                     os.environ["PATH"] += os.pathsep + os.getcwd()
                     autotools = Autotools(self)
                     autotools.make(args=[f"JAM_TOOLSET={jam_toolset}", "-f", "builds/win32-gcc.mk"])
-        else:
-            autotools = Autotools(self)
-            autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
-            with chdir(self, self.source_folder):
+            else:
+                autotools = Autotools(self)
+                autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
                 autotools.make()
 
     def _extract_license(self):
@@ -123,17 +121,21 @@ class FtjamConan(ConanFile):
         self.cpp_info.includedirs = []
 
         jam_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {jam_path}")
-        self.env_info.PATH.append(jam_path)
-
         jam_bin = os.path.join(jam_path, "jam")
         if self.settings.os == "Windows":
             jam_bin += ".exe"
         self.output.info(f"Setting JAM environment variable: {jam_bin}")
-        self.env_info.JAM = jam_bin
+        self.buildenv.define_path("JAM", jam_bin)
+        self.runenv.define_path("JAM", jam_bin)
 
         # toolset of the system using ftjam
         jam_toolset = self._jam_toolset(self.settings.os, self.settings.compiler)
         if jam_toolset:
             self.output.info(f"Setting JAM_TOOLSET environment variable: {jam_toolset}")
+            self.buildenv.define("JAM_TOOLSET", jam_toolset)
+            self.runenv.define("JAM_TOOLSET", jam_toolset)
             self.env_info.JAM_TOOLSET = jam_toolset
+
+        self.output.info(f"Appending PATH environment variable: {jam_path}")
+        self.env_info.PATH.append(jam_path)
+        self.env_info.JAM = jam_bin

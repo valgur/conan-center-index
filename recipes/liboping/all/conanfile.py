@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -57,7 +55,7 @@ class LibopingConan(ConanFile):
             raise ConanInvalidConfiguration("liboping is not supported by Visual Studio")
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration(
-                "Liboping could not be built on {} as shared library".format(self.settings.os)
+                f"Liboping could not be built on {self.settings.os} as shared library"
             )
         if is_apple_os(self) and self.settings.arch == "armv8":
             # Build error - NO Access to a Mac/M1 - please fix when possible - see issue 8634
@@ -87,9 +85,7 @@ class LibopingConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         autotools = Autotools(self)
         autotools.install()
 
@@ -98,11 +94,13 @@ class LibopingConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
         self.cpp_info.libs = ["oping"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.append("ws2_32")
+
+        # TODO: Legacy, to be removed on Conan 2.0
+        bindir = os.path.join(self.package_folder, "bin")
+        self.output.info("Appending PATH environment variable: {}".format(bindir))
+        self.env_info.PATH.append(bindir)

@@ -1,13 +1,13 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
-from conan.tools.cmake import cmake_layout, CMake
+from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain
 import os
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "CMakeDeps", "VirtualRunEnv"
     test_type = "explicit"
 
     def requirements(self):
@@ -16,8 +16,8 @@ class TestPackageConan(ConanFile):
     def layout(self):
         cmake_layout(self)
 
-    def build(self):
-        cmake = CMake(self)
+    def generate(self):
+        tc = CMakeToolchain(self)
         for key, value in self.dependencies["openscenegraph"].options.items():
             if key.startswith("with_"):
                 tc.variables["OSG_HAS_" + key.upper()] = 1 if value else 0
@@ -25,7 +25,10 @@ class TestPackageConan(ConanFile):
             tc.variables["OSG_HAS_WITH_GIF"] = 0
             tc.variables["OSG_HAS_WITH_JPEG"] = 0
             tc.variables["OSG_HAS_WITH_PNG"] = 0
+        tc.generate()
 
+    def build(self):
+        cmake = CMake(self)
         cmake.configure()
         cmake.build()
 

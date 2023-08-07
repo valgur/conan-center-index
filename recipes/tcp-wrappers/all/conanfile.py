@@ -1,13 +1,12 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import unix_path, is_msvc
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -17,7 +16,7 @@ class TcpWrappersConan(ConanFile):
     description = "A security tool which acts as a wrapper for TCP daemons"
     license = "BSD"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "ftp://ftp.porcupine.org/pub/security/index.html"
+    homepage = "http://ftp.porcupine.org/pub/security/"
     topics = ("tcp", "ip", "daemon", "wrapper")
 
     package_type = "library"
@@ -52,75 +51,52 @@ class TcpWrappersConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def generate(self):
-        # TODO: fill in generate()
-        pass
-
-    def build(self):
-        apply_conandata_patches(self)
-        with chdir(self, self.source_folder):
-            autotools = AutoToolsBuildEnvironment(self)
-            make_args = [
-                "REAL_DAEMON_DIR={}".format(unix_path(self, os.path.join(self.package_folder, "bin"))),
-                "-j1",
-                "SHEXT={}".format(self._shext),
-            ]
-            if self.options.shared:
-                make_args.append("shared=1")
-            env_vars = autotools.vars
-            if self.options.get_safe("fPIC", True):
-                env_vars["CFLAGS"] += " -fPIC"
-            env_vars["ENV_CFLAGS"] = env_vars["CFLAGS"]
-            # env_vars["SHEXT"] = self._shext
-            print(env_vars)
-            with environment_append(self, env_vars):
-                autotools.make(target="linux", args=make_args)
-
     @property
     def _shext(self):
         if is_apple_os(self):
             return ".dylib"
         return ".so"
 
-    def package(self):
-        copy(
-            self,
-            pattern="DISCLAIMER",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-
-        for exe in ("safe_finger", "tcpd", "tcpdchk", "tcpdmatch", "try-from"):
-            copy(
-                self,
-                exe,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
-        copy(
-            self,
-            "tcpd.h",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include"),
-            keep_path=False,
-        )
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.make_args += [
+            "REAL_DAEMON_DIR=/bin",
+            f"SHEXT={self._shext}",
+            "-j1",
+        ]
         if self.options.shared:
-            copy(
-                self,
-                "libwrap{}".format(self._shext),
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            tc.make_args.append("shared=1")
+        tc.generate()
+
+    def build(self):
+        apply_conandata_patches(self)
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.make(target="linux")
+
+    def package(self):
+        copy(self, "DISCLAIMER",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        for exe in ("safe_finger", "tcpd", "tcpdchk", "tcpdmatch", "try-from"):
+            copy(self, exe,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
+        copy(self, "tcpd.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"),
+             keep_path=False)
+        if self.options.shared:
+            copy(self, f"libwrap{self._shext}",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
         else:
-            copy(
-                self,
-                "libwrap.a",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            copy(self, "libwrap.a",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["wrap"]

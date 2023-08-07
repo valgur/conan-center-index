@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -54,29 +52,32 @@ class ScdocInstallerConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.make_args = [f"PREFIX={self.package_folder}"]
+        tc.make_args = ["PREFIX=/"]
         tc.generate()
 
     def build(self):
-        autotools = Autotools(self)
         with chdir(self, self.source_folder):
+            autotools = Autotools(self)
             autotools.make()
 
     def package(self):
-        autotools = Autotools(self)
         with chdir(self, self.source_folder):
+            autotools = Autotools(self)
             autotools.install()
-        copy(
-            self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "share"))
+
+    @staticmethod
+    def _chmod_plus_x(filename):
+        if os.name == "posix":
+            os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def package_info(self):
         self.cpp_info.libdirs = []
 
         scdoc_root = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(scdoc_root))
-        self.env_info.PATH.append(scdoc_root)
         self._chmod_plus_x(os.path.join(scdoc_root, "scdoc"))
         pkgconfig_variables = {
             "exec_prefix": "${prefix}/bin",
@@ -86,3 +87,7 @@ class ScdocInstallerConan(ConanFile):
             "pkg_config_custom_content",
             "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
         )
+
+        # TODO: Legacy, to be removed on Conan 2.0
+        self.output.info("Appending PATH environment variable: {}".format(scdoc_root))
+        self.env_info.PATH.append(scdoc_root)

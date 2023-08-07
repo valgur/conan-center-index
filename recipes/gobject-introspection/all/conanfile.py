@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
@@ -15,9 +14,8 @@ required_conan_version = ">=1.47.0"
 
 class GobjectIntrospectionConan(ConanFile):
     name = "gobject-introspection"
-    description = (
-        "GObject introspection is a middleware layer between C libraries (using GObject) and language bindings"
-    )
+    description = ("GObject introspection is a middleware layer between "
+                   "C libraries (using GObject) and language bindings")
     license = "LGPL-2.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/gobject-introspection"
@@ -37,8 +35,6 @@ class GobjectIntrospectionConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(f"{self.name} recipe does not support windows. Contributions are welcome!")
 
     def configure(self):
         if self.options.shared:
@@ -65,8 +61,6 @@ class GobjectIntrospectionConan(ConanFile):
         else:
             self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
-        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
         if hasattr(self, "settings_build") and cross_building(self):
             self.tool_requires("glib/<host_version>")
 
@@ -88,13 +82,12 @@ class GobjectIntrospectionConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')")
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "meson.build"),
-            "if meson.version().version_compare('>=0.54.0')",
-            "if false",
-        )
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                        "subdir('tests')",
+                        "#subdir('tests')")
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                        "if meson.version().version_compare('>=0.54.0')",
+                        "if false")
 
     def build(self):
         self._patch_sources()

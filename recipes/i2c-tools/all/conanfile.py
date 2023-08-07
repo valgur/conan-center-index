@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -51,12 +49,14 @@ class I2cConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
+        shared = "1" if self.options.shared else "0"
         tc.make_args = [
-            f"PREFIX={self.package_folder}",
-            f"BUILD_DYNAMIC_LIB={'1' if self.options.shared else '0'}",
-            f"BUILD_STATIC_LIB={'0' if self.options.shared else '1'}",
-            f"USE_STATIC_LIB={'0' if self.options.shared else '1'}",
+            "PREFIX=/",
+            f"BUILD_DYNAMIC_LIB={shared}",
+            f"BUILD_STATIC_LIB={shared}",
+            f"USE_STATIC_LIB={shared}",
         ]
+        tc.generate()
 
     def _patch_sources(self):
         replace_in_file(
@@ -68,15 +68,19 @@ class I2cConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        autotools = Autotools(self)
         with chdir(self, self.source_folder):
+            autotools = Autotools(self)
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "COPYING.LGPL", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING.LGPL",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
+            autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
 

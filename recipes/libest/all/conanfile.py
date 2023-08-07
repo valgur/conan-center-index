@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -61,7 +59,6 @@ class LibEstConan(ConanFile):
         # - Release build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L253
         tc = AutotoolsToolchain(self)
         tc.generate()
-
         tc = PkgConfigDeps(self)
         tc.generate()
 
@@ -73,9 +70,11 @@ class LibEstConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
-            autotools = Autotools()
+            autotools = Autotools(self)
             autotools.install()
         os.unlink(os.path.join(self.package_folder, "lib", "libest.la"))
 

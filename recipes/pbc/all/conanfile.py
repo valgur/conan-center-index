@@ -1,12 +1,10 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.tools.apple import XCRun, to_apple_arch
 from conan.tools.build import cross_building
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, chdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -62,32 +60,32 @@ class PbcConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.defines += ["LEX=flex"]
-
+        tc.extra_defines += ["LEX=flex"]
         # No idea why this is necessary, but if you don't set CC this way, then
         # configure complains that it can't find gmp.
-        if cross_building(self.settings) and self.settings.compiler == "apple-clang":
+        if cross_building(self) and self.settings.compiler == "apple-clang":
             xcr = XCRun(self.settings)
             target = to_apple_arch(self.settings.arch) + "-apple-darwin"
-
             min_ios = ""
             if self.settings.os == "iOS":
                 min_ios = f"-miphoneos-version-min={self.settings.os.version}"
-
             tc.configure_args.append(f"CC={xcr.cc} -isysroot {xcr.sdk_path} -target {target} {min_ios}")
-
         tc.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)
-        autotools = Autotools(self)
-        autotools.configure()
-        autotools.make()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
-        autotools.install()
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", self.package_folder, recursive=True)
 

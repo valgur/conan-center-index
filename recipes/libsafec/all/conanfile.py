@@ -1,10 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -16,10 +15,8 @@ required_conan_version = ">=1.53.0"
 
 class LibSafeCConan(ConanFile):
     name = "libsafec"
-    description = (
-        "This library implements the secure C11 Annex K[^5] functions"
-        " on top of most libc implementations, which are missing from them."
-    )
+    description = ("This library implements the secure C11 Annex K[^5] functions"
+                   " on top of most libc implementations, which are missing from them.")
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/rurban/safeclib"
@@ -91,6 +88,8 @@ class LibSafeCConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
@@ -104,26 +103,24 @@ class LibSafeCConan(ConanFile):
 
     def build(self):
         with chdir(self, self.source_folder):
-            self.run(
-                f"{get_env(self, 'AUTORECONF')} -fiv",
-                run_environment=True,
-            )
-        autotools = Autotools(self)
-        autotools.configure()
-        autotools.make()
+            autotools = Autotools(self)
+            autotools.autoreconf()
+            autotools.configure()
+            autotools.make()
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
-        autotools.install()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "libsafec"))
-        self.cpp_info.libs = ["safec-{}".format(self.version)]
+        self.cpp_info.libs = [f"safec-{self.version}"]
         self.cpp_info.set_property("pkg_config_name", "libsafec")
 
         bin_dir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_dir))
+        self.output.info(f"Appending PATH environment variable: {bin_dir}")
         self.env_info.PATH.append(bin_dir)

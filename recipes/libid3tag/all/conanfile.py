@@ -1,14 +1,12 @@
-# TODO: verify the Conan v2 migration
-
 import os
-import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, replace_in_file, rm
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, MSBuildDeps
 
 required_conan_version = ">=1.53.0"
 
@@ -68,14 +66,18 @@ class LibId3TagConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
         if is_msvc(self):
             tc = MSBuildToolchain(self)
             tc.generate()
+            deps = MSBuildDeps(self)
+            deps.generate()
         else:
             tc = AutotoolsToolchain(self)
             tc.generate()
-            tc = PkgConfigDeps(self)
-            tc.generate()
+            deps = PkgConfigDeps(self)
+            deps.generate()
 
     def build(self):
         if is_msvc(self):
@@ -94,10 +96,9 @@ class LibId3TagConan(ConanFile):
                 kwargs["toolset"] = "ClangCl"
             if self.settings.arch == "x86_64":
                 replace_in_file(self, "libid3tag.dsp", "Win32", "x64")
-            with vcvars(self.settings):
-                self.run("devenv /Upgrade libid3tag.dsp")
+            self.run("devenv /Upgrade libid3tag.dsp")
             msbuild = MSBuild(self)
-            msbuild.build(project_file="libid3tag.vcxproj", **kwargs)
+            msbuild.build(sln="libid3tag.vcxproj", **kwargs)
 
     def _build_autotools(self):
         for gnu_config in [
@@ -106,32 +107,30 @@ class LibId3TagConan(ConanFile):
         ]:
             if gnu_config:
                 copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
-        autotools = Autotools(self)
-        autotools.make()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make()
 
     def _install_autotools(self):
-        autotools = Autotools(self)
-        autotools.install()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
         rm(self, "*.la", self.package_folder, recursive=True)
 
     def package(self):
-        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "CREDITS", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        for license_file in ["COPYRIGHT", "COPYING", "CREDITS"]:
+            copy(self, license_file,
+                 dst=os.path.join(self.package_folder, "licenses"),
+                 src=self.source_folder)
         if is_msvc(self):
-            copy(
-                self,
-                pattern="*.lib",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.source_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="id3tag.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
-            )
+            copy(self, "*.lib",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.source_folder,
+                 keep_path=False)
+            copy(self, "id3tag.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder)
         else:
             self._install_autotools()
 

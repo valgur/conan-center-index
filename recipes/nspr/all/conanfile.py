@@ -1,10 +1,11 @@
 import os
+import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.env import Environment
-from conan.tools.files import chdir, copy, get, rename, replace_in_file, rmdir
+from conan.tools.files import chdir, copy, get, rename, replace_in_file, rmdir, mkdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path
@@ -24,8 +25,18 @@ class NsprConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "with_mozilla": [True, False], "win32_target": ["winnt", "win95"]}
-    default_options = {"shared": False, "fPIC": True, "with_mozilla": True, "win32_target": "winnt"}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "with_mozilla": [True, False],
+        "win32_target": ["winnt", "win95"],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+        "with_mozilla": True,
+        "win32_target": "winnt",
+    }
 
     @property
     def _settings_build(self):
@@ -60,7 +71,10 @@ class NsprConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        with chdir(self, self.export_sources_folder):
+            get(self, **self.conan_data["sources"][self.version], strip_root=True)
+            rmdir(self, self.source_folder)
+            rename(self, "nspr", self.source_folder)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -70,69 +84,59 @@ class NsprConan(ConanFile):
             "--enable-64bit={}".format(yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))),
             "--enable-strip={}".format(yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))),
             "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
-            "--datarootdir={}".format(unix_path(self, os.path.join(self.package_folder, "res"))),
+            "--datarootdir=${prefix}/res",
             "--disable-cplus",
         ]
         if is_msvc(self):
-            tc.configure_args.extend(
-                [
-                    "{}-pc-mingw32".format("x86_64" if self.settings.arch == "x86_64" else "x86"),
-                    "--enable-static-rtl={}".format(yes_no(is_msvc_static_runtime(self))),
-                    "--enable-debug-rtl={}".format(yes_no("d" in msvc_runtime_flag(self))),
-                ]
-            )
+            tc.configure_args += [
+                "{}-pc-mingw32".format("x86_64" if self.settings.arch == "x86_64" else "x86"),
+                "--enable-static-rtl={}".format(yes_no(is_msvc_static_runtime(self))),
+                "--enable-debug-rtl={}".format(yes_no("d" in msvc_runtime_flag(self))),
+            ]
         elif self.settings.os == "Android":
-            tc.configure_args.extend(
-                [
-                    "--with-android-ndk={}".format(os.environ.get("NDK_ROOT", "")),
-                    "--with-android-version={}".format(self.settings.os.api_level),
-                    "--with-android-platform={}".format(os.environ.get("ANDROID_PLATFORM")),
-                    "--with-android-toolchain={}".format(os.environ.get("ANDROID_TOOLCHAIN")),
-                ]
-            )
+            tc.configure_args += [
+                "--with-android-ndk={}".format(os.environ.get("NDK_ROOT", "")),
+                "--with-android-version={}".format(self.settings.os.api_level),
+                "--with-android-platform={}".format(os.environ.get("ANDROID_PLATFORM")),
+                "--with-android-toolchain={}".format(os.environ.get("ANDROID_TOOLCHAIN")),
+            ]
         elif self.settings.os == "Windows":
             tc.configure_args.append("--enable-win32-target={}".format(self.options.win32_target))
-        # env = tc.vars
-        # if is_apple_os(self):
-        #     if self.settings.arch == "armv8":
-        #         # conan adds `-arch`, which conflicts with nspr's apple silicon support
-        #         env["CFLAGS"] = env["CFLAGS"].replace("-arch arm64", "")
-        #         env["CXXFLAGS"] = env["CXXFLAGS"].replace("-arch arm64", "")
-
+        if is_apple_os(self) and self.settings.arch == "armv8":
+            # conan adds `-arch`, which conflicts with nspr's apple silicon support
+            tc.cflags.remove("-arch arm64")
+            tc.cxxflags.remove("-arch arm64")
         tc.generate()
 
         if is_msvc(self):
             env = Environment()
-            automake_conf = self.dependencies.build["automake"].conf_info
-            compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
-            ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
-            env.define("CC", f"{compile_wrapper} cl -nologo")
-            env.define("CXX", f"{compile_wrapper} cl -nologo")
-            env.define("LD", "link -nologo")
-            env.define("AR", f'{ar_wrapper} "lib -nologo"')
-            env.define("NM", "dumpbin -symbols")
-            env.define("OBJDUMP", ":")
-            env.define("RANLIB", ":")
-            env.define("STRIP", ":")
+            env.define("CC", "cl")
+            env.define("CXX", "cl")
+            env.define("LD", "link")
             env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
-        with chdir(self, os.path.join(self.source_folder, "nspr")):
+        with chdir(self, self.source_folder):
             # relocatable shared libs on macOS
             replace_in_file(self, "configure", "-install_name @executable_path/", "-install_name @rpath/")
             autotools = Autotools(self)
-            autotools.configure(build_script_folder=os.path.join(self.source_folder, "nspr"))
+            autotools.configure()
             autotools.make()
 
     def package(self):
         copy(self, "LICENSE",
              dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        with chdir(self, os.path.join(self.source_folder, "nspr")):
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
+        if os.path.exists(os.path.join(self.package_folder, "include", "nspr.h")):
+            with chdir(self, self.package_folder):
+                rename(self, "include", "nspr")
+                mkdir(self, "include")
+                shutil.move("nspr", "include")
         if self.settings.os == "Windows":
             if self.options.shared:
                 os.mkdir(os.path.join(self.package_folder, "bin"))

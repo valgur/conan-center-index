@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, download, save
@@ -46,12 +45,10 @@ class TweetnaclConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def validate(self):
-        if self.settings.os == "Windows" or is_apple_os(self):
-            if self.options.shared:
-                raise ConanInvalidConfiguration(
-                    "tweetnacl does not support shared on Windows and Macos: it needs a randombytes implementation"
-                )
+    def requirements(self):
+        if self.options.shared and (self.settings.os == "Windows" or is_apple_os(self)):
+            # needed for randombytes implementation
+            self.requires("libsodium/cci.20220430")
 
     def source(self):
         for url_sha in self.conan_data["sources"][self.version]:
@@ -59,10 +56,10 @@ class TweetnaclConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
         tc.generate()
-
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)

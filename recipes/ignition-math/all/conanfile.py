@@ -6,7 +6,8 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save, replace_in_file
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -22,8 +23,14 @@ class IgnitionMathConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
 
     @property
     def _minimum_cpp_standard(self):
@@ -31,7 +38,13 @@ class IgnitionMathConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {"Visual Studio": "16", "msvc": "192", "gcc": "7", "clang": "5", "apple-clang": "10"}
+        return {
+            "Visual Studio": "16",
+            "msvc": "192",
+            "gcc": "7",
+            "clang": "5",
+            "apple-clang": "10",
+        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -50,39 +63,49 @@ class IgnitionMathConan(ConanFile):
             self.output.warning(f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support.")
         else:
             if Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration(f"{self.name} requires c++17 support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
+                raise ConanInvalidConfiguration(
+                    f"{self.name} requires c++17 support. "
+                    f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("eigen/3.4.0")
+        self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("swig/4.1.1")
 
     def validate(self):
         if is_apple_os(self) and self.settings.arch == "armv8":
-            raise ConanInvalidConfiguration("sorry, M1 builds are not currently supported, give up!")
+            raise ConanInvalidConfiguration("sorry, M1 builds are not currently supported, giving up!")
 
     def build_requirements(self):
-        if Version(self.version).minor <= 8:
+        if Version(self.version) <= "6.8":
             self.tool_requires("ignition-cmake/2.10.0")
         else:
             self.tool_requires("ignition-cmake/2.10.0")
         self.tool_requires("doxygen/1.9.4")
+        self.tool_requires("swig/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
+        deps = CMakeDeps(self)
+        deps.build_context_activated = ["ignition-cmake"]
+        deps.build_context_build_modules = ["ignition-cmake"]
+        deps.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "src", "ruby", "CMakeLists.txt"), "${SWIG_USE_FILE}", "UseSWIG")
 
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -119,16 +142,17 @@ class IgnitionMathConan(ConanFile):
         return os.path.join(self._module_file_rel_dir, f"conan-official-{self.name}-variables.cmake")
 
     def package_info(self):
-        version_major = Version(self.version).major
+        version_major = str(Version(self.version).major)
         lib_name = f"ignition-math{version_major}"
 
+        # Based on https://github.com/gazebosim/gz-math/blob/ignition-math6_6.10.0/examples/CMakeLists.txt
         self.cpp_info.set_property("cmake_file_name", lib_name)
-        self.cpp_info.set_property("cmake_target_name", lib_name)
+        self.cpp_info.set_property("cmake_target_name", f"{lib_name}::{lib_name}")
 
         main_component = self.cpp_info.components[lib_name]
         main_component.libs = [lib_name]
         main_component.includedirs.append(os.path.join("include", "ignition", "math" + version_major))
-        main_component.requires = ["swig::swig", "eigen::eigen", "doxygen::doxygen"]
+        main_component.requires = ["swig::swig", "eigen::eigen"]
 
         eigen3_component = self.cpp_info.components["eigen3"]
         eigen3_component.includedirs.append(os.path.join("include", "ignition", "math" + version_major))

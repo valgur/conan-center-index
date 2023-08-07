@@ -6,22 +6,24 @@ unsigned char *BIO_copy_data(BIO *out, int *data_lenp) {
     int data_len;
 
     data_len = BIO_get_mem_data(out, &tdata);
-    data = malloc(data_len + 1);
+    data = malloc(data_len+1);
     if (data) {
         memcpy(data, tdata, data_len);
-        data[data_len] = '\0'; // Make sure it's \0 terminated, in case used as string
-        if (data_lenp) {
-            *data_lenp = data_len;
-        }
+	data[data_len]='\0';  // Make sure it's \0 terminated, in case used as string
+	if (data_lenp) {
+	    *data_lenp = data_len;
+	}
     } else {
         printf("\nmalloc failed\n");
     }
     return data;
 }
 
+
 #define EST_PRIVATE_KEY_ENC EVP_aes_128_cbc()
 
-char *generate_private_RSA_key(int key_size, pem_password_cb *cb) {
+char *generate_private_RSA_key (int key_size, pem_password_cb *cb)
+{
     char *key_data = NULL;
 
     RSA *rsa = RSA_new();
@@ -57,7 +59,8 @@ char *generate_private_RSA_key(int key_size, pem_password_cb *cb) {
     return (key_data);
 }
 
-EVP_PKEY *load_private_key(const unsigned char *key, int key_len, int format, pem_password_cb *cb) {
+EVP_PKEY *load_private_key (const unsigned char *key, int key_len, int format, pem_password_cb *cb)
+{
     BIO *in = NULL;
     EVP_PKEY *pkey = NULL;
 
@@ -88,10 +91,10 @@ EVP_PKEY *load_private_key(const unsigned char *key, int key_len, int format, pe
     return (pkey);
 }
 
-#define load_clear_private_key_PEM(key)                                                            \
-    load_private_key((unsigned char *)(key), strlen(key), EST_FORMAT_PEM, NULL)
+#define load_clear_private_key_PEM(key) load_private_key((unsigned char*)(key),strlen(key),EST_FORMAT_PEM, NULL)
 
-int main(void) {
+int main(void)
+{
     /*
      * Initialize the library, including OpenSSL
      */
@@ -103,7 +106,8 @@ int main(void) {
     key_data = generate_private_RSA_key(2048, NULL /* no password_cb */);
     key = load_clear_private_key_PEM(key_data);
 
-    if (!key) {
+    if (!key)
+    {
         printf("\nUnable to load newly created key from PEM file\n");
         exit(1);
     }

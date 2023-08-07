@@ -18,13 +18,28 @@ diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 06b84b759..7e81b2a06 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -1,6 +1,53 @@
+@@ -1,6 +1,68 @@
  include(CheckSymbolExists)
  include(CheckCXXSourceCompiles)
  
 +find_package(libuv REQUIRED)
++include_directories(${libuv_INCLUDE_DIRS})
++link_libraries(${libuv_LIBRARIES})
 +find_package(http_parser REQUIRED)
++include_directories(${http_parser_INCLUDE_DIRS})
++link_libraries(${http_parser_LIBRARIES})
 +find_package(RapidJSON REQUIRED)
++include_directories(${RapidJSON_INCLUDE_DIRS})
++link_libraries(${RapidJSON_LIBRARIES})
++find_package(ZLIB REQUIRED)
++include_directories(${ZLIB_INCLUDE_DIRS})
++link_libraries(${ZLIB_LIBRARIES})
++find_package(minizip REQUIRED)
++include_directories(${minizip_INCLUDE_DIRS})
++link_libraries(${minizip_LIBRARIES})
++find_package(OpenSSL REQUIRED)
++include_directories(${OpenSSL_INCLUDE_DIRS})
++link_libraries(${OpenSSL_LIBRARIES})
 +#------------------------
 +# Windows libraries
 +#------------------------
@@ -108,7 +123,7 @@ index 06b84b759..7e81b2a06 100644
  #------------------------------
  # Build configured header
  #------------------------------
-@@ -130,11 +164,11 @@ if(CASS_BUILD_SHARED)
+@@ -130,11 +164,9 @@ if(CASS_BUILD_SHARED)
    add_library(cassandra SHARED 
      ${SOURCES}
      $<TARGET_OBJECTS:curl_hostcheck>
@@ -119,12 +134,10 @@ index 06b84b759..7e81b2a06 100644
    target_link_libraries(cassandra ${CASS_LIBS})
 -  target_include_directories(cassandra PRIVATE ${INCLUDE_DIRS} ${CASS_INCLUDES})
 +  target_include_directories(cassandra PRIVATE ${INCLUDE_DIRS})
-+  
-+  target_link_libraries(cassandra ${})
  
    set_target_properties(cassandra PROPERTIES OUTPUT_NAME cassandra)
    set_target_properties(cassandra PROPERTIES VERSION ${PROJECT_VERSION_STRING} SOVERSION ${PROJECT_VERSION_MAJOR})
-@@ -167,11 +201,12 @@ if(CASS_BUILD_STATIC)
+@@ -167,11 +201,10 @@ if(CASS_BUILD_STATIC)
    add_library(cassandra_static STATIC
      ${SOURCES}
      $<TARGET_OBJECTS:curl_hostcheck_static>
@@ -136,8 +149,6 @@ index 06b84b759..7e81b2a06 100644
    target_link_libraries(cassandra_static ${CASS_LIBS})
 -  target_include_directories(cassandra_static PRIVATE ${INCLUDE_DIRS} ${CASS_INCLUDES})
 +  target_include_directories(cassandra_static PRIVATE ${INCLUDE_DIRS})
-+  
-+  target_link_libraries(cassandra_static uv)
  
    set_target_properties(cassandra_static PROPERTIES OUTPUT_NAME cassandra_static)
    set_target_properties(cassandra_static PROPERTIES VERSION ${PROJECT_VERSION_STRING} SOVERSION ${PROJECT_VERSION_MAJOR})

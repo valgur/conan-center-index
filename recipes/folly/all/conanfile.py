@@ -1,5 +1,3 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
@@ -45,6 +43,7 @@ class FollyConan(ConanFile):
         return (
             {
                 "Visual Studio": "15",
+                "msvc": "191",
                 "gcc": "5",
                 "clang": "6",
                 "apple-clang": "8",
@@ -53,6 +52,7 @@ class FollyConan(ConanFile):
             else {
                 "gcc": "7",
                 "Visual Studio": "16",
+                "msvc": "192",
                 "clang": "6",
                 "apple-clang": "10",
             }
@@ -94,7 +94,7 @@ class FollyConan(ConanFile):
         # FIXME: Causing compilation issues on clang: self.requires("jemalloc/5.3.0")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libiberty/9.1.0")
-            self.requires("libunwind/1.7.2")
+            self.requires("libunwind/1.7.2", force=True)
         if Version(self.version) >= "2020.08.10.00":
             self.requires("fmt/10.0.0")
 
@@ -185,7 +185,7 @@ class FollyConan(ConanFile):
 
     # FIXME: Freeze max. CMake version at 3.16.2 to fix the Linux build
     def build_requirements(self):
-        self.tool_requires("cmake/3.16.9")
+        self.tool_requires("cmake/[>=3.16]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -214,9 +214,7 @@ class FollyConan(ConanFile):
         tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
 
         cxx_std_flag = cppstd_flag(self.settings)
-        cxx_std_value = (
-            cxx_std_flag.split("=")[1] if cxx_std_flag else "c++{}".format(self._minimum_cpp_standard)
-        )
+        cxx_std_value = cxx_std_flag.split("=")[1] if cxx_std_flag else f"c++{self._minimum_cpp_standard}"
         tc.variables["CXX_STD"] = cxx_std_value
         if is_msvc:
             tc.variables["MSVC_LANGUAGE_VERSION"] = cxx_std_value
@@ -234,9 +232,7 @@ class FollyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -327,44 +323,28 @@ class FollyConan(ConanFile):
         self.cpp_info.components["libfolly"].set_property("pkg_config_name", "libfolly")
 
         if Version(self.version) >= "2019.10.21.00":
-            self.cpp_info.components["follybenchmark"].set_property(
-                "cmake_target_name", "Folly::follybenchmark"
-            )
+            self.cpp_info.components["follybenchmark"].set_property("cmake_target_name", "Folly::follybenchmark")
             self.cpp_info.components["follybenchmark"].set_property("pkg_config_name", "libfollybenchmark")
             self.cpp_info.components["follybenchmark"].libs = ["follybenchmark"]
             self.cpp_info.components["follybenchmark"].requires = ["libfolly"]
 
-            self.cpp_info.components["folly_test_util"].set_property(
-                "cmake_target_name", "Folly::folly_test_util"
-            )
+            self.cpp_info.components["folly_test_util"].set_property("cmake_target_name", "Folly::folly_test_util")
             self.cpp_info.components["folly_test_util"].set_property("pkg_config_name", "libfolly_test_util")
             self.cpp_info.components["folly_test_util"].libs = ["folly_test_util"]
             self.cpp_info.components["folly_test_util"].requires = ["libfolly"]
 
         if Version(self.version) >= "2020.08.10.00" and self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["folly_exception_tracer_base"].set_property(
-                "cmake_target_name", "Folly::folly_exception_tracer_base"
-            )
-            self.cpp_info.components["folly_exception_tracer_base"].set_property(
-                "pkg_config_name", "libfolly_exception_tracer_base"
-            )
+            self.cpp_info.components["folly_exception_tracer_base"].set_property("cmake_target_name", "Folly::folly_exception_tracer_base")
+            self.cpp_info.components["folly_exception_tracer_base"].set_property("pkg_config_name", "libfolly_exception_tracer_base")
             self.cpp_info.components["folly_exception_tracer_base"].libs = ["folly_exception_tracer_base"]
             self.cpp_info.components["folly_exception_tracer_base"].requires = ["libfolly"]
 
-            self.cpp_info.components["folly_exception_tracer"].set_property(
-                "cmake_target_name", "Folly::folly_exception_tracer"
-            )
-            self.cpp_info.components["folly_exception_tracer"].set_property(
-                "pkg_config_name", "libfolly_exception_tracer"
-            )
+            self.cpp_info.components["folly_exception_tracer"].set_property("cmake_target_name", "Folly::folly_exception_tracer")
+            self.cpp_info.components["folly_exception_tracer"].set_property("pkg_config_name", "libfolly_exception_tracer")
             self.cpp_info.components["folly_exception_tracer"].libs = ["folly_exception_tracer"]
             self.cpp_info.components["folly_exception_tracer"].requires = ["folly_exception_tracer_base"]
 
-            self.cpp_info.components["folly_exception_counter"].set_property(
-                "cmake_target_name", "Folly::folly_exception_counter"
-            )
-            self.cpp_info.components["folly_exception_counter"].set_property(
-                "pkg_config_name", "libfolly_exception_counter"
-            )
+            self.cpp_info.components["folly_exception_counter"].set_property("cmake_target_name", "Folly::folly_exception_counter")
+            self.cpp_info.components["folly_exception_counter"].set_property("pkg_config_name", "libfolly_exception_counter")
             self.cpp_info.components["folly_exception_counter"].libs = ["folly_exception_counter"]
             self.cpp_info.components["folly_exception_counter"].requires = ["folly_exception_tracer"]

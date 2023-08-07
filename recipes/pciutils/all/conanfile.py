@@ -1,11 +1,9 @@
-# TODO: verify the Conan v2 migration
-
 import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import chdir, copy, get, rename, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -31,7 +29,7 @@ class PciUtilsConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_zlib": True,
-        "with_udev": False,
+        "with_udev": True,
     }
 
     def config_options(self):
@@ -41,7 +39,7 @@ class PciUtilsConan(ConanFile):
     def configure(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(
-                "Platform {} is currently not supported by this recipe".format(self.settings.os)
+                f"Platform {self.settings.os} is currently not supported by this recipe"
             )
 
         if self.options.shared:
@@ -56,9 +54,7 @@ class PciUtilsConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/1.2.13")
         if self.options.with_udev:
-            # TODO: Enable libudev option when available
-            raise ConanInvalidConfiguration("libudev requires conan-io/conan-center-index#2468")
-            self.requires("systemd/system")
+            self.requires("libudev/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -70,10 +66,13 @@ class PciUtilsConan(ConanFile):
             "SHARED={}".format(yes_no(self.options.shared)),
             "ZLIB={}".format(yes_no(self.options.with_zlib)),
             "HWDB={}".format(yes_no(self.options.with_udev)),
-            "PREFIX={}".format(self.package_folder),
+            "DESTDIR={}".format(self.package_folder),
+            "PREFIX=/",
             "DNS=no",
         ]
         tc.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         with chdir(self, self.source_folder):
@@ -86,21 +85,17 @@ class PciUtilsConan(ConanFile):
             autotools.make(target="install")
             autotools.make(target="install-pcilib")
 
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include"),
-            keep_path=True,
-        )
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"),
+             keep_path=True)
 
         if self.options.shared:
-            rename(
-                self,
-                src=os.path.join(self.source_folder, "lib", "libpci.so.3.7.0"),
-                dst=os.path.join(self.package_folder, "lib", "libpci.so"),
-            )
+            rename(self, src=os.path.join(self.source_folder, "lib", "libpci.so.3.7.0"),
+                   dst=os.path.join(self.package_folder, "lib", "libpci.so"))
 
         rmdir(self, os.path.join(self.package_folder, "sbin"))
         rmdir(self, os.path.join(self.package_folder, "share"))
