@@ -38,6 +38,7 @@ class LuajitConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    provides = "lua"
 
     def export_sources(self):
         export_conandata_patches(self)

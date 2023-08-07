@@ -38,6 +38,7 @@ class AsioGrpcConan(ConanFile):
         return {
             "gcc": "7",
             "Visual Studio": "15.7",
+            "msvc": "191",
             "clang": "6",
             "apple-clang": "11",
         }

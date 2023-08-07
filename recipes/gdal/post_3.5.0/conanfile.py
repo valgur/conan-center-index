@@ -9,6 +9,7 @@ from conan.tools.apple import XCRun, fix_apple_shared_install_name, is_apple_os,
 from conan.tools.build import build_jobs, can_run, check_min_cppstd, cross_building, default_cppstd, stdcpp_library, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -336,6 +337,10 @@ class GdalConan(ConanFile):
 
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")
+
+    def build_requirements(self):
+        # https://github.com/conan-io/conan/issues/3482#issuecomment-662284561
+        self.tool_requires("cmake/[>=3.18 <4]")
 
     def package_id(self):
         del self.info.options.with_crypto
@@ -730,10 +735,10 @@ class GdalConan(ConanFile):
         copy(self, "LICENSE.TXT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "GDAL")
