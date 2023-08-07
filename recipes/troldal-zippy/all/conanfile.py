@@ -42,7 +42,7 @@ class TroldalZippyConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("miniz/2.2.0")
+        self.requires("miniz/3.0.2")
 
     def package_id(self):
         self.info.clear()
