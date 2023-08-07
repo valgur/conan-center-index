@@ -15,8 +15,8 @@ class TestPackageConan(ConanFile):
     def test(self):
         if can_run(self):
             output = StringIO()
-            self.run("djinni --help", output=output)
-            output.seek(0, 0)
+            self.run("djinni --help", output)
+            output.seek(0)
             found_usage = False
             for line in output:
                 if "Usage: djinni [options]" in line:

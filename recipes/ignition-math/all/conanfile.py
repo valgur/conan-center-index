@@ -80,7 +80,7 @@ class IgnitionMathConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) <= "6.8":
-            self.tool_requires("ignition-cmake/2.10.0")
+            self.tool_requires("ignition-cmake/2.5.0")
         else:
             self.tool_requires("ignition-cmake/2.10.0")
         self.tool_requires("doxygen/1.9.4")

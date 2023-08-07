@@ -71,8 +71,8 @@ class PangommConan(ConanFile):
             self.requires("glibmm/2.75.0", transitive_headers=True)
             self.requires("cairomm/1.16.1", transitive_headers=True)
         elif self._is_1_4_api:
-            self.requires("glibmm/2.75.0", transitive_headers=True)
-            self.requires("cairomm/1.16.1", transitive_headers=True)
+            self.requires("glibmm/2.66.4", transitive_headers=True)
+            self.requires("cairomm/1.14.3", transitive_headers=True)
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):

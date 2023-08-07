@@ -46,7 +46,7 @@ class PlatformExceptionsConan(ConanFile):
         if Version(self.version) >= "0.3.0":
             self.requires("platform.delegates/0.3.7")
         else:
-            self.requires("platform.delegates/0.3.7")
+            self.requires("platform.delegates/0.1.3")
 
     def package_id(self):
         self.info.clear()
