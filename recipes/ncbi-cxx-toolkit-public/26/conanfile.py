@@ -61,9 +61,9 @@ class NcbiCxxToolkit(ConanFile):
         "PNG":          "libpng/1.6.40",
         "SQLITE3":      "sqlite3/3.42.0",
         "TIFF":         "libtiff/4.5.1",
-        "XML":          "libxml2/2.10.3",
+        "XML":          "libxml2/2.11.4",
         "XSLT":         "libxslt/1.1.34",
-        "UV":           "libuv/1.45.0",
+        "UV":           "libuv/1.46.0",
         "Z":            "zlib/1.2.13",
         "OpenSSL":      "openssl/[>=1.1 <4]",
         "ZSTD":         "zstd/1.5.5"
@@ -162,10 +162,10 @@ class NcbiCxxToolkit(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.components["ORIGLIBS"].system_libs = ["ws2_32", "dbghelp"]
             self.cpp_info.components["NETWORKLIBS"].system_libs = []
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ORIGLIBS"].system_libs = ["dl", "rt", "m", "pthread"]
             self.cpp_info.components["NETWORKLIBS"].system_libs = ["resolv"]
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             self.cpp_info.components["ORIGLIBS"].system_libs = ["dl", "c", "m", "pthread"]
             self.cpp_info.components["NETWORKLIBS"].system_libs = ["resolv"]
 
