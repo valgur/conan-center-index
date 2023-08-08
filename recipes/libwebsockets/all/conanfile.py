@@ -328,6 +328,7 @@ class LibwebsocketsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LWS_WITHOUT_TESTAPPS"] = True
         tc.variables["LWS_WITHOUT_TEST_SERVER"] = True
         tc.variables["LWS_WITHOUT_TEST_SERVER_EXTPOLL"] = True

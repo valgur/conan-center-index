@@ -50,6 +50,7 @@ class LibzenConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_UNICODE"] = self.options.enable_unicode
         tc.variables["LARGE_FILES"] = self.options.enable_large_files
         # Export symbols for msvc shared

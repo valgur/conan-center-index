@@ -89,6 +89,7 @@ class LibrdkafkaConan(ConanFile):
         env.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITHOUT_OPTIMIZATION"] = self.settings.build_type == "Debug"
         tc.variables["ENABLE_DEVEL"] = self.settings.build_type == "Debug"
         tc.variables["RDKAFKA_BUILD_STATIC"] = not self.options.shared

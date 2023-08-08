@@ -116,6 +116,7 @@ class LiefConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIEF_ART"] = self.options.with_art
         tc.variables["LIEF_DEX"] = self.options.with_dex
         tc.variables["LIEF_ELF"] = self.options.with_elf

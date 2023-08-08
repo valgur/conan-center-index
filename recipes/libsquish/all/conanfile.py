@@ -62,6 +62,7 @@ class LibsquishConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_SQUISH_WITH_OPENMP"] = self.options.openmp
         tc.variables["BUILD_SQUISH_WITH_SSE2"] = self.options.get_safe("sse2_intrinsics") or False
         tc.variables["BUILD_SQUISH_WITH_ALTIVEC"] = self.options.get_safe("altivec_intrinsics") or False

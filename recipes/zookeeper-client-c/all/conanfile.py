@@ -56,6 +56,7 @@ class ZookeeperClientCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WANT_CPPUNIT"] = False
         tc.variables["WITH_CYRUS_SASL"] = "ON" if self.options.with_cyrus_sasl else "OFF"
         tc.variables["WITH_OPENSSL"] = "ON" if self.options.with_openssl else "OFF"

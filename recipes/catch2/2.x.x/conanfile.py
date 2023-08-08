@@ -65,6 +65,7 @@ class Catch2Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TESTING"] = False
         tc.cache_variables["CATCH_INSTALL_DOCS"] = False  # these are cmake options, so use cache_variables
         tc.cache_variables["CATCH_INSTALL_HELPERS"] = "ON"  # these are cmake options, so use cache_variables

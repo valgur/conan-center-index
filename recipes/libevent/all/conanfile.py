@@ -62,6 +62,7 @@ class LibeventConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if self.options.with_openssl:
             tc.variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
         tc.cache_variables["EVENT__LIBRARY_TYPE"] = "SHARED" if self.options.shared else "STATIC"

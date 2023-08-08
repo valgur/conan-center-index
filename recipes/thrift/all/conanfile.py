@@ -97,6 +97,7 @@ class ThriftConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         for option, value in self.options.items():
             if option.startswith("with_"):
                 tc.variables[option.upper()] = value

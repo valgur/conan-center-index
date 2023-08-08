@@ -174,6 +174,7 @@ class PopplerConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_CXX_STANDARD"] = self._cppstd_required
 
         tc.variables["ENABLE_UNSTABLE_API_ABI_HEADERS"] = True

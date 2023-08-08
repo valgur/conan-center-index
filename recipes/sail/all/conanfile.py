@@ -96,6 +96,7 @@ class SAILConan(ConanFile):
             enable_codecs.append("webp")
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SAIL_BUILD_APPS"] = False
         tc.variables["SAIL_BUILD_EXAMPLES"] = False
         tc.variables["SAIL_BUILD_TESTS"] = False

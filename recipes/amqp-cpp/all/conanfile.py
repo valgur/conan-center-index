@@ -87,6 +87,7 @@ class AmqpcppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["AMQP-CPP_BUILD_SHARED"] = self.options.shared
         tc.variables["AMQP-CPP_BUILD_EXAMPLES"] = False
         tc.variables["AMQP-CPP_LINUX_TCP"] = self.options.get_safe("linux_tcp_module", False)

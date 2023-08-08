@@ -49,6 +49,7 @@ class LZ4Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LZ4_BUILD_CLI"] = False
         tc.variables["LZ4_BUILD_LEGACY_LZ4C"] = False
         tc.variables["LZ4_BUNDLED_MODE"] = False

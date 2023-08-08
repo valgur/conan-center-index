@@ -67,6 +67,7 @@ class ZlibNgConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ZLIB_ENABLE_TESTS"] = False
         tc.variables["ZLIBNG_ENABLE_TESTS"] = False
 

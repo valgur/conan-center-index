@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QT_VERSION"] = self.dependencies["qt"].ref.version
         tc.generate()
 

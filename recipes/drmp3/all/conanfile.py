@@ -51,6 +51,7 @@ class Drmp3Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DRMP3_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["NO_SIMD"] = self.options.no_simd
         tc.variables["NO_STDIO"] = self.options.no_stdio

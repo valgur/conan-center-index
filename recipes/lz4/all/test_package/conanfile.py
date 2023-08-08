@@ -18,6 +18,7 @@ class TestPackageConan(ConanFile):
     def generate(self):
         lz4 = self.dependencies["lz4"]
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TEST_SHARED_LIB"] = lz4.options.get_safe("fPIC", True)
         tc.generate()
 

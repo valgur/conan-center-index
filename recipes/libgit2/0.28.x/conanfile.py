@@ -114,6 +114,7 @@ class LibGit2Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["THREADSAFE"] = self.options.threadsafe
         tc.variables["USE_SSH"] = self.options.with_libssh2
 

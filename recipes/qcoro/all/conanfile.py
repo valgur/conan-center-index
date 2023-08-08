@@ -86,6 +86,7 @@ class QCoroConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QCORO_BUILD_EXAMPLES"] = False
         tc.variables["QCORO_ENABLE_ASAN"] = self.options.asan
         tc.variables["BUILD_TESTING"] = False

@@ -76,6 +76,7 @@ class TensorpipeConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TP_USE_CUDA"] = self.options.cuda
         tc.variables["TP_ENABLE_IBV"] = self.options.get_safe("ibv", False)
         tc.variables["TP_ENABLE_SHM"] = self.options.get_safe("shm", False)

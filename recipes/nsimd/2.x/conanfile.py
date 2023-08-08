@@ -55,6 +55,7 @@ class NsimdConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if self.options.simd:
             tc.variables["simd"] = self.options.simd
         if self.settings.arch == "armv7hf":

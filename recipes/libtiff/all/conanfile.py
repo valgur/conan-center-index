@@ -103,6 +103,7 @@ class LibtiffConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["lzma"] = self.options.lzma
         tc.variables["jpeg"] = bool(self.options.jpeg)
         tc.variables["jpeg12"] = False

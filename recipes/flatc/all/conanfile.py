@@ -39,6 +39,7 @@ class FlatcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if is_msvc(self) and self.options.shared:
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["FLATBUFFERS_BUILD_TESTS"] = False

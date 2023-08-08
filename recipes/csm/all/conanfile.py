@@ -45,6 +45,7 @@ class CsmConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CSM_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["CSM_VERSION"] = self.version
         tc.variables["CSM_MAJOR_VERSION"] = str(Version(self.version).major)

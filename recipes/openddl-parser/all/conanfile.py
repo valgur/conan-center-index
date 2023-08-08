@@ -49,6 +49,7 @@ class OpenDDLParserConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DDL_STATIC_LIBRARY"] = not self.options.shared
         tc.variables["DDL_BUILD_TESTS"] = False
         tc.variables["DDL_BUILD_PARSER_DEMO"] = False

@@ -42,6 +42,7 @@ class UnityConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["UNITY_EXTENSION_FIXTURE"] = self.options.fixture_extension
         tc.cache_variables["UNITY_EXTENSION_MEMORY"] = self.options.memory_extension
         tc.generate()

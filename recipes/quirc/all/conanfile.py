@@ -49,6 +49,7 @@ class QuircConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QUIRC_SRC_DIR"] = os.path.join(self.source_folder, "lib").replace("\\", "/")
         tc.variables["QUIRC_VERSION"] = self.version
         tc.variables["QUIRC_MAX_REGIONS"] = self.options.max_regions

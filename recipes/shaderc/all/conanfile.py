@@ -85,6 +85,7 @@ class ShadercConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
         tc.variables["SHADERC_ENABLE_SPVC"] = self.options.get_safe("spvc", False)
         tc.variables["SHADERC_SKIP_INSTALL"] = False

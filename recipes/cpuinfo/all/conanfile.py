@@ -52,6 +52,7 @@ class CpuinfoConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # cpuinfo
         tc.cache_variables["CPUINFO_LIBRARY_TYPE"] = "default"
         tc.cache_variables["CPUINFO_RUNTIME_TYPE"] = "default"

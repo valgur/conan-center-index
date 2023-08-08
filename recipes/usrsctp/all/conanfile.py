@@ -47,6 +47,7 @@ class UsrsctpConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["sctp_debug"] = False
         tc.variables["sctp_werror"] = False
         tc.variables["sctp_build_shared_lib"] = self.options.shared

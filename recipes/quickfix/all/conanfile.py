@@ -76,6 +76,7 @@ class QuickfixConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["HAVE_SSL"] = self.options.with_ssl
         tc.variables["HAVE_POSTGRESQL"] = self.options.with_postgres
         tc.variables["HAVE_MYSQL"] = bool(self.options.with_mysql)

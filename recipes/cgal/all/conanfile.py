@@ -67,6 +67,7 @@ class CgalConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

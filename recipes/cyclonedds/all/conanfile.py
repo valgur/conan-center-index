@@ -95,6 +95,7 @@ class CycloneDDSConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # TODO : determine how to do in conan :
         # - idlc is a code generator that is used as tool (and so not cross compiled)
         # - other tools like ddsperf is cross compiled for target

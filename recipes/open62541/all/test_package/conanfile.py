@@ -19,6 +19,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["open62541_NODESET_DIR"] = self.conf_info.get("user.ua-nodeset:nodeset_dir").replace(
             "\\", "/"
         )  # ua-nodeset path needs to be sanitized for windows systems

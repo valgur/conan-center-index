@@ -58,6 +58,7 @@ class HwlocConan(ConanFile):
             deps = CMakeDeps(self)
             deps.generate()
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.cache_variables["HWLOC_ENABLE_TESTING"] = "OFF"
             tc.cache_variables["HWLOC_SKIP_LSTOPO"] = "ON"
             tc.cache_variables["HWLOC_SKIP_TOOLS"] = "ON"

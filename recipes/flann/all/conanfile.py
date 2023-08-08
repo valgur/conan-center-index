@@ -63,6 +63,7 @@ class FlannConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_C_BINDINGS"] = True
         # Only build the C++ libraries
         tc.variables["BUILD_DOC"] = False

@@ -48,6 +48,7 @@ class TinyregexcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TINY_REGEX_C_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["RE_DOT_MATCHES_NEWLINE"] = self.options.dot_matches_newline
         tc.generate()

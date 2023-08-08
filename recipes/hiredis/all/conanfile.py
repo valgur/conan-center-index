@@ -53,6 +53,7 @@ class HiredisConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # Since 1.2.0, BUILD_SHARED_LIBS has been defined by option()
         if Version(self.version) >= "1.2.0":
             tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared

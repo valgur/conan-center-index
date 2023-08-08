@@ -44,6 +44,7 @@ class Poly2triConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["POLY2TRI_SRC_DIR"] = os.path.join(self.source_folder, "poly2tri").replace("\\", "/")
         tc.generate()
 

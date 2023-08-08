@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITH_MAIN"] = self.dependencies["catch2"].options.with_main
         tc.variables["WITH_BENCHMARK"] = self.dependencies["catch2"].options.get_safe("with_benchmark", False)
         tc.variables["WITH_PREFIX"] = self.dependencies["catch2"].options.with_prefix

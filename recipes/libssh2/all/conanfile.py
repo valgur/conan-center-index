@@ -76,6 +76,7 @@ class Libssh2Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["ENABLE_ZLIB_COMPRESSION"] = self.options.with_zlib
         tc.cache_variables["ENABLE_CRYPT_NONE"] = self.options.enable_crypt_none
         tc.cache_variables["ENABLE_MAC_NONE"] = self.options.enable_mac_none

@@ -93,6 +93,7 @@ class RotorConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_BOOST_ASIO"] = self.options.enable_asio
         tc.variables["BUILD_THREAD"] = self.options.enable_thread
         tc.variables["BUILD_THREAD_UNSAFE"] = not self.options.multithreading

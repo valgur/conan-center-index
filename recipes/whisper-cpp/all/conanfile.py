@@ -94,6 +94,7 @@ class WhisperCppConan(ConanFile):
         deps.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WHISPER_BUILD_TESTS"] = False
         tc.variables["WHISPER_BUILD_EXAMPLES"] = False
 

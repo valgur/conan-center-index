@@ -57,6 +57,7 @@ class CjsonConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_SANITIZERS"] = False
         tc.variables["ENABLE_SAFE_STACK"] = False
         tc.variables["ENABLE_PUBLIC_SYMBOLS"] = True

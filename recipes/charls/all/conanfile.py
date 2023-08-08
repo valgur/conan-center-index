@@ -83,6 +83,7 @@ class CharlsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["CHARLS_BUILD_FUZZ_TEST"] = False
         tc.cache_variables["CHARLS_BUILD_SAMPLES"] = False
         tc.cache_variables["CHARLS_BUILD_TESTS"] = False

@@ -60,6 +60,7 @@ class LuaConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LUA_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["SKIP_INSTALL_TOOLS"] = True
         tc.variables["COMPILE_AS_CPP"] = self.options.compile_as_cpp

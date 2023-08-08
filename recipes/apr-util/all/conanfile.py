@@ -124,6 +124,7 @@ class AprUtilConan(ConanFile):
     def generate(self):
         if self.settings.os == "Windows":
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["INSTALL_PDB"] = False
             tc.variables["APU_HAVE_CRYPTO"] = self._with_crypto
             tc.variables["APR_HAS_LDAP"] = self.options.with_ldap

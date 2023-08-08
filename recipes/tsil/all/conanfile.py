@@ -58,6 +58,7 @@ class TsilConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TSIL_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["TSIL_SIZE"] = self.options.size
         tc.generate()

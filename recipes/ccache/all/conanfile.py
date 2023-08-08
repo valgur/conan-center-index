@@ -81,6 +81,7 @@ class CcacheConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["REDIS_STORAGE_BACKEND"] = self.options.redis_storage_backend
         tc.variables["HIREDIS_FROM_INTERNET"] = False
         tc.variables["ZSTD_FROM_INTERNET"] = False

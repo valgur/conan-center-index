@@ -51,6 +51,7 @@ class NloptConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["NLOPT_CXX"] = self.options.enable_cxx_routines
         tc.variables["NLOPT_FORTRAN"] = False
         tc.variables["NLOPT_PYTHON"] = False

@@ -43,6 +43,7 @@ class ZipConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_DISABLE_TESTING"] = True
         tc.variables["ZIP_STATIC_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["ZIP_BUILD_DOCS"] = False

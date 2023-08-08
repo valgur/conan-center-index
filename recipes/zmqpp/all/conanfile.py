@@ -55,6 +55,7 @@ class ZmqppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # No bool cast until https://github.com/conan-io/conan/pull/12086 (conan 1.53.0)
         tc.cache_variables["ZMQPP_LIBZMQ_CMAKE"] = "ON"
         tc.cache_variables["ZMQPP_BUILD_STATIC"] = "OFF" if self.options.shared else "ON"

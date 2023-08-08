@@ -46,6 +46,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_NO_CHANGES"] = "no_changes" in self._test_files()
         tc.variables["BUILD_INCLUDE_OVERRIDE"] = "include_override" in self._test_files()
         tc.variables["BUILD_MI_API"] = "mi_api" in self._test_files()

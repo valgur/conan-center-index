@@ -85,6 +85,7 @@ class Z3Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["Z3_USE_LIB_GMP"] = self.options.use_gmp
         tc.variables["Z3_SINGLE_THREADED"] = not self.options.multithreaded
         tc.variables["Z3_BUILD_LIBZ3_SHARED"] = self.options.shared

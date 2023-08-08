@@ -78,6 +78,7 @@ class FltkConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["OPTION_BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["FLTK_BUILD_TEST"] = False
         tc.variables["FLTK_BUILD_EXAMPLES"] = False

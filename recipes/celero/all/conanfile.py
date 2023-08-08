@@ -79,6 +79,7 @@ class CeleroConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CELERO_COMPILE_DYNAMIC_LIBRARIES"] = self.options.shared
         tc.variables["CELERO_COMPILE_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["CELERO_ENABLE_EXPERIMENTS"] = False

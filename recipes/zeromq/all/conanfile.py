@@ -80,6 +80,7 @@ class ZeroMQConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_CURVE"] = bool(self.options.encryption)
         tc.variables["WITH_LIBSODIUM"] = self.options.encryption == "libsodium"
         tc.variables["ZMQ_BUILD_TESTS"] = False

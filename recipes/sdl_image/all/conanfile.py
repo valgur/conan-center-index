@@ -99,6 +99,7 @@ class SDLImageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SDL_IMAGE_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["BMP"] = self.options.bmp
         tc.variables["GIF"] = self.options.gif

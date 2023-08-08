@@ -60,6 +60,7 @@ class AngelScriptConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["AS_NO_EXCEPTIONS"] = self.options.no_exceptions
         if not valid_min_cppstd(self, 11):
             tc.variables["CMAKE_CXX_STANDARD"] = 11

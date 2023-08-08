@@ -121,6 +121,7 @@ class OnnxRuntimeConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # disable downloading dependencies to ensure conan ones are used
         tc.variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
         if self.version >= Version("1.15.0") and self.options.shared:

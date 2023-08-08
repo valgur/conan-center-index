@@ -37,6 +37,7 @@ class JsonformoderncppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["JSON_BuildTests"] = False
         tc.variables["JSON_MultipleHeaders"] = self.options.multiple_headers
         tc.generate()

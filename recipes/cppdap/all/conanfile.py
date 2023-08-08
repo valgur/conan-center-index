@@ -68,6 +68,7 @@ class PackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CPPDAP_USE_EXTERNAL_JSONCPP_PACKAGE"] = self.options.with_json == "jsoncpp"
         tc.variables["CPPDAP_USE_EXTERNAL_RAPIDJSON_PACKAGE"] = self.options.with_json == "rapidjson"
         tc.variables["CPPDAP_USE_EXTERNAL_NLOHMANN_JSON_PACKAGE"] = self.options.with_json == "nlohmann_json"

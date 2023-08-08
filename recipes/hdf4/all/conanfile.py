@@ -67,6 +67,7 @@ class Hdf4Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["HDF4_EXTERNALLY_CONFIGURED"] = True
         tc.cache_variables["HDF4_EXTERNAL_LIB_PREFIX"] = ""
         tc.cache_variables["HDF4_NO_PACKAGES"] = True

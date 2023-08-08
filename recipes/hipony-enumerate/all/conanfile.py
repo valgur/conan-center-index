@@ -72,6 +72,7 @@ class HiponyEnumerateConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TESTING"] = "OFF"
         tc.variables["HIPONY_ENUMERATE_AGGREGATES_ENABLED"] = self.options.aggregates
         tc.generate()

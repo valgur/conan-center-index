@@ -87,6 +87,7 @@ class PdfiumConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["PDFIUM_ROOT"] = unix_path(self, self.source_folder)
         tc.variables["PDF_LIBJPEG_TURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
         tc.generate()

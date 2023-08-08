@@ -149,6 +149,7 @@ class SentryNativeConan(ConanFile):
     def generate(self):
         VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SENTRY_BACKEND"] = self.options.backend
         tc.variables["SENTRY_CRASHPAD_SYSTEM"] = True
         tc.variables["SENTRY_BREAKPAD_SYSTEM"] = True

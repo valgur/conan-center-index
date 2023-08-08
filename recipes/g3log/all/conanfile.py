@@ -108,6 +108,7 @@ class G3logConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["VERSION"] = self.version
         tc.variables["G3_SHARED_LIB"] = self.options.shared
         tc.variables["USE_DYNAMIC_LOGGING_LEVELS"] = self.options.use_dynamic_logging_levels

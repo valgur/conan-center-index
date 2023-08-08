@@ -84,6 +84,7 @@ class SfmlConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["SFML_DEPENDENCIES_INSTALL_PREFIX"] = self.package_folder.replace("\\", "/")
         tc.cache_variables["SFML_MISC_INSTALL_PREFIX"] = os.path.join(self.package_folder, "licenses").replace("\\", "/")
         tc.variables["SFML_BUILD_WINDOW"] = self.options.window

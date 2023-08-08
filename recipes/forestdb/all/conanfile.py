@@ -58,6 +58,7 @@ class ForestDBConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SNAPPY_OPTION"] = "Disable"
         if self.options.with_snappy:
             tc.variables["SNAPPY_OPTION"] = "Enable"

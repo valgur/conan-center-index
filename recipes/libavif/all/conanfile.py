@@ -66,6 +66,7 @@ class LibAVIFConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["AVIF_ENABLE_WERROR"] = False
         tc.variables["AVIF_CODEC_AOM"] = True
         tc.variables["AVIF_CODEC_DAV1D"] = self.options.with_decoder == "dav1d"

@@ -84,6 +84,7 @@ class SdlttfConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if Version(self.version) >= "2.20.0":
             tc.variables["SDL2TTF_SAMPLES"] = False
             tc.variables["SDL2TTF_VENDORED"] = False

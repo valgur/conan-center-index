@@ -61,6 +61,7 @@ class TlxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TLX_BUILD_TESTS"] = False
         tc.variables["TLX_USE_GCOV"] = False
         tc.variables["TLX_TRY_COMPILE_HEADERS"] = False

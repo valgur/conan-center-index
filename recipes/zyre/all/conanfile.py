@@ -55,6 +55,7 @@ class ZyreConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_DRAFTS"] = self.options.drafts
         if Version(self.version) >= "2.0.1":
             tc.variables["ZYRE_BUILD_SHARED"] = self.options.shared

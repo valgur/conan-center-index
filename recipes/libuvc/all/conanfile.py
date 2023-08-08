@@ -87,6 +87,7 @@ class LibuvcConan(ConanFile):
         VirtualBuildEnv(self).generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_BUILD_TARGET"] = "Shared" if self.options.shared else "Static"
         tc.variables["LIBUVC_WITH_JPEG"] = bool(self.options.with_jpeg)
         if Version(self.version) >= "0.0.7":

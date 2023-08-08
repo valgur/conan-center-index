@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         poco_options = self.dependencies["poco"].options
         tc.variables["TEST_CRYPTO"] = poco_options.enable_crypto
         tc.variables["TEST_UTIL"] = poco_options.enable_util

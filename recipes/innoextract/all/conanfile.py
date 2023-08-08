@@ -40,6 +40,7 @@ class InnoextractConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # Turn off static library detection, which is on by default on Windows.
         # This keeps the CMakeLists.txt from trying to detect static Boost
         # libraries and use Boost components for zlib and BZip2. Getting the

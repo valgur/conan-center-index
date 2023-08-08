@@ -117,6 +117,7 @@ class JoltPhysicsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TARGET_UNIT_TESTS"] = False
         tc.variables["TARGET_HELLO_WORLD"] = False
         tc.variables["TARGET_PERFORMANCE_TEST"] = False

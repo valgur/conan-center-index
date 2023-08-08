@@ -47,6 +47,7 @@ class DuktapeConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if self.settings.os == "Windows" and self.options.shared:
             # Duktape has a configure script with a number of options.
             # However, it requires python 2 and PyYAML package

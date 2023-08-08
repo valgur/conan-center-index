@@ -59,6 +59,7 @@ class OatppOpenSSLConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["OATPP_BUILD_TESTS"] = False
         tc.variables["OATPP_MODULES_LOCATION"] = "INSTALLED"
         # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)

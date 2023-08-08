@@ -86,6 +86,7 @@ class IXWebSocketConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_TLS"] = bool(self.options.tls)
         tc.variables["USE_MBED_TLS"] = self.options.tls == "mbedtls"
         tc.variables["USE_OPEN_SSL"] = self.options.tls == "openssl"

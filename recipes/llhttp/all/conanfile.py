@@ -46,6 +46,7 @@ class LlhttpParserConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         if not self.options.shared:
             tc.variables["BUILD_STATIC_LIBS"] = True

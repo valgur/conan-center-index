@@ -72,6 +72,7 @@ class DragonboxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["DRAGONBOX_INSTALL_TO_CHARS"] = True
         tc.generate()

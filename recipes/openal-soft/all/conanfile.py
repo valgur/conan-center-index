@@ -106,6 +106,7 @@ class OpenALSoftConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIBTYPE"] = "SHARED" if self.options.shared else "STATIC"
         tc.variables["ALSOFT_UTILS"] = False
         tc.variables["ALSOFT_EXAMPLES"] = False

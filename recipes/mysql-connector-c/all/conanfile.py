@@ -139,6 +139,7 @@ class MysqlConnectorCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DISABLE_SHARED"] = not self.options.shared
         tc.variables["DISABLE_STATIC"] = self.options.shared
         # stack grows downwards, on very few platforms stack grows upwards

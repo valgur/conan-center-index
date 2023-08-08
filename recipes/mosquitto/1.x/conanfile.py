@@ -55,6 +55,7 @@ class MosquittoConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITH_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["WITH_STATIC_LIBRARIES"] = not self.options.shared
         tc.variables["WITH_TLS"] = self.options.with_tls

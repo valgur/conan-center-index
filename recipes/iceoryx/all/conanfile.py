@@ -97,6 +97,7 @@ class IceoryxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TOML_CONFIG"] = self.options.toml_config
         if Version(self.version) >= "2.0.0":
             tc.variables["DOWNLOAD_TOML_LIB"] = False

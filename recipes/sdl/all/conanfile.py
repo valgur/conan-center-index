@@ -200,6 +200,7 @@ class SDLConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.generate()
 
         self._define_toolchain()
@@ -255,6 +256,7 @@ class SDLConan(ConanFile):
 
     def _define_toolchain(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if (
             self.settings.os in ["Linux", "FreeBSD"]
             and self.settings.compiler == "gcc"

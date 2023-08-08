@@ -95,6 +95,7 @@ class LibZipConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TOOLS"] = self.options.tools
         tc.variables["BUILD_REGRESS"] = False
         tc.variables["BUILD_EXAMPLES"] = False

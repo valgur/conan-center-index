@@ -91,6 +91,7 @@ class AbseilConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ABSL_ENABLE_INSTALL"] = True
         tc.variables["ABSL_PROPAGATE_CXX_STD"] = True
         tc.variables["BUILD_TESTING"] = False

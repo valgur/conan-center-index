@@ -55,6 +55,7 @@ class SimdutfConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SIMDUTF_BENCHMARKS"] = False
         tc.variables["BUILD_TESTING"] = False
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) == "8":

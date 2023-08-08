@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["PAHO_MQTT_C_ASYNC"] = self.dependencies["paho-mqtt-c"].options.asynchronous
         tc.variables["PAHO_MQTT_C_WITH_SSL"] = self.dependencies["paho-mqtt-c"].options.ssl
         tc.generate()

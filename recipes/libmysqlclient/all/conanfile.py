@@ -124,6 +124,7 @@ class LibMysqlClientCConan(ConanFile):
             vrenv.generate(scope="build")
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # Not used anywhere in the CMakeLists
         tc.cache_variables["DISABLE_SHARED"] = not self.options.shared
         # stack grows downwards, on very few platforms stack grows upwards

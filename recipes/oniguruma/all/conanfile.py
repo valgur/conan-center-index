@@ -46,6 +46,7 @@ class OnigurumaConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_POSIX_API"] = self.options.posix_api
         tc.variables["ENABLE_BINARY_COMPATIBLE_POSIX_API"] = self.options.posix_api
         if Version(self.version) >= "6.9.8":

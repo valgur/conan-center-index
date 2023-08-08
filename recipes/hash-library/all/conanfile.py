@@ -57,6 +57,7 @@ class HashLibraryConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["HASH_LIBRARY_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.generate()
 

@@ -119,6 +119,7 @@ class CMakeConan(ConanFile):
             )
         else:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             # Disabling testing because CMake tests build can fail in Windows in some cases
             tc.variables["BUILD_TESTING"] = False
             if not self.settings.compiler.cppstd:

@@ -60,6 +60,7 @@ class SundialsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
         tc.variables["BUILD_ARKODE"] = self.options.build_arkode
         tc.variables["BUILD_CVODE"] = self.options.build_cvode

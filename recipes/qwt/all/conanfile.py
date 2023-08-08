@@ -94,6 +94,7 @@ class QwtConan(ConanFile):
             env.generate(scope="build")
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QWT_DLL"] = self.options.shared
         tc.variables["QWT_STATIC "] = not self.options.shared
         tc.variables["QWT_PLOT"] = self.options.plot

@@ -53,6 +53,7 @@ class LibjxlConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TESTING"] = False
         tc.variables["JPEGXL_STATIC"] = not self.options.shared
         tc.variables["JPEGXL_ENABLE_BENCHMARK"] = False

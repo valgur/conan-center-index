@@ -77,6 +77,7 @@ class METISConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["VALGRIND"] = self.options.with_valgrind
         tc.cache_variables["OPENMP"] = self.options.with_openmp
         tc.cache_variables["PCRE"] = self.options.with_pcre

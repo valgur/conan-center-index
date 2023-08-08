@@ -51,6 +51,7 @@ class SshtConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["tests"] = False
         tc.cache_variables["python"] = False
         tc.generate()

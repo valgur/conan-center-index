@@ -102,6 +102,7 @@ class GlslangConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_EXTERNAL"] = False
         tc.variables["SKIP_GLSLANG_INSTALL"] = False
         tc.variables["ENABLE_SPVREMAPPER"] = self.options.spv_remapper

@@ -67,6 +67,7 @@ class CrowConan(ConanFile):
     def generate(self):
         if self.options.amalgamation:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             if Version(self.version) < "1.0":
                 tc.variables["BUILD_EXAMPLES"] = False
                 tc.variables["BUILD_TESTING"] = False

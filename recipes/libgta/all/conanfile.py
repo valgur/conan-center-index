@@ -45,6 +45,7 @@ class LibgtaConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["GTA_BUILD_STATIC_LIB"] = not self.options.shared
         tc.variables["GTA_BUILD_SHARED_LIB"] = self.options.shared
         tc.variables["GTA_BUILD_DOCUMENTATION"] = False

@@ -54,6 +54,7 @@ class LibProtobufMutatorConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIB_PROTO_MUTATOR_TESTING"] = "OFF"
         tc.variables["LIB_PROTO_MUTATOR_DOWNLOAD_PROTOBUF"] = "OFF"
         tc.variables["LIB_PROTO_MUTATOR_WITH_ASAN"] = "OFF"

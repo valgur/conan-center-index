@@ -81,6 +81,7 @@ class RapidcheckConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["RC_ENABLE_RTTI"] = self.options.enable_rtti
         tc.variables["RC_ENABLE_TESTS"] = False
         tc.variables["RC_ENABLE_EXAMPLES"] = False

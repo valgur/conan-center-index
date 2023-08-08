@@ -106,6 +106,7 @@ class PistacheConan(ConanFile):
     def generate(self):
         if self.version == "cci.20201127":
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["PISTACHE_ENABLE_NETWORK_TESTS"] = False
             tc.variables["PISTACHE_USE_SSL"] = self.options.with_ssl
             # pistache requires explicit value for fPIC

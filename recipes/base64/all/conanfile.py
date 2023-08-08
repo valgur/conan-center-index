@@ -65,6 +65,7 @@ class Base64Conan(ConanFile):
     def generate(self):
         if self._use_cmake:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.generate()
         else:
             tc = AutotoolsToolchain(self)

@@ -99,6 +99,7 @@ class FunctionsFrameworkCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["BUILD_TESTING"] = False
         tc.cache_variables["FUNCTIONS_FRAMEWORK_CPP_TEST_EXAMPLES"] = False
         tc.generate()

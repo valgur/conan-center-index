@@ -45,6 +45,7 @@ class LibwebmConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_WEBMTS"] = self.options.with_pes_ts
         tc.variables["ENABLE_WEBM_PARSER"] = self.options.with_new_parser_api
         tc.variables["ENABLE_WEBMINFO"] = False

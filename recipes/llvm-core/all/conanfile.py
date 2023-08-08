@@ -163,6 +163,7 @@ class LLVMCoreConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_SHARED_LIBS"] = False
         tc.variables["CMAKE_SKIP_RPATH"] = True
         tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = (

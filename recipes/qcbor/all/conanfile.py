@@ -57,6 +57,7 @@ class QCBORConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if Version(self.version) >= "1.2":
             tc.variables["QCBOR_OPT_DISABLE_FLOAT_HW_USE"] = self.options.disable_float in [
                 "HW_USE",

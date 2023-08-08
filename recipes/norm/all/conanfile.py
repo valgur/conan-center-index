@@ -47,6 +47,7 @@ class NormConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["NORM_CUSTOM_PROTOLIB_VERSION"] = (
             "./protolib"  # FIXME: use external protolib when available in CCI
         )

@@ -89,6 +89,7 @@ class Libx265Conan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["ENABLE_SHARED"] = self.options.shared
         tc.variables["ENABLE_ASSEMBLY"] = self.options.assembly

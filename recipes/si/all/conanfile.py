@@ -62,6 +62,7 @@ class SiConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SI_BUILD_TESTING"] = False
         tc.variables["SI_BUILD_DOC"] = False
         tc.variables["SI_INSTALL_LIBRARY"] = True

@@ -87,6 +87,7 @@ class VkBootstrapConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["VK_BOOTSTRAP_TEST"] = False
         vulkan_headers = self.dependencies["vulkan-headers"]
         includedirs = ";".join(

@@ -66,6 +66,7 @@ class KtxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["KTX_FEATURE_TOOLS"] = self.options.tools
         tc.variables["KTX_FEATURE_DOC"] = False
         tc.variables["KTX_FEATURE_LOADTEST_APPS"] = False

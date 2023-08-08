@@ -82,6 +82,7 @@ class FlatbuffersConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["FLATBUFFERS_BUILD_TESTS"] = False
         tc.variables["FLATBUFFERS_INSTALL"] = True
         tc.variables["FLATBUFFERS_BUILD_FLATLIB"] = not self.options.header_only and not self.options.shared

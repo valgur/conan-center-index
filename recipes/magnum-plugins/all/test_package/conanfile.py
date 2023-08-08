@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["IMPORTER_PLUGINS_FOLDER"] = os.path.join(
             self.conf_info.get("user.magnum-plugins:plugins_basepath"), "importers"
         ).replace("\\", "/")

@@ -59,6 +59,7 @@ class sqlpp11Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_TESTS"] = False
         tc.variables["SQLCIPHER"] = self.options.with_sqlcipher
         tc.variables["SQLPP11_INCLUDE_DIR"] = self.dependencies["sqlpp11"].cpp_info.includedirs[0]

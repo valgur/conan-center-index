@@ -99,6 +99,7 @@ class CivetwebConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         if self.options.with_ssl:
             openssl_version = Version(self.dependencies["openssl"].ref.version)

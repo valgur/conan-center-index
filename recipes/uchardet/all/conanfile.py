@@ -56,6 +56,7 @@ class UchardetConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CHECK_SSE2"] = self.options.get_safe("check_sse2", False)
         tc.variables["BUILD_BINARY"] = False
         tc.variables["BUILD_STATIC"] = not self.options.shared

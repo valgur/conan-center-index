@@ -156,6 +156,7 @@ class GrpcConan(ConanFile):
         #
         # tc.variables["CONAN_ENABLE_MOBILE"] = "ON" if self.options.csharp_ext else "OFF"
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         tc.cache_variables["CMAKE_PROJECT_grpc_INCLUDE"] = os.path.join(
             self.source_folder, "conan_cmake_project_include.cmake"

@@ -74,6 +74,7 @@ class FTXUIConan(ConanFile):
     def generate(self):
         # BUILD_SHARED_LIBS and POSITION_INDEPENDENT_CODE are automatically parsed when self.options.shared or self.options.fPIC exist
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["FTXUI_BUILD_DOCS"] = False
         tc.variables["FTXUI_BUILD_EXAMPLES"] = False

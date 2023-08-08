@@ -37,6 +37,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         for exec in self._executables:
             tc.variables["EXEC_{}".format(exec.replace("-", "_")).upper()] = True
         plugins_root = self.dependencies["magnum"].conf_info.get("user.magnum:plugins_basepath", check_type=str)

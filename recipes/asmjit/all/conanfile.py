@@ -46,6 +46,7 @@ class AsmjitConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ASMJIT_EMBED"] = False
         tc.variables["ASMJIT_STATIC"] = not self.options.shared
         if self.version == "cci.20210306":

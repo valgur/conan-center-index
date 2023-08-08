@@ -88,6 +88,7 @@ class GRPCProto(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         googleapis_resdirs = self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs
         tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join(
             [p.replace("\\", "/") for p in googleapis_resdirs]

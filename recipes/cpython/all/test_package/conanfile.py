@@ -137,6 +137,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         py_major = Version(self.dependencies["cpython"]).major
         tc.variables["BUILD_MODULE"] = self._supports_modules
         tc.variables["PY_VERSION_MAJOR"] = py_major

@@ -64,6 +64,7 @@ class LibCoapConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITH_EPOLL"] = self.options.with_epoll
         tc.variables["ENABLE_DTLS"] = self.options.dtls_backend is not None
         tc.variables["DTLS_BACKEND"] = self.options.dtls_backend

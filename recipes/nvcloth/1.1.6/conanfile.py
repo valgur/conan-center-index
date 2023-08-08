@@ -139,6 +139,7 @@ class NvclothConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if not self.options.shared:
             tc.variables["PX_STATIC_LIBRARIES"] = 1
         tc.variables["STATIC_WINCRT"] = is_msvc_static_runtime(self)

@@ -71,6 +71,7 @@ class LibevConan(ConanFile):
     def generate(self):
         if is_msvc(self):
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["EV_SRC_DIR"] = self.source_folder.replace("\\", "/")
             tc.generate()
         else:

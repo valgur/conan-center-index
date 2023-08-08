@@ -18,6 +18,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         with_gmock = bool(self.dependencies[self.tested_reference_str].options.build_gmock)
         tc.cache_variables["WITH_GMOCK"] = with_gmock

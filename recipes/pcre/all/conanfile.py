@@ -103,6 +103,7 @@ class PCREConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["PCRE_BUILD_TESTS"] = False
         tc.variables["PCRE_BUILD_PCRE8"] = self.options.build_pcre_8
         tc.variables["PCRE_BUILD_PCRE16"] = self.options.build_pcre_16

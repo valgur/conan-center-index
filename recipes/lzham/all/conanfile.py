@@ -59,6 +59,7 @@ class PackageConan(ConanFile):
             tc.generate()
         else:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
             # Honor BUILD_SHARED_LIBS from conan_toolchain (see
             # https://github.com/conan-io/conan/issues/11840)

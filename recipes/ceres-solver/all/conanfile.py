@@ -111,6 +111,7 @@ class CeressolverConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["MINIGLOG"] = not self.options.use_glog
         tc.variables["GFLAGS"] = False  # useless for the lib itself, gflags is not a direct dependency
         tc.variables["SUITESPARSE"] = False

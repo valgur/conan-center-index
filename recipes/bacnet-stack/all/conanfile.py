@@ -49,6 +49,7 @@ class BacnetStackConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BACNET_STACK_BUILD_APPS"] = False
         tc.generate()
 

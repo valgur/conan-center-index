@@ -32,6 +32,7 @@ class TestPackageConan(ConanFile):
         runenv.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["TEST_ACTUAL_SERVER"] = not (
             is_msvc(self)
             and str(self.settings.compiler.version) in ("15", "191")

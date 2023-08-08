@@ -108,6 +108,7 @@ class QpdfConan(ConanFile):
         tc = VirtualBuildEnv(self)
         tc.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
         # https://qpdf.readthedocs.io/en/latest/installation.html#build-time-crypto-selection
         tc.variables["USE_IMPLICIT_CRYPTO"] = False

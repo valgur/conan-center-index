@@ -76,6 +76,7 @@ class XnnpackConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if self.settings.arch == "armv8":
             if self.settings.os in ["Linux", "FreeBSD"]:
                 tc.variables["CONAN_XNNPACK_SYSTEM_PROCESSOR"] = "aarch64"

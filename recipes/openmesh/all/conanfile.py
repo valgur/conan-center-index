@@ -54,6 +54,7 @@ class OpenmeshConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if self.settings.os == "Windows":
             tc.variables["OPENMESH_BUILD_SHARED"] = self.options.shared
         tc.variables["BUILD_APPS"] = False

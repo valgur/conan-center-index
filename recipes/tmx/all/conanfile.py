@@ -55,6 +55,7 @@ class TmxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WANT_ZLIB"] = self.options.with_zlib
         tc.variables["WANT_ZSTD"] = self.options.with_zstd
         if self.options.with_zstd:

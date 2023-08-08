@@ -79,6 +79,7 @@ class GlogConan(ConanFile):
         tc.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITH_GFLAGS"] = self.options.with_gflags
         tc.variables["WITH_THREADS"] = self.options.with_threads
         if Version(self.version) >= "0.5.0":

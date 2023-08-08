@@ -50,6 +50,7 @@ class Atomic_opsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         for option, _ in self._cmake_options_defaults:
             tc.variables["enable_{}".format(option)] = self.options.get_safe(option)
         tc.variables["install_headers"] = True

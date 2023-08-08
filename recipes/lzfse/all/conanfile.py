@@ -46,6 +46,7 @@ class LzfseConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LZFSE_BUNDLE_MODE"] = False
         tc.variables["LZFSE_DISABLE_TESTS"] = False
         # Relocatable shared lib on Macos

@@ -75,6 +75,7 @@ class LogrConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LOGR_WITH_SPDLOG_BACKEND"] = self.options.backend == "spdlog"
         tc.variables["LOGR_WITH_GLOG_BACKEND"] = self.options.backend == "glog"
         tc.variables["LOGR_WITH_LOG4CPLUS_BACKEND"] = self.options.backend == "log4cplus"

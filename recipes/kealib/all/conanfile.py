@@ -56,6 +56,7 @@ class KealibConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["HDF5_USE_STATIC_LIBRARIES"] = not self.dependencies["hdf5"].options.shared
         tc.variables["HDF5_PREFER_PARALLEL"] = self.dependencies["hdf5"].options.parallel
         tc.variables["LIBKEA_WITH_GDAL"] = False

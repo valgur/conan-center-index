@@ -74,6 +74,7 @@ class CfitsioConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_PTHREADS"] = self.options.threadsafe
         if Version(self.version) >= "4.1.0":
             tc.variables["USE_SSE2"] = self.options.get_safe("simd_intrinsics") == "sse2"

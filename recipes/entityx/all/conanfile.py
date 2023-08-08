@@ -58,6 +58,7 @@ class EntityXConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENTITYX_BUILD_SHARED"] = self.options.shared
         tc.variables["ENTITYX_BUILD_TESTING"] = False
         tc.variables["ENTITYX_RUN_BENCHMARKS"] = False

@@ -87,6 +87,7 @@ class SpirvtoolsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         # Required by the project's CMakeLists.txt
         tc.variables["SPIRV-Headers_SOURCE_DIR"] = self.dependencies[

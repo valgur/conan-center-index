@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["MSGPACK_C_API"] = self.dependencies["msgpack"].options.c_api
         tc.variables["MSGPACK_CPP_API"] = self.dependencies["msgpack"].options.cpp_api
         cmake.configure()

@@ -66,6 +66,7 @@ class LibserialConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIBSERIAL_ENABLE_TESTING"] = False
         tc.variables["LIBSERIAL_BUILD_EXAMPLES"] = False
         tc.variables["LIBSERIAL_PYTHON_ENABLE"] = False

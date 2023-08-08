@@ -93,6 +93,7 @@ class Antlr4CppRuntimeConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ANTLR4_INSTALL"] = True
         tc.variables["WITH_LIBCXX"] = self.settings.compiler.get_safe("libcxx") == "libc++"
         tc.variables["ANTLR_BUILD_CPP_TESTS"] = False

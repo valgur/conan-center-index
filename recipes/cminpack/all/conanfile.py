@@ -49,6 +49,7 @@ class CMinpackConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_EXAMPLES"] = "OFF"
         tc.variables["CMINPACK_LIB_INSTALL_DIR"] = "lib"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"

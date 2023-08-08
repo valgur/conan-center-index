@@ -61,6 +61,7 @@ class TheoraConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_X86_32"] = self.settings.arch == "x86"
         # note: MSVC does not support inline assembly for 64 bit builds
         tc.variables["USE_X86_64"] = self.settings.arch == "x86_64" and not is_msvc(self)

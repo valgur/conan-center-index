@@ -64,6 +64,7 @@ class libb2Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_SSE"] = self.options.use_sse
         tc.variables["USE_NEON"] = self.options.use_neon
         tc.generate()

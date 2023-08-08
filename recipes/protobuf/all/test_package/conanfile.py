@@ -27,6 +27,7 @@ class TestPackageConan(ConanFile):
         else:
             VirtualRunEnv(self).generate(scope="build")
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["protobuf_LITE"] = self.dependencies[self.tested_reference_str].options.lite
         tc.generate()
 

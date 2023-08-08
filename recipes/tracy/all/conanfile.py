@@ -84,6 +84,7 @@ class TracyConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # Set all tracy options in the correct form
         # For example, TRACY_NO_EXIT
         for opt in self._tracy_options:

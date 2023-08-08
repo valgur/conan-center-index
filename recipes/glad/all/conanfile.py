@@ -127,6 +127,7 @@ class GladConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if "gl_profile" in self.options:
             tc.variables["GLAD_PROFILE"] = self.options.gl_profile
         tc.variables["GLAD_API"] = self._get_api()

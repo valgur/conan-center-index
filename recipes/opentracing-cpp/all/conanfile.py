@@ -53,6 +53,7 @@ class OpenTracingConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_MOCKTRACER"] = self.options.enable_mocktracer
         tc.variables["BUILD_DYNAMIC_LOADING"] = self.options.enable_dynamic_load
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared

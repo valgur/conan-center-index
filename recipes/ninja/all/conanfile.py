@@ -29,6 +29,7 @@ class NinjaConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TESTING"] = False
         if self.settings.os in ["Linux", "FreeBSD"] and "libstdc++" in self.settings.compiler.libcxx:
             # Link C++ library statically on Linux so that it can run on systems

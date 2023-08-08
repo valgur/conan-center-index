@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITH_BULLET"] = self.dependencies["magnum-integration"].options.with_bullet
         tc.variables["WITH_DART"] = self.dependencies["magnum-integration"].options.with_dart
         tc.variables["WITH_EIGEN"] = self.dependencies["magnum-integration"].options.with_eigen

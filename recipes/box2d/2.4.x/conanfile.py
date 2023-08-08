@@ -45,6 +45,7 @@ class Box2dConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.variables["BOX2D_BUILD_TESTBED"] = False
         tc.variables["BOX2D_BUILD_UNIT_TESTS"] = False

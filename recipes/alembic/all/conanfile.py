@@ -56,6 +56,7 @@ class AlembicConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_ARNOLD"] = False
         tc.variables["USE_MAYA"] = False
         tc.variables["USE_PRMAN"] = False

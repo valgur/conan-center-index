@@ -67,6 +67,7 @@ class MatioConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["MATIO_EXTENDED_SPARSE"] = self.options.extended_sparse
         tc.variables["MATIO_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["MATIO_SHARED"] = self.options.shared

@@ -66,6 +66,7 @@ class BenchmarkConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BENCHMARK_ENABLE_TESTING"] = "OFF"
         tc.variables["BENCHMARK_ENABLE_GTEST_TESTS"] = "OFF"
         tc.variables["BENCHMARK_ENABLE_LTO"] = self.options.enable_lto

@@ -71,6 +71,7 @@ class FlatccConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["FLATCC_PORTABLE"] = self.options.portable
         tc.variables["FLATCC_GNU_POSIX_MEMALIGN"] = self.options.gnu_posix_memalign
         tc.variables["FLATCC_RTONLY"] = self.options.runtime_lib_only

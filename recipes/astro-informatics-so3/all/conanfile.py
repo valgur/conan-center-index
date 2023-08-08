@@ -54,6 +54,7 @@ class AstroInformaticsSO3(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["conan_deps"] = False
         tc.variables["CONAN_EXPORTED"] = True
         tc.variables["BUILD_TESTING"] = False

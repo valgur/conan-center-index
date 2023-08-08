@@ -56,6 +56,7 @@ class LibsamplerateConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIBSAMPLERATE_EXAMPLES"] = False
         tc.variables["LIBSAMPLERATE_INSTALL"] = True
         tc.variables["BUILD_TESTING"] = False

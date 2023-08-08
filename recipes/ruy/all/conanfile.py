@@ -81,6 +81,7 @@ class RuyConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["RUY_MINIMAL_BUILD"] = True
         tc.cache_variables["RUY_FIND_CPUINFO"] = True
         # Ruy public headers don't have API decorators,

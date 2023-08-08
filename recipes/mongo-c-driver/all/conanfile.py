@@ -119,6 +119,7 @@ class MongoCDriverConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # All these variables are option() declared before project() in upstream CMakeLists
         # therefore it defeats conan_toolchain variables, but it works fine with cache_variables
         tc.cache_variables["ENABLE_SSL"] = self._ssl_cmake_value

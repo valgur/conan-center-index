@@ -82,6 +82,7 @@ class AeronConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["BUILD_AERON_DRIVER"] = self.options.build_aeron_driver
         tc.cache_variables["BUILD_AERON_ARCHIVE_API"] = self.options.build_aeron_archive_api
         tc.cache_variables["AERON_TESTS"] = False

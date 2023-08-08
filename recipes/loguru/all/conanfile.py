@@ -79,6 +79,7 @@ class LoguruConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LOGURU_USE_FMTLIB"] = self.options.with_fmt
         tc.variables["LOGURU_VERBOSE_SCOPE_ENDINGS"] = self.options.verbose_scope_endings
         tc.variables["LOGURU_REDEFINE_ASSERT"] = self.options.redefine_assert
@@ -110,7 +111,7 @@ class LoguruConan(ConanFile):
         save(self, os.path.join(self.package_folder, 'licenses', 'LICENSE'), self._extracted_license)
         cmake = CMake(self)
         cmake.install()
-        
+
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))

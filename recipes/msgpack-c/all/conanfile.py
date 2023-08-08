@@ -45,6 +45,7 @@ class MsgpackCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["MSGPACK_ENABLE_SHARED"] = self.options.shared
         tc.variables["MSGPACK_ENABLE_STATIC"] = not self.options.shared
         tc.variables["MSGPACK_32BIT"] = self.settings.arch == "x86"

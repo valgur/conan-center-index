@@ -76,6 +76,7 @@ class ScnlibConan(ConanFile):
             return
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SCN_TESTS"] = False
         tc.variables["SCN_EXAMPLES"] = False
         tc.variables["SCN_BENCHMARKS"] = False

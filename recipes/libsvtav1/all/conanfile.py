@@ -55,6 +55,7 @@ class SVTAV1Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_APPS"] = False
         tc.variables["BUILD_DEC"] = self.options.build_decoder
         tc.variables["BUILD_ENC"] = self.options.build_encoder

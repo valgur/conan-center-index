@@ -119,6 +119,7 @@ class VulkanLoaderConan(ConanFile):
             env.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["VULKAN_HEADERS_INSTALL_DIR"] = self.dependencies[
             "vulkan-headers"
         ].package_folder.replace("\\", "/")

@@ -63,6 +63,7 @@ class Libde265Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
         tc.variables["ENABLE_SDL"] = False
         tc.variables["DISABLE_SSE"] = not self.options.get_safe("sse", False)

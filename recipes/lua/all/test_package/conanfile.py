@@ -18,6 +18,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["COMPILE_AS_CPP"] = self.dependencies.host["lua"].options.compile_as_cpp
         tc.generate()
 

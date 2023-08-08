@@ -176,6 +176,7 @@ class JerryScriptStackConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         amalgamation_definition = "ENABLE_AMALGAM"
         libmath_definition = "JERRY_MATH"
         if Version(self.version) < "2.4.0":

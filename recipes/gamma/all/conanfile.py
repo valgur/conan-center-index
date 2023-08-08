@@ -67,6 +67,7 @@ class Gammaconan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["GAMMA_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["GAMMA_AUDIO_IO"] = self.options.audio_io
         tc.variables["GAMMA_SOUNDFILE"] = self.options.soundfile

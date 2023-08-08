@@ -100,6 +100,7 @@ class DuckdbConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DUCKDB_MAJOR_VERSION"] = Version(self.version).major
         tc.variables["DUCKDB_MINOR_VERSION"] = Version(self.version).minor
         tc.variables["DUCKDB_PATCH_VERSION"] = Version(self.version).patch

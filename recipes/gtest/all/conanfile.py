@@ -116,6 +116,7 @@ class GTestConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_GMOCK"] = bool(self.options.build_gmock)
         tc.variables["gtest_hide_internal_symbols"] = bool(self.options.hide_symbols)
 

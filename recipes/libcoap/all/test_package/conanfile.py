@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         version = self.dependencies["libcoap"].ref.version
         if version == "cci.20200424":
             tc.preprocessor_definitions["LIB_VERSION"] = "2"

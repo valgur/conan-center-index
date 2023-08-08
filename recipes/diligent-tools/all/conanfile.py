@@ -117,6 +117,7 @@ class DiligentToolsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DILIGENT_INSTALL_TOOLS"] = False
         tc.variables["DILIGENT_BUILD_SAMPLES"] = False
         tc.variables["DILIGENT_NO_FORMAT_VALIDATION"] = True

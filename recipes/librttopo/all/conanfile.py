@@ -53,6 +53,7 @@ class LibrttopoConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIBRTTOPO_SRC_DIR"] = self.source_folder.replace("\\", "/")
         librttopo_version = Version(self.version)
         tc.variables["LIBRTGEOM_VERSION_MAJOR"] = librttopo_version.major

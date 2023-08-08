@@ -46,6 +46,7 @@ class FarmhashConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["FARMHASH_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["FARMHASH_NO_BUILTIN_EXPECT"] = self.options.no_builtin_expect
         tc.generate()

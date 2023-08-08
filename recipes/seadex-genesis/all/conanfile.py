@@ -74,6 +74,7 @@ class SeadexGenesisConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["GEN_BUILD_EXAMPLES"] = False
         tc.generate()
 

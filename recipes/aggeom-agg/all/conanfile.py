@@ -65,6 +65,7 @@ class AggConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["agg_USE_EXPAT"] = False
         tc.variables["agg_USE_SDL_PLATFORM"] = False
         tc.variables["agg_BUILD_DEMO"] = False

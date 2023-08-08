@@ -63,6 +63,7 @@ class Md4cConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if self.options.encoding == "utf-8":
             tc.preprocessor_definitions["MD4C_USE_UTF8"] = "1"
         elif self.options.encoding == "utf-16":

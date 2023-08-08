@@ -75,6 +75,7 @@ class fastgltf(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["FASTGLTF_DOWNLOAD_SIMDJSON"] = False
         if self.options.enable_small_vector:
             tc.variables["FASTGLTF_USE_SMALL_VECTOR"] = True

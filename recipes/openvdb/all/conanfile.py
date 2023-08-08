@@ -107,6 +107,7 @@ class OpenVDBConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # exposed options
         tc.variables["USE_BLOSC"] = self.options.with_blosc
         tc.variables["USE_ZLIB"] = self.options.with_zlib

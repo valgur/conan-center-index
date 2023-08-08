@@ -65,6 +65,7 @@ class RapidYAMLConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["RYML_DEFAULT_CALLBACKS"] = self.options.with_default_callbacks
         if Version(self.version) >= "0.4.0":
             tc.variables["RYML_WITH_TAB_TOKENS"] = self.options.with_tab_tokens

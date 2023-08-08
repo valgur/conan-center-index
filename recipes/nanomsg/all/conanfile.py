@@ -50,6 +50,7 @@ class NanomsgConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["NN_STATIC_LIB"] = not self.options.shared
         tc.variables["NN_ENABLE_COVERAGE"] = self.options.enable_coverage
         tc.variables["NN_ENABLE_GETADDRINFO_A"] = self.options.enable_getaddrinfo_a

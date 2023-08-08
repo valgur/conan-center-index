@@ -67,6 +67,7 @@ class Bullet3Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_BULLET3"] = self.options.bullet3
         tc.variables["INSTALL_LIBS"] = True
         tc.variables["USE_GRAPHICAL_BENCHMARK"] = self.options.graphical_benchmark

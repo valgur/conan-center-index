@@ -83,6 +83,7 @@ class LuauConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LUAU_BUILD_CLI"] = self.options.with_cli
         tc.variables["LUAU_BUILD_TESTS"] = False
         tc.variables["LUAU_BUILD_WEB"] = self.options.with_web

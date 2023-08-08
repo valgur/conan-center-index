@@ -55,6 +55,7 @@ class H3Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["H3_PREFIX"] = self.options.h3_prefix
         tc.variables["ENABLE_COVERAGE"] = False
         tc.variables["BUILD_BENCHMARKS"] = False

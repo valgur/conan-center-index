@@ -62,6 +62,7 @@ class DrflacConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DRFLAC_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["BUFFER_SIZE"] = self.options.buffer_size
         tc.variables["NO_CRC"] = self.options.no_crc

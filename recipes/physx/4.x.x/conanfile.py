@@ -102,6 +102,7 @@ class PhysXConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         # Needed. See https://github.com/conan-io/conan-center-index/pull/16583#discussion_r1188548265 for details
         tc.cache_variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)

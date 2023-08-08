@@ -139,6 +139,7 @@ class MicroprofileConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["MP_MINIZ"] = self.options.with_miniz
         tc.variables["MP_GPU_TIMERS_VULKAN"] = self.options.enable_timer == "vulkan"
         tc.generate()

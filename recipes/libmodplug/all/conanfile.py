@@ -45,6 +45,7 @@ class LibmodplugConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.preprocessor_definitions["HAVE_STDINT_H"] = 1
         tc.preprocessor_definitions["HAVE_SINF"] = 1
         # Relocatable shared libs on macOS

@@ -208,6 +208,7 @@ class GtsamConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         # https://github.com/borglab/gtsam/blob/4.2a9/cmake/HandleGeneralOptions.cmake
         tc.variables["GTSAM_BUILD_UNSTABLE"] = self.options.build_unstable

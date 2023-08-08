@@ -120,6 +120,7 @@ class CCTagConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CCTAG_SERIALIZE"] = self.options.serialize
         tc.variables["CCTAG_VISUAL_DEBUG"] = self.options.visual_debug
         tc.variables["CCTAG_NO_COUT"] = self.options.no_cout

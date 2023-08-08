@@ -52,6 +52,7 @@ class mdnsdConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["MDNSD_ENABLE_SANITIZERS"] = False
         tc.variables["MDNSD_COMPILE_AS_CXX"] = self.options.compile_as_cpp
         tc.generate()

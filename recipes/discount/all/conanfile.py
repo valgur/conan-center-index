@@ -52,6 +52,7 @@ class DiscountConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DISCOUNT_MAKE_INSTALL"] = True
         tc.variables["DISCOUNT_INSTALL_SAMPLES"] = False
         tc.variables["DISCOUNT_ONLY_LIBRARY"] = True

@@ -54,6 +54,7 @@ class TinyEXIFConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
         tc.variables["LINK_CRT_STATIC_LIBS"] = is_msvc_static_runtime(self)
         tc.variables["BUILD_DEMO"] = False

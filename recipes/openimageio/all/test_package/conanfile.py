@@ -20,6 +20,7 @@ class TestPackageConan(ConanFile):
     def generate(self):
         version = Version(self.dependencies["openimageio"].ref.version)
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_CXX_STANDARD"] = 14 if version >= "2.3.0.0" else 11
         tc.generate()
 

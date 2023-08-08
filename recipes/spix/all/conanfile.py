@@ -108,6 +108,7 @@ class SpixConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SPIX_BUILD_EXAMPLES"] = False
         tc.variables["SPIX_BUILD_TESTS"] = False
         tc.variables["SPIX_QT_MAJOR"] = Version(self.dependencies["qt"].ref.version).major

@@ -87,6 +87,7 @@ class EasyloggingppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["build_static_lib"] = True
         for d in self._public_defines:
             tc.preprocessor_definitions[d] = "1"

@@ -53,6 +53,7 @@ class LibmadConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIBMAD_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["LIBMAD_VERSION"] = self.version
         tc.variables["LIBMAD_VERSION_MAJOR"] = Version(self.version).major

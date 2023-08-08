@@ -105,6 +105,7 @@ class EnjinCppSdk(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENJINSDK_BUILD_SHARED"] = self.options.shared
         tc.variables["ENJINSDK_BUILD_TESTS"] = False
         tc.generate()

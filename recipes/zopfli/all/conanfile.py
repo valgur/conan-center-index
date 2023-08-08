@@ -47,6 +47,7 @@ class ZopfliConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ZOPFLI_BUILD_INSTALL"] = True
         tc.variables["CMAKE_MACOSX_BUNDLE"] = False
         # Generate a relocatable shared lib on Macos

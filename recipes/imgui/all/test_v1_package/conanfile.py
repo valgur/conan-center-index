@@ -19,6 +19,7 @@ class TestPackageConan(ConanFile):
     def generate(self):
         with_docking = self.dependencies[self.tested_reference_str].conf_info.get("user.imgui:with_docking", False)
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DOCKING"] = with_docking
         tc.generate()
 

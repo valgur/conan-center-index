@@ -87,6 +87,7 @@ class DiligentFxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DILIGENT_NO_FORMAT_VALIDATION"] = True
         tc.variables["DILIGENT_BUILD_TESTS"] = False
         tc.variables[self._diligent_platform] = True

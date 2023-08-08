@@ -102,6 +102,7 @@ class SentryCrashpadConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CRASHPAD_ENABLE_INSTALL"] = True
         tc.variables["CRASHPAD_ENABLE_INSTALL_DEV"] = True
         tc.variables["CRASHPAD_ZLIB_SYSTEM"] = True

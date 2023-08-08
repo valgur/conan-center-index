@@ -72,6 +72,7 @@ class SystemcComponentsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SC_WITH_PHASE_CALLBACKS"] = self.options.enable_phase_callbacks
         tc.variables["SC_WITH_PHASE_CALLBACK_TRACING"] = self.options.enable_phase_callbacks_tracing
         tc.variables["BUILD_SCC_DOCUMENTATION"] = False

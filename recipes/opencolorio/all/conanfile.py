@@ -102,6 +102,7 @@ class OpenColorIOConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_VERBOSE_MAKEFILE"] = True
         if Version(self.version) >= "2.1.0":
             tc.variables["OCIO_BUILD_PYTHON"] = False

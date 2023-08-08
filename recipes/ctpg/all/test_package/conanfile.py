@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CTPG_PLACED_CPTG_FOLDER"] = Version(self.dependencies["ctpg"].ref.version) >= "1.3.7"
         tc.generate()
         tc = CMakeDeps(self)

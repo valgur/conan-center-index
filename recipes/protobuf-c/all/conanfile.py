@@ -58,6 +58,7 @@ class ProtobufCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["BUILD_PROTO3"] = self.options.with_proto3
         tc.cache_variables["BUILD_PROTOC"] = self.options.with_protoc
         # FIXME: Add shared library support. It was just too hairy to figure out initially

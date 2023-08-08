@@ -67,6 +67,7 @@ class LibFDKAACConan(ConanFile):
     def generate(self):
         if self._use_cmake:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["BUILD_PROGRAMS"] = False
             tc.variables["FDK_AAC_INSTALL_CMAKE_CONFIG_MODULE"] = False
             tc.variables["FDK_AAC_INSTALL_PKGCONFIG_MODULE"] = False

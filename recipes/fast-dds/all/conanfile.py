@@ -102,6 +102,7 @@ class FastDDSConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_MEMORY_TOOLS"] = False
         tc.variables["NO_TLS"] = not self.options.with_ssl
         tc.variables["SECURITY"] = self.options.with_ssl

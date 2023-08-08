@@ -87,6 +87,7 @@ class RestinioConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["RESTINIO_INSTALL"] = True
         tc.variables["RESTINIO_FIND_DEPS"] = False
         tc.variables["RESTINIO_USE_EXTERNAL_EXPECTED_LITE"] = True

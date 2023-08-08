@@ -55,6 +55,7 @@ class PthreadpoolConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["PTHREADPOOL_LIBRARY_TYPE"] = "default"
         tc.variables["PTHREADPOOL_ALLOW_DEPRECATED_API"] = True
         tc.cache_variables["PTHREADPOOL_SYNC_PRIMITIVE"] = self.options.sync_primitive

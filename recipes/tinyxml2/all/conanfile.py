@@ -47,6 +47,7 @@ class Tinyxml2Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TESTING"] = False
         if Version(self.version) < "8.1.0":
             # Relocatable shared lib on Macos

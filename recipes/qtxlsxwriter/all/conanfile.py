@@ -71,6 +71,7 @@ class QtXlsxWriterConan(ConanFile):
             env.generate(scope="build")
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QTXLSXWRITER_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["QT_VERSION_MAJOR"] = str(Version(self.dependencies["qt"].ref.version).major)
         tc.variables["QT_ROOT"] = self.dependencies["qt"].package_folder.replace("\\", "/")

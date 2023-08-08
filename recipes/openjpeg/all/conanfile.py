@@ -53,6 +53,7 @@ class OpenjpegConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP"] = True
         tc.variables["BUILD_DOC"] = False
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared

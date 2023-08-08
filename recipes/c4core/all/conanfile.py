@@ -65,6 +65,7 @@ class C4CoreConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["C4CORE_WITH_FASTFLOAT"] = bool(self.options.with_fast_float)
         tc.generate()
 

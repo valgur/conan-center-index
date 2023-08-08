@@ -563,6 +563,7 @@ class LibcurlConan(ConanFile):
             tc = CMakeToolchain(self, generator="Ninja")
         else:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_UNICODE"] = True
         tc.variables["BUILD_TESTING"] = False
         tc.variables["BUILD_CURL_EXE"] = False

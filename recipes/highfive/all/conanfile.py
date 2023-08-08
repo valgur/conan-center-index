@@ -58,6 +58,7 @@ class HighFiveConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_BOOST"] = self.options.with_boost
         tc.variables["USE_EIGEN"] = self.options.with_eigen
         tc.variables["USE_XTENSOR"] = self.options.with_xtensor

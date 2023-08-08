@@ -54,6 +54,7 @@ class CppUTestConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["STD_C"] = True
         tc.variables["STD_CPP"] = True
         tc.variables["C++11"] = True

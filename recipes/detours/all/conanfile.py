@@ -58,6 +58,7 @@ class DetoursConan(ConanFile):
             vcvars.generate()
         else:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.generate()
 
     def _patch_sources(self):

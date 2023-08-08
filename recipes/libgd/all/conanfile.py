@@ -76,6 +76,7 @@ class LibgdConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_C_STANDARD"] = "99"
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
         if Version(self.version) >= "2.3.0":

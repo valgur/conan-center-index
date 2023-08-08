@@ -206,6 +206,7 @@ class DCMTKConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         # DICOM Data Dictionaries are required
         tc.variables["CMAKE_INSTALL_DATADIR"] = self._dcm_datadictionary_path

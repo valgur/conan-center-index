@@ -72,6 +72,7 @@ class EdynConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["EDYN_CONFIG_DOUBLE"] = self.options.floating_type == "double"
         tc.variables["EDYN_INSTALL"] = True
         tc.variables["EDYN_BUILD_EXAMPLES"] = False

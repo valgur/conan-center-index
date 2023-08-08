@@ -70,6 +70,7 @@ class DateConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_DATE_TESTING"] = False
         tc.variables["USE_SYSTEM_TZ_DB"] = self.options.use_system_tz_db
         tc.variables["USE_TZ_DB_IN_DOT"] = self.options.use_tz_db_in_dot

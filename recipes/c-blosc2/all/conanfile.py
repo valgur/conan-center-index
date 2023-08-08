@@ -86,6 +86,7 @@ class CBlosc2Conan(ConanFile):
         env.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["BLOSC_IS_SUBPROJECT"] = False
         tc.cache_variables["BLOSC_INSTALL"] = True
         tc.cache_variables["BUILD_STATIC"] = not bool(self.options.shared)

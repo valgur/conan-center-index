@@ -49,6 +49,7 @@ class KissfftConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["KISSFFT_PKGCONFIG"] = False
         tc.variables["KISSFFT_STATIC"] = not self.options.shared
         tc.variables["KISSFFT_TEST"] = False

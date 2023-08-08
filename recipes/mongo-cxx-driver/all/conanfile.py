@@ -125,6 +125,7 @@ class MongoCxxConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BSONCXX_POLY_USE_MNMLSTC"] = self.options.polyfill == "mnmlstc"
         tc.variables["BSONCXX_POLY_USE_STD"] = self.options.polyfill == "std"
         tc.variables["BSONCXX_POLY_USE_STD_EXPERIMENTAL"] = self.options.polyfill == "experimental"

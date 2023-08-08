@@ -121,6 +121,7 @@ class DbusConan(ConanFile):
             deps.generate()
         else:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["DBUS_BUILD_TESTS"] = False
             tc.variables["DBUS_ENABLE_DOXYGEN_DOCS"] = False
             tc.variables["DBUS_ENABLE_XML_DOCS"] = False

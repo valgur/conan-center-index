@@ -54,6 +54,7 @@ class OatppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["OATPP_BUILD_TESTS"] = False
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         if is_msvc(self) and Version(self.version) >= "1.3.0":

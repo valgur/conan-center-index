@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITH_LIBSODIUM"] = self.dependencies["zeromq"].options.encryption == "libsodium"
         tc.variables["ZEROMQ_SHARED"] = self.dependencies["zeromq"].options.shared
         tc.variables["WITH_NORM"] = self.dependencies["zeromq"].options.with_norm

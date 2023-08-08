@@ -20,6 +20,7 @@ class TestPackageConan(ConanFile):
         cmake_deps = CMakeDeps(self)
         cmake_deps.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if "d" in msvc_runtime_flag(self):
             tc.preprocessor_definitions["DISABLE_FFI_CALL"] = 1
         tc.generate()

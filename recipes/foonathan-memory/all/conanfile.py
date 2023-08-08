@@ -69,6 +69,7 @@ class FoonathanMemoryConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["FOONATHAN_MEMORY_BUILD_EXAMPLES"] = False
         tc.variables["FOONATHAN_MEMORY_BUILD_TESTS"] = False
         tc.variables["FOONATHAN_MEMORY_BUILD_TOOLS"] = self.options.with_tools

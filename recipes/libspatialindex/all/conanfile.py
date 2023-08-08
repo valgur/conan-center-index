@@ -50,6 +50,7 @@ class LibspatialindexConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SIDX_BUILD_TESTS"] = False
         tc.variables["SIDX_BIN_SUBDIR"] = "bin"
         tc.variables["SIDX_LIB_SUBDIR"] = "lib"

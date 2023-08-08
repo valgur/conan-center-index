@@ -120,6 +120,7 @@ class BitserializerConan(ConanFile):
     def generate(self):
         if not self._is_header_only():
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["BUILD_CPPRESTJSON_ARCHIVE"] = self.options.with_cpprestsdk
             tc.variables["BUILD_RAPIDJSON_ARCHIVE"] = self.options.with_rapidjson
             tc.variables["BUILD_PUGIXML_ARCHIVE"] = self.options.with_pugixml

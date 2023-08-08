@@ -154,6 +154,7 @@ class QtADS(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["ADS_VERSION"] = self.version
         tc.variables["BUILD_EXAMPLES"] = "OFF"
         tc.variables["BUILD_STATIC"] = not self.options.shared

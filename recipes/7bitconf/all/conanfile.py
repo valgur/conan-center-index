@@ -83,6 +83,7 @@ class SevenBitConfConan(ConanFile):
     def generate(self):
         if not self.options.header_only:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["_7BIT_CONF_BUILD_EXAMPLES"] = False
             tc.variables["_7BIT_CONF_BUILD_TESTS"] = False
             tc.variables["_7BIT_CONF_BUILD_SINGLE_HEADER"] = False

@@ -99,6 +99,7 @@ class AprConan(ConanFile):
     def generate(self):
         if is_msvc(self):
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["INSTALL_PDB"] = False
             tc.variables["APR_BUILD_TESTAPR"] = False
             tc.generate()

@@ -20,6 +20,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LIBMEDIAINFO_SHARED"] = self.dependencies["libmediainfo"].options.shared
         tc.generate()
 

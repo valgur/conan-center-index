@@ -44,6 +44,7 @@ class NsyncConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["NSYNC_ENABLE_TESTS"] = False
         if self.settings.os == "Windows" and self.options.shared:
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True

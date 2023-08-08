@@ -205,6 +205,7 @@ class PocoConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_BUILD_TYPE"] = self.settings.build_type
         for comp in self._poco_component_tree.values():
             if comp.option:

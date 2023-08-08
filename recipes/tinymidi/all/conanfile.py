@@ -47,6 +47,7 @@ class TinyMidiConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["TINYMIDI_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.generate()
 

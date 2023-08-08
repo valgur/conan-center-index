@@ -134,6 +134,7 @@ class NcbiCxxToolkit(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["NCBI_PTBCFG_PACKAGING"] = True
         if self.options.with_projects != "":
             tc.variables["NCBI_PTBCFG_PROJECT_LIST"] = self.options.with_projects

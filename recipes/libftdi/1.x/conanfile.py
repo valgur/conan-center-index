@@ -68,6 +68,7 @@ class LibFtdiConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TESTS"] = False
         tc.variables["EXAMPLES"] = False
         tc.variables["FTDI_EEPROM"] = self.options.build_eeprom_tool

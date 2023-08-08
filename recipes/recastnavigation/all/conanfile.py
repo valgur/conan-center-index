@@ -44,6 +44,7 @@ class RecastNavigationConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["RECASTNAVIGATION_DEMO"] = False
         tc.variables["RECASTNAVIGATION_TESTS"] = False
         tc.variables["RECASTNAVIGATION_EXAMPLES"] = False

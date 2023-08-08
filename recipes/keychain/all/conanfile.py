@@ -52,6 +52,7 @@ class KeychainConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_TESTS"] = False
         # Export all symbols by default to allow generating a shared library with msvc
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True

@@ -84,6 +84,7 @@ class OnnxConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ONNX_BUILD_BENCHMARKS"] = False
         tc.variables["ONNX_USE_PROTOBUF_SHARED_LIBS"] = self.dependencies.host["protobuf"].options.shared
         tc.variables["BUILD_ONNX_PYTHON"] = False

@@ -104,6 +104,7 @@ class SkyrUrlConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["skyr_BUILD_TESTS"] = False
         tc.variables["skyr_FULL_WARNINGS"] = False
         tc.variables["skyr_WARNINGS_AS_ERRORS"] = False

@@ -71,6 +71,7 @@ class ZintConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DATA_INSTALL_DIR"] = os.path.join(self.package_folder, "lib").replace("\\", "/")
         tc.variables["ZINT_USE_QT"] = self.options.with_qt
         if self.options.with_qt:

@@ -23,6 +23,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["OPENSSL_WITH_LEGACY"] = self._with_legacy()
         tc.cache_variables["OPENSSL_WITH_MD4"] = not self.dependencies["openssl"].options.no_md4
         tc.cache_variables["OPENSSL_WITH_RIPEMD160"] = not self.dependencies["openssl"].options.no_rmd160

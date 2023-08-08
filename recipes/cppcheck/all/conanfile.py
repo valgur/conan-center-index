@@ -43,6 +43,7 @@ class CppcheckConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["HAVE_RULES"] = self.options.get_safe("have_rules", False)
         tc.variables["USE_MATCHCOMPILER"] = "Auto"
         tc.variables["ENABLE_OSS_FUZZ"] = False

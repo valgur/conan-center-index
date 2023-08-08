@@ -167,6 +167,7 @@ class VulkanValidationLayersConan(ConanFile):
         env.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if Version(self.version) < "1.3.234":
             tc.variables["VULKAN_HEADERS_INSTALL_DIR"] = self.dependencies[
                 "vulkan-headers"

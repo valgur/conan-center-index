@@ -93,6 +93,7 @@ class MozjpegConan(ConanFile):
 
     def generate_cmake(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if cross_building(self):
             # FIXME: too specific and error prone, should be delegated to CMake helper
             cmake_system_processor = {

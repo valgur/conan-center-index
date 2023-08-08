@@ -53,6 +53,7 @@ class LibE57FormatConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USING_STATIC_XERCES"] = not self.dependencies["xerces-c"].options.shared
         tc.generate()
         deps = CMakeDeps(self)

@@ -60,6 +60,7 @@ class SQLiteCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SQLITECPP_INTERNAL_SQLITE"] = False
         tc.variables["SQLITECPP_RUN_CPPLINT"] = False
         tc.variables["SQLITECPP_RUN_CPPCHECK"] = False

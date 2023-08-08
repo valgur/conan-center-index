@@ -44,6 +44,7 @@ class JSONCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if Version(self.version) >= "0.15":
             tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
             tc.variables["DISABLE_STATIC_FPIC"] = not self.options.get_safe("fPIC", True)

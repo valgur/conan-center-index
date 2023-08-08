@@ -48,6 +48,7 @@ class JanssonConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["JANSSON_BUILD_DOCS"] = False
         tc.variables["JANSSON_BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["JANSSON_EXAMPLES"] = False

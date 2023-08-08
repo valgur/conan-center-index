@@ -70,6 +70,7 @@ class FoonathanLexyConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["LEXY_BUILD_EXAMPLES"] = False
         tc.variables["LEXY_BUILD_TESTS"] = False
         tc.variables["LEXY_BUILD_PACKAGE"] = False

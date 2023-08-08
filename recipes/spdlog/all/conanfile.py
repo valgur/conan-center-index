@@ -89,6 +89,7 @@ class SpdlogConan(ConanFile):
         if not self.options.header_only:
             fmt = self.dependencies["fmt"]
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["SPDLOG_BUILD_EXAMPLE"] = False
             tc.variables["SPDLOG_BUILD_EXAMPLE_HO"] = False
             tc.variables["SPDLOG_BUILD_TESTS"] = False

@@ -69,6 +69,7 @@ class SquirrelConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["DISABLE_DYNAMIC"] = not self.options.shared
         tc.variables["DISABLE_STATIC"] = self.options.shared
         tc.generate()

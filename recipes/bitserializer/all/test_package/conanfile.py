@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         bitserializerOptions = self.dependencies[self.tested_reference_str].options
         tc.variables["WITH_CPPRESTSDK"] = bitserializerOptions.with_cpprestsdk
         tc.variables["WITH_RAPIDJSON"] = bitserializerOptions.with_rapidjson

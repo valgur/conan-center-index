@@ -47,6 +47,7 @@ class XxHashConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["XXHASH_BUNDLED_MODE"] = False
         tc.variables["XXHASH_BUILD_XXHSUM"] = self.options.utility
         # Fix CMake configuration if target is iOS/tvOS/watchOS

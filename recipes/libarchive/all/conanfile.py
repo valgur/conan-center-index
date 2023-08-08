@@ -133,6 +133,7 @@ class LibarchiveConan(ConanFile):
         cmake_deps = CMakeDeps(self)
         cmake_deps.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # turn off deps to avoid picking up them accidentally
         tc.variables["ENABLE_NETTLE"] = self.options.with_nettle
         tc.variables["ENABLE_OPENSSL"] = self.options.with_openssl

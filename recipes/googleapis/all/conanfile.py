@@ -100,6 +100,7 @@ class GoogleAPIS(ConanFile):
         if can_run(self):
             VirtualRunEnv(self).generate(scope="build")
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

@@ -46,6 +46,7 @@ class KangaruConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["KANGARU_REVERSE_DESTRUCTION"] = self.options.reverse_destruction
         tc.variables["KANGARU_NO_EXCEPTION"] = self.options.no_exception
         tc.generate()

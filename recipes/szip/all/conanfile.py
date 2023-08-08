@@ -63,6 +63,7 @@ class SzipConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SZIP_ENABLE_ENCODING"] = self.options.enable_encoding
         tc.variables["SZIP_EXTERNALLY_CONFIGURED"] = True
         tc.variables["BUILD_TESTING"] = False

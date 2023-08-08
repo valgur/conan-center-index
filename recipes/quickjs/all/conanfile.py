@@ -58,6 +58,7 @@ class QuickJSConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QUICKJS_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["USE_BIGNUM"] = self.options.use_bignum
         tc.variables["DUMP_LEAKS"] = self.options.dump_leaks

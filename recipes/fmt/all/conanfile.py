@@ -80,6 +80,7 @@ class FmtConan(ConanFile):
     def generate(self):
         if not self.options.header_only:
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.cache_variables["FMT_DOC"] = False
             tc.cache_variables["FMT_TEST"] = False
             tc.cache_variables["FMT_INSTALL"] = True

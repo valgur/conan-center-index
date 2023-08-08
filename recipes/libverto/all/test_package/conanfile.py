@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         libverto_options = self.dependencies["libverto"].options
         tc.variables["LIBVERTO_WITH_GLIB"] = bool(libverto_options.with_glib)
         tc.variables["LIBVERTO_WITH_LIBEV"] = bool(libverto_options.with_libev)

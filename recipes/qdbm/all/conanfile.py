@@ -60,6 +60,7 @@ class QDBMConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CONAN_qdbm_VERSION"] = self.version
         tc.variables["MYICONV"] = self.options.with_iconv
         tc.variables["MYZLIB"] = self.options.with_zlib

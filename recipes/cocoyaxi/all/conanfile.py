@@ -69,6 +69,7 @@ class CocoyaxiConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if is_msvc(self):
             tc.variables["STATIC_VS_CRT"] = is_msvc_static_runtime(self)
         tc.variables["WITH_LIBCURL"] = self.options.with_libcurl

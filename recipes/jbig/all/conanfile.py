@@ -50,6 +50,7 @@ class JBigConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["JBIG_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["BUILD_EXECUTABLES"] = self.options.build_executables
         tc.generate()

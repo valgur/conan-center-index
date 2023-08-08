@@ -54,6 +54,7 @@ class LibwebpConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # should be an option but it doesn't work yet
         tc.variables["WEBP_ENABLE_SIMD"] = self.options.with_simd
         if Version(self.version) >= "1.0.0":

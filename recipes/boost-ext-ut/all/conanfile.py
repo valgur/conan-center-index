@@ -87,6 +87,7 @@ class UTConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["BOOST_UT_BUILD_BENCHMARKS"] = False
         tc.cache_variables["BOOST_UT_BUILD_EXAMPLES"] = False
         tc.cache_variables["BOOST_UT_BUILD_TESTS"] = not self.conf.get(

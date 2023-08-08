@@ -99,6 +99,7 @@ class BackwardCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["STACK_WALKING_UNWIND"] = self._has_stack_walking("unwind")
         tc.variables["STACK_WALKING_LIBUNWIND"] = self._has_stack_walking("libunwind")
         tc.variables["STACK_WALKING_BACKTRACE"] = self._has_stack_walking("backtrace")

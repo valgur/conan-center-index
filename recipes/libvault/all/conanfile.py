@@ -97,6 +97,7 @@ class LibvaultConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_TEST"] = "OFF"
         tc.variables["ENABLE_INTEGRATION_TEST"] = "OFF"
         tc.variables["ENABLE_COVERAGE"] = "OFF"

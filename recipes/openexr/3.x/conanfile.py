@@ -58,6 +58,7 @@ class OpenEXRConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["OPENEXR_INSTALL_EXAMPLES"] = False
         tc.variables["BUILD_TESTING"] = False
         tc.variables["DOCS"] = False

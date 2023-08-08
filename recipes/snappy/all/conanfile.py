@@ -57,6 +57,7 @@ class SnappyConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SNAPPY_BUILD_TESTS"] = False
         if Version(self.version) >= "1.1.8":
             tc.variables["SNAPPY_FUZZING_BUILD"] = False

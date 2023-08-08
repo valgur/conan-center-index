@@ -52,6 +52,7 @@ class VolkConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["VOLK_PULL_IN_VULKAN"] = True
         tc.variables["VOLK_INSTALL"] = True
         tc.generate()

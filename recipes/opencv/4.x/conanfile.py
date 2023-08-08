@@ -389,6 +389,7 @@ class OpenCVConan(ConanFile):
                 VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["OPENCV_CONFIG_INSTALL_PATH"] = "cmake"
         tc.variables["OPENCV_BIN_INSTALL_PATH"] = "bin"
         tc.variables["OPENCV_LIB_INSTALL_PATH"] = "lib"

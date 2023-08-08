@@ -62,6 +62,7 @@ class LibuclConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         on_off = lambda v: "ON" if v else "OFF"
         tc.variables["ENABLE_URL_INCLUDE"] = on_off(self.options.enable_url_include)
         tc.variables["ENABLE_URL_SIGN"] = on_off(self.options.enable_url_sign)

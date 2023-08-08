@@ -75,6 +75,7 @@ class Libfreenect2Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["BUILD_OPENNI2_DRIVER"] = False
         tc.variables["ENABLE_CXX11"] = True

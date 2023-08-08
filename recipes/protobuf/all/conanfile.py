@@ -99,6 +99,7 @@ class ProtobufConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["CMAKE_INSTALL_CMAKEDIR"] = self._cmake_install_base_path.replace("\\", "/")
         tc.cache_variables["protobuf_WITH_ZLIB"] = self.options.with_zlib
         tc.cache_variables["protobuf_BUILD_TESTS"] = False

@@ -100,6 +100,7 @@ class FreeImageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["FREEIMAGE_FOLDER"] = self.source_folder.replace("\\", "/")
         tc.variables["FREEIMAGE_WITH_JPEG"] = bool(self.options.with_jpeg)
         tc.variables["FREEIMAGE_WITH_OPENJPEG"] = self.options.with_jpeg2000

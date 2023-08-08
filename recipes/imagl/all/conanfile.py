@@ -100,6 +100,7 @@ class ImaglConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["STATIC_LIB"] = not self.options.shared
         tc.variables["SUPPORT_PNG"] = self.options.with_png
         tc.variables["SUPPORT_JPEG"] = self._supports_jpeg and self.options.with_jpeg

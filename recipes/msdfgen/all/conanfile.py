@@ -77,6 +77,7 @@ class MsdfgenConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["MSDFGEN_BUILD_MSDFGEN_STANDALONE"] = self.options.utility
         tc.variables["MSDFGEN_USE_OPENMP"] = self.options.with_openmp
         tc.variables["MSDFGEN_USE_CPP11"] = True

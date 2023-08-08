@@ -72,6 +72,7 @@ class LibrealsenseConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CHECK_FOR_UPDATES"] = False
         tc.variables["BUILD_WITH_STATIC_CRT"] = False
         tc.variables["BUILD_EASYLOGGINGPP"] = False

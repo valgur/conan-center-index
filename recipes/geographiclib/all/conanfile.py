@@ -105,6 +105,7 @@ class GeographiclibConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["GEOGRAPHICLIB_LIB_TYPE"] = "SHARED" if self.options.shared else "STATIC"
         tc.variables["GEOGRAPHICLIB_PRECISION"] = self._cmake_option_precision
         tc.generate()

@@ -91,6 +91,7 @@ class GDCMConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["GDCM_BUILD_DOCBOOK_MANPAGES"] = False
         tc.variables["GDCM_BUILD_SHARED_LIBS"] = bool(self.options.shared)
         # FIXME: unvendor deps https://github.com/conan-io/conan-center-index/pull/5705#discussion_r647224146

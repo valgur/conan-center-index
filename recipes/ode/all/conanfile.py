@@ -74,6 +74,7 @@ class OdeConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ODE_16BIT_INDICES"] = False
         tc.variables["ODE_NO_BUILTIN_THREADING_IMPL"] = False
         tc.variables["ODE_NO_THREADING_INTF"] = False

@@ -95,6 +95,7 @@ class NmosCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # prefer config-file packages created by cmake_find_package_multi
         # over any system-installed find-module packages
         tc.cache_variables["CMAKE_FIND_PACKAGE_PREFER_CONFIG"] = True

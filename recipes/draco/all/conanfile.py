@@ -69,6 +69,7 @@ class DracoConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         # use different cmake definitions based on package version
         if Version(self.version) < "1.4.0":

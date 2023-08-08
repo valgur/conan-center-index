@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SHADERC_WITH_SPVC"] = self.dependencies["shaderc"].options.get_safe("spvc", False)
         cmake.configure()
         cmake.build()

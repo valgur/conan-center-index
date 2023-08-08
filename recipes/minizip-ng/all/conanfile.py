@@ -110,6 +110,7 @@ class MinizipNgConan(ConanFile):
             env.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["MZ_FETCH_LIBS"] = False
         tc.cache_variables["MZ_COMPAT"] = self.options.mz_compatibility
         tc.cache_variables["MZ_ZLIB"] = self.options.get_safe("with_zlib", False)

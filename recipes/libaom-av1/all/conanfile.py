@@ -64,6 +64,7 @@ class LibaomAv1Conan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ENABLE_EXAMPLES"] = False
         tc.variables["ENABLE_TESTS"] = False
         tc.variables["ENABLE_DOCS"] = False

@@ -66,6 +66,7 @@ class CfgfileConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["BUILD_EXAMPLES"] = False
         tc.cache_variables["BUILD_TESTS"] = False
         if Version(self.version) >= "0.2.9":

@@ -90,6 +90,7 @@ class PrometheusCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_THIRDPARTY_LIBRARIES"] = False
         tc.variables["ENABLE_TESTING"] = False
         tc.variables["OVERRIDE_CXX_STANDARD_FLAGS"] = not valid_min_cppstd(self, self._min_cppstd)

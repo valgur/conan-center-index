@@ -70,6 +70,7 @@ class CgnsConan(ConanFile):
         cmake.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CGNS_ENABLE_TESTS"] = False
         tc.variables["CGNS_BUILD_TESTING"] = False
         tc.variables["CGNS_ENABLE_FORTRAN"] = False

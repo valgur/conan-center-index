@@ -67,6 +67,7 @@ class LibheifConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["WITH_LIBDE265"] = self.options.with_libde265
         tc.variables["WITH_X265"] = self.options.with_x265
         tc.variables["WITH_AOM"] = self.options.with_libaomav1

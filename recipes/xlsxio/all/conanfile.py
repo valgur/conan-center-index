@@ -70,6 +70,7 @@ class XlsxioConan(ConanFile):
         tc.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_STATIC"] = not self.options.shared
         tc.variables["BUILD_SHARED"] = self.options.shared
         tc.variables["WITH_LIBZIP"] = self.options.with_libzip

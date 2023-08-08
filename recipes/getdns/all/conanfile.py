@@ -104,6 +104,7 @@ class GetDnsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if self.settings.os == "Windows":
             tc.variables["CMAKE_REQUIRED_LIBRARIES"] = "ws2_32"
         tc.variables["OPENSSL_USE_STATIC_LIBS"] = not self.dependencies["openssl"].options.shared

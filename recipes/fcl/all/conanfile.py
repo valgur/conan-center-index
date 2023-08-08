@@ -65,6 +65,7 @@ class FclConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["FCL_ENABLE_PROFILING"] = False
         tc.variables["FCL_TREAT_WARNINGS_AS_ERRORS"] = False
         tc.variables["FCL_HIDE_ALL_SYMBOLS"] = False

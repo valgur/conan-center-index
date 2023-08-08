@@ -113,6 +113,7 @@ class DataFrameConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if Version(self.version) >= "1.20.0":
             tc.variables["HMDF_TESTING"] = False
             tc.variables["HMDF_EXAMPLES"] = False

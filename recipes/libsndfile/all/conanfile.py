@@ -73,6 +73,7 @@ class LibsndfileConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Sndio"] = (
             True  # FIXME: missing sndio cci recipe (check whether it is really required)
         )

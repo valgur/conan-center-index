@@ -49,6 +49,7 @@ class PtexConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["PTEX_BUILD_STATIC_LIBS"] = not self.options.shared
         tc.variables["PTEX_BUILD_SHARED_LIBS"] = self.options.shared
         tc.generate()

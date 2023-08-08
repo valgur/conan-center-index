@@ -123,6 +123,7 @@ class QuillConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QUILL_FMT_EXTERNAL"] = True
         tc.variables["QUILL_ENABLE_INSTALL"] = True
         if Version(self.version) < "2.8.0":

@@ -102,6 +102,7 @@ class SdbusCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_CODE_GEN"] = self.options.with_code_gen
         tc.variables["BUILD_DOC"] = False
         tc.variables["BUILD_TESTS"] = False

@@ -45,6 +45,7 @@ class TinyplyConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SHARED_LIB"] = self.options.shared
         tc.variables["BUILD_TESTS"] = False
         # Relocatable shared lib on macOS

@@ -53,6 +53,7 @@ class SoundTouchConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["INTEGER_SAMPLES"] = self.options.integer_samples
         tc.variables["SOUNDTOUCH_DLL"] = self.options.with_dll
         tc.variables["SOUNDSTRETCH"] = self.options.with_util

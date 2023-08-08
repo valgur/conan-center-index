@@ -48,6 +48,7 @@ class KickCATRecipe(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.cache_variables["BUILD_UNIT_TESTS"] = "OFF"
         tc.cache_variables["BUILD_EXAMPLES"] = "OFF"
         tc.cache_variables["BUILD_SIMULATION"] = "OFF"

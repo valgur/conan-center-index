@@ -204,6 +204,7 @@ class OpenCascadeConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         # Inject C++ standard from profile since we have removed hardcoded C++11 from upstream build files
         if not valid_min_cppstd(self, 11):

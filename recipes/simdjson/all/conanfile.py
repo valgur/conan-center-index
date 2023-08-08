@@ -87,6 +87,7 @@ class SimdjsonConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SIMDJSON_ENABLE_THREADS"] = self.options.threads
         if Version(self.version) < "1.0.0":
             tc.variables["SIMDJSON_BUILD_STATIC"] = not self.options.shared

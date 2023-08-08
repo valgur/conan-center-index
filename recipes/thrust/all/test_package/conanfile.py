@@ -18,6 +18,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         backend = str(self.dependencies["thrust"].options.device_system).upper()
         tc.variables["THRUST_BACKEND"] = backend
         tc.generate()

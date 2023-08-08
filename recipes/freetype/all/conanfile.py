@@ -89,6 +89,7 @@ class FreetypeConan(ConanFile):
         deps.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if Version(self.version) >= "2.11.0":
             tc.variables["FT_REQUIRE_ZLIB"] = self.options.with_zlib
             tc.variables["FT_DISABLE_ZLIB"] = not self.options.with_zlib

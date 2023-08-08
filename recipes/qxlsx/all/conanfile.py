@@ -59,6 +59,7 @@ class QXlsxConan(ConanFile):
         tc = VirtualBuildEnv(self)
         tc.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["QT_VERSION_MAJOR"] = self._qt_version
         tc.generate()
         tc = CMakeDeps(self)

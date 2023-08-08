@@ -48,6 +48,7 @@ class ObjectboxCConan(ConanFile):
     def generate(self):
         # BUILD_SHARED_LIBS and POSITION_INDEPENDENT_CODE are automatically parsed when self.options.shared or self.options.fPIC exist
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["OBJECTBOX_WITH_SYNC"] = self.options.with_sync
         tc.generate()
 

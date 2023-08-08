@@ -294,6 +294,7 @@ class Open62541Conan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
 
         version = Version(self.version)
         tc.variables["OPEN62541_VER_MAJOR"] = version.major

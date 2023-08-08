@@ -117,6 +117,7 @@ class XercesCConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         # Because upstream overrides BUILD_SHARED_LIBS as a CACHE variable
         tc.cache_variables["BUILD_SHARED_LIBS"] = "ON" if self.options.shared else "OFF"
         # https://xerces.apache.org/xerces-c/build-3.html

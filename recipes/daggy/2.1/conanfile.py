@@ -106,6 +106,7 @@ class DaggyConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CMAKE_CXX_STANDARD"] = 17
         tc.variables["CMAKE_CXX_STANDARD_REQUIRED"] = True
         tc.variables["SSH2_SUPPORT"] = self.options.with_ssh2

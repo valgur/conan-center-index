@@ -200,6 +200,7 @@ class ArmadilloConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["ARMA_USE_LAPACK"] = self.options.use_lapack
         tc.variables["ARMA_USE_BLAS"] = self.options.use_blas
         tc.variables["ARMA_USE_ATLAS"] = self.options.use_lapack == "system_atlas"

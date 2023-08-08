@@ -58,6 +58,7 @@ class CAresConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["CARES_STATIC"] = not self.options.shared
         tc.variables["CARES_SHARED"] = self.options.shared
         tc.variables["CARES_BUILD_TESTS"] = False

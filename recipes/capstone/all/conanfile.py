@@ -61,6 +61,7 @@ class CapstoneConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         if Version(self.version) < "5.0":
             tc.variables["CAPSTONE_BUILD_STATIC"] = not self.options.shared
             tc.variables["CAPSTONE_BUILD_SHARED"] = self.options.shared

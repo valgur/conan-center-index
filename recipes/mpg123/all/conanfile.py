@@ -120,6 +120,7 @@ class Mpg123Conan(ConanFile):
             env.generate(scope="build")
         if is_msvc(self):
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.variables["NO_MOREINFO"] = not self.options.moreinfo
             tc.variables["NETWORK"] = self.options.network
             tc.variables["NO_NTOM"] = not self.options.flexible_resampling

@@ -235,6 +235,7 @@ class CprConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables[self._get_cmake_option("CPR_FORCE_USE_SYSTEM_CURL")] = True
         tc.variables[self._get_cmake_option("CPR_BUILD_TESTS")] = False
         tc.variables[self._get_cmake_option("CPR_GENERATE_COVERAGE")] = False

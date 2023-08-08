@@ -97,6 +97,7 @@ class MpfrConan(ConanFile):
                 #                   has already been added. Key in dictionary: 'tmp'  Key being added: 'TMP'
                 self.conf.define("tools.cmake.cmaketoolchain:generator", "NMake Makefiles")
             tc = CMakeToolchain(self)
+            tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
             tc.generate()
             tc = CMakeDeps(self)
             tc.generate()

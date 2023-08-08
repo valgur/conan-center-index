@@ -51,6 +51,7 @@ class Ezc3dConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["USE_MATRIX_FAST_ACCESSOR"] = True
         tc.variables["BINDER_PYTHON3"] = False
         tc.variables["BINDER_MATLAB"] = False

@@ -72,6 +72,7 @@ class TinyAesCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         for definition, value in self._aes_defs.items():
             tc.preprocessor_definitions[definition] = value
         # Export symbols for shared msvc

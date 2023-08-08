@@ -17,6 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["built_dnn"] = self.dependencies["opencv"].options.dnn
         tc.variables["built_with_ade"] = self.dependencies["opencv"].options.with_ade
         tc.variables["built_with_ffmpeg"] = self.dependencies["opencv"].options.with_ffmpeg

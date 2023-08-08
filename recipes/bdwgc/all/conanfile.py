@@ -101,6 +101,7 @@ class BdwGcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         for option, _ in self._autotools_options_defaults:
             if option == "cord":
                 tc.variables["build_cord"] = self.options.get_safe(option)

@@ -91,6 +91,7 @@ class SpirvCrossConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS"] = not self.options.exceptions
         tc.variables["SPIRV_CROSS_SHARED"] = self.options.shared
         tc.variables["SPIRV_CROSS_STATIC"] = not self.options.shared or self.options.build_executable

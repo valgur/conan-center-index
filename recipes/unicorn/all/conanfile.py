@@ -116,6 +116,7 @@ class UnicornConan(ConanFile):
         env.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["UNICORN_INSTALL"] = True
         tc.variables["UNICORN_BUILD_SAMPLES"] = False
         tc.cache_variables["UNICORN_ARCH"] = ";".join(self._supported_archs())
