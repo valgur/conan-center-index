@@ -11,6 +11,13 @@ sources:
   "3.3.7":
     url: "https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.bz2"
     sha256: "685adf14bd8e9c015b78097c1dc22f2f01343756f196acdc76a678e1ae352e11"
+  "3.2.10":
+    # HEAD of 3.2 branch: 3.2.10 tag plus a small number of unreleased bugfixes
+    url: "https://gitlab.com/libeigen/eigen/-/archive/ed5cd0a4d16e12daa1bef608628c103e67969d63/eigen-ed5cd0a4d16e12daa1bef608628c103e67969d63.tar.gz"
+    sha256: "05fa18dfe89a34e53ffdab4f158a03c53823ff86725993a0b25e57b5a0b2617e"
+  "3.2.0":
+    url: "https://gitlab.com/libeigen/eigen/-/archive/3.2.0/eigen-3.2.0.tar.gz"
+    sha256: "05fa18dfe89a34e53ffdab4f158a03c53823ff86725993a0b25e57b5a0b2617e"
 patches:
   "3.4.0":
     - patch_file: "patches/3.4.0-0001-vec-reduce-half.patch"
@@ -29,4 +36,12 @@ patches:
   "3.3.7":
     - patch_file: "patches/0002-cmake-minimum-required.patch"
       patch_description: "CMake: Move cmake_minimum_required() before project()"
+      patch_type: "conan"
+  "3.2.10":
+    - patch_file: "patches/3.2.10-cmake-fixes.patch"
+      patch_description: "CMake: Move cmake_minimum_required() before project(), disable tests"
+      patch_type: "conan"
+  "3.2.0":
+    - patch_file: "patches/3.2.10-cmake-fixes.patch"
+      patch_description: "CMake: Move cmake_minimum_required() before project(), disable tests"
       patch_type: "conan"

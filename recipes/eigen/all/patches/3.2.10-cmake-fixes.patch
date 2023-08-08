@@ -1,0 +1,64 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	(revision ed5cd0a4d16e12daa1bef608628c103e67969d63)
++++ b/CMakeLists.txt	(date 1691488555738)
+@@ -1,5 +1,5 @@
++cmake_minimum_required(VERSION 3.15)
+ project(Eigen)
+-cmake_minimum_required(VERSION 2.8.5)
+ 
+ # guard against in-source builds
+ 
+@@ -335,18 +335,6 @@
+ 
+ add_subdirectory(doc EXCLUDE_FROM_ALL)
+ 
+-include(EigenConfigureTesting)
+-
+-# fixme, not sure this line is still needed:
+-enable_testing() # must be called from the root CMakeLists, see man page
+-
+-
+-if(EIGEN_LEAVE_TEST_IN_ALL_TARGET)
+-  add_subdirectory(test) # can't do EXCLUDE_FROM_ALL here, breaks CTest
+-else()
+-  add_subdirectory(test EXCLUDE_FROM_ALL)
+-endif()
+-
+ if(EIGEN_LEAVE_TEST_IN_ALL_TARGET)
+   add_subdirectory(blas)
+   add_subdirectory(lapack)
+@@ -373,8 +361,6 @@
+ 
+ configure_file(scripts/cdashtesting.cmake.in cdashtesting.cmake @ONLY)
+ 
+-ei_testing_print_summary()
+-
+ message(STATUS "")
+ message(STATUS "Configured Eigen ${EIGEN_VERSION_NUMBER}")
+ message(STATUS "")
+diff --git a/blas/CMakeLists.txt b/blas/CMakeLists.txt
+--- a/blas/CMakeLists.txt	(revision ed5cd0a4d16e12daa1bef608628c103e67969d63)
++++ b/blas/CMakeLists.txt	(date 1691488591046)
+@@ -50,11 +50,5 @@
+ 
+ if(EIGEN_Fortran_COMPILER_WORKS)
+ 
+-if(EIGEN_LEAVE_TEST_IN_ALL_TARGET)
+-  add_subdirectory(testing) # can't do EXCLUDE_FROM_ALL here, breaks CTest
+-else()
+-  add_subdirectory(testing EXCLUDE_FROM_ALL)
+-endif()
+-
+ endif()
+
+diff --git a/unsupported/CMakeLists.txt b/unsupported/CMakeLists.txt
+--- a/unsupported/CMakeLists.txt	(revision ed5cd0a4d16e12daa1bef608628c103e67969d63)
++++ b/unsupported/CMakeLists.txt	(date 1691488611970)
+@@ -1,7 +1,2 @@
+ add_subdirectory(Eigen)
+ add_subdirectory(doc EXCLUDE_FROM_ALL)
+-if(EIGEN_LEAVE_TEST_IN_ALL_TARGET)
+-  add_subdirectory(test) # can't do EXCLUDE_FROM_ALL here, breaks CTest
+-else()
+-  add_subdirectory(test EXCLUDE_FROM_ALL)
+-endif()
