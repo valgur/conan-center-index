@@ -511,7 +511,7 @@ class VtkConan(ConanFile):
             "group_enable_StandAlone": "DEFAULT",
             "group_enable_Tk":         "DEFAULT",
             "group_enable_Views":      "DEFAULT",
-            "group_enable_Web":        "DEFAULT",
+            "group_enable_Web":        "NO",
 
             # Qt-specific modules
             "qt_version":                      "Auto",
