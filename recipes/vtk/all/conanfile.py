@@ -591,15 +591,15 @@ class VtkConan(ConanFile):
         self.tool_requires("sqlite3/3.42.0")
 
     def source(self):
-        if self.options.use_source_from_git:
-            self.run("git clone -b release --single-branch " + self.git_url + " " + self.source_folder)
+        if self.info.options.use_source_from_git:
+            self.run(f"git clone -b release --single-branch {self.git_url} {self.source_folder}")
             # note: we give the branch a name so we don't have detached heads
             # TODO change to standard git and python chdir
             # Version: support targeting a commit hash instead of a version tag, assume version number < 8 chars long
             # 1.34.67 ... only 7 chars long
             # anything more, assume a branch name or a hash (or short hash)
             git_hash = self.version if len(self.version) > 7 else "v" + self.version
-            self.run("cd " + self.source_folder + " && git checkout -b branch-" + git_hash + " " + git_hash)
+            self.run(f"cd {self.source_folder} && git checkout -b branch-{git_hash} {git_hash}")
         else:
             get(self, **self.conan_data["sources"][self.version],
                     strip_root=True,
