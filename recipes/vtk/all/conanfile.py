@@ -588,7 +588,7 @@ class VtkConan(ConanFile):
         return "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
 
     def build_requirements(self):
-        self.tool_requires("sqlite3/3.41.1")
+        self.tool_requires("sqlite3/3.42.0")
 
     def source(self):
         if self.options.use_source_from_git:
@@ -610,25 +610,25 @@ class VtkConan(ConanFile):
                 # LEFT field:  target name for linking, will be used as TARGET::TARGET in package_info()
                 # RIGHT field: package/version to require
                 "cli11":             "cli11/2.3.2",
-                "double-conversion": "double-conversion/3.2.1",
+                "double-conversion": "double-conversion/3.3.0",
                 "eigen":             "eigen/3.4.0",
                 "expat":             "expat/2.5.0",
-                "exprtk":            "exprtk/0.0.1",   # TODO upgrade to 0.0.2 (there was a problem with first attempt)
-                "fmt":               "fmt/8.1.1",      # VTK 9.1.0 release docs mention a PR - confirmed merged 8.1.0
+                "exprtk":            "exprtk/0.0.2",   # TODO upgrade to 0.0.2 (there was a problem with first attempt)
+                "fmt":               "fmt/10.0.0",      # VTK 9.1.0 release docs mention a PR - confirmed merged 8.1.0
                 "freetype":          "freetype/2.13.0",
                 "glew":              "glew/2.2.0",
-                "jsoncpp":           "jsoncpp/1.9.4",
+                "jsoncpp":           "jsoncpp/1.9.5",
                 "libharu":           "libharu/2.4.3",
                 "kissfft":           "kissfft/131.1.0",
                 "lz4":               "lz4/1.9.4",
-                "libpng":            "libpng/1.6.39",
-                "proj":              "proj/9.1.1",
+                "libpng":            "libpng/1.6.40",
+                "proj":              "proj/9.2.1",
                 "pugixml":           "pugixml/1.13",
-                "sqlite3":           "sqlite3/3.41.1",
+                "sqlite3":           "sqlite3/3.42.0",
                 "utfcpp":            "utfcpp/3.2.3",
                 "xz_utils":          "xz_utils/5.4.2", # note: VTK calls this lzma
                 "zlib":              "zlib/1.2.13",
-                "TIFF":              "libtiff/4.4.0",
+                "TIFF":              "libtiff/4.5.1",
                 }
 
         # NOTE: You may NOT be able to just adjust the version numbers in here, without
@@ -637,7 +637,7 @@ class VtkConan(ConanFile):
         if self.options.with_jpeg == "libjpeg":
             parties["jpeg"] = "libjpeg/9e"
         elif self.options.with_jpeg == "libjpeg-turbo":
-            parties["jpeg"] = "libjpeg-turbo/2.1.5"
+            parties["jpeg"] = "libjpeg-turbo/3.0.0"
 
         if self._is_module_enabled([self.options.group_enable_StandAlone]):
             parties["hdf5"]    = "hdf5/1.14.0"
@@ -648,7 +648,7 @@ class VtkConan(ConanFile):
             parties["cgns"]    = "cgns/4.3.0"
 
         # unused dependency, mentioned in vtk but not actually used
-        # parties["zfp"]     = "zfp/0.5.5"
+        # parties["zfp"]     = "zfp/1.0.0"
 
         if self.options.build_all_modules:
             parties["boost"]  = "boost/1.82.0"
@@ -659,9 +659,9 @@ class VtkConan(ConanFile):
 
         if self._is_any_Qt_enabled:
             if self.options.qt_version == "5":
-                parties["qt"] = "qt/5.15.9"
+                parties["qt"] = "qt/5.15.10"
             else:
-                parties["qt"] = "qt/6.5.0"
+                parties["qt"] = "qt/6.5.2"
 
         return parties
 
@@ -674,7 +674,8 @@ class VtkConan(ConanFile):
         for pack in self._third_party().values():
             self.requires(pack)
         # TODO unhack this, fix up QT recipe instead?  Avoid openssl conflicts
-        self.requires("openssl/[>=1.1 <4]")
+        self.requires("openssl/[>=1.1 <4]", override=True)
+        self.requires("libcurl/8.2.0", override=True)  # fix netcdf conflict
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -1153,7 +1154,7 @@ class VtkConan(ConanFile):
         ##
         ##  #endif
         ################
-        # 
+        #
         # WARNING: this code is a partial duplication from package_info(),
         #    it has to be out here to generate the autoinit file for packaging,
         #    AND we have to redo most of the loop code in package_info
