@@ -109,7 +109,7 @@ class LibpngConan(ConanFile):
         tc.cache_variables["PNG_DEBUG"] = self.settings.build_type == "Debug"
         tc.cache_variables["PNG_PREFIX"] = self.options.api_prefix
         if Version(self.version) < "1.6.38":
-            tc.cache_variables["CMAKE_PROJECT_libpng_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
+            tc.cache_variables["CMAKE_PROJECT_libpng_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake").replace("\\", "/")
         if self._has_neon_support:
             tc.variables["PNG_ARM_NEON"] = self._neon_msa_sse_vsx_mapping[str(self.options.neon)]
         if self._has_msa_support:

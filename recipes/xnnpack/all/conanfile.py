@@ -83,7 +83,7 @@ class XnnpackConan(ConanFile):
                 # Not defined by Conan for Apple Silicon. See https://github.com/conan-io/conan/pull/8026
                 tc.variables["CONAN_XNNPACK_SYSTEM_PROCESSOR"] = "arm64"
         tc.cache_variables["XNNPACK_LIBRARY_TYPE"] = "shared" if self.options.shared else "static"
-        tc.cache_variables["CMAKE_PROJECT_XNNPACK_INCLUDE"] = os.path.join(self.source_folder, "xnnpack_project_include.cmake")
+        tc.cache_variables["CMAKE_PROJECT_XNNPACK_INCLUDE"] = os.path.join(self.source_folder, "xnnpack_project_include.cmake").replace("\\", "/")
         tc.variables["XNNPACK_ENABLE_ASSEMBLY"] = self.options.assembly
         tc.variables["XNNPACK_ENABLE_MEMOPT"] = self.options.memopt
         tc.variables["XNNPACK_ENABLE_SPARSE"] = self.options.sparse
