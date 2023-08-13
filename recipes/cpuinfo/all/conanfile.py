@@ -9,9 +9,8 @@ required_conan_version = ">=1.53.0"
 
 class CpuinfoConan(ConanFile):
     name = "cpuinfo"
-    description = (
-        "cpuinfo is a library to detect essential for performance optimization information about host CPU."
-    )
+    description = "cpuinfo is a library to detect essential for performance " \
+                  "optimization information about host CPU."
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/pytorch/cpuinfo"
@@ -67,12 +66,10 @@ class CpuinfoConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "SET_PROPERTY(TARGET clog PROPERTY POSITION_INDEPENDENT_CODE ON)",
-            "",
-        )
+        if self.version < "cci.20230118":
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                                  "SET_PROPERTY(TARGET clog PROPERTY POSITION_INDEPENDENT_CODE ON)",
+                                  "")
 
     def build(self):
         self._patch_sources()
@@ -85,9 +82,19 @@ class CpuinfoConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libcpuinfo")
-        self.cpp_info.libs = ["cpuinfo", "clog"]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["pthread"]
+
+        if self.version < "cci.20230118":
+            self.cpp_info.components["clog"].libs = ["clog"]
+            cpuinfo_clog_target = "clog" if self.version < "cci.20220618" else "cpuinfo::clog"
+            self.cpp_info.components["clog"].set_property("cmake_target_name", cpuinfo_clog_target)
+
+        self.cpp_info.components["cpuinfo"].set_property("cmake_target_name", "cpuinfo::cpuinfo")
+        self.cpp_info.components["cpuinfo"].libs = ["cpuinfo"]
+        if self.version < "cci.20230118":
+            self.cpp_info.components["cpuinfo"].requires = ["clog"]
+        if self.settings.os in ["Linux", "FreeBSD", "Android"]:
+            self.cpp_info.components["cpuinfo"].system_libs.append("pthread")

@@ -1,5 +1,3 @@
-import os
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
@@ -9,6 +7,7 @@ from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
+import os
 
 required_conan_version = ">=1.54.0"
 
@@ -57,9 +56,7 @@ class FontconfigConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "fontconfig does not support Visual Studio for versions < 2.13.93."
-            )
+            raise ConanInvalidConfiguration("fontconfig does not support Visual Studio for versions < 2.13.93.")
 
     def build_requirements(self):
         self.tool_requires("gperf/3.1")
@@ -82,18 +79,16 @@ class FontconfigConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend(
-            [
-                f"--enable-shared={yes_no(self.options.shared)}",
-                f"--enable-static={yes_no(not self.options.shared)}",
-                "--disable-docs",
-                "--disable-nls",
-                "--sysconfdir=${prefix}/bin/etc",
-                "--datadir=${prefix}/bin/share",
-                "--datarootdir=${prefix}/bin/share",
-                "--localstatedir=${prefix}/bin/var",
-            ]
-        )
+        tc.configure_args.extend([
+            f"--enable-shared={yes_no(self.options.shared)}",
+            f"--enable-static={yes_no(not self.options.shared)}",
+            "--disable-docs",
+            "--disable-nls",
+            "--sysconfdir=${prefix}/bin/etc",
+            "--datadir=${prefix}/bin/share",
+            "--datarootdir=${prefix}/bin/share",
+            "--localstatedir=${prefix}/bin/var",
+        ])
         tc.generate()
 
         deps = AutotoolsDeps(self)
@@ -104,17 +99,15 @@ class FontconfigConan(ConanFile):
     def _patch_files(self):
         # fontconfig requires libtool version number, change it for the corresponding freetype one
         replace_in_file(
-            self,
-            os.path.join(self.generators_folder, "freetype2.pc"),
-            f"Version: {self.dependencies['freetype'].ref.version}",
-            f"Version: {self.dependencies['freetype'].conf_info.get('user.freetype:libtool_version')}",
+            self, os.path.join(self.generators_folder, "freetype2.pc"),
+            "Version: {}".format(self.dependencies["freetype"].ref.version),
+            "Version: {}".format(self.dependencies["freetype"].conf_info.get("user.freetype:libtool_version")),
         )
         # disable fc-cache test to enable cross compilation but also builds with shared libraries on MacOS
-        replace_in_file(
-            self,
+        replace_in_file(self,
             os.path.join(self.source_folder, "Makefile.in"),
             "@CROSS_COMPILING_TRUE@RUN_FC_CACHE_TEST = false",
-            "RUN_FC_CACHE_TEST=false",
+            "RUN_FC_CACHE_TEST=false"
         )
 
     def build(self):

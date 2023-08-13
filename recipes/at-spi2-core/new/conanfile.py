@@ -1,22 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
 
+required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
 class AtSpi2CoreConan(ConanFile):
     name = "at-spi2-core"
@@ -30,6 +23,8 @@ class AtSpi2CoreConan(ConanFile):
     homepage = "https://gitlab.gnome.org/GNOME/at-spi2-core/"
     topics = ("atk", "accessibility")
 
+    provides = ("at-spi2-atk", "atk")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -42,7 +37,6 @@ class AtSpi2CoreConan(ConanFile):
         "fPIC": True,
         "with_x11": False,
     }
-    provides = ("at-spi2-atk", "atk")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -52,12 +46,16 @@ class AtSpi2CoreConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-        if self.options.shared:
-            self.options["glib"].shared = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
         self.cpp.package.resdirs = ["res"]
+
+    def build_requirements(self):
+        self.tool_requires("meson/1.2.0")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/1.9.5")
+        self.tool_requires("glib/<host_version>")
 
     def requirements(self):
         self.requires("glib/2.77.1")
@@ -75,11 +73,6 @@ class AtSpi2CoreConan(ConanFile):
             )
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("only linux is supported by this recipe")
-
-    def build_requirements(self):
-        self.tool_requires("meson/1.2.0")
-        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -101,25 +94,16 @@ class AtSpi2CoreConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "bus", "meson.build"),
-            "if x11_dep.found()",
-            (
-                "if get_option('x11').enabled()"
-                if Version(self.version) >= "2.47.1"
-                else "if x11_option == 'yes'"
-            ),
-        )
-        replace_in_file(
-            self, os.path.join(self.source_folder, "meson.build"), "subdir('tests')", "#subdir('tests')"
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "meson.build"),
+        replace_in_file(self, os.path.join(self.source_folder, "bus", "meson.build"),
+                                "if x11_dep.found()",
+                                "if get_option('x11').enabled()" if Version(self.version) >= "2.47.1"
+                                else "if x11_option == 'yes'")
+        replace_in_file(self, os.path.join(self.source_folder, 'meson.build'),
+            "subdir('tests')",
+            "#subdir('tests')")
+        replace_in_file(self, os.path.join(self.source_folder, 'meson.build'),
             "libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
-            "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
-        )
+            "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
         meson = Meson(self)
         meson.configure()
         meson.build()
