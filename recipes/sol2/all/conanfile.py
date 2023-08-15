@@ -7,7 +7,7 @@ from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class Sol2Conan(ConanFile):
@@ -63,7 +63,7 @@ class Sol2Conan(ConanFile):
         if self.options.with_lua == "lua":
             if Version(self.version) < "3.1.0":
                 # v2.x.x & v3.0.x supports up to Lua 5.3
-                self.requires("lua/5.4.6")
+                self.requires("lua/5.3.6")
             else:
                 self.requires("lua/5.4.6")
         elif self.options.with_lua == "luajit":
@@ -91,26 +91,11 @@ class Sol2Conan(ConanFile):
     def package(self):
         copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) < "3.0.0":
-            copy(
-                self,
-                "*",
-                src=os.path.join(self.source_folder, "sol"),
-                dst=os.path.join(self.package_folder, "include", "sol"),
-            )
+            copy(self, "*", src=os.path.join(self.source_folder, "sol"), dst=os.path.join(self.package_folder, "include", "sol"))
             copy(self, "sol.hpp", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
         else:
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.source_folder, "include"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
-            copy(
-                self,
-                "*.hpp",
-                src=os.path.join(self.source_folder, "include"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
+            copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "sol2")

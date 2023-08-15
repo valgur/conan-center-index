@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rmdir, save
+from conan.tools.scm import Version
 import os
 import textwrap
 
@@ -9,15 +10,11 @@ required_conan_version = ">=1.53.0"
 
 class AwsCSDKUtils(ConanFile):
     name = "aws-c-sdkutils"
-    description = (
-        "C99 library implementing AWS SDK specific utilities. Includes utilities for ARN parsing, reading AWS"
-        " profiles, etc..."
-    )
+    description = "C99 library implementing AWS SDK specific utilities. Includes utilities for ARN parsing, reading AWS profiles, etc..."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-sdkutils"
     topics = ("aws", "amazon", "cloud", "utility", "ARN")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -43,7 +40,10 @@ class AwsCSDKUtils(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
+        if Version(self.version) <= "0.1.3":
+            self.requires("aws-c-common/0.8.2", transitive_headers=True, transitive_libs=True)
+        else:
+            self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -61,9 +61,7 @@ class AwsCSDKUtils(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-sdkutils"))
@@ -71,7 +69,7 @@ class AwsCSDKUtils(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::aws-c-sdkutils": "aws-c-sdkutils::aws-c-sdkutils"},
+            {"AWS::aws-c-sdkutils": "aws-c-sdkutils::aws-c-sdkutils"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

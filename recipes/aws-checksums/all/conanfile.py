@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rmdir, save
+from conan.tools.scm import Version
 import os
 import textwrap
 
@@ -16,8 +17,7 @@ class AwsChecksums(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-checksums"
-    topics = ("aws", "checksum")
-
+    topics = ("aws", "checksum", )
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -46,7 +46,10 @@ class AwsChecksums(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.9.0")
+        if Version(self.version) < "0.1.17":
+            self.requires("aws-c-common/0.8.2")
+        else:
+            self.requires("aws-c-common/0.9.0", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -73,7 +76,7 @@ class AwsChecksums(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::aws-checksums": "aws-checksums::aws-checksums"},
+            {"AWS::aws-checksums": "aws-checksums::aws-checksums"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

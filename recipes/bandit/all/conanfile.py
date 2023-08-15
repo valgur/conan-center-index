@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, copy, get
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.layout import basic_layout
 import os
 
@@ -19,14 +19,13 @@ class BanditConan(ConanFile):
     no_copy_source = True
 
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+        export_conandata_patches(self)
 
     def layout(self):
         basic_layout(self)
 
     def requirements(self):
-        self.requires("snowhouse/5.0.0")
+        self.requires("snowhouse/5.0.0", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()
@@ -46,7 +45,7 @@ class BanditConan(ConanFile):
         )
         copy(
             self,
-            pattern="*",
+            pattern="*.h",
             dst=os.path.join(self.package_folder, "include", "bandit"),
             src=os.path.join(self.source_folder, "bandit"),
         )

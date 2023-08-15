@@ -163,13 +163,6 @@ required_conan_version = ">=1.53.0"
 
 class OsgearthConan(ConanFile):
     name = "osgearth"
-    description = (
-        "osgEarth is a C++ geospatial SDK and terrain engine. "
-        "Just create a simple XML file, point it at your map data, "
-        "and go! osgEarth supports all kinds of data and comes with "
-        "lots of examples to help you get up and running quickly "
-        "and easily."
-    )
     license = "LGPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://osgearth.org/"
@@ -343,17 +336,12 @@ class OsgearthConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self,
-            pattern="LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         if self.options.install_shaders:
-            rename(
-                self, os.path.join(self.package_folder, "resources"), os.path.join(self.package_folder, "res")
-            )
+            rename(self, os.path.join(self.package_folder, "resources"), os.path.join(self.package_folder, "res"))
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             rename(self, os.path.join(self.package_folder, "lib64"), os.path.join(self.package_folder, "lib"))
@@ -380,22 +368,12 @@ class OsgearthConan(ConanFile):
             return lib
 
         # osgEarth the main lib
-        required_libs = {
-            "openscenegraph": [
-                "osg",
-                "osgUtil",
-                "osgSim",
-                "osgViewer",
-                "osgText",
-                "osgGA",
-                "osgShadow",
-                "OpenThreads",
-                "osgManipulator",
-            ],
-            "libcurl": ["libcurl"],
-            "gdal": ["gdal"],
-            "opengl": ["opengl"],
-        }
+        required_libs = {"openscenegraph": ["osg", "osgUtil", "osgSim", "osgViewer", "osgText", "osgGA", "osgShadow",
+                                            "OpenThreads", "osgManipulator"],
+                         "libcurl": ["libcurl"],
+                         "gdal": ["gdal"],
+                         "opengl": ["opengl"],
+                         }
 
         osgearth = setup_lib("osgEarth", required_libs)
 
@@ -423,9 +401,8 @@ class OsgearthConan(ConanFile):
             plugin_library.libs = [] if self.options.shared else [libname + postfix]
             plugin_library.requires = ["osgEarth"]
             if not self.options.shared:
-                plugin_library.libdirs = [
-                    os.path.join("lib", f"osgPlugins-{self.dependencies['openscenegraph'].cpp_info.version}")
-                ]
+                plugin_library.libdirs = [os.path.join("lib", "osgPlugins-{}"
+                                                       .format(self.deps_cpp_info["openscenegraph"].version))]
             return plugin_library
 
         setup_plugin("osgearth_bumpmap")
@@ -467,11 +444,7 @@ class OsgearthConan(ConanFile):
 
         if self.settings.os == "Windows":
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-            self.env_info.PATH.append(
-                os.path.join(
-                    self.package_folder,
-                    "bin/osgPlugins-{}".format(self.dependencies["openscenegraph"].cpp_info.version),
-                )
-            )
+            self.env_info.PATH.append(os.path.join(self.package_folder, "bin/osgPlugins-{}"
+                                                   .format(self.deps_cpp_info["openscenegraph"].version)))
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))

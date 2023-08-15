@@ -7,7 +7,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.layout import basic_layout
 from conan.tools.files import get, copy
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.50.0"
 
 
 class CtreConan(ConanFile):
@@ -17,16 +17,12 @@ class CtreConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hanickadot/compile-time-regular-expressions"
     topics = ("cpp17", "regex", "compile-time-regular-expressions", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.clear()
 
     def validate(self):
         compiler = self.settings.compiler
@@ -43,8 +39,11 @@ class CtreConan(ConanFile):
                 raise ConanInvalidConfiguration(f"{self.ref} doesn't support MSVC < 16")
         elif compiler == "gcc" and compiler_version < min_gcc:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support gcc < {min_gcc}")
-        elif compiler == "clang" and compiler_version < "6.0":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support clang < 6.0")
+        elif compiler == "clang":
+            if compiler_version < "6.0":
+                raise ConanInvalidConfiguration(f"{self.ref} doesn't support clang < 6.0")
+            if ctre_version == "3.4.1" and compiler_version >= "12.0" and not self.settings.compiler.get_safe("cppstd"):
+                raise ConanInvalidConfiguration(f"{self.ref} doesn't support clang >= 12.0 without cppstd. Please set cppstd.")
         elif compiler == "apple-clang":
             if compiler_version < "10.0":
                 raise ConanInvalidConfiguration(f"{self.ref} doesn't support Apple clang < 10.0")
@@ -54,16 +53,14 @@ class CtreConan(ConanFile):
             if ctre_version.major == "3" and ctre_version.minor == "4" and compiler_version >= "12":
                 raise ConanInvalidConfiguration(f"{self.ref} doesn't support Apple clang")
 
+    def package_id(self):
+        self.info.clear()
+
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version],  strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            pattern="*.hpp",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, pattern="*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
