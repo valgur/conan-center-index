@@ -35,17 +35,13 @@ class XbyakConan(ConanFile):
 
     def package(self):
         copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
+        copy(self, "*.h",
             src=os.path.join(self.source_folder, "xbyak"),
-            dst=os.path.join(self.package_folder, "include", "xbyak"),
-        )
+            dst=os.path.join(self.package_folder, "include", "xbyak"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "xbyak")
         self.cpp_info.set_property("cmake_target_name", "xbyak::xbyak")
+
         self.cpp_info.bindirs = []
-        self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []

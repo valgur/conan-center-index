@@ -30,7 +30,7 @@ class JwtCppConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openssl/[>1.1.1c,<1.1.1u]")
+        self.requires("openssl/[>=1.1 <4]")
         if not self._supports_generic_json:
             self.requires("picojson/cci.20210117")
 

@@ -66,7 +66,7 @@ class CppCommon(ConanFile):
         if Version(self.version) < "1.0.3" or self.version == "cci.20201104":
             self.requires("fmt/8.1.1")
         else:
-            self.requires("fmt/10.0.0")
+            self.requires("fmt/10.1.0")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("util-linux-libuuid/2.39")
 

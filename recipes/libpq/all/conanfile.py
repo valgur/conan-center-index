@@ -2,16 +2,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, VCVars
@@ -77,7 +68,10 @@ class LibpqConan(ConanFile):
 
     def requirements(self):
         if self.options.with_openssl:
-            self.requires("openssl/[>=1.1 <4]")
+            if Version(self.version) < "13.5":
+                self.requires("openssl/1.1.1u")
+            else:
+                self.requires("openssl/[>=1.1 <4]")
 
     def build_requirements(self):
         if is_msvc(self):
@@ -127,24 +121,18 @@ class LibpqConan(ConanFile):
             # https://www.postgresql.org/docs/8.3/install-win32-libpq.html
             # https://github.com/postgres/postgres/blob/master/src/tools/msvc/README
             if not self.options.shared:
-                replace_in_file(
-                    self,
-                    os.path.join(self.source_folder, "src", "tools", "msvc", "MKvcbuild.pm"),
-                    "$libpq = $solution->AddProject('libpq', 'dll', 'interfaces',",
-                    "$libpq = $solution->AddProject('libpq', 'lib', 'interfaces',",
-                )
+                replace_in_file(self,os.path.join(self.source_folder, "src", "tools", "msvc", "MKvcbuild.pm"),
+                                      "$libpq = $solution->AddProject('libpq', 'dll', 'interfaces',",
+                                      "$libpq = $solution->AddProject('libpq', 'lib', 'interfaces',")
             host_deps = [dep for _, dep in self.dependencies.host.items()]
             system_libs = []
             for dep in host_deps:
                 system_libs.extend(dep.cpp_info.aggregated_components().system_libs)
 
             linked_system_libs = ", ".join(["'{}.lib'".format(lib) for lib in system_libs])
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "src", "tools", "msvc", "Project.pm"),
-                "libraries             => [],",
-                "libraries             => [{}],".format(linked_system_libs),
-            )
+            replace_in_file(self,os.path.join(self.source_folder, "src", "tools", "msvc", "Project.pm"),
+                                  "libraries             => [],",
+                                  "libraries             => [{}],".format(linked_system_libs))
             runtime = {
                 "MT": "MultiThreaded",
                 "MTd": "MultiThreadedDebug",
@@ -152,50 +140,33 @@ class LibpqConan(ConanFile):
                 "MDd": "MultiThreadedDebugDLL",
             }.get(msvc_runtime_flag(self))
             msbuild_project_pm = os.path.join(self.source_folder, "src", "tools", "msvc", "MSBuildProject.pm")
-            replace_in_file(
-                self,
-                msbuild_project_pm,
-                "</Link>",
-                """</Link>
+            replace_in_file(self,msbuild_project_pm, "</Link>", """</Link>
     <Lib>
       <TargetMachine>$targetmachine</TargetMachine>
-    </Lib>""",
-            )
-            replace_in_file(self, msbuild_project_pm, "'MultiThreadedDebugDLL'", "'%s'" % runtime)
-            replace_in_file(self, msbuild_project_pm, "'MultiThreadedDLL'", "'%s'" % runtime)
+    </Lib>""")
+            replace_in_file(self,msbuild_project_pm, "'MultiThreadedDebugDLL'", "'%s'" % runtime)
+            replace_in_file(self,msbuild_project_pm, "'MultiThreadedDLL'", "'%s'" % runtime)
             config_default_pl = os.path.join(self.source_folder, "src", "tools", "msvc", "config_default.pl")
             solution_pm = os.path.join(self.source_folder, "src", "tools", "msvc", "Solution.pm")
             if self.options.with_openssl:
                 openssl = self.dependencies["openssl"]
                 for ssl in ["VC\\libssl32", "VC\\libssl64", "libssl"]:
-                    replace_in_file(
-                        self,
-                        solution_pm,
-                        "%s.lib" % ssl,
-                        "%s.lib" % openssl.cpp_info.components["ssl"].libs[0],
-                    )
+                    replace_in_file(self,solution_pm,
+                                          "%s.lib" % ssl,
+                                          "%s.lib" % openssl.cpp_info.components["ssl"].libs[0])
                 for crypto in ["VC\\libcrypto32", "VC\\libcrypto64", "libcrypto"]:
-                    replace_in_file(
-                        self,
-                        solution_pm,
-                        "%s.lib" % crypto,
-                        "%s.lib" % openssl.cpp_info.components["crypto"].libs[0],
-                    )
-                replace_in_file(
-                    self,
-                    config_default_pl,
-                    "openssl   => undef",
-                    "openssl   => '%s'" % openssl.package_folder.replace("\\", "/"),
-                )
+                    replace_in_file(self,solution_pm,
+                                          "%s.lib" % crypto,
+                                          "%s.lib" % openssl.cpp_info.components["crypto"].libs[0])
+                replace_in_file(self,config_default_pl,
+                                      "openssl   => undef",
+                                      "openssl   => '%s'" % openssl.package_folder.replace("\\", "/"))
         elif self.settings.os == "Windows":
             if self.settings.get_safe("compiler.threads") == "posix":
                 # Use MinGW pthread library
-                replace_in_file(
-                    self,
-                    os.path.join(self.source_folder, "src", "interfaces", "libpq", "Makefile"),
-                    "ifeq ($(enable_thread_safety), yes)\nOBJS += pthread-win32.o\nendif",
-                    "",
-                )
+                replace_in_file(self, os.path.join(self.source_folder, "src", "interfaces", "libpq", "Makefile"),
+                "ifeq ($(enable_thread_safety), yes)\nOBJS += pthread-win32.o\nendif",
+                "")
 
     def build(self):
         apply_conandata_patches(self)
@@ -240,85 +211,21 @@ class LibpqConan(ConanFile):
     def package(self):
         copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                pattern="*postgres_ext.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*pg_config.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*pg_config_ext.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*libpq-fe.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*libpq-events.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*.h",
-                src=os.path.join(self.source_folder, "src", "include", "libpq"),
-                dst=os.path.join(self.package_folder, "include", "libpq"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*genbki.h",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "include", "catalog"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*pg_type.h",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "include", "catalog"),
-                keep_path=False,
-            )
+            copy(self, pattern="*postgres_ext.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
+            copy(self, pattern="*pg_config.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
+            copy(self, pattern="*pg_config_ext.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
+            copy(self, pattern="*libpq-fe.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
+            copy(self, pattern="*libpq-events.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
+            copy(self, pattern="*.h", src=os.path.join(self.source_folder, "src", "include", "libpq"),
+                                      dst=os.path.join(self.package_folder, "include", "libpq"),
+                                      keep_path=False)
+            copy(self, pattern="*genbki.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include", "catalog"), keep_path=False)
+            copy(self, pattern="*pg_type.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include", "catalog"), keep_path=False)
             if self.options.shared:
-                copy(
-                    self,
-                    pattern="**/libpq.dll",
-                    dst=os.path.join(self.package_folder, "bin"),
-                    src=self.source_folder,
-                    keep_path=False,
-                )
-                copy(
-                    self,
-                    pattern="**/libpq.lib",
-                    dst=os.path.join(self.package_folder, "lib"),
-                    src=self.source_folder,
-                    keep_path=False,
-                )
+                copy(self, pattern="**/libpq.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder, keep_path=False)
+                copy(self, pattern="**/libpq.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
             else:
-                copy(
-                    self,
-                    pattern="*.lib",
-                    dst=os.path.join(self.package_folder, "lib"),
-                    src=self.source_folder,
-                    keep_path=False,
-                )
+                copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
         else:
             autotools = Autotools(self)
             with chdir(self, os.path.join(self.source_folder, "src", "common")):
@@ -332,23 +239,15 @@ class LibpqConan(ConanFile):
                     autotools.install()
             with chdir(self, os.path.join(self.source_folder, "src", "bin", "pg_config")):
                 autotools.install()
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.build_folder, "src", "include", "catalog"),
-                dst=os.path.join(self.package_folder, "include", "catalog"),
-            )
+            copy(self, "*.h", src=os.path.join(self.build_folder, "src", "include", "catalog"),
+                              dst=os.path.join(self.package_folder, "include", "catalog"))
             rmdir(self, os.path.join(self.package_folder, "share"))
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             rmdir(self, os.path.join(self.package_folder, "include", "postgresql", "server"))
             self._remove_unused_libraries_from_package()
             fix_apple_shared_install_name(self)
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.build_folder, "src", "backend", "catalog"),
-            dst=os.path.join(self.package_folder, "include", "catalog"),
-        )
+        copy(self, "*.h", src=os.path.join(self.build_folder, "src", "backend", "catalog"),
+                          dst=os.path.join(self.package_folder, "include", "catalog"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
@@ -383,14 +282,7 @@ class LibpqConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["pq"].system_libs = ["pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["pq"].system_libs = [
-                "ws2_32",
-                "secur32",
-                "advapi32",
-                "shell32",
-                "crypt32",
-                "wldap32",
-            ]
+            self.cpp_info.components["pq"].system_libs = ["ws2_32", "secur32", "advapi32", "shell32", "crypt32", "wldap32"]
 
         self.cpp_info.names["cmake_find_package"] = "PostgreSQL"
         self.cpp_info.names["cmake_find_package_multi"] = "PostgreSQL"
