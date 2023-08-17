@@ -1,5 +1,3 @@
-import os
-
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
@@ -7,6 +5,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
+import os
 
 required_conan_version = ">=1.52.0"
 
@@ -17,15 +16,9 @@ class MetallConan(ConanFile):
     license = ("MIT", "Apache-2.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/LLNL/metall"
-    topics = (
-        "cpp",
-        "allocator",
-        "memory-allocator",
-        "persistent-memory",
-        "ecp",
-        "exascale-computing",
-        "header-only",
-    )
+    description = "Meta allocator for persistent memory"
+    license = "MIT", "Apache-2.0"
+    topics = ("cpp", "allocator", "memory-allocator", "persistent-memory", "ecp", "exascale-computing", "header-only")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -54,8 +47,15 @@ class MetallConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"] or is_apple_os(self):
             raise ConanInvalidConfiguration("Metall requires some POSIX functionalities like mmap.")
 
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+        def lazy_lt_semver(v1, v2):
+            lv1 = [int(v) for v in v1.split(".")]
+            lv2 = [int(v) for v in v2.split(".")]
+            min_length = min(len(lv1), len(lv2))
+            return lv1[:min_length] < lv2[:min_length]
+
+        minimum_version = self._compilers_minimum_version.get(
+            str(self.settings.compiler), False)
+        if minimum_version and lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++17, which your compiler does not support."
             )
@@ -67,9 +67,7 @@ class MetallConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "*",
-             src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
         copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
