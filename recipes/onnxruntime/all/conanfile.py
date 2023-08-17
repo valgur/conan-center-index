@@ -15,17 +15,10 @@ required_conan_version = ">=1.53.0"
 class OnnxRuntimeConan(ConanFile):
     name = "onnxruntime"
     description = "ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator"
-    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
+    license = "MIT"
     homepage = "https://onnxruntime.ai"
-    topics = (
-        "deep-learning",
-        "onnx",
-        "neural-networks",
-        "machine-learning",
-        "ai-framework",
-        "hardware-acceleration",
-    )
+    topics = ("deep-learning", "onnx", "neural-networks", "machine-learning", "ai-framework", "hardware-acceleration")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -39,6 +32,7 @@ class OnnxRuntimeConan(ConanFile):
         "fPIC": True,
         "with_xnnpack": False,
     }
+    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -82,19 +76,17 @@ class OnnxRuntimeConan(ConanFile):
         self.requires("date/3.0.1")
         self.requires("re2/20230701")
         self.requires(f"onnx/{self._onnx_version}")
-        self.requires("flatbuffers/23.5.26")
-        self.requires(
-            "boost/1.82.0", headers=True, libs=False, run=False
-        )  # for mp11, header only, no need for libraries to link/run
-        self.requires("safeint/3.24")
+        self.requires("flatbuffers/1.12.0")
+        self.requires("boost/1.82.0", headers=True, libs=False, run=False)  # for mp11, header only, no need for libraries to link/run
+        self.requires("safeint/3.0.28")
         self.requires("nlohmann_json/3.11.2")
         self.requires("eigen/3.4.0")
         self.requires("ms-gsl/4.0.0")
-        self.requires("cpuinfo/cci.20220228")
+        self.requires("cpuinfo/cci.20220618")
         if self.settings.os != "Windows":
             self.requires("nsync/1.26.0")
         else:
-            self.requires("wil/1.0.230411.1")
+            self.requires("wil/1.0.230629.1")
         if self.options.with_xnnpack:
             self.requires("xnnpack/cci.20230718")
 
@@ -228,9 +220,7 @@ class OnnxRuntimeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         pkg_config_dir = os.path.join(self.package_folder, "lib", "pkgconfig")

@@ -28,7 +28,7 @@ class TinyXmlConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_stl": False,
+        "with_stl": True,
     }
 
     def export_sources(self):
