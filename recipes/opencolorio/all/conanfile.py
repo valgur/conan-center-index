@@ -1,14 +1,16 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import is_msvc
-from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
+from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
+
 required_conan_version = ">=1.53.0"
+
 
 class OpenColorIOConan(ConanFile):
     name = "opencolorio"
@@ -17,6 +19,8 @@ class OpenColorIOConan(ConanFile):
     homepage = "https://opencolorio.org/"
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("colors", "visual", "effects", "animation")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -50,17 +54,17 @@ class OpenColorIOConan(ConanFile):
         if Version(self.version) < "2.2.0":
             self.requires("openexr/2.5.7")
         else:
-            self.requires("openexr/3.1.7")
-            self.requires("imath/3.1.6")
+            self.requires("openexr/3.1.9")
+            self.requires("imath/3.1.9")
 
-        self.requires("yaml-cpp/0.7.0")
+        self.requires("yaml-cpp/0.8.0")
         if Version(self.version) < "2.0.0":
             self.requires("tinyxml/2.6.2")
         else:
             self.requires("pystring/1.1.4")
 
         if Version(self.version) >= "2.2.0":
-            self.requires("minizip-ng/3.0.7")
+            self.requires("minizip-ng/3.0.9")
 
         # for tools only
         self.requires("lcms/2.14")
@@ -71,8 +75,7 @@ class OpenColorIOConan(ConanFile):
             check_min_cppstd(self, 11)
 
         # opencolorio>=2.2.0 requires minizip-ng with with_zlib
-        if Version(self.version) >= "2.2.0" and \
-            not self.dependencies["minizip-ng"].options.get_safe("with_zlib", False):
+        if Version(self.version) >= "2.2.0" and not self.dependencies["minizip-ng"].options.get_safe("with_zlib", False):
             raise ConanInvalidConfiguration(f"{self.ref} requires minizip-ng with with_zlib = True.")
 
         if Version(self.version) == "1.1.1" and self.options.shared and self.dependencies["yaml-cpp"].options.shared:
@@ -131,7 +134,7 @@ class OpenColorIOConan(ConanFile):
         apply_conandata_patches(self)
 
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath", "minizip-ng"):
-            rm(self, "Find"+module+".cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
+            rm(self, f"Find{module}.cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
 
     def build(self):
         self._patch_sources()
@@ -146,8 +149,8 @@ class OpenColorIOConan(ConanFile):
 
         if not self.options.shared:
             copy(self, "*",
-                src=os.path.join(self.package_folder, "lib", "static"),
-                dst=os.path.join(self.package_folder, "lib"))
+                 src=os.path.join(self.package_folder, "lib", "static"),
+                 dst=os.path.join(self.package_folder, "lib"))
             rmdir(self, os.path.join(self.package_folder, "lib", "static"))
 
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -159,7 +162,7 @@ class OpenColorIOConan(ConanFile):
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         if Version(self.version) == "1.1.1":
             fix_apple_shared_install_name(self)
@@ -183,11 +186,9 @@ class OpenColorIOConan(ConanFile):
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("OpenColorIO_SKIP_IMPORTS")
 
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH env var with: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)
-
         # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenColorIO"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenColorIO"
-        self.cpp_info.names["pkg_config"] = "OpenColorIO"
+        bin_path = os.path.join(self.package_folder, "bin")
+        self.output.info(f"Appending PATH env var with: {bin_path}")
+        self.env_info.PATH.append(bin_path)
