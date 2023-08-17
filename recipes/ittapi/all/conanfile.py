@@ -73,7 +73,7 @@ class IttApiConan(ConanFile):
                  dst=os.path.join(self.package_folder, "lib"))
         else:
             copy(self, "libittnotify.a",
-                 src="bin",
+                 src=os.path.join(self.source.folder, "bin"),
                  dst=os.path.join(self.package_folder, "lib"))
         copy(self, "*.h",
              src=os.path.join(self.source_folder, "include"),

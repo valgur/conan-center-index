@@ -181,7 +181,7 @@ class DlibConan(ConanFile):
         cmake.install()
 
         copy(self, "LICENSE.txt",
-             src="licenses",
+             src=os.path.join(self.source.folder, "licenses"),
              dst=os.path.join(self.source_folder, "dlib"),
              keep_path=False)
 

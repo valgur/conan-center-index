@@ -62,10 +62,10 @@ class BtyaccConan(ConanFile):
 
     def package(self):
         copy(self, "README",
-             src="licenses",
+             src=os.path.join(self.source.folder, "licenses"),
              dst=self.source_folder)
         copy(self, "README.BYACC",
-             src="licenses",
+             src=os.path.join(self.source.folder, "licenses"),
              dst=self.source_folder)
         cmake = CMake(self)
         cmake.install()

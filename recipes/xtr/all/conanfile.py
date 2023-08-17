@@ -216,14 +216,14 @@ class XtrConan(ConanFile):
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.hpp",
-             src="include",
+             src=os.path.join(self.source.folder, "include"),
              dst=os.path.join(self.package_folder, "include"))
         copy(self, "*/libxtr.a",
-             src="build",
+             src=os.path.join(self.source.folder, "build"),
              dst=os.path.join(self.package_folder, "lib"),
              keep_path=False)
         copy(self, "*/xtrctl",
-             src="build",
+             src=os.path.join(self.source.folder, "build"),
              dst=os.path.join(self.package_folder, "bin"),
              keep_path=False)
 

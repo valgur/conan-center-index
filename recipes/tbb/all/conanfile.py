@@ -332,7 +332,7 @@ class TBBConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             extension = "so"
             if self.options.shared:
-                copy(self, f"*{build_type}*.{extension}.*", src="lib", dst=build_folder, keep_path=False)
+                copy(self, f"*{build_type}*.{extension}.*", src=os.path.join(self.source.folder, "lib"), dst=build_folder, keep_path=False)
                 outputlibdir = os.path.join(self.package_folder, "lib")
                 os.chdir(outputlibdir)
                 for fpath in os.listdir(outputlibdir):
