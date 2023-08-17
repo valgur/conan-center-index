@@ -233,7 +233,7 @@ class MpdecimalConan(ConanFile):
                  src=dist_folder,
                  dst=os.path.join(self.package_folder, "bin"))
         else:
-            with chdir(self, os.path.join(self.source_folder)):
+            with chdir(self, self.source_folder):
                 autotools = Autotools(self)
                 autotools.install()
             rmdir(self, os.path.join(self.package_folder, "share"))

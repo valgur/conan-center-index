@@ -194,7 +194,7 @@ class UsocketsConan(ConanFile):
             deps.generate()
 
     def _build_msvc(self):
-        with chdir(self, os.path.join(self.source_folder)):
+        with chdir(self, self.source_folder):
             msbuild = MSBuild(self)
             msbuild.build("uSockets.vcxproj")
 

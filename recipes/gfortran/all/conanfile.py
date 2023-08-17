@@ -64,7 +64,7 @@ class GFortranConan(ConanFile):
         elif self.settings.os == "Windows":
             return os.path.join(self.build_folder, "mingw64")
         else:
-            return os.path.join(self.build_folder)
+            return self.build_folder
 
     @property
     def _license_path(self):

@@ -91,7 +91,7 @@ class ResiprocateConan(ConanFile):
             autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(os.path.join(self.package_folder, "share")))
-        rm(self, "*.la", os.path.join(self.package_folder), recursive=True)
+        rm(self, "*.la", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["resip", "rutil", "dum", "resipares"]

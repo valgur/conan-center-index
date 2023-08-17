@@ -285,7 +285,7 @@ class TkConan(ConanFile):
         # FIXME: move to patch
         tkConfigShPath = os.path.join(self.package_folder, "lib", "tkConfig.sh")
         if os.path.exists(tkConfigShPath):
-            pkg_path = os.path.join(self.package_folder).replace("\\", "/")
+            pkg_path = self.package_folder.replace("\\", "/")
             replace_in_file(self, tkConfigShPath, pkg_path, "${TK_ROOT}")
             replace_in_file(self, tkConfigShPath, "\nTK_BUILD_", "\n#TK_BUILD_")
             replace_in_file(self, tkConfigShPath, "\nTK_SRC_DIR", "\n#TK_SRC_DIR")

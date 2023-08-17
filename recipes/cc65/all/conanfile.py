@@ -121,7 +121,7 @@ class Cc65Conan(ConanFile):
                  src=os.path.join(self.source_folder, dir))
 
     def _package_autotools(self):
-        with chdir(self, os.path.join(self.source_folder)):
+        with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_path, "samples"))

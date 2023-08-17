@@ -72,7 +72,7 @@ class TestPackageConan(ConanFile):
             env.define("CXX", f"${{CXX-{cxx}}}")
 
         env.define("COMPILE", compile_script)
-        env.define("ACLOCAL_PATH", unix_path(self, os.path.join(self.source_folder)))
+        env.define("ACLOCAL_PATH", unix_path(self, self.source_folder))
         env.vars(self, scope="build").save_script("automake_build_test")
 
     def build(self):

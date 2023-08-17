@@ -103,7 +103,7 @@ class LibSELinuxConan(ConanFile):
         autotools = Autotools(self)
         with chdir(self, os.path.join(self._sepol_source_folder, "src")):
             autotools.make(self._sepol_library_target)
-        with chdir(self, os.path.join(self._selinux_source_folder)):
+        with chdir(self, self._selinux_source_folder):
             autotools.make()
 
     def package(self):

@@ -178,7 +178,7 @@ class LibpqConan(ConanFile):
                     self.run("perl build.pl libpgport")
         else:
             autotools = Autotools(self)
-            with chdir(self, os.path.join(self.source_folder)):
+            with chdir(self, self.source_folder):
                 autotools.configure()
             with chdir(self, os.path.join(self.source_folder, "src", "backend")):
                 autotools.make(target="generated-headers")

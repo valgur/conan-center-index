@@ -87,9 +87,9 @@ class LibharuConan(ConanFile):
         cmake.install()
 
         if Version(self.version) == "2.3.0":
-            rm(self, "CHANGES", os.path.join(self.package_folder))
-            rm(self, "INSTALL", os.path.join(self.package_folder))
-            rm(self, "README", os.path.join(self.package_folder))
+            rm(self, "CHANGES", self.package_folder)
+            rm(self, "INSTALL", self.package_folder)
+            rm(self, "README", self.package_folder)
 
             rmdir(self, os.path.join(self.package_folder, "if"))
             save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._v230_extract_license())

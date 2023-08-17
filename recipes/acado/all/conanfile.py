@@ -162,7 +162,7 @@ class AcadoConan(ConanFile):
 
         copy(self, "CMakeLists.txt",
              src=self.export_sources_path / "tmp",
-             dst=os.path.join(self.source_folder))
+             dst=self.source_folder)
         copy(self, "CMakeLists.txt",
              src=self.export_sources_path / "tmp" / "acado",
              dst=os.path.join(self.source_folder, "acado"))

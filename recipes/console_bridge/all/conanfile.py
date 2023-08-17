@@ -69,7 +69,7 @@ class PackageConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        rm(self, "*.pdb", os.path.join(self.package_folder))
+        rm(self, "*.pdb", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "console_bridge"))
         rmdir(self, os.path.join(self.package_folder, "CMake"))
