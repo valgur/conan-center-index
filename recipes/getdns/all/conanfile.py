@@ -60,9 +60,7 @@ class GetDnsConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

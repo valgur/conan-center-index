@@ -36,24 +36,12 @@ class FftConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "fft_build.c",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "fft.h",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "fft2.h",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "fft3.h",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "dct.h",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "fft_build.c", self.recipe_folder, self.export_sources_folder)
+        copy(self, "fft.h", self.recipe_folder, self.export_sources_folder)
+        copy(self, "fft2.h", self.recipe_folder, self.export_sources_folder)
+        copy(self, "fft3.h", self.recipe_folder, self.export_sources_folder)
+        copy(self, "dct.h", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

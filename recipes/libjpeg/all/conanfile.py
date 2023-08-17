@@ -51,9 +51,7 @@ class LibjpegConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "Win32.Mak",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "Win32.Mak", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):

@@ -146,9 +146,7 @@ class LibcurlConan(ConanFile):
         return not (self._is_using_cmake_build and Version(self.version) < "7.84.0")
 
     def export_sources(self):
-        copy(self, "lib_Makefile_add.am",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "lib_Makefile_add.am", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):

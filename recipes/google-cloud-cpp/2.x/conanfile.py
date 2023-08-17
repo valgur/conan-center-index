@@ -80,12 +80,8 @@ class GoogleCloudCppConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "components_2_5_0.py",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "components_2_12_0.py",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "components_2_5_0.py", self.recipe_folder, self.export_sources_folder)
+        copy(self, "components_2_12_0.py", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):

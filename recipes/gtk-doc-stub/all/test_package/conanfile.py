@@ -16,9 +16,7 @@ class TestPackageConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "configure.ac",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "configure.ac", self.recipe_folder, self.export_sources_folder)
 
     def layout(self):
         basic_layout(self)

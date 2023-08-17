@@ -45,9 +45,7 @@ class GoogleAPIS(ConanFile):
         copy(self, "CMakeLists.txt",
              src=self.recipe_folder,
              dst=os.path.join(self.export_sources_folder, "src"))
-        copy(self, "helpers.py",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "helpers.py", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):

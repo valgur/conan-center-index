@@ -42,9 +42,7 @@ class MpfrConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt.in",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt.in", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):

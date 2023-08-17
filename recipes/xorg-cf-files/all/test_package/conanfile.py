@@ -14,12 +14,8 @@ class TestPackageConan(ConanFile):
     test_type = "explicit"
 
     def export_sources(self):
-        copy(self, "Imakefile",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "test_package.c",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "Imakefile", self.recipe_folder, self.export_sources_folder)
+        copy(self, "test_package.c", self.recipe_folder, self.export_sources_folder)
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)

@@ -13,9 +13,7 @@ class TestPackageConan(ConanFile):
     win_bash = True
 
     def export_sources(self):
-        copy(self, "src/configure.ac",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "src/configure.ac", self.recipe_folder, self.export_sources_folder)
 
     @property
     def _settings_build(self):

@@ -27,9 +27,7 @@ class Re2CConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "msvc_cl.sh",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "msvc_cl.sh", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

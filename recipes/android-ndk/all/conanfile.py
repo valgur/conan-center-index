@@ -44,12 +44,8 @@ class AndroidNDKConan(ConanFile):
         return self.conan_data["sources"][self.version].get(str(self.settings.os), {}).get(str(self._arch)) is not None
 
     def export_sources(self):
-        copy(self, "cmake-wrapper.cmd",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "cmake-wrapper",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "cmake-wrapper.cmd", self.recipe_folder, self.export_sources_folder)
+        copy(self, "cmake-wrapper", self.recipe_folder, self.export_sources_folder)
 
     def layout(self):
         basic_layout(self, src_folder="src")

@@ -64,9 +64,7 @@ class LiquidDspConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "generate_link_library.bat",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "generate_link_library.bat", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

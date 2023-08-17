@@ -40,12 +40,8 @@ class GiflibConan(ConanFile):
         # The exported files I took them from
         # https://github.com/bjornblissing/osg-3rdparty-cmake/tree/master/giflib
         # refactored a little
-        copy(self, "unistd.h",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "gif_lib.h",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "unistd.h", self.recipe_folder, self.export_sources_folder)
+        copy(self, "gif_lib.h", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

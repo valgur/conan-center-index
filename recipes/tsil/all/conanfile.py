@@ -34,9 +34,7 @@ class TsilConan(ConanFile):
         return "TSIL_SIZE_DOUBLE" if self.options.size == "double" else "TSIL_SIZE_LONG"
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

@@ -36,12 +36,8 @@ class LibevConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
-        copy(self, "config.h",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "config.h", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":

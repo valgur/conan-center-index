@@ -159,9 +159,7 @@ class Open62541Conan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "submoduledata.py",
-             src=self.recipe_folder,
-             dst=self.export_sources_folder)
+        copy(self, "submoduledata.py", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
