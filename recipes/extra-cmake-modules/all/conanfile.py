@@ -57,7 +57,9 @@ class ExtracmakemodulesConan(ConanFile):
         lic_folder = os.path.join(self.source_folder, lic_folder_st)
 
         lic_folder_inst = os.path.join(self.package_folder, "licenses")
-        copy(self, "*", src=lic_folder, dst=lic_folder_inst)
+        copy(self, "*",
+             src=lic_folder,
+             dst=lic_folder_inst)
 
         cmake = CMake(self)
         cmake.install()

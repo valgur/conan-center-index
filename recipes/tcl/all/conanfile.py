@@ -188,7 +188,9 @@ class TclConan(ConanFile):
                     )
 
     def package(self):
-        copy(self, "license.terms", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "license.terms",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             self._build_nmake(["install-binaries", "install-libraries"])
         else:

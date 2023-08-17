@@ -95,7 +95,9 @@ class AutomakeConan(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
-        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
         rmdir(self, os.path.join(self._datarootdir, "info"))
         rmdir(self, os.path.join(self._datarootdir, "man"))

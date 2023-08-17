@@ -115,27 +115,21 @@ class MsgpackConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(
-            self, "LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE_1_0.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if self.options.c_api:
             cmake = CMake(self)
             cmake.install()
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         else:
-            copy(
-                self,
-                "*.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
-            copy(
-                self,
-                "*.hpp",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
+            copy(self, "*.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
+            copy(self, "*.hpp",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         # TODO: CMake imported targets shouldn't be namespaced (waiting implementation of https://github.com/conan-io/conan/issues/7615)

@@ -245,9 +245,9 @@ class LibVPXConan(ConanFile):
         return f"vpx{suffix}"
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 
@@ -268,7 +268,9 @@ class LibVPXConan(ConanFile):
             )
             # Copy for msvc, as it will generate a release and debug library, so take what we want
             # Note that libvpx's configure/make doesn't support shared lib builds on windows yet.
-            copy(self, f"{self._lib_name}.lib", libs_from, os.path.join(self.package_folder, "lib"))
+            copy(self, f"{self._lib_name}.lib",
+                 src=libs_from,
+                 dst=os.path.join(self.package_folder, "lib"))
         else:
             # if not msvc, then libs were installed into package (in the wrong place), move them
             libs_from = os.path.join(self.package_folder, self._install_tmp_folder, "lib")

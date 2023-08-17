@@ -107,7 +107,9 @@ class GnConan(ConanFile):
             self.run("ninja " + " ".join(build_args))
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             copy(self,
                  "gn.exe",

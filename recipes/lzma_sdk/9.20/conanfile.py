@@ -159,26 +159,24 @@ class LzmaSdkConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "lzma.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "7zC.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "lzma.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "7zC.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if is_msvc(self):
             for make_dir, exe in self._msvc_build_dirs:
-                copy(
-                    self,
-                    exe,
-                    dst=os.path.join(self.package_folder, "bin"),
-                    src=os.path.join(make_dir, self._msvc_cpu),
-                    keep_path=False,
-                )
+                copy(self, exe,
+                     dst=os.path.join(self.package_folder, "bin"),
+                     src=os.path.join(make_dir, self._msvc_cpu),
+                     keep_path=False)
         else:
             for make_dir, exe in self._autotools_build_dirs:
-                copy(
-                    self,
-                    exe,
-                    dst=os.path.join(self.package_folder, "bin"),
-                    src=os.path.join(make_dir),
-                    keep_path=False,
-                )
+                copy(self, exe,
+                     dst=os.path.join(self.package_folder, "bin"),
+                     src=os.path.join(make_dir),
+                     keep_path=False)
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

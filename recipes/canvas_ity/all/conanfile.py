@@ -38,12 +38,9 @@ class CanvasItyConan(ConanFile):
         license_contents = file_content[: file_content.find(license_end)].replace("//", "")
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
 
-        copy(
-            self,
-            pattern="*.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "src"),
-        )
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "src"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

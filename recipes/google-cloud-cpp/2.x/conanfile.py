@@ -80,8 +80,12 @@ class GoogleCloudCppConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "components_2_5_0.py", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "components_2_12_0.py", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "components_2_5_0.py",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "components_2_12_0.py",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -230,7 +234,9 @@ class GoogleCloudCppConan(ConanFile):
         return result
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, path=os.path.join(self.package_folder, "lib", "cmake"))

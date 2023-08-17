@@ -98,12 +98,9 @@ class MBitsLngsConan(ConanFile):
         return os.path.join(self._cmake_install_base_path, "mbits-lngs-targets.cmake")
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, self._cmake_install_base_path))

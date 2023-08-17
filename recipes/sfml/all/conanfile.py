@@ -110,7 +110,9 @@ class SfmlConan(ConanFile):
 
     def package(self):
         if Version(self.version) >= "2.6.0":
-            copy(self, pattern="license.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+            copy(self, "license.md",
+                 dst=os.path.join(self.package_folder, "licenses"),
+                 src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

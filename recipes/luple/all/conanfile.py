@@ -64,8 +64,12 @@ class LupleConan(ConanFile):
 
     def package(self):
         # This package doesn't have a license file, it is public domain declared in the Readme
-        copy(self, "README.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "README.md",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -189,29 +189,22 @@ class FaacConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.source_folder, "include"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "include"),
+                 dst=os.path.join(self.package_folder, "include"))
             output_folder = os.path.join(self._sln_folder, "bin", self._msbuild_configuration)
-            copy(
-                self,
-                "*.exe",
-                src=output_folder,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                "*.dll",
-                src=output_folder,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, "*.exe",
+                 src=output_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 src=output_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
             if self.options.drm:
                 old_libname = "libfaacdrm.lib"
                 new_libname = "faac_drm.lib"
@@ -219,7 +212,10 @@ class FaacConan(ConanFile):
                 old_libname = "libfaac_dll.lib" if self.options.shared else "libfaac.lib"
                 new_libname = "faac.lib"
             lib_folder = os.path.join(self.package_folder, "lib")
-            copy(self, old_libname, src=output_folder, dst=lib_folder, keep_path=False)
+            copy(self, old_libname,
+                 src=output_folder,
+                 dst=lib_folder,
+                 keep_path=False)
             rename(self, os.path.join(lib_folder, old_libname), os.path.join(lib_folder, new_libname))
         else:
             autotools = Autotools(self)

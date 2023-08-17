@@ -82,18 +82,31 @@ class Argtable2Conan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                    copy(self, os.path.basename(gnu_config),
+                         src=os.path.dirname(gnu_config),
+                         dst=self.source_folder)
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             output_folder = os.path.join(self.source_folder, "src")
-            copy(self, "*.lib", src=output_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-            copy(self, "argtable2.h", src=output_folder, dst=os.path.join(self.package_folder, "include"), keep_path=False)
+            copy(self, "*.lib",
+                 src=output_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 src=output_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
+            copy(self, "argtable2.h",
+                 src=output_folder,
+                 dst=os.path.join(self.package_folder, "include"),
+                 keep_path=False)
             if self.options.shared:
                 rename(self, os.path.join(self.package_folder, "lib", "impargtable2.lib"),
                              os.path.join(self.package_folder, "lib", "argtable2.lib"))

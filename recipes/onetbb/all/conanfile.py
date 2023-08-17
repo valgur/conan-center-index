@@ -147,7 +147,9 @@ class OneTBBConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))

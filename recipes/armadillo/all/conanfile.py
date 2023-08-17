@@ -254,8 +254,12 @@ class ArmadilloConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "NOTICE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "NOTICE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 

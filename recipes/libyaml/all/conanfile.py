@@ -56,13 +56,10 @@ class LibYAMLConan(ConanFile):
 
     def package(self):
         # 0.2.2 has LICENSE, 0.2.5 has License, so ignore case
-        copy(
-            self,
-            pattern="License",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            ignore_case=True,
-        )
+        copy(self, pattern="License",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             ignore_case=True)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

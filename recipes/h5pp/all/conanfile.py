@@ -98,10 +98,12 @@ class H5ppConan(ConanFile):
             includedir = os.path.join(self.source_folder, "h5pp", "include")
         else:
             includedir = os.path.join(self.source_folder, "include")
-        copy(self, pattern="*", src=includedir, dst=os.path.join(self.package_folder, "include"))
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "*",
+             src=includedir,
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "h5pp")

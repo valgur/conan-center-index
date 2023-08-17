@@ -67,31 +67,22 @@ class ErkirConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if Version(self.version) < "2.0.0":
-            copy(
-                self,
-                pattern="*",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
+            copy(self, "*",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
             for pattern in ["*.lib", "*.a", "*.so", "*.dylib"]:
-                copy(
-                    self,
-                    pattern,
-                    src=self.build_folder,
-                    dst=os.path.join(self.package_folder, "lib"),
-                    keep_path=False,
-                )
-            copy(
-                self,
-                pattern="*.dll",
-                dst=os.path.join(self.package_folder, "bin"),
-                src=self.build_folder,
-                keep_path=False,
-            )
+                copy(self, pattern,
+                     src=self.build_folder,
+                     dst=os.path.join(self.package_folder, "lib"),
+                     keep_path=False)
+            copy(self, "*.dll",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=self.build_folder,
+                 keep_path=False)
         else:
             cmake = CMake(self)
             cmake.install()

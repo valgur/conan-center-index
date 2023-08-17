@@ -111,7 +111,9 @@ class AwsCdiSdkConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def configure(self):
@@ -191,22 +193,16 @@ class AwsCdiSdkConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
         config = "debug" if self.settings.build_type == "Debug" else "release"
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.source_folder, "build", config, "lib"),
-        )
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, "build", config, "lib"))
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

@@ -50,43 +50,30 @@ class Ntv2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
         for suffix in ["so", "lib", "a", "dylib", "bc"]:
-            copy(
-                self,
-                f"*{self._lib_name}.{suffix}",
-                src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            copy(self, f"*{self._lib_name}.{suffix}",
+                 src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
         if self.settings.os == "Windows" and self.options.shared:
-            copy(
-                self,
-                "*.dll",
-                src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, "*.dll",
+                 src=os.path.join(self.build_folder, "ajalibraries", "ajantv2"),
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
         for lib in ["ajaanc", "ajacc", "ajantv2"]:
-            copy(
-                self,
-                "*",
-                src=os.path.join(self.source_folder, "ajalibraries", lib, "includes"),
-                dst=os.path.join(self.package_folder, "include", lib),
-            )
-        copy(
-            self,
-            "ajalibraries/**/*.h",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            "ajalibraries/**/*.hh",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include"),
-        )
+            copy(self, "*",
+                 src=os.path.join(self.source_folder, "ajalibraries", lib, "includes"),
+                 dst=os.path.join(self.package_folder, "include", lib))
+        copy(self, "ajalibraries/**/*.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "ajalibraries/**/*.hh",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
 
     @property
     def _lib_name(self):

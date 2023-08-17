@@ -42,13 +42,12 @@ class GoogleAPIS(ConanFile):
         return "3.21.9"
 
     def export_sources(self):
-        copy(
-            self,
-            "CMakeLists.txt",
-            src=self.recipe_folder,
-            dst=os.path.join(self.export_sources_folder, "src"),
-        )
-        copy(self, "helpers.py", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
+        copy(self, "helpers.py",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -204,47 +203,36 @@ class GoogleAPIS(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
-        copy(self, pattern="*.proto", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
-        copy(self, pattern="*.pb.h", src=self.build_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.proto",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "res"))
+        copy(self, "*.pb.h",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "include"))
 
-        copy(
-            self,
-            pattern="*.lib",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.dll",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "bin"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.so*",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.dylib",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.a",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
+        copy(self, "*.lib",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "*.dll",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "bin"),
+             keep_path=False)
+        copy(self, "*.so*",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "*.dylib",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "*.a",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
 
         with open(os.path.join(self.package_folder, self._DEPS_FILE), "w", encoding="utf-8") as f:
             for lib in filter(lambda u: u.is_used, self._parse_proto_libraries()):

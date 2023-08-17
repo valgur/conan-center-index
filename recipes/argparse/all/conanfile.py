@@ -40,7 +40,9 @@ class ArgparseConan(ConanFile):
 
     def export_sources(self):
         for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+            copy(self, p["patch_file"],
+                 src=self.recipe_folder,
+                 dst=self.export_sources_folder)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -67,12 +69,16 @@ class ArgparseConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) <= "2.1":
             include_dst = os.path.join(self.package_folder, "include", "argparse")
         else:
             include_dst = os.path.join(self.package_folder, "include")
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=include_dst)
+        copy(self, "*.hpp",
+             src=os.path.join(self.source_folder, "include"),
+             dst=include_dst)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "argparse")

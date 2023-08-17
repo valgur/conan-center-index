@@ -33,7 +33,9 @@ class QuickJSConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -69,7 +71,9 @@ class QuickJSConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

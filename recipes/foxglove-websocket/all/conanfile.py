@@ -76,13 +76,12 @@ class FoxgloveWebSocketConan(ConanFile):
     def source(self):
         tmp_folder = "tarball"
         get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=tmp_folder)
-        copy(
-            self,
-            "*",
-            src=os.path.join(self.source_folder, tmp_folder, "cpp", "foxglove-websocket"),
-            dst=self.source_folder,
-        )
-        copy(self, "LICENSE", src=tmp_folder, dst=self.source_folder)
+        copy(self, "*",
+             src=os.path.join(self.source_folder, tmp_folder, "cpp", "foxglove-websocket"),
+             dst=self.source_folder)
+        copy(self, "LICENSE",
+             src=tmp_folder,
+             dst=self.source_folder)
         rmdir(self, tmp_folder)
 
     def generate(self):

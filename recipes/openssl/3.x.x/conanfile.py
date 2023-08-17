@@ -543,7 +543,9 @@ class OpenSSLConan(ConanFile):
             replace_in_file(self, filename, f'/{e}"', f'/{runtime}"', strict=False)
 
     def package(self):
-        copy(self, "*LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         self._make_install()
         if is_apple_os(self):
             fix_apple_shared_install_name(self)
@@ -570,11 +572,17 @@ class OpenSSLConan(ConanFile):
             provdir = os.path.join(self.source_folder, "providers")
             modules_dir = os.path.join(self.package_folder, "lib", "ossl-modules")
             if is_apple_os(self):
-                copy(self, "fips.dylib", src=provdir, dst=modules_dir)
+                copy(self, "fips.dylib",
+                     src=provdir,
+                     dst=modules_dir)
             elif self.settings.os == "Windows":
-                copy(self, "fips.dll", src=provdir, dst=modules_dir)
+                copy(self, "fips.dll",
+                     src=provdir,
+                     dst=modules_dir)
             else:
-                copy(self, "fips.so", src=provdir, dst=modules_dir)
+                copy(self, "fips.so",
+                     src=provdir,
+                     dst=modules_dir)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

@@ -145,12 +145,9 @@ class ZbarConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(
-                    self,
-                    os.path.basename(gnu_config),
-                    src=os.path.dirname(gnu_config),
-                    dst=os.path.join(self.source_folder, "config"),
-                )
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=os.path.join(self.source_folder, "config"))
 
         autotools = Autotools(self)
         if Version(self.version) >= "0.22":
@@ -159,7 +156,9 @@ class ZbarConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

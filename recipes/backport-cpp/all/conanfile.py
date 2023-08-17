@@ -31,8 +31,12 @@ class BackportCppRecipe(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, os.path.join("include", "**", "*.hpp"), src=self.source_folder, dst=self.package_folder)
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, os.path.join("include", "**", "*.hpp"),
+             src=self.source_folder,
+             dst=self.package_folder)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Backport")

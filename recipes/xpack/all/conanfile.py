@@ -47,16 +47,13 @@ class XpackConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include", "xpack"),
-            src=self.source_folder,
-            excludes=["example", "gtest", "thirdparty"],
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include", "xpack"),
+             src=self.source_folder,
+             excludes=["example", "gtest", "thirdparty"])
 
     def package_info(self):
         self.cpp_info.bindirs = []

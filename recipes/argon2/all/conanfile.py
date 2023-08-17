@@ -151,19 +151,24 @@ class Argon2Conan(ConanFile):
                 autotools.make(target="libs")
 
     def package(self):
-        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         bin_folder = os.path.join(self.package_folder, "bin")
         lib_folder = os.path.join(self.package_folder, "lib")
         if is_msvc(self):
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.source_folder, "include"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "include"),
+                 dst=os.path.join(self.package_folder, "include"))
             output_folder = os.path.join(self.source_folder, "vs2015", "build")
-            copy(self, "*.dll", src=output_folder, dst=bin_folder, keep_path=False)
-            copy(self, "*.lib", src=output_folder, dst=lib_folder, keep_path=False)
+            copy(self, "*.dll",
+                 src=output_folder,
+                 dst=bin_folder,
+                 keep_path=False)
+            copy(self, "*.lib",
+                 src=output_folder,
+                 dst=lib_folder,
+                 keep_path=False)
             rename(self, os.path.join(lib_folder, "Argon2OptDll.lib"), os.path.join(lib_folder, "argon2.lib"))
         else:
             autotools = Autotools(self)
@@ -180,7 +185,9 @@ class Argon2Conan(ConanFile):
                         os.path.join(lib_folder, "libargon2.dll"),
                         os.path.join(bin_folder, "libargon2.dll"),
                     )
-                    copy(self, "libargon2.dll.a", src=self.source_folder, dst=lib_folder)
+                    copy(self, "libargon2.dll.a",
+                         src=self.source_folder,
+                         dst=lib_folder)
             else:
                 rm(self, "*.dll", lib_folder)
                 rm(self, "*.so*", lib_folder)

@@ -59,13 +59,12 @@ class XtlConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.hpp",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.hpp",
+             src=os.path.join(self.source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self._create_cmake_module_alias_targets(

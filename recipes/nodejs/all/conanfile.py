@@ -68,24 +68,24 @@ class NodejsConan(ConanFile):
         )
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=os.path.join(self.source_folder, "bin"),
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.source_folder, "lib"),
-        )
-        copy(self, pattern="node.exe", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
-        copy(self, pattern="npm", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
-        copy(self, pattern="npx", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=os.path.join(self.source_folder, "bin"))
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, "lib"))
+        copy(self, "node.exe",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.source_folder)
+        copy(self, "npm",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.source_folder)
+        copy(self, "npx",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.includedirs = []

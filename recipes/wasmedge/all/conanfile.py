@@ -66,44 +66,60 @@ class WasmedgeConan(ConanFile):
         download(self, **license_info, filename="LICENSE")
 
     def package(self):
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-            keep_path=True,
-        )
-        copy(
-            self,
-            pattern="*.inc",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-            keep_path=True,
-        )
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.inc",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
         srclibdir = os.path.join(self.source_folder, "lib64" if self.settings.os in ["Linux", "FreeBSD"] else "lib")
         srcbindir = os.path.join(self.source_folder, "bin")
         dstlibdir = os.path.join(self.package_folder, "lib")
         dstbindir = os.path.join(self.package_folder, "bin")
         if Version(self.version) >= "0.11.1":
-            copy(self, pattern="wasmedge.lib", src=srclibdir, dst=dstlibdir, keep_path=False)
-            copy(self, pattern="wasmedge.dll", src=srcbindir, dst=dstbindir, keep_path=False)
-            copy(self, pattern="libwasmedge.so*", src=srclibdir, dst=dstlibdir, keep_path=False)
-            copy(self, pattern="libwasmedge*.dylib", src=srclibdir, dst=dstlibdir, keep_path=False)
+            copy(self, "wasmedge.lib",
+                 src=srclibdir,
+                 dst=dstlibdir,
+                 keep_path=False)
+            copy(self, "wasmedge.dll",
+                 src=srcbindir,
+                 dst=dstbindir,
+                 keep_path=False)
+            copy(self, "libwasmedge.so*",
+                 src=srclibdir,
+                 dst=dstlibdir,
+                 keep_path=False)
+            copy(self, "libwasmedge*.dylib",
+                 src=srclibdir,
+                 dst=dstlibdir,
+                 keep_path=False)
         else:
-            copy(self, pattern="wasmedge_c.lib", src=srclibdir, dst=dstlibdir, keep_path=False)
-            copy(self, pattern="wasmedge_c.dll", src=srcbindir, dst=dstbindir, keep_path=False)
-            copy(self, pattern="libwasmedge_c.so*", src=srclibdir, dst=dstlibdir, keep_path=False)
-            copy(self, pattern="libwasmedge_c*.dylib", src=srclibdir, dst=dstlibdir, keep_path=False)
+            copy(self, "wasmedge_c.lib",
+                 src=srclibdir,
+                 dst=dstlibdir,
+                 keep_path=False)
+            copy(self, "wasmedge_c.dll",
+                 src=srcbindir,
+                 dst=dstbindir,
+                 keep_path=False)
+            copy(self, "libwasmedge_c.so*",
+                 src=srclibdir,
+                 dst=dstlibdir,
+                 keep_path=False)
+            copy(self, "libwasmedge_c*.dylib",
+                 src=srclibdir,
+                 dst=dstlibdir,
+                 keep_path=False)
 
-        copy(self, pattern="wasmedge*", src=srcbindir, dst=dstbindir, keep_path=False)
-        copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
+        copy(self, "wasmedge*",
+             src=srcbindir,
+             dst=dstbindir,
+             keep_path=False)
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             keep_path=False)
 
     def package_info(self):
         if Version(self.version) >= "0.11.1":

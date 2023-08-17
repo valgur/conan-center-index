@@ -376,33 +376,23 @@ class JemallocConan(ConanFile):
         return libname
 
     def package(self):
-        copy(
-            self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             arch_subdir = {
                 "x86_64": "x64",
                 "x86": "x86",
             }[str(self.settings.arch)]
-            copy(
-                self,
-                "*.lib",
-                src=os.path.join(self.source_folder, "msvc", arch_subdir, self._msvc_build_type),
-                dst=os.path.join(self.package_folder, "lib"),
-            )
-            copy(
-                self,
-                "*.dll",
-                src=os.path.join(self.source_folder, "msvc", arch_subdir, self._msvc_build_type),
-                dst=os.path.join(self.package_folder, "bin"),
-            )
-            copy(
-                self,
-                "jemalloc.h",
+            copy(self, "*.lib",
+                 src=os.path.join(self.source_folder, "msvc", arch_subdir, self._msvc_build_type),
+                 dst=os.path.join(self.package_folder, "lib"))
+            copy(self, "*.dll",
+                 src=os.path.join(self.source_folder, "msvc", arch_subdir, self._msvc_build_type),
+                 dst=os.path.join(self.package_folder, "bin"))
+            copy(self, "jemalloc.h",
                 src=os.path.join(self.source_folder, "include", "jemalloc"),
-                dst=os.path.join(self.package_folder, "include", "jemalloc"),
-                keep_path=True,
-            )
+                dst=os.path.join(self.package_folder, "include", "jemalloc"))
             shutil.copytree(
                 os.path.join(self.source_folder, "include", "msvc_compat"),
                 os.path.join(self.package_folder, "include", "msvc_compat"),

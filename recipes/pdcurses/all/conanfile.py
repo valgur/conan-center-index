@@ -99,10 +99,21 @@ class PDCursesConan(ConanFile):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
         if self.settings.os == "Windows":
-            copy(self, "curses.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
-            copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder, keep_path=False)
-            copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
-            copy(self, "*.a", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
+            copy(self, "curses.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder)
+            copy(self, "*.dll",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=self.source_folder,
+                 keep_path=False)
+            copy(self, "*.lib",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.source_folder,
+                 keep_path=False)
+            copy(self, "*.a",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.source_folder,
+                 keep_path=False)
             if not is_msvc(self):
                 os.rename(os.path.join(self.package_folder, "lib", "pdcurses.a"),
                           os.path.join(self.package_folder, "lib", "libpdcurses.a"))

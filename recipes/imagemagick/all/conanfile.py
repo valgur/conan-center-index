@@ -368,23 +368,19 @@ class ImageMagicConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if is_msvc(self):
             for pattern in ["*CORE_*.lib", "*CORE_*.dll", "*IM_MOD_*.dll"]:
-                copy(
-                    self,
-                    pattern=pattern,
-                    dst=os.path.join(self.package_folder, "lib"),
-                    src=os.path.join("VisualMagick", "lib"),
-                    keep_path=False,
-                )
+                copy(self, pattern,
+                     dst=os.path.join(self.package_folder, "lib"),
+                     src=os.path.join("VisualMagick", "lib"),
+                     keep_path=False)
             for module in self._modules:
-                copy(
-                    self,
-                    pattern="*.h",
-                    dst=os.path.join("include", f"ImageMagick-{Version(self.version).major}", module),
-                    src=os.path.join(self.source_folder, module),
-                )
+                copy(self, "*.h",
+                     dst=os.path.join("include", f"ImageMagick-{Version(self.version).major}", module),
+                     src=os.path.join(self.source_folder, module))
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)

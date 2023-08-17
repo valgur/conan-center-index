@@ -89,23 +89,17 @@ class UwebsocketsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*.h",
-            src=os.path.join(self.source_folder, "src"),
-            dst=os.path.join(self.package_folder, "include", "uWebSockets"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.hpp",
-            src=os.path.join(self.source_folder, "src", "f2"),
-            dst=os.path.join(self.package_folder, "include", "uWebSockets", "f2"),
-            keep_path=False,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "src"),
+             dst=os.path.join(self.package_folder, "include", "uWebSockets"),
+             keep_path=False)
+        copy(self, "*.hpp",
+             src=os.path.join(self.source_folder, "src", "f2"),
+             dst=os.path.join(self.package_folder, "include", "uWebSockets", "f2"),
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.bindirs = []

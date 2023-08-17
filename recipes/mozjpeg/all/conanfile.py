@@ -161,12 +161,9 @@ class MozjpegConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.md",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if self._use_cmake:
             cmake = CMake(self)
             cmake.install()
@@ -179,12 +176,9 @@ class MozjpegConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        copy(
-            self,
-            pattern="*.a",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.package_folder, "lib64"),
-        )
+        copy(self, "*.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.package_folder, "lib64"))
         rmdir(self, os.path.join(self.package_folder, "lib64"))
         # remove binaries and pdb files
         for bin_pattern_to_remove in [

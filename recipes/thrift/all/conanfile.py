@@ -145,17 +145,15 @@ class ThriftConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # Copy generated headers from build tree
-        copy(
-            self,
-            "*.h",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "include"),
-            keep_path=True,
-        )
+        copy(self, "*.h",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "include"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

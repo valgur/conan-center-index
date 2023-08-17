@@ -35,7 +35,9 @@ class LibelfConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -104,19 +106,18 @@ class LibelfConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(
-                        self,
-                        os.path.basename(gnu_config),
-                        src=os.path.dirname(gnu_config),
-                        dst=self.source_folder,
-                    )
+                    copy(self, os.path.basename(gnu_config),
+                         src=os.path.dirname(gnu_config),
+                         dst=self.source_folder)
             autotools = Autotools(self)
             autotools.autoreconf()
             autotools.configure()
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING.LIB", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING.LIB",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

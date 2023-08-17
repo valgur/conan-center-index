@@ -86,24 +86,44 @@ class SerdeppConan(ConanFile):
     def package(self):
         s = lambda x: os.path.join(self.source_folder, x)
         p = lambda x: os.path.join(self.package_folder, x)
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         include = os.path.join("include", "serdepp")
-        copy(self, "*.hpp", dst=p(include), src=s(include))
+        copy(self, "*.hpp",
+             dst=p(include),
+             src=s(include))
         attribute = os.path.join(include, "attribute")
-        copy(self, "*.hpp", dst=p(attribute), src=s(attribute))
+        copy(self, "*.hpp",
+             dst=p(attribute),
+             src=s(attribute))
         adaptor = os.path.join(include, "adaptor")
-        copy(self, "reflection.hpp", dst=p(adaptor), src=s(adaptor))
-        copy(self, "sstream.hpp", dst=p(adaptor), src=s(adaptor))
+        copy(self, "reflection.hpp",
+             dst=p(adaptor),
+             src=s(adaptor))
+        copy(self, "sstream.hpp",
+             dst=p(adaptor),
+             src=s(adaptor))
         if self.options.with_toml11:
-            copy(self, "toml11.hpp", dst=p(adaptor), src=s(adaptor))
+            copy(self, "toml11.hpp",
+                 dst=p(adaptor),
+                 src=s(adaptor))
         if self.options.with_yamlcpp:
-            copy(self, "yaml-cpp.hpp", dst=p(adaptor), src=s(adaptor))
+            copy(self, "yaml-cpp.hpp",
+                 dst=p(adaptor),
+                 src=s(adaptor))
         if self.options.with_rapidjson:
-            copy(self, "rapidjson.hpp", dst=p(adaptor), src=s(adaptor))
+            copy(self, "rapidjson.hpp",
+                 dst=p(adaptor),
+                 src=s(adaptor))
         if self.options.with_fmt:
-            copy(self, "fmt.hpp", dst=p(adaptor), src=s(adaptor))
+            copy(self, "fmt.hpp",
+                 dst=p(adaptor),
+                 src=s(adaptor))
         if self.options.with_nlohmann_json:
-            copy(self, "nlohmann_json.hpp", dst=p(adaptor), src=s(adaptor))
+            copy(self, "nlohmann_json.hpp",
+                 dst=p(adaptor),
+                 src=s(adaptor))
 
     def package_info(self):
         self.cpp_info.bindirs = []

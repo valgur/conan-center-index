@@ -48,7 +48,9 @@ class SdbusCppConan(ConanFile):
 
     def export_sources(self):
         for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+            copy(self, p["patch_file"],
+                 src=self.recipe_folder,
+                 dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -109,7 +111,9 @@ class SdbusCppConan(ConanFile):
         tc.generate()
 
         # workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/18150
-        copy(self, "*.pc", self.generators_folder, os.path.join(self.generators_folder, "lib", "pkgconfig"))
+        copy(self, "*.pc",
+             src=self.generators_folder,
+             dst=os.path.join(self.generators_folder, "lib", "pkgconfig"))
 
         tc = PkgConfigDeps(self)
         tc.generate()
@@ -124,7 +128,9 @@ class SdbusCppConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.install()
-        copy(self, "COPYING*", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 

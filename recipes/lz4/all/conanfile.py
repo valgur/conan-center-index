@@ -89,7 +89,9 @@ class LZ4Conan(ConanFile):
         return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if Version(self.version) >= "1.9.4":

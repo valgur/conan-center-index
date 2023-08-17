@@ -177,7 +177,9 @@ class UnicornConan(ConanFile):
 
     def package(self):
         for lic in ("COPYING", "COPYING.LGPL2", "COPYING_GLIB"):
-            copy(self, lic, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+            copy(self, lic,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

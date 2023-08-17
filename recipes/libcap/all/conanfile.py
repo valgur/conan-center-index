@@ -77,7 +77,9 @@ class LibcapConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "License", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "License",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
         autotools = Autotools(self)
         with chdir(self, os.path.join(self.source_folder, "libcap")):

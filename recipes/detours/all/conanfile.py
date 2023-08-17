@@ -31,7 +31,9 @@ class DetoursConan(ConanFile):
         }[str(self.settings.arch)]
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -80,7 +82,9 @@ class DetoursConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(self, "detours.lib",
                 src=os.path.join(self.source_folder, f"lib.{self._target_processor}"),

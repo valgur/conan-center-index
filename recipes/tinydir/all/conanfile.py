@@ -29,8 +29,12 @@ class TinydirConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "tinydir.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "tinydir.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

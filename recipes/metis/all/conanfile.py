@@ -45,13 +45,12 @@ class METISConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-        copy(
-            self,
-            "gkbuild.cmake",
-            self.recipe_folder,
-            os.path.join(self.export_sources_folder, "src"),
-        )
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "gkbuild.cmake",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -73,7 +72,9 @@ class METISConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         rm(self, "*.pdf", self.source_folder, recursive=True)
-        copy(self, "CMakeLists.txt", self.export_sources_folder, self.source_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.export_sources_folder,
+             dst=self.source_folder)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -105,12 +106,9 @@ class METISConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.cmake", self.package_folder, recursive=True)

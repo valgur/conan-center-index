@@ -29,7 +29,9 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         for src in ("configure.ac", "config.h.in", "Makefile.in", "test_package_c.c", "test_package_cpp.cpp"):
-            copy(self, src, os.path.join(self.source_folder, os.pardir, "test_package"), self.build_folder)
+            copy(self, src,
+                 src=os.path.join(self.source_folder, os.pardir, "test_package"),
+                 dst=self.build_folder)
         self.run("autoconf --verbose", win_bash=tools.os_info.is_windows)
         self.run("{} --help".format(os.path.join(self.build_folder, "configure").replace("\\", "/")),
                  win_bash=tools.os_info.is_windows)

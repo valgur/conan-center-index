@@ -61,8 +61,12 @@ class BtyaccConan(ConanFile):
         return os.path.join("bin", "conan-official-btyacc-variables.cmake")
 
     def package(self):
-        copy(self, "README", "licenses", self.source_folder)
-        copy(self, "README.BYACC", "licenses", self.source_folder)
+        copy(self, "README",
+             src="licenses",
+             dst=self.source_folder)
+        copy(self, "README.BYACC",
+             src="licenses",
+             dst=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

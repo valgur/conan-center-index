@@ -165,7 +165,9 @@ class ProjConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         # recover the data ... 9.1.0 saves into share/proj rather than res directly

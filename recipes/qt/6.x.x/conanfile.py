@@ -155,7 +155,9 @@ class QtConan(ConanFile):
         export_conandata_patches(self)
 
     def export(self):
-        copy(self, f"qtmodules{self.version}.conf", self.recipe_folder, self.export_folder)
+        copy(self, f"qtmodules{self.version}.conf",
+             src=self.recipe_folder,
+             dst=self.export_folder)
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -756,7 +758,9 @@ class QtConan(ConanFile):
             save(self, ".qmake.super" , "")
         cmake = CMake(self)
         cmake.install()
-        copy(self, "*LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         for module in self._get_module_tree:
             if module != "qtbase" and not self.options.get_safe(module):
                 rmdir(self, os.path.join(self.package_folder, "licenses", module))

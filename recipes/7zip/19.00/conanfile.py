@@ -104,33 +104,21 @@ class SevenZipConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(
-            self,
-            "License.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "DOC"),
-        )
-        copy(
-            self,
-            "unRarLicense.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "DOC"),
-        )
+        copy(self, "License.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=os.path.join(self.source_folder, "DOC"))
+        copy(self, "unRarLicense.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=os.path.join(self.source_folder, "DOC"))
         if self.settings.os == "Windows":
-            copy(
-                self,
-                "*.exe",
-                dst=os.path.join(self.package_folder, "bin"),
-                src=os.path.join(self.source_folder, "CPP", "7zip"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                "*.dll",
-                dst=os.path.join(self.package_folder, "bin"),
-                src=os.path.join(self.source_folder, "CPP", "7zip"),
-                keep_path=False,
-            )
+            copy(self, "*.exe",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=os.path.join(self.source_folder, "CPP", "7zip"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=os.path.join(self.source_folder, "CPP", "7zip"),
+                 keep_path=False)
         # TODO: Package the libraries: binaries and headers (add the rest of settings)
 
     def package_info(self):

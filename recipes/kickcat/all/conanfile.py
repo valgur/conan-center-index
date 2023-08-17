@@ -64,9 +64,11 @@ class KickCATRecipe(ConanFile):
         copy(self, "*.h", os.path.join(self.source_folder, "include"),
              os.path.join(self.package_folder, "include"))
         copy(self, "*.a", self.build_folder,
-             os.path.join(self.package_folder, "lib"), keep_path=False)
+             os.path.join(self.package_folder, "lib"),
+             keep_path=False)
         copy(self, "*.so", self.build_folder,
-             os.path.join(self.package_folder, "lib"), keep_path=False)
+             os.path.join(self.package_folder, "lib"),
+             keep_path=False)
         copy(self, "LICENSE", self.source_folder,
              os.path.join(self.package_folder, "licenses"))
 

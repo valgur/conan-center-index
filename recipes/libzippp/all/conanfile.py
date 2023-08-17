@@ -96,9 +96,9 @@ class LibZipppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENCE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

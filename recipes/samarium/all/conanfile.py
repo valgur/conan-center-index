@@ -88,12 +88,9 @@ class SamariumConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            src=self.folders.source_folder,
-            dst=path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md",
+             src=self.folders.source_folder,
+             dst=path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

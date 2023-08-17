@@ -19,7 +19,9 @@ class BoostDepConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -48,12 +50,9 @@ class BoostDepConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

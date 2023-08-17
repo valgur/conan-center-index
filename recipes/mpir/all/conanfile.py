@@ -150,7 +150,9 @@ class MpirConan(ConanFile):
 
     def _patch_new_msvc_version(self, ver, toolset):
         new_dir = os.path.join(self.source_folder, f"build.vc{ver}")
-        copy(self, pattern="*", src=os.path.join(self.source_folder, "build.vc15"), dst=new_dir)
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "build.vc15"),
+             dst=new_dir)
 
         for root, _, files in os.walk(new_dir):
             for file in files:
@@ -184,7 +186,9 @@ class MpirConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if is_msvc(self):
             lib_folder = os.path.join(
                 self.source_folder,
@@ -193,15 +197,29 @@ class MpirConan(ConanFile):
                 str(self.settings.build_type),
             )
             include_folder = os.path.join(self.package_folder, "include")
-            copy(self, "mpir.h", dst=include_folder, src=lib_folder, keep_path=True)
+            copy(self, "mpir.h",
+                 dst=include_folder,
+                 src=lib_folder)
             if self.options.enable_gmpcompat:
-                copy(self, "gmp.h", dst=include_folder, src=lib_folder, keep_path=True)
+                copy(self, "gmp.h",
+                     dst=include_folder,
+                     src=lib_folder)
             if self.options.get_safe("enable_cxx"):
-                copy(self, "mpirxx.h", dst=include_folder, src=lib_folder, keep_path=True)
+                copy(self, "mpirxx.h",
+                     dst=include_folder,
+                     src=lib_folder)
                 if self.options.enable_gmpcompat:
-                    copy(self, "gmpxx.h", dst=include_folder, src=lib_folder, keep_path=True)
-            copy(self, "*.dll*", dst=os.path.join(self.package_folder, "bin"), src=lib_folder, keep_path=False)
-            copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), src=lib_folder, keep_path=False)
+                    copy(self, "gmpxx.h",
+                         dst=include_folder,
+                         src=lib_folder)
+            copy(self, "*.dll*",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=lib_folder,
+                 keep_path=False)
+            copy(self, "*.lib",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=lib_folder,
+                 keep_path=False)
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)

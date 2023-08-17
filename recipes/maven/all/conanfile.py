@@ -29,9 +29,13 @@ class MavenConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         for target in ("bin", "boot", "conf", "lib"):
-            copy(self, pattern="*", dst=os.path.join(self.package_folder, target), src=os.path.join(self.source_folder, target))
+            copy(self, "*",
+                 dst=os.path.join(self.package_folder, target),
+                 src=os.path.join(self.source_folder, target))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

@@ -146,7 +146,9 @@ class LibcurlConan(ConanFile):
         return not (self._is_using_cmake_build and Version(self.version) < "7.84.0")
 
     def export_sources(self):
-        copy(self, "lib_Makefile_add.am", self.recipe_folder, self.export_sources_folder)
+        copy(self, "lib_Makefile_add.am",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -262,7 +264,9 @@ class LibcurlConan(ConanFile):
                     self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                    copy(self, os.path.basename(gnu_config),
+                         src=os.path.dirname(gnu_config),
+                         dst=self.source_folder)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -628,8 +632,12 @@ class LibcurlConan(ConanFile):
         deps.generate()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "cacert.pem", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "cacert.pem",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "res"))
         if self._is_using_cmake_build:
             cmake = CMake(self)
             cmake.install()
@@ -641,9 +649,18 @@ class LibcurlConan(ConanFile):
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))
             if self._is_mingw and self.options.shared:
                 # Handle only mingw libs
-                copy(self, pattern="*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-                copy(self, pattern="*.dll.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-                copy(self, pattern="*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(self, "*.dll",
+                     src=self.build_folder,
+                     dst=os.path.join(self.package_folder, "bin"),
+                     keep_path=False)
+                copy(self, "*.dll.a",
+                     src=self.build_folder,
+                     dst=os.path.join(self.package_folder, "lib"),
+                     keep_path=False)
+                copy(self, "*.lib",
+                     src=self.build_folder,
+                     dst=os.path.join(self.package_folder, "lib"),
+                     keep_path=False)
             fix_apple_shared_install_name(self)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

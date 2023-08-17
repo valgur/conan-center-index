@@ -86,23 +86,17 @@ class Catch2Conan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         for cmake_file in ["ParseAndAddCatchTests.cmake", "Catch.cmake", "CatchAddTests.cmake"]:
-            copy(
-                self,
-                cmake_file,
-                src=os.path.join(self.source_folder, "contrib"),
-                dst=os.path.join(self.package_folder, "lib", "cmake", "Catch2"),
-            )
+            copy(self, cmake_file,
+                 src=os.path.join(self.source_folder, "contrib"),
+                 dst=os.path.join(self.package_folder, "lib", "cmake", "Catch2"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

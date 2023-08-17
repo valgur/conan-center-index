@@ -64,12 +64,9 @@ class ClhepConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING*",
-            src=os.path.join(self.source_folder, "CLHEP"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING*",
+             src=os.path.join(self.source_folder, "CLHEP"),
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

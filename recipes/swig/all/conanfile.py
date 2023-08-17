@@ -28,7 +28,9 @@ class SwigConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "cmake/*", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake/*",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def layout(self):
@@ -107,9 +109,15 @@ class SwigConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.cmake", dst=self._module_subfolder, src=os.path.join(self.export_sources_folder, "cmake"))
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "COPYRIGHT",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.cmake",
+             dst=self._module_subfolder,
+             src=os.path.join(self.export_sources_folder, "cmake"))
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()

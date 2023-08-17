@@ -80,7 +80,9 @@ class OpenSceneGraphConanFile(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -265,7 +267,9 @@ class OpenSceneGraphConanFile(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, True)

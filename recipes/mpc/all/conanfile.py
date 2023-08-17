@@ -98,13 +98,10 @@ class MpcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING.LESSER",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
+        copy(self, "COPYING.LESSER",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             keep_path=False)
         autotools = Autotools(self)
         autotools.install()
         fix_apple_shared_install_name(self)

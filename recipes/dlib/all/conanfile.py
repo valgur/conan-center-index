@@ -53,7 +53,9 @@ class DlibConan(ConanFile):
         return Version(self.version) >= "19.24"
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -178,7 +180,10 @@ class DlibConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "LICENSE.txt", "licenses", os.path.join(self.source_folder, "dlib"), keep_path=False)
+        copy(self, "LICENSE.txt",
+             src="licenses",
+             dst=os.path.join(self.source_folder, "dlib"),
+             keep_path=False)
 
         # Remove configuration files
         for dir_to_remove in [

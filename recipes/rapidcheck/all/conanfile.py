@@ -110,7 +110,9 @@ class RapidcheckConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE*",
+             dst=join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

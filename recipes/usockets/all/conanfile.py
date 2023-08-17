@@ -225,10 +225,20 @@ class UsocketsConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "src"), keep_path=True)
-        copy(self, pattern="*.a", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
-        copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "src"))
+        copy(self, "*.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.source_folder,
+             keep_path=False)
+        copy(self, "*.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.source_folder,
+             keep_path=False)
         # drop internal headers
         rmdir(self, os.path.join(self.package_folder, "include", "internal"))
 

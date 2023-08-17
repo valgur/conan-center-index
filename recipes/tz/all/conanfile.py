@@ -63,7 +63,9 @@ class TzConan(ConanFile):
         autotools.make(args=["-C", self.source_folder.replace("\\", "/")])
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         autotools = Autotools(self)
         destdir = self.package_folder.replace("\\", "/")
         autotools.install(args=["-C", self.source_folder.replace("\\", "/"), f"DESTDIR={destdir}"])

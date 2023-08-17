@@ -109,14 +109,15 @@ class CImgConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "Licence*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "CImg.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(
-            self,
-            "*",
-            os.path.join(self.source_folder, "plugins"),
-            os.path.join(self.package_folder, "include", "plugins"),
-        )
+        copy(self, "Licence*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "CImg.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "plugins"),
+             dst=os.path.join(self.package_folder, "include", "plugins"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "CImg")

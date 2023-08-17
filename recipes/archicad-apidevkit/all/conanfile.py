@@ -48,8 +48,12 @@ class ArchicadApidevkitConan(ConanFile):
         get(self, **licenses, destination=os.path.join(self.package_folder, "licenses"), strip_root=True)
 
     def package(self):
-        copy(self, "bin", src=self.build_folder, dst=self.package_folder)
-        copy(self, "licenses", src=self.build_folder, dst=self.package_folder)
+        copy(self, "bin",
+             src=self.build_folder,
+             dst=self.package_folder)
+        copy(self, "licenses",
+             src=self.build_folder,
+             dst=self.package_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

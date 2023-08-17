@@ -32,13 +32,12 @@ class UtfCppConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "source"),
-            dst=os.path.join(self.package_folder, "include", "utf8cpp"),
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "source"),
+             dst=os.path.join(self.package_folder, "include", "utf8cpp"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(

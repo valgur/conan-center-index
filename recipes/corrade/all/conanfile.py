@@ -43,7 +43,9 @@ class CorradeConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "cmake/*", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake/*",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -106,7 +108,9 @@ class CorradeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         share_cmake = os.path.join(self.package_folder, "share", "cmake", "Corrade")

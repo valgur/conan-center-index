@@ -66,14 +66,13 @@ class PolymorphictValueConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "polymorphic_value.*", self.source_folder, os.path.join(self.package_folder, "include"))
-        copy(
-            self,
-            "*LICENSE*",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
+        copy(self, "polymorphic_value.*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*LICENSE*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -35,7 +35,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         if can_run(self):
-            copy(self, "Imake*", self.source_folder, self.build_folder)
+            copy(self, "Imake*", src=self.source_folder, dst=self.build_folder)
             self.run("imake", env="conanrun")
             autotools = Autotools(self)
             autotools.make()

@@ -171,7 +171,9 @@ class GladConan(ConanFile):
         CMake(self).install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

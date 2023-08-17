@@ -117,12 +117,9 @@ class GdbmConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(
-                    self,
-                    os.path.basename(gnu_config),
-                    os.path.dirname(gnu_config),
-                    os.path.join(self.source_folder, "build-aux"),
-                )
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=os.path.join(self.source_folder, "build-aux"))
 
     def build(self):
         self._patch_sources()
@@ -132,7 +129,9 @@ class GdbmConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

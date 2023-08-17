@@ -127,17 +127,35 @@ class SCIPConan(ConanFile):
         cmake.build(target="libscip")
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=join(self.package_folder, "licenses"))
         # cmake install is not used as this requires the command line tools to be built, which we do not do
-        copy(self, pattern="*.h", src=join(self.source_folder, "src"), dst=join(self.package_folder, "include"))
-        copy(self, pattern="*.h", src=join(self.build_folder, "scip"), dst=join(self.package_folder, "include", "scip"))
+        copy(self, "*.h",
+             src=join(self.source_folder, "src"),
+             dst=join(self.package_folder, "include"))
+        copy(self, "*.h",
+             src=join(self.build_folder, "scip"),
+             dst=join(self.package_folder, "include", "scip"))
         if self.options.shared:
-            copy(self, pattern="*.so*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.dylib*", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
+            copy(self, "*.so*",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"))
+            copy(self, "*.dylib*",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"))
         else:
-            copy(self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.lib", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib"), keep_path=False)
-            copy(self, pattern="*.lib", src=self.build_folder, dst=join(self.package_folder, "lib"), keep_path=False)
+            copy(self, "*.a",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"))
+            copy(self, "*.lib",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"),
+                 keep_path=False)
+            copy(self, "*.lib",
+                 src=self.build_folder,
+                 dst=join(self.package_folder, "lib"),
+                 keep_path=False)
         fix_apple_shared_install_name(self)
 
     def package_info(self):

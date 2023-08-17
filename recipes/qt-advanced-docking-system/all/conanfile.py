@@ -180,7 +180,9 @@ class QtADS(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "license"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 

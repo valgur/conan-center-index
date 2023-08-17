@@ -90,21 +90,17 @@ class TinycborConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                "tinycbor.lib",
-                src=os.path.join(self.source_folder, "lib"),
-                dst=os.path.join(self.package_folder, "lib"),
-            )
+            copy(self, "tinycbor.lib",
+                 src=os.path.join(self.source_folder, "lib"),
+                 dst=os.path.join(self.package_folder, "lib"))
             for header in ["cbor.h", "cborjson.h", "tinycbor-version.h"]:
-                copy(
-                    self,
-                    header,
-                    src=os.path.join(self.source_folder, "src"),
-                    dst=os.path.join(self.package_folder, "include", "tinycbor"),
-                )
+                copy(self, header,
+                     src=os.path.join(self.source_folder, "src"),
+                     dst=os.path.join(self.package_folder, "include", "tinycbor"))
         else:
             autotools = Autotools(self)
             with chdir(self, self.source_folder):

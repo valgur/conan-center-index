@@ -166,33 +166,21 @@ class PcapplusplusConan(ConanFile):
             msbuild.build("mk/vs2015/PcapPlusPlus.sln", targets=targets)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "Dist", "header"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            "*.a",
-            src=os.path.join(self.source_folder, "Dist"),
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.lib",
-            src=os.path.join(self.source_folder, "Dist"),
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             keep_path=False)
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "Dist", "header"),
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.a",
+             src=os.path.join(self.source_folder, "Dist"),
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "*.lib",
+             src=os.path.join(self.source_folder, "Dist"),
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["Pcap++", "Packet++", "Common++"]

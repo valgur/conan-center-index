@@ -58,7 +58,9 @@ class IosCMakeConan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def export_sources(self):
-        copy(self, "cmake-wrapper", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake-wrapper",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -101,23 +103,19 @@ class IosCMakeConan(ConanFile):
         pass  # there is nothing to build
 
     def package(self):
-        copy(self, "cmake-wrapper", src=self.export_sources_folder, dst=os.path.join(self.package_folder, "bin"))
-        copy(
-            self,
-            "ios.toolchain.cmake",
-            src=self.source_folder,
-            dst=os.path.join("lib", "cmake", "ios-cmake"),
-            keep_path=False,
-        )
+        copy(self, "cmake-wrapper",
+             src=self.export_sources_folder,
+             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "ios.toolchain.cmake",
+             src=self.source_folder,
+             dst=os.path.join("lib", "cmake", "ios-cmake"),
+             keep_path=False)
         self._chmod_plus_x(os.path.join(self.package_folder, "bin", "cmake-wrapper"))
 
-        copy(
-            self,
-            "LICENSE.md",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            keep_path=False,
-        )
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder,
+             keep_path=False)
         # satisfy KB-H014 (header_only recipes require headers)
         save(self, os.path.join(self.package_folder, "include", "dummy_header.h"), "\n")
 

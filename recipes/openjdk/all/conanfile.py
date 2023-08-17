@@ -48,46 +48,28 @@ class OpenJDK(ConanFile):
         else:
             source_folder = self.source_folder
         symlinks.remove_broken_symlinks(self, source_folder)
-        copy(
-            self,
-            pattern="*",
-            src=os.path.join(source_folder, "bin"),
-            dst=os.path.join(self.package_folder, "bin"),
-            excludes=("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"),
-        )
-        copy(
-            self,
-            pattern="*",
-            src=os.path.join(source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="*",
-            src=os.path.join(source_folder, "lib"),
-            dst=os.path.join(self.package_folder, "lib"),
-        )
-        copy(
-            self,
-            pattern="*",
-            src=os.path.join(source_folder, "jmods"),
-            dst=os.path.join(self.package_folder, "lib", "jmods"),
-        )
-        copy(
-            self,
-            pattern="*",
-            src=os.path.join(source_folder, "legal"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "*",
+             src=os.path.join(source_folder, "bin"),
+             dst=os.path.join(self.package_folder, "bin"),
+             excludes=("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"))
+        copy(self, "*",
+             src=os.path.join(source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*",
+             src=os.path.join(source_folder, "lib"),
+             dst=os.path.join(self.package_folder, "lib"))
+        copy(self, "*",
+             src=os.path.join(source_folder, "jmods"),
+             dst=os.path.join(self.package_folder, "lib", "jmods"))
+        copy(self, "*",
+             src=os.path.join(source_folder, "legal"),
+             dst=os.path.join(self.package_folder, "licenses"))
         # conf folder is required for security settings, to avoid
         # java.lang.SecurityException: Can't read cryptographic policy directory: unlimited
         # https://github.com/conan-io/conan-center-index/pull/4491#issuecomment-774555069
-        copy(
-            self,
-            pattern="*",
-            src=os.path.join(source_folder, "conf"),
-            dst=os.path.join(self.package_folder, "conf"),
-        )
+        copy(self, "*",
+             src=os.path.join(source_folder, "conf"),
+             dst=os.path.join(self.package_folder, "conf"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

@@ -55,9 +55,9 @@ class PackageConan(ConanFile):
         return os.path.join("lib", "cmake")
 
     def export_sources(self):
-        copy(
-            self, os.path.join("cmake", "sbeppcTargets.cmake"), self.recipe_folder, self.export_sources_folder
-        )
+        copy(self, os.path.join("cmake", "sbeppcTargets.cmake"),
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def layout(self):
@@ -106,21 +106,15 @@ class PackageConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.md",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        copy(
-            self,
-            "sbeppcTargets.cmake",
-            src=os.path.join(self.source_folder, os.pardir, "cmake"),
-            dst=os.path.join(self.package_folder, self._module_path),
-        )
+        copy(self, "sbeppcTargets.cmake",
+             src=os.path.join(self.source_folder, os.pardir, "cmake"),
+             dst=os.path.join(self.package_folder, self._module_path))
 
     def package_info(self):
         # provide sbepp::sbeppc target

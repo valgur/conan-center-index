@@ -157,13 +157,23 @@ class XZUtilsConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             inc_dir = os.path.join(self.source_folder, "src", "liblzma", "api")
-            copy(self, "*.h", src=inc_dir, dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*.h",
+                 src=inc_dir,
+                 dst=os.path.join(self.package_folder, "include"))
             output_dir = os.path.join(self.source_folder, "windows")
-            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(self, "*.lib",
+                 src=output_dir,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 src=output_dir,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
             rename(
                 self,
                 os.path.join(self.package_folder, "lib", "liblzma.lib"),

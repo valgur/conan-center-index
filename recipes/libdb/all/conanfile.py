@@ -167,12 +167,9 @@ class LibdbConan(ConanFile):
                     self.conf.get("user.gnu-config:config_sub", check_type=str),
                 ]:
                     if gnu_config:
-                        copy(
-                            self,
-                            os.path.basename(gnu_config),
-                            src=os.path.dirname(gnu_config),
-                            dst=os.path.join(self.source_folder, subdir),
-                        )
+                        copy(self, os.path.basename(gnu_config),
+                             src=os.path.dirname(gnu_config),
+                             dst=os.path.join(self.source_folder, subdir))
 
         for file in glob.glob(os.path.join(self.source_folder, "build_windows", "VS10", "*.vcxproj")):
             replace_in_file(
@@ -230,7 +227,9 @@ class LibdbConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         bindir = os.path.join(self.package_folder, "bin")
         libdir = os.path.join(self.package_folder, "lib")
         if is_msvc(self):
@@ -238,10 +237,16 @@ class LibdbConan(ConanFile):
             build_dir = os.path.join(
                 self.source_folder, "build_windows", self._msvc_arch, self._msvc_build_type
             )
-            copy(self, "*.lib", src=build_dir, dst=libdir)
-            copy(self, "*.dll", src=build_dir, dst=bindir)
+            copy(self, "*.lib",
+                 src=build_dir,
+                 dst=libdir)
+            copy(self, "*.dll",
+                 src=build_dir,
+                 dst=bindir)
             for fn in ("db.h", "db.cxx", "db_int.h", "dbstl_common.h"):
-                copy(self, fn, src=build_windows, dst=os.path.join(self.package_folder, "include"))
+                copy(self, fn,
+                     src=build_windows,
+                     dst=os.path.join(self.package_folder, "include"))
 
             def _lib_to_msvc_lib(lib):
                 shared_suffix = "" if self.options.shared else "s"

@@ -52,61 +52,34 @@ class ZuluOpenJDK(ConanFile):
             )
 
     def build(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version][str(self._settings_build.os)][
-                str(self._settings_build.arch)
-            ],
-            strip_root=True,
-        )
+        get(self, **self.conan_data["sources"][self.version][str(self._settings_build.os)][str(self._settings_build.arch)], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=os.path.join(self.source_folder, "bin"),
-            excludes=("msvcp140.dll", "vcruntime140.dll"),
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=os.path.join(self.source_folder, "lib"),
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "res"),
-            src=os.path.join(self.source_folder, "conf"),
-        )
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=os.path.join(self.source_folder, "bin"),
+             excludes=("msvcp140.dll", "vcruntime140.dll"))
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=os.path.join(self.source_folder, "lib"))
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "res"),
+             src=os.path.join(self.source_folder, "conf"))
         # conf folder is required for security settings, to avoid
         # java.lang.SecurityException: Can't read cryptographic policy directory: unlimited
         # https://github.com/conan-io/conan-center-index/pull/4491#issuecomment-774555069
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "conf"),
-            src=os.path.join(self.source_folder, "conf"),
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "legal"),
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "lib", "jmods"),
-            src=os.path.join(self.source_folder, "jmods"),
-        )
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "conf"),
+             src=os.path.join(self.source_folder, "conf"))
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=os.path.join(self.source_folder, "legal"))
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "lib", "jmods"),
+             src=os.path.join(self.source_folder, "jmods"))
 
     def package_info(self):
         self.cpp_info.includedirs.append(self._jni_folder)

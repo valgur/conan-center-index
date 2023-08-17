@@ -48,25 +48,25 @@ class StbConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "stb_vorbis.c", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "stb_vorbis.c",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
         rmdir(self, os.path.join(self.package_folder, "include", "tests"))
         if Version(self._version) >= "20210713":
             rmdir(self, os.path.join(self.package_folder, "include", "deprecated"))
         if self.options.get_safe("with_deprecated"):
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.source_folder, "deprecated"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
-            copy(
-                self,
-                "stb_image.c",
-                src=os.path.join(self.source_folder, "deprecated"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "deprecated"),
+                 dst=os.path.join(self.package_folder, "include"))
+            copy(self, "stb_image.c",
+                 src=os.path.join(self.source_folder, "deprecated"),
+                 dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

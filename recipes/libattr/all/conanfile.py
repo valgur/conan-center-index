@@ -53,12 +53,9 @@ class LibAttrConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=os.path.join(self.source_folder, "doc"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING",
+             src=os.path.join(self.source_folder, "doc"),
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

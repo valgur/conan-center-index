@@ -57,15 +57,12 @@ class PackageConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*.hpp",
-            dst=os.path.join(self.package_folder, "include", "json_dto"),
-            src=os.path.join(self.source_folder, "dev", "json_dto"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include", "json_dto"),
+             src=os.path.join(self.source_folder, "dev", "json_dto"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

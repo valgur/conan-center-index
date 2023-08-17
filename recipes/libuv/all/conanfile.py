@@ -65,9 +65,9 @@ class LibuvConan(ConanFile):
 
     def package(self):
         for license_file in ["LICENSE", "LICENSE-docs"]:
-            copy(
-                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-            )
+            copy(self, license_file,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

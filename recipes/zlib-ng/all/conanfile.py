@@ -86,7 +86,9 @@ class ZlibNgConan(ConanFile):
 
     def package(self):
         license_folder = os.path.join(self.package_folder, "licenses")
-        copy(self, "LICENSE.md", src=self.source_folder, dst=license_folder)
+        copy(self, "LICENSE.md",
+             src=self.source_folder,
+             dst=license_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

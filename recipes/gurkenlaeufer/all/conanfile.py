@@ -61,13 +61,12 @@ class GurkenlaeuferConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
-            os.path.join(self.source_folder, "include"),
-            os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         # Folders not used for header-only

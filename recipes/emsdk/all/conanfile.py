@@ -105,8 +105,12 @@ class EmSDKConan(ConanFile):
                     self.run(f"{emsdk} activate {value}")
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "bin"))
         emscripten = os.path.join(self.package_folder, "bin", "upstream", "emscripten")
         toolchain = os.path.join(emscripten, "cmake", "Modules", "Platform", "Emscripten.cmake")
         # FIXME: conan should add the root of conan package requirements to CMAKE_PREFIX_PATH (LIBRARY/INCLUDE -> ONLY; PROGRAM -> NEVER)

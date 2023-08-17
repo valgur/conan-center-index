@@ -55,49 +55,32 @@ class Box2dConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "License.txt",
-            src=os.path.join(self.source_folder, "Box2D"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            os.path.join("Box2D", "*.h"),
-            src=os.path.join(self.source_folder, "Box2D"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            "*.lib",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.dll",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "bin"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.so*",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.dylib",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self, "*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False
-        )
+        copy(self, "License.txt",
+             src=os.path.join(self.source_folder, "Box2D"),
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, os.path.join("Box2D", "*.h"),
+             src=os.path.join(self.source_folder, "Box2D"),
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.lib",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "*.dll",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "bin"),
+             keep_path=False)
+        copy(self, "*.so*",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "*.dylib",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "*.a",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["Box2D"]

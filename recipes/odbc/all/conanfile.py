@@ -92,12 +92,9 @@ class OdbcConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(
-                    self,
-                    os.path.basename(gnu_config),
-                    src=os.path.dirname(gnu_config),
-                    dst=self.source_folder,
-                )
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=self.source_folder)
         # allow external libtdl (in libtool recipe)
         replace_in_file(
             self,
@@ -121,7 +118,9 @@ class OdbcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

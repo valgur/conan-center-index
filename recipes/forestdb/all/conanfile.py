@@ -75,7 +75,9 @@ class ForestDBConan(ConanFile):
         cmake.build(target=lib_target)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         # Parent Build system does not support library type selection
         # and will only install the shared object from cmake; so we must
         # handpick our libraries.
@@ -85,8 +87,7 @@ class ForestDBConan(ConanFile):
                  src=self.build_folder)
         copy(self, "*.h",
              dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"),
-             keep_path=True)
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.libs = ["forestdb"]

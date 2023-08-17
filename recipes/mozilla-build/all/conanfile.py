@@ -38,13 +38,12 @@ class MozillaBuildConan(ConanFile):
         self.run(f"7z x {filename}")
 
     def package(self):
-        copy(self, "LICENSE", src=self.build_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "nsinstall.exe",
-            src=os.path.join(self.build_folder, "bin"),
-            dst=os.path.join(self.package_folder, "bin"),
-        )
+        copy(self, "LICENSE",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "nsinstall.exe",
+             src=os.path.join(self.build_folder, "bin"),
+             dst=os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

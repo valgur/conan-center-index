@@ -33,13 +33,12 @@ class RingSpanLiteConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "*.hpp",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.hpp",
+             src=os.path.join(self.source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ring-span-lite")

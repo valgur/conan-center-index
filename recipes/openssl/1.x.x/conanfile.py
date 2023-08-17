@@ -821,13 +821,10 @@ class OpenSSLConan(ConanFile):
             replace_in_file(self, filename, '/{}"'.format(e), '/{}"'.format(runtime), strict=False)
 
     def package(self):
-        copy(
-            self,
-            "*LICENSE",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
+        copy(self, "*LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             keep_path=False)
         if self._use_nmake:
             args = []
             if self._full_version >= "1.1.0":

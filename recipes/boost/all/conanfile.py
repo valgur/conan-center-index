@@ -231,12 +231,9 @@ class BoostConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export(self):
-        copy(
-            self,
-            f"dependencies/{self._dependency_filename}",
-            src=self.recipe_folder,
-            dst=self.export_folder,
-        )
+        copy(self, f"dependencies/{self._dependency_filename}",
+             src=self.recipe_folder,
+             dst=self.export_folder)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -1484,17 +1481,14 @@ class BoostConan(ConanFile):
     def package(self):
         # This stage/lib is in source_folder... Face palm, looks like it builds in build but then
         # copy to source with the good lib name
-        copy(
-            self, "LICENSE_1_0.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "LICENSE_1_0.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         if self.options.header_only:
-            copy(
-                self,
-                "*",
-                src=os.path.join(self.source_folder, "boost"),
-                dst=os.path.join(self.package_folder, "include", "boost"),
-            )
+            copy(self, "*",
+                 src=os.path.join(self.source_folder, "boost"),
+                 dst=os.path.join(self.package_folder, "include", "boost"))
 
         if self.settings.os == "Emscripten" and not self.options.header_only:
             self._create_emscripten_libs()

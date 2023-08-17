@@ -40,8 +40,12 @@ class PlusaesConan(ConanFile):
     def package(self):
         root_dir = self.source_folder
         include_dir = os.path.join(root_dir, "include")
-        copy(self, "LICENSE_1_0.txt", dst=os.path.join(self.package_folder, "licenses"), src=root_dir)
-        copy(self, "*plusaes.hpp", dst=os.path.join(self.package_folder, "include"), src=include_dir)
+        copy(self, "LICENSE_1_0.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=root_dir)
+        copy(self, "*plusaes.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=include_dir)
 
     def package_info(self):
         self.cpp_info.bindirs = []

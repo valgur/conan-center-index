@@ -311,22 +311,16 @@ class Libxml2Conan(ConanFile):
                     autotools.make(target)
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            ignore_case=True,
-            keep_path=False,
-        )
-        copy(
-            self,
-            "Copyright",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            ignore_case=True,
-            keep_path=False,
-        )
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             ignore_case=True,
+             keep_path=False)
+        copy(self, "Copyright",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             ignore_case=True,
+             keep_path=False)
         if is_msvc(self):
             self._package_msvc()
             # remove redundant libraries to avoid confusion
@@ -370,13 +364,10 @@ class Libxml2Conan(ConanFile):
             fix_apple_shared_install_name(self)
 
         for header in ["win32config.h", "wsockcompat.h"]:
-            copy(
-                self,
-                pattern=header,
-                src=os.path.join(self.source_folder, "include"),
-                dst=os.path.join(self.package_folder, "include", "libxml2"),
-                keep_path=False,
-            )
+            copy(self, header,
+                 src=os.path.join(self.source_folder, "include"),
+                 dst=os.path.join(self.package_folder, "include", "libxml2"),
+                 keep_path=False)
 
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
 

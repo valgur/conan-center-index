@@ -36,19 +36,15 @@ class Toml11Conan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "toml.hpp",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include", "toml11"),
-        )
-        copy(
-            self,
-            "*.hpp",
-            src=os.path.join(self.source_folder, "toml"),
-            dst=os.path.join(self.package_folder, "include", "toml11", "toml"),
-        )
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "toml.hpp",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include", "toml11"))
+        copy(self, "*.hpp",
+             src=os.path.join(self.source_folder, "toml"),
+             dst=os.path.join(self.package_folder, "include", "toml11", "toml"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "toml11")

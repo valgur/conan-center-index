@@ -40,7 +40,9 @@ class LibRawConan(ConanFile):
         return 11
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -87,18 +89,12 @@ class LibRawConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern="COPYRIGHT",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "COPYRIGHT",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

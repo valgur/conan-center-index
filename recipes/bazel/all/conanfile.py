@@ -59,15 +59,12 @@ class BazelConan(ConanFile):
         os.chmod(name, os.stat(name).st_mode | 0o111)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern=self._bazel_filename,
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, self._bazel_filename,
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.source_folder)
         old_target_filename = os.path.join(self.package_folder, "bin", self._bazel_filename)
         new_target_filename = os.path.join(self.package_folder, "bin", "bazel" + self._program_suffix)
         rename(self, old_target_filename, new_target_filename)

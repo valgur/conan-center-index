@@ -126,14 +126,26 @@ class ZimgConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             src_include_dir = os.path.join(self.source_folder, "src", "zimg", "api")
-            copy(self, "zimg.h", src=src_include_dir, dst=os.path.join(self.package_folder, "include"))
-            copy(self, "zimg++.hpp", src=src_include_dir, dst=os.path.join(self.package_folder, "include"))
+            copy(self, "zimg.h",
+                 src=src_include_dir,
+                 dst=os.path.join(self.package_folder, "include"))
+            copy(self, "zimg++.hpp",
+                 src=src_include_dir,
+                 dst=os.path.join(self.package_folder, "include"))
             output_dir = os.path.join(self.source_folder, "_msvc")
-            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(self, "*.lib",
+                 src=output_dir,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 src=output_dir,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
             old_lib = "z_imp.lib" if self.options.shared else "z.lib"
             rename(self, os.path.join(self.package_folder, "lib", old_lib),
                          os.path.join(self.package_folder, "lib", "zimg.lib"))

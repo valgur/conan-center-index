@@ -88,16 +88,15 @@ class GFortranConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, "LICENSE", src=self.build_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "gfortran*",
-            src=os.path.join(self._archive_contents_path, "bin"),
-            dst=os.path.join(self.package_folder, "bin"),
-        )
-        copy(
-            self, "libgfortran.a", src=self._library_source_path, dst=os.path.join(self.package_folder, "lib")
-        )
+        copy(self, "LICENSE",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "gfortran*",
+             src=os.path.join(self._archive_contents_path, "bin"),
+             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "libgfortran.a",
+             src=self._library_source_path,
+             dst=os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

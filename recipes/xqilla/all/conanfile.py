@@ -110,12 +110,9 @@ class XqillaConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(
-                    self,
-                    os.path.basename(gnu_config),
-                    src=os.path.dirname(gnu_config),
-                    dst=os.path.join(self.source_folder, "autotools"),
-                )
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=os.path.join(self.source_folder, "autotools"))
 
     def build(self):
         self._patch_sources()
@@ -129,13 +126,12 @@ class XqillaConan(ConanFile):
         return tmp[2 : tmp.find("*/", 1)]
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "README",
-            src=os.path.join(self.source_folder, "src", "mapm"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "README",
+             src=os.path.join(self.source_folder, "src", "mapm"),
+             dst=os.path.join(self.package_folder, "licenses"))
         rename(
             self,
             os.path.join(self.package_folder, "licenses", "README"),

@@ -93,7 +93,9 @@ class CgnsConan(ConanFile):
         cmake.build(target="cgns_shared" if self.options.shared else "cgns_static")
 
     def package(self):
-        copy(self, "license.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "license.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         cmake = CMake(self)
         cmake.install()

@@ -83,7 +83,9 @@ class Tixi3Conan(ConanFile):
         cmake.install()
 
         rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "share"))
 
         # provide alias target tixi3 for v1 packages

@@ -148,28 +148,21 @@ class LibUSBConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                "libusb.h",
-                src=os.path.join(self.source_folder, "libusb"),
-                dst=os.path.join(self.package_folder, "include", "libusb-1.0"),
-            )
-            copy(
-                self,
-                "*.dll",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                "*.lib",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            copy(self, "libusb.h",
+                 src=os.path.join(self.source_folder, "libusb"),
+                 dst=os.path.join(self.package_folder, "include", "libusb-1.0"))
+            copy(self, "*.dll",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
+            copy(self, "*.lib",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
         else:
             autotools = Autotools(self)
             autotools.install()

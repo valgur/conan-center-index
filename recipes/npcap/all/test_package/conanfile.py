@@ -36,7 +36,9 @@ class TestPackageConan(ConanFile):
             # It will not provide all the functions
             # but it will cover enough to check that what we compiled is correct
             rm(self, "wpcap.dll", bindir)
-            copy(self, "pcap.dll", src=self.dependencies["libpcap"].cpp_info.bindirs[0], dst=bindir)
+            copy(self, "pcap.dll",
+                 src=self.dependencies["libpcap"].cpp_info.bindirs[0],
+                 dst=bindir)
             rename(self, os.path.join(bindir, "pcap.dll"), os.path.join(bindir, "wpcap.dll"))
 
             bin_path = os.path.join(bindir, "test_package")

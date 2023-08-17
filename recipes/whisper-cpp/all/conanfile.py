@@ -137,10 +137,14 @@ class WhisperCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        copy(self, "*", os.path.join(self.source_folder, "models"), os.path.join(self.package_folder, "res", "models"))
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "models"),
+             dsr=os.path.join(self.package_folder, "res", "models"))
 
     def package_info(self):
         self.cpp_info.libs = ["whisper"]

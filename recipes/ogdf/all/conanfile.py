@@ -103,31 +103,30 @@ class OGDFConan(ConanFile):
         cmake.build(target="OGDF")
 
     def package(self):
-        copy(self, pattern="LICENSE*.txt", src=self.source_folder, dst=join(self.package_folder, "licenses"))
-        copy(
-            self,
-            pattern="*.h",
-            src=join(self.source_folder, "include"),
-            dst=join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="*.h",
-            src=join(self.build_folder, "include"),
-            dst=join(self.package_folder, "include"),
-        )
+        copy(self, "LICENSE*.txt",
+             src=self.source_folder,
+             dst=join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=join(self.source_folder, "include"),
+             dst=join(self.package_folder, "include"))
+        copy(self, "*.h",
+             src=join(self.build_folder, "include"),
+             dst=join(self.package_folder, "include"))
         if self.options.shared:
-            copy(self, pattern="*.so*", src=self.build_folder, dst=join(self.package_folder, "lib"))
-            copy(self, pattern="*.dylib*", src=self.build_folder, dst=join(self.package_folder, "lib"))
+            copy(self, "*.so*",
+                 src=self.build_folder,
+                 dst=join(self.package_folder, "lib"))
+            copy(self, "*.dylib*",
+                 src=self.build_folder,
+                 dst=join(self.package_folder, "lib"))
         else:
-            copy(self, pattern="*.a", src=self.build_folder, dst=join(self.package_folder, "lib"))
-            copy(
-                self,
-                pattern="*.lib",
-                src=self.build_folder,
-                dst=join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            copy(self, "*.a",
+                 src=self.build_folder,
+                 dst=join(self.package_folder, "lib"))
+            copy(self, "*.lib",
+                 src=self.build_folder,
+                 dst=join(self.package_folder, "lib"),
+                 keep_path=False)
         fix_apple_shared_install_name(self)
 
     def package_info(self):

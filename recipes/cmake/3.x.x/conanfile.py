@@ -159,13 +159,10 @@ class CMakeConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "Copyright.txt",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
+        copy(self, "Copyright.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             keep_path=False)
         if self.options.bootstrap:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)

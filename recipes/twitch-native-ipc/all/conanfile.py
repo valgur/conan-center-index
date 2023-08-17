@@ -87,7 +87,9 @@ class TwitchNativeIpcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)

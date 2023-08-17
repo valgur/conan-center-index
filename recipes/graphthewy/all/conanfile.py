@@ -55,8 +55,13 @@ class GraphthewyConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.hpp", dst=os.path.join(self.package_folder, "include", "graphthewy"), src=self.source_folder, keep_path=False)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include", "graphthewy"),
+             src=self.source_folder,
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -41,12 +41,9 @@ class EglHeadersConan(ConanFile):
         license_data = license_data.replace("**", "")
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_data)
 
-        copy(
-            self,
-            "*",
-            src=os.path.join(self.source_folder, "api", "EGL"),
-            dst=os.path.join(self.package_folder, "include", "EGL"),
-        )
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "api", "EGL"),
+             dst=os.path.join(self.package_folder, "include", "EGL"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

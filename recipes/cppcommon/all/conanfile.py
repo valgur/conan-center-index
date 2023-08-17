@@ -102,12 +102,20 @@ class CppCommon(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="*.inl", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
-        copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include", "plugins"), src=os.path.join(self.source_folder, "plugins"))
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.inl",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include", "plugins"),
+             src=os.path.join(self.source_folder, "plugins"))
 
     def package_info(self):
         self.cpp_info.libs = ["cppcommon", "plugin-function", "plugin-interface"]

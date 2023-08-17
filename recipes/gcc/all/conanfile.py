@@ -140,13 +140,10 @@ class GccConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", self.package_folder, recursive=True)
-        copy(
-            self,
-            pattern="COPYING*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            keep_path=False,
-        )
+        copy(self, "COPYING*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder,
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

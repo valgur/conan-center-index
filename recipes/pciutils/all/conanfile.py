@@ -90,8 +90,7 @@ class PciUtilsConan(ConanFile):
              dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h",
              src=self.source_folder,
-             dst=os.path.join(self.package_folder, "include"),
-             keep_path=True)
+             dst=os.path.join(self.package_folder, "include"))
 
         if self.options.shared:
             rename(self, src=os.path.join(self.source_folder, "lib", "libpci.so.3.7.0"),

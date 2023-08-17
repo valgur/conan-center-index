@@ -51,8 +51,12 @@ class GnuConfigConan(ConanFile):
 
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "COPYING"), self._extract_license())
-        copy(self, "config.guess", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
-        copy(self, "config.sub", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "config.guess",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "config.sub",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.includedirs = []

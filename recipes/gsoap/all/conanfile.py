@@ -44,8 +44,12 @@ class GsoapConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "cmake", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "cmake",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -98,18 +102,12 @@ class GsoapConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "GPLv2_license.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "GPLv2_license.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

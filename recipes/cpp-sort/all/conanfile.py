@@ -93,9 +93,9 @@ class CppSortConan(ConanFile):
         else:
             license_files = ["LICENSE.txt", "NOTICE.txt"]
         for license_file in license_files:
-            copy(
-                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-            )
+            copy(self, license_file,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "licenses"))
 
         # Remove CMake config files (only files in lib)
         rmdir(self, os.path.join(self.package_folder, "lib"))

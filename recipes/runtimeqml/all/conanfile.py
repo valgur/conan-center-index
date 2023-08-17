@@ -42,7 +42,9 @@ class RuntimeQml(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -91,13 +93,10 @@ class RuntimeQml(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-            keep_path=False,
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"),
+             keep_path=False)
         cmake = CMake(self)
         cmake.install()
 

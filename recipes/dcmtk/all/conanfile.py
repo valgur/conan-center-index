@@ -286,12 +286,9 @@ class DCMTKConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(
-            self,
-            pattern="COPYRIGHT",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "COPYRIGHT",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

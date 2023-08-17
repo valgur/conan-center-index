@@ -63,12 +63,9 @@ class GliConan(ConanFile):
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "copying.txt"), self._get_license())
         for headers in ("*.hpp", "*.inl", "*.h"):
-            copy(
-                self,
-                headers,
-                src=os.path.join(self.source_folder, "gli"),
-                dst=os.path.join(self.package_folder, "include", "gli"),
-            )
+            copy(self, headers,
+                 src=os.path.join(self.source_folder, "gli"),
+                 dst=os.path.join(self.package_folder, "include", "gli"))
 
     def _get_license(self):
         manual = load(self, os.path.join(self.source_folder, "manual.md"))

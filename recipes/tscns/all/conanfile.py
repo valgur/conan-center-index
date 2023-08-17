@@ -47,12 +47,12 @@ class TscnsConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self, pattern="tscns.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "tscns.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

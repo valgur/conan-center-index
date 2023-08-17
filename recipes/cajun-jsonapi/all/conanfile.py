@@ -46,32 +46,22 @@ class CajunJsonApiConan(ConanFile):
             # (e.g. https://centos.pkgs.org/7/epel-x86_64/cajun-jsonapi-devel-2.0.3-2.el7.noarch.rpm.html)
             # For ease of migration from RPM dependencies to Conan creating intermediate "cajun" folder
             # so that '#include "cajun/json/..."' statements worked correctly
-            copy(
-                self,
-                "*.h",
-                dst=os.path.join(self.package_folder, "include", "cajun", "json"),
-                src=os.path.join(self.source_folder, "json"),
-            )
-            copy(
-                self,
-                "*.inl",
-                dst=os.path.join(self.package_folder, "include", "cajun", "json"),
-                src=os.path.join(self.source_folder, "json"),
-            )
+            copy(self, "*.h",
+                 dst=os.path.join(self.package_folder, "include", "cajun", "json"),
+                 src=os.path.join(self.source_folder, "json"))
+            copy(self, "*.inl",
+                 dst=os.path.join(self.package_folder, "include", "cajun", "json"),
+                 src=os.path.join(self.source_folder, "json"))
         else:
-            copy(
-                self,
-                "*.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
-            copy(
-                self,
-                "*.inl",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+            copy(self, "*.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
+            copy(self, "*.inl",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

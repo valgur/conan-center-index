@@ -98,19 +98,13 @@ class RmmConan(ConanFile):
         self._patch_sources()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         for pattern in ["*.hpp", "*.h"]:
-            copy(
-                self,
-                pattern=pattern,
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
+            copy(self, pattern,
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

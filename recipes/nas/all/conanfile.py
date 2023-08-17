@@ -104,7 +104,9 @@ class NasRecipe(ConanFile):
         ]:
             if gnu_config:
                 config_folder = os.path.join(self.source_folder, "config")
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=config_folder)
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=config_folder)
 
         with chdir(self, self.source_folder):
             self.run(
@@ -116,7 +118,9 @@ class NasRecipe(ConanFile):
             autotools.make(target="World", args=["-j1"] + self._imake_make_args)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
         tmp_install = os.path.join(self.build_folder, "prefix")
         self.output.warning(tmp_install)
@@ -132,14 +136,15 @@ class NasRecipe(ConanFile):
             # j1 avoids some errors while trying to install
             autotools.install(args=["-j1"] + install_args)
 
-        copy(self, "*", src=os.path.join(tmp_install, "bin"), dst=os.path.join(self.package_folder, "bin"))
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(tmp_install, "include"),
-            dst=os.path.join(self.package_folder, "include", "audio"),
-        )
-        copy(self, "*", src=os.path.join(tmp_install, "lib"), dst=os.path.join(self.package_folder, "lib"))
+        copy(self, "*",
+             src=os.path.join(tmp_install, "bin"),
+             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "*.h",
+             src=os.path.join(tmp_install, "include"),
+             dst=os.path.join(self.package_folder, "include", "audio"))
+        copy(self, "*",
+             src=os.path.join(tmp_install, "lib"),
+             dst=os.path.join(self.package_folder, "lib"))
 
         # Both are present in the final build and there does not seem to be an obvious way to tell the build system
         # to only generate one of them, so remove the unwanted one

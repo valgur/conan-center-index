@@ -53,29 +53,20 @@ class OneDplConan(ConanFile):
 
     def package(self):
         version_major = int(str(Version(self.version).major)[0:4])
-        copy(
-            self,
-            "*",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
         if version_major < 2021:
-            copy(
-                self,
-                "*",
-                src=os.path.join(self.source_folder, "stdlib"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
-            copy(
-                self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-            )
+            copy(self, "*",
+                 src=os.path.join(self.source_folder, "stdlib"),
+                 dst=os.path.join(self.package_folder, "include"))
+            copy(self, "LICENSE.txt",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "licenses"))
         else:
-            copy(
-                self,
-                "LICENSE.txt",
-                src=os.path.join(self.source_folder, "licensing"),
-                dst=os.path.join(self.package_folder, "licenses"),
-            )
+            copy(self, "LICENSE.txt",
+                 src=os.path.join(self.source_folder, "licensing"),
+                 dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ParallelSTL")

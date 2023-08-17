@@ -35,8 +35,12 @@ class CppZmqConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "zmq*.hpp", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "zmq*.hpp",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self._create_cmake_module_alias_targets(

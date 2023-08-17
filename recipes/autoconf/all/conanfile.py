@@ -95,7 +95,9 @@ class AutoconfConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
-        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "res", "info"))
         rmdir(self, os.path.join(self.package_folder, "res", "man"))
 

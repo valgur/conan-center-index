@@ -90,33 +90,21 @@ class CrowConan(ConanFile):
                 cmake.build(target="crow_amalgamated")
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         if self.options.amalgamation:
-            copy(
-                self,
-                pattern="crow_all.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.build_folder,
-            )
+            copy(self, "crow_all.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.build_folder)
         else:
-            copy(
-                self,
-                pattern="*.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
-            copy(
-                self,
-                pattern="*.hpp",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
+            copy(self, "*.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
+            copy(self, "*.hpp",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

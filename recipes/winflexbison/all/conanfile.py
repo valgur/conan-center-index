@@ -62,44 +62,34 @@ class WinflexbisonConan(ConanFile):
         else:
             exec_build_path = self.build_folder
         package_bin_folder = os.path.join(self.package_folder, "bin")
-        copy(self, "*.exe", src=exec_build_path, dst=package_bin_folder, keep_path=False)
-        copy(
-            self,
-            "data/*",
-            src=os.path.join(self.source_folder, "bison"),
-            dst=package_bin_folder,
-            keep_path=True,
-        )
-        copy(
-            self,
-            "FlexLexer.h",
-            src=os.path.join(self.source_folder, "flex", "src"),
-            dst=os.path.join(self.package_folder, "include"),
-            keep_path=False,
-        )
+        copy(self, "*.exe",
+             src=exec_build_path,
+             dst=package_bin_folder,
+             keep_path=False)
+        copy(self, "data/*",
+             src=os.path.join(self.source_folder, "bison"),
+             dst=package_bin_folder)
+        copy(self, "FlexLexer.h",
+             src=os.path.join(self.source_folder, "flex", "src"),
+             dst=os.path.join(self.package_folder, "include"),
+             keep_path=False)
 
         # Copy licenses
         package_license_folder = os.path.join(self.package_folder, "licenses")
         save(self, os.path.join(package_license_folder, "COPYING.GPL3"), self._extract_license())
-        copy(
-            self,
-            "COPYING",
-            src=os.path.join(self.source_folder, "flex", "src"),
-            dst=package_license_folder,
-            keep_path=False,
-        )
+        copy(self, "COPYING",
+             src=os.path.join(self.source_folder, "flex", "src"),
+             dst=package_license_folder,
+             keep_path=False)
         rename(
             self,
             os.path.join(package_license_folder, "COPYING"),
             os.path.join(package_license_folder, "bison-license"),
         )
-        copy(
-            self,
-            "COPYING",
-            src=os.path.join(self.source_folder, "bison", "src"),
-            dst=package_license_folder,
-            keep_path=False,
-        )
+        copy(self, "COPYING",
+             src=os.path.join(self.source_folder, "bison", "src"),
+             dst=package_license_folder,
+             keep_path=False)
         rename(
             self,
             os.path.join(package_license_folder, "COPYING"),

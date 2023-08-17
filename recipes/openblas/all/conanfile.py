@@ -122,7 +122,9 @@ endif()"""
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = self._configure_cmake()
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

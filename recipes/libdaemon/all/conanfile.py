@@ -77,12 +77,9 @@ class LibDaemonConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(
-                    self,
-                    os.path.basename(gnu_config),
-                    src=os.path.dirname(gnu_config),
-                    dst=self.source_folder,
-                )
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=self.source_folder)
 
     def build(self):
         self._patch_sources()
@@ -91,7 +88,9 @@ class LibDaemonConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
         autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])

@@ -63,13 +63,10 @@ class WildmidiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="docs/license/LGPLv3.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            keep_path=False,
-        )
+        copy(self, "docs/license/LGPLv3.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder,
+             keep_path=False)
         cmake = CMake(self)
         cmake.install()
 

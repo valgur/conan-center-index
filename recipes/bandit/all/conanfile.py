@@ -37,18 +37,12 @@ class BanditConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=os.path.join(self.source_folder, "docs"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include", "bandit"),
-            src=os.path.join(self.source_folder, "bandit"),
-        )
+        copy(self, "LICENSE.txt",
+             src=os.path.join(self.source_folder, "docs"),
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include", "bandit"),
+             src=os.path.join(self.source_folder, "bandit"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

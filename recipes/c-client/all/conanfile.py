@@ -129,7 +129,9 @@ class CclientConan(ConanFile):
             self._build_unix()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         # Install headers (headers in build tree are symlinks)
         include_folder = os.path.join(self.package_folder, "include", "c-client")
         mkdir(self, include_folder)
@@ -138,12 +140,9 @@ class CclientConan(ConanFile):
             shutil.copy(src=header_path, dst=os.path.join(include_folder, os.path.basename(header_path)))
         # Install libs
         for lib in ("*.a", "*.lib"):
-            copy(
-                self,
-                lib,
-                src=os.path.join(self.source_folder, "c-client"),
-                dst=os.path.join(self.package_folder, "lib"),
-            )
+            copy(self, lib,
+                 src=os.path.join(self.source_folder, "c-client"),
+                 dst=os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.libs = ["cclient" if is_msvc(self) else "c-client"]

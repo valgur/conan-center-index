@@ -47,7 +47,9 @@ class DiligentCoreConan(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -169,12 +171,9 @@ class DiligentCoreConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "Licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "bin"))
-        copy(
-            self,
-            "License.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.package_folder, self.source_folder, "source_subfolder"),
-        )
+        copy(self, "License.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=os.path.join(self.package_folder, self.source_folder, "source_subfolder"))
 
         if self.options.shared:
             for pattern in ["*.dylib", "*.so*", "*.dll"]:

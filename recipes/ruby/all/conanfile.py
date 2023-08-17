@@ -149,7 +149,9 @@ class RubyConan(ConanFile):
 
     def package(self):
         for file in ["COPYING", "BSDL"]:
-            copy(self, file, dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+            copy(self, file,
+                 dst=os.path.join(self.package_folder, "licenses"),
+                 src=self.source_folder)
 
         at = Autotools(self)
         with vcvars(self):

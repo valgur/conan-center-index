@@ -141,18 +141,36 @@ class LuajitConan(ConanFile):
                 autotools.make(args=self._make_arguments)
 
     def package(self):
-        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYRIGHT",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         src_folder = os.path.join(self.source_folder, "src")
         include_folder = os.path.join(self.package_folder, "include", self._luajit_include_folder)
         if is_msvc(self):
-            copy(self, "lua.h", src=src_folder, dst=include_folder)
-            copy(self, "lualib.h", src=src_folder, dst=include_folder)
-            copy(self, "lauxlib.h", src=src_folder, dst=include_folder)
-            copy(self, "luaconf.h", src=src_folder, dst=include_folder)
-            copy(self, "lua.hpp", src=src_folder, dst=include_folder)
-            copy(self, "luajit.h", src=src_folder, dst=include_folder)
-            copy(self, "lua51.lib", src=src_folder, dst=os.path.join(self.package_folder, "lib"))
-            copy(self, "lua51.dll", src=src_folder, dst=os.path.join(self.package_folder, "bin"))
+            copy(self, "lua.h",
+                 src=src_folder,
+                 dst=include_folder)
+            copy(self, "lualib.h",
+                 src=src_folder,
+                 dst=include_folder)
+            copy(self, "lauxlib.h",
+                 src=src_folder,
+                 dst=include_folder)
+            copy(self, "luaconf.h",
+                 src=src_folder,
+                 dst=include_folder)
+            copy(self, "lua.hpp",
+                 src=src_folder,
+                 dst=include_folder)
+            copy(self, "luajit.h",
+                 src=src_folder,
+                 dst=include_folder)
+            copy(self, "lua51.lib",
+                 src=src_folder,
+                 dst=os.path.join(self.package_folder, "lib"))
+            copy(self, "lua51.dll",
+                 src=src_folder,
+                 dst=os.path.join(self.package_folder, "bin"))
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)

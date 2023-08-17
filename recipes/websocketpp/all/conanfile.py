@@ -56,13 +56,12 @@ class WebsocketPPConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            os.path.join("websocketpp", "*.hpp"),
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, os.path.join("websocketpp", "*.hpp"),
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "websocketpp")

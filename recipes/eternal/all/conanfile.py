@@ -37,7 +37,7 @@ class EternalConan(ConanFile):
 
     def export_sources(self):
         for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+            copy(self, p["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -61,18 +61,12 @@ class EternalConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.md",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern="*.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -66,15 +66,14 @@ class MakeConan(ConanFile):
             self.run(command)
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         for make_exe in ("make", "*gnumake.exe"):
-            copy(
-                self,
-                make_exe,
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, make_exe,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

@@ -78,32 +78,23 @@ class PackageConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         if is_msvc(self):
             suffix = "x64D" if self.settings.build_type == "Debug" else "x64"
-            copy(
-                self,
-                pattern=f"lzham_{suffix}.lib",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=os.path.join(self.build_folder, "lib", "x64"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern=f"lzham_{suffix}.dll",
-                dst=os.path.join(self.package_folder, "bin"),
-                src=os.path.join(self.build_folder, "bin"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                pattern="*.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
+            copy(self, f"lzham_{suffix}.lib",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=os.path.join(self.build_folder, "lib", "x64"),
+                 keep_path=False)
+            copy(self, f"lzham_{suffix}.dll",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=os.path.join(self.build_folder, "bin"),
+                 keep_path=False)
+            copy(self, "*.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
         else:
             cmake = CMake(self)
             cmake.install()

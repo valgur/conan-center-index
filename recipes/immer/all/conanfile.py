@@ -63,8 +63,12 @@ class ImmerConan(ConanFile):
 
     def package(self):
         include_folder = self.source_folder
-        copy(self, pattern="*.hpp", dst=os.path.join(self.package_folder, "include"), src=include_folder)
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=include_folder)
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=include_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=include_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

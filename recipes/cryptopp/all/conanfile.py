@@ -122,12 +122,9 @@ class CryptoPPConan(ConanFile):
             # In more recent versions this is already taken care of by cryptopp-cmake
             android_ndk_home = self.conf.get("tools.android:ndk_path")
             if android_ndk_home:
-                copy(
-                    self,
-                    "cpu-features.h",
-                    src=os.path.join(android_ndk_home, "sources", "android", "cpufeatures"),
-                    dst=self.source_folder,
-                )
+                copy(self, "cpu-features.h",
+                     src=os.path.join(android_ndk_home, "sources", "android", "cpufeatures"),
+                     dst=self.source_folder)
         # Honor fPIC option
         if Version(self.version) < "8.7.0":
             replace_in_file(
@@ -154,7 +151,9 @@ class CryptoPPConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "License.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "License.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if Version(self.version) < "8.7.0":

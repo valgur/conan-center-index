@@ -262,20 +262,14 @@ class NSSConan(ConanFile):
                 self.run(f"make {' '.join(self._make_args)}", run_environment=True)
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            src=os.path.join(self.source_folder, "nss"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING",
+             src=os.path.join(self.source_folder, "nss"),
+             dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, os.path.join(self.source_folder, "nss")):
             self.run("make install %s" % " ".join(self._make_args))
-        copy(
-            self,
-            "*",
-            src=os.path.join(self.source_folder, "dist", "public", "nss"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "dist", "public", "nss"),
+             dst=os.path.join(self.package_folder, "include"))
         for d in os.listdir(os.path.join(self.source_folder, "dist")):
             if d in ["private", "public"]:
                 continue

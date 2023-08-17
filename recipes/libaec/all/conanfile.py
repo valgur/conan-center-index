@@ -88,19 +88,13 @@ class LibaecConan(ConanFile):
 
     def package(self):
         if Version(self.version) < "1.0.6":
-            copy(
-                self,
-                pattern="Copyright.txt",
-                dst=os.path.join(self.package_folder, "licenses"),
-                src=self.source_folder,
-            )
+            copy(self, "Copyright.txt",
+                 dst=os.path.join(self.package_folder, "licenses"),
+                 src=self.source_folder)
         else:
-            copy(
-                self,
-                pattern="LICENSE.txt",
-                dst=os.path.join(self.package_folder, "licenses"),
-                src=self.source_folder,
-            )
+            copy(self, "LICENSE.txt",
+                 dst=os.path.join(self.package_folder, "licenses"),
+                 src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

@@ -51,7 +51,9 @@ class LibjpegConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "Win32.Mak", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "Win32.Mak",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -94,7 +96,9 @@ class LibjpegConan(ConanFile):
             tc.generate()
 
     def _build_nmake(self):
-        copy(self, "Win32.Mak", src=os.path.join(self.source_folder, os.pardir), dst=self.source_folder)
+        copy(self, "Win32.Mak",
+             src=os.path.join(self.source_folder, os.pardir),
+             dst=self.source_folder)
         with chdir(self, self.source_folder):
             # export symbols if shared
             replace_in_file(
@@ -141,32 +145,25 @@ class LibjpegConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "README", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "README",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self) or self._is_clang_cl:
             for filename in ["jpeglib.h", "jerror.h", "jconfig.h", "jmorecfg.h"]:
-                copy(
-                    self,
-                    filename,
-                    src=self.source_folder,
-                    dst=os.path.join(self.package_folder, "include"),
-                    keep_path=False,
-                )
+                copy(self, filename,
+                     src=self.source_folder,
+                     dst=os.path.join(self.package_folder, "include"),
+                     keep_path=False)
 
-            copy(
-                self,
-                "*.lib",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            copy(self, "*.lib",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
             if self.options.shared:
-                copy(
-                    self,
-                    "*.dll",
-                    src=self.source_folder,
-                    dst=os.path.join(self.package_folder, "bin"),
-                    keep_path=False,
-                )
+                copy(self, "*.dll",
+                     src=self.source_folder,
+                     dst=os.path.join(self.package_folder, "bin"),
+                     keep_path=False)
         else:
             autotools = Autotools(self)
             autotools.install()
@@ -180,10 +177,14 @@ class LibjpegConan(ConanFile):
             fix_apple_shared_install_name(self)
 
         for fn in ("jpegint.h", "transupp.h"):
-            copy(self, fn, src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+            copy(self, fn,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "include"))
 
         for fn in ("jinclude.h", "transupp.c"):
-            copy(self, fn, src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
+            copy(self, fn,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "res"))
 
         # Remove export decorations of transupp symbols
         for relpath in os.path.join("include", "transupp.h"), os.path.join("res", "transupp.c"):

@@ -180,19 +180,24 @@ class LibsodiumConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             output_dir = os.path.join(self.source_folder, "bin")
-            copy(self, "*.lib", src=output_dir, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-            copy(self, "*.dll", src=output_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(self, "*.lib",
+                 src=output_dir,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 src=output_dir,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
             inc_src = os.path.join(self.source_folder, "src", "libsodium", "include")
-            copy(
-                self,
-                "*.h",
+            copy(self, "*.h",
                 src=inc_src,
                 dst=os.path.join(self.package_folder, "include"),
-                excludes="*/private/*",
-            )
+                excludes="*/private/*")
         else:
             autotools = Autotools(self)
             autotools.install()

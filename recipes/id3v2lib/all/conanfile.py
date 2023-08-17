@@ -61,7 +61,9 @@ class Id3v2libConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "id3v2lib")

@@ -116,7 +116,9 @@ class LLVMCoreConan(ConanFile):
             raise ConanInvalidConfiguration(message.format(compiler, version))
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -267,7 +269,9 @@ class LLVMCoreConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE.TXT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.TXT",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         lib_path = os.path.join(self.package_folder, "lib")
         cmake = CMake(self)
         cmake.install()
@@ -275,9 +279,14 @@ class LLVMCoreConan(ConanFile):
         if not self.options.shared:
             for ext in [".a", ".lib"]:
                 lib = "**/lib/*LLVMTableGenGlobalISel{}".format(ext)
-                copy(self, lib, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(self, lib,
+                     src=self.source_folder,
+                     dst=os.path.join(self.package_folder, "lib"),
+                     keep_path=False)
                 lib = "*LLVMTableGenGlobalISel{}".format(ext)
-                copy(self, lib, dst=os.path.join(self.package_folder, "lib"), src="lib")
+                copy(self, lib,
+                     src=os.path.join(self.source_folder, "lib"),
+                     dst=os.path.join(self.package_folder, "lib"))
 
             CMake(self).configure(args=["--graphviz=graph/llvm.dot"], source_dir=".", build_dir=".")
             with chdir(self, "graph"):

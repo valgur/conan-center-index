@@ -46,7 +46,9 @@ class LibiglConan(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -134,8 +136,12 @@ class LibiglConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE.GPL", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "LICENSE.MPL2", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.GPL",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "LICENSE.MPL2",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         if not self.options.header_only:

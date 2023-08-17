@@ -31,14 +31,13 @@ class ReaderWriterQueue(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "include", "readerwriterqueue"),
-            excludes=["benchmarks", "tests"],
-        )
+        copy(self, "LICENSE.md",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include", "readerwriterqueue"),
+             excludes=["benchmarks", "tests"])
 
     def package_info(self):
         self.cpp_info.bindirs = []

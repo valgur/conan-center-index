@@ -108,7 +108,9 @@ class Mosquitto(ConanFile):
 
     def package(self):
         for license_file in ("LICENSE.txt", "edl-v10", "epl-v20"):
-            copy(self, license_file, self.source_folder, os.path.join(self.package_folder, "licenses"))
+            copy(self, license_file,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -123,10 +125,14 @@ class Mosquitto(ConanFile):
             rm(self, "*.dylib", package_lib_folder)
         elif self.options.shared and is_msvc(self):
             lib_folder = os.path.join(self.build_folder, "lib", str(self.settings.build_type))
-            copy(self, "mosquitto.lib", lib_folder, package_lib_folder)
+            copy(self, "mosquitto.lib",
+                 src=lib_folder,
+                 dst=package_lib_folder)
             if self.options.build_cpp:
                 libpp_folder = os.path.join(self.build_folder, "lib", "cpp", str(self.settings.build_type))
-                copy(self, "mosquittopp.lib", libpp_folder, package_lib_folder)
+                copy(self, "mosquittopp.lib",
+                     src=libpp_folder,
+                     dst=package_lib_folder)
 
     def package_info(self):
         lib_suffix = "" if self.options.shared else "_static"

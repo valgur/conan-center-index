@@ -69,18 +69,12 @@ class GrpcConan(ConanFile):
         return 14 if Version(self.version) >= "1.47" else 11
 
     def export_sources(self):
-        copy(
-            self,
-            "conan_cmake_project_include.cmake",
-            self.recipe_folder,
-            os.path.join(self.export_sources_folder, "src"),
-        )
-        copy(
-            self,
-            f"cmake/{self._grpc_plugin_template}",
-            self.recipe_folder,
-            os.path.join(self.export_sources_folder, "src"),
-        )
+        copy(self, "conan_cmake_project_include.cmake",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
+        copy(self, f"cmake/{self._grpc_plugin_template}",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
 
     def config_options(self):
@@ -228,7 +222,9 @@ class GrpcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -280,12 +276,9 @@ class GrpcConan(ConanFile):
         module_abs_path = os.path.join(self.package_folder, self._module_path)
 
         # Copy our CMake module template file to package folder
-        copy(
-            self,
-            self._grpc_plugin_template,
-            src=os.path.join(self.source_folder, "cmake"),
-            dst=module_abs_path,
-        )
+        copy(self, self._grpc_plugin_template,
+             src=os.path.join(self.source_folder, "cmake"),
+             dst=module_abs_path)
 
         # Rename it
         dst_file = os.path.join(module_abs_path, f"{executable}.cmake")

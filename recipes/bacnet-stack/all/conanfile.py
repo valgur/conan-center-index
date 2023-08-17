@@ -59,12 +59,9 @@ class BacnetStackConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="gpl-2.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "license"),
-        )
+        copy(self, "gpl-2.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=os.path.join(self.source_folder, "license"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

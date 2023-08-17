@@ -635,11 +635,17 @@ class CPythonConan(ConanFile):
             dest_path = os.path.join(self.build_folder, self._msvc_artifacts_path)
             if self._with_libffi:
                 for bin_path in self.dependencies["libffi"].cpp_info.bindirs:
-                    copy(self, "*.dll", src=bin_path, dst=dest_path)
+                    copy(self, "*.dll",
+                         src=bin_path,
+                         dst=dest_path)
             for bin_path in self.dependencies["expat"].cpp_info.bindirs:
-                copy(self, "*.dll", src=bin_path, dst=dest_path)
+                copy(self, "*.dll",
+                     src=bin_path,
+                     dst=dest_path)
             for bin_path in self.dependencies["zlib"].cpp_info.bindirs:
-                copy(self, "*.dll", src=bin_path, dst=dest_path)
+                copy(self, "*.dll",
+                     src=bin_path,
+                     dst=dest_path)
 
     def _msvc_package_layout(self):
         self._copy_essential_dlls()
@@ -684,42 +690,27 @@ class CPythonConan(ConanFile):
     def _msvc_package_copy(self):
         build_path = self._msvc_artifacts_path
         infix = "_d" if self.settings.build_type == "Debug" else ""
-        copy(
-            self, "*.exe", src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix)
-        )
-        copy(
-            self, "*.dll", src=build_path, dst=os.path.join(self.package_folder, self._msvc_install_subprefix)
-        )
-        copy(
-            self,
-            "*.pyd",
-            src=build_path,
-            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "DLLs"),
-        )
-        copy(
-            self,
-            "python{}{}.lib".format(self._version_suffix, infix),
-            src=build_path,
-            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "libs"),
-        )
-        copy(
-            self,
-            "*",
-            src=os.path.join(self.source_folder, "Include"),
-            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"),
-        )
-        copy(
-            self,
-            "pyconfig.h",
-            src=os.path.join(self.source_folder, "PC"),
-            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"),
-        )
-        copy(
-            self,
-            "*.py",
-            src=os.path.join(self.source_folder, "lib"),
-            dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib"),
-        )
+        copy(self, "*.exe",
+             src=build_path,
+             dst=os.path.join(self.package_folder, self._msvc_install_subprefix))
+        copy(self, "*.dll",
+             src=build_path,
+             dst=os.path.join(self.package_folder, self._msvc_install_subprefix))
+        copy(self, "*.pyd",
+             src=build_path,
+             dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "DLLs"))
+        copy(self, "python{}{}.lib".format(self._version_suffix, infix),
+             src=build_path,
+             dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "libs"))
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "Include"),
+             dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"))
+        copy(self, "pyconfig.h",
+             src=os.path.join(self.source_folder, "PC"),
+             dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "include"))
+        copy(self, "*.py",
+             src=os.path.join(self.source_folder, "lib"),
+             dst=os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib"))
         rmdir(self, os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib", "test"))
 
         packages = {}
@@ -749,7 +740,9 @@ class CPythonConan(ConanFile):
         )
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             if self._is_py2 or not self.options.shared:
                 self._msvc_package_copy()

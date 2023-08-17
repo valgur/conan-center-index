@@ -152,18 +152,27 @@ class TensorflowLiteConan(ConanFile):
         return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
-            join(self.source_folder, "tensorflow", "lite"),
-            join(self.package_folder, "include", "tensorflow", "lite"),
-        )
-        copy(self, "*.a", self.build_folder, join(self.package_folder, "lib"))
-        copy(self, "*.so", self.build_folder, join(self.package_folder, "lib"))
-        copy(self, "*.dylib", self.build_folder, join(self.package_folder, "lib"))
-        copy(self, "*.lib", self.build_folder, join(self.package_folder, "lib"), keep_path=False)
-        copy(self, "*.dll", self.build_folder, join(self.package_folder, "bin"), keep_path=False)
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=join(self.source_folder, "tensorflow", "lite"),
+             dst=join(self.package_folder, "include", "tensorflow", "lite"))
+        copy(self, "*.a",
+             src=self.build_folder,
+             dst=join(self.package_folder, "lib"))
+        copy(self, "*.so",
+             src=self.build_folder,
+             dst=join(self.package_folder, "lib"))
+        copy(self, "*.dylib",
+             src=self.build_folder,
+             dst=join(self.package_folder, "lib"))
+        copy(self, "*.lib",
+             src=self.build_folder,
+             dst=join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.dll",
+             src=self.build_folder,
+             dst=join(self.package_folder, "bin"), keep_path=False)
         self._create_cmake_module_alias_target(join(self.package_folder, self._module_file))
 
     def package_info(self):

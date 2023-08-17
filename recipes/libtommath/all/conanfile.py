@@ -103,11 +103,19 @@ class LibTomMathConan(ConanFile):
                 autotools.make(target, args=["-f", makefile])
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         for pattern in ["*.a", "*.so*", "*.lib", "*.dylib"]:
-            copy(self, pattern, src=self.source_folder, dst=os.path.join(self.package_folder, "lib"))
-        copy(self, "*.dll", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
-        copy(self, "tommath.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+            copy(self, pattern,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "lib"))
+        copy(self, "*.dll",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "tommath.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
 
         if is_msvc(self) and self.options.shared:
             os.rename(

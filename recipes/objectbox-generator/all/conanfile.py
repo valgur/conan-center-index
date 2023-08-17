@@ -46,7 +46,9 @@ class PackageConan(ConanFile):
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "bin"),
              keep_path=False)
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.includedirs = []

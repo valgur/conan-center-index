@@ -128,12 +128,9 @@ class LibMP3LameConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(
-                    self,
-                    os.path.basename(gnu_config),
-                    src=os.path.dirname(gnu_config),
-                    dst=self.source_folder,
-                )
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=self.source_folder)
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -150,30 +147,21 @@ class LibMP3LameConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self) or self._is_clang_cl:
-            copy(
-                self,
-                pattern="*.h",
-                src=os.path.join(self.source_folder, "include"),
-                dst=os.path.join(self.package_folder, "include", "lame"),
-            )
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "include"),
+                 dst=os.path.join(self.package_folder, "include", "lame"))
             name = "libmp3lame.lib" if self.options.shared else "libmp3lame-static.lib"
-            copy(
-                self,
-                name,
-                src=os.path.join(self.source_folder, "output"),
-                dst=os.path.join(self.package_folder, "lib"),
-            )
+            copy(self, name,
+                 src=os.path.join(self.source_folder, "output"),
+                 dst=os.path.join(self.package_folder, "lib"))
             if self.options.shared:
-                copy(
-                    self,
-                    pattern="*.dll",
-                    src=os.path.join(self.source_folder, "output"),
-                    dst=os.path.join(self.package_folder, "bin"),
-                )
+                copy(self, "*.dll",
+                     src=os.path.join(self.source_folder, "output"),
+                     dst=os.path.join(self.package_folder, "bin"))
             rename(
                 self,
                 os.path.join(self.package_folder, "lib", name),

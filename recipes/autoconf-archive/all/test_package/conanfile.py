@@ -17,9 +17,15 @@ class TestPackageConan(ConanFile):
     win_bash = True  # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
 
     def export_sources(self):
-        copy(self, "configure.ac", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "Makefile.am", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "test_package.c", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "configure.ac",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "Makefile.am",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "test_package.c",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     @property
     def _settings_build(self):

@@ -305,31 +305,24 @@ class bimgConan(ConanFile):
                 break
 
         # Copy license
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self._bimg_path)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self._bimg_path)
         # Copy includes
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self._bimg_path, "include"),
-        )
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self._bimg_path, "include"))
         # Copy libs
-        copy(
-            self,
-            pattern=lib_pat,
-            dst=os.path.join(self.package_folder, "lib"),
-            src=build_bin,
-            keep_path=False,
-        )
+        copy(self, lib_pat,
+             dst=os.path.join(self.package_folder, "lib"),
+             src=build_bin,
+             keep_path=False)
         # Copy tools
         if self.options.tools:
-            copy(
-                self,
-                pattern="texturec*",
-                dst=os.path.join(self.package_folder, "bin"),
-                src=build_bin,
-                keep_path=False,
-            )
+            copy(self, "texturec*",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=build_bin,
+                 keep_path=False)
 
         # Rename for consistency across platforms and configs
         for bimg_file in Path(os.path.join(self.package_folder, "lib")).glob("*bimg*"):

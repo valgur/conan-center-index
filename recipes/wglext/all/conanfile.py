@@ -46,7 +46,9 @@ class WglextConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, pattern="wglext.h", dst=os.path.join(self.package_folder, "include", "GL"), src=self.source_folder)
+        copy(self, "wglext.h",
+             dst=os.path.join(self.package_folder, "include", "GL"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -59,13 +59,12 @@ class SigslotConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "signal.hpp",
-            src=os.path.join(self.source_folder, "include", "sigslot"),
-            dst=os.path.join(self.package_folder, "include", "sigslot"),
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "signal.hpp",
+             src=os.path.join(self.source_folder, "include", "sigslot"),
+             dst=os.path.join(self.package_folder, "include", "sigslot"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

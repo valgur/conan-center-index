@@ -117,18 +117,17 @@ class CoinCglConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(
-                        self,
-                        os.path.basename(gnu_config),
-                        src=os.path.dirname(gnu_config),
-                        dst=self.source_folder,
-                    )
+                    copy(self, os.path.basename(gnu_config),
+                         src=os.path.dirname(gnu_config),
+                         dst=self.source_folder)
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install(args=["-j1"])
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

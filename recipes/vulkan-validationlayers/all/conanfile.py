@@ -94,7 +94,9 @@ class VulkanValidationLayersConan(ConanFile):
         }.get(self._min_cppstd, {})
 
     def export(self):
-        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
+        copy(self, f"dependencies/{self._dependencies_filename}",
+             src=self.recipe_folder,
+             dst=self.export_folder)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -219,7 +221,9 @@ class VulkanValidationLayersConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

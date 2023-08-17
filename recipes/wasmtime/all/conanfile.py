@@ -95,27 +95,47 @@ class WasmtimeConan(ConanFile):
         )
 
     def package(self):
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.build_folder, "include"),
-        )
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.build_folder, "include"))
 
         srclibdir = os.path.join(self.build_folder, "lib")
         dstlibdir = os.path.join(self.package_folder, "lib")
         dstbindir = os.path.join(self.package_folder, "bin")
         if self.options.shared:
-            copy(self, "wasmtime.dll.lib", dst=dstlibdir, src=srclibdir, keep_path=False)
-            copy(self, "wasmtime.dll", dst=dstbindir, src=srclibdir, keep_path=False)
-            copy(self, "libwasmtime.dll.a", dst=dstlibdir, src=srclibdir, keep_path=False)
-            copy(self, "libwasmtime.so*", dst=dstlibdir, src=srclibdir, keep_path=False)
-            copy(self, "libwasmtime.dylib", dst=dstlibdir, src=srclibdir, keep_path=False)
+            copy(self, "wasmtime.dll.lib",
+                 dst=dstlibdir,
+                 src=srclibdir,
+                 keep_path=False)
+            copy(self, "wasmtime.dll",
+                 dst=dstbindir,
+                 src=srclibdir,
+                 keep_path=False)
+            copy(self, "libwasmtime.dll.a",
+                 dst=dstlibdir,
+                 src=srclibdir,
+                 keep_path=False)
+            copy(self, "libwasmtime.so*",
+                 dst=dstlibdir,
+                 src=srclibdir,
+                 keep_path=False)
+            copy(self, "libwasmtime.dylib",
+                 dst=dstlibdir,
+                 src=srclibdir,
+                 keep_path=False)
         else:
-            copy(self, "wasmtime.lib", dst=dstlibdir, src=srclibdir, keep_path=False)
-            copy(self, "libwasmtime.a", dst=dstlibdir, src=srclibdir, keep_path=False)
+            copy(self, "wasmtime.lib",
+                 dst=dstlibdir,
+                 src=srclibdir,
+                 keep_path=False)
+            copy(self, "libwasmtime.a",
+                 dst=dstlibdir,
+                 src=srclibdir,
+                 keep_path=False)
 
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.build_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.build_folder)
 
     def package_info(self):
         if self.options.shared:

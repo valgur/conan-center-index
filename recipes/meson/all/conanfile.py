@@ -37,8 +37,12 @@ class MesonConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "bin", "test cases"))
 
         # create wrapper scripts

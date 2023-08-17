@@ -112,23 +112,17 @@ class GenieConan(ConanFile):
             )
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
-        copy(
-            self,
-            pattern=f"genie{bin_ext}",
-            src=os.path.join(self.source_folder, "bin", self._os),
-            dst=os.path.join(self.package_folder, "bin"),
-        )
+        copy(self, f"genie{bin_ext}",
+             src=os.path.join(self.source_folder, "bin", self._os),
+             dst=os.path.join(self.package_folder, "bin"))
         if self.settings.build_type == "Debug":
-            copy(
-                self,
-                pattern="*.lua",
-                src=os.path.join(self.source_folder, "src"),
-                dst=os.path.join(self.package_folder, "res"),
-            )
+            copy(self, "*.lua",
+                 src=os.path.join(self.source_folder, "src"),
+                 dst=os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.libdirs = []

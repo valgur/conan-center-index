@@ -64,10 +64,14 @@ class MoltenVKConan(ConanFile):
         return Version(self.version) >= "1.1.7"
 
     def export(self):
-        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
+        copy(self, f"dependencies/{self._dependencies_filename}",
+             src=self.recipe_folder,
+             dst=self.export_folder)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -133,7 +137,9 @@ class MoltenVKConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

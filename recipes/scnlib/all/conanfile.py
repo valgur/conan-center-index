@@ -97,49 +97,31 @@ class ScnlibConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if self.options.header_only:
-            copy(
-                self,
-                "*",
-                dst=os.path.join(self.package_folder, "include"),
-                src=os.path.join(self.source_folder, "include"),
-            )
+            copy(self, "*",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=os.path.join(self.source_folder, "include"))
             src_folder = os.path.join(self.source_folder, "src")
             if Version(self.version) >= "1.0":
-                copy(
-                    self,
-                    "reader_*.cpp",
-                    src=src_folder,
-                    dst=os.path.join(self.package_folder, "include", "scn", "reader"),
-                )
-                copy(
-                    self,
-                    "vscan.cpp",
-                    src=src_folder,
-                    dst=os.path.join(self.package_folder, "include", "scn", "scan"),
-                )
-                copy(
-                    self,
-                    "locale.cpp",
-                    src=src_folder,
-                    dst=os.path.join(self.package_folder, "include", "scn", "detail"),
-                )
-                copy(
-                    self,
-                    "file.cpp",
-                    src=src_folder,
-                    dst=os.path.join(self.package_folder, "include", "scn", "detail"),
-                )
+                copy(self, "reader_*.cpp",
+                     src=src_folder,
+                     dst=os.path.join(self.package_folder, "include", "scn", "reader"))
+                copy(self, "vscan.cpp",
+                     src=src_folder,
+                     dst=os.path.join(self.package_folder, "include", "scn", "scan"))
+                copy(self, "locale.cpp",
+                     src=src_folder,
+                     dst=os.path.join(self.package_folder, "include", "scn", "detail"))
+                copy(self, "file.cpp",
+                     src=src_folder,
+                     dst=os.path.join(self.package_folder, "include", "scn", "detail"))
             else:
-                copy(
-                    self,
-                    "*.cpp",
-                    src=src_folder,
-                    dst=os.path.join(self.package_folder, "include", "scn", "detail"),
-                )
+                copy(self, "*.cpp",
+                     src=src_folder,
+                     dst=os.path.join(self.package_folder, "include", "scn", "detail"))
         else:
             cmake = CMake(self)
             cmake.install()

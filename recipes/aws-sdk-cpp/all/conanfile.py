@@ -787,7 +787,9 @@ class AwsSdkCppConan(ConanFile):
             "toolchains/pkg-config.pc.in",
             "aws-cpp-sdk-core/include/aws/core/VersionConfig.h",
         ]:
-            copy(self, file, src=self.source_folder, dst=self._res_folder)
+            copy(self, file,
+                 src=self.source_folder,
+                 dst=self._res_folder)
             replace_in_file(
                 self,
                 os.path.join(self.package_folder, self._res_folder, file),
@@ -811,11 +813,16 @@ class AwsSdkCppConan(ConanFile):
             )
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         if is_msvc(self):
-            copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+            copy(self, "*.lib",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
             rm(self, "*.lib", os.path.join(self.package_folder, "bin"), recursive=True)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

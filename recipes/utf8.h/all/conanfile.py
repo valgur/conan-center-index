@@ -31,8 +31,12 @@ class Utf8HConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "utf8.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "utf8.h",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

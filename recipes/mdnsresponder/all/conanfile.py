@@ -44,12 +44,9 @@ class MdnsResponderConan(ConanFile):
 
     def export_sources(self):
         # INFO: export_conandata_patches will not export optional patches
-        copy(
-            self,
-            "*.patch",
-            dst=os.path.join(self.export_sources_folder, "patches"),
-            src=os.path.join(self.recipe_folder, "patches"),
-        )
+        copy(self, "*.patch",
+             dst=os.path.join(self.export_sources_folder, "patches"),
+             src=os.path.join(self.recipe_folder, "patches"))
 
     def configure(self):
         if self.options.use_tls:
@@ -234,45 +231,32 @@ class MdnsResponderConan(ConanFile):
         return os.path.join(self.source_folder, *argv, self._msvc_platform, str(self.settings.build_type))
 
     def _install_msvc(self):
-        copy(
-            self,
-            "mDNSResponder.exe",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self._msvc_build_folder("mDNSWindows", "SystemService"),
-        )
-        copy(
-            self,
-            "dns_sd.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "mDNSShared"),
-        )
-        copy(
-            self,
-            "dnssd.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self._msvc_build_folder("mDNSWindows", "DLL"),
-        )
-        copy(
-            self,
-            "dnssdStatic.lib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=self._msvc_build_folder("mDNSWindows", "DLLStub"),
-        )
+        copy(self, "mDNSResponder.exe",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self._msvc_build_folder("mDNSWindows", "SystemService"))
+        copy(self, "dns_sd.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "mDNSShared"))
+        copy(self, "dnssd.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self._msvc_build_folder("mDNSWindows", "DLL"))
+        copy(self, "dnssdStatic.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self._msvc_build_folder("mDNSWindows", "DLLStub"))
         # rename consistently with Bonjour SDK
         rename(
             self,
             src=os.path.join(self.package_folder, "lib", "dnssdStatic.lib"),
             dst=os.path.join(self.package_folder, "lib", "dnssd.lib"),
         )
-        copy(
-            self,
-            "dns-sd.exe",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self._msvc_build_folder("Clients", "DNS-SD.VisualStudio"),
-        )
+        copy(self, "dns-sd.exe",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self._msvc_build_folder("Clients", "DNS-SD.VisualStudio"))
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self._install_make()
         elif self.settings.os == "Windows":

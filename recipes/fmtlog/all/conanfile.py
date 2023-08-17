@@ -104,16 +104,13 @@ class PackageConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if self.options.header_only:
-            copy(
-                self,
-                pattern="fmtlog*.h",
-                dst=os.path.join(self.package_folder, "include", "fmtlog"),
-                src=self.source_folder,
-            )
+            copy(self, "fmtlog*.h",
+                 dst=os.path.join(self.package_folder, "include", "fmtlog"),
+                 src=self.source_folder)
         else:
             cmake = CMake(self)
             cmake.install()

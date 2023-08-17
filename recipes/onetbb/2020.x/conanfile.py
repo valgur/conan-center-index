@@ -231,69 +231,47 @@ class OneTBBConan(ConanFile):
                 autotools.make(target)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="*",
-            dst=os.path.join(self.package_folder, "include", "tbb", "compat"),
-            src=os.path.join(self.source_folder, "include", "tbb", "compat"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "include", "tbb", "compat"),
+             src=os.path.join(self.source_folder, "include", "tbb", "compat"))
         build_folder = os.path.join(self.source_folder, "build")
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
-        copy(
-            self,
-            pattern=f"*{build_type}*.lib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=build_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern=f"*{build_type}*.a",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=build_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern=f"*{build_type}*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=build_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern=f"*{build_type}*.dylib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=build_folder,
-            keep_path=False,
-        )
+        copy(self, f"*{build_type}*.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=build_folder,
+             keep_path=False)
+        copy(self, f"*{build_type}*.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=build_folder,
+             keep_path=False)
+        copy(self, f"*{build_type}*.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=build_folder,
+             keep_path=False)
+        copy(self, f"*{build_type}*.dylib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=build_folder,
+             keep_path=False)
         # Copy also .dlls to lib folder so consumers can link against them directly when using MinGW
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            copy(
-                self,
-                f"*{build_type}*.dll",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=build_folder,
-                keep_path=False,
-            )
+            copy(self, f"*{build_type}*.dll",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=build_folder,
+                 keep_path=False)
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             extension = "so"
             if self.options.shared:
-                copy(
-                    self,
-                    f"*{build_type}*.{extension}.*",
-                    dst=os.path.join(self.package_folder, "lib"),
-                    src=build_folder,
-                    keep_path=False,
-                )
+                copy(self, f"*{build_type}*.{extension}.*",
+                     dst=os.path.join(self.package_folder, "lib"),
+                     src=build_folder,
+                     keep_path=False)
                 outputlibdir = os.path.join(self.package_folder, "lib")
                 with chdir(self, outputlibdir):
                     for fpath in os.listdir(outputlibdir):

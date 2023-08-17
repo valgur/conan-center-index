@@ -128,7 +128,7 @@ class Openmvgconan(ConanFile):
             # Workaround for: https://github.com/conan-io/conan/issues/13560
             libdirs_host = [l for dependency in self.dependencies.host.values() for l in dependency.cpp_info.aggregated_components().libdirs]
             tc.variables["CMAKE_BUILD_RPATH"] = ";".join(libdirs_host)
-        
+
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -141,7 +141,9 @@ class Openmvgconan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.cmake", os.path.join(self.package_folder, "lib"))

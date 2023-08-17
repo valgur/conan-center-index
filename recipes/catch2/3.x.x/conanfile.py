@@ -128,18 +128,17 @@ class Catch2Conan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         for cmake_file in ["ParseAndAddCatchTests.cmake", "Catch.cmake", "CatchAddTests.cmake"]:
-            copy(
-                self,
-                cmake_file,
-                src=os.path.join(self.source_folder, "extras"),
-                dst=os.path.join(self.package_folder, "lib", "cmake", "Catch2"),
-            )
+            copy(self, cmake_file,
+                 src=os.path.join(self.source_folder, "extras"),
+                 dst=os.path.join(self.package_folder, "lib", "cmake", "Catch2"))
 
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(

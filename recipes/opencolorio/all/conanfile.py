@@ -158,12 +158,9 @@ class OpenColorIOConan(ConanFile):
         cm.install()
 
         if not self.options.shared:
-            copy(
-                self,
-                "*",
-                src=os.path.join(self.package_folder, "lib", "static"),
-                dst=os.path.join(self.package_folder, "lib"),
-            )
+            copy(self, "*",
+                 src=os.path.join(self.package_folder, "lib", "static"),
+                 dst=os.path.join(self.package_folder, "lib"))
             rmdir(self, os.path.join(self.package_folder, "lib", "static"))
 
         rmdir(self, os.path.join(self.package_folder, "cmake"))
@@ -175,9 +172,9 @@ class OpenColorIOConan(ConanFile):
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         if Version(self.version) == "1.1.1":
             fix_apple_shared_install_name(self)

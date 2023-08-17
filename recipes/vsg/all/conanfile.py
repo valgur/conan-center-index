@@ -68,7 +68,7 @@ class VsgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
- 
+
     def generate(self):
         tc = CMakeToolchain(self)
         if is_msvc(self):
@@ -88,7 +88,9 @@ class VsgConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
         cmake = CMake(self)
         cmake.install()

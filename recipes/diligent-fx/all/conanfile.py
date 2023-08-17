@@ -40,9 +40,15 @@ class DiligentFxConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "BuildUtils.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "script.py", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "BuildUtils.cmake",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "script.py",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -103,7 +109,9 @@ class DiligentFxConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(self, "License.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "License.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         rename(
             self,
             src=os.path.join(self.package_folder, "include", "source_subfolder"),
@@ -113,22 +121,16 @@ class DiligentFxConan(ConanFile):
             os.path.join(self.package_folder, "Shaders"), os.path.join(self.package_folder, "res", "Shaders")
         )
 
-        copy(
-            self,
-            pattern="*.dll",
-            src=self.build_folder,
-            dst=os.path.join(self.package_folder, "bin"),
-            keep_path=False,
-        )
+        copy(self, "*.dll",
+             src=self.build_folder,
+             dst=os.path.join(self.package_folder, "bin"),
+             keep_path=False)
 
         for pattern in ["*.lib", "*.a", "*.so", "*.dylib"]:
-            copy(
-                self,
-                pattern,
-                src=self.build_folder,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            copy(self, pattern,
+                 src=self.build_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

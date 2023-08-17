@@ -36,8 +36,12 @@ class LibevConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "config.h", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "config.h",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -82,7 +86,9 @@ class LibevConan(ConanFile):
     def build(self):
         if is_msvc(self):
             base_folder = os.path.join(self.source_folder, os.pardir)
-            copy(self, "config.h", src=base_folder, dst=self.source_folder)
+            copy(self, "config.h",
+                 src=base_folder,
+                 dst=self.source_folder)
             cmake = CMake(self)
             cmake.configure(build_script_folder=base_folder)
             cmake.build()
@@ -92,7 +98,9 @@ class LibevConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()

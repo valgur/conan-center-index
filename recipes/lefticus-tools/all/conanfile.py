@@ -57,27 +57,18 @@ class LefticusToolsConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="ProjectOptions",
-            dst=os.path.join(self.package_folder, "lib", "cmake"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern="*.cmake",
-            dst=os.path.join(self.package_folder, "lib", "cmake", "cmake"),
-            src=os.path.join(self.source_folder, "cmake"),
-        )
-        copy(
-            self,
-            pattern="*.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "ProjectOptions",
+             dst=os.path.join(self.package_folder, "lib", "cmake"),
+             src=self.source_folder)
+        copy(self, "*.cmake",
+             dst=os.path.join(self.package_folder, "lib", "cmake", "cmake"),
+             src=os.path.join(self.source_folder, "cmake"))
+        copy(self, "*.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_target_name", "lefticus::tools")

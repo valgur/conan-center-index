@@ -175,7 +175,9 @@ class GlibmmConan(ConanFile):
         meson = Meson(self)
         meson.install()
 
-        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
         if is_msvc(self):
             rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

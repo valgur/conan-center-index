@@ -61,7 +61,9 @@ class LibfuseConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

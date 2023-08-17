@@ -105,7 +105,9 @@ class CeleroConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "license.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))

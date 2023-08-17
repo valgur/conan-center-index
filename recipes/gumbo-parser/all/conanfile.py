@@ -74,7 +74,9 @@ class GumboParserConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
         autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])

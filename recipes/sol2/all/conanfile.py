@@ -89,13 +89,23 @@ class Sol2Conan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) < "3.0.0":
-            copy(self, "*", src=os.path.join(self.source_folder, "sol"), dst=os.path.join(self.package_folder, "include", "sol"))
-            copy(self, "sol.hpp", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*",
+                 src=os.path.join(self.source_folder, "sol"),
+                 dst=os.path.join(self.package_folder, "include", "sol"))
+            copy(self, "sol.hpp",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "include"))
         else:
-            copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
-            copy(self, "*.hpp", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "include"),
+                 dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*.hpp",
+                 src=os.path.join(self.source_folder, "include"),
+                 dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "sol2")

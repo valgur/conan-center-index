@@ -74,13 +74,12 @@ class BitmagicConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "src"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "src"),
+             dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

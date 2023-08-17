@@ -105,9 +105,15 @@ class PahoMqttCppConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "edl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "epl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "notice.html", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "edl-v10",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "epl-v10",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "notice.html",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

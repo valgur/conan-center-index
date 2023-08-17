@@ -113,8 +113,12 @@ class AcadoConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_path / "tmp")
-        copy(self, "CMakeLists.txt", src=os.path.join(self.recipe_folder, "acado"), dst=self.export_sources_path / "tmp" / "acado")
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_path / "tmp")
+        copy(self, "CMakeLists.txt",
+             src=os.path.join(self.recipe_folder, "acado"),
+             dst=self.export_sources_path / "tmp" / "acado")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -156,8 +160,12 @@ class AcadoConan(ConanFile):
         #     self, os.path.join(self.source_folder, "acado/matrix_vector/matrix_vector_tools.hpp"), "external_packages/eigen3/", ""
         # )
 
-        copy(self, "CMakeLists.txt", src=self.export_sources_path / "tmp", dst=os.path.join(self.source_folder))
-        copy(self, "CMakeLists.txt", src=self.export_sources_path / "tmp" / "acado", dst=os.path.join(self.source_folder, "acado"))
+        copy(self, "CMakeLists.txt",
+             src=self.export_sources_path / "tmp",
+             dst=os.path.join(self.source_folder))
+        copy(self, "CMakeLists.txt",
+             src=self.export_sources_path / "tmp" / "acado",
+             dst=os.path.join(self.source_folder, "acado"))
 
 
     def generate(self):
@@ -192,11 +200,15 @@ class AcadoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "*", src=os.path.join(self.build_folder, "lib"), dst=os.path.join(self.package_folder, "lib"))
+        copy(self, "*",
+             src=os.path.join(self.build_folder, "lib"),
+             dst=os.path.join(self.package_folder, "lib"))
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", self.package_folder, recursive=True)

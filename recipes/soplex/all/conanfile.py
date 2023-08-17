@@ -110,67 +110,42 @@ class SoPlexConan(ConanFile):
         cmake.build(target=f"lib{self._determine_lib_name()}")
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=join(self.package_folder, "licenses"))
-        copy(
-            self,
-            pattern="soplex.h",
-            src=join(self.source_folder, "src"),
-            dst=join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="soplex.hpp",
-            src=join(self.source_folder, "src"),
-            dst=join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="soplex_interface.h",
-            src=join(self.source_folder, "src"),
-            dst=join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="*.h",
-            src=join(self.source_folder, "src", "soplex"),
-            dst=join(self.package_folder, "include", "soplex"),
-        )
-        copy(
-            self,
-            pattern="*.hpp",
-            src=join(self.source_folder, "src", "soplex"),
-            dst=join(self.package_folder, "include", "soplex"),
-        )
-        copy(
-            self,
-            pattern="*.h",
-            src=join(self.build_folder, "soplex"),
-            dst=join(self.package_folder, "include", "soplex"),
-        )
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=join(self.package_folder, "licenses"))
+        copy(self, "soplex.h",
+             src=join(self.source_folder, "src"),
+             dst=join(self.package_folder, "include"))
+        copy(self, "soplex.hpp",
+             src=join(self.source_folder, "src"),
+             dst=join(self.package_folder, "include"))
+        copy(self, "soplex_interface.h",
+             src=join(self.source_folder, "src"),
+             dst=join(self.package_folder, "include"))
+        copy(self, "*.h",
+             src=join(self.source_folder, "src", "soplex"),
+             dst=join(self.package_folder, "include", "soplex"))
+        copy(self, "*.hpp",
+             src=join(self.source_folder, "src", "soplex"),
+             dst=join(self.package_folder, "include", "soplex"))
+        copy(self, "*.h",
+             src=join(self.build_folder, "soplex"),
+             dst=join(self.package_folder, "include", "soplex"))
         if self.options.shared:
-            copy(
-                self,
-                pattern="*.so*",
-                src=join(self.build_folder, "lib"),
-                dst=join(self.package_folder, "lib"),
-            )
-            copy(
-                self,
-                pattern="*.dylib*",
-                src=join(self.build_folder, "lib"),
-                dst=join(self.package_folder, "lib"),
-            )
+            copy(self, "*.so*",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"))
+            copy(self, "*.dylib*",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"))
         else:
-            copy(
-                self, pattern="*.a", src=join(self.build_folder, "lib"), dst=join(self.package_folder, "lib")
-            )
-            copy(
-                self,
-                pattern="*.lib",
-                src=join(self.build_folder, "lib"),
-                dst=join(self.package_folder, "lib"),
-                keep_path=False,
-            )
+            copy(self, "*.a",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"))
+            copy(self, "*.lib",
+                 src=join(self.build_folder, "lib"),
+                 dst=join(self.package_folder, "lib"),
+                 keep_path=False)
         fix_apple_shared_install_name(self)
 
     def package_info(self):

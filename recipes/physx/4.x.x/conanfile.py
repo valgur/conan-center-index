@@ -251,11 +251,26 @@ class PhysXConan(ConanFile):
         package_dst_lib_dir = os.path.join(self.package_folder, "lib")
         package_dst_bin_dir = os.path.join(self.package_folder, "bin")
 
-        copy(self, pattern="*.a", dst=package_dst_lib_dir, src=cmake_installation_dir, keep_path=False)
-        copy(self, pattern="*.so", dst=package_dst_lib_dir, src=cmake_installation_dir, keep_path=False)
-        copy(self, pattern="*.dylib*", dst=package_dst_lib_dir, src=cmake_installation_dir, keep_path=False)
-        copy(self, pattern="*.lib", dst=package_dst_lib_dir, src=cmake_installation_dir, keep_path=False)
-        copy(self, pattern="*.dll", dst=package_dst_bin_dir, src=cmake_installation_dir, keep_path=False)
+        copy(self, "*.a",
+             dst=package_dst_lib_dir,
+             src=cmake_installation_dir,
+             keep_path=False)
+        copy(self, "*.so",
+             dst=package_dst_lib_dir,
+             src=cmake_installation_dir,
+             keep_path=False)
+        copy(self, "*.dylib*",
+             dst=package_dst_lib_dir,
+             src=cmake_installation_dir,
+             keep_path=False)
+        copy(self, "*.lib",
+             dst=package_dst_lib_dir,
+             src=cmake_installation_dir,
+             keep_path=False)
+        copy(self, "*.dll",
+             dst=package_dst_bin_dir,
+             src=cmake_installation_dir,
+             keep_path=False)
 
         rmdir(self, os.path.join(self.package_folder, "source"))
         rmdir(self, cmake_installation_dir)
@@ -279,7 +294,10 @@ class PhysXConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"] and self.settings.arch == "x86_64":
             package_dst_lib_dir = os.path.join(self.package_folder, "lib")
             physx_gpu_dir = os.path.join(external_bin_dir, "linux.clang", physx_build_type)
-            copy(self, pattern="*PhysXGpu*.so", dst=package_dst_lib_dir, src=physx_gpu_dir, keep_path=False)
+            copy(self, "*PhysXGpu*.so",
+                 dst=package_dst_lib_dir,
+                 src=physx_gpu_dir,
+                 keep_path=False)
         elif self.settings.os == "Windows" and is_msvc(self):
             physx_arch = {
                 "x86": "x86_32",
@@ -308,13 +326,10 @@ class PhysXConan(ConanFile):
             for dll_info in dll_info_list:
                 dll_subdir = "win.{0}.{1}.mt".format(physx_arch, dll_info.get("vc_ver"))
                 dll_dir = os.path.join(external_bin_dir, dll_subdir, physx_build_type)
-                copy(
-                    self,
-                    pattern=dll_info.get("pattern"),
-                    dst=package_dst_bin_dir,
-                    src=dll_dir,
-                    keep_path=False,
-                )
+                copy(self, dll_info.get("pattern"),
+                     dst=package_dst_bin_dir,
+                     src=dll_dir,
+                     keep_path=False)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "PhysX")

@@ -37,14 +37,15 @@ class ParallelHashmapConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "parallel_hashmap"),
-            dst=os.path.join(self.package_folder, "include", "parallel_hashmap"),
-        )
-        copy(self, "phmap.natvis", src=self.source_folder, dst=os.path.join(self.source_folder, "res"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "parallel_hashmap"),
+             dst=os.path.join(self.package_folder, "include", "parallel_hashmap"))
+        copy(self, "phmap.natvis",
+             src=self.source_folder,
+             dst=os.path.join(self.source_folder, "res"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(

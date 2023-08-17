@@ -127,7 +127,9 @@ class CoinCbcConan(ConanFile):
         ]:
             if gnu_config:
                 config_folder = os.path.join(self.source_folder, "config")
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=config_folder)
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=config_folder)
 
     def build(self):
         self._patch_sources()
@@ -137,7 +139,9 @@ class CoinCbcConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         # Installation script expects include/coin to already exist
         mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         with chdir(self, self.source_folder):

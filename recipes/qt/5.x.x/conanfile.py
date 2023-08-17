@@ -178,7 +178,9 @@ class QtConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export(self):
-        copy(self, f"qtmodules{self.version}.conf", self.recipe_folder, self.export_folder)
+        copy(self, f"qtmodules{self.version}.conf",
+             src=self.recipe_folder,
+             dst=self.export_folder)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -1027,12 +1029,9 @@ Translations = bin/datadir/translations
 Documentation = bin/datadir/doc
 Examples = bin/datadir/examples""",
         )
-        copy(
-            self,
-            "*LICENSE*",
-            os.path.join(self.source_folder, "qt5/"),
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "*LICENSE*",
+             src=os.path.join(self.source_folder, "qt5/"),
+             dst=os.path.join(self.package_folder, "licenses"))
         for module in self._submodules:
             if not self.options.get_safe(module):
                 rmdir(self, os.path.join(self.package_folder, "licenses", module))

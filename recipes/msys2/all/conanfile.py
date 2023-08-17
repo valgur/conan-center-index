@@ -178,13 +178,10 @@ class MSYS2Conan(ConanFile):
                     if fnmatch.fnmatch(fullname, exclude):
                         os.unlink(fullname)
         # See https://github.com/conan-io/conan-center-index/blob/master/docs/error_knowledge_base.md#kb-h013-default-package-layout
-        copy(
-            self,
-            "*",
-            dst=os.path.join(self.package_folder, "bin", "msys64"),
-            src=self._msys_dir,
-            excludes=excludes,
-        )
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "bin", "msys64"),
+             src=self._msys_dir,
+             excludes=excludes)
         shutil.copytree(
             os.path.join(self._msys_dir, "usr", "share", "licenses"),
             os.path.join(self.package_folder, "licenses"),

@@ -79,9 +79,13 @@ class XsimdConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         includedir = os.path.join(self.source_folder, "include")
-        copy(self, "*.hpp", src=includedir, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.hpp",
+             src=includedir,
+             dst=os.path.join(self.package_folder, "include"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(

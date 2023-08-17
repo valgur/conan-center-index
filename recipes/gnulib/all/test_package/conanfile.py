@@ -52,7 +52,9 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         for src in ["configure.ac", "Makefile.am", "test_package.c"]:
-            copy(self, src, src=self.source_folder, dst=self.build_folder)
+            copy(self, src,
+                 src=self.source_folder,
+                 dst=self.build_folder)
         for fn in ("COPYING", "NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
             save(self, os.path.join(self.build_folder, fn), "\n")
         self.run("gnulib-tool --list")

@@ -217,66 +217,39 @@ class NvclothConan(ConanFile):
         nvcloth_source_subfolder = os.path.join(self.build_folder, self.source_folder)
         nvclothbuild_folder = os.path.join(self.build_folder, self.build_folder)
 
-        copy(
-            self,
-            pattern="NvCloth/license.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=nvcloth_source_subfolder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(nvcloth_source_subfolder, "NvCloth", "include"),
-        )
-        copy(
-            self,
-            "*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(nvcloth_source_subfolder, "NvCloth", "extensions", "include"),
-        )
-        copy(
-            self,
-            "*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(nvcloth_source_subfolder, "PxShared", "include"),
-        )
-        copy(
-            self,
-            "*.a",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=nvclothbuild_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.lib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=nvclothbuild_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.dylib*",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=nvclothbuild_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=nvclothbuild_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            "*.so",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=nvclothbuild_folder,
-            keep_path=False,
-        )
+        copy(self, "NvCloth/license.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=nvcloth_source_subfolder,
+             keep_path=False)
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(nvcloth_source_subfolder, "NvCloth", "include"))
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(nvcloth_source_subfolder, "NvCloth", "extensions", "include"))
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(nvcloth_source_subfolder, "PxShared", "include"))
+        copy(self, "*.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=nvclothbuild_folder,
+             keep_path=False)
+        copy(self, "*.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=nvclothbuild_folder,
+             keep_path=False)
+        copy(self, "*.dylib*",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=nvclothbuild_folder,
+             keep_path=False)
+        copy(self, "*.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=nvclothbuild_folder,
+             keep_path=False)
+        copy(self, "*.so",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=nvclothbuild_folder,
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "nvcloth")

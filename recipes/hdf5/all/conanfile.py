@@ -252,7 +252,9 @@ class Hdf5Conan(ConanFile):
         return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
         cmake = CMake(self)
         cmake.install()

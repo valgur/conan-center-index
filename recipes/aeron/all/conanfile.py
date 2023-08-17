@@ -104,15 +104,21 @@ class AeronConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
         archive_resources_dir = os.path.join(self.source_folder, "aeron-archive", "src", "main", "resources")
-        copy(self, "*", src=archive_resources_dir, dst=os.path.join(self.package_folder, "res"))
+        copy(self, "*",
+             src=archive_resources_dir,
+             dst=os.path.join(self.package_folder, "res"))
 
         archive_include_dir = os.path.join(self.source_folder, "aeron-archive", "src", "main", "cpp", "client")
-        copy(self, "*.h", src=archive_include_dir, dst=os.path.join(self.package_folder, "include", "aeron-archive"))
+        copy(self, "*.h",
+             src=archive_include_dir,
+             dst=os.path.join(self.package_folder, "include", "aeron-archive"))
 
         lib_folder = os.path.join(self.package_folder, "lib")
         bin_folder = os.path.join(self.package_folder, "bin")

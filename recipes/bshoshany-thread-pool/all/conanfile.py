@@ -65,14 +65,15 @@ class BShoshanyThreadPoolConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*.hpp", self.source_folder, os.path.join(self.package_folder, "include"))
-        copy(
-            self,
-            "*.hpp",
-            os.path.join(self.source_folder, "include"),
-            os.path.join(self.package_folder, "include"),
-        )
-        copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.hpp",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.hpp",
+             src=os.path.join(self.source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "bshoshany-thread-pool")

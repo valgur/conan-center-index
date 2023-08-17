@@ -220,7 +220,9 @@ class CairoConan(ConanFile):
         meson = Meson(self)
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
-        copy(self, "COPYING*", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)

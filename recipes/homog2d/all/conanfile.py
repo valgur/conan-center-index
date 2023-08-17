@@ -63,15 +63,12 @@ class Homog2dConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(
-            self, pattern="LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="homog2d.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENCE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "homog2d.hpp",
+             dst=os.path.join(self.package_folder, "include"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

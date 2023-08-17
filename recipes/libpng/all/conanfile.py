@@ -68,7 +68,9 @@ class LibpngConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "conan_cmake_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+        copy(self, "conan_cmake_project_include.cmake",
+             src=self.recipe_folder,
+             dst=os.path.join(self.export_sources_folder, "src"))
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -136,7 +138,9 @@ class LibpngConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if self.options.shared:

@@ -38,9 +38,15 @@ class CreateDmgConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="create-dmg", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "res"), src=os.path.join(self.source_folder, "support"))
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "create-dmg",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.source_folder)
+        copy(self, "*",
+             dst=os.path.join(self.package_folder, "res"),
+             src=os.path.join(self.source_folder, "support"))
 
         rmdir(self, os.path.join(self.package_folder, "share"))
 

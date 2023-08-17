@@ -22,7 +22,9 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         if not cross_building(self):
-            copy(self, "MyModule.asn1", src=self.source_folder, dst=self.build_folder)
+            copy(self, "MyModule.asn1",
+                 src=self.source_folder,
+                 dst=self.build_folder)
             cmake = CMake(self)
             cmake.configure()
             cmake.build()

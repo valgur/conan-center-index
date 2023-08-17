@@ -209,23 +209,55 @@ class LibpqConan(ConanFile):
             rm(self, "*.dylib", lib_folder)
 
     def package(self):
-        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYRIGHT",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, pattern="*postgres_ext.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
-            copy(self, pattern="*pg_config.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
-            copy(self, pattern="*pg_config_ext.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
-            copy(self, pattern="*libpq-fe.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
-            copy(self, pattern="*libpq-events.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder, keep_path=False)
+            copy(self, "*postgres_ext.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder,
+                 keep_path=False)
+            copy(self, "*pg_config.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder,
+                 keep_path=False)
+            copy(self, "*pg_config_ext.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder,
+                 keep_path=False)
+            copy(self, "*libpq-fe.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder,
+                 keep_path=False)
+            copy(self, "*libpq-events.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder,
+                 keep_path=False)
             copy(self, pattern="*.h", src=os.path.join(self.source_folder, "src", "include", "libpq"),
                                       dst=os.path.join(self.package_folder, "include", "libpq"),
                                       keep_path=False)
-            copy(self, pattern="*genbki.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include", "catalog"), keep_path=False)
-            copy(self, pattern="*pg_type.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include", "catalog"), keep_path=False)
+            copy(self, "*genbki.h",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "include", "catalog"),
+                 keep_path=False)
+            copy(self, "*pg_type.h",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "include", "catalog"),
+                 keep_path=False)
             if self.options.shared:
-                copy(self, pattern="**/libpq.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder, keep_path=False)
-                copy(self, pattern="**/libpq.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
+                copy(self, "**/libpq.dll",
+                     dst=os.path.join(self.package_folder, "bin"),
+                     src=self.source_folder,
+                     keep_path=False)
+                copy(self, "**/libpq.lib",
+                     dst=os.path.join(self.package_folder, "lib"),
+                     src=self.source_folder,
+                     keep_path=False)
             else:
-                copy(self, pattern="*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
+                copy(self, "*.lib",
+                     dst=os.path.join(self.package_folder, "lib"),
+                     src=self.source_folder,
+                     keep_path=False)
         else:
             autotools = Autotools(self)
             with chdir(self, os.path.join(self.source_folder, "src", "common")):

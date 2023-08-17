@@ -62,50 +62,32 @@ class PlutoVGConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="*.a",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=self.build_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.so",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=self.build_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.lib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=self.build_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.dll",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=self.build_folder,
-            keep_path=False,
-        )
-        copy(
-            self,
-            pattern="*.dylib",
-            dst=os.path.join(self.package_folder, "lib"),
-            src=self.build_folder,
-            keep_path=False,
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*.a",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.build_folder,
+             keep_path=False)
+        copy(self, "*.so",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.build_folder,
+             keep_path=False)
+        copy(self, "*.lib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.build_folder,
+             keep_path=False)
+        copy(self, "*.dll",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=self.build_folder,
+             keep_path=False)
+        copy(self, "*.dylib",
+             dst=os.path.join(self.package_folder, "lib"),
+             src=self.build_folder,
+             keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ["plutovg"]

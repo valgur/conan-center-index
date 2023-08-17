@@ -159,7 +159,9 @@ class Open62541Conan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "submoduledata.py", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "submoduledata.py",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -410,8 +412,12 @@ class Open62541Conan(ConanFile):
         return os.path.join(self._module_subfolder, "open62541Macros.cmake")
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "LICENSE-CC0", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "LICENSE-CC0",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -425,8 +431,12 @@ class Open62541Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        copy(self, "generate_*.py", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
-        copy(self, "nodeset_compiler/*", src=self._tools_subfolder, dst=os.path.join("res", "tools"))
+        copy(self, "generate_*.py",
+             src=self._tools_subfolder,
+             dst=os.path.join("res", "tools"))
+        copy(self, "nodeset_compiler/*",
+             src=self._tools_subfolder,
+             dst=os.path.join("res", "tools"))
 
     @staticmethod
     def _chmod_plus_x(filename):

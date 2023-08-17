@@ -244,7 +244,9 @@ class ICUConan(ConanFile):
         return os.path.join(data_dir, self._data_filename)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 
@@ -265,8 +267,12 @@ class ICUConan(ConanFile):
 
         # Copy some files required for cross-compiling
         config_dir = os.path.join(self.package_folder, "config")
-        copy(self, "icucross.mk", src=os.path.join(self.build_folder, "config"), dst=config_dir)
-        copy(self, "icucross.inc", src=os.path.join(self.build_folder, "config"), dst=config_dir)
+        copy(self, "icucross.mk",
+             src=os.path.join(self.build_folder, "config"),
+             dst=config_dir)
+        copy(self, "icucross.inc",
+             src=os.path.join(self.build_folder, "config"),
+             dst=config_dir)
 
         rmdir(self, os.path.join(self.package_folder, "lib", "icu"))
         rmdir(self, os.path.join(self.package_folder, "lib", "man"))

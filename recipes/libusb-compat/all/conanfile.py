@@ -41,7 +41,9 @@ class LibUSBCompatConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt.in", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt.in",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
 
     def config_options(self):

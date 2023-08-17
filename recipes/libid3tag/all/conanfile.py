@@ -106,7 +106,9 @@ class LibId3TagConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+                copy(self, os.path.basename(gnu_config),
+                     src=os.path.dirname(gnu_config),
+                     dst=self.source_folder)
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()

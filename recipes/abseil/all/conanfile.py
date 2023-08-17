@@ -59,7 +59,9 @@ class AbseilConan(ConanFile):
         }.get(self._min_cppstd, {})
 
     def export_sources(self):
-        copy(self, "abi_trick/*", self.recipe_folder, self.export_sources_folder)
+        copy(self, "abi_trick/*",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -131,7 +133,9 @@ class AbseilConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

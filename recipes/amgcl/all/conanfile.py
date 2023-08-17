@@ -42,13 +42,12 @@ class AmgclConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(
-            self,
-            "*",
-            src=os.path.join(self.source_folder, "amgcl"),
-            dst=os.path.join(self.package_folder, "include", "amgcl"),
-        )
+        copy(self, "LICENSE.md",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*",
+             src=os.path.join(self.source_folder, "amgcl"),
+             dst=os.path.join(self.package_folder, "include", "amgcl"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "amgcl")

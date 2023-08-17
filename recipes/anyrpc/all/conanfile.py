@@ -103,7 +103,9 @@ class AnyRPCConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="license", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "license",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

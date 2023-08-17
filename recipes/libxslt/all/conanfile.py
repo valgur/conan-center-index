@@ -185,45 +185,35 @@ class LibxsltConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.source_folder, "libxslt"),
-                dst=os.path.join(self.package_folder, "include", "libxslt"),
-            )
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.source_folder, "libexslt"),
-                dst=os.path.join(self.package_folder, "include", "libexslt"),
-            )
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "libxslt"),
+                 dst=os.path.join(self.package_folder, "include", "libxslt"))
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "libexslt"),
+                 dst=os.path.join(self.package_folder, "include", "libexslt"))
             build_dir = os.path.join(self.source_folder, "win32", "bin.msvc")
-            copy(self, "*.exe", src=build_dir, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(self, "*.exe",
+                 src=build_dir,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
             if self.options.shared:
-                copy(
-                    self,
-                    "*xslt.lib",
-                    src=build_dir,
-                    dst=os.path.join(self.package_folder, "lib"),
-                    keep_path=False,
-                )
-                copy(
-                    self,
-                    "*xslt.dll",
-                    src=build_dir,
-                    dst=os.path.join(self.package_folder, "bin"),
-                    keep_path=False,
-                )
+                copy(self, "*xslt.lib",
+                     src=build_dir,
+                     dst=os.path.join(self.package_folder, "lib"),
+                     keep_path=False)
+                copy(self, "*xslt.dll",
+                     src=build_dir,
+                     dst=os.path.join(self.package_folder, "bin"),
+                     keep_path=False)
             else:
-                copy(
-                    self,
-                    "*xslt_a.lib",
-                    src=build_dir,
-                    dst=os.path.join(self.package_folder, "lib"),
-                    keep_path=False,
-                )
+                copy(self, "*xslt_a.lib",
+                     src=build_dir,
+                     dst=os.path.join(self.package_folder, "lib"),
+                     keep_path=False)
         else:
             autotools = Autotools(self)
             autotools.install()

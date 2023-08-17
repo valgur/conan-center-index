@@ -550,12 +550,9 @@ class BotanConan(ConanFile):
             self.run(self._make_cmd)
 
     def package(self):
-        copy(
-            self,
-            pattern="license.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "license.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         with chdir(self, self.source_folder):
             self.run(self._make_install_cmd)
 

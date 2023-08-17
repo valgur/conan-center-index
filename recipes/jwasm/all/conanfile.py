@@ -19,7 +19,9 @@ class JwasmConan(ConanFile):
 
     def export_sources(self):
         for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"], self.recipe_folder, self.export_sources_folder)
+            copy(self, p["patch_file"],
+                 src=self.recipe_folder,
+                 dst=self.export_sources_folder)
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
@@ -45,7 +47,9 @@ class JwasmConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "License.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "License.txt",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

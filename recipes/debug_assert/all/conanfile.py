@@ -40,7 +40,8 @@ class DebugAssert(ConanFile):
     def package(self):
         copy(self, "*LICENSE",
              dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder, keep_path=False)
+             src=self.source_folder,
+             keep_path=False)
         copy(self, "debug_assert.hpp",
              dst=os.path.join(self.package_folder, "include"),
              src=self.source_folder)

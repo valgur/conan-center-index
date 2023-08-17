@@ -137,29 +137,22 @@ class HidapiConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                os.path.join("hidapi", "*.h"),
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "include"),
-            )
+            copy(self, os.path.join("hidapi", "*.h"),
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "include"))
             output_folder = os.path.join(self.source_folder, "windows")
-            copy(
-                self,
-                "*hidapi.lib",
-                src=output_folder,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                "*.dll",
-                src=output_folder,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, "*hidapi.lib",
+                 src=output_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 src=output_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
         else:
             autotools = Autotools(self)
             autotools.install()

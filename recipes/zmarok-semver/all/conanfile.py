@@ -62,7 +62,9 @@ class ZmarokSemverConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         # Parent Build system does not support installation; so we must manually package
         hdr_src = os.path.join(self.source_folder, "include")
         hdr_dst = os.path.join(self.package_folder, "include")

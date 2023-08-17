@@ -31,18 +31,12 @@ class DecimalforcppConan(ConanFile):
         pass
 
     def package(self):
-        copy(
-            self,
-            "license.txt",
-            src=os.path.join(self.source_folder, "doc"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-        )
+        copy(self, "license.txt",
+             src=os.path.join(self.source_folder, "doc"),
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "include"),
+             dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

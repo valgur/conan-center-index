@@ -165,29 +165,22 @@ class NativefiledialogConan(ConanFile):
     def package(self):
         libname = "nfd_d" if self.settings.build_type == "Debug" else "nfd"
         if is_msvc(self):
-            copy(
-                self,
-                f"*{libname}.lib",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.source_folder,
-                keep_path=False,
-            )
+            copy(self, f"*{libname}.lib",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.source_folder,
+                 keep_path=False)
         else:
-            copy(
-                self,
-                f"*{libname}.a",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.source_folder,
-                keep_path=False,
-            )
-        copy(
-            self,
-            "*nfd.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=self.source_folder,
-            keep_path=False,
-        )
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+            copy(self, f"*{libname}.a",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.source_folder,
+                 keep_path=False)
+        copy(self, "*nfd.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=self.source_folder,
+             keep_path=False)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = ["nfd_d" if self.settings.build_type == "Debug" else "nfd"]

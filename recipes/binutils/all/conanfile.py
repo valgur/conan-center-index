@@ -202,13 +202,10 @@ class BinutilsConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
-        copy(
-            self,
-            pattern="COPYING*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            keep_path=False,
-        )
+        copy(self, "COPYING*",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder,
+             keep_path=False)
 
     def package_info(self):
         target_bindir = os.path.join(self._exec_prefix, str(self.options.target_triplet), "bin")

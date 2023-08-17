@@ -86,24 +86,15 @@ class PSevenZipConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "License.txt",
-            src=os.path.join(self.source_folder, "DOC"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "unRarLicense.txt",
-            src=os.path.join(self.source_folder, "DOC"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "7za",
-            src=os.path.join(self.source_folder, "bin"),
-            dst=os.path.join(self.package_folder, "bin"),
-        )
+        copy(self, "License.txt",
+             src=os.path.join(self.source_folder, "DOC"),
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "unRarLicense.txt",
+             src=os.path.join(self.source_folder, "DOC"),
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "7za",
+             src=os.path.join(self.source_folder, "bin"),
+             dst=os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         bin_path = os.path.join(self.package_folder, "bin")

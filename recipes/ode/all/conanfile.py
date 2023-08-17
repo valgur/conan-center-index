@@ -104,9 +104,9 @@ class OdeConan(ConanFile):
 
     def package(self):
         for license_file in ("COPYING", "LICENSE*"):
-            copy(
-                self, license_file, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-            )
+            copy(self, license_file,
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

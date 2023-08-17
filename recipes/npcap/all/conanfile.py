@@ -38,25 +38,25 @@ class NpcapConan(ConanFile):
         download(self, filename="LICENSE", **source["license"])
 
     def package(self):
-        copy(self, "LICENSE", dst=join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.h", dst=join(self.package_folder, "include"), src=join(self.source_folder, "Include"))
+        copy(self, "LICENSE",
+             dst=join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.h",
+             dst=join(self.package_folder, "include"),
+             src=join(self.source_folder, "Include"))
 
         if self.settings.arch == "x86_64":
-            copy(
-                self,
-                "*.lib",
-                dst=join(self.package_folder, "lib"),
-                src=join(self.source_folder, "Lib", "x64"),
-            )
+            copy(self, "*.lib",
+                 dst=join(self.package_folder, "lib"),
+                 src=join(self.source_folder, "Lib", "x64"))
         elif self.settings.arch == "armv8":
-            copy(
-                self,
-                "*.lib",
-                dst=join(self.package_folder, "lib"),
-                src=join(self.source_folder, "Lib", "ARM64"),
-            )
+            copy(self, "*.lib",
+                 dst=join(self.package_folder, "lib"),
+                 src=join(self.source_folder, "Lib", "ARM64"))
         else:
-            copy(self, "*.lib", dst=join(self.package_folder, "lib"), src=join(self.source_folder, "Lib"))
+            copy(self, "*.lib",
+                 dst=join(self.package_folder, "lib"),
+                 src=join(self.source_folder, "Lib"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

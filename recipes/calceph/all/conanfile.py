@@ -108,7 +108,9 @@ class CalcephConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             with chdir(self, self.source_folder):
                 self.run(f"nmake -f Makefile.vc install {self._nmake_args}")

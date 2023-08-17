@@ -54,22 +54,20 @@ class FlatcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         extension = ".exe" if self.settings.os == "Windows" else ""
         bin_dir = os.path.join(self.build_folder, "bin")
-        copy(self, pattern="flatc" + extension, dst=os.path.join(self.package_folder, "bin"), src=bin_dir)
-        copy(self, pattern="flathash" + extension, dst=os.path.join(self.package_folder, "bin"), src=bin_dir)
-        copy(
-            self,
-            pattern="BuildFlatBuffers.cmake",
-            dst=os.path.join(self.package_folder, "bin/cmake"),
-            src=os.path.join(self.source_folder, "CMake"),
-        )
+        copy(self, "flatc" + extension,
+             dst=os.path.join(self.package_folder, "bin"),
+             src=bin_dir)
+        copy(self, "flathash" + extension,
+             dst=os.path.join(self.package_folder, "bin"),
+             src=bin_dir)
+        copy(self, "BuildFlatBuffers.cmake",
+             dst=os.path.join(self.package_folder, "bin/cmake"),
+             src=os.path.join(self.source_folder, "CMake"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

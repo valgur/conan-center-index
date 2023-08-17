@@ -351,67 +351,47 @@ class CrashpadConan(ConanFile):
         )
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
-        copy(
-            self, "*.h", src=os.path.join(self.source_folder, "client"), dst=os.path.join("include", "client")
-        )
-        copy(self, "*.h", src=os.path.join(self.source_folder, "util"), dst=os.path.join("include", "util"))
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "base"),
-            dst=os.path.join("include", "base"),
-        )
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "build"),
-            dst=os.path.join("include", "build"),
-        )
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "out", "Default", "gen", "build"),
-            dst=os.path.join("include", "build"),
-        )
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "client"),
+             dst=os.path.join("include", "client"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "util"),
+             dst=os.path.join("include", "util"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "base"),
+             dst=os.path.join("include", "base"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "build"),
+             dst=os.path.join("include", "build"))
+        copy(self, "*.h",
+             src=os.path.join(self.source_folder, "out", "Default", "gen", "build"),
+             dst=os.path.join("include", "build"))
 
-        copy(
-            self,
-            "*.a",
-            src=os.path.join(self.source_folder, "out", "Default"),
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
+        copy(self, "*.a",
+             src=os.path.join(self.source_folder, "out", "Default"),
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
 
-        copy(
-            self,
-            "*.lib",
-            src=os.path.join(self.source_folder, "out", "Default"),
-            dst=os.path.join(self.package_folder, "lib"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "crashpad_handler",
-            src=os.path.join(self.source_folder, "out", "Default"),
-            dst=os.path.join(self.package_folder, "bin"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "crashpad_handler.exe",
-            src=os.path.join(self.source_folder, "out", "Default"),
-            dst=os.path.join(self.package_folder, "bin"),
-            keep_path=False,
-        )
-        copy(
-            self,
-            "crashpad_handler_com.com",
-            src=os.path.join(self.source_folder, "out", "Default"),
-            dst=os.path.join(self.package_folder, "bin"),
-            keep_path=False,
-        )
+        copy(self, "*.lib",
+             src=os.path.join(self.source_folder, "out", "Default"),
+             dst=os.path.join(self.package_folder, "lib"),
+             keep_path=False)
+        copy(self, "crashpad_handler",
+             src=os.path.join(self.source_folder, "out", "Default"),
+             dst=os.path.join(self.package_folder, "bin"),
+             keep_path=False)
+        copy(self, "crashpad_handler.exe",
+             src=os.path.join(self.source_folder, "out", "Default"),
+             dst=os.path.join(self.package_folder, "bin"),
+             keep_path=False)
+        copy(self, "crashpad_handler_com.com",
+             src=os.path.join(self.source_folder, "out", "Default"),
+             dst=os.path.join(self.package_folder, "bin"),
+             keep_path=False)
         if self.settings.os == "Windows":
             rename(
                 self,

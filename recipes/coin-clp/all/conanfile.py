@@ -122,18 +122,17 @@ class CoinClpConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(
-                        self,
-                        os.path.basename(gnu_config),
-                        src=os.path.dirname(gnu_config),
-                        dst=self.source_folder,
-                    )
+                    copy(self, os.path.basename(gnu_config),
+                         src=os.path.dirname(gnu_config),
+                         dst=self.source_folder)
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         # Installation script expects include/coin to already exist
         mkdir(self, os.path.join(self.package_folder, "include", "coin"))
         autotools = Autotools(self)

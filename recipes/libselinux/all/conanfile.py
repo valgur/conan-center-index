@@ -107,13 +107,21 @@ class LibSELinuxConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", self._selinux_source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self._selinux_source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         for library in [self._sepol_source_folder, self._selinux_source_folder]:
-            copy(self, "*.h", os.path.join(library, "include"), os.path.join(self.package_folder, "include"))
+            copy(self, "*.h",
+                 src=os.path.join(library, "include"),
+                 dst=os.path.join(self.package_folder, "include"))
             if self.options.shared:
-                copy(self, "*.so*", library, os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(self, "*.so*",
+                     src=library,
+                     dst=os.path.join(self.package_folder, "lib"), keep_path=False)
             else:
-                copy(self, "*.a", library, os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(self, "*.a",
+                     src=library,
+                     dst=os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.components["selinux"].set_property("pkg_config_name", "libselinux")

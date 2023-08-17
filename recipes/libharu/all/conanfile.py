@@ -94,12 +94,9 @@ class LibharuConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "if"))
             save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._v230_extract_license())
         else:
-            copy(
-                self,
-                pattern="LICENSE",
-                dst=os.path.join(self.package_folder, "licenses"),
-                src=self.source_folder,
-            )
+            copy(self, "LICENSE",
+                 dst=os.path.join(self.package_folder, "licenses"),
+                 src=self.source_folder)
             rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):

@@ -30,9 +30,10 @@ class ProtobufCConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
         # TODO: This won't be needed once upstream PR (https://github.com/protobuf-c/protobuf-c/pull/555) gets merged
-        copy(
-            self, "protobuf-c.cmake", src=self.recipe_folder, dst=self.export_sources_folder, keep_path=False
-        )
+        copy(self, "protobuf-c.cmake",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder,
+             keep_path=False)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -82,16 +83,13 @@ class ProtobufCConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         # TODO: This won't be needed once upstream PR (https://github.com/protobuf-c/protobuf-c/pull/555) gets merged
-        copy(
-            self,
-            "protobuf-c.cmake",
-            dst=os.path.join(self.package_folder, self._cmake_install_base_path),
-            src=self.export_sources_folder,
-        )
+        copy(self, "protobuf-c.cmake",
+             dst=os.path.join(self.package_folder, self._cmake_install_base_path),
+             src=self.export_sources_folder)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):

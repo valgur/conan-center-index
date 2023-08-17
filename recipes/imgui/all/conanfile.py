@@ -28,7 +28,9 @@ class IMGUIConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -68,21 +70,15 @@ class IMGUIConan(ConanFile):
         return re.match(r"cci\.\d{8}\+(?P<version>\d+\.\d+(?:\.\d+))\.docking", str(self.version))
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         m = self._match_docking_branch()
         version = Version(m.group("version")) if m else Version(self.version)
         backends_folder = os.path.join(self.source_folder, "backends" if version >= "1.80" else "examples")
-        copy(
-            self,
-            pattern="imgui_impl_*",
-            dst=os.path.join(self.package_folder, "res", "bindings"),
-            src=backends_folder,
-        )
+        copy(self, "imgui_impl_*",
+             dst=os.path.join(self.package_folder, "res", "bindings"),
+             src=backends_folder)
         cmake = CMake(self)
         cmake.install()
 

@@ -88,17 +88,20 @@ class LibdeflateConan(ConanFile):
             self._build_make()
 
     def _package_windows(self):
-        copy(self, "libdeflate.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(self, "libdeflate.h",
+             dst=os.path.join(self.package_folder, "include"),
+             src=self.source_folder)
         if self.options.shared:
-            copy(self, "*deflate.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder)
-            copy(self, "*deflate.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
+            copy(self, "*deflate.lib",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.source_folder)
+            copy(self, "*deflate.dll",
+                 dst=os.path.join(self.package_folder, "bin"),
+                 src=self.source_folder)
         else:
-            copy(
-                self,
-                "*deflatestatic.lib",
-                dst=os.path.join(self.package_folder, "lib"),
-                src=self.source_folder,
-            )
+            copy(self, "*deflatestatic.lib",
+                 dst=os.path.join(self.package_folder, "lib"),
+                 src=self.source_folder)
 
     def _package_make(self):
         autotools = Autotools(self)
@@ -110,7 +113,9 @@ class LibdeflateConan(ConanFile):
         rm(self, "*.a" if self.options.shared else "*.[so|dylib]*", os.path.join(self.package_folder, "lib"))
 
     def package(self):
-        copy(self, "COPYING", self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             self._package_windows()
         else:

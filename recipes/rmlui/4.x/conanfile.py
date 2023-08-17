@@ -130,13 +130,10 @@ class RmluiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="*LICENSE.txt",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            excludes=("Samples/*", "Tests/*"),
-        )
+        copy(self, "*LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder,
+             excludes=("Samples/*", "Tests/*"))
         cmake = CMake(self)
         cmake.install()
 

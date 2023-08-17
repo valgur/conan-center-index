@@ -75,7 +75,9 @@ class NloptConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         algs_licenses = [
             {
                 "subdir": "ags",
@@ -115,12 +117,9 @@ class NloptConan(ConanFile):
             },
         ]
         for alg_license in algs_licenses:
-            copy(
-                self,
-                alg_license["license_name"],
-                src=os.path.join(self.source_folder, "src", "algs", alg_license["subdir"]),
-                dst=os.path.join(self.package_folder, "licenses", alg_license["subdir"]),
-            )
+            copy(self, alg_license["license_name"],
+                 src=os.path.join(self.source_folder, "src", "algs", alg_license["subdir"]),
+                 dst=os.path.join(self.package_folder, "licenses", alg_license["subdir"]))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

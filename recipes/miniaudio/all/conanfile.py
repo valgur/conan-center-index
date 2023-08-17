@@ -29,7 +29,9 @@ class MiniaudioConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -74,29 +76,20 @@ class MiniaudioConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder
-        )
-        copy(
-            self,
-            pattern="**",
-            dst=os.path.join(self.package_folder, "include", "extras"),
-            src=os.path.join(self.source_folder, "extras"),
-        )
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "**",
+             dst=os.path.join(self.package_folder, "include", "extras"),
+             src=os.path.join(self.source_folder, "extras"))
 
         if self.options.header_only:
-            copy(
-                self,
-                pattern="miniaudio.h",
-                dst=os.path.join(self.package_folder, "include"),
-                src=self.source_folder,
-            )
-            copy(
-                self,
-                pattern="miniaudio.*",
-                dst=os.path.join(self.package_folder, "include", "extras", "miniaudio_split"),
-                src=os.path.join(self.source_folder, "extras", "miniaudio_split"),
-            )
+            copy(self, "miniaudio.h",
+                 dst=os.path.join(self.package_folder, "include"),
+                 src=self.source_folder)
+            copy(self, "miniaudio.*",
+                 dst=os.path.join(self.package_folder, "include", "extras", "miniaudio_split"),
+                 src=os.path.join(self.source_folder, "extras", "miniaudio_split"))
         else:
             cmake = CMake(self)
             cmake.install()

@@ -45,14 +45,12 @@ class JwtCppConan(ConanFile):
 
     def package(self):
         header_dir = os.path.join(self.source_folder, "include", "jwt-cpp")
-        copy(
-            self,
-            pattern="*.h",
+        copy(self, "*.h",
             dst=os.path.join(self.package_folder, "include", "jwt-cpp"),
-            src=header_dir,
-            keep_path=True,
-        )
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+            src=header_dir)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "jwt-cpp")

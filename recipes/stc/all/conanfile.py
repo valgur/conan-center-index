@@ -46,12 +46,16 @@ class StcConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self.version == "1.0.0-rc1":
             src_include = self.source_folder
         else:
             src_include = os.path.join(self.source_folder, "include")
-        copy(self, "*.h", src=src_include, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.h",
+             src=src_include,
+             dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

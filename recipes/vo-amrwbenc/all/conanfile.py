@@ -91,9 +91,9 @@ class OpencoreAmrConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self, pattern="NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses")
-        )
+        copy(self, "NOTICE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
 

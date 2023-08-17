@@ -882,7 +882,9 @@ class GdalConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE.TXT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.TXT",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             with chdir(self, self.source_folder):
                 self.run(f"nmake -f makefile.vc devinstall {' '.join(self._nmake_args)}")

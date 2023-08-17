@@ -93,7 +93,9 @@ class PugiXmlConan(ConanFile):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_contents)
         if self.options.header_only:
             source_dir = os.path.join(self.source_folder, "src")
-            copy(self, "*", src=source_dir, dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*",
+                 src=source_dir,
+                 dst=os.path.join(self.package_folder, "include"))
         else:
             cmake = CMake(self)
             cmake.install()

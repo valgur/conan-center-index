@@ -241,34 +241,24 @@ class LibspatialiteConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(
-                self,
-                "spatialite.h",
-                src=os.path.join(self.source_folder, "src", "headers"),
-                dst=os.path.join(self.package_folder, "include"),
-            )
-            copy(
-                self,
-                "*.h",
-                src=os.path.join(self.source_folder, "src", "headers", "spatialite"),
-                dst=os.path.join(self.package_folder, "include", "spatialite"),
-            )
-            copy(
-                self,
-                "*.lib",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "lib"),
-                keep_path=False,
-            )
-            copy(
-                self,
-                "*.dll",
-                src=self.source_folder,
-                dst=os.path.join(self.package_folder, "bin"),
-                keep_path=False,
-            )
+            copy(self, "spatialite.h",
+                 src=os.path.join(self.source_folder, "src", "headers"),
+                 dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*.h",
+                 src=os.path.join(self.source_folder, "src", "headers", "spatialite"),
+                 dst=os.path.join(self.package_folder, "include", "spatialite"))
+            copy(self, "*.lib",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "lib"),
+                 keep_path=False)
+            copy(self, "*.dll",
+                 src=self.source_folder,
+                 dst=os.path.join(self.package_folder, "bin"),
+                 keep_path=False)
         else:
             autotools = Autotools(self)
             autotools.install()

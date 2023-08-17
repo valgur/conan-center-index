@@ -176,7 +176,9 @@ class LibffiConan(ConanFile):
         mkdir(self, os.path.join(self.package_folder, "bin"))
         for dll in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
             shutil.move(dll, os.path.join(self.package_folder, "bin"))
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))

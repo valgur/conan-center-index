@@ -201,7 +201,9 @@ class GStLibAVConan(ConanFile):
                     shutil.move(filename_old, filename_new)
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         meson = Meson(self)
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))

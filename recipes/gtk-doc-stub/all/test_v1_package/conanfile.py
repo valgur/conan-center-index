@@ -35,7 +35,9 @@ class TestPackageConan(ConanFile):
         tc.generate()
 
     def build(self):
-        copy(self, "configure.ac", self.export_sources_folder, self.build_folder)
+        copy(self, "configure.ac",
+             src=self.export_sources_folder,
+             dst=self.build_folder)
         autotools = Autotools(self)
         autotools.autoreconf()
         autotools.configure()

@@ -61,18 +61,12 @@ class CppcheckConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "COPYING",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder),
-        )
-        copy(
-            self,
-            "cppcheck-htmlreport",
-            dst=os.path.join(self.package_folder, "bin"),
-            src=os.path.join(self.source_folder, "htmlreport"),
-        )
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=os.path.join(self.source_folder))
+        copy(self, "cppcheck-htmlreport",
+             dst=os.path.join(self.package_folder, "bin"),
+             src=os.path.join(self.source_folder, "htmlreport"))
         cmake = CMake(self)
         cmake.install()
 

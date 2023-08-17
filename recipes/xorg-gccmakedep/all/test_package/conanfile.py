@@ -11,9 +11,15 @@ class TestPackageConan(ConanFile):
     test_type = "explicit"
 
     def export_sources(self):
-        copy(self, "Makefile", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "test_package.c", src=self.recipe_folder, dst=self.export_sources_folder)
-        copy(self, "test_package.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "Makefile",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "test_package.c",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
+        copy(self, "test_package.h",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
@@ -23,7 +29,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         for src in self.exports_sources:
-            copy(self, src, self.source_folder, self.build_folder)
+            copy(self, src, src=self.source_folder, dst=self.build_folder)
 
         src = os.path.join(self.build_folder, "test_package.c")
         self.run(f"gccmakedep {src}", env="conanbuild")

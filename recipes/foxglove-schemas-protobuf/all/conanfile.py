@@ -46,7 +46,9 @@ class FoxgloveSchemasProtobufConan(ConanFile):
         }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=(self.export_sources_folder + "/src"))
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=(self.export_sources_folder + "/src"))
         export_conandata_patches(self)
 
     def source(self):
@@ -95,7 +97,9 @@ class FoxgloveSchemasProtobufConan(ConanFile):
         cmake = CMake(self)
         cmake.configure(build_script_folder=self.source_path.parent)
         cmake.install()
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libs = ["foxglove_schemas_protobuf"]

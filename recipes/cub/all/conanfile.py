@@ -55,18 +55,12 @@ class CubConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE.TXT",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
-        copy(
-            self,
-            pattern="*.cuh",
-            dst=os.path.join(self.package_folder, "include", "cub"),
-            src=os.path.join(self.source_folder, "cub"),
-        )
+        copy(self, "LICENSE.TXT",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
+        copy(self, "*.cuh",
+             dst=os.path.join(self.package_folder, "include", "cub"),
+             src=os.path.join(self.source_folder, "cub"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

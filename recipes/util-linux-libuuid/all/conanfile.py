@@ -101,12 +101,9 @@ class UtilLinuxLibuuidConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(
-            self,
-            "COPYING.BSD-3-Clause",
-            src=os.path.join(self.source_folder, "Documentation", "licenses"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "COPYING.BSD-3-Clause",
+             src=os.path.join(self.source_folder, "Documentation", "licenses"),
+             dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

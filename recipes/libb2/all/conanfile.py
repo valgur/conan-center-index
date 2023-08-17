@@ -36,7 +36,9 @@ class libb2Conan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt",
+             src=self.recipe_folder,
+             dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -74,7 +76,9 @@ class libb2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         for dll in (self.package_path / "lib").glob("*.dll"):
