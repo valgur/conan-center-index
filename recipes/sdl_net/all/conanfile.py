@@ -62,7 +62,7 @@ class SdlnetConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure(build_script_folder=self.source_path.parent)
         cmake.build()
 
     def package(self):

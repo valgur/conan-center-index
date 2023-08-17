@@ -95,7 +95,7 @@ class LibjpegConan(ConanFile):
 
     def _build_nmake(self):
         copy(self, "Win32.Mak",
-             src=os.path.join(self.source_folder, os.pardir),
+             src=self.export_sources_folder,
              dst=self.source_folder)
         with chdir(self, self.source_folder):
             # export symbols if shared

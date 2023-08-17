@@ -65,7 +65,7 @@ class JpegCompressorConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure(build_script_folder=self.source_path.parent)
         cmake.build()
 
     def _extract_license(self):

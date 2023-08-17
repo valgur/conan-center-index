@@ -81,10 +81,10 @@ class AndroidNDKConan(ConanFile):
         copy(self, "*NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*NOTICE.toolchain", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "cmake-wrapper.cmd",
-             src=os.path.join(self.source_folder, os.pardir),
+             src=self.export_sources_folder,
              dst=os.path.join(self.package_folder, "bin"))
         copy(self, "cmake-wrapper",
-             src=os.path.join(self.source_folder, os.pardir),
+             src=self.export_sources_folder,
              dst=os.path.join(self.package_folder, "bin"))
         self._fix_broken_links()
         self._fix_permissions()

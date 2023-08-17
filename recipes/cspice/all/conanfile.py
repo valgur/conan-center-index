@@ -90,7 +90,7 @@ class CspiceConan(ConanFile):
 
     @property
     def _parent_source_folder(self):
-        return os.path.join(self.source_folder, os.pardir)
+        return self.source_path.parent
 
     def _get_sources(self):
         with chdir(self, self._parent_source_folder):

@@ -126,7 +126,7 @@ class GRPCProto(ConanFile):
 
     def build(self):
         copy(self, "CMakeLists.txt",
-             src=os.path.join(self.source_folder, os.pardir),
+             src=self.export_sources_folder,
              dst=self.source_folder)
         proto_libraries = self._parse_proto_libraries()
         with open(os.path.join(self.source_folder, "CMakeLists.txt"), "a", encoding="utf-8") as f:

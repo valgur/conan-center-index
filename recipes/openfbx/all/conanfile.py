@@ -64,7 +64,7 @@ class OpenfbxConan(ConanFile):
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure(build_script_folder=self.source_path.parent)
         cmake.build()
 
     def package(self):

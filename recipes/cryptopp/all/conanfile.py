@@ -68,7 +68,7 @@ class CryptoPPConan(ConanFile):
 
         if Version(self.version) < "8.7.0":
             # Get CMakeLists
-            base_source_dir = os.path.join(self.source_folder, os.pardir)
+            base_source_dir = self.export_sources_folder
             get(self, **self.conan_data["sources"][self.version]["cmake"], destination=base_source_dir)
             src_folder = os.path.join(
                 base_source_dir, f"cryptopp-cmake-CRYPTOPP_{self.version.replace('.', '_')}"

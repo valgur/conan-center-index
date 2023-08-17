@@ -30,7 +30,7 @@ class BlazeConan(ConanFile):
             check_min_cppstd(self, 14)
 
     def source(self):
-        base_source_dir = os.path.join(self.source_folder, os.pardir)
+        base_source_dir = self.export_sources_folder
         get(self, **self.conan_data["sources"][self.version], destination=base_source_dir, strip_root=True)
         with chdir(self, base_source_dir):
             rmdir(self, self.source_folder)

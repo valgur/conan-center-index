@@ -81,7 +81,7 @@ class LibevConan(ConanFile):
 
     def build(self):
         if is_msvc(self):
-            base_folder = os.path.join(self.source_folder, os.pardir)
+            base_folder = self.export_sources_folder
             copy(self, "config.h",
                  src=base_folder,
                  dst=self.source_folder)
