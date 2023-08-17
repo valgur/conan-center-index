@@ -29,9 +29,7 @@ class ClaraConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*",
              src=os.path.join(self.source_folder, "include"),
              dst=os.path.join(self.package_folder, "include"))

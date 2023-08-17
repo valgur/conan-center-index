@@ -99,9 +99,7 @@ class RestinioConan(ConanFile):
         deps.generate()
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "dev", "restinio"))
         cmake.install()

@@ -63,9 +63,7 @@ class LibNlConan(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "etc"))

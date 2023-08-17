@@ -105,9 +105,7 @@ class FreexlConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(self, "freexl.h",
                  src=os.path.join(self.source_folder, "headers"),

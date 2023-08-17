@@ -126,9 +126,7 @@ class STXConan(ConanFile):
              dst=os.path.join(self.package_folder, "bin"),
              src=self.build_folder,
              keep_path=False)
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

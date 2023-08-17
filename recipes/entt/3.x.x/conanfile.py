@@ -67,9 +67,7 @@ class EnttConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*",
              src=os.path.join(self.source_folder, "src"),
              dst=os.path.join(self.package_folder, "include"))

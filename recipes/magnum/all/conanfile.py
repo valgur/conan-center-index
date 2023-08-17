@@ -454,9 +454,7 @@ class MagnumConan(ConanFile):
         copy(self, "*.cmake",
              src=os.path.join(self.export_sources_folder, "cmake"),
              dst=os.path.join(self.package_folder, "lib", "cmake"))
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Magnum")

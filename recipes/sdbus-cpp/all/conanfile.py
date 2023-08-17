@@ -128,9 +128,7 @@ class SdbusCppConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.install()
-        copy(self, "COPYING*",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 

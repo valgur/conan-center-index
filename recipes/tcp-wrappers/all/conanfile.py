@@ -75,9 +75,7 @@ class TcpWrappersConan(ConanFile):
             autotools.make(target="linux")
 
     def package(self):
-        copy(self, "DISCLAIMER",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "DISCLAIMER", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         for exe in ("safe_finger", "tcpd", "tcpdchk", "tcpdmatch", "try-from"):
             copy(self, exe,
                  src=self.source_folder,

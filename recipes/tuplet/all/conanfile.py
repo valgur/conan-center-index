@@ -80,9 +80,7 @@ class TupletConan(ConanFile):
         copy(self, "*.hpp",
              src=include_folder,
              dst=os.path.join(self.package_folder, "include"))
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tuplet")

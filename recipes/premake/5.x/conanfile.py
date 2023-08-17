@@ -150,9 +150,7 @@ class PremakeConan(ConanFile):
                 autotools.make(target="Premake5")
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*premake5*",
              dst=os.path.join(self.package_folder, "bin"),
              src=os.path.join(self.source_folder, "bin", "release"),

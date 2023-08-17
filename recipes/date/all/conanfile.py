@@ -94,9 +94,7 @@ class DateConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.options.header_only:
             src = os.path.join(self.source_folder, "include", "date")
             dst = os.path.join(self.package_folder, "include", "date")

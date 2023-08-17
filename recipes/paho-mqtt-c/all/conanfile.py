@@ -136,15 +136,11 @@ class PahoMqttcConan(ConanFile):
         return "epl-v10" if self.version in ["1.3.0", "1.3.1"] else "epl-v20"  # EPL changed to V2
 
     def package(self):
-        copy(self, "edl-v10",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "edl-v10", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, self._epl_file,
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "notice.html",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "notice.html", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         # Manually copy since the CMake installs everything
         copy(self, "MQTT*.h",

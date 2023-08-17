@@ -191,9 +191,7 @@ class AwsCdiSdkConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*",
              dst=os.path.join(self.package_folder, "include"),
              src=os.path.join(self.source_folder, "include"))

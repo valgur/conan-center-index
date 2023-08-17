@@ -120,9 +120,7 @@ class LibrdkafkaConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSES.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSES.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

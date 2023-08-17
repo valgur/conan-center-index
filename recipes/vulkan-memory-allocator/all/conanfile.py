@@ -47,9 +47,7 @@ class VulkanMemoryAllocatorConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) < "3.0.0":
             include_dir = os.path.join(self.source_folder, "src")
         else:

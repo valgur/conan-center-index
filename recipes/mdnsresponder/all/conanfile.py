@@ -254,9 +254,7 @@ class MdnsResponderConan(ConanFile):
              src=self._msvc_build_folder("Clients", "DNS-SD.VisualStudio"))
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self._install_make()
         elif self.settings.os == "Windows":

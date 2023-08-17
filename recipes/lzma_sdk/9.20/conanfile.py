@@ -159,12 +159,8 @@ class LzmaSdkConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "lzma.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
-        copy(self, "7zC.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "lzma.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "7zC.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             for make_dir, exe in self._msvc_build_dirs:
                 copy(self, exe,

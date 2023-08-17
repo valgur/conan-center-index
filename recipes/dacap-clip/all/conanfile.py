@@ -81,9 +81,7 @@ class DacapClipConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "clip.h",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include"))

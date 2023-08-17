@@ -64,9 +64,7 @@ class MathterConan(ConanFile):
         copy(self, "*.natvis",
              dst=os.path.join(self.package_folder, "include", "Mathter"),
              src=os.path.join(self.source_folder, "Mathter"))
-        copy(self, "LICENCE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

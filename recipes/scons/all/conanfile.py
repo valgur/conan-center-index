@@ -41,9 +41,7 @@ class SConsConan(ConanFile):
             os.chmod(path, 0o755)
 
     def package(self):
-        copy(self, "LICENSE*",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         if Version(self.version) < 4:
             shutil.copytree(

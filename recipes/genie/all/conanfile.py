@@ -112,9 +112,7 @@ class GenieConan(ConanFile):
             )
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
         copy(self, f"genie{bin_ext}",
              src=os.path.join(self.source_folder, "bin", self._os),

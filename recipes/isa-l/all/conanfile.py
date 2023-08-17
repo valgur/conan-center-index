@@ -73,9 +73,7 @@ class LibisalConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*/isa-l.h",
              dst=os.path.join(self.package_folder, "include/isa-l"),
              src=self.source_folder,

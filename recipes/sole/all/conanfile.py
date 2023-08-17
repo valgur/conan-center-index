@@ -43,9 +43,7 @@ class SoleConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*.hpp",
              dst=os.path.join(self.package_folder, "include"),
              src=self.source_folder)

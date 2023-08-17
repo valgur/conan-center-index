@@ -147,9 +147,7 @@ class LibMP3LameConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self) or self._is_clang_cl:
             copy(self, "*.h",
                  src=os.path.join(self.source_folder, "include"),

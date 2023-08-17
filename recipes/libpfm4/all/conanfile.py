@@ -69,9 +69,7 @@ class Libpfm4Conan(ConanFile):
         autotools.make(args=args)
 
     def package(self):
-        copy(self, "COPYING",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "err.h",
              dst=os.path.join(self.package_folder, "include", "perfmon"),
              src=os.path.join(self.source_folder, "include", "perfmon"))

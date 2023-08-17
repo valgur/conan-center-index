@@ -68,9 +68,7 @@ class IMGUIConan(ConanFile):
         return re.match(r"cci\.\d{8}\+(?P<version>\d+\.\d+(?:\.\d+))\.docking", str(self.version))
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         m = self._match_docking_branch()
         version = Version(m.group("version")) if m else Version(self.version)
         backends_folder = os.path.join(self.source_folder, "backends" if version >= "1.80" else "examples")

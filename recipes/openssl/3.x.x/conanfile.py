@@ -543,9 +543,7 @@ class OpenSSLConan(ConanFile):
             replace_in_file(self, filename, f'/{e}"', f'/{runtime}"', strict=False)
 
     def package(self):
-        copy(self, "*LICENSE*",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         self._make_install()
         if is_apple_os(self):
             fix_apple_shared_install_name(self)

@@ -64,9 +64,7 @@ class ScdocInstallerConan(ConanFile):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
-        copy(self, "COPYING",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     @staticmethod

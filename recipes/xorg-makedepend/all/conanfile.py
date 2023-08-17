@@ -66,9 +66,7 @@ class XorgMakedepend(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         def_h_text = load(self, os.path.join(self.source_folder, "def.h"))
         license_text = next(re.finditer(r"/\*([^*]+)\*/", def_h_text)).group(1)
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_text)

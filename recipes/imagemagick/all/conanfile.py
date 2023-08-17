@@ -368,9 +368,7 @@ class ImageMagicConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             for pattern in ["*CORE_*.lib", "*CORE_*.dll", "*IM_MOD_*.dll"]:
                 copy(self, pattern,

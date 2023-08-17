@@ -105,9 +105,7 @@ class EmSDKConan(ConanFile):
                     self.run(f"{emsdk} activate {value}")
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "bin"))

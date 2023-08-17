@@ -64,9 +64,7 @@ class CMinpackConan(ConanFile):
         cmake.install()
 
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        copy(self, "CopyrightMINPACK.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "CopyrightMINPACK.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "share"))  # contains cmake config files
 
     def _library_postfix(self):

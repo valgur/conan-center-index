@@ -30,9 +30,7 @@ class PdqsortConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "license.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "pdqsort.h",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include"))

@@ -30,9 +30,7 @@ class GnuLibConanFile(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, filename="gnulib.tar.gz")
 
     def package(self):
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*",
              dst=os.path.join(self.package_folder, "bin"),
              src=self.source_folder)

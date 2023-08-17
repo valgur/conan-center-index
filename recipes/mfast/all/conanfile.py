@@ -129,9 +129,7 @@ class mFASTConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "licence.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "licence.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         mkdir(self, os.path.join(self.package_folder, self._new_mfast_config_dir))

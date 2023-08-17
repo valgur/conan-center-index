@@ -74,9 +74,7 @@ class MiniaudioConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "**",
              dst=os.path.join(self.package_folder, "include", "extras"),
              src=os.path.join(self.source_folder, "extras"))

@@ -129,9 +129,7 @@ class CclientConan(ConanFile):
             self._build_unix()
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         # Install headers (headers in build tree are symlinks)
         include_folder = os.path.join(self.package_folder, "include", "c-client")
         mkdir(self, include_folder)

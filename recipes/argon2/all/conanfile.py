@@ -151,9 +151,7 @@ class Argon2Conan(ConanFile):
                 autotools.make(target="libs")
 
     def package(self):
-        copy(self, "*LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         bin_folder = os.path.join(self.package_folder, "bin")
         lib_folder = os.path.join(self.package_folder, "lib")
         if is_msvc(self):

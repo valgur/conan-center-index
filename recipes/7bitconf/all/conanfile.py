@@ -106,9 +106,7 @@ class SevenBitConfConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.options.header_only:
             copy(self, "*.hpp",
                 src=os.path.join(self.source_folder, "Include"),

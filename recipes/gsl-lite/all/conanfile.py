@@ -56,9 +56,7 @@ class GslLiteConan(ConanFile):
         copy(self, "*gsl-lite.hpp",
              src=self.source_folder,
              dst=self.package_folder)
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

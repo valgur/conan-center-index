@@ -107,12 +107,8 @@ class SwigConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE*",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
-        copy(self, "COPYRIGHT",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*.cmake",
              dst=self._module_subfolder,
              src=os.path.join(self.export_sources_folder, "cmake"))

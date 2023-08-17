@@ -106,9 +106,7 @@ class GStreamerConan(ConanFile):
                     rename(self, filename_old, filename_new)
 
     def package(self):
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
 

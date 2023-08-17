@@ -50,9 +50,7 @@ class ThrustConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         for pattern in ["*.h", "*.inl"]:
             copy(self, pattern,
                  src=os.path.join(self.source_folder, "thrust"),

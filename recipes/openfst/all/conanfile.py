@@ -140,9 +140,7 @@ class OpenFstConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         autotools = Autotools(self)
         autotools.install()

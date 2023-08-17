@@ -143,9 +143,7 @@ class LibjpegConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "README",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "README", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self) or self._is_clang_cl:
             for filename in ["jpeglib.h", "jerror.h", "jconfig.h", "jmorecfg.h"]:
                 copy(self, filename,

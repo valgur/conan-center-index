@@ -34,9 +34,7 @@ class RapiXMLConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "license.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.hpp",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include", "rapidxml"))

@@ -128,9 +128,7 @@ class Cc65Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             self._package_msvc()
         else:

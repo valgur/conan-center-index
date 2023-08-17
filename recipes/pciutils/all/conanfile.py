@@ -85,9 +85,7 @@ class PciUtilsConan(ConanFile):
             autotools.make(target="install")
             autotools.make(target="install-pcilib")
 
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include"))

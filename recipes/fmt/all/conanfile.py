@@ -96,9 +96,7 @@ class FmtConan(ConanFile):
             cmake.build()
 
     def package(self):
-        copy(self, "*LICENSE.rst",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE.rst", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if self.options.header_only:
             copy(self, "*.h",
                  src=os.path.join(self.source_folder, "include"),

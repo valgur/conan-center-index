@@ -102,9 +102,7 @@ class LibniceConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, "COPYING*",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "COPYING*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

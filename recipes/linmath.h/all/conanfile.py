@@ -34,9 +34,7 @@ class LinmathConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENCE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENCE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "linmath.h",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include"))

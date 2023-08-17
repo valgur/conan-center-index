@@ -267,9 +267,7 @@ class LLVMCoreConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE.TXT",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.TXT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         lib_path = os.path.join(self.package_folder, "lib")
         cmake = CMake(self)
         cmake.install()

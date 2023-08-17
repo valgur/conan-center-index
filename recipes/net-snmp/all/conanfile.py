@@ -153,9 +153,7 @@ class NetSnmpConan(ConanFile):
             autotools.make(target="snmplib", args=["NOAUTODEPS=1"])
 
     def package(self):
-        copy(self, "COPYING",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             cfg = "debug" if self._is_debug else "release"
             copy(self, "netsnmp.dll",

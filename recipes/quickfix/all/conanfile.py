@@ -98,9 +98,7 @@ class QuickfixConan(ConanFile):
         copy(self, "Except.h",
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "src", "C++"))
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):

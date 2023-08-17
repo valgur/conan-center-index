@@ -39,9 +39,7 @@ class FastPRNGConan(ConanFile):
         copy(self, "*.h",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include"))
-        copy(self, "license.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "license.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

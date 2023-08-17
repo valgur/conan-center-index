@@ -97,9 +97,7 @@ class FoxgloveSchemasProtobufConan(ConanFile):
         cmake = CMake(self)
         cmake.configure(build_script_folder=self.source_path.parent)
         cmake.install()
-        copy(self, "LICENSE.md",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libs = ["foxglove_schemas_protobuf"]

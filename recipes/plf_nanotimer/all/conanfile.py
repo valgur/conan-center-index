@@ -31,9 +31,7 @@ class PlfnanotimerConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.md",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "plf_nanotimer.h",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include"))

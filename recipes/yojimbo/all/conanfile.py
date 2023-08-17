@@ -136,9 +136,7 @@ class YojimboConan(ConanFile):
                 autotools.make(args=[f"config={config}"])
 
     def package(self):
-        copy(self, "LICENCE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "yojimbo.h",
             dst=os.path.join(self.package_folder, "include"),
             src=self.source_folder)

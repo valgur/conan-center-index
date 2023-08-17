@@ -98,9 +98,7 @@ class RmmConan(ConanFile):
         self._patch_sources()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         for pattern in ["*.hpp", "*.h"]:
             copy(self, pattern,
                  dst=os.path.join(self.package_folder, "include"),

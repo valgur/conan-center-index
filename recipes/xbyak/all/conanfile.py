@@ -34,9 +34,7 @@ class XbyakConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "COPYRIGHT",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h",
             src=os.path.join(self.source_folder, "xbyak"),
             dst=os.path.join(self.package_folder, "include", "xbyak"))

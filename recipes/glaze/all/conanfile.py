@@ -71,9 +71,7 @@ class GlazeConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*.hpp",
             excludes="glaze/frozen/*.hpp" if Version(self.version) < "0.2.4" else "",
             dst=os.path.join(self.package_folder, "include"),

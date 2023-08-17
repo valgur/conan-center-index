@@ -76,9 +76,7 @@ class PlatformInterfacesConan(ConanFile):
             download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         if Version(self.version) < "0.3.41":
             copy(self, "*.h",

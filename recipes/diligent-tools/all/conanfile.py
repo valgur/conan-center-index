@@ -165,9 +165,7 @@ class DiligentToolsConan(ConanFile):
              keep_path=False)
         rmdir(self, os.path.join(self.package_folder, "Licenses"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        copy(self, "License.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "License.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

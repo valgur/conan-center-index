@@ -87,9 +87,7 @@ class QuantlibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.TXT",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.TXT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

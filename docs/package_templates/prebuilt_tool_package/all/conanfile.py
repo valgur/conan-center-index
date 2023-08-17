@@ -41,9 +41,7 @@ class PackageConan(ConanFile):
         )
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*.exe",
              dst=os.path.join(self.package_folder, "bin"),
              src=self.source_folder)

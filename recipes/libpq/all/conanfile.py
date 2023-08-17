@@ -209,9 +209,7 @@ class LibpqConan(ConanFile):
             rm(self, "*.dylib", lib_folder)
 
     def package(self):
-        copy(self, "COPYRIGHT",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             copy(self, "*postgres_ext.h",
                  dst=os.path.join(self.package_folder, "include"),

@@ -126,9 +126,7 @@ class XqillaConan(ConanFile):
         return tmp[2 : tmp.find("*/", 1)]
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "README",
              src=os.path.join(self.source_folder, "src", "mapm"),
              dst=os.path.join(self.package_folder, "licenses"))

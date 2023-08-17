@@ -376,9 +376,7 @@ class JemallocConan(ConanFile):
         return libname
 
     def package(self):
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             arch_subdir = {
                 "x86_64": "x64",

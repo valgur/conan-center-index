@@ -230,9 +230,7 @@ class GoogleCloudCppConan(ConanFile):
         return result
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, path=os.path.join(self.package_folder, "lib", "cmake"))

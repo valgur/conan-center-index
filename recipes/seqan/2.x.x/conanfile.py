@@ -68,9 +68,7 @@ class SeqanConan(ConanFile):
         copy(self, "*",
              dst=os.path.join(self.package_folder, "include"),
              src=os.path.join(self.source_folder, "include"))
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

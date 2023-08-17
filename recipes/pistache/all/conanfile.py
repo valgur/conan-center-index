@@ -148,9 +148,7 @@ class PistacheConan(ConanFile):
             meson.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.version == "cci.20201127":
             cmake = CMake(self)
             cmake.install()

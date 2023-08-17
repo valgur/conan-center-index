@@ -60,9 +60,7 @@ class TinyAlsaConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "NOTICE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "NOTICE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         with chdir(self, self.source_folder):
             autotools = Autotools(self)

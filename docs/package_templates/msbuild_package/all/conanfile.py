@@ -111,9 +111,7 @@ class PackageConan(ConanFile):
         msbuild.build(sln="project_2017.sln")
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.lib",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "lib"),

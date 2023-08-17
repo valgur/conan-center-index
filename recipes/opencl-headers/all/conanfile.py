@@ -54,9 +54,7 @@ class OpenclHeadersConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*",
              src=os.path.join(self.source_folder, "CL"),
              dst=os.path.join(self.package_folder, "include", "CL"))

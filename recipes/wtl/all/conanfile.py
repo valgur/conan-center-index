@@ -39,9 +39,7 @@ class WTLConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "MS-PL.TXT",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "MS-PL.TXT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*",
              src=os.path.join(self.source_folder, "include"),
              dst=os.path.join(self.package_folder, "include"))

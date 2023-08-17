@@ -155,9 +155,7 @@ class CoinUtilsConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install(args=["-j1"])
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

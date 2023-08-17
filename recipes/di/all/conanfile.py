@@ -83,9 +83,7 @@ class DiConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.options.with_extensions:
             copy(self, "*.hpp",
                  dst=os.path.join(self.package_folder, "include", "boost", "di", "extension"),

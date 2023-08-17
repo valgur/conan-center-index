@@ -201,9 +201,7 @@ class GoogleAPIS(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.proto",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "res"))

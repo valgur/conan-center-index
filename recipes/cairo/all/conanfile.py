@@ -230,9 +230,7 @@ class CairoConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             src = os.path.join(self.source_folder, "src")
             inc = os.path.join(self.package_folder, "include", "cairo")

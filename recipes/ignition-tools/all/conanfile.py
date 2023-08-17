@@ -88,9 +88,7 @@ class IgnitionToolsConan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         cmake = CMake(self)
         cmake.install()

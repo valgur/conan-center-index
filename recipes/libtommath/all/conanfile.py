@@ -103,9 +103,7 @@ class LibTomMathConan(ConanFile):
                 autotools.make(target, args=["-f", makefile])
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         for pattern in ["*.a", "*.so*", "*.lib", "*.dylib"]:
             copy(self, pattern,
                  src=self.source_folder,

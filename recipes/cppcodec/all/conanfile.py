@@ -42,9 +42,7 @@ class CppcodecConan(ConanFile):
         copy(self, "*hpp",
              src=os.path.join(self.source_folder, "cppcodec"),
              dst=os.path.join(self.package_folder, "include", "cppcodec"))
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "cppcodec-1")

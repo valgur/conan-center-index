@@ -172,9 +172,7 @@ class OpenColorIOConan(ConanFile):
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         if Version(self.version) == "1.1.1":
             fix_apple_shared_install_name(self)

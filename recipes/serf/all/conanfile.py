@@ -135,9 +135,7 @@ class SerfConan(ConanFile):
         return "so"
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
             self.run(f'scons install -Y "{self.source_folder}"')
 

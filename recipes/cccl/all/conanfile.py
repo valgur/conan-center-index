@@ -65,9 +65,7 @@ class CcclConan(ConanFile):
         copy(self, "cccl",
              src=self.source_folder,
              dst=self._cccl_dir)
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

@@ -156,12 +156,8 @@ class GmpConan(ConanFile):
             autotools.make(target="check")
 
     def package(self):
-        copy(self, "COPYINGv2",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "COPYING.LESSERv3",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYINGv2", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING.LESSERv3", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

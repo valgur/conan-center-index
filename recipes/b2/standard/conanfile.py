@@ -125,18 +125,10 @@ class B2Conan(ConanFile):
             )
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*b2",
-             dst=self._pkg_bin_dir,
-             src=self._b2_output_dir)
-        copy(self, "*b2.exe",
-             dst=self._pkg_bin_dir,
-             src=self._b2_output_dir)
-        copy(self, "*.jam",
-             dst=self._pkg_bin_dir,
-             src=self._b2_output_dir)
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*b2", dst=self._pkg_bin_dir, src=self._b2_output_dir)
+        copy(self, "*b2.exe", dst=self._pkg_bin_dir, src=self._b2_output_dir)
+        copy(self, "*.jam", dst=self._pkg_bin_dir, src=self._b2_output_dir)
 
     def package_info(self):
         self.cpp_info.includedirs = []

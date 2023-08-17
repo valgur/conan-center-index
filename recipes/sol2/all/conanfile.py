@@ -89,9 +89,7 @@ class Sol2Conan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) < "3.0.0":
             copy(self, "*",
                  src=os.path.join(self.source_folder, "sol"),

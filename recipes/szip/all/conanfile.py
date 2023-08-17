@@ -101,9 +101,7 @@ class SzipConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # TODO: to remove in conan v2 once cmake_find_package* generators removed

@@ -67,9 +67,7 @@ class Bzip2Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))

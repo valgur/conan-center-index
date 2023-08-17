@@ -86,9 +86,7 @@ class SerdeppConan(ConanFile):
     def package(self):
         s = lambda x: os.path.join(self.source_folder, x)
         p = lambda x: os.path.join(self.package_folder, x)
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         include = os.path.join("include", "serdepp")
         copy(self, "*.hpp",
              dst=p(include),

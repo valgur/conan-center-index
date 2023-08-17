@@ -90,9 +90,7 @@ class CrowConan(ConanFile):
                 cmake.build(target="crow_amalgamated")
 
     def package(self):
-        copy(self, "LICENSE*",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         if self.options.amalgamation:
             copy(self, "crow_all.h",

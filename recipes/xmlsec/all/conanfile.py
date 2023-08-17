@@ -205,9 +205,7 @@ class XmlSecConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "Copyright",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "Copyright", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "win32")):
                 self.run("nmake -f Makefile.msvc install")

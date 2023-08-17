@@ -141,9 +141,7 @@ class LuajitConan(ConanFile):
                 autotools.make(args=self._make_arguments)
 
     def package(self):
-        copy(self, "COPYRIGHT",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         src_folder = os.path.join(self.source_folder, "src")
         include_folder = os.path.join(self.package_folder, "include", self._luajit_include_folder)
         if is_msvc(self):

@@ -95,9 +95,7 @@ class Base64Conan(ConanFile):
                 autotools.make(target="lib/libbase64.a")
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self._use_cmake:
             cmake = CMake(self)
             cmake.install()

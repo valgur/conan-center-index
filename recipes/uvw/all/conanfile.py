@@ -74,9 +74,7 @@ class UvwConan(ConanFile):
         copy(self, "*",
              src=os.path.join(self.source_folder, "src", "uvw"),
              dst=os.path.join(self.package_folder, "include", "uvw"))
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

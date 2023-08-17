@@ -63,9 +63,7 @@ class So5extraConan(ConanFile):
         copy(self, "*.hpp",
              dst=os.path.join(self.package_folder, "include/so_5_extra"),
              src=os.path.join(self.source_folder, "dev", "so_5_extra"))
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

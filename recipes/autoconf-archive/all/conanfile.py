@@ -53,9 +53,7 @@ class AutoconfArchiveConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
-        copy(self, "COPYING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         mkdir(self, os.path.join(self.package_folder, "res"))
         rename(

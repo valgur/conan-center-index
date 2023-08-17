@@ -141,9 +141,7 @@ class WolfSSLConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSING",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         os.unlink(os.path.join(self.package_folder, "bin", "wolfssl-config"))

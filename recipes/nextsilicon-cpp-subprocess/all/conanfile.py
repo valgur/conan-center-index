@@ -45,9 +45,7 @@ class CppSubprocess(ConanFile):
         copy(self, "subprocess.hpp",
              dst=os.path.join(self.package_folder, "include/cpp-subprocess"),
              src=self.source_folder)
-        copy(self, "LICENSE.MIT",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.MIT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

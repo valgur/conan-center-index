@@ -59,9 +59,7 @@ class Etc2compConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         for pattern in ["*.lib", "*.a", "*.so*", "*.dylib"]:
             copy(self, pattern,
                  dst=os.path.join(self.package_folder, "lib"),

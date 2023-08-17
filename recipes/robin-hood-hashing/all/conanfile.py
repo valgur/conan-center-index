@@ -39,9 +39,7 @@ class RobinHoodHashingConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "robin_hood.h",
              src=os.path.join(self.source_folder, "src", "include"),
              dst=os.path.join(self.package_folder, "include"))

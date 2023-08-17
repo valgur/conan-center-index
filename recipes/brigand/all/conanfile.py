@@ -47,9 +47,7 @@ class BrigandConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         include_path = os.path.join("include", "brigand")
         copy(self, "*.hpp",
              src=os.path.join(self.source_folder, include_path),

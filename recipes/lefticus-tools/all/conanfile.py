@@ -57,9 +57,7 @@ class LefticusToolsConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "ProjectOptions",
              dst=os.path.join(self.package_folder, "lib", "cmake"),
              src=self.source_folder)

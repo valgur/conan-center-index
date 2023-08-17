@@ -54,9 +54,7 @@ class FlatcConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         extension = ".exe" if self.settings.os == "Windows" else ""
         bin_dir = os.path.join(self.build_folder, "bin")
         copy(self, "flatc" + extension,

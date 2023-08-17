@@ -52,9 +52,7 @@ class OpenApiGeneratorConan(ConanFile):
         )
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "openapi-generator.jar",
              dst=os.path.join(self.package_folder, "res"),
              src=self.source_folder)

@@ -118,9 +118,7 @@ class NasRecipe(ConanFile):
             autotools.make(target="World", args=["-j1"] + self._imake_make_args)
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         tmp_install = os.path.join(self.build_folder, "prefix")
         self.output.warning(tmp_install)

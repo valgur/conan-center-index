@@ -67,9 +67,7 @@ class PackageConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE.md",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*.hpp",
              dst=os.path.join(self.package_folder, "include"),
              src=os.path.join(self.source_folder, "src"))

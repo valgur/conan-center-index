@@ -72,12 +72,8 @@ class RagelConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
-        copy(self, "CREDITS",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "CREDITS", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

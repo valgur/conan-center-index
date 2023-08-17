@@ -69,9 +69,7 @@ class ArgparseConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) <= "2.1":
             include_dst = os.path.join(self.package_folder, "include", "argparse")
         else:

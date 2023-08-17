@@ -38,9 +38,7 @@ class LibmortonConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         if Version(self.version) < "0.2.7":
             src_hdrs = os.path.join(self.source_folder, "libmorton", "include")
         elif Version(self.version) < "0.2.8":

@@ -34,9 +34,7 @@ class PlflistConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "LICENSE.md",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "plf_list.h",
              src=self.source_folder,
              dst=os.path.join(self.package_folder, "include"))

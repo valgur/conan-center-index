@@ -243,9 +243,7 @@ class LibsystemdConan(ConanFile):
         meson.build(target=f"version.h {target}")
 
     def package(self):
-        copy(self, "LICENSE.LGPL2.1",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.LGPL2.1", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h",
              src=os.path.join(self.source_folder, "src", "systemd"),
              dst=os.path.join(self.package_folder, "include", "systemd"))
