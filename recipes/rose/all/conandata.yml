@@ -1,0 +1,4 @@
+sources:
+  "0.11.140.7":
+    url: "https://github.com/rose-compiler/rose/archive/refs/tags/v0.11.140.7.tar.gz"
+    sha256: "x"
