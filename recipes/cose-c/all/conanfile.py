@@ -45,12 +45,12 @@ class CoseCConan(ConanFile):
             check_min_cppstd(self, 11)
 
     def requirements(self):
-        self.requires("cn-cbor/1.0.0", transitive_headers=True)
+        self.requires("cn-cbor/cci.20200822", transitive_headers=True)
 
         if self.options.with_ssl == "mbedtls":
-            self.requires("mbedtls/2.25.0", transitive_headers=True)
+            self.requires("mbedtls/2.16.12", transitive_headers=True)
         else:
-            self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
+            self.requires("openssl/[>=1.1 <2]", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
