@@ -41,8 +41,12 @@ class UPXConan(ConanFile):
         get(self, **self._conan_data_sources(), strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         extension = ".exe" if self.settings.os == "Windows" else ""
         copy(self, f"upx{extension}",
              src=self.source_folder,

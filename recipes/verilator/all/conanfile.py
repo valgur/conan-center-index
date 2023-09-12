@@ -81,7 +81,7 @@ class VerilatorConan(ConanFile):
             if self._needs_old_bison:
                 # don't upgrade to bison 3.7.0 or above, or it fails to build
                 # because of https://github.com/verilator/verilator/pull/2505
-                self.tool_requires("bison/3.8.2")
+                self.tool_requires("bison/3.5.3")
             else:
                 self.tool_requires("bison/3.8.2")
         if Version(self.version) >= "4.224":

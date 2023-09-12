@@ -50,7 +50,7 @@ class SystemcComponentsConan(ConanFile):
 
     def requirements(self):
         self.requires("fmt/10.1.1")
-        self.requires("zlib/1.3")
+        self.requires("zlib/1.2.13")
         self.requires("boost/1.83.0")
         self.requires("gsl-lite/0.41.0")
         self.requires("spdlog/1.12.0")
@@ -90,7 +90,9 @@ class SystemcComponentsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

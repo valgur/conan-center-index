@@ -67,9 +67,7 @@ class YandexOzoConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*",
-             dst=os.path.join("include", "ozo"),
-             src=os.path.join(self.source_folder, "include", "ozo"))
+        copy(self, "*", dst=os.path.join("include", "ozo"), src=os.path.join(self.source_folder, "include", "ozo"))
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):

@@ -93,7 +93,9 @@ class GoogleGuetzliConan(ConanFile):
             copy(self, path.name,
                  dst=os.path.join(self.package_folder, "bin"),
                  src=path.parent)
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []

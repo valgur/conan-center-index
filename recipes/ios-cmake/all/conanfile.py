@@ -58,7 +58,7 @@ class IosCMakeConan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def export_sources(self):
-        copy(self, "cmake-wrapper", self.recipe_folder, self.export_sources_folder)
+        copy(self, "cmake-wrapper", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def layout(self):
         basic_layout(self, src_folder="src")

@@ -41,7 +41,7 @@ class LibUSBCompatConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt.in", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt.in", src=self.recipe_folder, dst=self.export_sources_folder)
 
 
     def config_options(self):
@@ -66,7 +66,7 @@ class LibUSBCompatConan(ConanFile):
         self.tool_requires("gnu-config/cci.20210814")
         self.tool_requires("libtool/2.4.7")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.0.3")
+            self.tool_requires("pkgconf/2.0.2")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -192,7 +192,8 @@ class LibUSBCompatConan(ConanFile):
                 os.path.join(self.source_folder, "libusb", "CMakeLists.txt"),
                 cmakelists_in.format(libusb_sources=" ".join(sources), libusb_headers=" ".join(headers)),
             )
-            replace_in_file(self, "config.h", "\n#define API_EXPORTED", "\n#define API_EXPORTED //")
+            replace_in_file(self, os.path.join(self.source_folder, "config.h"),
+                            "\n#define API_EXPORTED", "\n#define API_EXPORTED //")
             cmake = CMake(self)
             cmake.configure()
             cmake.build()
@@ -201,7 +202,9 @@ class LibUSBCompatConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self.settings.os == "Windows":
             cmake = CMake(self)
             cmake.install()

@@ -43,7 +43,8 @@ class PackageConan(ConanFile):
              src=self.build_folder,
              dst=os.path.join(self.package_folder, "bin"),
              keep_path=False)
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"),
+        copy(self, "LICENSE.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
              src=self.build_folder)
 
     def package_info(self):

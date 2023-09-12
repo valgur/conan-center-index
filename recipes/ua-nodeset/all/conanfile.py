@@ -34,9 +34,7 @@ class UaNodeSetConan(ConanFile):
 
     def package(self):
         self._extract_license()
-        copy(self, "*",
-             dst=os.path.join(self.package_folder, "res"),
-             src=self.build_folder)
+        copy(self, "*", dst=os.path.join(self.package_folder, "res"), src=self.build_folder)
 
     def package_info(self):
         self.conf_info.define("user.ua-nodeset:nodeset_dir", os.path.join(self.package_folder, "res"))

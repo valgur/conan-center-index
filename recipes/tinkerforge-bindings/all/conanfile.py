@@ -61,7 +61,8 @@ class TinkerforgeBindingsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "license.txt", dst=os.path.join(self.package_folder, "licenses"),
+        copy(self, "license.txt",
+             dst=os.path.join(self.package_folder, "licenses"),
              src=self.source_folder)
         cmake = CMake(self)
         cmake.install()

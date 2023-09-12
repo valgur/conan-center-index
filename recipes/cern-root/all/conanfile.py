@@ -80,7 +80,7 @@ class CernRootConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/8.45")
         self.requires("sqlite3/3.43.1")
-        self.requires("onetbb/2021.10.0")
+        self.requires("onetbb/2020.3.3")
         self.requires("xorg/system")
         self.requires("xxhash/0.8.2")
         self.requires("xz_utils/5.4.4")

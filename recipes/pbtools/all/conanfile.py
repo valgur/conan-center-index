@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 
-
 required_conan_version = ">=1.53.0"
 
 
@@ -16,6 +15,7 @@ class PbtoolsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eerimoq/pbtools"
     topics = ("protobuf", "serialization", "rpc", "protocol-buffers")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -27,10 +27,6 @@ class PbtoolsConan(ConanFile):
         "fPIC": True,
     }
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
@@ -40,7 +36,7 @@ class PbtoolsConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(f"{self.ref} is not compatible with Windows")
+            raise ConanInvalidConfiguration("This library is not compatible with Windows")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -51,11 +47,13 @@ class PbtoolsConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, "lib"))
+        cmake.configure(build_script_folder="lib")
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

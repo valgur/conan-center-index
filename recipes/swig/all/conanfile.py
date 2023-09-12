@@ -28,7 +28,7 @@ class SwigConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
-        copy(self, "cmake/*", self.recipe_folder, self.export_sources_folder)
+        copy(self, "cmake/*", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def layout(self):
@@ -43,6 +43,8 @@ class SwigConan(ConanFile):
             self.requires("pcre2/10.42")
         else:
             self.requires("pcre/8.45")
+        if self.settings.os == "Macos":
+            self.requires("libgettext/0.22")
 
     def package_id(self):
         del self.info.settings.compiler
@@ -64,39 +66,40 @@ class SwigConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
+        build_env = VirtualBuildEnv(self)
+        build_env.generate()
 
         tc = AutotoolsToolchain(self)
-        if self.settings.os == "Windows" and not is_msvc(self):
-            tc.extra_ldflags.append("-static")
-
+        pcre = "pcre2" if self._use_pcre2 else "pcre"
         tc.configure_args += [
             f"--host={self.settings.arch}",
             "--with-swiglibdir=${prefix}/bin/swiglib",
+            f"--with-{pcre}-prefix={self.dependencies[pcre].package_folder}",
         ]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            tc.configure_args.append("LIBS=-ldl")
-        elif self.settings.os == "Windows" and not is_msvc(self):
-            tc.configure_args.append("LIBS=-lmingwex -lssp")
 
         env = tc.environment()
-        if is_msvc(self):
-            env.define("CC", "cccl")
-            env.define("CXX", "cccl")
-            self.output.warning("Visual Studio compiler cannot create ccache-swig. Disabling ccache-swig.")
-            tc.configure_args.append("--disable-ccache")
-            tc.extra_cxxflags.append("-FS")
-
-        if is_apple_os(self) and self.settings.arch == "armv8":
-            # FIXME: Apple ARM should be handled by build helpers
-            tc.extra_cxxflags.append("-arch arm64")
-            tc.extra_ldflags.append("-arch arm64")
-
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.configure_args.append("LIBS=-ldl")
+            tc.extra_defines.append("HAVE_UNISTD_H=1")
+        elif self.settings.os == "Windows":
+            if is_msvc(self):
+                env.define("CC", "cccl")
+                env.define("CXX", "cccl")
+                self.output.warning("Visual Studio compiler cannot create ccache-swig. Disabling ccache-swig.")
+                tc.configure_args.append("--disable-ccache")
+                tc.extra_cxxflags.append("-FS")
+            else:
+                tc.extra_ldflags.append("-static")
+                tc.configure_args.append("LIBS=-lmingwex -lssp")
+        elif is_apple_os(self):
+            if self.settings.arch == "armv8":
+                # FIXME: Apple ARM should be handled by build helpers
+                tc.extra_cxxflags.append("-arch arm64")
+                tc.extra_ldflags.append("-arch arm64")
         tc.generate(env)
 
-        tc = AutotoolsDeps(self)
-        tc.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -110,7 +113,7 @@ class SwigConan(ConanFile):
         copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*.cmake",
-             dst=self._module_subfolder,
+             dst=os.path.join(self.package_folder, self._module_subfolder),
              src=os.path.join(self.export_sources_folder, "cmake"))
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
@@ -120,32 +123,26 @@ class SwigConan(ConanFile):
                 rmdir(self, path)
 
     @property
-    def _swiglibdir(self):
-        return os.path.join(self.package_folder, "bin", "swiglib").replace("\\", "/")
-
-    @property
     def _module_subfolder(self):
-        return os.path.join(self.package_folder, "lib", "cmake")
+        return os.path.join("lib", "cmake")
 
     @property
-    def _module_path(self):
-        return os.path.join(self._module_subfolder, f"conan-official-{self.name}-targets.cmake")
+    def _cmake_module_rel_path(self):
+        return os.path.join(self._module_subfolder, "conan-swig-variables.cmake")
 
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.set_property("cmake_file_name", "SWIG")
         self.cpp_info.set_property("cmake_target_name", "SWIG::SWIG")
-        self.cpp_info.set_property("cmake_build_modules", [self._module_path])
+        self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_rel_path])
 
-        self.runenv.define_path("SWIG_LIB", os.path.join(self.package_folder, "bin", "swiglib"))
-        self.buildenv.define_path("SWIG_LIB", os.path.join(self.package_folder, "bin", "swiglib"))
+        self.buildenv_info.define_path("SWIG_LIB", os.path.join(self.package_folder, "bin", "swiglib"))
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "SWIG"
         self.cpp_info.names["cmake_find_package_multi"] = "SWIG"
-        self.cpp_info.builddirs = [self._module_subfolder]
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_path]
+        self.cpp_info.build_modules["cmake_find_package"] = [self._cmake_module_rel_path]
+        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._cmake_module_rel_path]
 
         bindir = os.path.join(self.package_folder, "bin")
         self.output.info(f"Appending PATH environment variable: {bindir}")

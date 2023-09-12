@@ -181,7 +181,7 @@ class MagnumConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "cmake/*", self.recipe_folder, self.export_sources_folder)
+        copy(self, "cmake/*", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         # Doc says that 'distance_field_converter' is only available with "desktop GL" (the same is said for 'font_converter', but it builds)
@@ -451,9 +451,7 @@ class MagnumConan(ConanFile):
                 """))
 
         rmdir(self, os.path.join(self.package_folder, "share"))
-        copy(self, "*.cmake",
-             src=os.path.join(self.export_sources_folder, "cmake"),
-             dst=os.path.join(self.package_folder, "lib", "cmake"))
+        copy(self, "*.cmake", src=os.path.join(self.export_sources_folder, "cmake"), dst=os.path.join(self.package_folder, "lib", "cmake"))
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):

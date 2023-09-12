@@ -42,20 +42,12 @@ class WafConan(ConanFile):
 
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._license_text)
 
-        copy(self, "waf",
-             src=self.source_folder,
-             dst=binpath)
-        copy(self, "waf-light",
-             src=self.source_folder,
-             dst=binpath)
-        copy(self, "waflib/*",
-             src=self.source_folder,
-             dst=libpath)
+        copy(self, "waf", src=self.source_folder, dst=binpath)
+        copy(self, "waf-light", src=self.source_folder, dst=binpath)
+        copy(self, "waflib/*", src=self.source_folder, dst=libpath)
 
         if self.settings.os == "Windows":
-            copy(self, "waf.bat",
-                 src=os.path.join(self.source_folder, "utils"),
-                 dst=binpath)
+            copy(self, "waf.bat", src=os.path.join(self.source_folder, "utils"), dst=binpath)
 
         os.chmod(os.path.join(binpath, "waf"), 0o755)
         os.chmod(os.path.join(binpath, "waf-light"), 0o755)

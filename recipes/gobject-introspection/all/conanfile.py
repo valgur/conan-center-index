@@ -21,14 +21,12 @@ class GobjectIntrospectionConan(ConanFile):
     homepage = "https://gitlab.gnome.org/GNOME/gobject-introspection"
     topics = ("gobject-instrospection",)
 
-    package_type = "library"
+    package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "shared": [True, False],
         "fPIC": [True, False],
     }
     default_options = {
-        "shared": False,
         "fPIC": True,
     }
 
@@ -37,8 +35,6 @@ class GobjectIntrospectionConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
@@ -46,14 +42,12 @@ class GobjectIntrospectionConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.78.0")
+        # https://gitlab.gnome.org/GNOME/gobject-introspection/-/blob/1.76.1/meson.build?ref_type=tags#L127-131
+        glib_minor = Version(self.version).minor
+        self.requires(f"glib/[>=2.{glib_minor}]", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
-        if Version(self.version) >= "1.71.0":
-            self.tool_requires("meson/1.2.1")
-        else:
-            # https://gitlab.gnome.org/GNOME/gobject-introspection/-/issues/414
-            self.tool_requires("meson/1.2.1")
+        self.tool_requires("meson/1.2.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/2.0.3")
         if self.settings.os == "Windows":
@@ -61,8 +55,7 @@ class GobjectIntrospectionConan(ConanFile):
         else:
             self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
-        if hasattr(self, "settings_build") and cross_building(self):
-            self.tool_requires("glib/<host_version>")
+        self.tool_requires("glib/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -85,12 +78,15 @@ class GobjectIntrospectionConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
                         "subdir('tests')",
                         "#subdir('tests')")
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                        "if meson.version().version_compare('>=0.54.0')",
-                        "if false")
+        # gir/meson.build expects the gio-unix-2.0 includedir to be passed as a build flag.
+        # Patch this for glib from Conan.
+        replace_in_file(self, os.path.join(self.source_folder, "gir", "meson.build"),
+                        "join_paths(giounix_dep.get_variable(pkgconfig: 'includedir'), 'gio-unix-2.0')",
+                        "giounix_dep.get_variable(pkgconfig: 'includedir')")
 
     def build(self):
         self._patch_sources()
+        os.environ["PKG_CONFIG_PATH"] = os.path.join(self.build_folder, "conan")
         meson = Meson(self)
         meson.configure()
         meson.build()

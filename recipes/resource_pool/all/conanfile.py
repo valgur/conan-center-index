@@ -40,7 +40,7 @@ class ResourcePool(ConanFile):
 
     def requirements(self):
         # Only compatible with Boost up to v1.79
-        self.requires("boost/1.83.0")
+        self.requires("boost/1.79.0")
 
     def package_id(self):
         self.info.clear()
@@ -59,7 +59,9 @@ class ResourcePool(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         copy(self, "*",
              dst=os.path.join(self.package_folder, "include", "yamail"),
              src=os.path.join(self.source_folder, "include", "yamail"))

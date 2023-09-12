@@ -127,9 +127,7 @@ class CoinCbcConan(ConanFile):
         ]:
             if gnu_config:
                 config_folder = os.path.join(self.source_folder, "config")
-                copy(self, os.path.basename(gnu_config),
-                     src=os.path.dirname(gnu_config),
-                     dst=config_folder)
+                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=config_folder)
 
     def build(self):
         self._patch_sources()

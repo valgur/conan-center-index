@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -59,6 +59,8 @@ class LibEstConan(ConanFile):
         # - Release build: https://github.com/cisco/libest/blob/70824ddc09bee661329b9416082d88566efefb32/intro.txt#L253
         tc = AutotoolsToolchain(self)
         tc.generate()
+        tc = AutotoolsDeps(self)
+        tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()
 
@@ -70,7 +72,9 @@ class LibEstConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "*LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()

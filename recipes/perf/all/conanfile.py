@@ -52,8 +52,12 @@ class Perf(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSES/**", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSES/**",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "perf",
             src=os.path.join(self.source_folder, "tools", "perf"),
             dst=os.path.join(self.package_folder, "bin"))

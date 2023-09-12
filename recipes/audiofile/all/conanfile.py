@@ -64,7 +64,6 @@ class AudiofileConan(ConanFile):
              dst=os.path.join(self.package_folder, "licenses"),
              src=self.source_folder)
         copy(self, "AudioFile.h",
-
              dst=os.path.join(self.package_folder, "include"),
              src=self.source_folder)
 

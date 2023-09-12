@@ -5,6 +5,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.gnu import PkgConfigDeps
 
 required_conan_version = ">=1.53.0"
 
@@ -56,25 +57,29 @@ class Libfreenect2Conan(ConanFile):
         self.requires("libusb/1.0.26")
         self.requires("libjpeg-turbo/3.0.0")
         if self.options.with_opencl:
-            self.requires("opencl-headers/2023.04.17")
-            self.requires("opencl-icd-loader/2023.04.17")
+            # 2023.02.06 is the latest compatible version
+            self.requires("opencl-headers/2023.02.06")
+            self.requires("opencl-icd-loader/2023.02.06")
         if self.options.with_opengl:
             self.requires("opengl/system")
             self.requires("glfw/3.3.8")
         if self.options.get_safe("with_vaapi"):
             self.requires("vaapi/system")
+        if self.options.with_cuda:
+            self.requires("cuda-samples/12.2")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
         if self.options.with_cuda:
-            self.output.warning("Conan package for CUDA is not available, this package will be used from system.")
+            self.output.warning("Conan package for CUDA is not available, will use system CUDA")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_FIND_ROOT_PATH_MODE_PACKAGE"] = "NONE"
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["BUILD_OPENNI2_DRIVER"] = False
         tc.variables["ENABLE_CXX11"] = True
@@ -84,10 +89,20 @@ class Libfreenect2Conan(ConanFile):
         tc.variables["ENABLE_VAAPI"] = self.options.get_safe("with_vaapi", False)
         tc.variables["ENABLE_TEGRAJPEG"] = False  # TODO: TegraJPEG
         tc.variables["ENABLE_PROFILING"] = False
+        if self.options.with_cuda:
+            tc.variables["NVCUDASAMPLES_ROOT"] = os.path.join(self.dependencies["cuda-samples"].package_folder, "include")
+            # Required for deprecated FindCUDA support
+            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0146"] = "OLD"
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("libusb", "cmake_file_name", "LibUSB")
+        deps.set_property("glfw3", "cmake_file_name", "GLFW3")
+        deps.set_property("libjpeg-turbo", "cmake_file_name", "JPEG")
+        deps.generate()
+
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)

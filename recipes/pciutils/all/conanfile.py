@@ -52,7 +52,7 @@ class PciUtilsConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/1.2.13")
         if self.options.with_udev:
             self.requires("libudev/system")
 
@@ -62,14 +62,19 @@ class PciUtilsConan(ConanFile):
     def generate(self):
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
+        env_vars = tc.environment().vars(self)
+        cc = env_vars.get("CC", self.settings.compiler)
         tc.make_args = [
-            "SHARED={}".format(yes_no(self.options.shared)),
-            "ZLIB={}".format(yes_no(self.options.with_zlib)),
-            "HWDB={}".format(yes_no(self.options.with_udev)),
-            "DESTDIR={}".format(self.package_folder),
+            f"SHARED={yes_no(self.options.shared)}",
+            f"ZLIB={yes_no(self.options.with_zlib)}",
+            f"HWDB={yes_no(self.options.with_udev)}",
+            f"DESTDIR={self.package_folder}",
             "PREFIX=/",
             "DNS=no",
+            f"CC={cc}",
         ]
+        for var, value in env_vars.items():
+            tc.make_args.append(f"{var}={value}")
         tc.generate()
         deps = AutotoolsDeps(self)
         deps.generate()
@@ -85,10 +90,13 @@ class PciUtilsConan(ConanFile):
             autotools.make(target="install")
             autotools.make(target="install-pcilib")
 
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h",
              src=self.source_folder,
-             dst=os.path.join(self.package_folder, "include"))
+             dst=os.path.join(self.package_folder, "include"),
+             keep_path=True)
 
         if self.options.shared:
             rename(self, src=os.path.join(self.source_folder, "lib", "libpci.so.3.7.0"),

@@ -40,8 +40,8 @@ class GiflibConan(ConanFile):
         # The exported files I took them from
         # https://github.com/bjornblissing/osg-3rdparty-cmake/tree/master/giflib
         # refactored a little
-        copy(self, "unistd.h", self.recipe_folder, self.export_sources_folder)
-        copy(self, "gif_lib.h", self.recipe_folder, self.export_sources_folder)
+        copy(self, "unistd.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "gif_lib.h", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -117,9 +117,7 @@ class GiflibConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str)
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                     src=os.path.dirname(gnu_config),
-                     dst=self.source_folder)
+                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
         if is_apple_os(self):
             # relocatable shared lib on macOS
             replace_in_file(self, os.path.join(self.source_folder, "configure"),
@@ -139,8 +137,7 @@ class GiflibConan(ConanFile):
             autotools.install()
         copy(self, "COPYING*",
              dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder,
-             keep_path=False)
+             src=self.source_folder, keep_path=False)
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "share"))
         if is_msvc(self) and self.options.shared:

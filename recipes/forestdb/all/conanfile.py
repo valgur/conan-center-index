@@ -85,7 +85,8 @@ class ForestDBConan(ConanFile):
                  src=self.build_folder)
         copy(self, "*.h",
              dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"))
+             src=os.path.join(self.source_folder, "include"),
+             keep_path=True)
 
     def package_info(self):
         self.cpp_info.libs = ["forestdb"]

@@ -1,7 +1,8 @@
-#include <selinux/selinux.h>
 #include <stdio.h>
+#include <selinux/selinux.h>
 
-int main() {
+int main()
+{
     if (is_selinux_enabled())
         printf("SELinux is enabled\n");
     else

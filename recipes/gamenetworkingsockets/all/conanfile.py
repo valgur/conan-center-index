@@ -105,7 +105,9 @@ class GameNetworkingSocketsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -130,7 +132,7 @@ class GameNetworkingSocketsConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["ws2_32", "crypt32", "winmm"]
+            self.cpp_info.system_libs = ["ws2_32", "crypt32", "winmm", "iphlpapi"]
             if self.options.encryption == "bcrypt":
                 self.cpp_info.system_libs += ["bcrypt"]
 

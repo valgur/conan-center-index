@@ -30,9 +30,9 @@ class EnchantConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-        copy(self, "configmake.h", self.recipe_folder, self.export_sources_folder)
-        copy(self, "configure.cmake", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "configmake.h", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "configure.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -67,7 +67,9 @@ class EnchantConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.LIB", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING.LIB",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

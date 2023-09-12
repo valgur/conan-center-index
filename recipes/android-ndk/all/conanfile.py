@@ -44,8 +44,8 @@ class AndroidNDKConan(ConanFile):
         return self.conan_data["sources"][self.version].get(str(self.settings.os), {}).get(str(self._arch)) is not None
 
     def export_sources(self):
-        copy(self, "cmake-wrapper.cmd", self.recipe_folder, self.export_sources_folder)
-        copy(self, "cmake-wrapper", self.recipe_folder, self.export_sources_folder)
+        copy(self, "cmake-wrapper.cmd", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "cmake-wrapper", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -75,17 +75,11 @@ class AndroidNDKConan(ConanFile):
                   destination=self.source_folder, strip_root=True)
 
     def package(self):
-        copy(self, "*",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "*", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"))
         copy(self, "*NOTICE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*NOTICE.toolchain", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "cmake-wrapper.cmd",
-             src=self.export_sources_folder,
-             dst=os.path.join(self.package_folder, "bin"))
-        copy(self, "cmake-wrapper",
-             src=self.export_sources_folder,
-             dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "cmake-wrapper.cmd", src=os.path.join(self.source_folder, os.pardir), dst=os.path.join(self.package_folder, "bin"))
+        copy(self, "cmake-wrapper", src=os.path.join(self.source_folder, os.pardir), dst=os.path.join(self.package_folder, "bin"))
         self._fix_broken_links()
         self._fix_permissions()
         # Remove module and config CMake files, see https://github.com/conan-io/conan-center-index/blob/master/docs/error_knowledge_base.md#kb-h016-cmake-modules-config-files

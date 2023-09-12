@@ -28,8 +28,8 @@ class ConanRecipe(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-        copy(self, "Findcatkin.cmake", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "Findcatkin.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -55,7 +55,9 @@ class ConanRecipe(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "README.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "README.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         fix_apple_shared_install_name(self)

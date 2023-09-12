@@ -15,7 +15,7 @@ class MPCGeneratorConan(ConanFile):
     homepage = "https://github.com/objectcomputing/MPC"
     topics = ("objectcomputing", "installer")
 
-    package_type = "build-scripts"
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
@@ -34,10 +34,10 @@ class MPCGeneratorConan(ConanFile):
 
     def package(self):
         copy(self, "*",
-             src=self.source_folder,
+             src=self.build_folder,
              dst=os.path.join(self.package_folder, "bin"))
         copy(self, "LICENSE",
-            src=os.path.join(self.source_folder, "docs"),
+            src=os.path.join(self.build_folder, "docs"),
             dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
@@ -48,6 +48,7 @@ class MPCGeneratorConan(ConanFile):
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.buildenv_info.define("MPC_ROOT", bin_path)
+        self.runenv_info.define("MPC_ROOT", bin_path)
 
         self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)

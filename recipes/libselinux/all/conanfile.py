@@ -17,11 +17,10 @@ class LibSELinuxConan(ConanFile):
         "of utilities with enhanced security functionality designed to add "
         "mandatory access controls to Linux"
     )
-    license = "Unlicense"
+    topics = ("linux", "selinux", "security", "security-enhanced")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/SELinuxProject/selinux"
-    topics = ("linux", "selinux", "security", "security-enhanced")
-
+    license = "Unlicense"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -103,25 +102,17 @@ class LibSELinuxConan(ConanFile):
         autotools = Autotools(self)
         with chdir(self, os.path.join(self._sepol_source_folder, "src")):
             autotools.make(self._sepol_library_target)
-        with chdir(self, self._selinux_source_folder):
+        with chdir(self, os.path.join(self._selinux_source_folder)):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE",
-             src=self._selinux_source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self._selinux_source_folder, os.path.join(self.package_folder, "licenses"))
         for library in [self._sepol_source_folder, self._selinux_source_folder]:
-            copy(self, "*.h",
-                 src=os.path.join(library, "include"),
-                 dst=os.path.join(self.package_folder, "include"))
+            copy(self, "*.h", os.path.join(library, "include"), os.path.join(self.package_folder, "include"))
             if self.options.shared:
-                copy(self, "*.so*",
-                     src=library,
-                     dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(self, "*.so*", library, os.path.join(self.package_folder, "lib"), keep_path=False)
             else:
-                copy(self, "*.a",
-                     src=library,
-                     dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(self, "*.a", library, os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.components["selinux"].set_property("pkg_config_name", "libselinux")

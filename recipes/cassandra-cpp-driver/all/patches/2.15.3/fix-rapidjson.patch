@@ -1,5 +1,8 @@
+ src/json.hpp       | 8 ++++----
+ 2 files changed, 4 insertions(+), 5 deletions(-)
+
 diff --git a/src/json.hpp b/src/json.hpp
-index 620536e..6003f25 100644
+index 620536e55..6003f2521 100644
 --- a/src/json.hpp
 +++ b/src/json.hpp
 @@ -48,13 +48,13 @@ static void delete_(T* ptr) {

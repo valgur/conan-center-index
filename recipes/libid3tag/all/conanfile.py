@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, replace_in_file, rm
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, MSBuildDeps
 
@@ -48,7 +48,7 @@ class LibId3TagConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/1.2.13")
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
@@ -76,7 +76,7 @@ class LibId3TagConan(ConanFile):
         else:
             tc = AutotoolsToolchain(self)
             tc.generate()
-            deps = PkgConfigDeps(self)
+            deps = AutotoolsDeps(self)
             deps.generate()
 
     def build(self):
@@ -106,9 +106,7 @@ class LibId3TagConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                     src=os.path.dirname(gnu_config),
-                     dst=self.source_folder)
+                copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()

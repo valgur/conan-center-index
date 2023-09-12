@@ -52,7 +52,7 @@ class OpenColorIOConan(ConanFile):
     def requirements(self):
         self.requires("expat/2.5.0")
         if Version(self.version) < "2.2.0":
-            self.requires("openexr/3.1.9")
+            self.requires("openexr/2.5.7")
         else:
             self.requires("openexr/3.1.9")
             self.requires("imath/3.1.9")
@@ -64,7 +64,7 @@ class OpenColorIOConan(ConanFile):
             self.requires("pystring/1.1.4")
 
         if Version(self.version) >= "2.2.0":
-            self.requires("minizip-ng/4.0.1")
+            self.requires("minizip-ng/3.0.9")
 
         # for tools only
         self.requires("lcms/2.14")
@@ -75,22 +75,12 @@ class OpenColorIOConan(ConanFile):
             check_min_cppstd(self, 11)
 
         # opencolorio>=2.2.0 requires minizip-ng with with_zlib
-        if Version(self.version) >= "2.2.0" and not self.dependencies["minizip-ng"].options.get_safe(
-            "with_zlib", False
-        ):
+        if Version(self.version) >= "2.2.0" and not self.dependencies["minizip-ng"].options.get_safe("with_zlib", False):
             raise ConanInvalidConfiguration(f"{self.ref} requires minizip-ng with with_zlib = True.")
 
-        if (
-            Version(self.version) == "1.1.1"
-            and self.options.shared
-            and self.dependencies["yaml-cpp"].options.shared
-        ):
+        if Version(self.version) == "1.1.1" and self.options.shared and self.dependencies["yaml-cpp"].options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} requires static build yaml-cpp")
-        if (
-            Version(self.version) == "2.2.1"
-            and self.options.shared
-            and self.dependencies["minizip-ng"].options.shared
-        ):
+        if Version(self.version) == "2.2.1" and self.options.shared and self.dependencies["minizip-ng"].options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} requires static build minizip-ng")
 
     def build_requirements(self):
@@ -196,10 +186,9 @@ class OpenColorIOConan(ConanFile):
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("OpenColorIO_SKIP_IMPORTS")
 
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH env var with: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)
-
         # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "OpenColorIO"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenColorIO"
+        bin_path = os.path.join(self.package_folder, "bin")
+        self.output.info(f"Appending PATH env var with: {bin_path}")
+        self.env_info.PATH.append(bin_path)

@@ -90,20 +90,14 @@ class LibjxlConan(ConanFile):
             rm(self, "*-static.lib", libs_dir, recursive=True)
 
             if self.settings.os == "Windows":
-                copy(self, "jxl_dec.dll",
-                     src=os.path.join(self.source.folder, "bin"),
-                     dst=os.path.join(self.package_folder, "bin"))
-                copy(self, "jxl_dec.lib",
-                     src=os.path.join(self.source.folder, "lib"),
-                     dst=os.path.join(self.package_folder, "lib"))
+                copy(self, "jxl_dec.dll", src="bin", dst=os.path.join(self.package_folder, "bin"))
+                copy(self, "jxl_dec.lib", src="lib", dst=os.path.join(self.package_folder, "lib"))
                 for dll_path in glob.glob(os.path.join(libs_dir, "*.dll")):
                     shutil.move(
                         dll_path, os.path.join(self.package_folder, "bin", os.path.basename(dll_path))
                     )
             else:
-                copy(self, "libjxl_dec.*",
-                     src=os.path.join(self.source.folder, "lib"),
-                     dst=os.path.join(self.package_folder, "lib"))
+                copy(self, "libjxl_dec.*", src="lib", dst=os.path.join(self.package_folder, "lib"))
 
     def _lib_name(self, name):
         if not self.options.shared and self.settings.os == "Windows":

@@ -33,7 +33,7 @@ class MoldConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/1.2.13")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("xxhash/0.8.2")
         self.requires("onetbb/2021.10.0")

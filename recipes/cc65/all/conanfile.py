@@ -38,7 +38,7 @@ class Cc65Conan(ConanFile):
 
     def package_id(self):
         if str(self.info.settings.compiler) in ["msvc", "Visual Studio"]:
-            if self.settings.arch == "x86_64":
+            if self.info.settings.arch == "x86_64":
                 self.info.settings.arch = "x86"
         del self.info.settings.compiler
 
@@ -121,14 +121,16 @@ class Cc65Conan(ConanFile):
                  src=os.path.join(self.source_folder, dir))
 
     def _package_autotools(self):
-        with chdir(self, self.source_folder):
+        with chdir(self, os.path.join(self.source_folder)):
             autotools = Autotools(self)
             autotools.install()
         rmdir(self, os.path.join(self.package_path, "samples"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         if is_msvc(self):
             self._package_msvc()
         else:

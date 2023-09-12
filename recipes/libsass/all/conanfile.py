@@ -153,7 +153,9 @@ class LibsassConan(ConanFile):
              keep_path=False)
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         if self._is_mingw:
             self._install_mingw()
         elif is_msvc(self):

@@ -195,9 +195,7 @@ class SqlcipherConan(ConanFile):
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
-                copy(self, os.path.basename(gnu_config),
-                     src=os.path.dirname(gnu_config),
-                     dst=os.path.join(self.source_folder, "build-aux"))
+                copy(self, os.path.basename(gnu_config), os.path.dirname(gnu_config), os.path.join(self.source_folder, "build-aux"))
         configure = os.path.join(self.source_folder, "configure")
         self._chmod_plus_x(configure)
         # relocatable shared libs on macOS
@@ -234,17 +232,9 @@ class SqlcipherConan(ConanFile):
     def package(self):
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
-            copy(self, "*.dll",
-                 dst=os.path.join(self.package_folder, "bin"),
-                 src=self.source_folder,
-                 keep_path=False)
-            copy(self, "*.lib",
-                 dst=os.path.join(self.package_folder, "lib"),
-                 src=self.source_folder,
-                 keep_path=False)
-            copy(self, "sqlite3.h",
-                 dst=os.path.join("include", "sqlcipher"),
-                 src=self.source_folder)
+            copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder, keep_path=False)
+            copy(self, "*.lib", dst=os.path.join(self.package_folder, "lib"), src=self.source_folder, keep_path=False)
+            copy(self, "sqlite3.h", dst=os.path.join("include", "sqlcipher"), src=self.source_folder)
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)

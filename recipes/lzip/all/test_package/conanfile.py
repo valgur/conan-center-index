@@ -1,53 +1,40 @@
+import hashlib
+import os
+import shutil
+
 from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.build import can_run
-from conan.tools.files import rm, save, check_sha256
-import os
-from io import StringIO
+from conan.tools.files import chdir
+
+
+def sha256sum(file_path):
+    with open(file_path, 'rb') as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "VirtualRunEnv"
+    generators = "VirtualBuildEnv"
     test_type = "explicit"
 
-    def requirements(self):
-        self.requires(self.tested_reference_str)
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
 
     def test(self):
-        if not can_run(self):
-            return
+        if can_run(self):
+            self.run("lzip --version")
 
-        cmd_output = StringIO()
-        self.run(f"lzip --version", cmd_output, env="conanrun")
+            os.mkdir("build")
+            with chdir(self, "build"):
+                shutil.copy(os.path.join(self.source_folder, "conanfile.py"), "conanfile.py")
 
-        #Create input test file 
-        input_file_sha256 = "6a7ef9d581b577bbe8415d69ccc2549287eb99b5d856a213df742f8b89986a6a"
-        input_file = "input.txt"
-        if os.path.exists(input_file):
-            rm(self, input_file, ".")
+                sha256_original = sha256sum("conanfile.py")
+                self.run("lzip conanfile.py")
+                if not os.path.exists("conanfile.py.lz"):
+                    raise ConanException("conanfile.py.lz does not exist")
+                if os.path.exists("conanfile.py"):
+                    raise ConanException("copied conanfile.py should not exist anymore")
 
-        save(self, input_file, "Klaus is king!")
-    
-        #Ensure output test file does not exist
-        output_file = input_file + ".lz"
-        if os.path.exists(output_file):
-            rm(self, output_file, ".")
-
-        #Zip the input file
-        self.run(f"lzip {input_file}", env="conanrun")
-        if not os.path.exists(f"{output_file}"):
-            raise ConanException(f"{output_file} does not exist")
-
-        if os.path.exists(f"{input_file}"):
-            raise ConanException(f"{input_file} does exist")
-
-        #Unzip the input file
-        self.run(f"lzip -d {output_file}", env="conanrun")
-        if os.path.exists(f"{output_file}"):
-            raise ConanException(f"{output_file} does not exist")
-
-        if not os.path.exists(f"{input_file}"):
-            raise ConanException(f"{input_file} does exist")
-        
-        #Compare checksum of unzipped file with expected value
-        check_sha256(self, input_file, input_file_sha256)
+                self.run("lzip -d conanfile.py.lz")
+                if sha256sum("conanfile.py") != sha256_original:
+                    raise ConanException("sha256 from extracted conanfile.py does not match original")

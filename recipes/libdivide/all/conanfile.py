@@ -67,18 +67,10 @@ class LibdivideConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "libdivide.h",
-             dst=os.path.join(self.package_folder, "include"),
-             src=self.source_folder)
-        copy(self, "constant_fast_div.h",
-             dst=os.path.join(self.package_folder, "include"),
-             src=self.source_folder)
-        copy(self, "s16_ldparams.h",
-             dst=os.path.join(self.package_folder, "include"),
-             src=self.source_folder)
-        copy(self, "u16_ldparams.h",
-             dst=os.path.join(self.package_folder, "include"),
-             src=self.source_folder)
+        copy(self, "libdivide.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(self, "constant_fast_div.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(self, "s16_ldparams.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
+        copy(self, "u16_ldparams.h", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

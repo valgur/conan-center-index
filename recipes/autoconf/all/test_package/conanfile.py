@@ -29,9 +29,6 @@ class TestPackageConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = AutotoolsToolchain(self)
-        if is_msvc(self):
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
         tc.generate()
         if is_msvc(self):
             env = Environment()
@@ -41,7 +38,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         for src in ("configure.ac", "config.h.in", "Makefile.in", "test_package_c.c", "test_package_cpp.cpp"):
-            copy(self, src, src=self.source_folder, dst=self.build_folder)
+            copy(self, src, self.source_folder, self.build_folder)
         self.run("autoconf --verbose")
         autotools = Autotools(self)
         autotools.configure(build_script_folder=self.build_folder)

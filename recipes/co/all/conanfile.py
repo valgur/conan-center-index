@@ -93,7 +93,9 @@ class CoConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 
@@ -101,3 +103,5 @@ class CoConan(ConanFile):
         self.cpp_info.libs = ["co"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]
+        elif self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m", "pthread", "dl"]

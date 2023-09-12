@@ -56,7 +56,7 @@ class MatioConan(ConanFile):
         if self.options.with_hdf5:
             self.requires("hdf5/1.14.1")
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/1.2.13")
 
     def validate(self):
         if not self.options.with_hdf5 and self.options.mat73:
@@ -88,7 +88,9 @@ class MatioConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

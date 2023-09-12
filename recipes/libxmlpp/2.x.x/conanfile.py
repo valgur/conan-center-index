@@ -14,8 +14,6 @@ required_conan_version = ">=1.53.0"
 
 
 class LibXMLPlusPlus(ConanFile):
-    # FIXME: naming the library "libxml++" causes conan not to add it to the
-    # environment path on windows
     name = "libxmlpp"
     description = "libxml++ (a.k.a. libxmlplusplus) provides a C++ interface to XML files"
     license = "LGPL-2.1"
@@ -45,7 +43,7 @@ class LibXMLPlusPlus(ConanFile):
     def requirements(self):
         self.requires("libxml2/2.11.4", transitive_headers=True)
         if Version(self.version) <= "2.42.1":
-            self.requires("glibmm/2.75.0")
+            self.requires("glibmm/2.66.4")
         else:
             self.requires("glibmm/2.75.0")
 
@@ -59,7 +57,7 @@ class LibXMLPlusPlus(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/1.2.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.0.3")
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

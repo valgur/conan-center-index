@@ -12,5 +12,4 @@ class GoogleguetzliTestConan(ConanFile):
             app = "guetzli"
             if self.settings.os == "Windows":
                 app += ".exe"
-            self.run("{} --quality 84 {} bees.jpg".format(app, bees_path),
-                     run_environment=True)
+            self.run(f"{app} --quality 84 {bees_path} ../test_package/bees.jpg", run_environment=True)

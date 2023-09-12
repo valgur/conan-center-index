@@ -38,9 +38,7 @@ class ArgparseConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "argh.h",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "argh.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(

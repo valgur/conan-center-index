@@ -52,7 +52,7 @@ class SDLMixerConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -74,7 +74,7 @@ class SDLMixerConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("sdl/2.28.2", transitive_headers=True)
+        self.requires("sdl/2.26.5", transitive_headers=True)
         if self.options.flac:
             self.requires("flac/1.4.2")
         if self.options.mpg123:

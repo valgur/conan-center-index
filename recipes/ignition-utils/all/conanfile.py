@@ -117,7 +117,9 @@ class IgnitionUitlsConan(ConanFile):
         save(self, module_file, content)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cli_header_src = os.path.join(self.source_folder, "cli", "include")
         if Version(self.version) >= "1.3.0":
             cli_header_src = os.path.join(cli_header_src, "ignition", "utils", "cli")

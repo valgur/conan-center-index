@@ -56,7 +56,9 @@ class RangesnextConan(ConanFile):
 
     def package(self):
         include_folder = os.path.join(self.source_folder, "include")
-        copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.md",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         copy(self, "*",
              dst=os.path.join(self.package_folder, "include"),
              src=include_folder)

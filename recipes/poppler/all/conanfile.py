@@ -138,7 +138,7 @@ class PopplerConan(ConanFile):
         if self.options.with_libcurl:
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/1.2.13")
 
     def validate(self):
         if self.options.fontconfiguration == "win32" and self.settings.os != "Windows":

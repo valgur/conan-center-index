@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.1)
 project(hunspell VERSION "${CONAN_hunspell_VERSION}" LANGUAGES CXX)
 
-set(src "${CMAKE_CURRENT_SOURCE_DIR}/src/src/hunspell")
+set(src src/src/hunspell)
 
 # ---- Configure hunvisapi.h ----
 
@@ -24,8 +24,6 @@ add_library(
     "${src}/replist.cxx"
     "${src}/suggestmgr.cxx"
 )
-
-target_compile_features(hunspell PRIVATE cxx_std_11)
 
 if(MSVC)
   target_compile_options(hunspell PRIVATE /wd4267 /wd4996)

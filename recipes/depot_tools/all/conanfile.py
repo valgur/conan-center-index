@@ -19,6 +19,7 @@ class DepotToolsConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
+    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -85,7 +86,9 @@ class DepotToolsConan(ConanFile):
                     chmod_plus_x(filename)
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         copy(self, "*",
              dst=os.path.join(self.package_folder, "bin"),
              src=self.source_folder)

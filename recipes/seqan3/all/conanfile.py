@@ -57,14 +57,13 @@ class Seqan3Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "*",
-             dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"))
+        copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"), keep_path=True)
         copy(self, "LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         for submodule in ["range-v3", "cereal", "sdsl-lite"]:
             copy(self, "*.hpp",
                  dst=os.path.join(self.package_folder, "include"),
-                 src=os.path.join(self.source_folder, "submodules", submodule, "include"))
+                 src=os.path.join(self.source_folder, "submodules", submodule, "include"),
+                 keep_path=True)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "seqan3")

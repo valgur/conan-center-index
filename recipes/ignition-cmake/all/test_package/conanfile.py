@@ -12,7 +12,12 @@ class TestPackageConan(ConanFile):
     generators = "VirtualRunEnv"
     test_type = "explicit"
 
+    def requirements(self):
+        # For headers
+        self.requires(self.tested_reference_str)
+
     def build_requirements(self):
+        # For *.cmake files
         self.tool_requires(self.tested_reference_str)
 
     def layout(self):
@@ -20,11 +25,12 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["IGN_CMAKE_VER"] = Version(self.dependencies.build["ignition-cmake"].ref.version).major
+        tc.variables["IGN_CMAKE_VER"] = Version(self.dependencies["ignition-cmake"].ref.version).major
         tc.generate()
         deps = CMakeDeps(self)
-        deps.build_context_activated = ["ignition-cmake"]
-        deps.build_context_build_modules = ["ignition-cmake"]
+        # If using as a build requirement, the following lines are necessary
+        # deps.build_context_activated = ["ignition-cmake"]
+        # deps.build_context_build_modules = ["ignition-cmake"]
         deps.generate()
 
     def build(self):

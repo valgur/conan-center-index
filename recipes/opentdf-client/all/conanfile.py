@@ -71,11 +71,11 @@ class OpenTDFConan(ConanFile):
         self.requires("ms-gsl/4.0.0")
         self.requires("nlohmann_json/3.11.2")
         self.requires("jwt-cpp/0.6.0")
-        self.requires("zlib/1.3")
+        self.requires("zlib/1.2.13")
         # Use newer boost+libxml2 after 1.3.6
         if Version(self.version) <= "1.3.6":
-            self.requires("boost/1.83.0")
-            self.requires("libxml2/2.11.4")
+            self.requires("boost/1.79.0")
+            self.requires("libxml2/2.9.14")
         else:
             self.requires("boost/1.83.0")
             self.requires("libxml2/2.11.4")
@@ -98,7 +98,7 @@ class OpenTDFConan(ConanFile):
         # Disallow MT and MTd
         if is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(f"{self.name} can not be built with MT or MTd at this time")
-        
+
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.name} does not currently support shared library on Windows")
 

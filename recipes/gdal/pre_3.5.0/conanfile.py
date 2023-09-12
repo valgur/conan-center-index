@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, valid_min_cppstd
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps, NMakeToolchain, unix_path
@@ -260,9 +260,9 @@ class GdalConan(ConanFile):
         self.requires("proj/9.2.1")
         if Version(self.version) >= "3.1.0":
             # 2.0.5 is the highest compatible version
-            self.requires("flatbuffers/23.5.26")
+            self.requires("flatbuffers/2.0.5")
         if self.options.get_safe("with_zlib", True):
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.10 <2]", transitive_headers=True)
         if self.options.get_safe("with_libdeflate"):
             self.requires("libdeflate/1.18")
         if self.options.with_libiconv:
@@ -270,11 +270,12 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_zstd"):
             self.requires("zstd/1.5.5")
         if self.options.get_safe("with_blosc"):
-            self.requires("c-blosc/1.21.5")
+            self.requires("c-blosc/1.21.4")
         if self.options.get_safe("with_lz4"):
             self.requires("lz4/1.9.4")
         if self.options.with_pg:
-            self.requires("libpq/15.4")
+            # libpq 15+ is not supported
+            self.requires("libpq/14.9")
         # if self.options.with_libgrass:
         #     self.requires("libgrass/x.x.x")
         if self.options.with_cfitsio:
@@ -294,7 +295,7 @@ class GdalConan(ConanFile):
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.0")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.3")
+            self.requires("mozjpeg/4.1.1")
         if self.options.with_charls:
             self.requires("charls/2.4.2")
         if self.options.with_gif:
@@ -304,19 +305,19 @@ class GdalConan(ConanFile):
         # if self.options.with_sosi:
         #     self.requires("fyba/4.1.1")
         if self.options.with_mongocxx:
-            self.requires("mongo-cxx-driver/3.8.0")
+            self.requires("mongo-cxx-driver/3.7.2")
         if self.options.with_hdf4:
             self.requires("hdf4/4.2.15")
         if self.options.with_hdf5:
             # hdf5 v1.14+ is not compatible
-            self.requires("hdf5/1.14.1", force=True)
+            self.requires("hdf5/1.13.1", force=True)
         if self.options.with_kea:
             self.requires("kealib/1.4.14")
         if self.options.with_netcdf:
             self.requires("netcdf/4.8.1")
         if self.options.with_jasper:
             # jasper v3+ is not compatible
-            self.requires("jasper/4.0.0")
+            self.requires("jasper/2.0.33")
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.0")
         # if self.options.with_fgdb:
@@ -342,7 +343,7 @@ class GdalConan(ConanFile):
         # if self.options.with_spatialite:
         #     self.requires("libspatialite/5.0.1")
         if self.options.get_safe("with_sqlite3"):
-            self.requires("sqlite3/3.43.1")
+            self.requires("sqlite3/3.42.0")
         # if self.options.with_rasterlite2:
         #     self.requires("librasterlite2/1.1.0-beta1")
         if self.options.get_safe("with_pcre"):
@@ -352,7 +353,7 @@ class GdalConan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/1.3.1")
         if self.options.with_geos:
-            self.requires("geos/3.12.0")
+            self.requires("geos/3.11.2")
         # if self.options.with_sfcgal:
         #     self.requires("sfcgal/1.3.7")
         if self.options.with_qhull:
@@ -361,7 +362,7 @@ class GdalConan(ConanFile):
             self.requires("opencl-headers/2023.04.17")
             self.requires("opencl-icd-loader/2023.04.17")
         if self.options.with_freexl:
-            self.requires("freexl/2.0.0")
+            self.requires("freexl/1.0.6")
         if self.options.with_poppler:
             self.requires("poppler/21.07.0")
         if self.options.with_podofo:
@@ -373,17 +374,17 @@ class GdalConan(ConanFile):
         # if self.options.with_rasdaman:
         #     self.requires("raslib/x.x.x")
         # if self.options.with_armadillo:
-        #     self.requires("armadillo/11.4.3")
+        #     self.requires("armadillo/12.2.0")
         if self.options.with_cryptopp:
             self.requires("cryptopp/8.7.0")
         if self.options.with_crypto:
-            self.requires("openssl/[>=1.1 <4]")
+            self.requires("openssl/1.1.1v")
         # if not self.options.without_lerc:
         #     self.requires("lerc/4.0.0") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
         if self.options.get_safe("with_exr"):
             self.requires("openexr/3.1.9")
         if self.options.get_safe("with_heif"):
-            self.requires("libheif/1.16.2")
+            self.requires("libheif/1.13.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -422,7 +423,7 @@ class GdalConan(ConanFile):
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/2.0.3")
+                self.tool_requires("pkgconf/1.9.5")
             if self._settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -467,8 +468,7 @@ class GdalConan(ConanFile):
                 replace_in_file(self, configure_ac, "AC_CHECK_LIB(z,", f"AC_CHECK_LIB({zlib_name},")
                 replace_in_file(self, configure_ac, "-lz ", f"-l{zlib_name} ")
             # Workaround for autoconf 2.71
-            with open(os.path.join(self.source_folder, "config.rpath"), "w"):
-                pass
+            save(self, os.path.join(self.source_folder, "config.rpath"), "")
 
         # Disable tools
         if not self.options.tools:
@@ -515,11 +515,11 @@ class GdalConan(ConanFile):
         if not self.options.with_pcidsk:
             replace_in_nmake_opt("PCIDSK_SETTING=INTERNAL", "")
         if self.options.with_pg:
-            replace_in_nmake_opt("#PG_LIB = n:\\pkg\\libpq_win32\\lib\\libpqdll.lib wsock32.lib", "PG_LIB=")
+            replace_in_nmake_opt(r"#PG_LIB = n:\pkg\libpq_win32\lib\libpqdll.lib wsock32.lib", "PG_LIB=")
         if bool(self.options.with_mysql):
-            replace_in_nmake_opt("#MYSQL_LIB = D:\\Software\\MySQLServer4.1\\lib\\opt\\libmysql.lib advapi32.lib", "MYSQL_LIB=")
+            replace_in_nmake_opt(r"#MYSQL_LIB = D:\Software\MySQLServer4.1\lib\opt\libmysql.lib advapi32.lib", "MYSQL_LIB=")
         if self.options.get_safe("with_sqlite3"):
-            replace_in_nmake_opt("#SQLITE_LIB=N:\\pkg\\sqlite-win32\\sqlite3_i.lib", "SQLITE_LIB=")
+            replace_in_nmake_opt(r"#SQLITE_LIB=N:\pkg\sqlite-win32\sqlite3_i.lib", "SQLITE_LIB=")
         if self.options.with_curl:
             replace_in_nmake_opt("#CURL_LIB = $(CURL_DIR)/libcurl.lib wsock32.lib wldap32.lib winmm.lib", "CURL_LIB=")
         if self.options.with_freexl:
@@ -527,7 +527,7 @@ class GdalConan(ConanFile):
         if not (self.options.get_safe("with_zlib", True) and self.options.get_safe("with_png", True) and bool(self.options.with_jpeg)):
             replace_in_nmake_opt("MRF_SETTING=yes", "")
         if self.options.with_charls:
-            replace_in_nmake_opt("#CHARLS_LIB=e:\\work\\GIS\\gdal\\supportlibs\\charls\\bin\\Release\\x86\\CharLS.lib", "CHARLS_LIB=")
+            replace_in_nmake_opt(r"#CHARLS_LIB=e:\work\GIS\gdal\supportlibs\charls\bin\Release\x86\CharLS.lib", "CHARLS_LIB=")
         # Trick to enable OpenCL (option missing in upstream nmake files)
         if self.options.with_opencl:
             replace_in_file(self, os.path.join(self.source_folder, "alg", "makefile.vc"),
@@ -670,7 +670,7 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_heif"):
             args["HEIF_INC"] = include_paths("libheif")
 
-        return ['{}="{}"'.format(k, v) for k, v in args.items()]
+        return [f'{k}="{v}"' for k, v in args.items()]
 
     def _gather_libs(self, p):
         deps_cpp_info = self.dependencies[p].cpp_info.aggregated_components()
@@ -815,8 +815,8 @@ class GdalConan(ConanFile):
             features["qhull"] = self.options.with_qhull
             if self.options.with_opencl:
                 features["opencl"] = True
-                features["opencl-include"] = unix_path(self, self.dependencies["opencl-headers"].cpp_info.aggregated_components().includedirs[0])
-                features["opencl-lib"] = "-L{}".format(unix_path(self, self.dependencies["opencl-icd-loader"].cpp_info.aggregated_components().libdirs[0]))
+                features["opencl-include"] = unix_path(self, self.dependencies["opencl-headers"].cpp_info.aggregated_components().includedir)
+                features["opencl-lib"] = "-L{}".format(unix_path(self, self.dependencies["opencl-icd-loader"].cpp_info.aggregated_components().libdir))
             else:
                 features["opencl"] = False
             features["freexl"] = self.options.with_freexl

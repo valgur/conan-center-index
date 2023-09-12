@@ -105,7 +105,9 @@ class LibBasisUniversalConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         copy(self, "*.h",
             dst=os.path.join(self.package_folder, "include", self.name, "transcoder"),
             src=os.path.join(self.source_folder, "transcoder"))
@@ -116,12 +118,10 @@ class LibBasisUniversalConan(ConanFile):
         for pattern in ["*.a", "*.so*", "*.dylib*", "*.lib"]:
             copy(self, pattern,
                  dst=os.path.join(self.package_folder, "lib"),
-                 src=self.build_folder,
-                 keep_path=False)
+                 src=self.build_folder, keep_path=False)
         copy(self, "*.dll",
              dst=os.path.join(self.package_folder, "bin"),
-             src=self.build_folder,
-             keep_path=False)
+             src=self.build_folder, keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

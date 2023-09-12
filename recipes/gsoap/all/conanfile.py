@@ -1,29 +1,24 @@
-import os
-
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get
+import os
 
 required_conan_version = ">=1.52.0"
 
 
 class GsoapConan(ConanFile):
     name = "gsoap"
-    description = (
-        "The gSOAP toolkit is a C and C++ software development toolkit for SOAP and "
-        "REST XML Web services and generic C/C++ XML data bindings."
-    )
+    description = "The gSOAP toolkit is a C and C++ software development toolkit for SOAP and " \
+                  "REST XML Web services and generic C/C++ XML data bindings."
     license = ("gSOAP-1.3b", "GPL-2.0-or-later")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/projects/gsoap2"
     topics = ("logging",)
-
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "shared": [True, False],
         "fPIC": [True, False],
         "with_openssl": [True, False],
         "with_ipv6": [True, False],
@@ -31,13 +26,13 @@ class GsoapConan(ConanFile):
         "with_c_locale": [True, False],
     }
     default_options = {
-        "shared": False,
         "fPIC": True,
         "with_openssl": True,
         "with_ipv6": True,
         "with_cookies": True,
         "with_c_locale": True,
     }
+    short_paths = True
 
     @property
     def _settings_build(self):
@@ -45,7 +40,7 @@ class GsoapConan(ConanFile):
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-        copy(self, "cmake", self.recipe_folder, self.export_sources_folder)
+        copy(self, "cmake/*.cmake", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -61,7 +56,7 @@ class GsoapConan(ConanFile):
     def requirements(self):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
-            self.requires("zlib/1.3")
+            self.requires("zlib/1.2.13")
 
     def build_requirements(self):
         if cross_building(self, skip_x64_x86=True) and hasattr(self, "settings_build"):
@@ -94,7 +89,7 @@ class GsoapConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
 
     def package(self):

@@ -64,15 +64,15 @@ class PangommConan(ConanFile):
         # FIXME: temporary fix for dependency versions mismatch
         # once dependencies versions are bumped remove these requirements
         self.requires("expat/2.5.0", override=True)
-        self.requires("zlib/1.3", override=True)
+        self.requires("zlib/1.2.13", override=True)
         self.requires("glib/2.78.0", override=True)
 
         if self._is_2_48_api:
             self.requires("glibmm/2.75.0", transitive_headers=True)
             self.requires("cairomm/1.16.1", transitive_headers=True)
         elif self._is_1_4_api:
-            self.requires("glibmm/2.75.0", transitive_headers=True)
-            self.requires("cairomm/1.16.1", transitive_headers=True)
+            self.requires("glibmm/2.66.4", transitive_headers=True)
+            self.requires("cairomm/1.14.3", transitive_headers=True)
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self):

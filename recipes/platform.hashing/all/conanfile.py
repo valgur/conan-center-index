@@ -74,9 +74,7 @@ class PlatformInterfacesConan(ConanFile):
         return os.path.join(self.source_folder, "cpp", "Platform.Hashing")
 
     def package(self):
-        copy(self, "*.h",
-             dst=os.path.join(self.package_folder, "include"),
-             src=self._internal_cpp_subfolder)
+        copy(self, "*.h", dst=os.path.join(self.package_folder, "include"), src=self._internal_cpp_subfolder)
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):

@@ -2,6 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir
+from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 import os
 
@@ -14,10 +15,10 @@ class MBedTLSConan(ConanFile):
         "mbed TLS makes it trivially easy for developers to include "
         "cryptographic and SSL/TLS capabilities in their (embedded) products"
     )
-    license = "Apache-2.0"
+    topics = ("polarssl", "tls", "security")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://tls.mbed.org"
-    topics = ("polarssl", "tls", "security")
+    license = "Apache-2.0"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -32,15 +33,12 @@ class MBedTLSConan(ConanFile):
         "with_zlib": True,
     }
 
-    def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) >= "3.0.0":
             # ZLIB support has been ditched on version 3.0.0
-            self.options.rm_safe("with_zlib")
+            del self.options.with_zlib
 
     def configure(self):
         if self.options.shared:
@@ -70,6 +68,9 @@ class MBedTLSConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if self.options.shared:
+            tc.preprocessor_definitions["X509_BUILD_SHARED"] = "1"
+            tc.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.variables["USE_SHARED_MBEDTLS_LIBRARY"] = self.options.shared
         tc.variables["USE_STATIC_MBEDTLS_LIBRARY"] = not self.options.shared
         if Version(self.version) < "3.0.0":
@@ -80,14 +81,18 @@ class MBedTLSConan(ConanFile):
         if Version(self.version) < "3.0.0":
             # relocatable shared libs on macOS
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        if is_msvc(self):
+            if check_min_vs(self, 190, raise_invalid=False):
+                tc.preprocessor_definitions["MBEDTLS_PLATFORM_SNPRINTF_MACRO"] = "snprintf"
+            else:
+                tc.preprocessor_definitions["MBEDTLS_PLATFORM_SNPRINTF_MACRO"] = "MBEDTLS_PLATFORM_STD_SNPRINTF"
         tc.generate()
-
         tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):

@@ -105,7 +105,7 @@ class PangoConan(ConanFile):
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.0.3")
+            self.tool_requires("pkgconf/1.9.5")
         self.tool_requires("meson/1.2.1")
 
     def source(self):
@@ -134,7 +134,9 @@ class PangoConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         meson = Meson(self)
         meson.install()
         if is_msvc(self):

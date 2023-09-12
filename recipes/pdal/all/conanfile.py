@@ -47,7 +47,7 @@ class PdalConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -78,7 +78,7 @@ class PdalConan(ConanFile):
         if self.options.with_laszip:
             self.requires("laszip/3.4.3", transitive_headers=True)
         if self.options.with_zlib:
-            self.requires("zlib/1.3", transitive_headers=True)
+            self.requires("zlib/1.2.13", transitive_headers=True)
         if self.options.with_lzma:
             self.requires("xz_utils/5.4.4")
         if self.options.get_safe("with_unwind"):

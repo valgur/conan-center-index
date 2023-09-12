@@ -80,7 +80,7 @@ class OpenSceneGraphConanFile(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -124,15 +124,15 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.get_safe("with_asio", False):
             # Should these be private requires?
             self.requires("asio/1.28.1")
-            self.requires("boost/1.83.0")
+            self.requires("boost/1.82.0")
         if self.options.with_curl:
-            self.requires("libcurl/[>=7.78 <9]")
+            self.requires("libcurl/8.2.0")
         if self.options.get_safe("with_dcmtk"):
             self.requires("dcmtk/3.6.7")
         if self.options.with_freetype:
             self.requires("freetype/2.13.0")
         if self.options.with_gdal:
-            self.requires("gdal/3.7.0")
+            self.requires("gdal/3.5.2")
         if self.options.get_safe("with_gif"):
             self.requires("giflib/5.2.1")
         if self.options.with_gta:
@@ -148,7 +148,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/4.5.1")
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/1.2.13")
 
     def validate(self):
         if self.options.get_safe("with_asio", False):

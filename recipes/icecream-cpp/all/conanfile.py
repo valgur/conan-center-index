@@ -42,9 +42,7 @@ class IcecreamcppConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "icecream.hpp",
-             dst=os.path.join(self.package_folder, "include"),
-             src=self.source_folder)
+        copy(self, "icecream.hpp", dst=os.path.join(self.package_folder, "include"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

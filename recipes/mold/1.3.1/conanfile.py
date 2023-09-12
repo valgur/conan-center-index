@@ -28,7 +28,7 @@ class MoldConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/1.2.13")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("xxhash/0.8.2")
         self.requires("onetbb/2021.10.0")
@@ -102,7 +102,9 @@ class MoldConan(ConanFile):
             autotools.make(target="mold")
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "mold",
              src=os.path.join(self.source_folder, "bin"),
              dst=os.path.join(self.package_folder, "bin"),

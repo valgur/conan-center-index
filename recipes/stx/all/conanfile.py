@@ -118,14 +118,8 @@ class STXConan(ConanFile):
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "include"))
         for pattern in ["*.lib", "*.so", "*.dylib", "*.a"]:
-            copy(self, pattern,
-                 dst=os.path.join(self.package_folder, "lib"),
-                 src=self.build_folder,
-                 keep_path=False)
-        copy(self, "*.dll",
-             dst=os.path.join(self.package_folder, "bin"),
-             src=self.build_folder,
-             keep_path=False)
+            copy(self, pattern, dst=os.path.join(self.package_folder, "lib"), src=self.build_folder, keep_path=False)
+        copy(self, "*.dll", dst=os.path.join(self.package_folder, "bin"), src=self.build_folder, keep_path=False)
         copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
     def package_info(self):

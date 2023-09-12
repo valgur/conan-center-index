@@ -44,9 +44,9 @@ class PlatformExceptionsConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) >= "0.3.0":
-            self.requires("platform.delegates/0.2.7")
+            self.requires("platform.delegates/0.3.7")
         else:
-            self.requires("platform.delegates/0.2.7")
+            self.requires("platform.delegates/0.1.3")
 
     def package_id(self):
         self.info.clear()
@@ -73,7 +73,9 @@ class PlatformExceptionsConan(ConanFile):
         copy(self, "*.h",
              dst=os.path.join(self.package_folder, "include"),
              src=self._internal_cpp_subfolder)
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.bindirs = []

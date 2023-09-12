@@ -29,7 +29,7 @@ class YojimboConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "submoduledata.yml", self.recipe_folder, self.export_sources_folder)
+        copy(self, "submoduledata.yml", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -136,7 +136,9 @@ class YojimboConan(ConanFile):
                 autotools.make(args=[f"config={config}"])
 
     def package(self):
-        copy(self, "LICENCE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENCE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         copy(self, "yojimbo.h",
             dst=os.path.join(self.package_folder, "include"),
             src=self.source_folder)

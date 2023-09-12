@@ -45,7 +45,7 @@ class TinyDnnConan(ConanFile):
         self.requires("cereal/1.3.2")
         self.requires("stb/cci.20220909")
         if self.options.with_tbb:
-            self.requires("onetbb/2021.10.0")
+            self.requires("onetbb/2020.3")
 
     def package_id(self):
         self.info.clear()
@@ -76,7 +76,9 @@ class TinyDnnConan(ConanFile):
                         "third_party/", "")
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.configure()
         cmake.install()

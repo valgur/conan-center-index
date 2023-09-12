@@ -18,16 +18,8 @@ class ScdocInstallerConan(ConanFile):
     homepage = "https://git.sr.ht/~sircmpwn/scdoc"
     topics = ("manpage", "documentation", "posix")
 
-    package_type = "library"
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-    }
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
@@ -64,7 +56,9 @@ class ScdocInstallerConan(ConanFile):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     @staticmethod
@@ -73,7 +67,10 @@ class ScdocInstallerConan(ConanFile):
             os.chmod(filename, os.stat(filename).st_mode | 0o111)
 
     def package_info(self):
+        self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []
+        self.cpp_info.includedirs = []
 
         scdoc_root = os.path.join(self.package_folder, "bin")
         self._chmod_plus_x(os.path.join(scdoc_root, "scdoc"))
@@ -87,5 +84,5 @@ class ScdocInstallerConan(ConanFile):
         )
 
         # TODO: Legacy, to be removed on Conan 2.0
-        self.output.info("Appending PATH environment variable: {}".format(scdoc_root))
+        self.output.info(f"Appending PATH environment variable: {scdoc_root}")
         self.env_info.PATH.append(scdoc_root)

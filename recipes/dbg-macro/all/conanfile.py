@@ -9,6 +9,7 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
+
 class DbgMacroConan(ConanFile):
     name = "dbg-macro"
     description = "A dbg(...) macro for C++"
@@ -16,6 +17,7 @@ class DbgMacroConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/sharkdp/dbg-macro"
     topics = ("debugging", "macro", "pretty-printing", "header-only")
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -29,7 +31,7 @@ class DbgMacroConan(ConanFile):
         return {
             "gcc": "8",
         }
-    
+
     def layout(self):
         basic_layout(self, src_folder="src")
 

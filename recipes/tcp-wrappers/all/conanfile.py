@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -48,6 +49,10 @@ class TcpWrappersConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def validate(self):
+        if cross_building(self):
+            raise ConanInvalidConfiguration("Cross-building is not current supported.")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -59,13 +64,12 @@ class TcpWrappersConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.make_args += [
-            "REAL_DAEMON_DIR=/bin",
-            f"SHEXT={self._shext}",
-            "-j1",
-        ]
+        tc.make_args.append("REAL_DAEMON_DIR=/bin")
+        tc.make_args.append(f"SHEXT={self._shext}")
         if self.options.shared:
             tc.make_args.append("shared=1")
+        if self.options.get_safe("fPIC") or self.options.shared:
+            tc.make_args.append("ENV_CFLAGS=-fPIC")
         tc.generate()
 
     def build(self):
@@ -75,7 +79,9 @@ class TcpWrappersConan(ConanFile):
             autotools.make(target="linux")
 
     def package(self):
-        copy(self, "DISCLAIMER", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "DISCLAIMER",
+             src=self.source_folder,
+             dst=os.path.join(self.package_folder, "licenses"))
         for exe in ("safe_finger", "tcpd", "tcpdchk", "tcpdmatch", "try-from"):
             copy(self, exe,
                  src=self.source_folder,

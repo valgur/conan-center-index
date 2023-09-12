@@ -2,8 +2,9 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, rename
+from conan.tools.files import collect_libs, copy, get, rmdir, rename, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -28,9 +29,6 @@ class CoseCConan(ConanFile):
         "with_ssl": "openssl",
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -38,17 +36,19 @@ class CoseCConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 11)
 
     def requirements(self):
         self.requires("cn-cbor/1.0.0", transitive_headers=True)
 
         if self.options.with_ssl == "mbedtls":
-            self.requires("mbedtls/3.2.1", transitive_headers=True)
+            self.requires("mbedtls/2.16.12", transitive_headers=True)
         else:
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
@@ -57,27 +57,35 @@ class CoseCConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        tc.variables["COSE_C_COVERALLS"] = False
-        tc.variables["COSE_C_BUILD_TESTS"] = False
-        tc.variables["COSE_C_BUILD_DOCS"] = False
-        tc.variables["COSE_C_BUILD_DUMPER"] = False
-        tc.variables["COSE_C_USE_MBEDTLS"] = self.options.with_ssl == "mbedtls"
-        tc.variables["COSE_C_USE_FIND_PACKAGE"] = True
-        tc.variables["COSE_C_EXPORT_TARGETS"] = True
+        tc.cache_variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.cache_variables["COSE_C_COVERALLS"] = False
+        tc.cache_variables["COSE_C_BUILD_TESTS"] = False
+        tc.cache_variables["COSE_C_BUILD_DOCS"] = False
+        tc.cache_variables["COSE_C_BUILD_DUMPER"] = False
+        tc.cache_variables["COSE_C_USE_MBEDTLS"] = self.options.with_ssl == "mbedtls"
+        tc.cache_variables["COSE_C_USE_FIND_PACKAGE"] = True
+        tc.cache_variables["COSE_C_EXPORT_TARGETS"] = True
         tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("openssl", "cmake_file_name", "OPENSSL")
+        deps.set_property("mbedtls", "cmake_target_name", "mbedtls")
+        deps.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+    def _patch_sources(self):
+        # For ${OPENSSL_LIBRARIES} and ${OPENSSL_INCLUDE_DIR}
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "OpenSSL", "OPENSSL")
 
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

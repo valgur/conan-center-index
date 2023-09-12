@@ -85,12 +85,10 @@ class LibFtdiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING.LIB", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING.LIB", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         if self.options.build_eeprom_tool or self.options.enable_cpp_wrapper:
-            copy(self, "COPYING.GPL",
-                 src=self.source_folder,
-                 dst=os.path.join(self.package_folder, "licenses"))
+            copy(self, "COPYING.GPL", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         lib_folder = os.path.join(self.package_folder, "lib")
