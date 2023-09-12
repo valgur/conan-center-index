@@ -89,7 +89,7 @@ class OpenSubdivConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tbb:
-            self.requires("onetbb/2021.9.0")
+            self.requires("onetbb/2021.10.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

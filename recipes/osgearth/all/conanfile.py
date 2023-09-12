@@ -241,13 +241,13 @@ class OsgearthConan(ConanFile):
 
     def requirements(self):
         self.requires("opengl/system")
-        self.requires("gdal/3.5.2")
+        self.requires("gdal/3.7.0")
         self.requires("openscenegraph/3.6.5")
-        self.requires("libcurl/8.2.0")
+        self.requires("libcurl/[>=7.78 <9]")
         self.requires("lerc/4.0.0")
         self.requires("rapidjson/cci.20220822")
 
-        self.requires("zlib/1.2.13", override=True)
+        self.requires("zlib/1.3", override=True)
         self.requires("libtiff/4.5.1", override=True)
         self.requires("openssl/[>=1.1 <4]", override=True)
 
@@ -262,9 +262,9 @@ class OsgearthConan(ConanFile):
         if self.options.build_zip_plugin:
             self.requires("zstd/1.5.5")  # override
         if self.options.with_geos:
-            self.requires("geos/3.11.2")
+            self.requires("geos/3.12.0")
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.42.0")
+            self.requires("sqlite3/3.43.1")
         if self.options.with_draco:
             self.requires("draco/1.5.6")
         # if self.options.with_basisu:

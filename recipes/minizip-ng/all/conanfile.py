@@ -81,11 +81,11 @@ class MinizipNgConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_zlib"):
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")
         if self.options.with_lzma:
-            self.requires("xz_utils/5.4.2")
+            self.requires("xz_utils/5.4.4")
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")
         if self.options.with_openssl:
@@ -97,7 +97,7 @@ class MinizipNgConan(ConanFile):
     def build_requirements(self):
         if self._needs_pkg_config:
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/1.9.5")
+                self.tool_requires("pkgconf/2.0.3")
         if Version(self.version) >= "4.0.0":
             self.tool_requires("cmake/[>=3.19 <4]")
 

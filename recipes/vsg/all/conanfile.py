@@ -49,7 +49,7 @@ class VsgConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def requirements(self):
-        self.requires("vulkan-loader/1.3.239.0", transitive_headers=True)
+        self.requires("vulkan-loader/1.3.243.0", transitive_headers=True)
 
     def validate(self):
         if self.info.settings.compiler.cppstd:

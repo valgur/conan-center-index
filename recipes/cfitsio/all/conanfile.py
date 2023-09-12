@@ -57,7 +57,7 @@ class CfitsioConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         if (
             self.options.threadsafe
             and self.settings.os == "Windows"
@@ -67,7 +67,7 @@ class CfitsioConan(ConanFile):
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")
         if self.options.get_safe("with_curl"):
-            self.requires("libcurl/8.2.0")
+            self.requires("libcurl/[>=7.78 <9]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

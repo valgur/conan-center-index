@@ -65,11 +65,11 @@ class MariadbConnectorcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         if self.options.get_safe("with_iconv"):
             self.requires("libiconv/1.17")
         if self.options.with_curl:
-            self.requires("libcurl/8.2.0")
+            self.requires("libcurl/[>=7.78 <9]")
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
 

@@ -69,7 +69,7 @@ class LibGit2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         self.requires("http_parser/2.9.4")
         if self.options.with_libssh2:
             self.requires("libssh2/1.11.0")

@@ -181,7 +181,7 @@ class AssimpConan(ConanFile):
         # TODO: unvendor others libs:
         # - Open3DGC
         self.requires("minizip/1.2.13")
-        self.requires("utfcpp/3.2.3")
+        self.requires("utfcpp/3.2.4")
         if Version(self.version) < "5.1.0":
             self.requires("irrxml/1.2")
         else:
@@ -193,7 +193,7 @@ class AssimpConan(ConanFile):
         if self._depends_on_rapidjson:
             self.requires("rapidjson/cci.20220822")
         if self._depends_on_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self._depends_on_draco:
             self.requires("draco/1.5.6")
         if self._depends_on_clipper:

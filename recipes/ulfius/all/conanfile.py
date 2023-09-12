@@ -63,7 +63,7 @@ class UlfiusConan(ConanFile):
         if self.options.with_jansson:
             self.requires("jansson/2.14")
         if self.options.with_libcurl:
-            self.requires("libcurl/8.2.0")
+            self.requires("libcurl/[>=7.78 <9]")
 
     def validate(self):
         if self.options.with_gnutls:

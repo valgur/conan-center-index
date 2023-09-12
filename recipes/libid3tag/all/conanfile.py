@@ -48,7 +48,7 @@ class LibId3TagConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
 
     def validate(self):
         if is_msvc(self) and self.options.shared:

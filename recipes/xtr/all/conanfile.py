@@ -126,7 +126,7 @@ class XtrConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/10.0.0")
+        self.requires("fmt/10.1.1")
         # Require liburing on any Linux system as a run-time check will be
         # done to detect if the host kernel supports io_uring.
         if (

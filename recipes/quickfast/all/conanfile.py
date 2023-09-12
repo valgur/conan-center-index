@@ -39,7 +39,7 @@ class QuickfastConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0")
+        self.requires("boost/1.83.0")
         self.requires("xerces-c/3.2.4")
 
     def validate(self):

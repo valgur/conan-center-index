@@ -90,13 +90,13 @@ class GrpcConan(ConanFile):
             if is_msvc(self):
                 self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
             else:
-                self.requires("abseil/20220623.1", transitive_headers=True, transitive_libs=True)
+                self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
         else:
             self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
         self.requires("c-ares/1.19.1")
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("re2/20230701")
-        self.requires("zlib/1.2.13")
+        self.requires("re2/20230901")
+        self.requires("zlib/1.3")
         self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True, run=can_run(self))
 
     def package_id(self):

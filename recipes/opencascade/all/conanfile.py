@@ -164,7 +164,7 @@ class OpenCascadeConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("tcl/8.6.11")
+        self.requires("tcl/8.6.13")
         if self._link_tk:
             self.requires("tk/8.6.10")
         self.requires("freetype/2.13.0")
@@ -185,7 +185,7 @@ class OpenCascadeConan(ConanFile):
         if self.options.get_safe("with_draco"):
             self.requires("draco/1.5.6")
         if self.options.with_tbb:
-            self.requires("onetbb/2021.9.0")
+            self.requires("onetbb/2021.10.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

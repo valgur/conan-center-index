@@ -74,7 +74,7 @@ class ShadercConan(ConanFile):
         self.requires(f"spirv-tools/{self._get_compatible_spirv_tools_version}")
         self.requires(f"spirv-headers/{self._get_compatible_spirv_headers_version}")
         if self.options.get_safe("spvc", False):
-            self.requires("spirv-cross/20210115")
+            self.requires("spirv-cross/1.3.243.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

@@ -67,21 +67,21 @@ class OpenVDBConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0", transitive_headers=True)
+        self.requires("boost/1.83.0", transitive_headers=True)
         # onetbb/2021.x fails with "'tbb::split' has not been declared"
-        self.requires("onetbb/2020.3", transitive_headers=True)
+        self.requires("onetbb/2021.10.0", transitive_headers=True)
         if Version(self.version) >= "8.2.0":
-            self.requires("openexr/3.1.7", transitive_headers=True)
+            self.requires("openexr/3.1.9", transitive_headers=True)
         else:
-            self.requires("openexr/2.5.7", transitive_headers=True)
+            self.requires("openexr/3.1.9", transitive_headers=True)
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self.options.with_exr:
             # Not necessary now. Required for IlmBase::IlmImf
-            # self.requires("openexr/2.5.7", transitive_headers=True)
+            # self.requires("openexr/3.1.9", transitive_headers=True)
             pass
         if self.options.with_blosc:
-            self.requires("c-blosc/1.21.4")
+            self.requires("c-blosc/1.21.5")
         if self.options.with_log4cplus:
             self.requires("log4cplus/2.1.0", transitive_headers=True)
 

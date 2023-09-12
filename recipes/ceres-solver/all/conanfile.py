@@ -91,7 +91,7 @@ class CeressolverConan(ConanFile):
         if self.options.use_glog:
             self.requires("glog/0.6.0", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("use_TBB"):
-            self.requires("onetbb/2021.9.0")
+            self.requires("onetbb/2021.10.0")
 
     def package_id(self):
         del self.info.options.use_gflags

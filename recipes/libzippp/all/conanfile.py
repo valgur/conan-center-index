@@ -45,9 +45,9 @@ class LibZipppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         if Version(self.version) == "4.0":
-            self.requires("libzip/1.7.3")
+            self.requires("libzip/1.10.1")
         else:
             versions = str(self.version).split("-")
             if len(versions) == 2:

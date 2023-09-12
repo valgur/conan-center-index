@@ -141,9 +141,9 @@ class MingwConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")
-        self.tool_requires("gmp/6.2.1")
-        self.tool_requires("mpfr/4.2.0")
-        self.tool_requires("mpc/1.2.0")
+        self.tool_requires("gmp/6.3.0")
+        self.tool_requires("mpfr/4.2.1")
+        self.tool_requires("mpc/1.3.1")
 
     def _download_source(self):
         arch_data = self.conan_data["sources"][self.version]

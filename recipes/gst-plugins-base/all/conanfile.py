@@ -126,8 +126,8 @@ class GStPluginsBaseConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
-        self.requires("glib/2.77.1", override=True)
+        self.requires("zlib/1.3")
+        self.requires("glib/2.78.0", override=True)
         self.requires("gstreamer/1.22.3")
         if self.options.get_safe("with_libalsa"):
             self.requires("libalsa/1.2.7.2")
@@ -154,7 +154,7 @@ class GStPluginsBaseConan(ConanFile):
         if self.options.with_ogg:
             self.requires("ogg/1.3.5")
         if self.options.with_opus:
-            self.requires("opus/1.3.1")
+            self.requires("opus/1.4")
         if self.options.with_theora:
             self.requires("theora/1.1.1")
         if self.options.with_vorbis:
@@ -175,9 +175,9 @@ class GStPluginsBaseConan(ConanFile):
             raise ConanInvalidConfiguration("OpenGL support with Wayland requires 'with_egl' turned on!")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.2.0")
+        self.tool_requires("meson/1.2.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
+            self.tool_requires("pkgconf/2.0.3")
         if self.settings.os == "Windows":
             self.tool_requires("winflexbison/2.5.24")
         else:

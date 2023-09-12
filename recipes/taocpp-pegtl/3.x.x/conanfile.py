@@ -41,7 +41,7 @@ class TaoCPPPEGTLConan(ConanFile):
 
     def requirements(self):
         if self.options.boost_filesystem:
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
 
     def package_id(self):
         self.info.clear()

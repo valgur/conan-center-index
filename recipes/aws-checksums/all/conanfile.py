@@ -47,7 +47,7 @@ class AwsChecksums(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "0.1.17":
-            self.requires("aws-c-common/0.8.2")
+            self.requires("aws-c-common/0.9.0")
         else:
             self.requires("aws-c-common/0.9.0", transitive_headers=True)
 

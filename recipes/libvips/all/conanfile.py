@@ -118,7 +118,7 @@ class LibvipsConan(ConanFile):
 
     def requirements(self):
         self.requires("expat/2.5.0")
-        self.requires("glib/2.77.1", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires("glib/2.78.0", transitive_headers=True, transitive_libs=True, run=can_run(self))
         if self.options.with_cfitsio:
             self.requires("cfitsio/4.2.0")
         if self.options.with_cgif:
@@ -130,13 +130,13 @@ class LibvipsConan(ConanFile):
         if self.options.with_fontconfig:
             self.requires("fontconfig/2.14.2")
         if self.options.with_heif:
-            self.requires("libheif/1.13.0")
+            self.requires("libheif/1.16.2")
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.0")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.1")
+            self.requires("mozjpeg/4.1.3")
         if self.options.with_jpeg_xl:
             self.requires("libjxl/0.6.1")
         if self.options.with_lcms:
@@ -164,7 +164,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/1.3.1")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
 
     def validate(self):
         if self.options.vapi and not self.options.introspection:
@@ -208,13 +208,13 @@ class LibvipsConan(ConanFile):
             raise ConanInvalidConfiguration("librsvg recipe not available in conancenter yet")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.2.0")
+        self.tool_requires("meson/1.2.1")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
+            self.tool_requires("pkgconf/2.0.3")
         if self.options.introspection:
             self.tool_requires("gobject-introspection/1.72.0")
         if not can_run(self):
-            self.tool_requires("glib/2.77.1")
+            self.tool_requires("glib/2.78.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

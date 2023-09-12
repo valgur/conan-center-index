@@ -66,10 +66,10 @@ class CassandraCppDriverConan(ConanFile):
 
         if self.options.with_zlib:
             self.requires("minizip/1.2.13")
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
 
         if self.options.use_atomic == "boost":
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
 
     def validate(self):
         if self.info.settings.compiler.cppstd:

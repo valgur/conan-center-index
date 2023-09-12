@@ -56,13 +56,13 @@ class NmosCppConan(ConanFile):
 
     def requirements(self):
         # for now, consistent with project's conanfile.txt
-        self.requires("boost/1.82.0")
+        self.requires("boost/1.83.0")
         self.requires("cpprestsdk/2.10.18")
         self.requires("websocketpp/0.8.2")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("json-schema-validator/2.2.0")
         self.requires("nlohmann_json/3.11.2")
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
 
         if self.options.get_safe("with_dnssd") == "mdnsresponder":
             self.requires("mdnsresponder/1790.80.10")

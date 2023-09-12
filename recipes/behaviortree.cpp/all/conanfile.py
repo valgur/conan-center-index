@@ -69,7 +69,7 @@ class BehaviorTreeCPPConan(ConanFile):
 
     def requirements(self):
         if self.options.with_coroutines:
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
         self.requires("ncurses/6.4")
         self.requires("zeromq/4.3.4")
         self.requires("cppzmq/4.10.0")

@@ -64,7 +64,7 @@ class AzureStorageCppConan(ConanFile):
         self.requires("libxml2/2.11.4", transitive_headers=True)
         self.requires("openssl/[>=1.1 <4]")
         if self.settings.os != "Windows":
-            self.requires("boost/1.82.0", transitive_headers=True)
+            self.requires("boost/1.83.0", transitive_headers=True)
             self.requires("util-linux-libuuid/2.39", transitive_headers=True)
         if is_apple_os(self):
             self.requires("libgettext/0.22")

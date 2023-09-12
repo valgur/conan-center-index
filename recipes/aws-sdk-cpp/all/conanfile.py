@@ -341,14 +341,14 @@ class AwsSdkCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.8.2")
-        self.requires("aws-c-event-stream/0.2.7")
-        self.requires("aws-checksums/0.1.13")
+        self.requires("aws-c-common/0.9.0")
+        self.requires("aws-c-event-stream/0.3.1")
+        self.requires("aws-checksums/0.1.17")
         if self._use_aws_crt_cpp:
-            self.requires("aws-c-cal/0.5.13")
-            self.requires("aws-c-http/0.6.13")
-            self.requires("aws-c-io/0.10.20")
-            self.requires("aws-crt-cpp/0.17.23", transitive_headers=True)
+            self.requires("aws-c-cal/0.6.1")
+            self.requires("aws-c-http/0.6.22")
+            self.requires("aws-c-io/0.13.32")
+            self.requires("aws-crt-cpp/0.18.8", transitive_headers=True)
         if self.settings.os != "Windows":
             self.requires("openssl/[>=1.1 <4]")
             self.requires("libcurl/[>=7.78.0 <9]")

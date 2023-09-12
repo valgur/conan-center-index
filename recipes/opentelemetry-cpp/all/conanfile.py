@@ -106,12 +106,12 @@ class OpenTelemetryCppConan(ConanFile):
         if self.options.with_otlp:
             self.requires("protobuf/3.21.12")
             if Version(self.version) <= "1.4.1":
-                self.requires("opentelemetry-proto/0.11.0")
+                self.requires("opentelemetry-proto/1.0.0")
             else:
                 self.requires("opentelemetry-proto/1.0.0")
 
             if self.options.get_safe("with_otlp_grpc"):
-                self.requires("grpc/1.50.1")
+                self.requires("grpc/1.54.3")
 
         if (
             self.options.with_zipkin
@@ -127,7 +127,7 @@ class OpenTelemetryCppConan(ConanFile):
             or self.options.with_elasticsearch
             or self.options.get_safe("with_otlp_http")
         ):
-            self.requires("libcurl/8.2.0")
+            self.requires("libcurl/[>=7.78 <9]")
 
         if self.options.with_prometheus:
             self.requires("prometheus-cpp/1.1.0")
@@ -136,7 +136,7 @@ class OpenTelemetryCppConan(ConanFile):
             self.requires("thrift/0.18.1")
 
             if Version(self.version) >= "1.3.0":
-                self.requires("boost/1.82.0")
+                self.requires("boost/1.83.0")
 
     @property
     def _required_boost_components(self):
@@ -175,7 +175,7 @@ class OpenTelemetryCppConan(ConanFile):
         if self.options.with_otlp:
             self.tool_requires("protobuf/3.21.12")
             if self.options.get_safe("with_otlp_grpc"):
-                self.tool_requires("grpc/1.50.1")
+                self.tool_requires("grpc/1.54.3")
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent("""\

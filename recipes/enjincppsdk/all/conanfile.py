@@ -62,7 +62,7 @@ class EnjinCppSdk(ConanFile):
 
     def requirements(self):
         if self.options.with_default_http_client:
-            self.requires("cpp-httplib/0.13.3")
+            self.requires("cpp-httplib/0.14.0")
 
         if self.options.with_default_ws_client:
             self.requires("ixwebsocket/11.4.3")

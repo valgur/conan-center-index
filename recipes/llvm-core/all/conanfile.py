@@ -131,7 +131,7 @@ class LLVMCoreConan(ConanFile):
         if self.options.with_ffi:
             self.requires("libffi/3.4.4")
         if self.options.get_safe("with_zlib", False):
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self.options.get_safe("with_xml2", False):
             self.requires("libxml2/2.11.4")
 

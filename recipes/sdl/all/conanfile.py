@@ -191,7 +191,7 @@ class SDLConan(ConanFile):
             # FIXME: Remove once CMake on macOS/M1 CI runners is upgraded.
             self.tool_requires("cmake/3.25.3")
         if self.settings.os in ["Linux", "FreeBSD"] and not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
+            self.tool_requires("pkgconf/2.0.3")
         if hasattr(self, "settings_build") and self.options.get_safe("wayland"):
             self.tool_requires("wayland/1.22.0")  # Provides wayland-scanner
 

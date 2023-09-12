@@ -95,15 +95,15 @@ class WtConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "4.9.0":
-            self.requires("boost/1.82.0", transitive_headers = True)
+            self.requires("boost/1.83.0", transitive_headers = True)
         else:
             self.requires("boost/1.83.0", transitive_headers = True)
         if self.options.connector_http:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_sqlite"):
-            self.requires("sqlite3/3.43.0")
+            self.requires("sqlite3/3.43.1")
         if self.options.get_safe("with_mysql"):
             self.requires("libmysqlclient/8.1.0", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_postgres"):

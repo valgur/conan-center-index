@@ -71,7 +71,7 @@ class CernRootConan(ConanFile):
         self.requires("giflib/5.2.1")
         self.requires("glew/2.2.0")
         self.requires("glu/system")
-        self.requires("libcurl/8.2.0")
+        self.requires("libcurl/[>=7.78 <9]")
         self.requires("libjpeg/9e")
         self.requires("libpng/1.6.40")
         self.requires("libxml2/2.11.4")
@@ -79,11 +79,11 @@ class CernRootConan(ConanFile):
         self.requires("opengl/system")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/8.45")
-        self.requires("sqlite3/3.42.0")
-        self.requires("onetbb/2020.3")
+        self.requires("sqlite3/3.43.1")
+        self.requires("onetbb/2021.10.0")
         self.requires("xorg/system")
         self.requires("xxhash/0.8.2")
-        self.requires("xz_utils/5.4.2")
+        self.requires("xz_utils/5.4.4")
         self.requires("zstd/1.5.5")
 
     def validate(self):

@@ -215,7 +215,7 @@ class CPythonConan(ConanFile):
         return self._supports_modules and (not is_msvc(self) or Version(self._version_number_only) >= "3.8")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         if self._supports_modules:
             self.requires("openssl/[>=1.1 <4]")
             self.requires("expat/2.5.0")
@@ -239,7 +239,7 @@ class CPythonConan(ConanFile):
             # TODO: Add nis when available.
             raise ConanInvalidConfiguration("nis is not available on CCI (yet)")
         if self.options.get_safe("with_sqlite3"):
-            self.requires("sqlite3/3.42.0")
+            self.requires("sqlite3/3.43.1")
         if self.options.get_safe("with_tkinter"):
             self.requires("tk/8.6.10")
         if self.options.get_safe("with_curses", False):
@@ -247,7 +247,7 @@ class CPythonConan(ConanFile):
         if self.options.get_safe("with_bsddb", False):
             self.requires("libdb/5.3.28")
         if self.options.get_safe("with_lzma", False):
-            self.requires("xz_utils/5.4.2")
+            self.requires("xz_utils/5.4.4")
 
     def package_id(self):
         del self.info.settings.compiler

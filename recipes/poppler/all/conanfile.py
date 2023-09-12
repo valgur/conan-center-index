@@ -116,11 +116,11 @@ class PopplerConan(ConanFile):
         if self.options.with_cairo:
             self.requires("cairo/1.17.6")
         if self.options.get_safe("with_glib"):
-            self.requires("glib/2.77.1")
+            self.requires("glib/2.78.0")
         if self.options.get_safe("with_gobject_introspection"):
             self.requires("gobject-introspection/1.72.0")
         if self.options.with_qt:
-            self.requires("qt/6.5.1")
+            self.requires("qt/6.5.2")
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/4.7.0")
         if self.options.with_openjpeg:
@@ -134,11 +134,11 @@ class PopplerConan(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/4.5.1")
         if self.options.splash:
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
         if self.options.with_libcurl:
-            self.requires("libcurl/8.2.0")
+            self.requires("libcurl/[>=7.78 <9]")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
 
     def validate(self):
         if self.options.fontconfiguration == "win32" and self.settings.os != "Windows":
@@ -160,7 +160,7 @@ class PopplerConan(ConanFile):
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
+            self.tool_requires("pkgconf/2.0.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

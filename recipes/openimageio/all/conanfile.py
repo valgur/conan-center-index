@@ -83,10 +83,10 @@ class OpenImageIOConan(ConanFile):
 
     def requirements(self):
         # Required libraries
-        self.requires("zlib/1.2.13")
-        self.requires("boost/1.82.0")
+        self.requires("zlib/1.3")
+        self.requires("boost/1.83.0")
         self.requires("libtiff/4.5.1")
-        self.requires("openexr/2.5.7")
+        self.requires("openexr/3.1.9")
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_libjpeg == "libjpeg-turbo":
@@ -94,7 +94,7 @@ class OpenImageIOConan(ConanFile):
         self.requires("pugixml/1.13")
         self.requires("libsquish/1.15")
         self.requires("tsl-robin-map/1.2.1")
-        self.requires("fmt/10.0.0")
+        self.requires("fmt/10.1.1")
 
         # Optional libraries
         if self.options.with_libpng:
@@ -105,13 +105,13 @@ class OpenImageIOConan(ConanFile):
             self.requires("hdf5/1.14.1")
         if self.options.with_opencolorio:
             if Version(self.version) >= "2.3.7.2":
-                self.requires("opencolorio/2.1.0")
+                self.requires("opencolorio/2.2.1")
             else:
-                self.requires("opencolorio/1.1.1")
+                self.requires("opencolorio/2.2.1")
         if self.options.with_opencv:
             self.requires("opencv/4.5.5")
         if self.options.with_tbb:
-            self.requires("onetbb/2020.3")
+            self.requires("onetbb/2021.10.0")
         if self.options.with_dicom:
             self.requires("dcmtk/3.6.7")
         if self.options.with_ffmpeg:
@@ -120,7 +120,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_giflib:
             self.requires("giflib/5.2.1")
         if self.options.with_libheif:
-            self.requires("libheif/1.13.0")
+            self.requires("libheif/1.16.2")
         if self.options.with_raw:
             self.requires("libraw/0.21.1")
         if self.options.with_openjpeg:

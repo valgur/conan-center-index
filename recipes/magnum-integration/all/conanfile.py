@@ -134,7 +134,7 @@ class MagnumIntegrationConan(ConanFile):
         if self.options.with_glm:
             self.requires("glm/cci.20230113")
         if self.options.with_imgui:
-            self.requires("imgui/1.89.8")
+            self.requires("imgui/1.89.9-docking")
 
     def validate(self):
         if self.options.with_dart:

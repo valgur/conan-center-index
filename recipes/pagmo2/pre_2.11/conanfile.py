@@ -49,8 +49,8 @@ class Pagmo2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.78.0")
-        self.requires("onetbb/2020.3")
+        self.requires("boost/1.83.0")
+        self.requires("onetbb/2021.10.0")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
         if self.options.with_nlopt:

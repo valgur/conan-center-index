@@ -53,7 +53,7 @@ class RuyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cpuinfo/cci.20220228")
+        self.requires("cpuinfo/cci.20230118")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

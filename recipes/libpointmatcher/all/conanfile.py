@@ -47,7 +47,7 @@ class LibpointmatcherConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0", transitive_headers=True)
+        self.requires("boost/1.83.0", transitive_headers=True)
         # FIXME: eigen 3.4.0 is not compatible yet (see https://github.com/ethz-asl/libpointmatcher/issues/496)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("libnabo/1.0.7")

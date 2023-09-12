@@ -53,7 +53,7 @@ class SamariumConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/10.0.0")
+        self.requires("fmt/10.1.1")
         self.requires("sfml/2.6.0")
         self.requires("range-v3/0.12.0")
         self.requires("stb/cci.20220909")

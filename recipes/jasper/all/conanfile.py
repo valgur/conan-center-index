@@ -53,7 +53,7 @@ class JasperConan(ConanFile):
         elif self.options.with_libjpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.0")
         elif self.options.with_libjpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.1")
+            self.requires("mozjpeg/4.1.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

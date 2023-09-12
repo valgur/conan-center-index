@@ -126,7 +126,7 @@ class MysqlConnectorCConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
 
     def validate(self):
         if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):

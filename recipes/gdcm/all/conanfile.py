@@ -63,13 +63,13 @@ class GDCMConan(ConanFile):
         if self.options.with_zlibng:
             self.requires("zlib-ng/2.1.3")
         else:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self.settings.os != "Windows":
             self.requires("util-linux-libuuid/2.39")
             if Version(self.version) >= Version("3.0.20"):
                 self.requires("libiconv/1.17")
         if self.options.with_json:
-            self.requires("json-c/0.16")
+            self.requires("json-c/0.17")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 

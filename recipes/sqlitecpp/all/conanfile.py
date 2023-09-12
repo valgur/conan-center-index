@@ -46,7 +46,7 @@ class SQLiteCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("sqlite3/3.42.0")
+        self.requires("sqlite3/3.43.1")
 
     def validate(self):
         if Version(self.version) >= "3.0.0" and self.info.settings.compiler.get_safe("cppstd"):

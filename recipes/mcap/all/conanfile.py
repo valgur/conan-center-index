@@ -54,7 +54,7 @@ class McapConan(ConanFile):
         self.requires("lz4/1.9.4")
         self.requires("zstd/1.5.5")
         if Version(self.version) < "0.1.1":
-            self.requires("fmt/10.0.0")
+            self.requires("fmt/10.1.1")
 
     def package_id(self):
         self.info.clear()

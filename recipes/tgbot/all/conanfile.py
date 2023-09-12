@@ -40,8 +40,8 @@ class TgbotConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0", transitive_headers=True)
-        self.requires("libcurl/8.2.0", transitive_headers=True)
+        self.requires("boost/1.83.0", transitive_headers=True)
+        self.requires("libcurl/[>=7.78 <9]", transitive_headers=True)
         self.requires("openssl/[>=1.1 <4]")
 
     @property

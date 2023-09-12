@@ -42,12 +42,12 @@ class AwsCMQTT(ConanFile):
 
     def requirements(self):
         self.requires("aws-c-common/0.9.0")
-        self.requires("aws-c-cal/0.5.20")
+        self.requires("aws-c-cal/0.6.1")
         if Version(self.version) < "0.7.12":
-            self.requires("aws-c-io/0.10.20")
-            self.requires("aws-c-http/0.6.13")
+            self.requires("aws-c-io/0.13.32")
+            self.requires("aws-c-http/0.6.22")
         else:
-            self.requires("aws-c-io/0.13.4")
+            self.requires("aws-c-io/0.13.32")
             self.requires("aws-c-http/0.6.22")
 
     def source(self):

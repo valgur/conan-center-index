@@ -99,13 +99,13 @@ class GoogleCloudCppConan(ConanFile):
 
     def requirements(self):
         self.requires("protobuf/3.21.12", transitive_headers=True)
-        self.requires("grpc/1.50.1", transitive_headers=True)
+        self.requires("grpc/1.54.3", transitive_headers=True)
         self.requires("nlohmann_json/3.11.2")
         self.requires("crc32c/1.1.2")
         self.requires("abseil/20230125.3", transitive_headers=True)
-        self.requires("libcurl/8.2.0")
+        self.requires("libcurl/[>=7.78 <9]")
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
 
     def validate(self):
         # As-of 2022-03, google-cloud-cpp only supports "Visual Studio >= 2019",
@@ -149,7 +149,7 @@ class GoogleCloudCppConan(ConanFile):
 
     def build_requirements(self):
         # For the grpc-cpp-plugin executable
-        self.tool_requires("grpc/1.50.1")
+        self.tool_requires("grpc/1.54.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

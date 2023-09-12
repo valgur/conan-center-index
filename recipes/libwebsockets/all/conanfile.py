@@ -233,7 +233,7 @@ class LibwebsocketsConan(ConanFile):
             self.requires("libev/4.33")
 
         if self.options.with_zlib == "zlib":
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         elif self.options.with_zlib == "miniz":
             self.requires("miniz/3.0.2")
 
@@ -241,7 +241,7 @@ class LibwebsocketsConan(ConanFile):
             self.requires("libmount/2.39")
 
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.42.0")
+            self.requires("sqlite3/3.43.1")
 
         if self.options.with_ssl == "openssl":
             # Cannot add the [>=1.1 <4] range, as it seems openssl3 makes it fail

@@ -292,55 +292,55 @@ class ArrowConan(ConanFile):
 
     def requirements(self):
         if self.options.with_thrift:
-            self.requires("thrift/0.17.0")
+            self.requires("thrift/0.18.1")
         if self.options.with_protobuf:
-            self.requires("protobuf/3.21.9")
+            self.requires("protobuf/3.21.12")
         if self.options.with_jemalloc:
             self.requires("jemalloc/5.3.0")
         if self.options.with_mimalloc:
-            self.requires("mimalloc/1.7.6")
+            self.requires("mimalloc/2.1.2")
         if self.options.with_boost:
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
         if self.options.with_gflags:
             self.requires("gflags/2.2.2")
         if self.options.with_glog:
             self.requires("glog/0.6.0")
         if self.options.get_safe("with_gcs"):
-            self.requires("google-cloud-cpp/1.40.1")
+            self.requires("google-cloud-cpp/2.12.0")
         if self.options.with_grpc:
-            self.requires("grpc/1.50.0")
+            self.requires("grpc/1.54.3")
         if self._requires_rapidjson():
-            self.requires("rapidjson/1.1.0")
+            self.requires("rapidjson/cci.20220822")
         if self.options.with_llvm:
             self.requires("llvm-core/13.0.0")
         if self.options.with_openssl:
             # aws-sdk-cpp requires openssl/1.1.1. it uses deprecated functions in openssl/3.0.0
             if self.options.with_s3:
-                self.requires("openssl/1.1.1t")
+                self.requires("openssl/[>=1.1 <4]")
             else:
-                self.requires("openssl/1.1.1t")
+                self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_opentelemetry"):
-            self.requires("opentelemetry-cpp/1.7.0")
+            self.requires("opentelemetry-cpp/1.9.1")
         if self.options.with_s3:
             self.requires("aws-sdk-cpp/1.9.234")
         if self.options.with_brotli:
-            self.requires("brotli/1.0.9")
+            self.requires("brotli/1.1.0")
         if self.options.with_bz2:
             self.requires("bzip2/1.0.8")
         if self.options.with_lz4:
             self.requires("lz4/1.9.4")
         if self.options.with_snappy:
-            self.requires("snappy/1.1.9")
+            self.requires("snappy/1.1.10")
         if Version(self.version) >= "6.0.0" and \
             self.options.get_safe("simd_level") != None or \
             self.options.get_safe("runtime_simd_level") != None:
-            self.requires("xsimd/9.0.1")
+            self.requires("xsimd/11.1.0")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.2")
+            self.requires("zstd/1.5.5")
         if self.options.with_re2:
-            self.requires("re2/20220601")
+            self.requires("re2/20230901")
         if self.options.with_utf8proc:
             self.requires("utf8proc/2.8.0")
         if self.options.with_backtrace:

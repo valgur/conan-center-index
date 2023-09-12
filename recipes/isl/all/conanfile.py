@@ -54,7 +54,7 @@ class IslConan(ConanFile):
 
     def requirements(self):
         if self.options.with_int == "gmp":
-            self.requires("gmp/6.2.1", transitive_headers=True)
+            self.requires("gmp/6.3.0", transitive_headers=True)
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:

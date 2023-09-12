@@ -45,7 +45,7 @@ class XlntConan(ConanFile):
     def requirements(self):
         self.requires("libstudxml/1.1.0-b.10+1")
         self.requires("miniz/3.0.2")
-        self.requires("utfcpp/3.2.3")
+        self.requires("utfcpp/3.2.4")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

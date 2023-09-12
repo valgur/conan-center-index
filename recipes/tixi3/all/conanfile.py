@@ -48,7 +48,7 @@ class Tixi3Conan(ConanFile):
     def requirements(self):
         self.requires("libxml2/2.11.4")
         self.requires("libxslt/1.1.34")
-        self.requires("libcurl/8.2.0")
+        self.requires("libcurl/[>=7.78 <9]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

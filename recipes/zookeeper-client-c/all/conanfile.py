@@ -49,7 +49,7 @@ class ZookeeperClientCConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def build_requirements(self):
-        self.tool_requires("maven/3.9.2")
+        self.tool_requires("maven/3.9.4")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

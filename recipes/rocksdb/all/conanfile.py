@@ -149,11 +149,11 @@ class RocksDB(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/1.9.4")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")
         if self.options.get_safe("with_tbb"):
-            self.requires("onetbb/2021.9.0")
+            self.requires("onetbb/2021.10.0")
         if self.options.with_jemalloc:
             self.requires("jemalloc/5.3.0")
 

@@ -144,11 +144,11 @@ class PocoConan(ConanFile):
             self.requires("pcre/8.45")
         else:
             self.requires("pcre2/10.42")
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         if self.options.enable_xml:
             self.requires("expat/2.5.0")
         if self.options.enable_data_sqlite:
-            self.requires("sqlite3/3.42.0")
+            self.requires("sqlite3/3.43.1")
         if self.options.enable_apacheconnector:
             self.requires("apr/1.7.4")
             self.requires("apr-util/1.6.1")
@@ -157,9 +157,9 @@ class PocoConan(ConanFile):
         if self.options.enable_data_odbc and self.settings.os != "Windows":
             self.requires("odbc/2.3.11")
         if self.options.get_safe("enable_data_postgresql"):
-            self.requires("libpq/15.3")
+            self.requires("libpq/15.4")
         if self.options.get_safe("enable_data_mysql"):
-            self.requires("libmysqlclient/8.0.31")
+            self.requires("libmysqlclient/8.1.0")
 
     def package_id(self):
         del self.info.options.enable_active_record

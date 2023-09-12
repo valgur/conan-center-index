@@ -48,7 +48,7 @@ class TeemoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libcurl/8.2.0")
+        self.requires("libcurl/[>=7.78 <9]")
 
     def validate(self):
         if self.info.settings.compiler.cppstd:

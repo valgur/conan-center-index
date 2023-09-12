@@ -80,7 +80,7 @@ class PangoConan(ConanFile):
         if self.options.with_cairo:
             self.requires("cairo/1.17.6", transitive_headers=True)
         self.requires("harfbuzz/8.1.1", transitive_headers=True)
-        self.requires("glib/2.77.1", transitive_headers=True)
+        self.requires("glib/2.78.0", transitive_headers=True)
         self.requires("fribidi/1.0.12")
 
     def validate(self):
@@ -105,8 +105,8 @@ class PangoConan(ConanFile):
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
-        self.tool_requires("meson/1.2.0")
+            self.tool_requires("pkgconf/2.0.3")
+        self.tool_requires("meson/1.2.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

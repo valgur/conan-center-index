@@ -40,9 +40,9 @@ class CfgfileConan(ConanFile):
 
     def requirements(self):
         if self.version == "0.2.9.1" or Version(self.version) >= "0.2.10":
-            self.requires("args-parser/6.3.2")
+            self.requires("args-parser/6.3.3")
         elif self.version == "0.2.9.0":
-            self.requires("args-parser/6.3.2")
+            self.requires("args-parser/6.3.3")
 
     def package_id(self):
         del self.info.settings.compiler

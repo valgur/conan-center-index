@@ -43,11 +43,11 @@ class LibkmlConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0", transitive_headers=True)
+        self.requires("boost/1.83.0", transitive_headers=True)
         self.requires("expat/2.5.0")
         self.requires("minizip/1.2.13")
         self.requires("uriparser/0.9.7")
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
 
     def validate(self):
         if self.options.shared and is_msvc_static_runtime(self):

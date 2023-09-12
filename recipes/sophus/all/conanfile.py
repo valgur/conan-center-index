@@ -35,9 +35,9 @@ class SophusConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True)
         if self.options.get_safe("with_fmt"):
             if Version(self.version) >= "1.22.10":
-                self.requires("fmt/10.1.0", transitive_headers=True)
+                self.requires("fmt/10.1.1", transitive_headers=True)
             else:
-                self.requires("fmt/8.1.1", transitive_headers=True)
+                self.requires("fmt/10.1.1", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()

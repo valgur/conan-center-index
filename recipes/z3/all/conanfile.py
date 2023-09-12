@@ -65,7 +65,7 @@ class Z3Conan(ConanFile):
 
     def requirements(self):
         if self.options.use_gmp:
-            self.requires("gmp/6.2.1")
+            self.requires("gmp/6.3.0")
 
     def validate(self):
         # Z3 requires C++17, and it is recommended to use VS2019 or later

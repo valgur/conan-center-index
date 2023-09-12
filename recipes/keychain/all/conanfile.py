@@ -34,12 +34,12 @@ class KeychainConan(ConanFile):
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libsecret/0.20.5")
-            self.requires("glib/2.77.2")
+            self.requires("glib/2.78.0")
 
     def build_requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
             if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-                self.tool_requires("pkgconf/1.9.5")
+                self.tool_requires("pkgconf/2.0.3")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

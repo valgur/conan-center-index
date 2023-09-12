@@ -78,8 +78,8 @@ class RubyConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
-        self.requires("gmp/6.2.1")
+        self.requires("zlib/1.3")
+        self.requires("gmp/6.3.0")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 

@@ -53,7 +53,7 @@ class LibniceConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.77.1")
+        self.requires("glib/2.78.0")
         if self.options.crypto_library == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_gstreamer:
@@ -71,7 +71,7 @@ class LibniceConan(ConanFile):
                 "-o glib/*:shared=True with static runtime is not supported")
 
     def requirements(self):
-        self.requires("glib/2.77.2", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.78.0", transitive_headers=True, transitive_libs=True)
         if self.options.crypto_library == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_gstreamer:
@@ -79,7 +79,7 @@ class LibniceConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("meson/1.2.1")
-        self.tool_requires("pkgconf/1.9.5")
+        self.tool_requires("pkgconf/2.0.3")
         self.tool_requires("glib/<host_version>")  # for glib-mkenums
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.72.0")

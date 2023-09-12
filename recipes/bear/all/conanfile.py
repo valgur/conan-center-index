@@ -42,8 +42,8 @@ class BearConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("grpc/1.50.1")
-        self.requires("fmt/10.0.0")
+        self.requires("grpc/1.54.3")
+        self.requires("fmt/10.1.1")
         self.requires("spdlog/1.12.0")
         self.requires("nlohmann_json/3.11.2")
 
@@ -63,7 +63,7 @@ class BearConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built on windows.")
 
     def build_requirements(self):
-        self.tool_requires("grpc/1.50.1")
+        self.tool_requires("grpc/1.54.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

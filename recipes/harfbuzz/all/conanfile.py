@@ -86,7 +86,7 @@ class HarfbuzzConan(ConanFile):
         if self.options.with_icu:
             self.requires("icu/73.2")
         if self.options.with_glib:
-            self.requires("glib/2.77.1", run=can_run(self))
+            self.requires("glib/2.78.0", run=can_run(self))
 
     def validate(self):
         if self.options.shared and self.options.with_glib and not self.dependencies["glib"].options.shared:
@@ -107,9 +107,9 @@ class HarfbuzzConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("meson/1.2.0")
+        self.tool_requires("meson/1.2.1")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.3")
+            self.tool_requires("pkgconf/2.0.3")
         if self.options.with_glib:
             self.tool_requires("glib/<host_version>")
         if is_apple_os(self):

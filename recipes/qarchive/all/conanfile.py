@@ -50,7 +50,7 @@ class QarchiveConan(ConanFile):
 
     def requirements(self):
         self.requires("libarchive/3.6.2")
-        self.requires("qt/6.5.1")
+        self.requires("qt/6.5.2")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.17 <4]")

@@ -59,7 +59,7 @@ class LibgdConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         if self.options.with_png:
             self.requires("libpng/1.6.40")
             if is_msvc(self):

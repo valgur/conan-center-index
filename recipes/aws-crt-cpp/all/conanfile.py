@@ -47,21 +47,21 @@ class AwsCrtCpp(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-cal/0.5.13", transitive_headers=True)
-        self.requires("aws-c-common/0.8.2", transitive_headers=True)
-        self.requires("aws-checksums/0.1.13")
+        self.requires("aws-c-cal/0.6.1", transitive_headers=True)
+        self.requires("aws-c-common/0.9.0", transitive_headers=True)
+        self.requires("aws-checksums/0.1.17")
         if Version(self.version) < "0.17.29":
-            self.requires("aws-c-auth/0.6.11", transitive_headers=True)
-            self.requires("aws-c-event-stream/0.2.7")
-            self.requires("aws-c-http/0.6.13", transitive_headers=True)
-            self.requires("aws-c-io/0.10.20", transitive_headers=True)
-            self.requires("aws-c-mqtt/0.7.10", transitive_headers=True)
-            self.requires("aws-c-s3/0.1.37")
+            self.requires("aws-c-auth/0.6.17", transitive_headers=True)
+            self.requires("aws-c-event-stream/0.3.1")
+            self.requires("aws-c-http/0.6.22", transitive_headers=True)
+            self.requires("aws-c-io/0.13.32", transitive_headers=True)
+            self.requires("aws-c-mqtt/0.7.12", transitive_headers=True)
+            self.requires("aws-c-s3/0.1.49")
         else:
             self.requires("aws-c-auth/0.6.17", transitive_headers=True)
-            self.requires("aws-c-event-stream/0.2.15")
+            self.requires("aws-c-event-stream/0.3.1")
             self.requires("aws-c-http/0.6.22", transitive_headers=True)
-            self.requires("aws-c-io/0.13.4", transitive_headers=True)
+            self.requires("aws-c-io/0.13.32", transitive_headers=True)
             self.requires("aws-c-mqtt/0.7.12", transitive_headers=True)
             self.requires("aws-c-s3/0.1.49")
 

@@ -201,17 +201,17 @@ class GdalConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("json-c/0.16")
+        self.requires("json-c/0.17")
         self.requires("libgeotiff/1.7.1")
 
         if self.options.with_armadillo:
-            self.requires("armadillo/12.2.0")
+            self.requires("armadillo/11.4.3")
 
         if self.options.with_arrow:
-            self.requires("arrow/12.0.0")
+            self.requires("arrow/13.0.0")
 
         if self.options.with_blosc:
-            self.requires("c-blosc/1.21.4")
+            self.requires("c-blosc/1.21.5")
 
         if self.options.with_cfitsio:
             self.requires("cfitsio/4.2.0")
@@ -220,7 +220,7 @@ class GdalConan(ConanFile):
             self.requires("cryptopp/8.7.0")
 
         if self.options.with_curl:
-            self.requires("libcurl/8.2.0")
+            self.requires("libcurl/[>=7.78 <9]")
 
         if self.options.with_dds:
             self.requires("crunch/cci.20190615")
@@ -233,10 +233,10 @@ class GdalConan(ConanFile):
             self.requires("imath/3.1.9")
 
         if self.options.with_freexl:
-            self.requires("freexl/1.0.6")
+            self.requires("freexl/2.0.0")
 
         if self.options.with_geos:
-            self.requires("geos/3.11.2")
+            self.requires("geos/3.12.0")
 
         if self.options.with_gif:
             self.requires("giflib/5.2.1")
@@ -251,7 +251,7 @@ class GdalConan(ConanFile):
             self.requires("hdf5/1.14.1")
 
         if self.options.with_heif:
-            self.requires("libheif/1.13.0")
+            self.requires("libheif/1.16.2")
 
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/9e")
@@ -277,10 +277,10 @@ class GdalConan(ConanFile):
             self.requires("lz4/1.9.4")
 
         if self.options.with_mongocxx:
-            self.requires("mongo-cxx-driver/3.7.2")
+            self.requires("mongo-cxx-driver/3.8.0")
 
         if self.options.with_mysql == "libmysqlclient":
-            self.requires("libmysqlclient/8.0.31")
+            self.requires("libmysqlclient/8.1.0")
         elif self.options.with_mysql == "mariadb-connector-c":
             self.requires("mariadb-connector-c/3.3.3")
 
@@ -303,7 +303,7 @@ class GdalConan(ConanFile):
             self.requires("pcre2/10.42")
 
         if self.options.with_pg:
-            self.requires("libpq/15.3")
+            self.requires("libpq/15.4")
 
         if self.options.with_png:
             self.requires("libpng/1.6.40")
@@ -321,7 +321,7 @@ class GdalConan(ConanFile):
             self.requires("qhull/8.0.1")
 
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.42.0")
+            self.requires("sqlite3/3.43.1")
 
         if self.options.with_webp:
             self.requires("libwebp/1.3.1")
@@ -333,7 +333,7 @@ class GdalConan(ConanFile):
             self.requires("libxml2/2.11.4")
 
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/1.3")
 
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")

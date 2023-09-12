@@ -39,7 +39,7 @@ class LibgcryptConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libcap/2.68")
+        self.requires("libcap/2.69")
         self.requires("libgpg-error/1.36", transitive_headers=True)
 
     def validate(self):

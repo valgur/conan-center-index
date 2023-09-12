@@ -33,12 +33,12 @@ class LogrConan(ConanFile):
 
     def requirements(self):
         if self.options.backend != "spdlog":
-            fmt_ref = "fmt/10.0.0"
+            fmt_ref = "fmt/10.1.1"
         elif Version(self.version) >= "0.6.0":
-            fmt_ref = "fmt/10.0.0"
+            fmt_ref = "fmt/10.1.1"
             spdlog_ref = "spdlog/1.12.0"
         else:
-            fmt_ref = "fmt/10.0.0"
+            fmt_ref = "fmt/10.1.1"
             spdlog_ref = "spdlog/1.12.0"
 
         self.requires(fmt_ref)
@@ -50,7 +50,7 @@ class LogrConan(ConanFile):
         elif self.options.backend == "log4cplus":
             self.requires("log4cplus/2.1.0")
         elif self.options.backend == "boostlog":
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
 
     def package_id(self):
         self.info.settings.clear()

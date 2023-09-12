@@ -62,7 +62,7 @@ class SerdeppConan(ConanFile):
         if self.options.with_rapidjson:
             self.requires("rapidjson/cci.20220822")
         if self.options.with_fmt:
-            self.requires("fmt/10.1.0")
+            self.requires("fmt/10.1.1")
         if self.options.with_nlohmann_json:
             self.requires("nlohmann_json/3.11.2")
 

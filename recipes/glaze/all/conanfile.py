@@ -40,9 +40,9 @@ class GlazeConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "0.2.4":
-            self.requires("fmt/10.0.0")
+            self.requires("fmt/10.1.1")
             self.requires("frozen/1.1.1")
-            self.requires("nanorange/cci.20200706")
+            self.requires("nanorange/cci.20200505")
         if Version(self.version) < "0.2.3":
             self.requires("fast_float/5.2.0")
         if "0.1.5" <= Version(self.version) < "0.2.3":

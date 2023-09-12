@@ -42,7 +42,7 @@ class OatppsqliteConan(ConanFile):
 
     def requirements(self):
         self.requires(f"oatpp/{self.version}")
-        self.requires("sqlite3/3.42.0")
+        self.requires("sqlite3/3.43.1")
 
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):

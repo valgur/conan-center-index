@@ -43,8 +43,8 @@ class FlintConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gmp/6.2.1", transitive_headers=True)
-        self.requires("mpfr/4.2.0", transitive_headers=True)
+        self.requires("gmp/6.3.0", transitive_headers=True)
+        self.requires("mpfr/4.2.1", transitive_headers=True)
         if is_msvc(self):
             self.requires("pthreads4w/3.0.0")
 

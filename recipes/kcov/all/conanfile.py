@@ -29,7 +29,7 @@ class KcovConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13")
+        self.requires("zlib/1.3")
         self.requires("libiberty/9.1.0")
         self.requires("libcurl/[>=7]")
         self.requires("elfutils/0.186")

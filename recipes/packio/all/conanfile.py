@@ -77,7 +77,7 @@ class PackioConan(ConanFile):
             self.options.boost_json = not self.options.standalone_asio
 
         if self.options.get_safe("boost_json") or not self.options.get_safe("standalone_asio"):
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
 
         if self.options.get_safe("standalone_asio"):
             self.requires("asio/1.28.1")

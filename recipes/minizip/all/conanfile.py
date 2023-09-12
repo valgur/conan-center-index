@@ -47,7 +47,7 @@ class MinizipConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.2.13", transitive_headers=True)
+        self.requires("zlib/1.3", transitive_headers=True)
         if self.options.bzip2:
             self.requires("bzip2/1.0.8", transitive_headers=True)
 

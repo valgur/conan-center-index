@@ -86,13 +86,13 @@ class AprUtilConan(ConanFile):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_mysql:
-            self.requires("libmysqlclient/8.0.31")
+            self.requires("libmysqlclient/8.1.0")
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.42.0")
+            self.requires("sqlite3/3.43.1")
         if self.options.with_expat:
             self.requires("expat/2.5.0")
         if self.options.with_postgresql:
-            self.requires("libpq/15.3")
+            self.requires("libpq/15.4")
 
     def validate(self):
         if not self.options.with_expat:

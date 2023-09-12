@@ -66,7 +66,7 @@ class OpusFileConan(ConanFile):
 
     def requirements(self):
         self.requires("ogg/1.3.5", transitive_headers=True)
-        self.requires("opus/1.3.1", transitive_headers=True)
+        self.requires("opus/1.4", transitive_headers=True)
         if self.options.http:
             self.requires("openssl/[>=1.1 <4]")
 
@@ -80,7 +80,7 @@ class OpusFileConan(ConanFile):
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/1.9.5")
+                self.tool_requires("pkgconf/2.0.3")
             if self._settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):

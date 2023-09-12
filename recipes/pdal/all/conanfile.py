@@ -64,10 +64,10 @@ class PdalConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0")
+        self.requires("boost/1.83.0")
         self.requires("eigen/3.4.0", transitive_headers=True)
-        self.requires("gdal/3.5.2", transitive_headers=True)
-        self.requires("libcurl/8.2.0", force=True)  # mandatory dependency of arbiter (to remove if arbiter is unvendored)
+        self.requires("gdal/3.7.0", transitive_headers=True)
+        self.requires("libcurl/[>=7.78 <9]", force=True)  # mandatory dependency of arbiter (to remove if arbiter is unvendored)
         self.requires("openssl/[>=1.1 <4]")
         self.requires("libgeotiff/1.7.1")
         self.requires("nanoflann/1.5.0")
@@ -78,9 +78,9 @@ class PdalConan(ConanFile):
         if self.options.with_laszip:
             self.requires("laszip/3.4.3", transitive_headers=True)
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13", transitive_headers=True)
+            self.requires("zlib/1.3", transitive_headers=True)
         if self.options.with_lzma:
-            self.requires("xz_utils/5.4.2")
+            self.requires("xz_utils/5.4.4")
         if self.options.get_safe("with_unwind"):
             self.requires("libunwind/1.7.2")
         # TODO package improvements:
@@ -92,7 +92,7 @@ class PdalConan(ConanFile):
         # Handle conflicts between gdal and other deps
         self.requires("libtiff/4.5.1", override=True)
         self.requires("libdeflate/1.18", override=True)
-        self.requires("sqlite3/3.42.0", override=True)
+        self.requires("sqlite3/3.43.1", override=True)
 
     @property
     def _required_boost_components(self):
