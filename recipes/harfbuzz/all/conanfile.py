@@ -20,7 +20,7 @@ from conan.tools.scm import Version
 
 import os
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.6"
+required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
 
 class HarfbuzzConan(ConanFile):

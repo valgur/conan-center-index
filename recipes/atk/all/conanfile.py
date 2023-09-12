@@ -10,7 +10,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
 
 class AtkConan(ConanFile):
@@ -73,7 +73,7 @@ class AtkConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/2.0.3")
         if hasattr(self, "settings_build") and cross_building(self):
-            self.tool_requires("glib/2.78.0")
+            self.tool_requires("glib/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

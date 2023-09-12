@@ -10,7 +10,7 @@ from conan.tools.microsoft import is_msvc, check_min_vs
 import glob
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
 
 class GStreamerConan(ConanFile):
@@ -62,7 +62,7 @@ class GStreamerConan(ConanFile):
         self.tool_requires("meson/1.2.1")
         # There used to be an issue with glib being shared by default but its dependencies being static
         # No longer the case, but see: https://github.com/conan-io/conan-center-index/pull/13400#issuecomment-1551565573 for context
-        self.tool_requires("glib/2.78.0")
+        self.tool_requires("glib/<host_version>")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/2.0.3")
         if self.options.with_introspection:

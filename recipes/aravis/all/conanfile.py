@@ -12,7 +12,7 @@ from conan.tools.scm import Version
 import os
 import glob
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=1.56.0 <2 || >=2.0.5"
 
 
 class AravisConan(ConanFile):

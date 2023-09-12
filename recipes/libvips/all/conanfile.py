@@ -10,7 +10,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime, msvc_runtime_flag
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
 
 class LibvipsConan(ConanFile):
@@ -214,7 +214,7 @@ class LibvipsConan(ConanFile):
         if self.options.introspection:
             self.tool_requires("gobject-introspection/1.72.0")
         if not can_run(self):
-            self.tool_requires("glib/2.78.0")
+            self.tool_requires("glib/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

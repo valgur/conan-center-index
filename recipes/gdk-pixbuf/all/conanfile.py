@@ -20,7 +20,7 @@ from conan.tools.scm import Version
 
 import os
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
 
 class GdkPixbufConan(ConanFile):
@@ -101,7 +101,7 @@ class GdkPixbufConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/2.0.3")
         if not can_run(self):
-            self.tool_requires("glib/2.78.0")
+            self.tool_requires("glib/<host_version>")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.72.0")
 
