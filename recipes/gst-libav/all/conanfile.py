@@ -124,7 +124,7 @@ class GStLibAVConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.77.1")
+        self.requires("glib/2.78.0")
         self.requires(f"gstreamer/{self.version}")
         self.requires(f"gst-plugins-base/{self.version}")
         self.requires("ffmpeg/6.0")
@@ -143,9 +143,9 @@ class GStLibAVConan(ConanFile):
             raise ConanInvalidConfiguration("shared build with static runtime is not supported due to the FlsAlloc limit")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.2.0")
+        self.tool_requires("meson/1.2.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
+            self.tool_requires("pkgconf/2.0.3")
         if self.settings.os == "Windows":
             self.tool_requires("winflexbison/2.5.24")
         else:
@@ -201,7 +201,7 @@ class GStLibAVConan(ConanFile):
                     shutil.move(filename_old, filename_new)
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = Meson(self)
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
