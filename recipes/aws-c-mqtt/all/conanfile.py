@@ -42,13 +42,13 @@ class AwsCMQTT(ConanFile):
 
     def requirements(self):
         self.requires("aws-c-common/0.9.0")
-        self.requires("aws-c-cal/0.5.20")
+        self.requires("aws-c-cal/0.6.1")
         if Version(self.version) < "0.7.12":
             self.requires("aws-c-io/0.10.20")
             self.requires("aws-c-http/0.6.13")
         else:
-            self.requires("aws-c-io/0.13.4")
-            self.requires("aws-c-http/0.6.22")
+            self.requires("aws-c-io/0.10.20")
+            self.requires("aws-c-http/0.6.13")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -67,7 +67,7 @@ class AwsCMQTT(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-mqtt"))
