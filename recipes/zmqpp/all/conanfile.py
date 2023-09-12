@@ -29,6 +29,10 @@ class ZmqppConan(ConanFile):
         "fPIC": True,
     }
 
+    @property
+    def _min_cppstd(self):
+        return 11
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -44,11 +48,11 @@ class ZmqppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zeromq/4.3.4")
+        self.requires("zeromq/4.3.4", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+            check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

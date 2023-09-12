@@ -1,9 +1,9 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.layout import basic_layout
 from conan.tools.files import get, copy
-from conan import Version
+from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.53.0"
@@ -71,6 +71,4 @@ class Sqlpp11Conan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "sqlpp11::sqlpp11")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
+        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

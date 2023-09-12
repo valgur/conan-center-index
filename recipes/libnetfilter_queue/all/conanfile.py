@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -11,9 +11,8 @@ required_conan_version = ">=1.53.0"
 
 class Libnetfilter_queueConan(ConanFile):
     name = "libnetfilter_queue"
-    description = (
-        "userspace library that provides an API to packets that have been queued by the kernel packet filter"
-    )
+    description = ("userspace library that provides an API to packets"
+                   " that have been queued by the kernel packet filter")
     license = "GPL-2.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://netfilter.org/projects/libnetfilter_queue/index.html"
@@ -34,9 +33,11 @@ class Libnetfilter_queueConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def configure(self):
+    def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("libnetfilter_queue is only supported on Linux")
+            raise ConanInvalidConfiguration(f"{self.ref} is only supported on Linux.")
+
+    def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
@@ -46,8 +47,12 @@ class Libnetfilter_queueConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libmnl/1.0.4")
-        self.requires("libnfnetlink/1.0.2")
+        self.requires("libmnl/1.0.4", transitive_headers=True, transitive_libs=True)
+        self.requires("libnfnetlink/1.0.2", transitive_headers=True)
+
+    def build_requirements(self):
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/1.9.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -55,6 +60,8 @@ class Libnetfilter_queueConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         autotools = Autotools(self)

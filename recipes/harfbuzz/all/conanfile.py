@@ -2,7 +2,7 @@ from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import can_run, stdcpp_library
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import (
     apply_conandata_patches,
     copy,
@@ -20,7 +20,7 @@ from conan.tools.scm import Version
 
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=1.60.0 <2.0 || >=2.0.6"
 
 
 class HarfbuzzConan(ConanFile):
@@ -28,9 +28,8 @@ class HarfbuzzConan(ConanFile):
     description = "HarfBuzz is an OpenType text shaping engine."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://harfbuzz.org"
+    homepage = "https://harfbuzz.github.io/"
     topics = ("opentype", "text", "engine")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -110,9 +109,9 @@ class HarfbuzzConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/1.2.0")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
-        if self.options.with_glib and not can_run(self):
-            self.tool_requires("glib/2.77.1")
+            self.tool_requires("pkgconf/1.9.3")
+        if self.options.with_glib:
+            self.tool_requires("glib/<host_version>")
         if is_apple_os(self):
             # Ensure that the gettext we use at build time is compatible
             # with the libiconv that is transitively exposed by glib
@@ -136,8 +135,6 @@ class HarfbuzzConan(ConanFile):
             return "ninja", []
 
         VirtualBuildEnv(self).generate()
-        if self.options.with_glib and can_run(self):
-            VirtualRunEnv(self).generate(scope="build")
 
         # Avoid conflicts with libiconv
         # see: https://github.com/conan-io/conan-center-index/pull/17046#issuecomment-1554629094

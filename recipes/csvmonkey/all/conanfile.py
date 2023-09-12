@@ -15,7 +15,7 @@ class CSVMONEKYConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dw/csvmonkey/"
-    topics = ("csv-parser", "header-only", "vectorized")
+    topics = ("csv-parser", "header-only", "vectorized", "header-only")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -36,7 +36,7 @@ class CSVMONEKYConan(ConanFile):
 
     def requirements(self):
         if self.options.with_spirit:
-            self.requires("boost/1.82.0")
+            self.requires("boost/1.83.0")
 
     def package_id(self):
         self.info.clear()

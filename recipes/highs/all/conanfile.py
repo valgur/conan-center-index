@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -30,12 +29,6 @@ class HiGHSConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def validate(self):
-        if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built as shared on Visual Studio and msvc."
-            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -91,6 +84,8 @@ class HiGHSConan(ConanFile):
             copy(self, "*.dylib*",
                  src=join(self.build_folder, "lib"),
                  dst=join(self.package_folder, "lib"))
+            copy(self, pattern="*.lib", src=self.build_folder, dst=join(self.package_folder, "lib"), keep_path=False)
+            copy(self, pattern="*.dll", src=self.build_folder, dst=join(self.package_folder, "bin"), keep_path=False)
         else:
             copy(self, "*.a",
                  src=join(self.build_folder, "lib"),

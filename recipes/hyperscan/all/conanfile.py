@@ -16,7 +16,6 @@ class HyperscanConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.hyperscan.io"
     topics = ("regex", "regular expressions")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -59,7 +58,7 @@ class HyperscanConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0")
+        self.requires("boost/1.83.0")
         if self.options.build_chimera:
             self.requires("pcre/8.45")
 
@@ -77,7 +76,7 @@ class HyperscanConan(ConanFile):
         self.tool_requires("ragel/6.10")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -90,6 +89,7 @@ class HyperscanConan(ConanFile):
         tc.variables["BUILD_AVX512"] = self.options.build_avx512
         tc.variables["FAT_RUNTIME"] = self.options.fat_runtime
         tc.variables["BUILD_CHIMERA"] = self.options.build_chimera
+        tc.variables["BUILD_EXAMPLES"] = False
         if self.options.dump_support != "auto":
             tc.variables["DUMP_SUPPORT"] = self.options.dump_support
         tc.generate()
@@ -104,7 +104,7 @@ class HyperscanConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

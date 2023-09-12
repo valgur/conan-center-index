@@ -75,7 +75,7 @@ class GlibmmConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.77.1")
+        self.requires("glib/2.77.2")
         if self._abi_version == "2.68":
             self.requires("libsigcpp/3.0.7")
         else:
@@ -99,7 +99,7 @@ class GlibmmConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("meson/1.2.0")
+        self.tool_requires("meson/1.2.1")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/1.9.5")
 
@@ -156,21 +156,12 @@ class GlibmmConan(ConanFile):
     def package(self):
         def rename_msvc_static_libs():
             lib_folder = os.path.join(self.package_folder, "lib")
-            rename(
-                self,
-                os.path.join(lib_folder, f"libglibmm-{self._abi_version}.a"),
-                os.path.join(lib_folder, f"{self._glibmm_lib}.lib"),
-            )
-            rename(
-                self,
-                os.path.join(lib_folder, f"libgiomm-{self._abi_version}.a"),
-                os.path.join(lib_folder, f"{self._giomm_lib}.lib"),
-            )
-            rename(
-                self,
-                os.path.join(lib_folder, f"libglibmm_generate_extra_defs-{self._abi_version}.a"),
-                os.path.join(lib_folder, f"glibmm_generate_extra_defs-{self._abi_version}.lib"),
-            )
+            rename(self, os.path.join(lib_folder, f"libglibmm-{self._abi_version}.a"),
+                   os.path.join(lib_folder, f"{self._glibmm_lib}.lib"))
+            rename(self, os.path.join(lib_folder, f"libgiomm-{self._abi_version}.a"),
+                   os.path.join(lib_folder, f"{self._giomm_lib}.lib"))
+            rename(self, os.path.join(lib_folder, f"libglibmm_generate_extra_defs-{self._abi_version}.a"),
+                   os.path.join(lib_folder, f"glibmm_generate_extra_defs-{self._abi_version}.lib"))
 
         meson = Meson(self)
         meson.install()

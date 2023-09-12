@@ -11,7 +11,7 @@ required_conan_version = ">=1.53.0"
 class TidyHtml5Conan(ConanFile):
     name = "tidy-html5"
     description = "The granddaddy of HTML tools, with support for modern standards"
-    license = "W3C"
+    license = "HTMLTIDY"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.html-tidy.org"
     topics = ("html", "parser", "xml", "tools")
@@ -68,7 +68,9 @@ class TidyHtml5Conan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING",
+             dst=os.path.join(self.package_folder, "licenses"),
+             src=self.source_folder)
         copy(self, "LICENSE.md",
              dst=os.path.join(self.package_folder, "licenses"),
              src=os.path.join(self.source_folder, "README"))

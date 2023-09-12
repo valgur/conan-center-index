@@ -1,11 +1,10 @@
-import os
-import textwrap
-
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches, save
+from conan.errors import ConanInvalidConfiguration
+import os
+import textwrap
 
 required_conan_version = ">=1.53.0"
 

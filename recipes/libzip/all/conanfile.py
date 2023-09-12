@@ -1,14 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.scm import Version
 import os
 
@@ -18,11 +11,10 @@ required_conan_version = ">=1.54.0"
 class LibZipConan(ConanFile):
     name = "libzip"
     description = "A C library for reading, creating, and modifying zip archives"
-    license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/nih-at/libzip"
+    license = "BSD-3-Clause"
     topics = ("zip", "zip-archives", "zip-editing")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -55,7 +47,7 @@ class LibZipConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if not self._has_zstd_support:
-            self.options.rm_safe("with_zstd")
+            del self.options.with_zstd
         # Default crypto backend on windows
         if self.settings.os == "Windows":
             self.options.crypto = "win32"
@@ -113,41 +105,8 @@ class LibZipConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        top_cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        # Honor zstd enabled
-        if self._has_zstd_support:
-
-            def zstd_find_package_pattern(version):
-                if version >= "1.9.2":
-                    return "find_package(Zstd 1.3.6)"
-                else:
-                    return "find_package(Zstd)"
-
-            lib_cmakelists = os.path.join(self.source_folder, "lib", "CMakeLists.txt")
-            replace_in_file(
-                self, top_cmakelists, zstd_find_package_pattern(Version(self.version)), "find_package(zstd)"
-            )
-            replace_in_file(self, top_cmakelists, "Zstd_FOUND", "zstd_FOUND")
-            replace_in_file(
-                self,
-                lib_cmakelists,
-                "Zstd::Zstd",
-                "$<IF:$<TARGET_EXISTS:zstd::libzstd_shared>,zstd::libzstd_shared,zstd::libzstd_static>",
-            )
-        # Do not pollute rpath of installed binaries
-        replace_in_file(
-            self,
-            top_cmakelists,
-            "set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})",
-            "",
-        )
-        replace_in_file(self, top_cmakelists, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
-
     def build(self):
-        self._patch_sources()
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

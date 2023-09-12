@@ -6,19 +6,17 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
+
 required_conan_version = ">=1.52.0"
 
 
 class PackageConan(ConanFile):
     name = "samurai"
-    description = (
-        "Intervals coupled with algebra of set to handle adaptive mesh refinement and operators on it"
-    )
+    description = "Intervals coupled with algebra of set to handle adaptive mesh refinement and operators on it"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hpc-maths/samurai"
     topics = ("scientific computing", "adaptive mesh refinement", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -42,7 +40,7 @@ class PackageConan(ConanFile):
 
     def requirements(self):
         self.requires("cli11/2.3.2")
-        self.requires("fmt/10.0.0")
+        self.requires("fmt/10.1.1")
         self.requires("highfive/2.7.1")
         self.requires("pugixml/1.13")
         self.requires("xsimd/11.1.0")
@@ -63,11 +61,15 @@ class PackageConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    # Copy all files to the package folder
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.hpp",
-             dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"))
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
         # Folders not used for header-only

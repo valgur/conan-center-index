@@ -12,13 +12,11 @@ required_conan_version = ">=1.53.0"
 
 class PulseAudioConan(ConanFile):
     name = "pulseaudio"
-    description = (
-        "PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for sound applications."
-    )
-    license = "LGPL-2.1"
+    description = "PulseAudio is a sound system for POSIX OSes, meaning that it is a proxy for sound applications."
+    topics = ("sound",)
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pulseaudio.org/"
-    topics = ("sound",)
+    license = "LGPL-2.1"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -53,20 +51,20 @@ class PulseAudioConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if not self.options.with_dbus:
-            self.options.rm_safe("with_fftw")
+            del self.options.with_fftw
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("libiconv/1.17")
-        self.requires("libsndfile/1.2.0")
+        self.requires("libsndfile/1.2.2")
         self.requires("libcap/2.68")
-        self.tool_requires("libtool/2.4.7")
+        self.requires("libtool/2.4.7")
         if self.options.with_alsa:
             self.requires("libalsa/1.2.7.2")
         if self.options.with_glib:
-            self.requires("glib/2.77.1")
+            self.requires("glib/2.77.2")
         if self.options.get_safe("with_fftw"):
             self.requires("fftw/3.3.10")
         if self.options.with_x11:
@@ -74,10 +72,10 @@ class PulseAudioConan(ConanFile):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_dbus:
-            self.requires("dbus/1.15.6")
+            self.requires("dbus/1.15.8")
 
     def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
+        if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("pulseaudio supports only linux currently")
 
         if self.options.get_safe("with_fftw"):
@@ -106,16 +104,14 @@ class PulseAudioConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend(
-            [
-                f"--enable-shared={yes_no(self.options.shared)}",
-                f"--enable-static={yes_no(not self.options.shared)}",
-                f"--enable-glib2={yes_no(self.options.with_glib)}",
-                f"--with-fftw={yes_no(self.options.get_safe('with_fftw'))}",
-                "--with-udev-rules-dir=${prefix}/bin/udev/rules.d",
-                f"--with-systemduserunitdir={os.path.join(self.build_folder, 'ignore')}",
-            ]
-        )
+        tc.configure_args.extend([
+            f"--enable-shared={yes_no(self.options.shared)}",
+            f"--enable-static={yes_no(not self.options.shared)}",
+            f"--enable-glib2={yes_no(self.options.with_glib)}",
+            f"--with-fftw={yes_no(self.options.get_safe('with_fftw'))}",
+            "--with-udev-rules-dir=${prefix}/bin/udev/rules.d",
+            f"--with-systemduserunitdir={os.path.join(self.build_folder, 'ignore')}",
+        ])
         for lib in ["alsa", "x11", "openssl", "dbus"]:
             tc.configure_args.append(f"--enable-{lib}={yes_no(getattr(self.options, f'with_{lib}'))}")
         # TODO: to remove when automatically handled by AutotoolsToolchain
@@ -145,12 +141,7 @@ class PulseAudioConan(ConanFile):
         self.cpp_info.components["pulse"].set_property("pkg_config_name", "libpulse")
         self.cpp_info.components["pulse"].libs = ["pulse", f"pulsecommon-{self.version}"]
         self.cpp_info.components["pulse"].libdirs.append(os.path.join("lib", "pulseaudio"))
-        self.cpp_info.components["pulse"].requires = [
-            "libiconv::libiconv",
-            "libsndfile::libsndfile",
-            "libcap::libcap",
-            "libtool::libtool",
-        ]
+        self.cpp_info.components["pulse"].requires = ["libiconv::libiconv", "libsndfile::libsndfile", "libcap::libcap", "libtool::libtool"]
         if self.options.with_alsa:
             self.cpp_info.components["pulse"].requires.append("libalsa::libalsa")
         if self.options.get_safe("with_fftw"):
@@ -168,9 +159,7 @@ class PulseAudioConan(ConanFile):
         self.cpp_info.components["pulse-simple"].requires = ["pulse"]
 
         if self.options.with_glib:
-            self.cpp_info.components["pulse-mainloop-glib"].set_property(
-                "pkg_config_name", "libpulse-mainloop-glib"
-            )
+            self.cpp_info.components["pulse-mainloop-glib"].set_property("pkg_config_name", "libpulse-mainloop-glib")
             self.cpp_info.components["pulse-mainloop-glib"].libs = ["pulse-mainloop-glib"]
             self.cpp_info.components["pulse-mainloop-glib"].defines.append("_REENTRANT")
             self.cpp_info.components["pulse-mainloop-glib"].requires = ["pulse", "glib::glib-2.0"]

@@ -1,14 +1,8 @@
 from conan import ConanFile
-from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
+    apply_conandata_patches, collect_libs, copy, export_conandata_patches, get,
+    replace_in_file, rmdir
 )
 import os
 
@@ -17,15 +11,12 @@ required_conan_version = ">=1.53.0"
 
 class CppRestSDKConan(ConanFile):
     name = "cpprestsdk"
-    description = (
-        "A project for cloud-based client-server communication in native code using "
-        "a modern asynchronous C++ API design"
-    )
-    license = "MIT"
+    description = "A project for cloud-based client-server communication in native code using a modern asynchronous " \
+                  "C++ API design"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Microsoft/cpprestsdk"
     topics = ("rest", "client", "http", "https")
-
+    license = "MIT"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -54,9 +45,9 @@ class CppRestSDKConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         else:
-            self.options.rm_safe("pplx_impl")
-            self.options.rm_safe("http_client_impl")
-            self.options.rm_safe("http_listener_impl")
+            del self.options.pplx_impl
+            del self.options.http_client_impl
+            del self.options.http_listener_impl
 
     def configure(self):
         if self.options.shared:
@@ -66,7 +57,7 @@ class CppRestSDKConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0")
+        self.requires("boost/1.83.0")
         self.requires("openssl/[>=1.1 <4]")
         if self.options.with_compression:
             self.requires("zlib/1.2.13")
@@ -97,13 +88,9 @@ class CppRestSDKConan(ConanFile):
         deps.generate()
 
     def _patch_clang_libcxx(self):
-        if self.settings.compiler == "clang" and str(self.settings.compiler.libcxx) in [
-            "libstdc++",
-            "libstdc++11",
-        ]:
-            replace_in_file(
-                self, os.path.join(self.source_folder, "Release", "CMakeLists.txt"), "libc++", "libstdc++"
-            )
+        if self.settings.compiler == 'clang' and str(self.settings.compiler.libcxx) in ['libstdc++', 'libstdc++11']:
+            replace_in_file(self, os.path.join(self.source_folder, 'Release', 'CMakeLists.txt'),
+                                  'libc++', 'libstdc++')
 
     def build(self):
         apply_conandata_patches(self)
@@ -123,25 +110,18 @@ class CppRestSDKConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "cpprestsdk")
 
         # cpprestsdk_boost_internal
-        self.cpp_info.components["cpprestsdk_boost_internal"].set_property(
-            "cmake_target_name", "cpprestsdk::cpprestsdk_boost_internal"
-        )
+        self.cpp_info.components["cpprestsdk_boost_internal"].set_property("cmake_target_name", "cpprestsdk::cpprestsdk_boost_internal")
         self.cpp_info.components["cpprestsdk_boost_internal"].includedirs = []
         self.cpp_info.components["cpprestsdk_boost_internal"].requires = ["boost::boost"]
         # cpprestsdk_openssl_internal
-        self.cpp_info.components["cpprestsdk_openssl_internal"].set_property(
-            "cmake_target_name", "cpprestsdk::cpprestsdk_openssl_internal"
-        )
+        self.cpp_info.components["cpprestsdk_openssl_internal"].set_property("cmake_target_name", "cpprestsdk::cpprestsdk_openssl_internal")
         self.cpp_info.components["cpprestsdk_openssl_internal"].includedirs = []
         self.cpp_info.components["cpprestsdk_openssl_internal"].requires = ["openssl::openssl"]
         # cpprest
         self.cpp_info.components["cpprest"].set_property("cmake_target_name", "cpprestsdk::cpprest")
         self.cpp_info.components["cpprest"].libs = collect_libs(self)
-        self.cpp_info.components["cpprest"].requires = [
-            "cpprestsdk_boost_internal",
-            "cpprestsdk_openssl_internal",
-        ]
-        if self.settings.os in ["Linux", "FreeBSD"]:
+        self.cpp_info.components["cpprest"].requires = ["cpprestsdk_boost_internal", "cpprestsdk_openssl_internal"]
+        if self.settings.os == "Linux":
             self.cpp_info.components["cpprest"].system_libs.append("pthread")
         elif self.settings.os == "Windows":
             if self.options.get_safe("http_client_impl") == "winhttp":
@@ -155,25 +135,19 @@ class CppRestSDKConan(ConanFile):
                 self.cpp_info.components["cpprest"].defines.append("CPPREST_FORCE_HTTP_CLIENT_ASIO")
             if self.options.get_safe("http_listener_impl") == "asio":
                 self.cpp_info.components["cpprest"].defines.append("CPPREST_FORCE_HTTP_LISTENER_ASIO")
-        elif is_apple_os(self):
+        elif self.settings.os == "Macos":
             self.cpp_info.components["cpprest"].frameworks.extend(["CoreFoundation", "Security"])
         if not self.options.shared:
             self.cpp_info.components["cpprest"].defines.extend(["_NO_ASYNCRTIMP", "_NO_PPLXIMP"])
         # cpprestsdk_zlib_internal
         if self.options.with_compression:
-            self.cpp_info.components["cpprestsdk_zlib_internal"].set_property(
-                "cmake_target_name", "cpprestsdk::cpprestsdk_zlib_internal"
-            )
+            self.cpp_info.components["cpprestsdk_zlib_internal"].set_property("cmake_target_name", "cpprestsdk::cpprestsdk_zlib_internal")
             self.cpp_info.components["cpprestsdk_zlib_internal"].includedirs = []
             self.cpp_info.components["cpprestsdk_zlib_internal"].requires = ["zlib::zlib"]
             self.cpp_info.components["cpprest"].requires.append("cpprestsdk_zlib_internal")
         # cpprestsdk_websocketpp_internal
         if self.options.with_websockets:
-            self.cpp_info.components["cpprestsdk_websocketpp_internal"].set_property(
-                "cmake_target_name", "cpprestsdk::cpprestsdk_websocketpp_internal"
-            )
+            self.cpp_info.components["cpprestsdk_websocketpp_internal"].set_property("cmake_target_name", "cpprestsdk::cpprestsdk_websocketpp_internal")
             self.cpp_info.components["cpprestsdk_websocketpp_internal"].includedirs = []
-            self.cpp_info.components["cpprestsdk_websocketpp_internal"].requires = [
-                "websocketpp::websocketpp"
-            ]
+            self.cpp_info.components["cpprestsdk_websocketpp_internal"].requires = ["websocketpp::websocketpp"]
             self.cpp_info.components["cpprest"].requires.append("cpprestsdk_websocketpp_internal")

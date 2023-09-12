@@ -54,8 +54,8 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.82.0", transitive_headers=True)
-        self.requires("function2/4.2.2", transitive_headers=True)
+        self.requires("boost/1.83.0", transitive_headers=True)
+        self.requires("function2/4.2.3", transitive_headers=True)
         self.requires("prometheus-cpp/1.1.0", transitive_headers=True)
 
     def validate(self):

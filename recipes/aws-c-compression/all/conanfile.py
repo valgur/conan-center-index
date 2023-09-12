@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir, save
+from conan.tools.scm import Version
 import os
 import textwrap
 
@@ -40,7 +41,10 @@ class AwsCCompression(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
+        if Version(self.version) <= "0.2.15":
+            self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
+        else:
+            self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -12,10 +12,8 @@ required_conan_version = ">=1.59.0"
 
 class MPUnitsConan(ConanFile):
     name = "mp-units"
-    description = "Physical Quantities and Units library for C++"
-    license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mpusz/units"
+    description = "Physical Quantities and Units library for C++"
     topics = (
         "units",
         "dimensions",
@@ -29,11 +27,12 @@ class MPUnitsConan(ConanFile):
         "si",
         "library",
         "quantity-manipulation",
-        "header-only",
     )
-
-    package_type = "header-library"
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
+    tool_requires = "cmake/[>=3.19 <4]"
+    package_type = "header-library"
     no_copy_source = True
 
     @property
@@ -42,12 +41,7 @@ class MPUnitsConan(ConanFile):
 
     @property
     def _minimum_compilers_version(self):
-        return {
-            "gcc": "10.3",
-            "clang": "12",
-            "apple-clang": "13",
-            "msvc": "192",
-        }
+        return {"gcc": "10.3", "clang": "12", "apple-clang": "13", "msvc": "192"}
 
     @property
     def _use_libfmt(self):
@@ -62,18 +56,12 @@ class MPUnitsConan(ConanFile):
         version = Version(self.settings.compiler.version)
         return "clang" in compiler and compiler.libcxx == "libc++" and version < 14
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
-
     def requirements(self):
         self.requires("gsl-lite/0.40.0")
         if self._use_libfmt:
-            self.requires("fmt/10.0.0")
+            self.requires("fmt/10.1.0")
         if self._use_range_v3:
             self.requires("range-v3/0.12.0")
-
-    def package_id(self):
-        self.info.clear()
 
     def validate(self):
         if self.settings.get_safe("compiler.cppstd"):
@@ -92,8 +80,8 @@ class MPUnitsConan(ConanFile):
                 f"{self.ref} requires at least {compiler} {min_version} ({compiler.version} in use)"
             )
 
-    def build_requirements(self):
-        self.tool_requires("cmake/[>=3.19 <4]")
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -110,16 +98,21 @@ class MPUnitsConan(ConanFile):
         cmake.configure(build_script_folder="src")
         cmake.build()
 
+    def package_id(self):
+        self.info.clear()
+
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(
+            self,
+            "LICENSE.md",
+            self.source_folder,
+            os.path.join(self.package_folder, "licenses"),
+        )
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         compiler = self.settings.compiler
 
         # core

@@ -253,7 +253,7 @@ class GdalConan(ConanFile):
         self.folders.build = self.folders.source
 
     def requirements(self):
-        self.requires("json-c/0.16")
+        self.requires("json-c/0.17")
         self.requires("libgeotiff/1.7.1")
         # self.requires("libopencad/0.0.2") # TODO: use conan recipe when available instead of internal one
         self.requires("libtiff/4.5.1")
@@ -336,7 +336,7 @@ class GdalConan(ConanFile):
         # if self.options.with_dods_root:
         #     self.requires("libdap/3.20.6")
         if self.options.with_curl:
-            self.requires("libcurl/8.2.0")
+            self.requires("libcurl/8.2.1")
         if self.options.with_xml2:
             self.requires("libxml2/2.11.4")
         # if self.options.with_spatialite:

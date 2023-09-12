@@ -47,7 +47,7 @@ class SimpleYamlConan(ConanFile):
 
     def requirements(self):
         self.requires("pretty-name/1.0.0")
-        self.requires("yaml-cpp/0.7.0")
+        self.requires("yaml-cpp/0.8.0")
         self.requires("source_location/0.2.1")
         if self.options.enable_enum:
             self.requires("magic_enum/0.9.3")

@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rmdir, save
 from conan.tools.scm import Version
@@ -15,8 +14,7 @@ class AwsCIO(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/awslabs/aws-c-io"
-    topics = ("aws", "amazon", "cloud", "io", "tls")
-
+    topics = ("aws", "amazon", "cloud", "io", "tls",)
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -45,14 +43,17 @@ class AwsCIO(ConanFile):
         # the versions of aws-c-common and aws-c-io are tied since aws-c-common/0.6.12 and aws-c-io/0.10.10
         # Please refer https://github.com/conan-io/conan-center-index/issues/7763
         if Version(self.version) <= "0.10.9":
-            self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
-            self.requires("aws-c-cal/0.5.20")
+            self.requires("aws-c-common/0.6.11", transitive_headers=True, transitive_libs=True)
+            self.requires("aws-c-cal/0.5.11")
+        elif Version(self.version) <= "0.13.4":
+            self.requires("aws-c-common/0.8.2", transitive_headers=True, transitive_libs=True)
+            self.requires("aws-c-cal/0.5.13")
         else:
             self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
-            self.requires("aws-c-cal/0.5.20")
+            self.requires("aws-c-cal/0.6.1", transitive_headers=True)
 
         if self.settings.os in ["Linux", "FreeBSD", "Android"]:
-            self.requires("s2n/1.3.31")
+            self.requires("s2n/1.3.50")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -71,7 +72,7 @@ class AwsCIO(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-io"))
@@ -79,7 +80,7 @@ class AwsCIO(ConanFile):
         # TODO: to remove in conan v2 once legacy generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"AWS::aws-c-io": "aws-c-io::aws-c-io"},
+            {"AWS::aws-c-io": "aws-c-io::aws-c-io"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):
@@ -103,7 +104,7 @@ class AwsCIO(ConanFile):
         self.cpp_info.libs = ["aws-c-io"]
         if self.options.shared:
             self.cpp_info.defines.append("AWS_IO_USE_IMPORT_EXPORT")
-        if is_apple_os(self):
+        if self.settings.os == "Macos":
             self.cpp_info.frameworks.append("Security")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["crypt32", "secur32", "shlwapi"]

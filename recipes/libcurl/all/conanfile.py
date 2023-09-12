@@ -185,13 +185,13 @@ class LibcurlConan(ConanFile):
         elif self.options.with_ssl == "wolfssl":
             self.requires("wolfssl/5.6.3")
         if self.options.with_nghttp2:
-            self.requires("libnghttp2/1.55.1")
+            self.requires("libnghttp2/1.56.0")
         if self.options.with_libssh2:
             self.requires("libssh2/1.11.0")
         if self.options.with_zlib:
-            self.requires("zlib/1.2.13")
+            self.requires("zlib/[>=1.2.10 <2]")
         if self.options.with_brotli:
-            self.requires("brotli/1.0.9")
+            self.requires("brotli/1.1.0")
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")
         if self.options.with_c_ares:
@@ -216,7 +216,7 @@ class LibcurlConan(ConanFile):
         else:
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/1.9.5")
+                self.tool_requires("pkgconf/2.0.2")
             if self.settings.os in [ "tvOS", "watchOS" ]:
                 self.tool_requires("gnu-config/cci.20210814")
             if self._settings_build.os == "Windows":
@@ -262,9 +262,7 @@ class LibcurlConan(ConanFile):
                     self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config),
-                         src=os.path.dirname(gnu_config),
-                         dst=self.source_folder)
+                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -505,7 +503,7 @@ class LibcurlConan(ConanFile):
 
         # Cross building flags
         if cross_building(self):
-            if self.settings.os in ["Linux", "FreeBSD"] and "arm" in self.settings.arch:
+            if self.settings.os == "Linux" and "arm" in self.settings.arch:
                 tc.configure_args.append(f"--host={self._get_linux_arm_host()}")
             elif self.settings.os == "iOS":
                 tc.configure_args.append("--enable-threaded-resolver")
@@ -540,7 +538,7 @@ class LibcurlConan(ConanFile):
 
     def _get_linux_arm_host(self):
         arch = None
-        if self.settings.os in ["Linux", "FreeBSD"]:
+        if self.settings.os == "Linux":
             arch = "arm-linux-gnu"
             # aarch64 could be added by user
             if "aarch64" in self.settings.arch:
@@ -631,9 +629,7 @@ class LibcurlConan(ConanFile):
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "cacert.pem",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "res"))
+        copy(self, "cacert.pem", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
         if self._is_using_cmake_build:
             cmake = CMake(self)
             cmake.install()
@@ -645,18 +641,9 @@ class LibcurlConan(ConanFile):
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))
             if self._is_mingw and self.options.shared:
                 # Handle only mingw libs
-                copy(self, "*.dll",
-                     src=self.build_folder,
-                     dst=os.path.join(self.package_folder, "bin"),
-                     keep_path=False)
-                copy(self, "*.dll.a",
-                     src=self.build_folder,
-                     dst=os.path.join(self.package_folder, "lib"),
-                     keep_path=False)
-                copy(self, "*.lib",
-                     src=self.build_folder,
-                     dst=os.path.join(self.package_folder, "lib"),
-                     keep_path=False)
+                copy(self, pattern="*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+                copy(self, pattern="*.dll.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+                copy(self, pattern="*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
             fix_apple_shared_install_name(self)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

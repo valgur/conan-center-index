@@ -50,6 +50,8 @@ class AwsCCal(ConanFile):
             # without it for conan v2 (we would have to required aws-c-common in test package, but we can't know
             # which version to require in test package)
             self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
+        elif Version(self.version) <= "0.5.20":
+            self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
         else:
             self.requires("aws-c-common/0.9.0", transitive_headers=True, transitive_libs=True)
         if self._needs_openssl:

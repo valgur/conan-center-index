@@ -50,7 +50,7 @@ class LibheifConan(ConanFile):
 
     def requirements(self):
         if self.options.with_libde265:
-            self.requires("libde265/1.0.11")
+            self.requires("libde265/1.0.12")
         if self.options.with_x265:
             self.requires("libx265/3.4")
         if self.options.with_libaomav1:
@@ -73,6 +73,7 @@ class LibheifConan(ConanFile):
         tc.variables["WITH_RAV1E"] = False
         tc.variables["WITH_DAV1D"] = self.options.with_dav1d
         tc.variables["WITH_EXAMPLES"] = False
+        tc.variables["WITH_GDK_PIXBUF"] = False
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

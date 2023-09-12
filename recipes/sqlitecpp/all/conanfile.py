@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import copy, get, apply_conandata_patches, replace_in_file, rmdir, save
+from conan.tools.files import copy, get, apply_conandata_patches, export_conandata_patches, replace_in_file, rmdir, save
 from conan.tools.scm import Version
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
@@ -32,10 +32,7 @@ class SQLiteCppConan(ConanFile):
     }
 
     def export_sources(self):
-        for p in self.conan_data.get("patches", {}).get(self.version, []):
-            copy(self, p["patch_file"],
-                 src=self.recipe_folder,
-                 dst=self.export_sources_folder)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":

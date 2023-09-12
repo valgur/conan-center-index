@@ -99,7 +99,7 @@ class LibarchiveConan(ConanFile):
         if self.options.with_iconv:
             self.requires("libiconv/1.17")
         if self.options.with_pcreposix:
-            self.requires("pcre/8.45")
+            self.requires("pcre/10.42")
         if self.options.with_nettle:
             self.requires("nettle/3.8.1")
         if self.options.with_openssl:
@@ -164,6 +164,9 @@ class LibarchiveConan(ConanFile):
         if Version(self.version) >= "3.4.2":
             tc.variables["ENABLE_MBEDTLS"] = self.options.with_mbedtls
         tc.variables["ENABLE_XATTR"] = self.options.with_xattr
+        # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
+        if is_msvc(self):
+            tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.generate()
 
     def build(self):

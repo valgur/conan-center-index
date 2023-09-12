@@ -6,15 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, cross_building, valid_min_cppstd, check_min_cppstd
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rename,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rmdir
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 
@@ -94,8 +86,11 @@ class GrpcConan(ConanFile):
 
     def requirements(self):
         # abseil is public. See https://github.com/conan-io/conan-center-index/pull/17284#issuecomment-1526082638
-        if is_msvc(self) and Version(self.version) < "1.47":
-            self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
+        if Version(self.version) < "1.47":
+            if is_msvc(self):
+                self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
+            else:
+                self.requires("abseil/20220623.1", transitive_headers=True, transitive_libs=True)
         else:
             self.requires("abseil/20230125.3", transitive_headers=True, transitive_libs=True)
         self.requires("c-ares/1.19.1")
@@ -334,6 +329,7 @@ class GrpcConan(ConanFile):
                     "abseil::absl_synchronization",
                     "abseil::absl_time",
                     "abseil::absl_optional",
+                    "abseil::absl_flags",
                 ],
                 "system_libs": libm() + pthread() + crypt32() + ws2_32() + wsock32(),
             },

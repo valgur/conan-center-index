@@ -18,6 +18,7 @@ class NodejsConan(ConanFile):
     topics = ("node", "javascript", "runtime", "pre-built")
 
     package_type = "application"
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
@@ -42,6 +43,9 @@ class NodejsConan(ConanFile):
         buff = StringIO()
         self.run(cmd, buff)
         return str(re.search(r"GLIBC (\d{1,3}.\d{1,3})", buff.getvalue()).group(1))
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def validate(self):
         if (

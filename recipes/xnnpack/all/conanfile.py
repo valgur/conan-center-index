@@ -6,20 +6,19 @@ from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.51.1"
 
 
 class XnnpackConan(ConanFile):
     name = "xnnpack"
-    description = ("XNNPACK is a highly optimized library of floating-point "
-                   "neural network inference operators for ARM, WebAssembly, "
-                   "and x86 platforms.")
+    description = "XNNPACK is a highly optimized library of floating-point " \
+                  "neural network inference operators for ARM, WebAssembly, " \
+                  "and x86 platforms."
     license = "BSD-3-Clause"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/XNNPACK"
     topics = ("neural-network", "inference", "multithreading", "inference-optimization",
               "matrix-multiplication", "simd")
-    homepage = "https://github.com/google/XNNPACK"
-    url = "https://github.com/conan-io/conan-center-index"
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -38,9 +37,7 @@ class XnnpackConan(ConanFile):
     }
 
     def export_sources(self):
-        copy(self, "xnnpack_project_include.cmake",
-             self.recipe_folder,
-             os.path.join(self.export_sources_folder, "src"))
+        copy(self, "xnnpack_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -49,7 +46,6 @@ class XnnpackConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        # for plain C projects only
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
@@ -57,9 +53,12 @@ class XnnpackConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cpuinfo/cci.20220228")
+        if self.version in ["cci.20220801", "cci.20220621", "cci.20211210"]:
+            self.requires("cpuinfo/cci.20220228")
+        else:
+            self.requires("cpuinfo/cci.20230118")
         self.requires("fp16/cci.20210320")
-        #  https://github.com/google/XNNPACK/blob/ed5f9c056/include/xnnpack.h#L15
+        #  https://github.com/google/XNNPACK/blob/ed5f9c0562e016a08b274a4579de5ef500fec134/include/xnnpack.h#L15
         self.requires("pthreadpool/cci.20210218", transitive_headers=True)
         self.requires("fxdiv/cci.20200417")
 
@@ -67,9 +66,15 @@ class XnnpackConan(ConanFile):
         check_min_vs(self, 192)
         compiler = self.info.settings.compiler
         compiler_version = Version(compiler.version)
-        if ((compiler == "gcc" and compiler_version < "6") or
-            (compiler == "clang" and compiler_version < "5")):
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support {compiler} {compiler.version}")
+        if self.version < "cci.20230715":
+            if (compiler == "gcc" and compiler_version < "6") or \
+                (compiler == "clang" and compiler_version < "5"):
+                raise ConanInvalidConfiguration(f"{self.ref} doesn't support {compiler} {compiler.version}")
+        else:
+            # since cci.20230715, xnnpack requires avx512 header file
+            if (compiler == "gcc" and compiler_version < "11") or \
+                (compiler == "clang" and compiler_version < "8"):
+                raise ConanInvalidConfiguration(f"{self.ref} doesn't support {compiler} {compiler.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -77,13 +82,13 @@ class XnnpackConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         if self.settings.arch == "armv8":
-            if self.settings.os in ["Linux", "FreeBSD"]:
+            if self.settings.os == "Linux":
                 tc.variables["CONAN_XNNPACK_SYSTEM_PROCESSOR"] = "aarch64"
             else:
                 # Not defined by Conan for Apple Silicon. See https://github.com/conan-io/conan/pull/8026
                 tc.variables["CONAN_XNNPACK_SYSTEM_PROCESSOR"] = "arm64"
         tc.cache_variables["XNNPACK_LIBRARY_TYPE"] = "shared" if self.options.shared else "static"
-        tc.cache_variables["CMAKE_PROJECT_XNNPACK_INCLUDE"] = os.path.join(self.source_folder, "xnnpack_project_include.cmake").replace("\\", "/")
+        tc.cache_variables["CMAKE_PROJECT_XNNPACK_INCLUDE"] = os.path.join(self.source_folder, "xnnpack_project_include.cmake")
         tc.variables["XNNPACK_ENABLE_ASSEMBLY"] = self.options.assembly
         tc.variables["XNNPACK_ENABLE_MEMOPT"] = self.options.memopt
         tc.variables["XNNPACK_ENABLE_SPARSE"] = self.options.sparse
@@ -105,7 +110,7 @@ class XnnpackConan(ConanFile):
         # `CMAKE_PROJECT_XNNPACK_INCLUDE` which ensure an early call to
         # the relevant `find_package`
         deps.set_property("cpuinfo", "cmake_target_name", "cpuinfo")
-        deps.set_property("cpuinfo", "cmake_target_aliases", ["clog"])
+        deps.set_property("cpuinfo", "cmake_target_aliases", ["clog"] )
         deps.set_property("pthreadpool", "cmake_target_name", "pthreadpool")
         deps.set_property("fp16", "cmake_target_name", "fp16")
         deps.set_property("fxdiv", "cmake_target_name", "fxdiv")

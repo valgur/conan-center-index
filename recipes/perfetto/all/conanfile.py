@@ -30,7 +30,6 @@ class PerfettoConan(ConanFile):
         "fPIC": True,
         "disable_logging": False,
     }
-
     @property
     def _minimum_cpp_standard(self):
         return 11 if Version(self.version) < "31.0" else 17

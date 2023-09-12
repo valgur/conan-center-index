@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import get, copy
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.layout import basic_layout
@@ -31,12 +31,9 @@ class GlazeConan(ConanFile):
             "Visual Studio": "17" if Version(self.version) >= "1.3.3" else "16",
             "msvc": "193" if Version(self.version) >= "1.3.3" else "192",
             "gcc": "12",
-            "clang": "12" if Version(self.version) > "1.0.0" else "13",
+            "clang": "12",
             "apple-clang": "13.1",
         }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -45,7 +42,7 @@ class GlazeConan(ConanFile):
         if Version(self.version) < "0.2.4":
             self.requires("fmt/10.0.0")
             self.requires("frozen/1.1.1")
-            self.requires("nanorange/cci.20200505")
+            self.requires("nanorange/cci.20200706")
         if Version(self.version) < "0.2.3":
             self.requires("fast_float/5.2.0")
         if "0.1.5" <= Version(self.version) < "0.2.3":
@@ -67,13 +64,9 @@ class GlazeConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def build(self):
-        apply_conandata_patches(self)
-
     def package(self):
-        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, "*.hpp",
-            excludes="glaze/frozen/*.hpp" if Version(self.version) < "0.2.4" else "",
             dst=os.path.join(self.package_folder, "include"),
             src=os.path.join(self.source_folder, "include"))
 

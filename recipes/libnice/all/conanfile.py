@@ -5,10 +5,10 @@ from conan.tools.files import copy, get, rmdir, rename, chdir, rm
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.53.0"
-
+required_conan_version = ">=1.60.0 <2 || >=2.0.6"
 
 class LibniceConan(ConanFile):
     name = "libnice"
@@ -67,13 +67,20 @@ class LibniceConan(ConanFile):
         if self.settings.os == "Windows" and self.options.with_gtk_doc:
             raise ConanInvalidConfiguration(f"-o {self.ref}:with_gtk_doc=True is not support on Windows")
         if is_msvc_static_runtime(self) and self.dependencies["glib"].options.shared:
-            raise ConanInvalidConfiguration("-o glib/*:shared=True with static runtime is not supported")
+            raise ConanInvalidConfiguration(
+                "-o glib/*:shared=True with static runtime is not supported")
+
+    def requirements(self):
+        self.requires("glib/2.77.2", transitive_headers=True, transitive_libs=True)
+        if self.options.crypto_library == "openssl":
+            self.requires("openssl/[>=1.1 <4]")
+        if self.options.with_gstreamer:
+            self.requires("gstreamer/1.22.3")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.2.0")
-        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
-        self.tool_requires("glib/2.77.1")  # for glib-mkenums
+        self.tool_requires("meson/1.2.1")
+        self.tool_requires("pkgconf/1.9.5")
+        self.tool_requires("glib/<host_version>")  # for glib-mkenums
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.72.0")
 
@@ -112,6 +119,7 @@ class LibniceConan(ConanFile):
             if not self.options.shared:
                 with chdir(self, os.path.join(self.package_folder, "lib")):
                     rename(self, "libnice.a", "nice.lib")
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["nice"]

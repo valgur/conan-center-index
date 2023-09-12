@@ -9,22 +9,19 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.54.0"
 
+required_conan_version = ">=1.54.0"
 
 class MpcConan(ConanFile):
     name = "mpc"
-    description = (
-        "GNU MPC is a C library for the arithmetic of complex numbers with arbitrarily high precision "
-        "and correct rounding of the result"
-    )
+    description = "GNU MPC is a C library for the arithmetic of complex numbers with arbitrarily high precision " \
+                  "and correct rounding of the result"
     license = "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "http://www.multiprecision.org/mpc/home.html"
+    homepage = "https://www.multiprecision.org/"
     topics = ("multiprecision", "math", "mathematics")
-
-    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
+    package_type = "library"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -34,16 +31,12 @@ class MpcConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+        if self.settings.os == 'Windows':
+            self.options.rm_safe("fPIC")
 
     def configure(self):
         if self.options.shared:
@@ -55,15 +48,17 @@ class MpcConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gmp/6.2.1", transitive_headers=True)
+        self.requires("gmp/6.3.0", transitive_headers=True)
         self.requires("mpfr/4.2.0", transitive_headers=True)
 
     def validate(self):
         # FIXME: add msvc support, upstream has a makefile.vc
         if is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "mpc can be built with msvc, but it's not supported yet in this recipe."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} can be built with msvc, but it's not supported yet in this recipe.")
+
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -98,10 +93,7 @@ class MpcConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING.LESSER",
-             src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"),
-             keep_path=False)
+        copy(self, "COPYING.LESSER", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False)
         autotools = Autotools(self)
         autotools.install()
         fix_apple_shared_install_name(self)
