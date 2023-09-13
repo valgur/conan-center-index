@@ -42,8 +42,8 @@ class TinyDnnConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cereal/1.3.1")
-        self.requires("stb/cci.20210713")
+        self.requires("cereal/1.3.2")
+        self.requires("stb/cci.20220909")
         if self.options.with_tbb:
             self.requires("onetbb/2020.3")
 
