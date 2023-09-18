@@ -19,6 +19,35 @@
    if( NOT FFI_LIBRARY_PATH )
      message(FATAL_ERROR "libffi is not found.")
    endif()
+--- cmake/config-ix.cmake
++++ cmake/config-ix.cmake
+@@ -117,24 +117,8 @@
+ endif()
+ 
+ if(LLVM_ENABLE_ZLIB)
+-  if(LLVM_ENABLE_ZLIB STREQUAL FORCE_ON)
+-    find_package(ZLIB REQUIRED)
+-  elseif(NOT LLVM_USE_SANITIZER MATCHES "Memory.*")
+-    find_package(ZLIB)
+-  endif()
+-  if(ZLIB_FOUND)
+-    # Check if zlib we found is usable; for example, we may have found a 32-bit
+-    # library on a 64-bit system which would result in a link-time failure.
+-    cmake_push_check_state()
+-    list(APPEND CMAKE_REQUIRED_INCLUDES ${ZLIB_INCLUDE_DIRS})
+-    list(APPEND CMAKE_REQUIRED_LIBRARIES ${ZLIB_LIBRARY})
+-    check_symbol_exists(compress2 zlib.h HAVE_ZLIB)
+-    cmake_pop_check_state()
+-    if(LLVM_ENABLE_ZLIB STREQUAL FORCE_ON AND NOT HAVE_ZLIB)
+-      message(FATAL_ERROR "Failed to configure zlib")
+-    endif()
+-  endif()
+-  set(LLVM_ENABLE_ZLIB "${HAVE_ZLIB}")
++  find_package(ZLIB REQUIRED CONFIG)
++  set(LLVM_ENABLE_ZLIB TRUE)
+ endif()
+ 
+ if(LLVM_ENABLE_LIBXML2)
 --- cmake/modules/TableGen.cmake
 +++ cmake/modules/TableGen.cmake
 @@ -135,11 +135,7 @@ macro(add_tablegen target project)
