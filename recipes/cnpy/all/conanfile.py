@@ -11,9 +11,9 @@ class CnpyConan(ConanFile):
     name = "cnpy"
     description = "library to read/write .npy and .npz files in C/C++"
     license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/rogersce/cnpy"
     topics = ("numpy", "npy", "npz")
+    homepage = "https://github.com/rogersce/cnpy"
+    url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -41,7 +41,7 @@ class CnpyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3", transitive_headers=True, transitive_libs=True)
+        self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

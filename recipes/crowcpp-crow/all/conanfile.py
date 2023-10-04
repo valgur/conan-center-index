@@ -1,12 +1,11 @@
 from conan import ConanFile
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.52.0"
-
 
 class CrowConan(ConanFile):
     name = "crowcpp-crow"
@@ -15,9 +14,7 @@ class CrowConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://crowcpp.org/"
     topics = ("web", "microframework", "header-only")
-
-    package_type = "header-only"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "compiler", "arch", "build_type"
     options = {
         "amalgamation": [True, False],
         "with_ssl": [True, False],
@@ -38,8 +35,8 @@ class CrowConan(ConanFile):
 
     def configure(self):
         if Version(self.version) < "1.0":
-            self.options.rm_safe("with_ssl")
-            self.options.rm_safe("with_compression")
+            del self.options.with_ssl
+            del self.options.with_compression
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -50,12 +47,12 @@ class CrowConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
         if Version(self.version) >= "1.0":
             if self.options.with_ssl:
-                self.requires("openssl/[>=1.1 <4]")
+                self.requires("openssl/[>=1.1 <3]")
             if self.options.with_compression:
-                self.requires("zlib/1.3")
+                self.requires("zlib/[>=1.2.11 <2]")
 
     def package_id(self):
-        self.info.clear()
+        self.info.settings.clear()
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -75,8 +72,6 @@ class CrowConan(ConanFile):
                 tc.variables["CROW_BUILD_TESTS"] = False
                 tc.variables["CROW_AMALGAMATE"] = True
             tc.generate()
-            tc = CMakeDeps(self)
-            tc.generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -89,24 +84,32 @@ class CrowConan(ConanFile):
             else:
                 cmake.build(target="crow_amalgamated")
 
+
     def package(self):
-        copy(self, "LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, pattern="LICENSE*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         if self.options.amalgamation:
-            copy(self, "crow_all.h",
-                 dst=os.path.join(self.package_folder, "include"),
-                 src=self.build_folder)
+            copy(
+                self,
+                pattern="crow_all.h",
+                dst=os.path.join(self.package_folder, "include"),
+                src=self.build_folder,
+            )
         else:
-            copy(self, "*.h",
-                 dst=os.path.join(self.package_folder, "include"),
-                 src=os.path.join(self.source_folder, "include"))
-            copy(self, "*.hpp",
-                 dst=os.path.join(self.package_folder, "include"),
-                 src=os.path.join(self.source_folder, "include"))
+            copy(
+                self,
+                pattern="*.h",
+                dst=os.path.join(self.package_folder, "include"),
+                src=os.path.join(self.source_folder, "include"),
+            )
+            copy(
+                self,
+                pattern="*.hpp",
+                dst=os.path.join(self.package_folder, "include"),
+                src=os.path.join(self.source_folder, "include"),
+            )
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
@@ -118,10 +121,13 @@ class CrowConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Crow")
         self.cpp_info.set_property("cmake_target_name", "Crow::Crow")
 
+        if Version(self.version) == "0.2":
+            self.cpp_info.requires.append("openssl::ssl")
+
         if Version(self.version) >= "1.0":
             if self.options.with_ssl:
                 self.cpp_info.defines.append("CROW_ENABLE_SSL")
-                self.cpp_info.requires.append("OpenSSL::ssl")
+                self.cpp_info.requires.append("openssl::ssl")
             if self.options.with_compression:
                 self.cpp_info.defines.append("CROW_ENABLE_COMPRESSION")
                 self.cpp_info.requires.append("zlib::zlib")
@@ -129,3 +135,4 @@ class CrowConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "Crow"
         self.cpp_info.names["cmake_find_package_multi"] = "Crow"
+

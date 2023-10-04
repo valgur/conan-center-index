@@ -12,12 +12,11 @@ class OboeConan(ConanFile):
     name = "oboe"
     description = "Oboe is a C++ library which makes it easy to build high-performance audio apps on Android."
     license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/google/oboe"
     topics = ("android", "audio")
-
+    homepage = "https://github.com/google/oboe"
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "compiler", "build_type",
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

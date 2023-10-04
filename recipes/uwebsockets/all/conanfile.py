@@ -53,7 +53,7 @@ class UwebsocketsConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
         if self.options.get_safe("with_libdeflate"):
             self.requires("libdeflate/1.18")
 
@@ -78,11 +78,7 @@ class UwebsocketsConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if (
-            Version(self.version) >= "20.14.0"
-            and self.settings.compiler == "clang"
-            and str(self.settings.compiler.libcxx) == "libstdc++"
-        ):
+        if Version(self.version) >= "20.14.0" and self.settings.compiler == "clang" and str(self.settings.compiler.libcxx) == "libstdc++":
             raise ConanInvalidConfiguration(f"{self.ref} needs recent libstdc++ with charconv.")
 
     def source(self):

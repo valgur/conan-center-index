@@ -9,15 +9,14 @@ required_conan_version = ">=1.53.0"
 
 class ZopfliConan(ConanFile):
     name = "zopfli"
+    license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/google/zopfli/"
     description = (
         "Zopfli Compression Algorithm is a compression library programmed in C "
         "to perform very good, but slow, deflate or zlib compression."
     )
-    license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/google/zopfli/"
     topics = ("compression", "deflate", "gzip", "zlib")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -36,8 +35,8 @@ class ZopfliConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -77,7 +76,7 @@ class ZopfliConan(ConanFile):
         self.cpp_info.components["libzopflipng"].libs = ["zopflipng"]
         self.cpp_info.components["libzopflipng"].requires = ["libzopfli"]
 
-        if conan_version.major < 2:
+        if Version(conan_version).major < 2:
             self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
             self.cpp_info.names["cmake_find_package"] = "Zopfli"
             self.cpp_info.names["cmake_find_package_multi"] = "Zopfli"

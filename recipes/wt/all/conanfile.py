@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -95,15 +94,15 @@ class WtConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "4.9.0":
-            self.requires("boost/1.83.0", transitive_headers = True)
+            self.requires("boost/1.80.0", transitive_headers = True)
         else:
             self.requires("boost/1.83.0", transitive_headers = True)
         if self.options.connector_http:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_sqlite"):
-            self.requires("sqlite3/3.43.1")
+            self.requires("sqlite3/3.43.0")
         if self.options.get_safe("with_mysql"):
             self.requires("libmysqlclient/8.1.0", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_postgres"):
@@ -132,7 +131,7 @@ class WtConan(ConanFile):
                     return ".lib"
                 else:
                     return ".dll.a"
-            elif is_apple_os(self):
+            elif self.settings.os == "Macos":
                 return ".dylib"
             else:
                 return ".so"
@@ -269,7 +268,7 @@ class WtConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         shutil.move(os.path.join(self.package_folder, "share", "Wt"), os.path.join(self.package_folder, "bin"))

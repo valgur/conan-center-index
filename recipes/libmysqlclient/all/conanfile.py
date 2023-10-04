@@ -63,14 +63,14 @@ class LibMysqlClientCConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "8.0.30":
-            self.requires("openssl/[>=1.1 <4]")
+            self.requires("openssl/1.1.1u")
         else:
             self.requires("openssl/[>=1.1 <4]")
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
         self.requires("zstd/1.5.5")
         self.requires("lz4/1.9.4")
         if self.settings.os == "FreeBSD":
-            self.requires("libunwind/1.7.2")
+            self.requires("libunwind/1.6.2")
 
     def validate_build(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -104,7 +104,7 @@ class LibMysqlClientCConan(ConanFile):
         if is_apple_os(self):
             self.tool_requires("cmake/[>=3.18 <4]")
         if self.settings.os == "FreeBSD" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.0.3")
+            self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -229,6 +229,9 @@ class LibMysqlClientCConan(ConanFile):
         tc.cache_variables["WITH_SSL"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
 
         tc.cache_variables["WITH_ZLIB"] = "system"
+
+        # Remove to ensure reproducible build, this only affects docs generation
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Doxygen"] = True
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -255,10 +258,7 @@ class LibMysqlClientCConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "docs"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         if self.settings.os == "Windows" and self.options.shared:
-            copy(self, "*.dll",
-                 src=self.build_folder,
-                 dst=os.path.join(self.package_folder, "bin"),
-                 keep_path=False)
+            copy(self, "*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
         if self.options.shared:
             rm(self, "*.a", self.package_folder, recursive=True)
         else:

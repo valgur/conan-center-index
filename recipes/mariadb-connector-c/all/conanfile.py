@@ -1,16 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rm,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 import os
 
 required_conan_version = ">=1.53.0"
@@ -18,14 +9,12 @@ required_conan_version = ">=1.53.0"
 
 class MariadbConnectorcConan(ConanFile):
     name = "mariadb-connector-c"
-    description = (
-        "MariaDB Connector/C is used to connect applications "
-        "developed in C/C++ to MariaDB and MySQL databases."
-    )
+    description = "MariaDB Connector/C is used to connect applications " \
+                  "developed in C/C++ to MariaDB and MySQL databases."
     license = "LGPL-2.1-or-later"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://mariadb.com/kb/en/mariadb-connector-c"
     topics = ("mariadb", "mysql", "database")
+    homepage = "https://mariadb.com/kb/en/mariadb-connector-c"
+    url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -52,7 +41,7 @@ class MariadbConnectorcConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            self.options.rm_safe("with_iconv")
+            del self.options.with_iconv
             self.options.with_ssl = "schannel"
 
     def configure(self):
@@ -65,11 +54,11 @@ class MariadbConnectorcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
         if self.options.get_safe("with_iconv"):
             self.requires("libiconv/1.17")
         if self.options.with_curl:
-            self.requires("libcurl/[>=7.78 <9]")
+            self.requires("libcurl/8.1.2")
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
 
@@ -110,11 +99,10 @@ class MariadbConnectorcConan(ConanFile):
 
         root_cmake = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, root_cmake, "${ZLIB_LIBRARY}", "${ZLIB_LIBRARIES}")
-        replace_in_file(
-            self,
+        replace_in_file(self,
             root_cmake,
             "SET(SSL_LIBRARIES ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})",
-            "SET(SSL_LIBRARIES OpenSSL::SSL OpenSSL::Crypto)",
+            "SET(SSL_LIBRARIES OpenSSL::SSL OpenSSL::Crypto)"
         )
         replace_in_file(self, root_cmake, "${CURL_LIBRARIES}", "CURL::libcurl")
         plugins_io_cmake = os.path.join(self.source_folder, "plugins", "io", "CMakeLists.txt")

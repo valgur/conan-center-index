@@ -70,9 +70,9 @@ class SAILConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/1.6.40")
         if self.options.with_tiff:
-            self.requires("libtiff/4.5.1")
+            self.requires("libtiff/4.6.0")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.1")
+            self.requires("libwebp/1.3.2")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

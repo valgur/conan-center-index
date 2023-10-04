@@ -10,10 +10,10 @@ class tngConan(ConanFile):
     name = "tng"
     description = "External GROMACS library for loading tng files."
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("tng", "gromacs")
     homepage = "https://gitlab.com/gromacs/tng/"
-    topics = "gromacs"
-    package_type = "library"
+    url = "https://github.com/conan-io/conan-center-index"
+
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -41,10 +41,11 @@ class tngConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version],
+            destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)

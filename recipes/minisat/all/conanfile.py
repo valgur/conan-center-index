@@ -13,8 +13,6 @@ class MiniSatConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://minisat.se"
     topics = ("satisfiability", "solver")
-
-    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -24,10 +22,11 @@ class MiniSatConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    package_type = "library"
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -42,7 +41,7 @@ class MiniSatConan(ConanFile):
 
     def requirements(self):
         # https://github.com/niklasso/minisat/blob/37dc6c67e2af26379d88ce349eb9c4c6160e8543/minisat/utils/ParseUtils.h#L27
-        self.requires("zlib/1.3", transitive_headers=True, transitive_libs=True)
+        self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -57,11 +56,11 @@ class MiniSatConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

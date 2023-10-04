@@ -11,12 +11,11 @@ required_conan_version = ">=1.50.0"
 
 class VhacdConan(ConanFile):
     name = "v-hacd"
-    description = 'The V-HACD library decomposes a 3D surface into a set of "near" convex parts.'
+    description = "The V-HACD library decomposes a 3D surface into a set of \"near\" convex parts."
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("3d", "mesh", "shape", "decomposition", "convex")
     homepage = "https://github.com/kmammou/v-hacd"
-    topics = ("3d", "mesh", "shape", "decomposition", "convex", "header-only")
-
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -39,11 +38,11 @@ class VhacdConan(ConanFile):
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+            check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
     def source(self):
@@ -54,9 +53,7 @@ class VhacdConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h",
-             src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

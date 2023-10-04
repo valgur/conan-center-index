@@ -1,15 +1,6 @@
 from conan import ConanFile
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get,
-    copy,
-    rm,
-    rmdir,
-    load,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, load, save
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
@@ -55,7 +46,7 @@ class LibharuConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
         self.requires("libpng/1.6.40")
 
     def source(self):
@@ -80,7 +71,7 @@ class LibharuConan(ConanFile):
     def _v230_extract_license(self):
         readme = load(save, os.path.join(self.source_folder, "README"))
         match = next(re.finditer("\n[^\n]*license[^\n]*\n", readme, flags=re.I | re.A))
-        return readme[match.span()[1] :].strip("*").strip()
+        return readme[match.span()[1]:].strip("*").strip()
 
     def package(self):
         cmake = CMake(self)
@@ -94,9 +85,7 @@ class LibharuConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "if"))
             save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._v230_extract_license())
         else:
-            copy(self, "LICENSE",
-                 dst=os.path.join(self.package_folder, "licenses"),
-                 src=self.source_folder)
+            copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
             rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):

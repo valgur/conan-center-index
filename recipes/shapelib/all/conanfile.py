@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.54.0"
 
 
 class ShapelibConan(ConanFile):
@@ -47,7 +47,6 @@ class ShapelibConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.variables["BUILD_TESTING"] = False
         tc.variables["USE_RPATH"] = False
         tc.generate()

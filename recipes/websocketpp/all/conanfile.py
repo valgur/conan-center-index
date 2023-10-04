@@ -39,7 +39,7 @@ class WebsocketPPConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
 
         if self.options.with_zlib:
-            self.requires("zlib/1.3", transitive_headers=True, transitive_libs=True)
+            self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
 
         if self.options.asio == "standalone":
             self.requires("asio/1.28.1", transitive_headers=True)

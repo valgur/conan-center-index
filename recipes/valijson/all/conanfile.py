@@ -6,7 +6,6 @@ import os
 
 required_conan_version = ">=1.52.0"
 
-
 class ValijsonConan(ConanFile):
     name = "valijson"
     description = "Valijson is a header-only JSON Schema Validation library for C++11."
@@ -14,7 +13,6 @@ class ValijsonConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/tristanpenman/valijson"
     topics = ("json", "validator", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -40,18 +38,18 @@ class ValijsonConan(ConanFile):
         pass
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, "*.hpp",
-             dst=os.path.join(self.package_folder, "include"),
-             src=os.path.join(self.source_folder, "include"))
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(
+            self,
+            pattern="*.hpp",
+            dst=os.path.join(self.package_folder, "include"),
+            src=os.path.join(self.source_folder, "include"),
+        )
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_target_name", "ValiJSON::valijson")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        self.cpp_info.set_property("cmake_file_name", "ValiJSON")
-        self.cpp_info.set_property("cmake_target_name", "ValiJSON::valijson")
-        self.cpp_info.components["libvalijson"].set_property("cmake_target_name", "ValiJSON::valijson")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         # self.cpp_info.filenames["cmake_find_package"] = "valijson" # TBA: There's no installed config file
@@ -60,3 +58,6 @@ class ValijsonConan(ConanFile):
         self.cpp_info.names["cmake_find_package_multi"] = "ValiJSON"
         self.cpp_info.components["libvalijson"].names["cmake_find_package"] = "valijson"
         self.cpp_info.components["libvalijson"].names["cmake_find_package_multi"] = "valijson"
+        self.cpp_info.components["libvalijson"].set_property("cmake_target_name", "ValiJSON::valijson")
+        self.cpp_info.components["libvalijson"].bindirs = []
+        self.cpp_info.components["libvalijson"].libdirs = []

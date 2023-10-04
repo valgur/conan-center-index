@@ -10,15 +10,12 @@ required_conan_version = ">=1.53.0"
 
 class OpenEXRConan(ConanFile):
     name = "openexr"
-    description = (
-        "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & "
-        "Magic for use in computer imaging applications."
-    )
+    description = "OpenEXR is a high dynamic-range (HDR) image file format developed by Industrial Light & " \
+                  "Magic for use in computer imaging applications."
+    topics = ("openexr", "hdr", "image", "picture")
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/AcademySoftwareFoundation/openexr"
-    topics = ("hdr", "image", "picture")
-
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -45,7 +42,7 @@ class OpenEXRConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
         # Note: OpenEXR and Imath are versioned independently.
         self.requires("imath/3.1.9", transitive_headers=True)
 
@@ -79,6 +76,10 @@ class OpenEXRConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
+    @staticmethod
+    def _conan_comp(name):
+        return f"openexr_{name.lower()}"
+
     def _add_component(self, name):
         component = self.cpp_info.components[self._conan_comp(name)]
         component.set_property("cmake_target_name", f"OpenEXR::{name}")
@@ -92,6 +93,7 @@ class OpenEXRConan(ConanFile):
 
         self.cpp_info.names["cmake_find_package"] = "OpenEXR"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenEXR"
+        self.cpp_info.names["pkg_config"] = "OpenEXR"
 
         lib_suffix = ""
         if not self.options.shared or self.settings.os == "Windows":
@@ -120,7 +122,9 @@ class OpenEXRConan(ConanFile):
         # OpenEXR::IlmThread
         IlmThread = self._add_component("IlmThread")
         IlmThread.libs = [f"IlmThread{lib_suffix}"]
-        IlmThread.requires = [self._conan_comp("IlmThreadConfig"), self._conan_comp("Iex")]
+        IlmThread.requires = [
+            self._conan_comp("IlmThreadConfig"), self._conan_comp("Iex"),
+        ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             IlmThread.system_libs = ["pthread"]
 
@@ -133,10 +137,8 @@ class OpenEXRConan(ConanFile):
         OpenEXR = self._add_component("OpenEXR")
         OpenEXR.libs = [f"OpenEXR{lib_suffix}"]
         OpenEXR.requires = [
-            self._conan_comp("OpenEXRCore"),
-            self._conan_comp("IlmThread"),
-            self._conan_comp("Iex"),
-            "imath::imath",
+            self._conan_comp("OpenEXRCore"), self._conan_comp("IlmThread"),
+            self._conan_comp("Iex"), "imath::imath",
         ]
 
         # OpenEXR::OpenEXRUtil

@@ -11,29 +11,26 @@ required_conan_version = ">=1.53.0"
 class LibBigWigConan(ConanFile):
     name = "libbigwig"
     description = "A C library for handling bigWig files"
-    license = "MIT"
+    topics = ("bioinformatics", "bigwig", "bigbed")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/dpryan79/libBigWig"
-    topics = ("bioinformatics", "bigwig", "bigbed")
-
+    license = "MIT"
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "arch", "build_type", "compiler", "os"
+
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
         "with_curl": [True, False],
-        "with_zlibng": [True, False],
+        "with_zlibng": [True, False]
     }
+
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_curl": True,
-        "with_zlibng": False,
+        "with_zlibng": False
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -48,11 +45,11 @@ class LibBigWigConan(ConanFile):
         if self.options.with_curl:
             # transitive_headers=True is required due to includes in bigWigIO.h
             # https://github.com/dpryan79/libBigWig/blob/master/bigWigIO.h#L5
-            self.requires("libcurl/[>=7.78 <9]", transitive_headers=True)
+            self.requires("libcurl/8.1.2", transitive_headers=True)
         if self.options.with_zlibng:
             self.requires("zlib-ng/2.1.3")
         else:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
         if self.info.settings.os == "Windows":
@@ -61,12 +58,11 @@ class LibBigWigConan(ConanFile):
         if self.info.options.with_zlibng:
             zlib_ng = self.dependencies["zlib-ng"]
             if not zlib_ng.options.zlib_compat:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires the dependency option zlib-ng:zlib_compat=True"
-                )
+                raise ConanInvalidConfiguration(f"{self.ref} requires the dependency option zlib-ng:zlib_compat=True")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version],
+            destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -93,6 +89,7 @@ class LibBigWigConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "BigWig::BigWig")
         self.cpp_info.libs = ["BigWig"]
         self.cpp_info.system_libs = ["m"]
+
 
         if not self.options.with_curl:
             self.cpp_info.defines = ["NOCURL"]

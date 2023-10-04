@@ -6,7 +6,7 @@ from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, unix_path, is_msvc, msvc_runtime_flag
+from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
 import os
 
 required_conan_version = ">=1.57.0"
@@ -18,13 +18,13 @@ class CoinUtilsConan(ConanFile):
         "CoinUtils is an open-source collection of classes and helper "
         "functions that are generally useful to multiple COIN-OR projects."
     )
-    license = "EPL-2.0"
+    topics = ("coin", "sparse", "matrix", "helper", "parsing", "representation")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/coin-or/CoinUtils"
-    topics = ("coin", "sparse", "matrix", "helper", "parsing", "representation")
+    license = "EPL-2.0"
 
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "arch", "build_type", "compiler"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -54,7 +54,7 @@ class CoinUtilsConan(ConanFile):
 
     def requirements(self):
         self.requires("bzip2/1.0.8")
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -87,7 +87,7 @@ class CoinUtilsConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            tc.configure_args.append(f"--enable-msvc={msvc_runtime_flag(self)}")
+            tc.configure_args.append(f"--enable-msvc={self.settings.compiler.runtime}")
             tc.extra_cxxflags.append("-EHsc")
             if check_min_vs(self, "180", raise_invalid=False):
                 tc.extra_cflags.append("-FS")
@@ -99,7 +99,7 @@ class CoinUtilsConan(ConanFile):
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
-            env.define("AR", f'{ar_wrapper} "lib -nologo"')
+            env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
             env.define("NM", "dumpbin -symbols")
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
@@ -127,9 +127,7 @@ class CoinUtilsConan(ConanFile):
                 cflags.extend(deps_cpp_info.cflags)
 
             env = Environment()
-            env.append(
-                "CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines]
-            )
+            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines])
             env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in libs])
             env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in libdirs] + linkflags)
             env.append("CXXFLAGS", cxxflags)
@@ -147,9 +145,7 @@ class CoinUtilsConan(ConanFile):
                 self.conf.get("user.gnu-config:config_sub", check_type=str),
             ]:
                 if gnu_config:
-                    copy(self, os.path.basename(gnu_config),
-                         src=os.path.dirname(gnu_config),
-                         dst=self.source_folder)
+                    copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -163,11 +159,8 @@ class CoinUtilsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
         if is_msvc(self):
-            rename(
-                self,
-                os.path.join(self.package_folder, "lib", "libCoinUtils.a"),
-                os.path.join(self.package_folder, "lib", "CoinUtils.lib"),
-            )
+            rename(self, os.path.join(self.package_folder, "lib", "libCoinUtils.a"),
+                         os.path.join(self.package_folder, "lib", "CoinUtils.lib"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "coinutils")

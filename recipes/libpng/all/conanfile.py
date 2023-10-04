@@ -68,9 +68,7 @@ class LibpngConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "conan_cmake_project_include.cmake",
-             src=self.recipe_folder,
-             dst=os.path.join(self.export_sources_folder, "src"))
+        copy(self, "conan_cmake_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -94,7 +92,7 @@ class LibpngConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
         if Version(self.version) < "1.6" and self.settings.arch == "armv8" and is_apple_os(self):
@@ -111,7 +109,7 @@ class LibpngConan(ConanFile):
         tc.cache_variables["PNG_DEBUG"] = self.settings.build_type == "Debug"
         tc.cache_variables["PNG_PREFIX"] = self.options.api_prefix
         if Version(self.version) < "1.6.38":
-            tc.cache_variables["CMAKE_PROJECT_libpng_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake").replace("\\", "/")
+            tc.cache_variables["CMAKE_PROJECT_libpng_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
         if self._has_neon_support:
             tc.variables["PNG_ARM_NEON"] = self._neon_msa_sse_vsx_mapping[str(self.options.neon)]
         if self._has_msa_support:

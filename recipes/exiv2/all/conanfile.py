@@ -76,13 +76,13 @@ class Exiv2Conan(ConanFile):
         self.requires("libiconv/1.17")
         if self.options.with_png:
             self.requires("libpng/1.6.40")
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_xmp == "bundled":
             self.requires("expat/2.5.0")
         if self.options.with_curl:
-            self.requires("libcurl/[>=7.78 <9]")
+            self.requires("libcurl/8.2.1")
         if self.options.get_safe("with_brotli"):
-            self.requires("brotli/1.1.0")
+            self.requires("brotli/1.0.9")
         if self.options.get_safe("with_inih"):
             self.requires("inih/57")
 

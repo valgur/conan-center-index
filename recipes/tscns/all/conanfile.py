@@ -1,13 +1,12 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
-from conan.tools.build import check_min_cppstd
-from conan.tools.layout import basic_layout
-
 import os
 
-required_conan_version = ">=1.52.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.layout import basic_layout
 
+required_conan_version = ">=1.52.0"
 
 class TscnsConan(ConanFile):
     name = "tscns"
@@ -16,10 +15,8 @@ class TscnsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/MengRao/tscns/"
     topics = ("timestamp", "x86_64", "header-only")
-
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
 
     @property
     def _min_cppstd(self):

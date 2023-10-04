@@ -1,28 +1,20 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=1.53.0"
 
 
 class ZintConan(ConanFile):
     name = "zint"
     description = "Zint Barcode Generator"
-    license = "GPL-3.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://sourceforge.net/p/zint/code"
+    license = "GPL-3.0"
     topics = ("barcode", "qt")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -49,8 +41,8 @@ class ZintConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.with_qt:
-            self.settings.rm_safe("compiler.libcxx")
             self.settings.rm_safe("compiler.cppstd")
+            self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -58,12 +50,12 @@ class ZintConan(ConanFile):
     def requirements(self):
         if self.options.with_libpng:
             self.requires("libpng/1.6.40")
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_qt:
-            self.requires("qt/6.5.2")
+            self.requires("qt/5.15.10")
 
     def validate(self):
-        if self.info.options.with_qt and not self.dependencies["qt"].options.gui:
+        if self.options.with_qt and not self.dependencies["qt"].options.gui:
             raise ConanInvalidConfiguration(f"{self.ref} needs qt:gui=True")
 
     def source(self):
@@ -84,7 +76,10 @@ class ZintConan(ConanFile):
         apply_conandata_patches(self)
         # Don't override CMAKE_OSX_SYSROOT, it can easily break consumers.
         replace_in_file(
-            self, os.path.join(self.source_folder, "CMakeLists.txt"), 'set(CMAKE_OSX_SYSROOT "/")', ""
+            self,
+            os.path.join(self.source_folder, "CMakeLists.txt"),
+            "set(CMAKE_OSX_SYSROOT \"/\")",
+            "",
         )
 
     def build(self):
@@ -112,14 +107,15 @@ class ZintConan(ConanFile):
         if self.options.with_qt:
             self.cpp_info.components["libqzint"].set_property("cmake_target_name", "Zint::QZint")
             self.cpp_info.components["libqzint"].libs = ["QZint"]
-            self.cpp_info.components["libqzint"].requires.extend(["libzint", "qt::qtGui"])
+            self.cpp_info.components["libqzint"].requires.extend([
+                "libzint",
+                "qt::qtGui",
+            ])
             if self.settings.os == "Windows" and self.options.shared:
                 self.cpp_info.components["libqzint"].defines = ["QZINT_DLL"]
 
         # Trick to only define Zint::QZint and Zint::Zint in CMakeDeps generator
-        self.cpp_info.set_property(
-            "cmake_target_name", "Zint::QZint" if self.options.with_qt else "Zint::Zint"
-        )
+        self.cpp_info.set_property("cmake_target_name", "Zint::QZint" if self.options.with_qt else "Zint::Zint")
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "Zint"

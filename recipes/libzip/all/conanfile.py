@@ -62,13 +62,13 @@ class LibZipConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
 
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")
 
         if self.options.with_lzma:
-            self.requires("xz_utils/5.4.4")
+            self.requires("xz_utils/5.4.2")
 
         if self.options.get_safe("with_zstd"):
             self.requires("zstd/1.5.5")

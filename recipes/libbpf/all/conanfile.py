@@ -7,11 +7,10 @@ import os
 
 required_conan_version = ">=1.54.0"
 
-
 class LibbpfConan(ConanFile):
     name = "libbpf"
     description = "eBPF helper library"
-    license = ("LGPL-2.1-only", "BSD-2-Clause")
+    license = "LGPL-2.1-only", "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libbpf/libbpf"
     topics = ("berkeley-packet-filter", "bpf", "ebpf", "network", "tracing")
@@ -20,11 +19,11 @@ class LibbpfConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False],
+        "fPIC": [True, False]
     }
     default_options = {
         "shared": False,
-        "fPIC": True,
+        "fPIC": True
     }
 
     def config_options(self):
@@ -41,26 +40,27 @@ class LibbpfConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("linux-headers-generic/5.15.128")
+        self.requires("linux-headers-generic/5.14.9", transitive_headers=True)
         self.requires("libelf/0.8.13")
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
+        if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.ref} is only available on Linux")
 
     def build_requirements(self):
-        if not self.conf.get("tools.gnu:make_program", check_type=str):
-            self.tool_requires("make/4.3")
+        self.tool_requires("make/4.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        tc.make_args.extend(
-            ["PREFIX={}".format(""), "DESTDIR={}".format(self.package_folder), "LIBSUBDIR={}".format("lib")]
-        )
+        tc.make_args.extend([
+            "PREFIX={}".format(""),
+            "DESTDIR={}".format(self.package_folder),
+            "LIBSUBDIR={}".format("lib"),
+        ])
         if not self.options.shared:
             tc.configure_args.append("BUILD_STATIC_ONLY={}".format(1))
         tc.generate()
@@ -77,7 +77,7 @@ class LibbpfConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, pattern="LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         with chdir(self, os.path.join(self.source_folder, "src")):
             autotools = Autotools(self)
             autotools.install()
@@ -90,5 +90,9 @@ class LibbpfConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "libbpf")
         self.cpp_info.libs = ["bpf"]
+        self.cpp_info.set_property("pkg_config_name", "libbpf")
+
+        # TODO: Remove once v1 is no longer needed
+        self.cpp_info.names["pkg_config"] = "libbpf"
+

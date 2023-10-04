@@ -4,20 +4,17 @@ from conan.tools.files import export_conandata_patches, get, copy, rmdir
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
+
 required_conan_version = ">=1.53.0"
 
 
 class WildmidiConan(ConanFile):
     name = "wildmidi"
-    description = (
-        "WildMIDI is a simple software midi player which has a "
-        "core softsynth library that can be used in other applications."
-    )
+    description = "WildMIDI is a simple software midi player which has a core softsynth library that can be used in other applications."
     license = "LGPL-3.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.mindwerks.net/projects/wildmidi"
     topics = ("audio", "midi", "multimedia", "music", "softsynth", "sound", "synth")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -63,10 +60,8 @@ class WildmidiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "docs/license/LGPLv3.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder,
-             keep_path=False)
+        copy(self, pattern="docs/license/LGPLv3.txt", dst=os.path.join(
+            self.package_folder, "licenses"), src=self.source_folder, keep_path=False)
         cmake = CMake(self)
         cmake.install()
 
@@ -96,6 +91,7 @@ class WildmidiConan(ConanFile):
         # TODO: remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.names["cmake_find_package"] = "WildMidi"
         self.cpp_info.names["cmake_find_package_multi"] = "WildMidi"
-        self.cpp_info.components["libwildmidi"].set_property("cmake_target_name", "libwildmidi")
         self.cpp_info.components["libwildmidi"].names["cmake_find_package"] = "libwildmidi"
         self.cpp_info.components["libwildmidi"].names["cmake_find_package_multi"] = "libwildmidi"
+        self.cpp_info.components["libwildmidi"].set_property("cmake_target_name", "WildMidi::libwildmidi")
+        self.cpp_info.components["libwildmidi"].set_property("pkg_config_name", "wildmidi")

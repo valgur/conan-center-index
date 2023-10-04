@@ -11,10 +11,9 @@ class ZstrConan(ConanFile):
     name = "zstr"
     description = "A C++ header-only ZLib wrapper."
     license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("zlib", "wrapper", "compression")
     homepage = "https://github.com/mateidavid/zstr"
-    topics = ("zlib", "wrapper", "compression", "header-only")
-
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -23,7 +22,7 @@ class ZstrConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
 
     def package_id(self):
         self.info.clear()
@@ -40,9 +39,7 @@ class ZstrConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*",
-             src=os.path.join(self.source_folder, "src"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*", src=os.path.join(self.source_folder, "src"), dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

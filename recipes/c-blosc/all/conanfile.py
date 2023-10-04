@@ -12,10 +12,9 @@ class CbloscConan(ConanFile):
     name = "c-blosc"
     description = "An extremely fast, multi-threaded, meta-compressor library."
     license = "BSD-3-Clause"
+    topics = ("blosc", "compression")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Blosc/c-blosc"
-    topics = ("blosc", "compression")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -44,7 +43,7 @@ class CbloscConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
-            self.options.rm_safe("simd_intrinsics")
+            del self.options.simd_intrinsics
 
     def configure(self):
         if self.options.shared:
@@ -61,7 +60,7 @@ class CbloscConan(ConanFile):
         if self.options.with_snappy:
             self.requires("snappy/1.1.10")
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")
 
@@ -111,9 +110,7 @@ class CbloscConan(ConanFile):
     def package(self):
         licenses = ["BLOSC.txt", "BITSHUFFLE.txt", "FASTLZ.txt"]
         for license_file in licenses:
-            copy(self, license_file,
-                 src=os.path.join(self.source_folder, "LICENSES"),
-                 dst=os.path.join(self.package_folder, "licenses"))
+            copy(self, license_file, src=os.path.join(self.source_folder, "LICENSES"), dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))

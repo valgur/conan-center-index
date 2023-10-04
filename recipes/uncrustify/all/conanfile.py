@@ -6,17 +6,16 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.47.0"
 
 
 class UncrustifyConan(ConanFile):
     name = "uncrustify"
     description = "Code beautifier"
     license = "GPL-2.0-or-later"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = "beautifier", "command-line"
     homepage = "https://github.com/uncrustify/uncrustify"
-    topics = ("beautifier", "command-line")
-
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -52,11 +51,8 @@ class UncrustifyConan(ConanFile):
 
         if is_msvc(self):
             mkdir(self, os.path.join(self.package_folder, "bin"))
-            rename(
-                self,
-                os.path.join(self.package_folder, "uncrustify.exe"),
-                os.path.join(self.package_folder, "bin", "uncrustify.exe"),
-            )
+            rename(self, os.path.join(self.package_folder, "uncrustify.exe"),
+                         os.path.join(self.package_folder, "bin", "uncrustify.exe"))
             os.remove(os.path.join(self.package_folder, "AUTHORS"))
             os.remove(os.path.join(self.package_folder, "BUGS"))
             os.remove(os.path.join(self.package_folder, "COPYING"))
@@ -69,9 +65,6 @@ class UncrustifyConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
 
         # TODO: to remove in conan v2
-        binpath = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Adding to PATH: {binpath}")
-        self.env_info.PATH.append(binpath)
+        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

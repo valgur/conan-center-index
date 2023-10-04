@@ -16,18 +16,11 @@ class UnitsConan(ConanFile):
         "library built on c++14 with no dependencies"
     )
     license = "MIT"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("unit-conversion", "dimensional-analysis", "cpp14",
+              "template-metaprogramming", "compile-time", "header-only",
+              "no-dependencies")
     homepage = "https://github.com/nholthaus/units"
-    topics = (
-        "unit-conversion",
-        "dimensional-analysis",
-        "cpp14",
-        "template-metaprogramming",
-        "compile-time",
-        "header-only",
-        "no-dependencies",
-    )
-
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -57,7 +50,7 @@ class UnitsConan(ConanFile):
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
     def source(self):
@@ -68,13 +61,10 @@ class UnitsConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "units.h",
-             src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "units.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "units")
         self.cpp_info.set_property("cmake_target_name", "units::units")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []

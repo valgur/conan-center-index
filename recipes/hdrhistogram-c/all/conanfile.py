@@ -1,13 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import (
-    apply_conandata_patches,
-    collect_libs,
-    copy,
-    export_conandata_patches,
-    get,
-    rmdir,
-)
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
 from conan.tools.scm import Version
 import os
 
@@ -16,21 +9,20 @@ required_conan_version = ">=1.53.0"
 
 class HdrhistogramcConan(ConanFile):
     name = "hdrhistogram-c"
-    description = "'C' port of High Dynamic Range (HDR) Histogram"
     license = ("BSD-2-Clause", "CC0-1.0")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/HdrHistogram/HdrHistogram_c"
+    description = "'C' port of High Dynamic Range (HDR) Histogram"
     topics = ("libraries", "c", "histogram")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "shared": [True, False],
         "fPIC": [True, False],
+        "shared": [True, False],
     }
     default_options = {
-        "shared": False,
         "fPIC": True,
+        "shared": False,
     }
 
     def export_sources(self):
@@ -50,7 +42,7 @@ class HdrhistogramcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -100,10 +92,7 @@ class HdrhistogramcConan(ConanFile):
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["cmake_find_package"] = "hdr_histogram"
         self.cpp_info.names["cmake_find_package_multi"] = "hdr_histogram"
-        self.cpp_info.components["hdr_histrogram"].set_property("cmake_target_name", target)
         self.cpp_info.components["hdr_histrogram"].names["cmake_find_package"] = target
         self.cpp_info.components["hdr_histrogram"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["hdr_histrogram"].set_property(
-            "cmake_target_name", f"hdr_histogram::{target}"
-        )
+        self.cpp_info.components["hdr_histrogram"].set_property("cmake_target_name", f"hdr_histogram::{target}")
         self.cpp_info.components["hdr_histrogram"].requires = ["zlib::zlib"]

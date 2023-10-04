@@ -3,16 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    copy,
-    export_conandata_patches,
-    get,
-    rename,
-    rm,
-    rmdir,
-    save,
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path, unix_path_package_info_legacy
@@ -28,10 +19,10 @@ class XapianCoreConan(ConanFile):
         "Xapian is a highly adaptable toolkit which allows developers to easily "
         "add advanced indexing and search facilities to their own applications."
     )
-    license = "GPL-2.0-or-later"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://xapian.org/"
     topics = ("xapian", "search", "engine", "indexing", "query")
+    license = "GPL-2.0-or-later"
+    homepage = "https://xapian.org/"
+    url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -63,7 +54,7 @@ class XapianCoreConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
         if self.settings.os != "Windows":
             self.requires("util-linux-libuuid/2.39")
 
@@ -95,7 +86,10 @@ class XapianCoreConan(ConanFile):
             if check_min_vs(self, "180", raise_invalid=False):
                 tc.extra_cflags.append("-FS")
                 tc.extra_cxxflags.append("-FS")
-        tc.configure_args.extend(["--datarootdir=${prefix}/res", "--disable-documentation"])
+        tc.configure_args.extend([
+            "--datarootdir=${prefix}/res",
+            "--disable-documentation",
+        ])
         env = tc.environment()
         if is_msvc(self):
             msvc_cl_sh = unix_path(self, os.path.join(self.source_folder, "msvc_cl.sh"))
@@ -130,9 +124,7 @@ class XapianCoreConan(ConanFile):
                 cflags.extend(deps_cpp_info.cflags)
 
             env = Environment()
-            env.append(
-                "CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines]
-            )
+            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines])
             env.append("LIBS", [f"-l{lib}" for lib in libs])
             env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in libdirs] + linkflags)
             env.append("CXXFLAGS", cxxflags)
@@ -154,7 +146,8 @@ class XapianCoreConan(ConanFile):
         autotools.install()
 
         if is_msvc(self) and not self.options.shared:
-            rename(self, f"{self.package_folder}/lib/libxapian.lib", f"{self.package_folder}/lib/xapian.lib")
+            rename(self, f"{self.package_folder}/lib/libxapian.lib",
+                         f"{self.package_folder}/lib/xapian.lib")
 
         rm(self, "xapian-config", f"{self.package_folder}/bin")
         rm(self, "*.la", f"{self.package_folder}/lib")
@@ -164,7 +157,9 @@ class XapianCoreConan(ConanFile):
         rmdir(self, f"{self._datarootdir}/man")
         fix_apple_shared_install_name(self)
 
-        self._create_cmake_module_variables(f"{self.package_folder}/{self._module_file_rel_path}")
+        self._create_cmake_module_variables(
+            f"{self.package_folder}/{self._module_file_rel_path}"
+        )
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent("""\

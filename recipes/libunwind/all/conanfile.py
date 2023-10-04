@@ -11,7 +11,6 @@ import shutil
 
 required_conan_version = ">=1.53.0"
 
-
 class LiunwindConan(ConanFile):
     name = "libunwind"
     description = "Manipulate the preserved state of each call-frame and resume the execution at any point."
@@ -56,7 +55,7 @@ class LiunwindConan(ConanFile):
         if self.options.minidebuginfo:
             self.requires("xz_utils/5.4.4")
         if self.options.zlibdebuginfo:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -72,17 +71,15 @@ class LiunwindConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args.extend(
-            [
-                f"--enable-coredump={yes_no(self.options.coredump)}",
-                f"--enable-ptrace={yes_no(self.options.ptrace)}",
-                f"--enable-setjmp={yes_no(self.options.setjmp)}",
-                f"--enable-minidebuginfo={yes_no(self.options.minidebuginfo)}",
-                f"--enable-zlibdebuginfo={yes_no(self.options.zlibdebuginfo)}",
-                "--disable-tests",
-                "--disable-documentation",
-            ]
-        )
+        tc.configure_args.extend([
+            f"--enable-coredump={yes_no(self.options.coredump)}",
+            f"--enable-ptrace={yes_no(self.options.ptrace)}",
+            f"--enable-setjmp={yes_no(self.options.setjmp)}",
+            f"--enable-minidebuginfo={yes_no(self.options.minidebuginfo)}",
+            f"--enable-zlibdebuginfo={yes_no(self.options.zlibdebuginfo)}",
+            "--disable-tests",
+            "--disable-documentation",
+        ])
         tc.generate()
 
         tc = AutotoolsDeps(self)
@@ -95,7 +92,7 @@ class LiunwindConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -106,7 +103,7 @@ class LiunwindConan(ConanFile):
         # rename the real file to libunwind_generic,
         lib_ext = "so" if self.options.shared else "a"
         symlink_path = os.path.join(self.package_folder, "lib", f"libunwind-generic.{lib_ext}")
-        source_path = os.path.realpath(symlink_path)
+        source_path =  os.path.realpath(symlink_path)
         rm(self, os.path.basename(symlink_path), os.path.dirname(symlink_path))
         shutil.copy(source_path, symlink_path)
 
@@ -117,7 +114,7 @@ class LiunwindConan(ConanFile):
             self.cpp_info.components["unwind"].requires.append("xz_utils::xz_utils")
         if self.options.zlibdebuginfo:
             self.cpp_info.components["unwind"].requires.append("zlib::zlib")
-        if self.settings.os in ["Linux", "FreeBSD"]:
+        if self.settings.os == "Linux":
             self.cpp_info.components["unwind"].system_libs.append("pthread")
         self.cpp_info.components["generic"].set_property("pkg_config_name", "libunwind-generic")
         self.cpp_info.components["generic"].libs = ["unwind-generic"]

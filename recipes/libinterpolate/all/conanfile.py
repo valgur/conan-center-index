@@ -31,7 +31,7 @@ class PackageConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "Visual Studio": "15",
-            "msvc": "19.0",
+            "msvc": "191",
             "gcc": "7",
             "clang": "4",
             "apple-clang": "10",
@@ -43,6 +43,9 @@ class PackageConan(ConanFile):
     def requirements(self):
         self.requires("boost/1.83.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
+
+    def package_id(self):
+        self.info.clear()
 
     def package_id(self):
         self.info.clear()

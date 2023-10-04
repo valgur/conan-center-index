@@ -11,12 +11,11 @@ required_conan_version = ">=1.50.0"
 
 class TupletConan(ConanFile):
     name = "tuplet"
-    description = "A fast, simple tuple implementation that implements tuple as an aggregate"
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/codeinred/tuplet"
-    topics = ("tuple", "trivially-copyable", "modern-cpp", "header-only")
-
+    description = "A fast, simple tuple implementation that implements tuple as an aggregate"
+    topics = ("tuple", "trivially-copyable", "modern-cpp")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -33,14 +32,14 @@ class TupletConan(ConanFile):
                 "Visual Studio": "17",
                 "msvc": "193",
                 "clang": "13",
-                "apple-clang": "13",
+                "apple-clang": "13"
             }
         return {
             "gcc": "8",
             "Visual Studio": "16",
             "msvc": "192",
             "clang": "7",
-            "apple-clang": "12",
+            "apple-clang": "12"
         }
 
     def layout(self):
@@ -65,9 +64,7 @@ class TupletConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(compiler, False)
         if minimum_version and loose_lt_semver(version, minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd} which your compiler ({compiler}-{version}) does"
-                " not support"
-            )
+                f"{self.ref} requires C++{self._min_cppstd} which your compiler ({compiler}-{version}) does not support")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -77,9 +74,7 @@ class TupletConan(ConanFile):
 
     def package(self):
         include_folder = os.path.join(self.source_folder, "include")
-        copy(self, "*.hpp",
-             src=include_folder,
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.hpp", src=include_folder, dst=os.path.join(self.package_folder, "include"))
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):

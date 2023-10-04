@@ -12,10 +12,9 @@ class XorstrConan(ConanFile):
     name = "xorstr"
     description = "A heavily vectorized c++17 compile time string encryption."
     license = "Apache-2.0"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("encryption", "string", "vectorized")
     homepage = "https://github.com/JustasMasiulis/xorstr"
-    topics = ("encryption", "string", "vectorized", "header-only")
-
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -53,7 +52,7 @@ class XorstrConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
     def source(self):
@@ -64,9 +63,7 @@ class XorstrConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*",
-             src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

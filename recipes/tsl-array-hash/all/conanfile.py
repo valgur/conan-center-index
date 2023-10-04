@@ -9,9 +9,7 @@ required_conan_version = ">=1.50.0"
 
 class TslArrayHashConan(ConanFile):
     name = "tsl-array-hash"
-    description = (
-        "C++ implementation of a fast and memory efficient hash map and hash set specialized for strings."
-    )
+    description = "C++ implementation of a fast and memory efficient hash map and hash set specialized for strings."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Tessil/array-hash"
@@ -48,7 +46,6 @@ class TslArrayHashConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "tsl::array_hash")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self.cpp_info.filenames["cmake_find_package"] = "tsl-array-hash"
@@ -60,4 +57,3 @@ class TslArrayHashConan(ConanFile):
         self.cpp_info.components["array_hash"].set_property("cmake_target_name", "tsl::array_hash")
         self.cpp_info.components["array_hash"].bindirs = []
         self.cpp_info.components["array_hash"].libdirs = []
-        self.cpp_info.components["array_hash"].resdirs = []

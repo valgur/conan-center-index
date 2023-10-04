@@ -39,14 +39,14 @@ class ImplotConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) >= "0.15":
-            self.requires("imgui/1.89.9-docking", transitive_headers=True)
+            self.requires("imgui/1.89.9", transitive_headers=True)
         elif Version(self.version) >= "0.14":
-            self.requires("imgui/1.89.9-docking", transitive_headers=True)
+            self.requires("imgui/1.89.4", transitive_headers=True)
         elif Version(self.version) >= "0.13":
             # imgui 1.89 renamed ImGuiKeyModFlags_* to  ImGuiModFlags_*
-            self.requires("imgui/1.89.9-docking", transitive_headers=True)
+            self.requires("imgui/1.88", transitive_headers=True)
         else:
-            self.requires("imgui/1.89.9-docking", transitive_headers=True)
+            self.requires("imgui/1.86", transitive_headers=True)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -67,11 +67,11 @@ class ImplotConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
 

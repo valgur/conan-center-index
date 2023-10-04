@@ -10,13 +10,12 @@ required_conan_version = ">=1.54.0"
 
 class CfitsioConan(ConanFile):
     name = "cfitsio"
-    description = (
-        "C library for reading and writing data files in FITS (Flexible Image Transport System) data format"
-    )
+    description = "C library for reading and writing data files in FITS " \
+                  "(Flexible Image Transport System) data format"
     license = "ISC"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/"
     topics = ("fits", "image", "nasa", "astronomy", "astrophysics", "space")
+    homepage = "https://heasarc.gsfc.nasa.gov/fitsio/"
+    url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -43,9 +42,9 @@ class CfitsioConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-            self.options.rm_safe("with_curl")
+            del self.options.with_curl
         if self.settings.arch not in ["x86", "x86_64"]:
-            self.options.rm_safe("simd_intrinsics")
+            del self.options.simd_intrinsics
 
     def configure(self):
         if self.options.shared:
@@ -57,17 +56,14 @@ class CfitsioConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
-        if (
-            self.options.threadsafe
-            and self.settings.os == "Windows"
-            and self.settings.compiler.get_safe("threads") != "posix"
-        ):
+        self.requires("zlib/[>=1.2.11 <2]")
+        if self.options.threadsafe and self.settings.os == "Windows" and \
+           self.settings.compiler.get_safe("threads") != "posix":
             self.requires("pthreads4w/3.0.0")
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")
         if self.options.get_safe("with_curl"):
-            self.requires("libcurl/[>=7.78 <9]")
+            self.requires("libcurl/8.0.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

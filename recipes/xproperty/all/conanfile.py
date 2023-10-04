@@ -12,10 +12,9 @@ class XpropertyConan(ConanFile):
     name = "xproperty"
     description = "Traitlets-like C++ properties and implementation of the observer pattern."
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("observer", "traitlets")
     homepage = "https://github.com/jupyter-xeus/xproperty"
-    topics = ("observer", "traitlets", "header-only")
-
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
@@ -24,7 +23,7 @@ class XpropertyConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("xtl/0.7.5", transitive_headers=True, transitive_libs=True)
+        self.requires("xtl/0.7.4", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
         self.info.clear()
@@ -41,13 +40,11 @@ class XpropertyConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*",
-             src=os.path.join(self.source_folder, "include"),
-             dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         self._create_cmake_module_alias_targets(
             os.path.join(self.package_folder, self._module_file_rel_path),
-            {"xproperty": "xproperty::xproperty"},
+            {"xproperty": "xproperty::xproperty"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

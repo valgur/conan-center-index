@@ -4,18 +4,17 @@ from conan.tools.files import copy, get, rmdir, save
 import os
 import textwrap
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=1.51.1"
 
 
 class TmxConan(ConanFile):
     name = "tmx"
     description = "A portable C library to load tiled maps in your games."
     license = "BSD-2-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("tmx", "tiled-map", "loader")
     homepage = "https://github.com/baylej/tmx"
-    topics = ("tiled-map", "loader")
+    url = "https://github.com/conan-io/conan-center-index"
 
-    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -36,22 +35,32 @@ class TmxConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+            try:
+                del self.options.fPIC
+            except Exception:
+                pass
+        try:
+            del self.settings.compiler.libcxx
+        except Exception:
+            pass
+        try:
+            del self.settings.compiler.cppstd
+        except Exception:
+            pass
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libxml2/2.11.4")
+        self.requires("libxml2/2.9.14")
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/1.5.2")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version],
+            destination=self.source_folder, strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -78,7 +87,8 @@ class TmxConan(ConanFile):
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path), {"tmx": "tmx::tmx"}
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {"tmx": "tmx::tmx"}
         )
 
     def _create_cmake_module_alias_targets(self, module_file, targets):

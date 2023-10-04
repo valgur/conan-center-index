@@ -21,7 +21,7 @@ class TestPackageConan(ConanFile):
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/1.9.5")
+            self.tool_requires("pkgconf/2.0.3")
 
     def layout(self):
         cmake_layout(self)
@@ -34,9 +34,7 @@ class TestPackageConan(ConanFile):
         pkg_config_deps = PkgConfigDeps(self)
         if self._has_build_profile:
             pkg_config_deps.build_context_activated = ["wayland"]
-            pkg_config_deps.build_context_suffix = {
-                "wayland": "_BUILD",
-            }
+            pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
         pkg_config_deps.generate()
         virtual_build_env = VirtualBuildEnv(self)
         virtual_build_env.generate()

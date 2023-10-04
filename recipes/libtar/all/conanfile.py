@@ -14,11 +14,10 @@ required_conan_version = ">=1.54.0"
 class LibTarConan(ConanFile):
     name = "libtar"
     description = "libtar is a library for manipulating tar files from within C programs."
-    license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://repo.or.cz/libtar.git"
     topics = ("tar",)
-
+    license = "BSD-3-Clause"
+    homepage = "https://repo.or.cz/libtar.git"
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -47,7 +46,7 @@ class LibTarConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -64,7 +63,9 @@ class LibTarConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(["--with-zlib" if self.options.with_zlib else "--without-zlib"])
+        tc.configure_args.extend([
+            "--with-zlib" if self.options.with_zlib else "--without-zlib",
+        ])
         tc.generate()
         deps = AutotoolsDeps(self)
         deps.generate()
@@ -75,9 +76,7 @@ class LibTarConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "configure.ac"),
                 "AC_CHECK_LIB([z], [gzread])",
-                "AC_CHECK_LIB([{}], [gzread])".format(
-                    self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
-                ),
+                "AC_CHECK_LIB([{}], [gzread])".format(self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]),
             )
 
     def build(self):

@@ -1,9 +1,9 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import XCRun
+from conan.tools.apple import fix_apple_shared_install_name, XCRun
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
+from conan.tools.files import copy, get, rm
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 import os
@@ -13,14 +13,13 @@ required_conan_version = ">=1.54.0"
 
 class LdnsConan(ConanFile):
     name = "ldns"
-    description = "LDNS is a DNS library that facilitates DNS tool programming"
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.nlnetlabs.nl/projects/ldns"
-    topics = ("dns",)
-
+    description = "LDNS is a DNS library that facilitates DNS tool programming"
+    topics = ("dns")
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "compiler", "build_type", "arch"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -30,16 +29,9 @@ class LdnsConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
-            del self.options.fPIC
+            self.options.rm_safe("fPIC")
 
     def configure(self):
         if self.options.shared:
@@ -55,9 +47,7 @@ class LdnsConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Windows is not supported by the ldns recipe. Contributions are welcome."
-            )
+            raise ConanInvalidConfiguration("Windows is not supported by the ldns recipe. Contributions are welcome.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -80,32 +70,29 @@ class LdnsConan(ConanFile):
         tc.generate()
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend(
-            [
-                "--disable-rpath",
-                f"--with-ssl={self.dependencies['openssl'].package_folder}",
-                # DNSSEC algorithm support
-                "--enable-ecdsa",
-                "--enable-ed25519",
-                "--enable-ed448",
-                "--disable-dsa",
-                "--disable-gost",
-                "--enable-full-dane",
-                # tooling
-                "--disable-ldns-config",
-                "--without-drill",
-                "--without-examples",
-                # library bindings
-                "--without-pyldns",
-                "--without-p5-dns-ldns",
-            ]
-        )
+        tc.configure_args.extend([
+            "--disable-rpath",
+            f"--with-ssl={self.dependencies['openssl'].package_folder}",
+            # DNSSEC algorithm support
+            "--enable-ecdsa",
+            "--enable-ed25519",
+            "--enable-ed448",
+            "--disable-dsa",
+            "--disable-gost",
+            "--enable-full-dane",
+            # tooling
+            "--disable-ldns-config",
+            "--without-drill",
+            "--without-examples",
+            # library bindings
+            "--without-pyldns",
+            "--without-p5-dns-ldns",
+        ])
         if self.settings.compiler == "apple-clang":
             tc.configure_args.append(f"--with-xcode-sdk={XCRun(self).sdk_version}")
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -115,7 +102,8 @@ class LdnsConan(ConanFile):
         for target in ["install-h", "install-lib"]:
             autotools.install(target=target)
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.libs = ["ldns"]

@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
@@ -18,10 +17,8 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        if self.settings.os != "Windows" and not self.conf.get(
-            "tools.gnu:pkg_config", default=False, check_type=str
-        ):
-            self.tool_requires("pkgconf/1.9.5")
+        if self.settings.os != "Windows" and not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/2.0.3")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -29,7 +26,7 @@ class TestPackageConan(ConanFile):
         virtual_run_env = VirtualRunEnv(self)
         virtual_run_env.generate()
 
-        if is_apple_os(self):
+        if self.settings.os == "Macos":
             env = Environment()
             # Avoid conflicts with system libiconv
             # see: https://github.com/conan-io/conan-center-index/pull/17610#issuecomment-1552921286

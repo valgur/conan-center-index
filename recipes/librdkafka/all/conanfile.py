@@ -19,7 +19,6 @@ class LibrdkafkaConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/edenhill/librdkafka"
     topics = ("kafka", "consumer", "producer")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -54,7 +53,7 @@ class LibrdkafkaConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if Version(self.version) < "1.9.0":
-            self.options.rm_safe("curl")
+            del self.options.curl
 
     def configure(self):
         if self.options.shared:
@@ -66,7 +65,7 @@ class LibrdkafkaConan(ConanFile):
     def requirements(self):
         self.requires("lz4/1.9.4")
         if self.options.zlib:
-            self.requires("zlib/1.3")
+            self.requires("zlib/[>=1.2.11 <2]")
         if self.options.zstd:
             self.requires("zstd/1.5.5")
         if self.options.ssl:
@@ -74,12 +73,11 @@ class LibrdkafkaConan(ConanFile):
         if self._depends_on_cyrus_sasl:
             self.requires("cyrus-sasl/2.1.27")
         if self.options.get_safe("curl", False):
-            self.requires("libcurl/[>=7.78 <9]")
+            self.requires("libcurl/8.0.1")
 
     def build_requirements(self):
         if self._depends_on_cyrus_sasl:
-            if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-                self.tool_requires("pkgconf/2.0.3")
+            self.tool_requires("pkgconf/1.9.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

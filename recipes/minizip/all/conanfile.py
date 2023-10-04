@@ -8,12 +8,11 @@ required_conan_version = ">=1.53.0"
 
 class MinizipConan(ConanFile):
     name = "minizip"
-    description = "An experimental package to read and write files in .zip format, written on top of zlib"
-    license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://zlib.net"
+    license = "Zlib"
+    description = "An experimental package to read and write files in .zip format, written on top of zlib"
     topics = ("zip", "compression", "inflate")
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -47,7 +46,7 @@ class MinizipConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3", transitive_headers=True)
+        self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True)
         if self.options.bzip2:
             self.requires("bzip2/1.0.8", transitive_headers=True)
 
@@ -56,9 +55,7 @@ class MinizipConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["MINIZIP_SRC_DIR"] = os.path.join(self.source_folder, "contrib", "minizip").replace(
-            "\\", "/"
-        )
+        tc.variables["MINIZIP_SRC_DIR"] = os.path.join(self.source_folder, "contrib", "minizip").replace("\\", "/")
         tc.variables["MINIZIP_ENABLE_BZIP2"] = self.options.bzip2
         tc.variables["MINIZIP_BUILD_TOOLS"] = self.options.tools
         # fopen64 and similar are unavailable before API level 24: https://github.com/madler/zlib/pull/436
@@ -71,12 +68,12 @@ class MinizipConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
 
     def _extract_license(self):
         zlib_h = load(self, os.path.join(self.source_folder, "zlib.h"))
-        return zlib_h[2 : zlib_h.find("*/", 1)]
+        return zlib_h[2:zlib_h.find("*/", 1)]
 
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())

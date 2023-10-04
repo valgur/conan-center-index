@@ -9,13 +9,11 @@ required_conan_version = ">=1.53.0"
 
 class FreeImageConan(ConanFile):
     name = "freeimage"
-    description = (
-        "Open Source library project for developers who would like to support popular graphics image"
-        " formatslike PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
-    )
-    license = ("FreeImage", "GPL-3.0-or-later", "GPL-2.0-or-later")
-    url = "https://github.com/conan-io/conan-center-index"
+    description = "Open Source library project for developers who would like to support popular graphics image formats"\
+                  "like PNG, BMP, JPEG, TIFF and others as needed by today's multimedia applications."
     homepage = "https://freeimage.sourceforge.io"
+    url = "https://github.com/conan-io/conan-center-index"
+    license = "FreeImage", "GPL-3.0-or-later", "GPL-2.0-or-later"
     topics = ("image", "decoding", "graphics")
 
     package_type = "library"
@@ -47,6 +45,8 @@ class FreeImageConan(ConanFile):
         "with_jxr": True,
     }
 
+    short_paths = True
+
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
@@ -67,29 +67,29 @@ class FreeImageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/1.3")
+        self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.0")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.3")
+            self.requires("mozjpeg/4.1.1")
         if self.options.with_jpeg2000:
             self.requires("openjpeg/2.5.0")
         if self.options.with_png:
             self.requires("libpng/1.6.40")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.1")
+            self.requires("libwebp/1.3.2")
         if self.options.with_tiff or self.options.with_openexr:
             # can't upgrade to openexr/3.x.x because plugin tiff requires openexr/2.x.x header files
-            self.requires("openexr/3.1.9")
+            self.requires("openexr/2.5.7")
         if self.options.with_raw:
             # can't upgrade to libraw >= 0.21 (error: no member named 'shot_select' in 'libraw_output_params_t')
-            self.requires("libraw/0.21.1")
+            self.requires("libraw/0.20.2")
         if self.options.with_jxr:
             self.requires("jxrlib/cci.20170615")
         if self.options.with_tiff:
-            self.requires("libtiff/4.5.1")
+            self.requires("libtiff/4.6.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -126,14 +126,12 @@ class FreeImageConan(ConanFile):
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
 
     def package(self):
         for license in ["license-fi.txt", "license-gplv3.txt", "license-fi.txt"]:
-            copy(self, license,
-                 src=self.source_folder,
-                 dst=os.path.join(self.package_folder, "licenses"))
+            copy(self, license, src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

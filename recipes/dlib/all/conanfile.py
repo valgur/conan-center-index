@@ -76,7 +76,7 @@ class DlibConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/1.6.40")
         if self.options.get_safe("with_webp"):
-            self.requires("libwebp/1.3.1")
+            self.requires("libwebp/1.3.2")
         if self.options.with_sqlite3:
             self.requires("sqlite3/3.43.1")
         if self.options.with_openblas:

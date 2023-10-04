@@ -1,29 +1,26 @@
 import os
 import textwrap
-
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import get, replace_in_file, rmdir, rm, copy, save, export_conandata_patches, patch
+from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
+from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.52.0"
-
+required_conan_version = ">=1.50.0"
 
 class CgalConan(ConanFile):
     name = "cgal"
-    description = (
-        "C++ library that provides easy access to efficient and reliable algorithms"
-        " in computational geometry."
-    )
-    license = ("GPL-3.0-or-later", "LGPL-3.0-or-later")
+    license = "GPL-3.0-or-later", "LGPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/CGAL/cgal"
-    topics = ("geometry", "algorithms", "header-only")
-
+    description = "C++ library that provides easy access to efficient and reliable algorithms"\
+                  " in computational geometry."
+    topics = ("cgal", "geometry", "algorithms")
     package_type = "header-library"
-    settings = "os", "arch", "compiler", "build_type"
+    settings = "os", "compiler", "build_type", "arch"
+    generators = "CMakeDeps"
+    short_paths = True
 
     @property
     def _min_cppstd(self):
@@ -46,9 +43,9 @@ class CgalConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.83.0")
+        self.requires("boost/1.82.0")
         self.requires("eigen/3.4.0")
-        self.requires("mpfr/4.2.1")
+        self.requires("mpfr/4.1.0")
 
     def package_id(self):
         self.info.clear()
@@ -59,8 +56,14 @@ class CgalConan(ConanFile):
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
+
+    def _patch_sources(self):
+        replace_in_file(self,  os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "if(NOT PROJECT_NAME)", "if(1)", strict=False)
+        for it in self.conan_data.get("patches", {}).get(self.version, []):
+            patch(self, **it, strip=2)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -68,19 +71,6 @@ class CgalConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
-
-    def _patch_sources(self):
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "if(NOT PROJECT_NAME)",
-            "if(1)",
-            strict=False,
-        )
-        for it in self.conan_data.get("patches", {}).get(self.version, []):
-            patch(self, **it, strip=2)
 
     def build(self):
         self._patch_sources()
@@ -101,12 +91,12 @@ class CgalConan(ConanFile):
         )
 
     def _create_cmake_module_variables(self, module_file):
-        """
+        '''
         CGAL requires C++14, and specific compilers flags to enable the possibility to set FPU rounding modes.
         This CMake module, from the upsream CGAL pull-request https://github.com/CGAL/cgal/pull/7512, takes
         care of all the known compilers CGAL has ever supported.
-        """
-        content = textwrap.dedent("""\
+        '''
+        content = textwrap.dedent('''\
 function(CGAL_setup_CGAL_flags target)
   # CGAL now requires C++14. `decltype(auto)` is used as a marker of
   # C++14.
@@ -173,7 +163,11 @@ function(CGAL_setup_CGAL_flags target)
 endfunction()
 
 CGAL_setup_CGAL_flags(CGAL::CGAL)
-""")
+
+# CGAL use may rely on the presence of those two variables
+set(CGAL_USE_GMP  TRUE CACHE INTERNAL "CGAL library is configured to use GMP")
+set(CGAL_USE_MPFR TRUE CACHE INTERNAL "CGAL library is configured to use MPFR")
+''')
         save(self, module_file, content)
 
     @property
@@ -185,9 +179,6 @@ CGAL_setup_CGAL_flags(CGAL::CGAL)
         return os.path.join("lib", "cmake", "CGAL")
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
         self.cpp_info.builddirs.append(self._module_subfolder)

@@ -211,9 +211,7 @@ class XkbcommonConan(ConanFile):
                 )
 
         if Version(self.version) >= "1.0.0":
-            bindir = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bindir}")
-            self.env_info.PATH.append(bindir)
+            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
         # unofficial, but required to avoid side effects (libxkbcommon component
         # "steals" the default global pkg_config name)

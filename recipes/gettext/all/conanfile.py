@@ -11,16 +11,14 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=1.57.0"
 
-
 class GetTextConan(ConanFile):
     name = "gettext"
+    package_type = "application"
     description = "An internationalization and localization system for multilingual programs"
-    license = "GPL-3.0-or-later"
+    topics = ("intl", "libintl", "i18n")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/gettext"
-    topics = ("intl", "libintl", "i18n")
-
-    package_type = "application"
+    license = "GPL-3.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
 
     @property
@@ -45,18 +43,15 @@ class GetTextConan(ConanFile):
 
     def validate(self):
         if Version(self.version) < "0.21" and is_msvc(self):
-            raise ConanInvalidConfiguration(
-                "MSVC builds of gettext for versions < 0.21 are not supported."
-            )  # FIXME: it used to be possible. What changed?
+            raise ConanInvalidConfiguration("MSVC builds of gettext for versions < 0.21 are not supported.")  # FIXME: it used to be possible. What changed?
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not self.conf.get(
-            "tools.microsoft.bash:path", check_type=str
-        ):
+        if self._settings_build.os == "Windows":
             self.win_bash = True
-            self.tool_requires("msys2/cci.latest")
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
-            self.tool_requires("automake/1.16.5")
+            self.build_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -68,28 +63,26 @@ class GetTextConan(ConanFile):
         tc = AutotoolsToolchain(self)
         libiconv = self.dependencies["libiconv"]
         libiconv_root = unix_path(self, libiconv.package_folder)
-        tc.configure_args.extend(
-            [
-                "HELP2MAN=/bin/true",
-                "EMACS=no",
-                "--datarootdir=${prefix}/res",
-                "--with-libiconv-prefix={}".format(libiconv_root),
-                "--disable-shared",
-                "--disable-static",
-                "--disable-nls",
-                "--disable-dependency-tracking",
-                "--enable-relocatable",
-                "--disable-c++",
-                "--disable-java",
-                "--disable-csharp",
-                "--disable-libasprintf",
-                "--disable-curses",
-            ]
-        )
+        tc.configure_args.extend([
+            "HELP2MAN=/bin/true",
+            "EMACS=no",
+            "--datarootdir=${prefix}/res",
+            "--with-libiconv-prefix={}".format(libiconv_root),
+            "--disable-shared",
+            "--disable-static",
+            "--disable-nls",
+            "--disable-dependency-tracking",
+            "--enable-relocatable",
+            "--disable-c++",
+            "--disable-java",
+            "--disable-csharp",
+            "--disable-libasprintf",
+            "--disable-curses",
+        ])
 
         if is_msvc(self):
             if check_min_vs(self, "180", raise_invalid=False):
-                tc.extra_cflags.append("-FS")  # TODO: reference github issue
+                tc.extra_cflags.append("-FS") #TODO: reference github issue
 
             # The flag above `--with-libiconv-prefix` fails to correctly detect libiconv on windows+msvc
             # so it needs an extra nudge. We could use `AutotoolsDeps` but it's currently affected by the
@@ -100,9 +93,7 @@ class GetTextConan(ConanFile):
             tc.extra_ldflags.append(f"-L{iconv_libdir}")
 
             env = Environment()
-            compile_wrapper = self.dependencies.build["automake"].conf_info.get(
-                "user.automake:compile-wrapper"
-            )
+            compile_wrapper = self.dependencies.build["automake"].conf_info.get("user.automake:compile-wrapper")
             lib_wrapper = self.dependencies.build["automake"].conf_info.get("user.automake:lib-wrapper")
             env.define("CC", "{} cl -nologo".format(unix_path(self, compile_wrapper)))
             env.define("LD", "link -nologo")
@@ -115,10 +106,7 @@ class GetTextConan(ConanFile):
             # rather than a C compiler flag
             env.prepend("CPPFLAGS", f"-I{iconv_includedir}")
 
-            windres_arch = {
-                "x86": "i686",
-                "x86_64": "x86-64",
-            }[str(self.settings.arch)]
+            windres_arch = {"x86": "i686", "x86_64": "x86-64"}[str(self.settings.arch)]
             env.define("RC", f"windres --target=pe-{windres_arch}")
             env.vars(self).save_script("conanbuild_msvc")
 
@@ -135,7 +123,7 @@ class GetTextConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
         rmdir(self, os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "include"))
@@ -144,8 +132,6 @@ class GetTextConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 
@@ -155,12 +141,6 @@ class GetTextConan(ConanFile):
         self.buildenv_info.define_path("AUTOPOINT", autopoint)
 
         # TODO: the following can be removed when the recipe supports Conan >= 2.0 only
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
-
-        self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal))
+        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
         self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, aclocal))
-
-        self.output.info("Setting AUTOPOINT environment variable: {}".format(autopoint))
         self.env_info.AUTOPOINT = unix_path_package_info_legacy(self, autopoint)
