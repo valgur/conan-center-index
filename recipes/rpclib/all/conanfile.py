@@ -1,9 +1,8 @@
 import os
-from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime
 
@@ -52,11 +51,8 @@ class rpclibConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if is_msvc_static_runtime(self):
-            tc.variables["RPCLIB_MSVC_STATIC_RUNTIME"] = True
+        tc.variables["RPCLIB_MSVC_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
-        tc.generate()
-        tc = CMakeDeps(self)
         tc.generate()
 
     def build(self):
@@ -65,17 +61,11 @@ class rpclibConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if self.settings.os == "Windows" and self.options.shared:
-            mkdir(self, os.path.join(self.self.package_folder, "bin"))
-            for dll in Path(self.self.package_folder, "lib").glob("*.dll"):
-                rename(self, dll, os.path.join(self.package_folder, "bin", dll.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rpclib")
