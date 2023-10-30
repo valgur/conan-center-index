@@ -220,7 +220,7 @@ class CPythonConan(ConanFile):
         self.requires("zlib/1.2.11")
         if self._supports_modules:
             self.requires("openssl/1.1.1q")
-            self.requires("expat/2.4.8")
+            self.requires("expat/2.5.0")
             if self._with_libffi:
                 self.requires("libffi/3.4.2")
             if Version(self.version) < "3.8":
@@ -232,7 +232,7 @@ class CPythonConan(ConanFile):
         if self.settings.os != "Windows":
             self.requires("libxcrypt/4.4.28")
         if self.settings.os == "Linux":
-            self.requires("libuuid/1.0.3")
+            self.requires("util-linux-libuuid/2.39")
         if self.options.get_safe("with_bz2", False):
             self.requires("bzip2/1.0.8")
         if self.options.get_safe("with_gdbm", False):
@@ -245,7 +245,7 @@ class CPythonConan(ConanFile):
         if self.options.get_safe("with_tkinter", False):
             self.requires("tk/8.6.10")
         if self.options.get_safe("with_curses", False):
-            self.requires("ncurses/6.3")
+            self.requires("ncurses/6.4")
         if self.options.get_safe("with_bsddb", False):
             self.requires("libdb/5.3.28")
         if self.options.get_safe("with_lzma", False):
@@ -276,21 +276,21 @@ class CPythonConan(ConanFile):
             if not self.options.shared and Version(self.version) >= "3.10":
                 raise ConanInvalidConfiguration("Static msvc build disabled (>=3.10) due to \"AttributeError: module 'sys' has no attribute 'winver'\"")
 
-        if self.options.get_safe("with_curses", False) and not self.options["ncurses"].with_widec:
+        if self.options.get_safe("with_curses", False) and not self.dependencies["ncurses"].options.with_widec:
             raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
 
     def _validate_final(self):
         # FIXME: these checks belong in validate, but the versions of dependencies are not available there yet
         if self._supports_modules:
             if Version(self.version) < "3.8.0":
-                if Version(self.deps_cpp_info["mpdecimal"].version) >= "2.5.0":
+                if Version(self.dependencies["mpdecimal"].ref.version) >= "2.5.0":
                     raise ConanInvalidConfiguration("cpython versions lesser then 3.8.0 require a mpdecimal lesser then 2.5.0")
             elif Version(self.version) >= "3.9.0":
-                if Version(self.deps_cpp_info["mpdecimal"].version) < "2.5.0":
+                if Version(self.dependencies["mpdecimal"].ref.version) < "2.5.0":
                     raise ConanInvalidConfiguration("cpython 3.9.0 (and newer) requires (at least) mpdecimal 2.5.0")
 
         if self._with_libffi:
-            if Version(self.deps_cpp_info["libffi"].version) >= "3.3" and is_msvc(self) and "d" in msvc_runtime_flag(self):
+            if Version(self.dependencies["libffi"].ref.version) >= "3.3" and is_msvc(self) and "d" in msvc_runtime_flag(self):
                 raise ConanInvalidConfiguration("libffi versions >= 3.3 cause 'read access violations' when using a debug runtime (MTd/MDd)")
 
     def source(self):
@@ -313,9 +313,7 @@ class CPythonConan(ConanFile):
             # --fpic is automatically managed when 'fPIC'option is declared
             # --enable/disable-shared is automatically managed when 'shared' option is declared
             tc = AutotoolsToolchain(self)
-            yes_no = lambda v: "yes" if v else "no"
             tc.configure_args = [
-                f"--prefix={self.package_path}",
                 f"--enable-shared={yes_no(self.options.get_safe('shared', False))}",
                 f"--with-doc-strings={yes_no(self.options.get_safe('docstrings', False))}",
                 f"--with-pymalloc={yes_no(self.options.get_safe('pymalloc', False))}",
@@ -333,10 +331,10 @@ class CPythonConan(ConanFile):
             if self._is_py3:
                 tc.configure_args.extend([
                     "--with-system-libmpdec",
-                    f"--with-openssl={self.deps_cpp_info['openssl'].rootpath}",
-                    f"--enable-loadable-sqlite-extensions={yes_no(not self.options['sqlite3'].omit_load_extension)}",
+                    f"--with-openssl={self.dependencies['openssl'].package_folder}",
+                    f"--enable-loadable-sqlite-extensions={yes_no(not self.dependencies['sqlite3'].options.omit_load_extension)}",
                 ])
-            if self.settings.compiler == "intel":
+            if self.settings.compiler == "intel-cc":
                 tc.configure_args.append("--with-icc")
             if self.settings.compiler != "gcc":
                 tc.configure_args.append("--without-gcc")
@@ -346,9 +344,9 @@ class CPythonConan(ConanFile):
                 tcltk_libs = []
                 # FIXME: collect using some conan util (https://github.com/conan-io/conan/issues/7656)
                 for dep in ("tcl", "tk", "zlib"):
-                    tcltk_includes += ["-I{}".format(d) for d in self.deps_cpp_info[dep].include_paths]
-                    tcltk_libs += ["-l{}".format(lib) for lib in self.deps_cpp_info[dep].libs]
-                if self.settings.os == "Linux" and not self.options["tk"].shared:
+                    tcltk_includes += ["-I{}".format(d) for d in self.dependencies[dep].cpp_info.includedirs]
+                    tcltk_libs += ["-l{}".format(lib) for lib in self.dependencies[dep].cpp_info.libs]
+                if self.settings.os == "Linux" and not self.dependencies["tk"].options.shared:
                     # FIXME: use info from xorg.components (x11, xscrnsaver)
                     tcltk_libs.extend(["-l{}".format(lib) for lib in ("X11", "Xss")])
                 tc.configure_args.extend([
@@ -358,6 +356,8 @@ class CPythonConan(ConanFile):
             if self.settings.os in ("Linux", "FreeBSD"):
                 # Building _testembed fails due to missing pthread/rt symbols
                 tc.extra_ldflags.append("-lpthread")
+
+            tc.make_args += ["DESTDIR=", "prefix=", "exec_prefix="]
 
             # FIXME: @jellespijker
             # if cross_building(self) and not cross_building(self, skip_x64_x86=True):
@@ -410,7 +410,7 @@ class CPythonConan(ConanFile):
             # FIXME: this will link to ALL libraries of ncurses. Only need to link to ncurses(w) (+ eventually tinfo)
             replace_in_file(self, self.source_path.joinpath("setup.py"),
                                   "curses_libs = ",
-                                  f"curses_libs = {repr(self.deps_cpp_info['ncurses'].libs + self.deps_cpp_info['ncurses'].system_libs)} #")
+                                  f"curses_libs = {repr(self.dependencies['ncurses'].cpp_info.libs + self.dependencies['ncurses'].cpp_info.system_libs)} #")
 
         # Enable static MSVC cpython
         if not self.options.shared:
@@ -544,11 +544,11 @@ class CPythonConan(ConanFile):
             # Until MSVC builds support cross building, copy dll's of essential (shared) dependencies to python binary location.
             # These dll's are required when running the layout tool using the newly built python executable.
         if self._with_libffi:
-            for bin_path in self.deps_cpp_info["libffi"].bin_paths:
+            for bin_path in self.dependencies["libffi"].cpp_info.bindirs:
                 copy(self, "*.dll", src=bin_path, dst=self._msvc_artifacts_path)
-        for bin_path in self.deps_cpp_info["expat"].bin_paths:
+        for bin_path in self.dependencies["expat"].cpp_info.bindirs:
             copy(self, "*.dll", src=bin_path, dst=self._msvc_artifacts_path)
-        for bin_path in self.deps_cpp_info["zlib"].bin_paths:
+        for bin_path in self.dependencies["zlib"].cpp_info.bindirs:
             copy(self, "*.dll", src=bin_path, dst=self._msvc_artifacts_path)
 
     def _msvc_package_layout(self):
@@ -609,7 +609,7 @@ class CPythonConan(ConanFile):
             unzip(self, filename=fname, destination=self._site_packages_path)
 
         self.run(f"{self._msvc_artifacts_path.joinpath(self._cpython_interpreter_name)} -c \"import compileall; compileall.compile_dir('{self._modules_path}')\"",
-                 run_environment=True)
+                 env="conanrun")
 
     @property
     def _cmake_variables(self):
@@ -789,7 +789,7 @@ class CPythonConan(ConanFile):
             if self.settings.os != "Windows":
                 self.cpp_info.components["_hidden"].requires.append("libxcrypt::libxcrypt")
             if self.settings.os == "Linux":
-                self.cpp_info.components["_hidden"].requires.append("libuuid::libuuid")
+                self.cpp_info.components["_hidden"].requires.append("util-linux-libuuid::util-linux-libuuid")
             if self.options.get_safe("with_bz2", False):
                 self.cpp_info.components["_hidden"].requires.append("bzip2::bzip2")
             if self.options.get_safe("with_gdbm", False):
