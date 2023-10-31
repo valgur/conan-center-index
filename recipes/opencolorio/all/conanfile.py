@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -25,11 +25,13 @@ class OpenColorIOConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "build_apps": [True, False],
         "use_sse": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "build_apps": False,
         "use_sse": True,
     }
 
@@ -45,30 +47,26 @@ class OpenColorIOConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.options["minizip-ng"].with_zlib = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("expat/2.5.0")
-        if Version(self.version) < "2.2.0":
-            self.requires("openexr/2.5.7")
-        else:
-            self.requires("openexr/3.1.9")
-            self.requires("imath/3.1.9")
-
         self.requires("yaml-cpp/0.8.0")
-        if Version(self.version) < "2.0.0":
-            self.requires("tinyxml/2.6.2")
-        else:
+        if self.options.build_apps:
+            self.requires("lcms/2.14")
+            # TODO: add GLUT (needed for ociodisplay tool)
+        if Version(self.version).major >= 2:
+            self.requires("imath/3.1.9")
             self.requires("pystring/1.1.4")
-
-        if Version(self.version) >= "2.2.0":
             self.requires("minizip-ng/3.0.9")
-
-        # for tools only
-        self.requires("lcms/2.14")
-        # TODO: add GLUT (needed for ociodisplay tool)
+            if self.options.build_apps:
+                self.requires("openexr/3.1.9")
+        else:
+            self.requires("openexr/2.5.7")
+            self.requires("tinyxml/2.6.2")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -77,11 +75,6 @@ class OpenColorIOConan(ConanFile):
         # opencolorio>=2.2.0 requires minizip-ng with with_zlib
         if Version(self.version) >= "2.2.0" and not self.dependencies["minizip-ng"].options.get_safe("with_zlib", False):
             raise ConanInvalidConfiguration(f"{self.ref} requires minizip-ng with with_zlib = True.")
-
-        if Version(self.version) == "1.1.1" and self.options.shared and self.dependencies["yaml-cpp"].options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} requires static build yaml-cpp")
-        if Version(self.version) == "2.2.1" and self.options.shared and self.dependencies["minizip-ng"].options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} requires static build minizip-ng")
 
     def build_requirements(self):
         if Version(self.version) >= "2.2.0":
@@ -110,7 +103,7 @@ class OpenColorIOConan(ConanFile):
         # openexr 2.x provides Half library
         tc.variables["OCIO_USE_OPENEXR_HALF"] = True
 
-        tc.variables["OCIO_BUILD_APPS"] = True
+        tc.variables["OCIO_BUILD_APPS"] = self.options.build_apps
         tc.variables["OCIO_BUILD_DOCS"] = False
         tc.variables["OCIO_BUILD_TESTS"] = False
         tc.variables["OCIO_BUILD_GPU_TESTS"] = False
@@ -128,6 +121,10 @@ class OpenColorIOConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.set_property("minizip-ng", "cmake_file_name", "minizip-ng")
+        deps.set_property("minizip-ng", "cmake_target_name", "MINIZIP::minizip-ng")
+        deps.set_property("lcms", "cmake_file_name", "lcms2")
+        deps.set_property("lcms", "cmake_target_name", "lcms2::lcms2")
         deps.generate()
 
     def _patch_sources(self):
@@ -136,9 +133,24 @@ class OpenColorIOConan(ConanFile):
         for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath", "minizip-ng"):
             rm(self, f"Find{module}.cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
 
+        if Version(self.version).major >= 2:
+            # Remove CMAKE_CXX_STANDARD cache variable
+            replace_in_file(self, os.path.join(self.source_folder, "share", "cmake", "utils", "CppVersion.cmake"),
+                            "set_property(CACHE CMAKE_CXX_STANDARD", "#")
+
+            # Disable installation of deleted CMake modules
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "if (NOT BUILD_SHARED_LIBS)", "if (0)")
+
+            # Fix pystring.h include path
+            for path in self.source_path.joinpath("src", "OpenColorIO").rglob("*.cpp"):
+                content = path.read_text(encoding="utf-8")
+                if "pystring/pystring.h" in content:
+                    content = content.replace("pystring/pystring.h", "pystring.h")
+                    path.write_text(content, encoding="utf-8")
+
     def build(self):
         self._patch_sources()
-
         cm = CMake(self)
         cm.configure()
         cm.build()
@@ -180,8 +192,6 @@ class OpenColorIOConan(ConanFile):
 
         if is_apple_os(self):
             self.cpp_info.frameworks.extend(["Foundation", "IOKit", "ColorSync", "CoreGraphics"])
-            if Version(self.version) == "2.1.0":
-                self.cpp_info.frameworks.extend(["Carbon", "CoreFoundation"])
 
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("OpenColorIO_SKIP_IMPORTS")
@@ -190,5 +200,4 @@ class OpenColorIOConan(ConanFile):
         self.cpp_info.names["cmake_find_package"] = "OpenColorIO"
         self.cpp_info.names["cmake_find_package_multi"] = "OpenColorIO"
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH env var with: {bin_path}")
         self.env_info.PATH.append(bin_path)
