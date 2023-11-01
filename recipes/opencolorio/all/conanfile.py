@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -85,19 +85,6 @@ class OpenColorIOConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_VERBOSE_MAKEFILE"] = True
-        if Version(self.version) >= "2.1.0":
-            tc.variables["OCIO_BUILD_PYTHON"] = False
-        else:
-            tc.variables["OCIO_BUILD_SHARED"] = self.options.shared
-            tc.variables["OCIO_BUILD_STATIC"] = not self.options.shared
-            tc.variables["OCIO_BUILD_PYGLUE"] = False
-
-            tc.variables["USE_EXTERNAL_YAML"] = True
-            tc.variables["USE_EXTERNAL_TINYXML"] = True
-            tc.variables["TINYXML_OBJECT_LIB_EMBEDDED"] = False
-            tc.variables["USE_EXTERNAL_LCMS"] = True
-
         tc.variables["OCIO_USE_SSE"] = self.options.get_safe("use_sse", False)
 
         # openexr 2.x provides Half library
@@ -108,6 +95,7 @@ class OpenColorIOConan(ConanFile):
         tc.variables["OCIO_BUILD_TESTS"] = False
         tc.variables["OCIO_BUILD_GPU_TESTS"] = False
         tc.variables["OCIO_USE_BOOST_PTR"] = False
+        tc.variables["OCIO_BUILD_PYTHON"] = False
 
         # avoid downloading dependencies
         tc.variables["OCIO_INSTALL_EXT_PACKAGE"] = "NONE"
@@ -118,6 +106,15 @@ class OpenColorIOConan(ConanFile):
 
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0091"] = "NEW"
+
+        if Version(self.version) < "2.1.0":
+            tc.variables["OCIO_BUILD_SHARED"] = self.options.shared
+            tc.variables["OCIO_BUILD_STATIC"] = not self.options.shared
+            tc.variables["OCIO_BUILD_PYGLUE"] = False
+            tc.variables["USE_EXTERNAL_YAML"] = True
+            tc.variables["USE_EXTERNAL_TINYXML"] = True
+            tc.variables["TINYXML_OBJECT_LIB_EMBEDDED"] = False
+            tc.variables["USE_EXTERNAL_LCMS"] = True
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -148,6 +145,20 @@ class OpenColorIOConan(ConanFile):
                 if "pystring/pystring.h" in content:
                     content = content.replace("pystring/pystring.h", "pystring.h")
                     path.write_text(content, encoding="utf-8")
+
+            # Fix yaml-cpp dependency
+            save(self, os.path.join(self.source_folder, "src", "OpenColorIO", "CMakeLists.txt"),
+                 "\ntarget_include_directories(OpenColorIO PRIVATE ${yaml-cpp_INCLUDE_DIRS})"
+                 "\ntarget_link_libraries(OpenColorIO PRIVATE ${yaml-cpp_LIBS})", append=True)
+
+        if Version(self.version) >= "2.3.0":
+            # Workaround for the invalid octal value 030009 in MZ_VERSION_BUILD for v3.0.9
+            mz_v4 = 1 if Version(self.dependencies["minizip-ng"].ref.version) >= "4.0.0" else 0
+            for file in [
+                os.path.join(self.source_folder, "src", "apps", "ocioarchive", "main.cpp"),
+                os.path.join(self.source_folder, "src", "OpenColorIO", "OCIOZArchive.cpp"),
+            ]:
+                replace_in_file(self, file, "#if MZ_VERSION_BUILD >= 040000", f"#if {mz_v4}")
 
     def build(self):
         self._patch_sources()
