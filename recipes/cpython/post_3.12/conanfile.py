@@ -182,6 +182,7 @@ class CPythonConan(ConanFile):
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
+            "--with-pkg-config=yes",
             "--with-doc-strings={}".format(yes_no(self.options.docstrings)),
             "--with-pymalloc={}".format(yes_no(self.options.pymalloc)),
             "--with-system-expat",
@@ -220,8 +221,6 @@ class CPythonConan(ConanFile):
         if self.settings.os in ("Linux", "FreeBSD"):
             # Building _testembed fails due to missing pthread/rt symbols
             tc.ldflags.append("-lpthread")
-
-        tc.make_args += ["DESTDIR=", "prefix=", "exec_prefix="]
 
         build = None
         if cross_building(self) and not cross_building(self, skip_x64_x86=True):
