@@ -1,7 +1,4 @@
 sources:
-  "3.12.0":
-    url: "https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz"
-    sha256: "795c34f44df45a0e9b9710c8c71c15c671871524cd412ca14def212e8ccb155d"
   "3.11.6":
     url: "https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz"
     sha256: "0fab78fa7f133f4f38210c6260d90d7c0d5c7198446419ce057ec7ac2e6f5f38"

@@ -1,15 +1,15 @@
 versions:
   "3.12.0":
-    folder: all
+    folder: post_3.12
   "3.11.6":
-    folder: all
+    folder: pre_3.12
   "3.10.13":
-    folder: all
+    folder: pre_3.12
   "3.9.18":
-    folder: all
+    folder: pre_3.12
   "3.8.18":
-    folder: all
+    folder: pre_3.12
   "3.7.17":
-    folder: all
+    folder: pre_3.12
   "2.7.18":
-    folder: all
+    folder: pre_3.12
