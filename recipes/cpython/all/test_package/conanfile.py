@@ -14,32 +14,6 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 
-class CmakePython3Abi(object):
-    def __init__(self, debug, pymalloc, unicode):
-        self.debug, self.pymalloc, self.unicode = debug, pymalloc, unicode
-
-    _cmake_lut = {
-        None: "ANY",
-        True: "ON",
-        False: "OFF",
-    }
-
-    @property
-    def suffix(self):
-        suffix = ""
-        if self.debug:
-            suffix += "d"
-        if self.pymalloc:
-            suffix += "m"
-        if self.unicode:
-            suffix += "u"
-        return suffix
-
-    @property
-    def cmake_arg(self):
-        return ";".join(self._cmake_lut[a] for a in (self.debug, self.pymalloc, self.unicode))
-
-
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps"
@@ -68,13 +42,6 @@ class TestPackageConan(ConanFile):
         return bool(self.dependencies["cpython"].options.get_safe("pymalloc", False))
 
     @property
-    def _cmake_abi(self):
-        if self._py_version < "3.8":
-            return CmakePython3Abi(debug=self.settings.build_type == "Debug", pymalloc=self._pymalloc, unicode=False)
-        else:
-            return CmakePython3Abi(debug=self.settings.build_type == "Debug", pymalloc=False, unicode=False)
-
-    @property
     def _cmake_try_FindPythonX(self):
         # FIXME: re-enable
         # return not is_msvc(self) or self.settings.build_type != "Debug"
@@ -86,25 +53,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        version = self._py_version
-        py_major = str(version.major)
         tc.cache_variables["BUILD_MODULE"] = self._supports_modules
-        tc.cache_variables["PY_VERSION_MAJOR"] = py_major
-        tc.cache_variables["PY_VERSION_MAJOR_MINOR"] = f"{version.major}.{version.minor}"
-        tc.cache_variables["PY_FULL_VERSION"] = str(version)
-        tc.cache_variables["PY_VERSION"] = self._clean_py_version
-        tc.cache_variables["PY_VERSION_SUFFIX"] = self._cmake_abi.suffix
-        tc.cache_variables["PYTHON_EXECUTABLE"] = self._python
-        tc.cache_variables["USE_FINDPYTHON_X".format(py_major)] = self._cmake_try_FindPythonX
-        tc.cache_variables[f"Python{py_major}_EXECUTABLE"] = self._python
-        tc.cache_variables[f"Python{py_major}_ROOT_DIR"] = self.dependencies["cpython"].package_folder
-        tc.cache_variables[f"Python{py_major}_USE_STATIC_LIBS"] = not self.dependencies["cpython"].options.shared
-        tc.cache_variables[f"Python{py_major}_FIND_FRAMEWORK"] = "NEVER"
-        tc.cache_variables[f"Python{py_major}_FIND_REGISTRY"] = "NEVER"
-        tc.cache_variables[f"Python{py_major}_FIND_IMPLEMENTATIONS"] = "CPython"
-        tc.cache_variables[f"Python{py_major}_FIND_STRATEGY"] = "LOCATION"
-        if not is_msvc(self) and self._clean_py_version < "3.8":
-            tc.cache_variables[f"Python{py_major}_FIND_ABI"] = self._cmake_abi.cmake_arg
         tc.generate()
 
         VirtualRunEnv(self).generate(scope="run")

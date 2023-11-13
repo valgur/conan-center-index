@@ -7,7 +7,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, replace_in_file, rm, rmdir, unzip
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, replace_in_file, rm, rmdir, unzip, save, load
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuildDeps, MSBuildToolchain, MSBuild, is_msvc, is_msvc_static_runtime, msvc_runtime_flag
@@ -92,6 +92,7 @@ class CPythonConan(ConanFile):
         return Version(self.version).major == 2
 
     def export_sources(self):
+        copy(self, "*.cmake.in", os.path.join(self.recipe_folder, "cmake"), self.export_sources_folder)
         export_conandata_patches(self)
 
     def config_options(self):
@@ -592,8 +593,75 @@ class CPythonConan(ConanFile):
         lib_dir_path = os.path.join(self.package_folder, self._msvc_install_subprefix, "Lib").replace("\\", "/")
         self.run(f"{interpreter_path} -c \"import compileall; compileall.compile_dir('{lib_dir_path}')\"")
 
+    @property
+    def _cmake_variables_module_relpath(self):
+        return os.path.join("lib", "cmake", "cpython_variables.cmake")
+
+    @property
+    def _cmake_variables_module_path(self):
+        return os.path.join(self.package_folder, self._cmake_variables_module_relpath)
+
+    @property
+    def _install_path(self):
+        return os.path.join(self.package_folder, "bin")
+
+    @property
+    def _lib_path(self):
+        if is_msvc(self):
+            return os.path.join(self._install_path, "libs")
+        else:
+            return os.path.join(self.package_folder, "lib")
+
+    @property
+    def _include_path(self):
+        if is_msvc(self):
+            return os.path.join(self._install_path, "include")
+        else:
+            return os.path.join(self.package_folder, "include", f"python{self._version_suffix}{self._abi_suffix}")
+
+    def _create_cmake_variables_module(self, module_path):
+        py_version = Version(self.version)
+
+        suffix = "{}{}{}".format(
+            "d" if self.settings.build_type == "Debug" else "",
+            "m" if self.options.get_safe("pymalloc", False) else "",
+            "u" if self.options.get_safe("unicode", False) else ""
+        )
+        cmake_arg = ";".join("ON" if a else "OFF" for a in [
+            self.settings.build_type == "Debug",
+            self.options.get_safe("pymalloc", False),
+            self.options.get_safe("unicode", False)
+        ])
+
+        py_vars = {}
+        py_vars["PYTHON_SOABI"] = ""  # FIXME: SOABI string https://github.com/Kitware/CMake/blob/cca1b333be76d33fde5c74e51042fc849f8930b7/Modules/FindPython.cmake#L137
+        py_vars["PY_VERSION_MAJOR"] = py_version.major
+        py_vars["PY_VERSION_MAJOR_MINOR"] = f"{py_version.major}.{py_version.minor}"
+        py_vars["PY_FULL_VERSION"] = self.version
+        py_vars["PY_VERSION_SUFFIX"] = suffix
+        py_vars["PYTHON_EXECUTABLE"] = self._cpython_interpreter_path
+        py_vars["Python_EXECUTABLE"] = self._cpython_interpreter_path
+        py_vars["Python_ROOT_DIR"] = self.package_folder
+        py_vars["Python_USE_STATIC_LIBS"] = "OFF" if self.options.shared else "ON"
+        py_vars["Python_FIND_FRAMEWORK"] = "NEVER"
+        py_vars["Python_FIND_REGISTRY"] = "NEVER"
+        py_vars["Python_FIND_IMPLEMENTATIONS"] = "CPython"
+        py_vars["Python_FIND_STRATEGY"] = "LOCATION"
+        py_vars["Python_FIND_ABI"] = cmake_arg
+        py_vars["Python_LIBRARY"] = self._lib_path
+        py_vars["Python_INCLUDE_DIR"] = self._include_path
+        for var in list(py_vars):
+            if var.startswith("PYTHON_"):
+                py_vars[var.replace("PYTHON_", f"Python{py_version.major}_")] = f"${{{var}}}"
+
+        content = load(self, os.path.join(self.export_sources_folder, "cpython_variables.cmake.in"))
+        content = content.replace("@PY_VERSION_MAJOR@", str(py_version.major))
+        content += "\n".join(f"set({var} {value})" for var, value in py_vars.items())
+        save(self, module_path, content)
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        self._create_cmake_variables_module(self._cmake_variables_module_path)
         if is_msvc(self):
             if self._is_py2 or not self.options.shared:
                 self._msvc_package_copy()
@@ -698,9 +766,13 @@ class CPythonConan(ConanFile):
 
     def package_info(self):
         # FIXME: conan components Python::Interpreter component, need a target type
-        # self.cpp_info.names["cmake_find_package"] = "Python"
-        # self.cpp_info.names["cmake_find_package_multi"] = "Python"
         # FIXME: conan components need to generate multiple .pc files (python2, python-27)
+
+        self.cpp_info.set_property("cmake_file_name", "Python")
+        self.cpp_info.components["python"].set_property("cmake_target_name", "Python::Python")
+
+        self.cpp_info.set_property("cmake_build_modules", [self._cmake_variables_module_relpath])
+        self.cpp_info.components["python"].builddirs.append(os.path.join("lib", "cmake"))
 
         py_version = Version(self.version)
         # python component: "Build a C extension for Python"
@@ -778,11 +850,6 @@ class CPythonConan(ConanFile):
                 self.cpp_info.components["_hidden"].requires.append("tk::tk")
             self.cpp_info.components["_hidden"].libdirs = []
 
-        if self.options.env_vars:
-            bindir = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bindir}")
-            self.env_info.PATH.append(bindir)
-
         python = self._cpython_interpreter_path
         self.conf_info.define("user.cpython:python", python)
         self.user_info.python = python
@@ -795,9 +862,7 @@ class CPythonConan(ConanFile):
             pythonhome = self.package_folder
         else:
             version = Version(self.version)
-            pythonhome = os.path.join(
-                self.package_folder, "lib", f"python{version.major}.{version.minor}"
-            )
+            pythonhome = os.path.join(self.package_folder, "lib", f"python{version.major}.{version.minor}")
         self.conf_info.define("user.cpython:pythonhome", pythonhome)
         self.user_info.pythonhome = pythonhome
 
@@ -819,3 +884,10 @@ class CPythonConan(ConanFile):
                 self.env_info.PYTHON_ROOT = python_root
         self.conf_info.define("user.cpython:python_root", python_root)
         self.user_info.python_root = python_root
+
+        # TODO: Legacy, to be removed on Conan 2.0
+        self.cpp_info.names["cmake_find_package"] = "Python"
+        self.cpp_info.names["cmake_find_package_multi"] = "Python"
+        if self.options.env_vars:
+            bindir = os.path.join(self.package_folder, "bin")
+            self.env_info.PATH.append(bindir)
