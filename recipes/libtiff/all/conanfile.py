@@ -216,7 +216,7 @@ class LibtiffConan(ConanFile):
         if self.options.zstd:
             self.cpp_info.components["tiff"].requires.append("zstd::zstd")
         if self.options.webp:
-            self.cpp_info.components["tiff"].requires.append("libwebp::libwebp")
+            self.cpp_info.components["tiff"].requires.append("libwebp::webp")
         if self.options.lerc:
             self.cpp_info.components["tiff"].requires.append("lerc::lerc")
 
