@@ -3,9 +3,12 @@ sources:
     pdfium:
       url: "https://pdfium.googlesource.com/pdfium/+archive/refs/heads/chromium/6127.tar.gz"
       # sha256 is volatile on googlesource, no up-to-date github fork
+    partition_allocator:
+      url: "https://chromium.googlesource.com/chromium/src/base/allocator/partition_allocator/+archive/92ea361ceee725138bce3b05a033f6f9eee82b00.tar.gz"
+      # sha256 is volatile on googlesource, no up-to-date github fork
     trace_event:
-      url: "https://chromium.googlesource.com/chromium/src/+archive/refs/tags/121.0.6127.1/base/trace_event/common.tar.gz"
+      url: "https://chromium.googlesource.com/chromium/src/base/trace_event/common/+archive/29ac73db520575590c3aceb0a6f1f58dda8934f6.tar.gz"
       # sha256 is volatile on googlesource, no up-to-date github fork
     chromium_build:
-      url: "https://chromium.googlesource.com/chromium/src/+archive/refs/tags/121.0.6127.1/build.tar.gz"
+      url: "https://chromium.googlesource.com/chromium/src/build/+archive/02912baf87bfa3b0baca028265592b50c80dff2a.tar.gz"
       # sha256 is volatile on googlesource, no up-to-date github fork

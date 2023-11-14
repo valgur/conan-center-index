@@ -1,5 +1,7 @@
 import os
+import re
 import shutil
+import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -7,7 +9,7 @@ from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
-from conan.tools.files import copy, get, save
+from conan.tools.files import copy, get, save, replace_in_file
 from conan.tools.gnu import AutotoolsToolchain, AutotoolsDeps
 from conan.tools.scm import Version
 
@@ -28,11 +30,13 @@ class PdfiumConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_libjpeg": ["libjpeg", "libjpeg-turbo"],
+        "enable_v8": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_libjpeg": "libjpeg",
+        "enable_v8": True,
     }
 
     @property
@@ -51,6 +55,7 @@ class PdfiumConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("abseil/20230125.3")
         self.requires("freetype/2.13.0")
         self.requires("icu/74.1")
         self.requires("lcms/2.14")
@@ -83,6 +88,8 @@ class PdfiumConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["pdfium"],
             destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version]["partition_allocator"],
+            destination=os.path.join(self.source_folder, "base", "allocator", "partition_allocator"))
         get(self, **self.conan_data["sources"][self.version]["trace_event"],
             destination=os.path.join(self.source_folder, "base", "trace_event", "common"))
         get(self, **self.conan_data["sources"][self.version]["chromium_build"],
@@ -105,12 +112,6 @@ class PdfiumConan(ConanFile):
             "armv8": "arm64",
             "x86": "x86",
         }.get(str(self.settings.arch), str(self.settings.arch))
-
-    @property
-    def _http_transport_impl(self):
-        if not self.options.http_transport:
-            return ""
-        return str(self.options.http_transport)
 
     def _generate_args_gn(self, gn_args):
         formatted_args = {}
@@ -153,24 +154,174 @@ class PdfiumConan(ConanFile):
         env.vars(self).save_script("conanbuild_gn")
 
         gn_args = {}
-        gn_args["extra_arflags"] = _get_flags("ARFLAGS")
-        gn_args["extra_cflags"] = _get_flags("CPPFLAGS")
+        # General GN args
+        gn_args["extra_cflags"] = _get_flags("CPPFLAGS") + "".join(f" -I{inc}" for inc in self.dependencies["abseil"].cpp_info.aggregated_components().includedirs)
         gn_args["extra_cflags_c"] = _get_flags("CFLAGS")
         gn_args["extra_cflags_cc"] = _get_flags("CXXFLAGS")
         gn_args["extra_ldflags"] = _get_flags("LDFLAGS") + " " + _get_flags("LIBS")
-        gn_args["host_os"] = self._gn_os
-        gn_args["host_cpu"] = self._gn_arch
+        gn_args["target_os"] = self._gn_os
+        gn_args["target_cpu"] = self._gn_arch
         gn_args["is_debug"] = self.settings.build_type == "Debug"
-        gn_args["crashpad_http_transport_impl"] = self._http_transport_impl
-        gn_args["crashpad_use_boringssl_for_http_transport_socket"] = bool(self.options.get_safe("with_tls"))
+        # Pdfium args
+        gn_args["use_custom_libcxx"] = False
+        gn_args["is_clang"] = False
+        # pdfium args based on https://github.com/bblanchon/pdfium-binaries/blob/60429bf0d/steps/05-configure.sh
+        gn_args["pdf_is_standalone"] = True
+        gn_args["pdf_enable_v8"] = False
+        gn_args["pdf_enable_xfa"] = False
+        gn_args["treat_warnings_as_errors"] = False
+        gn_args["is_component_build"] = False
+        if self.settings.os == "iOS":
+            gn_args["ios_enable_code_signing"] = False
+            gn_args["use_blink"] = True
+        elif self.settings.os == "Linux":
+            gn_args["use_allocator_shim"] = False
+        elif self.settings.os == "Macos":
+            gn_args["use_allocator_shim"] = False
+            gn_args["mac_deployment_target"] = "10.13.0"
+        elif self.settings.os == "Emscripten":
+            gn_args["pdf_is_complete_lib"] = True
+            gn_args["pdf_use_partition_alloc"] = False
         self._generate_args_gn(gn_args)
 
+        save(self, os.path.join(self.source_folder, "build", "config", "gclient_args.gni"),
+             "\n".join([
+                 "checkout_android = false",
+                 "checkout_skia = false",
+             ])
+        )
+
     def build(self):
+        save(self, os.path.join(self.source_folder, "third_party", "BUILD.gn"), textwrap.dedent("""\
+                import("//build/config/arm.gni")
+                import("//build/config/linux/pkg_config.gni")
+                import("//build/config/mips.gni")
+                import("//build_overrides/build.gni")
+                import("../pdfium.gni")
+
+                config("pdfium_third_party_config") {
+                  configs = [
+                    "..:pdfium_common_config",
+                    "..:pdfium_public_config",
+                  ]
+                }
+
+                source_set("bigint") {}
+                config("freetype_public_includes_config") {}
+                config("freetype_private_config") {}
+                source_set("fx_freetype") {}
+                config("system_fontconfig") {}
+                group("fontconfig") {}
+                config("fx_agg_warnings") {}
+                source_set("fx_agg") {}
+                config("fx_lcms2_warnings") {}
+                source_set("fx_lcms2") {}
+                config("system_libjpeg_config") {}
+                config("libjpeg_turbo_config") {}
+                source_set("jpeg") {}
+                source_set("png") {}
+                config("system_zlib_config") {}
+                group("zlib") {}
+                group("lcms2") {}
+                group("libopenjpeg2") {}
+                config("fx_libopenjpeg_warnings") {}
+                source_set("fx_libopenjpeg") {}
+                config("system_libpng_config") {}
+                source_set("fx_tiff") {}
+
+                source_set("pdfium_compiler_specific") {
+                  configs -= [ "//build/config/compiler:chromium_code" ]
+                  configs += [
+                    "//build/config/compiler:no_chromium_code",
+                    ":pdfium_third_party_config",
+                  ]
+                  sources = [ "base/compiler_specific.h" ]
+                }
+
+                source_set("pdfium_base") {
+                  configs -= [ "//build/config/compiler:chromium_code" ]
+                  configs += [
+                    "//build/config/compiler:no_chromium_code",
+                    ":pdfium_third_party_config",
+                  ]
+                  sources = [
+                    "base/bits.h",
+                    "base/check.h",
+                    "base/check_op.h",
+                    "base/component_export.h",
+                    "base/containers/adapters.h",
+                    "base/containers/contains.h",
+                    "base/containers/span.h",
+                    "base/debug/alias.cc",
+                    "base/debug/alias.h",
+                    "base/immediate_crash.h",
+                    "base/memory/aligned_memory.cc",
+                    "base/memory/aligned_memory.h",
+                    "base/memory/ptr_util.h",
+                    "base/no_destructor.h",
+                    "base/notreached.h",
+                    "base/numerics/checked_math.h",
+                    "base/numerics/checked_math_impl.h",
+                    "base/numerics/clamped_math.h",
+                    "base/numerics/clamped_math_impl.h",
+                    "base/numerics/safe_conversions.h",
+                    "base/numerics/safe_conversions_arm_impl.h",
+                    "base/numerics/safe_conversions_impl.h",
+                    "base/numerics/safe_math.h",
+                    "base/numerics/safe_math_arm_impl.h",
+                    "base/numerics/safe_math_clang_gcc_impl.h",
+                    "base/numerics/safe_math_shared_impl.h",
+                    "base/sys_byteorder.h",
+                    "base/template_util.h",
+                  ]
+                  public_deps = [
+                    ":pdfium_compiler_specific",
+                    "//third_party/abseil-cpp:absl",
+                  ]
+                  if (pdf_use_partition_alloc) {
+                    public_deps +=
+                        [ "//base/allocator/partition_allocator/src/partition_alloc:raw_ptr" ]
+                  }
+                  if (is_win) {
+                    sources += [
+                      "base/win/scoped_select_object.h",
+                      "base/win/win_util.cc",
+                      "base/win/win_util.h",
+                    ]
+                  }
+                }
+
+                source_set("pdfium_base_test_support") {
+                  testonly = true
+                  sources = []
+                  configs += [
+                    "../:pdfium_strict_config",
+                    "../:pdfium_noshorten_config",
+                  ]
+                  deps = []
+                  if (is_posix || is_fuchsia) {
+                    sources += [
+                      "base/test/scoped_locale.cc",
+                      "base/test/scoped_locale.h",
+                    ]
+                    deps += [ "//testing/gtest" ]
+                  }
+                }
+                """))
+        for third_party in ["abseil-cpp", "agg23", "bigint", "cpu_features", "depot_tools", "freetype", "fuchsia-sdk", "googletest", "icu", "instrumented_libraries", "jinja2", "lcms", "libc++", "libc++abi", "libjpeg_turbo", "libopenjpeg", "libpng", "libtiff", "libunwind", "llvm-build", "markupsafe", "nasm", "ninja", "NotoSansCJK", "pymock", "skia", "test_fonts", "zlib"]:
+            save(self, os.path.join(self.source_folder, "third_party", third_party, "BUILD.gn"),
+                 "\n".join([f'source_set("{x}") {{}}' for x in ["icuuc", "test_fonts", "gmock", "gmock_main", "gtest", "gtest_main", "absl"]]))
+        save(self, os.path.join(self.source_folder, "build", "config", "sysroot.gni"),
+             'sysroot = ""\ntarget_sysroot = ""\nuse_sysroot = false')
+
+        for path in list(self.source_path.joinpath("core").rglob("*.cpp")) + list(self.source_path.joinpath("core").rglob("*.h")):
+            content = path.read_text(encoding="utf-8")
+            content, n = re.subn("third_party/(?!base)[^/]+/", "", content)
+            if n:
+                path.write_text(content, encoding="utf-8")
+
         self.run(f'gn gen "{self.build_folder}"', cwd=self.source_folder)
-        targets = ["client", "minidump", "crashpad_handler", "snapshot"]
-        if self.settings.os == "Windows":
-            targets.append("crashpad_handler_com")
-        self.run(f"ninja -C {self.build_folder} {' '.join(targets)} -j{os.cpu_count()}")
+        self.run(f"ninja -C {self.build_folder} pdfium")
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
