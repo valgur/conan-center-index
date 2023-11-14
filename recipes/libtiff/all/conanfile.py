@@ -1,10 +1,12 @@
+import os
+import textwrap
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.53.0"
 
@@ -161,40 +163,73 @@ class LibtiffConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
+        # TODO: to remove in conan v2 once cmake_find_package* generators removed
+        self._create_cmake_module_alias_targets(
+            os.path.join(self.package_folder, self._module_file_rel_path),
+            {
+                "TIFF::TIFF": "libtiff::tiff",
+                "TIFF::CXX": "libtiff::tiffxx",
+            }
+        )
+
+    @property
+    def _module_file_rel_path(self):
+        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
+
+    def _create_cmake_module_alias_targets(self, module_file, targets):
+        content = ""
+        for alias, aliased in targets.items():
+            content += textwrap.dedent(f"""\
+                if(TARGET {aliased} AND NOT TARGET {alias})
+                    add_library({alias} INTERFACE IMPORTED)
+                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
+                endif()
+            """)
+        save(self, module_file, content)
+
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "TIFF")
-        self.cpp_info.set_property("cmake_target_name", "TIFF::TIFF")
-        self.cpp_info.set_property("pkg_config_name", f"libtiff-{Version(self.version).major}")
+
+        self.cpp_info.components["tiff"].set_property("cmake_target_name", "TIFF::TIFF")
+        self.cpp_info.components["tiff"].set_property("pkg_config_name", f"libtiff-{Version(self.version).major}")
         suffix = "d" if is_msvc(self) and self.settings.build_type == "Debug" else ""
-        if self.options.cxx:
-            self.cpp_info.libs.append(f"tiffxx{suffix}")
-        self.cpp_info.libs.append(f"tiff{suffix}")
+        self.cpp_info.components["tiff"].libs.append(f"tiff{suffix}")
         if self.settings.os in ["Linux", "Android", "FreeBSD", "SunOS", "AIX"]:
-            self.cpp_info.system_libs.append("m")
+            self.cpp_info.components["tiff"].system_libs.append("m")
 
         self.cpp_info.requires = []
         if self.options.zlib:
-            self.cpp_info.requires.append("zlib::zlib")
+            self.cpp_info.components["tiff"].requires.append("zlib::zlib")
         if self.options.libdeflate:
-            self.cpp_info.requires.append("libdeflate::libdeflate")
+            self.cpp_info.components["tiff"].requires.append("libdeflate::libdeflate")
         if self.options.lzma:
-            self.cpp_info.requires.append("xz_utils::xz_utils")
+            self.cpp_info.components["tiff"].requires.append("xz_utils::xz_utils")
         if self.options.jpeg == "libjpeg":
-            self.cpp_info.requires.append("libjpeg::libjpeg")
+            self.cpp_info.components["tiff"].requires.append("libjpeg::libjpeg")
         elif self.options.jpeg == "libjpeg-turbo":
-            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
+            self.cpp_info.components["tiff"].requires.append("libjpeg-turbo::jpeg")
         elif self.options.jpeg == "mozjpeg":
-            self.cpp_info.requires.append("mozjpeg::libjpeg")
+            self.cpp_info.components["tiff"].requires.append("mozjpeg::libjpeg")
         if self.options.jbig:
-            self.cpp_info.requires.append("jbig::jbig")
+            self.cpp_info.components["tiff"].requires.append("jbig::jbig")
         if self.options.zstd:
-            self.cpp_info.requires.append("zstd::zstd")
+            self.cpp_info.components["tiff"].requires.append("zstd::zstd")
         if self.options.webp:
-            self.cpp_info.requires.append("libwebp::libwebp")
+            self.cpp_info.components["tiff"].requires.append("libwebp::libwebp")
         if self.options.lerc:
-            self.cpp_info.requires.append("lerc::lerc")
+            self.cpp_info.components["tiff"].requires.append("lerc::lerc")
+
+        if self.options.cxx:
+            self.cpp_info.components["tiffxx"].libs.append(f"tiffxx{suffix}")
+            # https://cmake.org/cmake/help/latest/module/FindTIFF.html#imported-targets
+            # https://github.com/libsdl-org/libtiff/blob/v4.6.0/libtiff/CMakeLists.txt#L229
+            self.cpp_info.components["tiffxx"].set_property("cmake_target_name", "TIFF::CXX")
+            # Note: the project does not export tiffxx as a pkg-config component, this is unofficial
+            self.cpp_info.components["tiffxx"].set_property("pkg_config_name", f"libtiffxx-{Version(self.version).major}")
+            self.cpp_info.components["tiffxx"].requires = ["tiff"]
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "TIFF"
-        self.cpp_info.names["cmake_find_package_multi"] = "TIFF"
+        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
+        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+        self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
