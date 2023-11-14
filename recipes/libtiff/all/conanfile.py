@@ -132,8 +132,9 @@ class LibtiffConan(ConanFile):
         apply_conandata_patches(self)
 
         # remove FindXXXX for conan dependencies
-        for module in ["Deflate", "JBIG", "JPEG", "LERC", "WebP", "ZSTD", "liblzma", "LibLZMA"]:
-            rm(self, f"Find{module}.cmake", os.path.join(self.source_folder, "cmake"))
+        for module in self.source_path.joinpath("cmake").glob("Find*.cmake"):
+            if module.name != "FindCMath.cmake":
+                module.unlink()
 
         # Export symbols of tiffxx for msvc shared
         replace_in_file(self, os.path.join(self.source_folder, "libtiff", "CMakeLists.txt"),
