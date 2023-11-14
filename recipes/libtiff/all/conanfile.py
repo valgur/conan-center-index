@@ -25,6 +25,7 @@ class LibtiffConan(ConanFile):
         "lzma": [True, False],
         "jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
         "zlib": [True, False],
+        "lerc": [True, False],
         "libdeflate": [True, False],
         "zstd": [True, False],
         "jbig": [True, False],
@@ -37,6 +38,7 @@ class LibtiffConan(ConanFile):
         "lzma": True,
         "jpeg": "libjpeg",
         "zlib": True,
+        "lerc": True,
         "libdeflate": True,
         "zstd": True,
         "jbig": True,
@@ -80,6 +82,8 @@ class LibtiffConan(ConanFile):
             self.requires("zstd/1.5.5")
         if self.options.webp:
             self.requires("libwebp/1.3.2")
+        if self.options.lerc:
+            self.requires("lerc/4.0.1")
 
     def validate(self):
         if self.options.libdeflate and not self.options.zlib:
@@ -103,7 +107,7 @@ class LibtiffConan(ConanFile):
         tc.variables["libdeflate"] = self.options.libdeflate
         tc.variables["zstd"] = self.options.zstd
         tc.variables["webp"] = self.options.webp
-        tc.variables["lerc"] = False # TODO: add lerc support for libtiff versions >= 4.3.0
+        tc.variables["lerc"] = self.options.lerc
         if Version(self.version) >= "4.5.0":
             # Disable tools, test, contrib, man & html generation
             tc.variables["tiff-tools"] = False
@@ -121,6 +125,7 @@ class LibtiffConan(ConanFile):
             deps.set_property("xz_utils", "cmake_target_name", "liblzma::liblzma")
             deps.set_property("libdeflate", "cmake_file_name", "Deflate")
             deps.set_property("libdeflate", "cmake_target_name", "Deflate::Deflate")
+        deps.set_property("lerc", "cmake_target_name", "LERC::LERC")
         deps.generate()
 
     def _patch_sources(self):
@@ -186,6 +191,8 @@ class LibtiffConan(ConanFile):
             self.cpp_info.requires.append("zstd::zstd")
         if self.options.webp:
             self.cpp_info.requires.append("libwebp::libwebp")
+        if self.options.lerc:
+            self.cpp_info.requires.append("lerc::lerc")
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
         self.cpp_info.names["cmake_find_package"] = "TIFF"
