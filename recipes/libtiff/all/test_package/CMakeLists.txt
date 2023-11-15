@@ -5,7 +5,6 @@ find_package(TIFF REQUIRED)
 
 add_executable(${PROJECT_NAME}_c test_package.c)
 target_link_libraries(${PROJECT_NAME}_c PRIVATE TIFF::TIFF)
-set_target_properties(${PROJECT_NAME}_c PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(${PROJECT_NAME}_cxx test_package.cpp)
 target_link_libraries(${PROJECT_NAME}_cxx PRIVATE TIFF::CXX)
