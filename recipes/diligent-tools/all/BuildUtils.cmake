@@ -163,11 +163,11 @@ function(set_common_target_properties TARGET)
             #  -fPIC
             #      If supported for the target machine, emit position-independent code, suitable for
             #      dynamic linking and avoiding any limit on the size of the global offset table.
-            POSITION_INDEPENDENT_CODE ON
+            # POSITION_INDEPENDENT_CODE ON
 
             # It is crucial to set CXX_STANDARD flag to only affect c++ files and avoid failures compiling c-files:
             # error: invalid argument '-std=c++14' not allowed with 'C/ObjC'
-            CXX_STANDARD 14
+            # CXX_STANDARD 14
             CXX_STANDARD_REQUIRED ON
 
             C_STANDARD 11
