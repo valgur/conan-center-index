@@ -58,12 +58,13 @@ class PodofoConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         if self._min_cppstd == 17:
+            # https://github.com/podofo/podofo/blob/master/CMakeLists.txt#L5-L19
             return {
-                "gcc": "7",
-                "clang": "5",
-                "apple-clang": "10",
+                "gcc": "8.1",
+                "clang": "7.0",
+                "apple-clang": "10.2",
                 "msvc": "191",
-                "Visual Studio": "15",
+                "Visual Studio": "15.9",
             }
         return {}
 
@@ -115,8 +116,13 @@ class PodofoConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
+
+        def lazy_lt_semver(v1, v2):
+            # Needed to allow version "8" >= "8.1", etc.
+            return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
+
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+        if minimum_version and lazy_lt_semver(self.settings.compiler.version, minimum_version):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
