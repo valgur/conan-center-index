@@ -1,11 +1,18 @@
 from conan import ConanFile
 from conan.tools.build import can_run
+from conan.tools.layout import basic_layout
 import os
 
 
 class TzTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     tzdata = None
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
@@ -14,7 +21,7 @@ class TzTestConan(ConanFile):
 
     def generate(self):
         # INFO: zdump does not consume TZDATA, need to pass absolute path of the zoneinfo directory
-        self.tzdata = self.dependencies.build['tz'].buildenv_info.vars(self).get('TZDATA')
+        self.tzdata = self.dependencies['tz'].runenv_info.vars(self).get('TZDATA')
         with open("tzdata.info", "w") as fd:
             fd.write(self.tzdata)
 
@@ -23,6 +30,12 @@ class TzTestConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            with open("tzdata.info", "r") as fd:
-                self.tzdata = fd.read()
-            self.run(f"zdump {os.path.join(self.tzdata, 'America', 'Los_Angeles')}")
+            if self.dependencies['tz'].options.with_binary_db:
+                self.output.info("Test that binary tzdb is readable")
+                with open("tzdata.info", "r") as fd:
+                    self.tzdata = fd.read()
+                self.run(f"zdump {os.path.join(self.tzdata, 'America', 'Los_Angeles')}", env="conanrun")
+            else:
+                self.output.info("Test that source tzdb is readable")
+                cmd = "python -c 'import os; tzdata = os.environ[\"TZDATA\"]; f=open(os.path.join(tzdata, \"factory\"), \"r\"); s = f.read(); f.close(); print(s)'"
+                self.run(cmd, env="conanrun")
