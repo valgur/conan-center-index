@@ -1,4 +1,7 @@
 sources:
+  "0.3.24":
+    url: "https://github.com/xianyi/OpenBLAS/archive/v0.3.24.tar.gz"
+    sha256: "ceadc5065da97bd92404cac7254da66cc6eb192679cf1002098688978d4d5132"
   "0.3.23":
     url: "https://github.com/xianyi/OpenBLAS/archive/v0.3.23.tar.gz"
     sha256: "5d9491d07168a5d00116cdc068a40022c3455bf9293c7cb86a65b1054d7e5114"
@@ -73,6 +76,11 @@ patches:
       patch_description: "Fix libm linking, fortran detection and intel fortran"
       patch_type: "conan"
   "0.3.23":
+    -
+      patch_file: "patches/0.3.23-0001-Fix-Intel-Fortran-detection-and-flag-change-to-fopen.patch"
+      patch_description: "Fix intel fortran detection and flag change to -fopenmp"
+      patch_type: "conan"
+  "0.3.24":
     -
       patch_file: "patches/0.3.23-0001-Fix-Intel-Fortran-detection-and-flag-change-to-fopen.patch"
       patch_description: "Fix intel fortran detection and flag change to -fopenmp"

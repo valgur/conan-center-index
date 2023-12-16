@@ -147,11 +147,11 @@ class OpenblasConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-
         conf_generator = self.conf.get("tools.cmake.cmaketoolchain:generator")
-        ninja_conditions = \
-            self.settings.os == "Windows" and self.options.build_lapack \
-            and (not conf_generator or "Visual Studio" in conf_generator)
+        ninja_conditions = (
+                self.settings.os == "Windows" and self.options.build_lapack
+                and (not conf_generator or "Visual Studio" in conf_generator)
+        )
         generator = "Ninja" if ninja_conditions else None
         if ninja_conditions:
             self.output.warning(
@@ -160,10 +160,11 @@ class OpenblasConan(ConanFile):
         tc = CMakeToolchain(self, generator=generator)
 
         tc.variables["NOFORTRAN"] = not self.options.build_lapack
+        # This checks explicit user-specified fortran compiler
         if self.options.build_lapack:
             # This checks explicit user-specified fortran compiler
             if not self._fortran_compiler:
-                if Version(self.version) < "0.3.21":
+                if Version(self.version) < "0.3.24":
                     self.output.warning(
                         "Building with LAPACK support requires a Fortran compiler.")
                 else:
@@ -199,6 +200,7 @@ class OpenblasConan(ConanFile):
              src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
@@ -222,15 +224,11 @@ class OpenblasConan(ConanFile):
         elif self.options.use_openmp:
             component_name = "openmp"
 
-        self.cpp_info.components[component_name].set_property(
-            "pkg_config_name", "openblas")
+        self.cpp_info.components[component_name].set_property("pkg_config_name", "openblas")
 
         # Target cannot be named pthread -> causes failed linking
-        self.cpp_info.components[component_name].set_property(
-            "cmake_target_name", "OpenBLAS::" + component_name)
-        self.cpp_info.components[component_name].includedirs.append(
-            path.join("include", "openblas")
-        )
+        self.cpp_info.components[component_name].set_property("cmake_target_name", "OpenBLAS::" + component_name)
+        self.cpp_info.components[component_name].includedirs.append(path.join("include", "openblas"))
         self.cpp_info.components[component_name].libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components[component_name].system_libs.append("m")
