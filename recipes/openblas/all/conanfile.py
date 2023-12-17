@@ -179,11 +179,6 @@ class OpenblasConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
-        if self.options.build_lapack and self.options.use_fortran and not self._fortran_compiler:
-            dep = self.dependencies.build["gcc"]
-            copy(self, "libgfortran.so*",
-                 os.path.join(dep.package_folder, "lib"),
-                 os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         # CMake config file:
@@ -229,10 +224,10 @@ class OpenblasConan(ConanFile):
             if self._fortran_compiler:
                 fortran_id = self._get_fortran_compiler_id()
                 fortran_rt = self._fortran_runtime(fortran_id)
+                if fortran_rt:
+                    component.system_libs += ["dl", fortran_rt]
             else:
-                fortran_rt = "gfortran"
-            if fortran_rt:
-                component.system_libs += ["dl", fortran_rt]
+                component.requires.append("gcc::gfortran")
 
         # TODO: Remove env_info in conan v2
         self.output.info(f"Setting OpenBLAS_HOME environment variable: {self.package_folder}")
