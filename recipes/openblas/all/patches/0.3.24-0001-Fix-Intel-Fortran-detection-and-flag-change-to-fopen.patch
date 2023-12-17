@@ -11,10 +11,7 @@ diff --git a/cmake/fc.cmake b/cmake/fc.cmake
 index e615e148..5149199d 100644
 --- a/cmake/fc.cmake
 +++ b/cmake/fc.cmake
-@@ -87,14 +87,17 @@ if (${F_COMPILER} STREQUAL "GFORTRAN")
-   endif ()
- endif ()
- 
+@@ -100,10 +100,13 @@
 -if (${F_COMPILER} STREQUAL "INTEL")
 +if (${F_COMPILER} STREQUAL "IFORT" OR ${F_COMPILER} STREQUAL "IFX")
 +  if (MSVC)
