@@ -109,7 +109,7 @@ class OpenblasConan(ConanFile):
     def requirements(self):
         if self.options.build_lapack and self.options.use_fortran and not self._fortran_compiler:
             # Propagate libgfortran dependency in addition to the tool_requires()
-            self.requires("gcc/13.2.0", headers=False, libs=True)
+            self.requires("gcc/13.2.0", headers=False, libs=True, run=False)
         if self.options.use_openmp and self.settings.compiler in ["clang", "apple-clang"]:
             self.requires("llvm-openmp/17.0.4")
 
