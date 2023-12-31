@@ -53,6 +53,10 @@ class LibTasn1Conan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Visual Studio")
 
     def build_requirements(self):
+        self.tool_requires("gnulib/20230218")
+        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("gtk-doc-stub/cci.20181216")
+
         if self._settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.25")
         else:
@@ -79,19 +83,9 @@ class LibTasn1Conan(ConanFile):
             tc.extra_ldflags.append("-Wl,-rpath,@loader_path/../lib")
         tc.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) >= "4.19.0":
-            replace_in_file(self, os.path.join(self.source_folder, "config.h.in"),
-                            "# define _GL_EXTERN_INLINE _GL_UNUSED static",
-                            "# define _GL_EXTERN_INLINE _GL_UNUSED")
-        else:
-            replace_in_file(self, os.path.join(self.source_folder, "config.h.in"),
-                            "# define _GL_EXTERN_INLINE static _GL_UNUSED",
-                            "# define _GL_EXTERN_INLINE _GL_UNUSED")
-
     def build(self):
-        self._patch_sources()
         autotools = Autotools(self)
+        self.run("./bootstrap --no-git --bootstrap-sync", cwd=self.source_folder)
         autotools.configure()
         autotools.make()
 
