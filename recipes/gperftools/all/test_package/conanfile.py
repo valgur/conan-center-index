@@ -1,7 +1,7 @@
 import io
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
 
@@ -23,14 +23,11 @@ class TestPackageConan(ConanFile):
 
     def _test(self, executable):
         bin_path = os.path.join(self.cpp.build.bindir, executable)
-        if conan_version >= "2.0.15":
-            stderr = io.StringIO()
-            self.run(bin_path, env="conanrun", stderr=stderr)
-            stderr = stderr.getvalue()
-            self.output.info(stderr)
-            assert "MALLOC: " in stderr, "MALLOCSTATS was not successfully enabled"
-        else:
-            self.run(bin_path, env="conanrun")
+        stderr = io.StringIO()
+        self.run(bin_path, env="conanrun", stderr=stderr)
+        stderr = stderr.getvalue()
+        self.output.info(stderr)
+        assert "MALLOC: " in stderr, "MALLOCSTATS was not successfully enabled: " + stderr
 
     def test(self):
         if can_run(self):
