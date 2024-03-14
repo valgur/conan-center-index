@@ -474,7 +474,9 @@ class LLVMCoreConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "LLVM")
         self.cpp_info.set_property("cmake_build_modules",
                                    [self._build_module_file_rel_path,
-                                    self._cmake_module_path / "LLVM-ConfigInternal.cmake"]
+                                    self._cmake_module_path / "LLVM-ConfigInternal.cmake",
+                                    self._cmake_module_path / "LLVMDistributionSupport.cmake",
+                                    self._cmake_module_path / "AddLLVM.cmake"]
                                    )
         self.cpp_info.builddirs.append(self._cmake_module_path)
 
