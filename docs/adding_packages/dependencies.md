@@ -184,8 +184,8 @@ Currently, these are:
 * CMake: `[>3.XX <4]`, where `3.XX` is the minimum version of CMake required by the relevant build scripts. Note that CCI recipes assume 3.15 is installed in the system, so add this
 version range only when a requirement for a newer version is needed.
 * Libcurl: `[>=X.YY <9]`, where `X.YY` is the minimum version of Libcurl required, starting from `7.78`
-* Zlib: `[>=1.2.11 <2]` expect if the recipe needs a newer lower version for specific reasons
-* Libpng: `[>=1.6 <2]` expect if the recipe needs a newer lower version for specific reasons
+* Zlib: `[>=1.2.11 <2]`, except if the recipe needs a lower version for specific reasons
+* Libpng: `[>=1.6 <2]`, except if the recipe needs a lower version for specific reasons
 
 > **Warning**: With Conan 1.x, [version ranges](https://docs.conan.io/1/versioning/version_ranges.html) adhere to a much more strict sematic version spec,
 > OpenSSL 1.1.x does not follow this so the client will not resolve to that range and will pick a 3.x version. In order to select a lower version you
