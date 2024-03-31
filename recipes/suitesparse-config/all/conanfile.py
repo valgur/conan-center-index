@@ -84,6 +84,8 @@ class SuiteSparseConfigConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SuiteSparse_config")
         self.cpp_info.set_property("cmake_target_name", "SuiteSparse::SuiteSparseConfig")
+        if not self.options.shared:
+            self.cpp_info.set_property("cmake_target_aliases", ["SuiteSparse::SuiteSparseConfig_static"])
         self.cpp_info.set_property("pkg_config_name", "SuiteSparse_config")
 
         self.cpp_info.libs = ["suitesparseconfig"]

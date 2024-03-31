@@ -81,6 +81,8 @@ class SuiteSparseCcolamdConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CCOLAMD")
         self.cpp_info.set_property("cmake_target_name", "SuiteSparse::CCOLAMD")
+        if not self.options.shared:
+            self.cpp_info.set_property("cmake_target_aliases", ["SuiteSparse::CCOLAMD_static"])
         self.cpp_info.set_property("pkg_config_name", "CCOLAMD")
 
         self.cpp_info.libs = ["ccolamd"]

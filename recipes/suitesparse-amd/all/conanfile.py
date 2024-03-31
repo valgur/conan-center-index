@@ -81,6 +81,8 @@ class SuiteSparseAmdConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "AMD")
         self.cpp_info.set_property("cmake_target_name", "SuiteSparse::AMD")
+        if not self.options.shared:
+            self.cpp_info.set_property("cmake_target_aliases", ["SuiteSparse::AMD_static"])
         self.cpp_info.set_property("pkg_config_name", "AMD")
 
         self.cpp_info.libs = ["amd"]
