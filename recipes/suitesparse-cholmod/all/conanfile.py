@@ -28,7 +28,7 @@ class SuiteSparseCholmodConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "gpl": True,
-        "cuda": False,
+        "cuda": True,
     }
     options_description = {
         "gpl": "Enable GPL-licensed modules",
@@ -42,6 +42,8 @@ class SuiteSparseCholmodConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def package_id(self):
         if not self.info.options.gpl:
