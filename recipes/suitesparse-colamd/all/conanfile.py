@@ -70,7 +70,7 @@ class SuiteSparseColamdConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "License.txt", os.path.join(self.source_folder, "COLAMD", "Doc"), self.package_folder)
+        copy(self, "License.txt", os.path.join(self.source_folder, "COLAMD", "Doc"), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
