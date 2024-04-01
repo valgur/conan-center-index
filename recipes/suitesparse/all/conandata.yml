@@ -1,4 +1,5 @@
 sources:
   "7.7.0":
-    url: "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.7.0.tar.gz"
-    sha256: "529b067f5d80981f45ddf6766627b8fc5af619822f068f342aab776e683df4f3"
+    license:
+      url: "https://raw.githubusercontent.com/DrTimothyAldenDavis/SuiteSparse/v7.7.0/LICENSE.txt"
+      sha256: "82f4f883c7c084d0ff7cc932f1c85de38982fa2f251d567ce629667b0298ba89"
