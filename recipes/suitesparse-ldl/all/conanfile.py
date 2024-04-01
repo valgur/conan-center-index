@@ -8,13 +8,13 @@ from conan.tools.files import get, rm, rmdir, copy
 required_conan_version = ">=1.53.0"
 
 
-class SuiteSparseColamdConan(ConanFile):
-    name = "suitesparse-colamd"
-    description = "COLAMD: Routines for column approximate minimum degree ordering algorithm in SuiteSparse"
-    license = "BSD-3-Clause"
+class SuiteSparseLdlConan(ConanFile):
+    name = "suitesparse-ldl"
+    description = "LDL: A sparse LDL' factorization and solve package in SuiteSparse"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://people.engr.tamu.edu/davis/suitesparse.html"
-    topics = ("mathematics", "sparse-matrix", "minimum-degree-ordering")
+    topics = ("mathematics", "sparse-matrix", "linear-algebra", "ldl-factorization")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -43,6 +43,7 @@ class SuiteSparseColamdConan(ConanFile):
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
         self.requires("suitesparse-config/7.7.0", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-amd/3.3.2", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <4]")
@@ -68,11 +69,11 @@ class SuiteSparseColamdConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, "COLAMD"))
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, "LDL"))
         cmake.build()
 
     def package(self):
-        copy(self, "License.txt", os.path.join(self.source_folder, "COLAMD", "Doc"), os.path.join(self.package_folder, "licenses"))
+        copy(self, "License.txt", os.path.join(self.source_folder, "LDL", "Doc"), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
@@ -81,13 +82,13 @@ class SuiteSparseColamdConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "COLAMD")
-        self.cpp_info.set_property("cmake_target_name", "SuiteSparse::COLAMD")
+        self.cpp_info.set_property("cmake_file_name", "LDL")
+        self.cpp_info.set_property("cmake_target_name", "SuiteSparse::LDL")
         if not self.options.shared:
-            self.cpp_info.set_property("cmake_target_aliases", ["SuiteSparse::COLAMD_static"])
-        self.cpp_info.set_property("pkg_config_name", "COLAMD")
+            self.cpp_info.set_property("cmake_target_aliases", ["SuiteSparse::LDL_static"])
+        self.cpp_info.set_property("pkg_config_name", "LDL")
 
-        self.cpp_info.libs = ["colamd"]
+        self.cpp_info.libs = ["ldl"]
         self.cpp_info.includedirs.append(os.path.join("include", "suitesparse"))
 
         if self.settings.os in ["Linux", "FreeBSD"]:

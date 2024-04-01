@@ -14,7 +14,7 @@ class SuiteSparseCcolamdConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://people.engr.tamu.edu/davis/suitesparse.html"
-    topics = ("graph-algorithms", "mathematics", "sparse-matrix", "minimum-degree-ordering")
+    topics = ("mathematics", "sparse-matrix", "minimum-degree-ordering")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
