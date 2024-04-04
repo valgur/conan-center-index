@@ -8,6 +8,7 @@ from conan.tools.files import get, copy, replace_in_file, save, rmdir, rm, renam
 
 class ZenohCConan(ConanFile):
     name = "zenoh-c"
+    version = "0.10.1-rc"
     description = "C API for Zenoh: a pub/sub/query protocol unifying data in motion, data at rest and computations"
     license = "EPL-2.0 OR Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
