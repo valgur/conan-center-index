@@ -110,3 +110,7 @@ class ZenohCConan(ConanFile):
         self.cpp_info.libs = [self._lib_name]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m", "pthread", "rt"])
+        elif self.settings.os == "Windows":
+            self.cpp_info.system_libs.extend(["bcrypt", "crypt32", "iphlpapi", "ncrypt", "ntdll", "runtimeobject", "secur32", "userenv", "ws2_32"])
+        elif self.settings.os == "Macos":
+            self.cpp_info.frameworks.extend(["Foundation", "Security"])
