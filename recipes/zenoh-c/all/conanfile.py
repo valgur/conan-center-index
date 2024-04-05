@@ -25,7 +25,7 @@ class ZenohCConan(ConanFile):
         "ZENOHC_CARGO_FLAGS": ["ANY"],
     }
     default_options = {
-        "shared": True,
+        "shared": False,
         "fPIC": True,
         "ZENOHC_BUILD_WITH_LOGGER_AUTOINIT": True,
         "ZENOHC_BUILD_WITH_SHARED_MEMORY": True,
