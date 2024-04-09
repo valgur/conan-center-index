@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, Environment
 from conan.tools.files import get, copy, replace_in_file, save, rmdir, rm, rename, mkdir
@@ -19,11 +20,29 @@ class ZenohCConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "ZENOHC_BUILD_WITH_LOGGER_AUTOINIT":[True, False],
+        "ZENOHC_BUILD_WITH_SHARED_MEMORY":[True, False],
+        "ZENOHC_CARGO_FLAGS": ["ANY"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "ZENOHC_BUILD_WITH_LOGGER_AUTOINIT": True,
+        "ZENOHC_BUILD_WITH_SHARED_MEMORY": True,
+        "ZENOHC_CARGO_FLAGS": "",
     }
+
+    @property
+    def _supported_platforms(self):
+        return [
+            ("Windows", "x86_64"),
+            ("Linux", "x86_64"),
+            ("Linux", "armv6"),
+            ("Linux", "armv7hf"),
+            ("Linux", "armv8"),
+            ("Macos", "x86_64"),
+            ("Macos", "armv8"),
+        ]
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -37,6 +56,10 @@ class ZenohCConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if (self.settings.os, self.settings.arch) not in self._supported_platforms:
+            raise ConanInvalidConfiguration("{}/{} combination is not supported".format(self.settings.os, self.settings.arch))
 
     def requirements(self):
         pass
@@ -106,3 +129,7 @@ class ZenohCConan(ConanFile):
         self.cpp_info.libs = [self._lib_name]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m", "pthread", "rt"])
+        elif self.settings.os == "Windows":
+            self.cpp_info.system_libs.extend(["bcrypt", "crypt32", "iphlpapi", "ncrypt", "ntdll", "runtimeobject", "secur32", "userenv", "ws2_32"])
+        elif self.settings.os == "Macos":
+            self.cpp_info.frameworks.extend(["Foundation", "Security"])
