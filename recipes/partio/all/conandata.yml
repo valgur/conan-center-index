@@ -1,0 +1,4 @@
+sources:
+  "1.19.0":
+    url: "https://github.com/wdas/partio/archive/refs/tags/v1.19.0.tar.gz"
+    sha256: "128913266a88a0939aaa4bc951ae4d4da1c380408bcc0ea9e7f526556afeaad0"
