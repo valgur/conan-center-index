@@ -388,6 +388,7 @@ class FreeRTOSKernelConan(ConanFile):
             "WIZC_PIC18",
         ],
         "heap": ["1", "2", "3", "4", "5"],
+        "risc_v_chip_extension": ["Pulpino_Vega_RV32M1RM", "RISCV_MTIME_CLINT_no_extensions", "RISCV_no_extensions", "RV32I_CLINT_no_extensions"],
         # FreeRTOSConfig.h options
         "allow_unprivileged_critical_sections": [True, False],
         "application_allocated_heap": [True, False],
@@ -438,7 +439,6 @@ class FreeRTOSKernelConan(ConanFile):
         "number_of_cores": ["ANY"],
         "protected_kernel_object_pool_size": ["ANY"],
         "queue_registry_size": ["ANY"],
-        "risc_v_chip_extension": ["Pulpino_Vega_RV32M1RM", "RISCV_MTIME_CLINT_no_extensions", "RISCV_no_extensions", "RV32I_CLINT_no_extensions"],
         "run_freertos_secure_only": [True, False],
         "run_multiple_priorities": [True, False],
         "stack_allocation_from_separate_heap": [True, False],
@@ -493,6 +493,7 @@ class FreeRTOSKernelConan(ConanFile):
         "shared": False,
         "port": "GCC_POSIX",
         "heap": "4",
+        "risc_v_chip_extension": "RISCV_no_extensions",
         # FreeRTOSConfig.h options
         "allow_unprivileged_critical_sections": True,
         "application_allocated_heap": True,
@@ -543,7 +544,6 @@ class FreeRTOSKernelConan(ConanFile):
         "number_of_cores": 1,
         "protected_kernel_object_pool_size": 10,
         "queue_registry_size": 10,
-        "risc_v_chip_extension": "RISCV_no_extensions",
         "run_freertos_secure_only": True,
         "run_multiple_priorities": False,
         "stack_allocation_from_separate_heap": False,
@@ -595,15 +595,12 @@ class FreeRTOSKernelConan(ConanFile):
     }
 
     def config_options(self):
-        if self.settings.os == "Windows":
+        if self.settings.os in ["baremetal", "Windows"]:
             self.options.rm_safe("fPIC")
-        if self.settings.os in ["Linux", "Macos"]:
-            self.options.port = "GCC_POSIX"
-        elif self.settings.os == "Windows":
             self.options.port = "MSVC_MINGW"
 
     def configure(self):
-        if self.options.shared or self.settings.os == "baremetal":
+        if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
