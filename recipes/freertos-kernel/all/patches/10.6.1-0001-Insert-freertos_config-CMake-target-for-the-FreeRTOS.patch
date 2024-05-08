@@ -24,12 +24,12 @@ index 6fd1ff56b..9f06a088d 100644
 +  TARGET freertos_config
 +  APPEND
 +  PROPERTY PUBLIC_HEADER
-+           ${_FREERTOS_CONFIG_DIR}/FreeRTOSConfig.h
++           FreeRTOSConfig.h
 +)
 +
 +target_compile_definitions(freertos_config INTERFACE projCOVERAGE_TEST=0)
 +
-+target_include_directories(freertos_config INTERFACE ${_FREERTOS_CONFIG_DIR})
++target_include_directories(freertos_config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 +
 +include(GNUInstallDirs)
 +

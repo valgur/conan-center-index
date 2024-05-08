@@ -11,20 +11,7 @@ class TestPackageConan(ConanFile):
     test_type = "explicit"
 
     def requirements(self):
-        self.requires(self.tested_reference_str, options={
-            "heap": "3",
-            "max_priorities": "7",
-            "use_counting_semaphores": True,
-            "use_mutexes": True,
-            "use_queue_sets": True,
-            "use_recursive_mutexes": True,
-            "use_timers": True,
-            "tick_rate_hz": "( 1000 )",
-            "timer_queue_length": 20,
-            "timer_task_priority": "( configMAX_PRIORITIES - 1 )",
-            "timer_task_stack_depth": "( configMINIMAL_STACK_SIZE * 2 )",
-            "use_task_notifications": True,
-            })
+        self.requires(self.tested_reference_str)
 
     def layout(self):
         cmake_layout(self)

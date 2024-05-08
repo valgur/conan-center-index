@@ -1,3 +1,4 @@
+import hashlib
 import os
 
 from conan import ConanFile
@@ -9,7 +10,7 @@ from conan.tools.files import (
     copy,
     export_conandata_patches,
     get,
-    replace_in_file,
+    load,
 )
 
 required_conan_version = ">=1.60.0"
@@ -387,106 +388,14 @@ class FreeRTOSKernelConan(ConanFile):
             "XCC_XTENSA",
             "WIZC_PIC18",
         ],
+        "risc_v_chip_extension": [
+            "Pulpino_Vega_RV32M1RM",
+            "RISCV_MTIME_CLINT_no_extensions",
+            "RISCV_no_extensions",
+            "RV32I_CLINT_no_extensions",
+        ],
         "heap": ["1", "2", "3", "4", "5"],
-        "risc_v_chip_extension": ["Pulpino_Vega_RV32M1RM", "RISCV_MTIME_CLINT_no_extensions", "RISCV_no_extensions", "RV32I_CLINT_no_extensions"],
-        # FreeRTOSConfig.h options
-        "allow_unprivileged_critical_sections": [True, False],
-        "application_allocated_heap": [True, False],
-        "assert": [None, "ANY"],
-        "check_for_stack_overflow": ["0", "1", "2"],
-        "check_handler_installation": [True, False],
-        "cpu_clock_hz": ["ANY"],
-        "enable_access_control_list": [True, False],
-        "enable_backward_compatibility": [True, False],
-        "enable_fpu": [True, False],
-        "enable_heap_protector": [True, False],
-        "enable_mpu": [True, False],
-        "enable_mve": [True, False],
-        "enable_trustzone": [True, False],
-        "enforce_system_calls_from_kernel_only": [True, False],
-        "generate_run_time_stats": [True, False],
-        "heap_clear_memory_on_free": [True, False],
-        "idle_should_yield": [True, False],
-        "include_application_defined_privileged_functions": [True, False],
-        "include_eTaskGetState": [True, False],
-        "include_uxTaskPriorityGet": [True, False],
-        "include_uxTaskGetStackHighWaterMark": [True, False],
-        "include_vTaskDelay": [True, False],
-        "include_vTaskDelayUntil": [True, False],
-        "include_vTaskDelete": [True, False],
-        "include_vTaskPrioritySet": [True, False],
-        "include_vTaskSuspend": [True, False],
-        "include_xEventGroupSetBitFromISR": [True, False],
-        "include_xResumeFromISR": [True, False],
-        "include_xTaskAbortDelay": [True, False],
-        "include_xTaskGetCurrentTaskHandle": [True, False],
-        "include_xTaskGetIdleTaskHandle": [True, False],
-        "include_xTaskGetHandle": [True, False],
-        "include_xTaskGetSchedulerState": [True, False],
-        "include_xTaskResumeFromISR": [True, False],
-        "include_xTimerPendFunctionCall": [True, False],
-        "kernel_interrupt_priority": ["ANY"],
-        "kernel_provided_static_memory": [True, False],
-        "max_api_call_interrupt_priority": ["ANY"],
-        "max_co_routine_priorities": ["ANY"],
-        "max_priorities": ["ANY"],
-        "max_task_name_len": ["ANY"],
-        "max_secure_contexts": ["ANY"],
-        "max_syscall_interrupt_priority": ["ANY"],
-        "message_buffer_length_type": ["ANY"],
-        "minimal_stack_size": ["ANY"],
-        "num_thread_local_storage_pointers": ["ANY"],
-        "number_of_cores": ["ANY"],
-        "protected_kernel_object_pool_size": ["ANY"],
-        "queue_registry_size": ["ANY"],
-        "run_freertos_secure_only": [True, False],
-        "run_multiple_priorities": [True, False],
-        "stack_allocation_from_separate_heap": [True, False],
-        "stack_depth_type": ["ANY"],
-        "stats_buffer_max_length": ["ANY"],
-        "support_dynamic_allocation": [True, False],
-        "support_static_allocation": [True, False],
-        "system_call_stack_size": ["ANY"],
-        "systick_clock_hz": [None, "ANY"],
-        "task_default_core_affinity": ["ANY"],
-        "task_notification_array_entries": ["ANY"],
-        "tex_s_c_b_flash": ["ANY"],
-        "tex_s_c_b_sram": ["ANY"],
-        "tick_rate_hz": ["ANY"],
-        "tick_type_width_in_bits": ["ANY"],
-        "timer_queue_length": ["ANY"],
-        "timer_service_task_core_affinity": ["ANY"],
-        "timer_task_priority": ["ANY"],
-        "timer_task_stack_depth": ["ANY"],
-        "total_heap_size": ["ANY"],
-        "total_mpu_regions": ["ANY"],
-        "use_application_task_tag": [True, False],
-        "use_co_routines": [True, False],
-        "use_core_affinity": [True, False],
-        "use_counting_semaphores": [True, False],
-        "use_daemon_task_startup_hook": [True, False],
-        "use_event_groups": [True, False],
-        "use_idle_hook": [True, False],
-        "use_malloc_failed_hook": [True, False],
-        "use_mini_list_item": [True, False],
-        "use_mpu_wrappers_v1": [True, False],
-        "use_mutexes": [True, False],
-        "use_newlib_reentrant": [True, False],
-        "use_passive_idle_hook": [True, False],
-        "use_port_optimised_task_selection": [True, False],
-        "use_preemption": [True, False],
-        "use_queue_sets": [True, False],
-        "use_recursive_mutexes": [True, False],
-        "use_sb_completed_callback": [True, False],
-        "use_stats_formatting_functions": [True, False],
-        "use_stream_buffers": [True, False],
-        "use_task_notifications": [True, False],
-        "use_task_preemption_disable": [True, False],
-        "use_tick_hook": [True, False],
-        "use_tickless_idle": [True, False],
-        "use_time_slicing": [True, False],
-        "use_timers": [True, False],
-        "use_trace_facility": [True, False],
+        "config": [None, "ANY"],
     }
     default_options = {
         "fPIC": True,
@@ -494,104 +403,7 @@ class FreeRTOSKernelConan(ConanFile):
         "port": "GCC_POSIX",
         "heap": "4",
         "risc_v_chip_extension": "RISCV_no_extensions",
-        # FreeRTOSConfig.h options
-        "allow_unprivileged_critical_sections": True,
-        "application_allocated_heap": True,
-        "assert": "configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); for( ; ; ) ; }",
-        "check_for_stack_overflow": 0,
-        "check_handler_installation": True,
-        "cpu_clock_hz": 60_000_000,
-        "enable_access_control_list": True,
-        "enable_backward_compatibility": False,
-        "enable_fpu": True,
-        "enable_heap_protector": False,
-        "enable_mpu": True,
-        "enable_mve": True,
-        "enable_trustzone": True,
-        "enforce_system_calls_from_kernel_only": True,
-        "generate_run_time_stats": False,
-        "heap_clear_memory_on_free": True,
-        "idle_should_yield": True,
-        "include_application_defined_privileged_functions": False,
-        "include_eTaskGetState": False,
-        "include_uxTaskGetStackHighWaterMark": False,
-        "include_uxTaskPriorityGet": True,
-        "include_vTaskDelay": True,
-        "include_vTaskDelayUntil": True,
-        "include_vTaskDelete": True,
-        "include_vTaskPrioritySet": True,
-        "include_vTaskSuspend": True,
-        "include_xEventGroupSetBitFromISR": True,
-        "include_xResumeFromISR": True,
-        "include_xTaskAbortDelay": False,
-        "include_xTaskGetCurrentTaskHandle": True,
-        "include_xTaskGetIdleTaskHandle": False,
-        "include_xTaskGetHandle": False,
-        "include_xTaskGetSchedulerState": True,
-        "include_xTaskResumeFromISR": True,
-        "include_xTimerPendFunctionCall": False,
-        "kernel_interrupt_priority": 0,
-        "kernel_provided_static_memory": True,
-        "max_api_call_interrupt_priority": 0,
-        "max_co_routine_priorities": 1,
-        "max_priorities": 5,
-        "max_secure_contexts": 5,
-        "max_syscall_interrupt_priority": 0,
-        "max_task_name_len": 16,
-        "message_buffer_length_type": "size_t",
-        "minimal_stack_size": 128,
-        "num_thread_local_storage_pointers": 5,
-        "number_of_cores": 1,
-        "protected_kernel_object_pool_size": 10,
-        "queue_registry_size": 10,
-        "run_freertos_secure_only": True,
-        "run_multiple_priorities": False,
-        "stack_allocation_from_separate_heap": False,
-        "stack_depth_type": "uint16_t",
-        "stats_buffer_max_length": "0xFFFF",
-        "support_dynamic_allocation": True,
-        "support_static_allocation": True,
-        "system_call_stack_size": 128,
-        "systick_clock_hz": None,
-        "task_default_core_affinity": "tskNO_AFFINITY",
-        "task_notification_array_entries": 3,
-        "tex_s_c_b_flash": "0x07UL",
-        "tex_s_c_b_sram": "0x07UL",
-        "tick_rate_hz": 250,
-        "tick_type_width_in_bits": "TICK_TYPE_WIDTH_16_BITS",
-        "timer_queue_length": 10,
-        "timer_service_task_core_affinity": "tskNO_AFFINITY",
-        "timer_task_priority": 3,
-        "timer_task_stack_depth": 128,
-        "total_heap_size": 10_240,
-        "total_mpu_regions": 8,
-        "use_application_task_tag": False,
-        "use_co_routines": False,
-        "use_core_affinity": False,
-        "use_counting_semaphores": False,
-        "use_daemon_task_startup_hook": False,
-        "use_event_groups": True,
-        "use_idle_hook": False,
-        "use_malloc_failed_hook": False,
-        "use_mini_list_item": True,
-        "use_mpu_wrappers_v1": False,
-        "use_mutexes": False,
-        "use_newlib_reentrant": False,
-        "use_passive_idle_hook": False,
-        "use_port_optimised_task_selection": False,
-        "use_preemption": True,
-        "use_queue_sets": False,
-        "use_recursive_mutexes": False,
-        "use_sb_completed_callback": False,
-        "use_stats_formatting_functions": False,
-        "use_stream_buffers": True,
-        "use_task_notifications": True,
-        "use_task_preemption_disable": False,
-        "use_tick_hook": False,
-        "use_tickless_idle": False,
-        "use_time_slicing": False,
-        "use_timers": True,
-        "use_trace_facility": False,
+        "config": None,
     }
 
     def config_options(self):
@@ -611,16 +423,35 @@ class FreeRTOSKernelConan(ConanFile):
             if self.options.port == "IAR_RISC_V_GENERIC":
                 self.options.risc_v_chip_extension = "RV32I_CLINT_no_extensions"
 
+    def package_id(self):
+        if self.info.options.get_safe("config"):
+            config_hash = hashlib.sha256(
+                load(self, str(self.info.options.config)).encode("utf-8")
+            )
+            self.info.options.config = config_hash
+
     def validate(self):
-        if self.options.port == "IAR_RISC_V_GENERIC" and self.options.get_safe("risc_v_chip_extension") != "RV32I_CLINT_no_extensions":
-            raise ConanInvalidConfiguration("Only the RV32I_CLINT_no_extensions RISC-V extension can be enabled when using the IAR_RISC_V_GENERIC port")
+        if (
+            self.options.get_safe("config")
+            and os.path.basename(str(self.options.config)) != "FreeRTOSConfig.h"
+        ):
+            raise ConanInvalidConfiguration(
+                "The config option must refer to a file with the name 'FreeRTOSConfig.h'"
+            )
+        if (
+            self.options.port == "IAR_RISC_V_GENERIC"
+            and self.options.get_safe("risc_v_chip_extension")
+            != "RV32I_CLINT_no_extensions"
+        ):
+            raise ConanInvalidConfiguration(
+                "Only the RV32I_CLINT_no_extensions RISC-V extension can be enabled when using the IAR_RISC_V_GENERIC port"
+            )
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "FreeRTOSConfig.h", self.recipe_folder, self.export_sources_folder)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -630,44 +461,29 @@ class FreeRTOSKernelConan(ConanFile):
         tc.variables["FREERTOS_HEAP"] = self.options.heap
         tc.variables["FREERTOS_PORT"] = self.options.port
         if self.options.get_safe("risc_v_chip_extension"):
-            tc.variables["FREERTOS_RISCV_EXTENSION"] = self.options.risc_v_chip_extension
+            tc.variables["FREERTOS_RISCV_EXTENSION"] = (
+                self.options.risc_v_chip_extension
+            )
         tc.variables["_FREERTOS_CONFIG_DIR"] = self.build_folder.replace("\\", "/")
         tc.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        copy(self, "FreeRTOSConfig.h", self.export_sources_folder, self.build_folder)
-        for option, value in self.options.items():
-            if str(option) in ["fPIC", "heap", "port", "shared"]:
-                continue
-            if str(option) == "systick_clock_hz":
-                if  value is None:
-                    replace_in_file(
-                        self, os.path.join(self.build_folder, "FreeRTOSConfig.h"), "@systick_clock_hz@", ""
-                    )
-                else:
-                    replace_in_file(
-                        self, os.path.join(self.build_folder, "FreeRTOSConfig.h"), "@systick_clock_hz@", f"#define configSYSTICK_CLOCK_HZ {value}"
-                    )
-                continue
-            if str(option) == "assert":
-                if  value is None:
-                    replace_in_file(
-                        self, os.path.join(self.build_folder, "FreeRTOSConfig.h"), "@assert@", ""
-                    )
-                else:
-                    replace_in_file(
-                        self, os.path.join(self.build_folder, "FreeRTOSConfig.h"), "@assert@", f"#define {value}"
-                    )
-                continue
-
-            key = f"@{str(option)}@"
-            if value in ["True", "true"]:
-                value = "1"
-            elif value in ["False", "false"]:
-                value = "0"
-            replace_in_file(
-                self, os.path.join(self.build_folder, "FreeRTOSConfig.h"), key, value
+        if self.options.get_safe("config"):
+            copy(
+                self,
+                "FreeRTOSConfig.h",
+                os.path.dirname(str(self.options.config)),
+                self.build_folder,
+                keep_path=False,
+            )
+        else:
+            copy(
+                self,
+                "FreeRTOSConfig.h",
+                os.path.join(self.source_folder, "examples", "template_configuration"),
+                self.build_folder,
+                keep_path=False,
             )
 
     def build(self):
@@ -688,13 +504,16 @@ class FreeRTOSKernelConan(ConanFile):
         )
         if self.options.get_safe("risc_v_chip_extension"):
             for risc_v_generic_port in ["GCC", "IAR"]:
-                port_include_directories[f"{risc_v_generic_port}_RISC_V_GENERIC"].append(
+                port_include_directories[
+                    f"{risc_v_generic_port}_RISC_V_GENERIC"
+                ].append(
                     os.path.join(
                         risc_v_generic_port,
                         "RISC-V",
                         "chip_specific_extensions",
                         str(self.options.risc_v_chip_extension),
-                    ))
+                    )
+                )
         for include_directory in port_include_directories[str(self.options.port)]:
             copy(
                 self,
