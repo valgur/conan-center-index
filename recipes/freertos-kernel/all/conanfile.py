@@ -432,13 +432,6 @@ class FreeRTOSKernelConan(ConanFile):
 
     def validate(self):
         if (
-            self.options.get_safe("config")
-            and os.path.basename(str(self.options.config)) != "FreeRTOSConfig.h"
-        ):
-            raise ConanInvalidConfiguration(
-                "The config option must refer to a file with the name 'FreeRTOSConfig.h'"
-            )
-        if (
             self.options.port == "IAR_RISC_V_GENERIC"
             and self.options.get_safe("risc_v_chip_extension")
             != "RV32I_CLINT_no_extensions"
