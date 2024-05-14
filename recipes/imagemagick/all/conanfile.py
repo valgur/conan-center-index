@@ -1,13 +1,13 @@
-import glob
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, \
-    replace_in_file, rm, rmdir, save
+from conan.tools.cmake import CMakeToolchain, CMake
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load,  replace_in_file, rm, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, msvs_toolset, msvc_runtime_flag
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, msvc_runtime_flag, msvs_toolset, MSBuildDeps
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -122,27 +122,32 @@ class ImageMagicConan(ConanFile):
         if self.options.with_djvu:
             self.requires("djvulibre/3.5.28")
 
+    def validate(self):
+        if is_msvc(self) and self.settings.arch not in ["x86_64", "x86", "armv8"]:
+            raise ConanInvalidConfiguration(f"{self.settings.arch} architecture is not supported for MSVC")
+
     @property
     def _modules(self):
         return ["Magick++", "MagickWand", "MagickCore"]
-
-    def validate(self):
-        if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Windows builds of ImageMagick require MFC which cannot currently be sourced from CCI."
-            )
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/2.2.0")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
+        if is_msvc(self):
+            get(self, **self.conan_data["sources"][self.version]["windows"], strip_root=True)
+            get(self, **self.conan_data["sources"][self.version]["source"], destination="ImageMagick", strip_root=True)
+        else:
+            get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
 
-        if self.info.settings.os == "Windows":
-            visualmagick_version = list(self.conan_data["sources"][self.version]["visualmagick"].keys())[0]
-            get(self, **self.conan_data["sources"][self.version]["visualmagick"][visualmagick_version],
-                destination="VisualMagick", strip_root=True)
+    @property
+    def _arch_flag(self):
+        return {
+            "x86_64": "/x64",
+            "x86": "/x86",
+            "armv8": "/arm64",
+        }.get(str(self.settings.arch))
 
     @property
     def _msvc_runtime_suffix(self):
@@ -155,27 +160,14 @@ class ImageMagicConan(ConanFile):
 
     @property
     def _visual_studio_version(self):
-        if str(self.settings.compiler) == "Visual Studio":
-            return {
-                9: "/VS2002",
-                10: "/VS2010",
-                11: "/VS2012",
-                12: "/VS2013",
-                14: "/VS2015",
-                15: "/VS2017",
-                16: "/VS2019",
-                17: "/VS2022",
-            }.get(int(str(self.settings.compiler.version)))
         return {
-            130: "/VS2002",
-            160: "/VS2010",
-            170: "/VS2012",
-            180: "/VS2013",
-            190: "/VS2015",
-            191: "/VS2017",
-            192: "/VS2019",
-            193: "/VS2022",
-        }.get(int(str(self.settings.compiler.version)))
+            "v110": "/VS2012",
+            "v120": "/VS2013",
+            "v140": "/VS2015",
+            "v141": "/VS2017",
+            "v142": "/VS2019",
+            "v143": "/VS2022",
+        }.get(msvs_toolset(self), "/VS2022")
 
     @property
     def _msvc_runtime_flag(self):
@@ -186,47 +178,58 @@ class ImageMagicConan(ConanFile):
             "MDd": "/mdt",
         }.get(msvc_runtime_flag(self))
 
+    @property
+    def _msbuild_configuration(self):
+        return "Debug" if self.settings.build_type == "Debug" else "Release"
+
     def _generate_msvc(self):
-        with chdir(self, os.path.join("VisualMagick", "configure")):
-            tc = MSBuildToolchain(self)
-            # fatal error C1189: #error:  Please use the /MD switch for _AFXDLL builds
-            tc.cxxflags = ["/MD"]
-            tc.project_file = "configure.vcxproj"
-            tc.platforms = {"x86": "Win32"}
-            tc.force_vcvars = True
+        tc = CMakeToolchain(self)
+        tc.generate()
 
-            # https://github.com/ImageMagick/ImageMagick-Windows/blob/master/AppVeyor/Build.ps1
-            configure_args = ["/noWizard"]
-            configure_args.append(self._msvc_runtime_flag)
-            configure_args.append(self._visual_studio_version)
-            configure_args.append("/hdri" if self.options.hdri else "/noHdri")
-            configure_args.append(f"/Q{self.options.quantum_depth}")
-            if self.settings.arch == "x86_64":
-                configure_args.append("/x64")
-            save(self, "configure_args", " ".join(configure_args))
+        # https://github.com/ImageMagick/ImageMagick-Windows/blob/0b13f5dc7b4725e452f395193c0ce7f869774c21/Configure/CommandLineInfo.cpp#L128-L185
+        configure_args = []
+        configure_args.append(self._arch_flag)
+        configure_args.append(self._msvc_runtime_flag)
+        configure_args.append(self._visual_studio_version)
+        configure_args.append("/hdri" if self.options.hdri else "/noHdri")
+        configure_args.append(f"/Q{self.options.quantum_depth}")
+        save(self, os.path.join(self.generators_folder, "configure_args"), " ".join(configure_args))
 
-        suffix = self._msvc_runtime_suffix
-        for module in self._modules:
-            with chdir(self, os.path.join("VisualMagick", module)):
-                tc = MSBuildToolchain(self)
-                tc.project_file = f"CORE_{module}_{suffix}.vcxproj"
-                tc.upgrade_project = False
-                tc.platforms = {
-                    "x86": "Win32",
-                    "x86_64": "x64",
-                }
+        tc = MSBuildToolchain(self)
+        tc.configuration = self._msbuild_configuration
+        tc.generate()
 
-        with chdir(self, os.path.join("VisualMagick", "coders")):
-            pattern = f"IM_MOD_*_{suffix}.vcxproj" if self.options.shared else f"CORE_coders_{suffix}.vcxproj"
-            projects = glob.glob(pattern)
-            for project in projects:
-                tc = MSBuildToolchain(self)
-                tc.project_file = project
-                tc.upgrade_project = False
-                tc.platforms = {
-                    "x86": "Win32",
-                    "x86_64": "x64",
-                }
+        deps = MSBuildDeps(self)
+        deps.configuration = self._msbuild_configuration
+        deps.generate()
+
+    def _patch_sources_msvc(self):
+        import_conan_generators = ""
+        for props_file in ["conantoolchain.props", "conandeps.props"]:
+            props_path = os.path.join(self.generators_folder, props_file)
+            if os.path.exists(props_path):
+                import_conan_generators += f'<Import Project="{props_path}" />'
+        for vcxproj_file in Path(self.source_folder).rglob("*.vcxproj"):
+            if props_path:
+                replace_in_file(
+                    self, vcxproj_file,
+                    '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                    f'{import_conan_generators}<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                )
+
+    def _build_msvc(self):
+        apply_conandata_patches(self)
+
+        # Build and run configure.exe to generate .sln and .vcxproj files
+        cmake = CMake(self)
+        cmake.configure(build_script_folder=os.path.join(self.source_folder, "Configure"))
+        cmake.build()
+        configure_args = load(self, os.path.join(self.generators_folder, "configure_args"))
+        self.run(f"configure.exe {configure_args}", cwd=os.path.join(self.source_folder, "Configure"))
+
+        self._patch_sources_msvc()
+        msbuild = MSBuild(self)
+        msbuild.build(os.path.join(self.source_folder, "IM7.Dynamic.sln"))
 
     def _generate_autotools(self):
         def yes_no(o):
@@ -273,82 +276,17 @@ class ImageMagicConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def generate(self):
-        if is_msvc(self):
-            self._generate_msvc()
-        else:
-            self._generate_autotools()
-
-    def _patch_sources_msvc(self):
-        apply_conandata_patches(self)
-        # FIXME: package LiquidRescale  aka liblqr
-        replace_in_file(self, os.path.join("VisualMagick", "lqr", "Config.txt"),
-                        "#define MAGICKCORE_LQR_DELEGATE", "")
-        # FIXME: package LibRaw
-        replace_in_file(self, os.path.join("VisualMagick", "libraw", "Config.txt"),
-                        "#define MAGICKCORE_RAW_R_DELEGATE", "")
-        # FIXME: package FLIF (FLIF: Free Lossless Image Format)
-        replace_in_file(self, os.path.join("VisualMagick", "flif", "Config.txt"),
-                        "#define MAGICKCORE_FLIF_DELEGATE", "")
-        # FIXME: package librsvg
-        replace_in_file(self, os.path.join("VisualMagick", "librsvg", "Config.txt"),
-                        "#define MAGICKCORE_RSVG_DELEGATE", "")
-        if not self.options.shared:
-            for module in self._modules:
-                replace_in_file(self, os.path.join("VisualMagick", module, "Config.txt"), "[DLL]", "[STATIC]")
-            replace_in_file(self, os.path.join("VisualMagick", "coders", "Config.txt"),
-                            "[DLLMODULE]", "[STATIC]\n[DEFINES]\n_MAGICKLIB_")
-
-        if self.settings.arch == "x86_64":
-            project = os.path.join("VisualMagick", "configure", "configure.vcxproj")
-            replace_in_file(self, project, "Win32", "x64")
-            replace_in_file(self, project, "/MACHINE:I386", "/MACHINE:x64")
-
-        with chdir(self, os.path.join("VisualMagick", "configure")):
-            toolset = msvs_toolset(self)
-            replace_in_file(self, "configure.vcxproj",
-                            "<PlatformToolset>v120</PlatformToolset>",
-                            f"<PlatformToolset>{toolset}</PlatformToolset>")
-
-        # GdiPlus requires C++, but ImageMagick has *.c files
-        suffix = self._msvc_runtime_suffix
-        project = f"IM_MOD_emf_{suffix}.vcxproj" if self.options.shared else f"CORE_coders_{suffix}.vcxproj"
-        replace_in_file(self, os.path.join("VisualMagick", "coders", project),
-                        '<ClCompile Include="..\\..\\ImageMagick\\coders\\emf.c">',
-                        '<ClCompile Include="..\\..\\ImageMagick\\coders\\emf.c">\n<CompileAs>CompileAsCpp</CompileAs>')
-
-        # disable incorrectly detected OpenCL
-        baseconfig = os.path.join(self.source_folder, "MagickCore", "magick-baseconfig.h")
-        replace_in_file(self, baseconfig, "#define MAGICKCORE__OPENCL", "#undef MAGICKCORE__OPENCL", strict=False)
-        replace_in_file(self, baseconfig, "#define MAGICKCORE_HAVE_CL_CL_H", "#undef MAGICKCORE_HAVE_CL_CL_H", strict=False)
-
-    def _build_msvc(self):
-        self._patch_sources_msvc()
-
-        with chdir(self, os.path.join("VisualMagick", "configure")):
-            msbuild = MSBuild(self)
-            msbuild.build("configure.vcxproj")
-            configure_args = load(self, "configure_args")
-            self.run(f"configure.exe {configure_args}")
-
-        suffix = self._msvc_runtime_suffix
-        for module in self._modules:
-            with chdir(self, os.path.join("VisualMagick", module)):
-                msbuild = MSBuild(self)
-                msbuild.build(f"CORE_{module}_{suffix}.vcxproj")
-
-        with chdir(self, os.path.join("VisualMagick", "coders")):
-            pattern = f"IM_MOD_*_{suffix}.vcxproj" if self.options.shared else f"CORE_coders_{suffix}.vcxproj"
-            projects = glob.glob(pattern)
-            for project in projects:
-                msbuild = MSBuild(self)
-                msbuild.build(project)
-
     def _build_autotools(self):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
+
+    def generate(self):
+        if is_msvc(self):
+            self._generate_msvc()
+        else:
+            self._generate_autotools()
 
     def build(self):
         if is_msvc(self):
@@ -359,15 +297,17 @@ class ImageMagicConan(ConanFile):
     def package(self):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
-            for pattern in ["*CORE_*.lib", "*CORE_*.dll", "*IM_MOD_*.dll"]:
-                copy(self, pattern,
-                     dst=os.path.join(self.package_folder, "lib"),
-                     src=os.path.join("VisualMagick", "lib"),
-                     keep_path=False)
-            for module in self._modules:
-                copy(self, "*.h",
-                     dst=os.path.join("include", f"ImageMagick-{Version(self.version).major}", module),
-                     src=os.path.join(self.source_folder, module))
+            output_dir = os.path.join(self.source_folder, "Output")
+            copy(self, "NOTICE.txt", output_dir, os.path.join(self.package_folder, "licenses"))
+            copy(self, "*.dll", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "bin"))
+            copy(self, "*.exe", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "bin"))
+            copy(self, "*.lib", os.path.join(output_dir, "lib"), os.path.join(self.package_folder, "lib"))
+            copy(self, "*.xml", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "res"))
+            copy(self, "*.icc", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "res"))
+            include_dir = os.path.join(self.package_folder, "include", f"ImageMagick-{Version(self.version).major}")
+            copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "MagickCore"), os.path.join(include_dir, "MagickCore"))
+            copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "MagickWand"), os.path.join(include_dir, "MagickWand"))
+            copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "Magick++", "lib"), include_dir)
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
