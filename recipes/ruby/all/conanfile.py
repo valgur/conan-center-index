@@ -27,7 +27,6 @@ class RubyConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_openssl": [True, False],
-
         "with_static_linked_ext": [True, False],
         "with_enable_load_relative": [True, False],
         "with_libyaml": [True, False],
@@ -39,7 +38,6 @@ class RubyConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_openssl": True,
-
         "with_static_linked_ext": True,
         "with_enable_load_relative": True,
         "with_libyaml": True,
@@ -70,9 +68,9 @@ class RubyConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.os != "Windows":
-            self.tool_requires("autoconf/2.71")
+            self.tool_requires("autoconf/2.72")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.1.0")
+            self.tool_requires("pkgconf/2.2.0")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -97,25 +95,20 @@ class RubyConan(ConanFile):
             del self.options.with_libyaml
 
     def requirements(self):
-        self.requires("zlib/1.2.12")
-
+        self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_openssl:
-            self.requires("openssl/1.1.1q")
-
+            self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_libyaml"):
             self.requires("libyaml/0.2.5")
-
         if self.options.get_safe("with_libffi"):
-            self.requires("libffi/3.4.2")
-
+            self.requires("libffi/3.4.4")
         if self.options.get_safe("with_readline"):
-            self.requires("readline/8.1.2")
-
+            self.requires("readline/8.2")
         if self.options.with_gmp:
-            self.requires("gmp/6.2.1")
+            self.requires("gmp/6.3.0")
 
     def validate(self):
-        if is_msvc(self) and is_msvc_static_runtime(self):
+        if is_msvc_static_runtime(self):
             # see https://github.com/conan-io/conan-center-index/pull/8644#issuecomment-1068974098
             raise ConanInvalidConfiguration("VS static runtime is not supported")
 
@@ -200,8 +193,6 @@ class RubyConan(ConanFile):
 
         build_script_folder = self.source_folder
         if is_msvc(self):
-            # self.conf["tools.gnu:make_program"] = "nmake"
-            # self.conf_info.define("tools.gnu:make_program", "nmake")
             build_script_folder = os.path.join(build_script_folder, "win32")
 
             if "TMP" in os.environ:  # workaround for TMP in CCI containing both forward and back slashes
@@ -229,7 +220,7 @@ class RubyConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(self, pattern="*.pdb", folder=os.path.join(self.package_folder, "lib"))
+        rm(self, "*.pdb", folder=os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
 
         # install the enc/*.a / ext/*.a libraries
@@ -247,9 +238,7 @@ class RubyConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "ruby")
         self.cpp_info.set_property("pkg_config_aliases", [f"ruby-{version.major}.{version.minor}"])
 
-        config_file = glob.glob(os.path.join(self.package_folder, "include", "**", "ruby", "config.h"), recursive=True)[
-            0
-        ]
+        config_file = glob.glob(os.path.join(self.package_folder, "include", "**", "ruby", "config.h"), recursive=True)[0]
         self.cpp_info.includedirs = [
             os.path.join(self.package_folder, "include", f"ruby-{version}"),
             os.path.dirname(os.path.dirname(config_file)),
