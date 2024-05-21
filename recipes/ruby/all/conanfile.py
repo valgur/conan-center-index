@@ -53,10 +53,6 @@ class RubyConan(ConanFile):
         return getattr(self, "settings_build", self.settings)
 
     @property
-    def _windows_system_libs(self):
-        return ["user32", "advapi32", "shell32", "ws2_32", "iphlpapi", "imagehlp", "shlwapi", "bcrypt"]
-
-    @property
     def _msvc_optflag(self):
         if check_min_vs(self, "190", raise_invalid=False):
             return "-O2sy-"
@@ -246,14 +242,14 @@ class RubyConan(ConanFile):
         self.cpp_info.libs = collect_libs(self)
         if is_msvc(self):
             if self.options.shared:
-                self.cpp_info.libs = list(filter(lambda l: not l.endswith("-static"), self.cpp_info.libs))
+                self.cpp_info.libs = [l for l in self.cpp_info.libs if not l.endswith("-static")]
             else:
-                self.cpp_info.libs = list(filter(lambda l: l.endswith("-static"), self.cpp_info.libs))
+                self.cpp_info.libs = [l for l in self.cpp_info.libs if l.endswith("-static")]
 
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs = ["dl", "pthread", "rt", "m", "crypt", "util"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = self._windows_system_libs
+            self.cpp_info.system_libs = ["user32", "advapi32", "shell32", "ws2_32", "iphlpapi", "imagehlp", "shlwapi", "bcrypt"]
         if str(self.settings.compiler) in ("clang", "apple-clang"):
             self.cpp_info.cflags = ["-fdeclspec"]
             self.cpp_info.cxxflags = ["-fdeclspec"]
