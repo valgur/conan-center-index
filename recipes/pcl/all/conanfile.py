@@ -75,6 +75,7 @@ class PclConan(ConanFile):
         "with_png": [True, False],
         "with_qhull": [True, False],
         "with_qt": [True, False],
+        "with_rssdk2": [True, False],
         "with_vtk": [True, False],
         # TODO:
         # "with_davidsdk": [True, False],
@@ -84,8 +85,6 @@ class PclConan(ConanFile):
         # "with_metslib": [True, False],
         # "with_openni": [True, False],
         # "with_openni2": [True, False],
-        # "with_rssdk": [True, False],
-        # "with_rssdk2": [True, False],
         # "with_qvtk": [True, False],
         # Precompile for a minimal set of point types only instead of all (e.g., pcl::PointXYZ instead of PCL_XYZ_POINT_TYPES)
         "precompile_only_core_point_types": [True, False],
@@ -147,6 +146,7 @@ class PclConan(ConanFile):
         "with_png": True,
         "with_qhull": True,
         "with_qt": True,
+        "with_rssdk2": False,
         "with_vtk": False,
         # Enabled to avoid excessive memory usage during compilation in CCI
         "precompile_only_core_point_types": True,
@@ -228,7 +228,7 @@ class PclConan(ConanFile):
             "qt": ["qt::qt"],
             "qvtk": [],
             "rssdk": [],
-            "rssdk2": [],
+            "rssdk2": ["librealsense::librealsense"],
             "vtk": ["vtk::vtk"],
             "zlib": ["zlib-ng::zlib-ng"],
         }[dep]
@@ -373,13 +373,14 @@ class PclConan(ConanFile):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_vtk:
             self.requires("vtk/[^9]", transitive_headers=True)
+        if self._is_enabled("rssdk2"):
+            self.requires("librealsense/[^2.49.0]")
         # TODO:
         # self.requires("openni/x.x.x", transitive_headers=True)
         # self.requires("openni2/x.x.x", transitive_headers=True)
         # self.requires("ensenso/x.x.x", transitive_headers=True)
         # self.requires("davidsdk/x.x.x", transitive_headers=True)
         # self.requires("dssdk/x.x.x", transitive_headers=True)
-        # self.requires("rssdk/x.x.x", transitive_headers=True)
         # self.requires("metslib/x.x.x", transitive_headers=True)
         # self.requires("opennurbs/x.x.x", transitive_headers=True)
         # self.requires("poisson4/x.x.x", transitive_headers=True)
