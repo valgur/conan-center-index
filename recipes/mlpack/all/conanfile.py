@@ -48,7 +48,7 @@ class MlpackConan(ConanFile):
         self.requires("stb/cci.20230920")
         # TODO: MSVC OpenMP is not compatible, enable for MSVC after #22353
         if not is_msvc(self):
-            self.requires("llvm-openmp/17.0.6")
+            self.requires("llvm-openmp/18.1.3")
 
     def package_id(self):
         self.info.clear()

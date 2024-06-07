@@ -60,7 +60,7 @@ class LightGBMConan(ConanFile):
         self.requires("fast_double_parser/0.7.0", transitive_headers=True, transitive_libs=True)
         self.requires("fmt/10.1.1", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_openmp") and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/17.0.4", transitive_headers=True, transitive_libs=True)
+            self.requires("llvm-openmp/18.1.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

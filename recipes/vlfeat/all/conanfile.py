@@ -59,7 +59,7 @@ class VlfeatConan(ConanFile):
     def requirements(self):
         if self.options.openmp:
             # Used only in .c files
-            self.requires("llvm-openmp/17.0.6")
+            self.requires("llvm-openmp/18.1.3")
 
     def validate(self):
         if is_msvc(self) and not self.options.shared:
