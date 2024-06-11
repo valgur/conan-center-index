@@ -124,10 +124,6 @@ class LLVMCoreConan(ConanFile):
     default_options.update({f"with_target_{target.lower()}": True for target in LLVM_TARGETS})
 
     @property
-    def _llvm_major_version(self):
-        return Version(self.version).major
-
-    @property
     def _min_cppstd(self):
         return 14
 
@@ -214,7 +210,7 @@ class LLVMCoreConan(ConanFile):
 
     def source(self):
         sources = self.conan_data["sources"][self.version]
-        if self._llvm_major_version < 18:
+        if self._major_version < 18:
             get(**sources, strip_root=True)
         else:
             get(self, **sources["llvm"], destination='llvm-main', strip_root=True)
@@ -323,7 +319,7 @@ class LLVMCoreConan(ConanFile):
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
-        if self._llvm_major_version < 18:
+        if self._major_version < 18:
             cmake.configure()
         else:
             cmake.configure(build_script_folder="llvm-main")
@@ -494,9 +490,7 @@ class LLVMCoreConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "LLVM")
         self.cpp_info.set_property("cmake_build_modules",
                                    [self._build_module_file_rel_path,
-                                    self._cmake_module_path / "LLVM-ConfigInternal.cmake",
-                                    self._cmake_module_path / "LLVMDistributionSupport.cmake",
-                                    self._cmake_module_path / "AddLLVM.cmake"]
+                                    self._cmake_module_path / "LLVM-ConfigInternal.cmake"]
                                    )
         self.cpp_info.builddirs.append(self._cmake_module_path)
 
