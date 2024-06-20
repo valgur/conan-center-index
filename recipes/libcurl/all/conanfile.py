@@ -205,7 +205,7 @@ class LibcurlConan(ConanFile):
         else:
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/2.1.0")
+                self.tool_requires("pkgconf/2.2.0")
             if self.settings.os in [ "tvOS", "watchOS" ]:
                 self.tool_requires("gnu-config/cci.20210814")
             if self._settings_build.os == "Windows":

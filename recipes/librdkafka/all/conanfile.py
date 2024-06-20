@@ -74,7 +74,7 @@ class LibrdkafkaConan(ConanFile):
 
     def build_requirements(self):
         if self._depends_on_cyrus_sasl:
-            self.tool_requires("pkgconf/2.1.0")
+            self.tool_requires("pkgconf/2.2.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

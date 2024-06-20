@@ -30,7 +30,7 @@ class XorgMakedepend(ConanFile):
         self.requires("xorg-proto/2022.2")
 
     def build_requirements(self):
-        self.build_requires("pkgconf/2.0.3")
+        self.build_requires("pkgconf/2.2.0")
 
     def validate(self):
         if self.settings.os == "Windows":

@@ -107,7 +107,7 @@ class PackageConan(ConanFile):
         self.tool_requires("meson/1.3.1")
         # pkgconf is largely used by Meson, it should be added in build requirement when there are dependencies
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.1.0")
+            self.tool_requires("pkgconf/2.2.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

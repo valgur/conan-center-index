@@ -96,7 +96,7 @@ class Mpg123Conan(ConanFile):
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.0.3")
+            self.tool_requires("pkgconf/2.2.0")
         if self.settings.arch in ["x86", "x86_64"]:
             self.tool_requires("yasm/1.3.0")
         if self._settings_build.os == "Windows":
@@ -184,7 +184,7 @@ class Mpg123Conan(ConanFile):
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        
+
         fix_apple_shared_install_name(self)
 
     def package_info(self):

@@ -51,7 +51,7 @@ class AtSpi2CoreConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/1.3.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.1.0")
+            self.tool_requires("pkgconf/2.2.0")
         self.tool_requires("glib/<host_version>")
 
     def requirements(self):
@@ -92,7 +92,7 @@ class AtSpi2CoreConan(ConanFile):
             tc.project_options["x11"] = "yes" if self.options.with_x11 else "no"
         if self.settings.os != "Linux":
             tc.project_options["atk_only"] = "true"
-            
+
         tc.project_options["docs"] = "false"
         tc.generate()
         tc = PkgConfigDeps(self)
