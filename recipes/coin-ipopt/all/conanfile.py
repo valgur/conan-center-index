@@ -37,7 +37,7 @@ class CoinClpConan(ConanFile):
         "intsize": 32,
         "precision": "double",
         "with_lapack": True,
-        "with_mumps": False,  # TODO: enable after merging https://github.com/conan-io/conan-center-index/pull/22466
+        "with_mumps": True,
         "build_sipopt": True,
     }
 
@@ -72,7 +72,7 @@ class CoinClpConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20210814")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.1.0")
+            self.tool_requires("pkgconf/2.2.0")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
