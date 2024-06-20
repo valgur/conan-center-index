@@ -61,7 +61,7 @@ class PackageConan(ConanFile):
     def requirements(self):
         self.requires("openmpi/4.1.6")
         if self.options.with_lapack:
-            self.requires("openblas/0.3.25")
+            self.requires("openblas/0.3.27")
         if self.options.with_metis:
             self.requires("metis/5.2.1")
         if self.options.with_openmp and self.settings.compiler in ["clang", "apple-clang"]:

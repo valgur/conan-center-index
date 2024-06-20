@@ -132,7 +132,7 @@ class PackageConan(ConanFile):
         if self.options.with_tinyxml:
             self.requires("tinyxml/2.6.2")
         if self.options.with_lapack:
-            self.requires("openblas/0.3.25")
+            self.requires("openblas/0.3.27")
         if self.options.with_ipopt:
             self.requires("coin-ipopt/3.14.13")
         if self.options.with_cbc:
