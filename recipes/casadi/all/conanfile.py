@@ -6,7 +6,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -130,7 +129,7 @@ class PackageConan(ConanFile):
         if self.options.with_osqp:
             self.requires("osqp/0.6.3")
         if self.options.with_tinyxml:
-            self.requires("tinyxml/2.6.2")
+            self.requires("tinyxml2/10.0.0")
         if self.options.with_lapack:
             self.requires("openblas/0.3.27")
         if self.options.with_ipopt:
@@ -277,8 +276,8 @@ class PackageConan(ConanFile):
         deps.set_property("metis", "cmake_target_name", "metis::metis")
         deps.set_property("osqp", "cmake_file_name", "OSQP")
         deps.set_property("osqp", "cmake_target_name", "osqp::osqp")
-        deps.set_property("tinyxml", "cmake_file_name", "TINYXML")
-        deps.set_property("tinyxml", "cmake_target_name", "tinyxml2::tinyxml2")
+        deps.set_property("tinyxml2", "cmake_file_name", "TINYXML")
+        deps.set_property("tinyxml2", "cmake_target_name", "tinyxml2::tinyxml2")
         deps.generate()
 
         deps = PkgConfigDeps(self)
