@@ -403,7 +403,7 @@ class PclConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
         if self._is_enabled("openmp"):
             if self.settings.compiler in ["clang", "apple-clang"]:
-                self.requires("llvm-openmp/18.1.3", transitive_headers=True, transitive_libs=True)
+                self.requires("llvm-openmp/18.1.7", transitive_headers=True, transitive_libs=True)
         # TODO:
         # self.requires("vtk/9.x.x", transitive_headers=True)
         # self.requires("openni/x.x.x", transitive_headers=True)

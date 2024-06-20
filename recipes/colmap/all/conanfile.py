@@ -85,7 +85,7 @@ class ColmapConan(ConanFile):
         self.requires("lz4/1.9.4")
         if self.options.openmp:
             if self.settings.compiler in ["clang", "apple-clang"]:
-                self.requires("llvm-openmp/18.1.3", transitive_headers=True, transitive_libs=True)
+                self.requires("llvm-openmp/18.1.7", transitive_headers=True, transitive_libs=True)
         if self.options.cgal:
             self.requires("cgal/5.6.1")
         if self.options.gui:

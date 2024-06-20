@@ -87,7 +87,7 @@ class XgboostConan(ConanFile):
 
     def requirements(self):
         if self.options.openmp and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/18.1.3")
+            self.requires("llvm-openmp/18.1.7")
         if self.options.plugin_rmm:
             self.requires("rmm/24.04.00")
         if self.options.get_safe("plugin_federated"):

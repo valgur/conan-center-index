@@ -122,7 +122,7 @@ class PackageConan(ConanFile):
         if self.options.with_alpaqa or self.options.with_proxqp:
             self.requires("eigen/3.4.0")
         if self.options.with_openmp and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/17.0.4")
+            self.requires("llvm-openmp/18.1.7")
         if self.options.with_pthread and self.settings.os == "Windows":
             self.requires("pthreads4w/3.0.0")
         if self.options.with_opencl:

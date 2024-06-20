@@ -168,7 +168,7 @@ class CImgConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.enable_display:
             self.requires("xorg/system")
         if self.options.enable_openmp and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/18.1.3")
+            self.requires("llvm-openmp/18.1.7")
         if self.options.enable_heif:
             self.requires("libheif/1.16.2")
         if self.options.enable_zlib:

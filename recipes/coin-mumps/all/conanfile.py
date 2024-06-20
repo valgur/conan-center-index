@@ -65,7 +65,7 @@ class PackageConan(ConanFile):
         if self.options.with_metis:
             self.requires("metis/5.2.1")
         if self.options.with_openmp and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/18.1.3")
+            self.requires("llvm-openmp/18.1.7")
         self.requires("gcc/13.2.0", headers=False, libs=True)
 
     def validate(self):
