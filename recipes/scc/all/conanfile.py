@@ -76,7 +76,7 @@ class SystemcComponentsConan(ConanFile):
             #     see declaration of 'tlm::tlm_extension<tlm::scc::tlm_gp_mm>::copy_from'
             # and
             #   src\sysc\tlm\scc\tlm_mm.h(31,20): error C2061: syntax error: identifier '__attribute__'
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported on MSVC.")
+            raise ConanInvalidConfiguration(f"{self.ref} recipe is not supported on MSVC. Contributions are welcome!")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
@@ -112,16 +112,6 @@ class SystemcComponentsConan(ConanFile):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "third_party", "axi_chi", "CMakeLists.txt"),
                         " STATIC", "")
-        if is_msvc(self):
-            # Fix duplicate definition by `template<> struct value_converter<sc_dt::uint64>`
-            # https://github.com/Minres/LWTR4SC/blob/03d52fc4e704d62377d1b1073fc45b2b22512654/src/lwtr/lwtr.h#L137-L172
-            lwtr_h = os.path.join(self.source_folder, "third_party", "lwtr4sc", "src", "lwtr", "lwtr.h")
-            replace_in_file(self, lwtr_h, "VAL_CONV(int64_t);", "")
-            replace_in_file(self, lwtr_h, "VAL_CONV(uint64_t);", "")
-            # Drop a non-portable malloc_trim(0) call, which does not appear to be essential
-            # https://github.com/Minres/SystemC-Components/blob/2023.06/src/sysc/scc/perf_estimator.cpp#L86
-            replace_in_file(self, os.path.join(self.source_folder, "src", "sysc", "scc", "perf_estimator.cpp"),
-                            "malloc_trim(0);", "")
 
     def build(self):
         self._patch_sources()
