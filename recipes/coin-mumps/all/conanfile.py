@@ -64,7 +64,7 @@ class PackageConan(ConanFile):
         if self.options.with_metis:
             self.requires("metis/5.2.1")
         if self.options.with_openmp:
-            self.requires("llvm-openmp/18.1.7")
+            self.requires("llvm-openmp/18.1.8")
         self.requires("gfortran/13.2.0", headers=False, libs=True)
 
     def validate(self):

@@ -128,7 +128,7 @@ class G2oConan(ConanFile):
         self.requires("freeglut/3.4.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_openmp and self.settings.compiler in ["clang", "apple-clang"]:
             # Used in core/openmp_mutex.h, also '#pragma omp' is used in several core public headers
-            self.requires("llvm-openmp/18.1.7", transitive_headers=True, transitive_libs=True)
+            self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
         if self.options.with_cholmod:
             self.requires("suitesparse-cholmod/5.2.1")
         if self.options.with_csparse:

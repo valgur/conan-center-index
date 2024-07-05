@@ -61,7 +61,7 @@ class IridescenceConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True)
         # '#pragma omp' is used in public headers
         # Note: native MSVC OpenMP is not compatible
-        self.requires("llvm-openmp/18.1.7", transitive_headers=True, transitive_libs=True)
+        self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
         if self.options.with_tbb:
             self.requires("onetbb/2021.12.0", transitive_headers=True, transitive_libs=True)
 

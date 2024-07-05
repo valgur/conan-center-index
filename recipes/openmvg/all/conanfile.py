@@ -99,7 +99,7 @@ class OpenmvgConan(ConanFile):
         self.requires("libtiff/4.6.0")
         if self.options.with_openmp:
             # '#pragma omp' is used in public headers
-            self.requires("llvm-openmp/18.1.7", transitive_headers=True, transitive_libs=True)
+            self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
         # TODO: unvendor vlfeat
 
     def validate(self):

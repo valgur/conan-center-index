@@ -121,7 +121,7 @@ class PackageConan(ConanFile):
         if self.options.with_alpaqa or self.options.with_proxqp:
             self.requires("eigen/3.4.0")
         if self.options.with_openmp:
-            self.requires("llvm-openmp/18.1.7")
+            self.requires("llvm-openmp/18.1.8")
         if self.options.with_pthread and self.settings.os == "Windows":
             self.requires("pthreads4w/3.0.0")
         if self.options.with_opencl:

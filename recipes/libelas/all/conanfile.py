@@ -44,7 +44,7 @@ class LibelasConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("llvm-openmp/18.1.7")
+        self.requires("llvm-openmp/18.1.8")
 
     def validate(self):
         if self.settings.compiler.cppstd:

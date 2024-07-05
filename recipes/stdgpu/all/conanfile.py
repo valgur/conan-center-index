@@ -101,7 +101,7 @@ class StdgpuConan(ConanFile):
                                 "Using Thrust from system instead of Conan.")
         if self.options.backend == "openmp":
             if self.options.openmp == "llvm":
-                self.requires("llvm-openmp/18.1.7", transitive_headers=True, transitive_libs=True)
+                self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
             else:
                 self.output.info("Using OpenMP backend with system OpenMP")
 
