@@ -1,4 +1,4 @@
-From f23fbab92f7d1551584b3960382e3e64446c013d Mon Sep 17 00:00:00 2001
+From fea4bcf765d837ae053a08367354f701d35e3c78 Mon Sep 17 00:00:00 2001
 From: Martin Valgur <martin.valgur@gmail.com>
 Date: Fri, 5 Jul 2024 14:40:22 +0300
 Subject: [PATCH] Fix includes after unvendoring
@@ -23,9 +23,10 @@ Subject: [PATCH] Fix includes after unvendoring
  include/cilantro/3rd_party/libqhullcpp/RoadError.h        | 2 +-
  include/cilantro/clustering/spectral_clustering.hpp       | 4 ++--
  include/cilantro/core/kd_tree.hpp                         | 2 +-
+ include/cilantro/spatial/convex_hull_utilities.hpp        | 8 ++++----
  include/cilantro/utilities/multidimensional_scaling.hpp   | 2 +-
  include/cilantro/utilities/ply_io.hpp                     | 2 +-
- 21 files changed, 22 insertions(+), 22 deletions(-)
+ 22 files changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/include/cilantro/3rd_party/libqhullcpp/Coordinates.h b/include/cilantro/3rd_party/libqhullcpp/Coordinates.h
 index ca646f2..c33f778 100644
@@ -274,6 +275,24 @@ index b92d8db..cad0321 100644
 +#include <nanoflann.hpp>
  #include <cilantro/core/data_containers.hpp>
  #include <cilantro/core/nearest_neighbors.hpp>
+ 
+diff --git a/include/cilantro/spatial/convex_hull_utilities.hpp b/include/cilantro/spatial/convex_hull_utilities.hpp
+index dd725ec..6b738a2 100644
+--- a/include/cilantro/spatial/convex_hull_utilities.hpp
++++ b/include/cilantro/spatial/convex_hull_utilities.hpp
+@@ -1,9 +1,9 @@
+ #pragma once
+ 
+-#include <cilantro/3rd_party/libqhullcpp/Qhull.h>
+-#include <cilantro/3rd_party/libqhullcpp/QhullFacetSet.h>
+-#include <cilantro/3rd_party/libqhullcpp/QhullFacetList.h>
+-#include <cilantro/3rd_party/libqhullcpp/QhullVertexSet.h>
++#include <libqhullcpp/Qhull.h>
++#include <libqhullcpp/QhullFacetSet.h>
++#include <libqhullcpp/QhullFacetList.h>
++#include <libqhullcpp/QhullVertexSet.h>
+ #include <cilantro/3rd_party/eigen_quadprog/eiquadprog.hpp>
+ #include <cilantro/core/principal_component_analysis.hpp>
  
 diff --git a/include/cilantro/utilities/multidimensional_scaling.hpp b/include/cilantro/utilities/multidimensional_scaling.hpp
 index f81e428..6713a66 100644

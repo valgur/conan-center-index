@@ -63,8 +63,9 @@ class CilantroConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.options["qhull/*"].shared = False
+        self.options["qhull/*"].cpp = True
         self.options["qhull/*"].reentrant = True
-        # self.options["qhull/*"].cpp = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -74,10 +75,7 @@ class CilantroConan(ConanFile):
         self.requires("spectra/1.0.1", transitive_headers=True, transitive_libs=True)
         self.requires("nanoflann/1.5.2", transitive_headers=True, transitive_libs=True)
         self.requires("tinyply/2.3.4", transitive_headers=True, transitive_libs=True)
-        # TODO: qhullcpp component is not available on CCI
-        # https://github.com/conan-io/conan-center-index/issues/16321
-        # Using a vendored version of qhullcpp in the meantime
-        self.requires("qhull/8.0.1", transitive_headers=True, transitive_libs=True)
+        self.requires("qhull/cci.20231130", transitive_headers=True, transitive_libs=True)
         if self.options.with_openmp:
             # '#pragma omp' is used in public headers
             self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
@@ -93,8 +91,9 @@ class CilantroConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if not self.dependencies["qhull"].options.reentrant:
-            raise ConanInvalidConfiguration("-o qhull:reentrant=True is required")
+        qhull = self.dependencies["qhull"].options
+        if qhull.shared or not qhull.reentrant or not qhull.cpp:
+            raise ConanInvalidConfiguration("qhull must be built with -o qhull/*:shared=False -o qhull/*:reentrant=True -o qhull/*:cpp=True")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -122,9 +121,9 @@ class CilantroConan(ConanFile):
                         "set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)",
                         'set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "$ORIGIN")')
         # Unvendor 3rd-party dependencies
-        for pkg in ["Spectra", "nanoflann", "tinyply", "libqhull_r"]:
+        for pkg in ["Spectra", "nanoflann", "tinyply", "libqhull_r", "libqhullcpp"]:
             rmdir(self, os.path.join(self.source_folder, "include", "cilantro", "3rd_party", pkg))
-        for pkg in ["tinyply", "libqhull_r"]:
+        for pkg in ["tinyply", "libqhull_r", "libqhullcpp"]:
             rmdir(self, os.path.join(self.source_folder, "src", "3rd_party", pkg))
 
     def build(self):
