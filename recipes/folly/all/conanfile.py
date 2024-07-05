@@ -64,7 +64,7 @@ class FollyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.83.0", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/1.85.0", transitive_headers=True, transitive_libs=True)
         self.requires("bzip2/1.0.8")
         self.requires("double-conversion/3.3.0", transitive_headers=True, transitive_libs=True)
         self.requires("gflags/2.2.2")
@@ -92,11 +92,11 @@ class FollyConan(ConanFile):
     @property
     def _required_boost_conan_components(self):
         return [f"boost::{comp}" for comp in self._required_boost_components]
-    
+
     @property
     def _required_boost_cmake_targets(self):
         return [f"Boost::{comp}" for comp in self._required_boost_components]
-    
+
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
@@ -111,7 +111,7 @@ class FollyConan(ConanFile):
 
         if is_apple_os(self):
             raise ConanInvalidConfiguration("Current recipe doesn't support Macos. Contributions are welcome.")
-        
+
         if self.settings.os == "Windows" and self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Folly requires a 64bit target architecture on Windows")
 
@@ -127,7 +127,7 @@ class FollyConan(ConanFile):
         glog = self.dependencies["glog"]
         if self.options.shared and not glog.options.shared:
             raise ConanInvalidConfiguration(f"If Folly is built as shared lib, glog must be a shared lib too.")
-        
+
         boost = self.dependencies["boost"]
         if boost.options.header_only:
             raise ConanInvalidConfiguration("Folly could not be built with a header only Boost")

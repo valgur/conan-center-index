@@ -42,7 +42,7 @@ class LibkmlConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.81.0", transitive_headers=True)
+        self.requires("boost/1.85.0", transitive_headers=True)
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("minizip/1.2.13")
         self.requires("uriparser/0.9.7")
@@ -51,7 +51,7 @@ class LibkmlConan(ConanFile):
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(f"{self.ref} shared with Visual Studio and MT runtime is not supported")
-        
+
     def package_id(self):
         cppstd = self.info.settings.get_safe("compiler.cppstd")
         if cppstd and cppstd not in ['98', 'gnu98', '11', 'gnu11', '14', 'gnu14']:

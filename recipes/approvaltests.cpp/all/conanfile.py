@@ -39,7 +39,7 @@ class ApprovalTestsCppConan(ConanFile):
     @property
     def _header_file(self):
         return "ApprovalTests.hpp"
-    
+
     @property
     def _min_cppstd(self):
         return 11
@@ -53,7 +53,7 @@ class ApprovalTestsCppConan(ConanFile):
 
     def requirements(self):
         if self.options.with_boosttest:
-            self.requires("boost/1.83.0")
+            self.requires("boost/1.85.0")
         if self.options.with_catch2:
             self.requires("catch2/3.5.0")
         if self.options.with_gtest:

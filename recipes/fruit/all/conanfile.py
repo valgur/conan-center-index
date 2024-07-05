@@ -49,7 +49,7 @@ class FruitConan(ConanFile):
 
     def requirements(self):
         if self.options.with_boost:
-            self.requires("boost/1.83.0")
+            self.requires("boost/1.85.0")
 
     def validate(self):
         if self.settings.compiler.cppstd:

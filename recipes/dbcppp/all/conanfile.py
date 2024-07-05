@@ -56,7 +56,7 @@ class DBCpppConan(ConanFile):
     def requirements(self):
         if self.options.with_tools:
             self.requires("cxxopts/3.0.0")
-        self.requires("boost/1.80.0")
+        self.requires("boost/1.85.0")
 
     def validate(self):
         if self.info.settings.compiler.cppstd:
