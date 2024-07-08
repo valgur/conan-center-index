@@ -34,7 +34,7 @@ class CilantroConan(ConanFile):
         "fPIC": True,
         "march_native": False,
         "non_deterministic_parallelism": True,
-        "with_openmp": False,  # TODO: enabled after #22353 is merged
+        "with_openmp": True,
         "with_pangolin": False,
     }
 
