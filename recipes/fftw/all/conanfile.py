@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 import os
 
@@ -44,7 +44,7 @@ class FFTWConan(ConanFile):
         'precision_double': True,
         'precision_longdouble': True,
         'precision_quad': False,
-        "openmp": False,
+        "openmp": True, # TODO: revert to False to match the project default
         "threads": False,
         "combinedthreads": False,
         "simd": False,
@@ -70,10 +70,12 @@ class FFTWConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        if self.options.openmp:
+            self.requires("llvm-openmp/18.1.8")
+
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
-            if self.options.openmp:
-                raise ConanInvalidConfiguration("Shared fftw with openmp can't be built on Windows")
             if self.options.threads and not self.options.combinedthreads:
                 raise ConanInvalidConfiguration("Shared fftw with threads and not combinedthreads can't be built on Windows")
 
@@ -91,6 +93,9 @@ class FFTWConan(ConanFile):
         tc.variables["ENABLE_AVX"] = self.options.simd == "avx"
         tc.variables["ENABLE_AVX2"] = self.options.simd == "avx2"
         tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
 
     @property
     def _all_precisions(self):
@@ -146,6 +151,8 @@ class FFTWConan(ConanFile):
                     component.system_libs.extend(['quadmath'])
                 if self.options.threads:
                     component.system_libs.append("pthread")
+            if self.options.openmp:
+                component.requires.append("llvm-openmp::llvm-openmp")
             self.cpp_info.components[component_name].includedirs.append(os.path.join(self.package_folder, "include"))
 
             component.names["cmake_find_package"] = cmake_target_name
