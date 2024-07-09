@@ -7,6 +7,8 @@ set(IMGUI_EXPORT_HEADERS imgui_export_headers.h)
 
 file(GLOB SOURCE_FILES ${IMGUI_SRC_DIR}/*.cpp)
 file(GLOB HEADER_FILES ${IMGUI_SRC_DIR}/*.h)
+list(APPEND SOURCE_FILES ${MISC_DIR}/cpp/imgui_stdlib.cpp)
+list(APPEND HEADER_FILES ${MISC_DIR}/cpp/imgui_stdlib.h)
 
 file(GLOB EXTRA_FONTS_FILES ${EXTRA_FONTS_DIR}/*.ttf)
 if (MSVC)
