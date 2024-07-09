@@ -1,4 +1,7 @@
 sources:
+  "cci.20221111":
+    url: "https://github.com/samhocevar/portable-file-dialogs/archive/7f852d88a480020d7f91957cbcefe514fc95000c.zip"
+    sha256: "ef4b805b6d31be00d39d17e7601070368a6b3033af6948fd5103af5c86a912d5"
   "0.1.0":
     url: "https://github.com/samhocevar/portable-file-dialogs/archive/0.1.0.tar.gz"
     sha256: "db57f02a45b169613c41d1fb94edab5f03020cc5cdc5033f538c08b4982cd5d4"
