@@ -182,7 +182,7 @@ class GdalConan(ConanFile):
         self.requires("json-c/0.17")
         self.requires("libgeotiff/1.7.1")
         self.requires("libtiff/4.6.0")
-        self.requires("proj/9.3.1")
+        self.requires("proj/9.4.1", force=True)
         # Used in a public header here:
         # https://github.com/OSGeo/gdal/blob/v3.7.1/port/cpl_minizip_ioapi.h#L26
         self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
@@ -288,7 +288,7 @@ class GdalConan(ConanFile):
         if self.options.with_spatialite:
             self.requires("libspatialite/5.1.0")
         if self.options.with_sqlite3:
-            self.requires("sqlite3/3.44.2")
+            self.requires("sqlite3/3.45.3")
         if self.options.with_tiledb:
             self.requires("tiledb/2.21.0")
         if self.options.with_webp:
