@@ -40,8 +40,7 @@ class LibtiffConan(ConanFile):
         "lzma": True,
         "jpeg": "libjpeg",
         "zlib": True,
-        # LERC is disabled by default to avoid linking against the C++ stdlib unnecessarily
-        "lerc": False,
+        "lerc": True,
         "libdeflate": True,
         "zstd": True,
         "jbig": True,
