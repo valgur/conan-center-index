@@ -14,3 +14,6 @@ patches:
       patch_description: "Use strlcpy and strlcat from glibc if v2.38 or newer"
       patch_type: "portability"
       patch_source: "https://github.com/root-project/root/pull/13393"
+    - patch_file: "patches/0005-Add-missing-RLogger.cxx.patch"
+      patch_description: "Add a missing .cxx file to build"
+      patch_type: "bugfix"

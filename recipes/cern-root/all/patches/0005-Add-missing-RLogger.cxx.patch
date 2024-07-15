@@ -1,0 +1,39 @@
+From 976db5567aa7b8b30b0b7980417b2e4693c1d11b Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Tue, 16 Jul 2024 00:22:08 +0300
+Subject: [PATCH] Add missing RLogger.cxx to the build
+
+---
+ core/base/CMakeLists.txt     | 3 ++-
+ core/base/v7/src/RLogger.cxx | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/core/base/CMakeLists.txt b/core/base/CMakeLists.txt
+index 95eea9b4..502269df 100644
+--- a/core/base/CMakeLists.txt
++++ b/core/base/CMakeLists.txt
+@@ -210,7 +210,8 @@ if(root7)
+       ROOT/RError.hxx
+       ROOT/RIndexIter.hxx)
+   list(APPEND BASE_SOURCES
+-       v7/src/RError.cxx)
++       v7/src/RError.cxx
++       v7/src/RLogger.cxx)
+   ROOT_ADD_TEST_SUBDIRECTORY(v7/test)
+ endif()
+ 
+diff --git a/core/base/v7/src/RLogger.cxx b/core/base/v7/src/RLogger.cxx
+index 69aba0b0..c0de4edf 100644
+--- a/core/base/v7/src/RLogger.cxx
++++ b/core/base/v7/src/RLogger.cxx
+@@ -14,6 +14,7 @@
+  *************************************************************************/
+ 
+ #include "ROOT/RLogger.hxx"
++#include "ROOT/RMakeUnique.hxx"
+ #include <iostream>
+ #include <sstream>
+ 
+-- 
+2.43.0
+
