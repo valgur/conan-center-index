@@ -82,6 +82,7 @@ class CernRootConan(ConanFile):
         self.requires("lz4/1.9.4")
         self.requires("odbc/2.3.11")
         self.requires("onetbb/2020.3.3")
+        self.requires("openblas/0.3.27")
         self.requires("opengl/system")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/8.45")
@@ -194,10 +195,13 @@ class CernRootConan(ConanFile):
         tc.variables["CMAKE_INSTALL_CMAKEDIR"] = "lib/cmake"
         tc.variables["CMAKE_INSTALL_DATAROOTDIR"] = "res/share"
         tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = "res/etc"
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Python2"] = True
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Python3"] = self.options.python == "off"
         tc.generate()
 
         cmake_pkgs = {
             "arrow": "Arrow",
+            "blas": "BLAS",
             "cfitsio": "CFITSIO",
             "fftw": "FFTW",
             "freetype": "Freetype",
@@ -225,7 +229,6 @@ class CernRootConan(ConanFile):
             "zstd": "ZSTD",
             # "afterimage": "AfterImage",
             # "alien": "Alien",
-            # "blas": "BLAS",
             # "cuda": "CUDA",
             # "cudnn": "CuDNN",
             # "davix": "Davix",
@@ -283,6 +286,7 @@ class CernRootConan(ConanFile):
         # Relax TBB version check
         replace_in_file(self, os.path.join(self.source_folder, "cmake", "modules", "SearchInstalledSoftware.cmake"),
                         "TBB 2018", "TBB")
+        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake", "modules"))
 
     @property
     def _cmake_pyrootopt(self):
