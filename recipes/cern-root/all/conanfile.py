@@ -72,23 +72,23 @@ class CernRootConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("arrow/14.0.1")
-        self.requires("cfitsio/4.3.0")
+        self.requires("arrow/16.1.0")
+        self.requires("cfitsio/4.4.0")
         self.requires("fftw/3.3.10")
         self.requires("freetype/2.13.2")
         self.requires("glew/2.2.0")
-        self.requires("gsl/2.7")
+        self.requires("gsl/2.7.1")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("libmysqlclient/8.1.0")
-        self.requires("libpq/15.4")
-        self.requires("libxml2/2.11.5")
+        self.requires("libpq/15.5")
+        self.requires("libxml2/[>=2.12.5 <3]")
         self.requires("lz4/1.9.4")
         self.requires("odbc/2.3.11")
         self.requires("onetbb/2020.3.3")
         self.requires("opengl/system")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/8.45")
-        self.requires("sqlite3/3.44.2")
+        self.requires("sqlite3/3.46.0")
         self.requires("xxhash/0.8.2")
         self.requires("xz_utils/5.4.5")
         self.requires("zlib/[>=1.2.11 <2]")
@@ -97,13 +97,13 @@ class CernRootConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
             self.requires("libxft/2.3.8")
-            self.requires("libxpm/3.5.13")
+            self.requires("libxpm/3.5.17")
             self.requires("util-linux-libuuid/2.39.2")
 
         if self.options.asimage:
-            self.requires("giflib/5.2.1")
+            self.requires("giflib/5.2.2")
             self.requires("libjpeg/9e")
-            self.requires("libpng/1.6.40")
+            self.requires("libpng/[>=1.6 <2]")
             self.requires("libtiff/4.6.0")
 
     def validate(self):
