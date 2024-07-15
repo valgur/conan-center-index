@@ -1,0 +1,28 @@
+From 76134baa7e470358e0275124d6debd7659e4d911 Mon Sep 17 00:00:00 2001
+From: Enrico Guiraud <enrico.guiraud@pm.me>
+Date: Thu, 3 Aug 2023 11:15:47 -0600
+Subject: [PATCH] [core] Do not provide our own strlcpy if glibc >= 2.38
+
+Since version 2.38, glibc provides strlcpy and strlcat.
+No need to provide our own.
+
+In fact ROOT's definitions clash with glibc's: the latter are
+marked `noexcept`.
+---
+ core/foundation/inc/ROOT/RConfig.hxx | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/core/foundation/inc/ROOT/RConfig.hxx b/core/foundation/inc/ROOT/RConfig.hxx
+index 5f53eb9f21c61..385c05da3e726 100644
+--- a/core/base/inc/ROOT/RConfig.hxx
++++ b/core/base/inc/ROOT/RConfig.hxx
+@@ -146,6 +146,9 @@
+ #      define R__USESTHROW
+ #      define R__SEEK64
+ #   endif
++#   if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 38)
++#      define HAS_STRLCPY
++#   endif
+ #endif
+ 
+ #if defined(linux) && defined(__i386__)

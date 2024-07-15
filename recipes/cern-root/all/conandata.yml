@@ -10,3 +10,7 @@ patches:
       patch_description: "Backport filtering of empty -D flags"
       patch_type: "portability"
       patch_source: "https://github.com/root-project/root/blob/798b9b079f7b6c136bdaaf6787729a1bef865429/cmake/modules/RootMacros.cmake"
+    - patch_file: "patches/0004-use-glibc-strlcpy.patch"
+      patch_description: "Use strlcpy and strlcat from glibc if v2.38 or newer"
+      patch_type: "portability"
+      patch_source: "https://github.com/root-project/root/pull/13393"
