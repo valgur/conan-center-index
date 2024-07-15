@@ -15,5 +15,6 @@ class TestPackageConan(ConanFile):
         if not tools.cross_building(self):
             bin_path = os.path.join("bin", "test_package_c")
             self.run(bin_path, run_environment=True)
-            bin_path = os.path.join("bin", "test_package_cxx")
-            self.run(bin_path, run_environment=True)
+            if "cxx" in self.options["libtiff"] and self.options["libtiff"].cxx:
+                bin_path = os.path.join("bin", "test_package_cxx")
+                self.run(bin_path, run_environment=True)

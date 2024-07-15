@@ -1,7 +1,7 @@
 import os
 import textwrap
 
-from conan import ConanFile
+from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
@@ -167,13 +167,14 @@ class LibtiffConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "TIFF::TIFF": "libtiff::tiff",
-                "TIFF::CXX": "libtiff::tiffxx",
-            }
-        )
+        if conan_version.major == 1:
+            self._create_cmake_module_alias_targets(
+                os.path.join(self.package_folder, self._module_file_rel_path),
+                {
+                    "TIFF::TIFF": "libtiff::tiff",
+                    "TIFF::CXX": "libtiff::tiffxx",
+                }
+            )
 
     @property
     def _module_file_rel_path(self):
@@ -233,6 +234,9 @@ class LibtiffConan(ConanFile):
             self.cpp_info.components["tiffxx"].requires = ["tiff"]
 
         # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
+        if conan_version.major == 1:
+            self.cpp_info.filenames["cmake_find_package"] = "TIFF"
+            self.cpp_info.filenames["cmake_find_package_multi"] = "TIFF"
+            self.cpp_info.components["tiff"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
+            self.cpp_info.components["tiff"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
+            self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
