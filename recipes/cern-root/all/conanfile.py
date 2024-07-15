@@ -23,22 +23,19 @@ class CernRootConan(ConanFile):
     homepage = "https://root.cern/"
     topics = ("data-analysis", "physics")
 
+    # Don't allow static build as it is not supported
+    # see: https://sft.its.cern.ch/jira/browse/ROOT-6446
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        # Don't allow static build as it is not supported
-        # see: https://sft.its.cern.ch/jira/browse/ROOT-6446
         "fPIC": [True, False],
-        # in future we may allow the user to specify a version when
-        # libPython is available in Conan Center Index.
-        # FIXME: add option to use CCI Python package when it is available
         "asimage": [True, False],
+        # FIXME: add option to use CCI Python package
         "python": ["off", "system"],
     }
     default_options = {
         "fPIC": True,
         "asimage": False,  # FIXME: requires builtin_afterimage, but its build is broken
-        # default python=off as there is currently no libpython in Conan center
         "python": "off",
     }
     options_description = {
