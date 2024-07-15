@@ -55,11 +55,14 @@ class LibtiffConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if Version(self.version) <= "4.5.0":
+            # test_package.cpp segfaults with older libtiff versions
+            del self.options.cxx
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if not self.options.cxx:
+        if not self.options.get_safe("cxx"):
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
 
@@ -117,7 +120,7 @@ class LibtiffConan(ConanFile):
             tc.variables["tiff-tests"] = False
             tc.variables["tiff-contrib"] = False
             tc.variables["tiff-docs"] = False
-        tc.variables["cxx"] = self.options.cxx
+        tc.variables["cxx"] = self.options.get_safe("cxx", False)
         # BUILD_SHARED_LIBS must be set in command line because defined upstream before project()
         tc.cache_variables["BUILD_SHARED_LIBS"] = bool(self.options.shared)
         tc.cache_variables["CMAKE_FIND_PACKAGE_PREFER_CONFIG"] = True
@@ -221,7 +224,7 @@ class LibtiffConan(ConanFile):
         if self.options.lerc:
             self.cpp_info.components["tiff"].requires.append("lerc::lerc")
 
-        if self.options.cxx:
+        if self.options.get_safe("cxx"):
             self.cpp_info.components["tiffxx"].libs.append(f"tiffxx{suffix}")
             # https://cmake.org/cmake/help/latest/module/FindTIFF.html#imported-targets
             # https://github.com/libsdl-org/libtiff/blob/v4.6.0/libtiff/CMakeLists.txt#L229
