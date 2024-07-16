@@ -45,7 +45,8 @@ class CernRootConan(ConanFile):
 
     @property
     def _minimum_cpp_standard(self):
-        return 11
+        # The project sets 11, but fails with compilation errors if 14 is not used
+        return 14
 
     @property
     def _minimum_compilers_version(self):
@@ -287,6 +288,9 @@ class CernRootConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "cmake", "modules", "SearchInstalledSoftware.cmake"),
                         "TBB 2018", "TBB")
         rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake", "modules"))
+        # Let Conan set the C++ standard
+        replace_in_file(self, os.path.join(self.source_folder, "cmake", "modules", "CheckCompiler.cmake"),
+                        'set(CMAKE_CXX_STANDARD 11 CACHE STRING "")\n', "")
 
     @property
     def _cmake_pyrootopt(self):
