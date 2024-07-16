@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.cmake import cmake_layout
+from conan.tools.cmake import cmake_layout, CMake
 
 
 class TestPackageConan(ConanFile):
@@ -11,19 +11,18 @@ class TestPackageConan(ConanFile):
     test_type = "explicit"
 
     def requirements(self):
-        self.requires(self.tested_reference_str)
+        self.requires(self.tested_reference_str, run=True)
 
     def layout(self):
         cmake_layout(self)
 
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
     def test(self):
         if can_run(self):
-            self._check_binaries_are_found()
-            self._check_root_dictionaries()
-
-    def _check_binaries_are_found(self):
-        self.run("root -q")
-
-    def _check_root_dictionaries(self):
-        bin_path = os.path.join(self.cpp.build.bindir, "testrootdictionaries")
-        self.run(bin_path, env="conanrun")
+            self.run("root -q", env="conanrun")
+            bin_path = os.path.join(self.cpp.build.bindir, "testrootdictionaries")
+            self.run(bin_path, env="conanrun")
