@@ -1,0 +1,11 @@
+diff --git a/io/io/v7/inc/ROOT/RFile.hxx b/io/io/v7/inc/ROOT/RFile.hxx
+--- a/io/io/v7/inc/ROOT/RFile.hxx	(revision 976db5567aa7b8b30b0b7980417b2e4693c1d11b)
++++ b/io/io/v7/inc/ROOT/RFile.hxx	(date 1721072868767)
+@@ -16,6 +16,7 @@
+ #ifndef ROOT7_RFile
+ #define ROOT7_RFile
+ 
++#include "ROOT/RMakeUnique.hxx"
+ #include "ROOT/RDirectory.hxx"
+ #include "ROOT/RStringView.hxx"
+ 

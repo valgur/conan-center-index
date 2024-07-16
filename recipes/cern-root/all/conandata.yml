@@ -17,3 +17,6 @@ patches:
     - patch_file: "patches/0005-Add-missing-RLogger.cxx.patch"
       patch_description: "Add a missing .cxx file to build"
       patch_type: "bugfix"
+    - patch_file: "patches/0006-add-missing-include.patch"
+      patch_description: "Add a missing include"
+      patch_type: "bugfix"
