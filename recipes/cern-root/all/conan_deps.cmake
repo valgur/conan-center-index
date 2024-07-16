@@ -83,3 +83,8 @@ if(x11)
 endif()
 
 link_libraries(FreeType::FreeType)
+if (TARGET Arrow::arrow_shared)
+    link_libraries(Arrow::arrow_shared)
+else()
+    link_libraries(Arrow::arrow_static)
+endif()
