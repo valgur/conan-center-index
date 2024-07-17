@@ -1,4 +1,3 @@
-import hashlib
 import os
 
 from conan import ConanFile
@@ -11,6 +10,7 @@ from conan.tools.files import (
     export_conandata_patches,
     get,
     load,
+    save,
 )
 
 required_conan_version = ">=1.60.0"
@@ -396,6 +396,7 @@ class FreeRTOSKernelConan(ConanFile):
         ],
         "heap": ["1", "2", "3", "4", "5"],
         "config": [None, "ANY"],
+        "config_contents": [None, "ANY"],
     }
     default_options = {
         "fPIC": True,
@@ -404,6 +405,11 @@ class FreeRTOSKernelConan(ConanFile):
         "heap": "4",
         "risc_v_chip_extension": "RISCV_no_extensions",
         "config": None,
+        "config_contents": None,
+    }
+    options_description = {
+        "config": "The path to the FreeRTOSConfig.h file.",
+        "config_contents": "The contents fo the FreeRTOSConfig.h file.",
     }
 
     def config_options(self):
@@ -423,12 +429,16 @@ class FreeRTOSKernelConan(ConanFile):
             if self.options.port == "IAR_RISC_V_GENERIC":
                 self.options.risc_v_chip_extension = "RV32I_CLINT_no_extensions"
 
-    def package_id(self):
-        if self.info.options.get_safe("config"):
-            config_hash = hashlib.sha256(
-                load(self, str(self.info.options.config)).encode("utf-8")
-            )
-            self.info.options.config = config_hash
+        # Trigger an error in the validate method if both the config and config_contents options are set.
+        if self.options.config and self.options.config_contents:
+            return
+
+        if self.options.config and not self.options.config_contents:
+            self.options.config_contents = load(self, str(self.options.config))
+        self.options.rm_safe("config")
+
+        if not self.options.config_contents:
+            self.options.rm_safe("config_contents")
 
     def validate(self):
         if (
@@ -439,6 +449,8 @@ class FreeRTOSKernelConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Only the RV32I_CLINT_no_extensions RISC-V extension can be enabled when using the IAR_RISC_V_GENERIC port"
             )
+        if self.options.get_safe("config_contents") and self.options.get_safe("config"):
+            raise ConanInvalidConfiguration("Both config_contents and config may not be set simultaneously.")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -462,14 +474,8 @@ class FreeRTOSKernelConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        if self.options.get_safe("config"):
-            copy(
-                self,
-                "FreeRTOSConfig.h",
-                os.path.dirname(str(self.options.config)),
-                self.build_folder,
-                keep_path=False,
-            )
+        if self.options.get_safe("config_contents"):
+            save(self, os.path.join(self.build_folder, "FreeRTOSConfig.h"), str(self.options.config_contents))
         else:
             copy(
                 self,
