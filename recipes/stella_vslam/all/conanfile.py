@@ -85,7 +85,7 @@ class StellaVslamConan(ConanFile):
 
         # TODO: add support for viewers
         if self.options.build_iridescence_viewer:
-            self.requires("iridescence/cci.20240407")
+            self.requires("iridescence/cci.20240709")
         if self.options.build_pangolin_viewer:
             self.requires("pangolin/0.9.1")
         if self.options.build_socket_viewer:
