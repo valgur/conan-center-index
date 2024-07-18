@@ -60,8 +60,7 @@ class IridescenceConan(ConanFile):
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
         # '#pragma omp' is used in public headers
-        # Note: native MSVC OpenMP is not compatible
-        self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
+        self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_tbb:
             self.requires("onetbb/2021.12.0", transitive_headers=True, transitive_libs=True)
 
@@ -114,23 +113,6 @@ class IridescenceConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
-    @property
-    def _openmp_flags(self):
-        # Based on https://github.com/Kitware/CMake/blob/v3.28.1/Modules/FindOpenMP.cmake#L104-L135
-        if self.settings.compiler == "clang":
-            return ["-fopenmp=libomp"]
-        elif self.settings.compiler == "apple-clang":
-            return ["-Xclang", "-fopenmp"]
-        elif self.settings.compiler == "gcc":
-            return ["-fopenmp"]
-        elif self.settings.compiler == "intel-cc":
-            return ["-Qopenmp"]
-        elif self.settings.compiler == "sun-cc":
-            return ["-xopenmp"]
-        if is_msvc(self):
-            return ["-openmp:llvm"]
-        return None
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "small_gicp")
         self.cpp_info.set_property("cmake_target_name", "small_gicp::small_gicp")
@@ -141,11 +123,3 @@ class IridescenceConan(ConanFile):
             self.cpp_info.system_libs.append("m")
         elif is_msvc(self):
             self.cpp_info.defines.append("_USE_MATH_DEFINES")
-
-        # TODO: drop after https://github.com/conan-io/conan-center-index/pull/22353 is merged
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["dl", "pthread", "rt"])
-        self.cpp_info.cflags = self._openmp_flags
-        self.cpp_info.cxxflags = self._openmp_flags
-        self.cpp_info.sharedlinkflags = self._openmp_flags
-        self.cpp_info.exelinkflags = self._openmp_flags

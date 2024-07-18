@@ -51,7 +51,7 @@ class SuiteSparseGraphBlasConan(ConanFile):
 
     def requirements(self):
         # OpenMP is not used in any public headers
-        self.requires("llvm-openmp/17.0.6")
+        self.requires("openmp/system")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.20 <4]")

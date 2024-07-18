@@ -48,7 +48,7 @@ class CImgConan(ConanFile):
         "enable_magick": False,
         "enable_opencv": False,
         "enable_openexr": False,
-        "enable_openmp": False,
+        "enable_openmp": True,
         "enable_png": False,
         "enable_tiff": False,
         "enable_tinyexr": False,
@@ -167,8 +167,8 @@ class CImgConan(ConanFile):
             self.requires("imagemagick/7.0.11-14")
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.enable_display:
             self.requires("xorg/system")
-        if self.options.enable_openmp and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/18.1.8")
+        if self.options.enable_openmp:
+            self.requires("openmp/system")
         if self.options.enable_heif:
             self.requires("libheif/1.16.2")
         if self.options.enable_zlib:
@@ -254,8 +254,8 @@ class CImgConan(ConanFile):
                 requires.append("xorg::xrandr")
             if self.options.enable_xshm:
                 requires.append("xorg::xext")
-        if self.options.enable_openmp and self.settings.compiler in ["clang", "apple-clang"]:
-            requires.append("llvm-openmp::llvm-openmp")
+        if self.options.enable_openmp:
+            requires.append("openmp::openmp")
         if self.options.enable_heif:
             requires.append("libheif::libheif")
         if self.options.enable_zlib:
@@ -268,21 +268,6 @@ class CImgConan(ConanFile):
 
         if self.settings.os == "Windows" and self.options.enable_display:
             self.cpp_info.system_libs.append("gdi32")
-
-        if self.options.enable_openmp:
-            openmp_flags = []
-            if self.settings.compiler in ("clang", "apple-clang"):
-                openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-            elif self.settings.compiler == "gcc":
-                openmp_flags = ["-fopenmp"]
-            elif self.settings.compiler == "intel-cc":
-                openmp_flags = ["/Qopenmp"] if self.settings.os == "Windows" else ["-Qopenmp"]
-            elif is_msvc(self):
-                openmp_flags = ["-openmp"]
-            self.cpp_info.cflags = openmp_flags
-            self.cpp_info.cxxflags = openmp_flags
-            self.cpp_info.sharedlinkflags = openmp_flags
-            self.cpp_info.exelinkflags = openmp_flags
 
         # TODO: to remove in conan v2 once cmake_find_package* generators removed
         #       do not use this name in CMakeDeps, it was a mistake, there is no official CMake config file

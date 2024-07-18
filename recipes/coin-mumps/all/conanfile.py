@@ -40,7 +40,7 @@ class PackageConan(ConanFile):
         "precision": "double",
         "with_lapack": True,
         "with_metis": True,
-        "with_openmp": False,
+        "with_openmp": True,
         "with_pthread": True,
     }
 
@@ -64,7 +64,7 @@ class PackageConan(ConanFile):
         if self.options.with_metis:
             self.requires("metis/5.2.1")
         if self.options.with_openmp:
-            self.requires("llvm-openmp/18.1.8")
+            self.requires("openmp/system")
         self.requires("gfortran/13.2.0", headers=False, libs=True)
 
     def validate(self):
@@ -147,5 +147,5 @@ class PackageConan(ConanFile):
         if self.options.with_metis:
             self.cpp_info.requires.append("metis::metis")
         if self.options.with_openmp:
-            self.cpp_info.requires.append("llvm-openmp::llvm-openmp")
+            self.cpp_info.requires.append("openmp::openmp")
         self.cpp_info.requires.extend(["gfortran::libgfortran", "gfortran::libquadmath"])

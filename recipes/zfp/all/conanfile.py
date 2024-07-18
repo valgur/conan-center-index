@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
-from conan.tools.microsoft import is_msvc
 import os
 
 required_conan_version = ">=1.54.0"
@@ -15,6 +14,7 @@ class ZfpConan(ConanFile):
     license = "BSD-3-Clause"
     topics = ("compression", "arrays")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -38,7 +38,7 @@ class ZfpConan(ConanFile):
         "with_cache_twoway": False,
         "with_cache_fast_hash": False,
         "with_cache_profile": False,
-        "with_openmp": False,
+        "with_openmp": True,
     }
 
     def config_options(self):
@@ -52,11 +52,14 @@ class ZfpConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        if self.options.with_openmp:
+            # https://github.com/LLNL/zfp/blob/1.0.1/include/zfp/internal/array/store.hpp#L130
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+
     def validate(self):
         if self.options.with_cuda:
             self.output.warning("Conan package for CUDA is not available, this package will be used from system.")
-        if self.options.with_openmp:
-            self.output.warning("Conan package for OpenMP is not available, this package will be used from system.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -104,17 +107,8 @@ class ZfpConan(ConanFile):
         self.cpp_info.components["cfp"].libs = ["cfp"]
         self.cpp_info.components["cfp"].requires = ["_zfp"]
 
-        if not self.options.shared and self.options.with_openmp:
-            openmp_flags = []
-            if is_msvc(self):
-                openmp_flags = ["-openmp"]
-            elif self.settings.compiler in ("gcc", "clang"):
-                openmp_flags = ["-fopenmp"]
-            elif self.settings.compiler == "apple-clang":
-                openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-
-            self.cpp_info.components["_zfp"].sharedlinkflags = openmp_flags
-            self.cpp_info.components["_zfp"].exelinkflags = openmp_flags
+        if self.options.with_openmp:
+            self.cpp_info.components["_zfp"].requires.append("openmp::openmp")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_zfp"].system_libs.append("m")

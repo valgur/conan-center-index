@@ -49,7 +49,7 @@ class OpenmvgConan(ConanFile):
         "enable_ligt": False, # patent-protected and CC-BY-SA-licensed
         "programs": True,
         "with_jpeg": "libjpeg",
-        "with_openmp": False, # TODO: can be enabled after #22353
+        "with_openmp": True,
         "cpu_architecture": "sandy-bridge",  # sse sse2 sse3 ssse3 sse4.1 sse4.2 avx
         "with_avx": "avx",
     }
@@ -99,7 +99,7 @@ class OpenmvgConan(ConanFile):
         self.requires("libtiff/4.6.0")
         if self.options.with_openmp:
             # '#pragma omp' is used in public headers
-            self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         # TODO: unvendor vlfeat
 
     def validate(self):
@@ -204,22 +204,6 @@ class OpenmvgConan(ConanFile):
         rmdir(self, os.path.join(share_dir, "cmake"))
         mkdir(self, os.path.join(self.package_folder, "res"))
         rename(self, share_dir, os.path.join(self.package_folder, "res", "openMVG"))
-
-    @property
-    def _openmp_flags(self):
-        if self.settings.compiler == "clang":
-            return ["-fopenmp=libomp"]
-        elif self.settings.compiler == "apple-clang":
-            return ["-Xclang", "-fopenmp"]
-        elif self.settings.compiler == "gcc":
-            return ["-fopenmp"]
-        elif self.settings.compiler == "intel-cc":
-            return ["-Qopenmp"]
-        elif self.settings.compiler == "sun-cc":
-            return ["-xopenmp"]
-        elif is_msvc(self):
-            return ["-openmp"]
-        return None
 
     @property
     def _openmvg_components(self):
@@ -372,10 +356,7 @@ class OpenmvgConan(ConanFile):
 
         if self.options.with_openmp:
             for component_name in ["cameras", "features", "image", "matching", "matching_image_collection", "robust_estimation", "sfm", "vlsift"]:
-                component = self.cpp_info.components[f"openmvg_{component_name}"]
-                component.requires.append("llvm-openmp::llvm-openmp")
-                component.cflags += self._openmp_flags
-                component.cxxflags += self._openmp_flags
+                self.cpp_info.components[f"openmvg_{component_name}"].requires.append("openmp::openmp")
 
         # TODO: to remove in conan v2
         self.cpp_info.names["cmake_find_package"] = "OpenMVG"

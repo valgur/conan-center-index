@@ -90,6 +90,9 @@ class SCIPConan(ConanFile):
             self.requires("bliss/0.77")
         self.requires(f"soplex/{self.soplex_version_belonging_to_me[self.version]}")
         self.requires("zlib/[>=1.2.11 <2]")
+        if self.options.with_tpi == "omp":
+            # used only in .c files
+            self.requires("openmp/system")
 
     def configure(self):
         self.options["soplex"].with_gmp = self.options.with_gmp
@@ -152,5 +155,3 @@ class SCIPConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["libscip" if is_msvc(self) else "scip"]
-        if self.options.with_tpi == "omp":
-            self.cpp_info.system_libs.append("-fopenmp")

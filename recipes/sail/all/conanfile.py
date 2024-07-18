@@ -71,6 +71,8 @@ class SAILConan(ConanFile):
             #   - https://github.com/conan-io/conan-center-index/pull/18812
             # self.requires("libjxl/0.10.2")
             self.requires("libwebp/1.3.2")
+        # used only in .c files
+        self.requires("openmp/system")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -98,7 +100,7 @@ class SAILConan(ConanFile):
         tc.variables["SAIL_BUILD_APPS"]     = False
         tc.variables["SAIL_BUILD_EXAMPLES"] = False
         tc.variables["SAIL_COMBINE_CODECS"] = True
-        tc.variables["SAIL_ENABLE_OPENMP"]  = False
+        tc.variables["SAIL_ENABLE_OPENMP"]  = True
         tc.variables["SAIL_ONLY_CODECS"]    = ";".join(only_codecs)
         # JPEGXL needs porting to Conan2
         # SVG with nanosvg is supported in >= 0.9.1
@@ -152,6 +154,7 @@ class SAILConan(ConanFile):
         self.cpp_info.components["sail-common"].names["cmake_find_package_multi"] = "SailCommon"
         self.cpp_info.components["sail-common"].includedirs = ["include/sail"]
         self.cpp_info.components["sail-common"].libs = ["sail-common"]
+        self.cpp_info.components["sail-common"].requires.append("openmp::openmp")
 
         self.cpp_info.components["sail-codecs"].set_property("cmake_target_name", "SAIL::SailCodecs")
         self.cpp_info.components["sail-codecs"].names["cmake_find_package"]       = "SailCodecs"

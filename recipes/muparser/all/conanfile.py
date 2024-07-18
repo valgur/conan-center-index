@@ -26,7 +26,7 @@ class MuParserConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openmp": False,
+        "with_openmp": True,
     }
 
     def config_options(self):
@@ -39,6 +39,11 @@ class MuParserConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_openmp:
+            # Used only in muParserBase.cpp
+            self.requires("openmp/system")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

@@ -27,7 +27,7 @@ class TinyExrConan(ConanFile):
         "with_piz": True,
         "with_zfp": False,
         "with_thread": False,
-        "with_openmp": False,
+        "with_openmp": True,
     }
 
     def export_sources(self):
@@ -43,6 +43,8 @@ class TinyExrConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zfp:
             self.requires("zfp/1.0.0")
+        if self.options.with_openmp:
+            self.requires("openmp/system")
 
     def package_id(self):
         self.info.clear()

@@ -86,8 +86,9 @@ class XgboostConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.openmp and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/18.1.8")
+        if self.options.openmp:
+            # not used in any public headers
+            self.requires("openmp/system")
         if self.options.plugin_rmm:
             self.requires("rmm/24.04.00")
         if self.options.get_safe("plugin_federated"):
@@ -173,19 +174,3 @@ class XgboostConan(ConanFile):
         # For the C API
         if stdcpp_library(self):
             self.cpp_info.system_libs.append(stdcpp_library(self))
-
-        # TODO: can probably be removed after #22353 is merged
-        # omp headers or '#pragma omp' is not used in public headers,
-        # only need to set flags for linking
-        if self.options.openmp:
-            openmp_flags = []
-            if is_msvc(self):
-                openmp_flags = ["-openmp"]
-            elif self.settings.compiler == "gcc":
-                openmp_flags = ["-fopenmp"]
-            elif self.settings.compiler in ["clang", "apple-clang"]:
-                openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-            elif self.settings.compiler == "intel-cc":
-                self.cpp_info.cxxflags = ["/Qopenmp"] if self.settings.os == "Windows" else ["-Qopenmp"]
-            self.cpp_info.exelinkflags.extend(openmp_flags)
-            self.cpp_info.sharedlinkflags.extend(openmp_flags)

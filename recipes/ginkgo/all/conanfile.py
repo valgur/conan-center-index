@@ -31,7 +31,7 @@ class GinkgoConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": False,
-        "openmp": False,
+        "openmp": True,
         "cuda": False,
     }
 
@@ -63,6 +63,11 @@ class GinkgoConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.openmp:
+            # Not used in any public headers
+            self.requires("openmp/system")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -147,6 +152,8 @@ class GinkgoConan(ConanFile):
         self.cpp_info.components["ginkgo_core"].requires = [
             "ginkgo_omp", "ginkgo_cuda", "ginkgo_reference", "ginkgo_hip"
         ]
+        if self.options.openmp:
+            self.cpp_info.components["ginkgo_core"].requires.append("openmp::openmp")
 
         self.cpp_info.components["ginkgo_cuda"].set_property("cmake_target_name", "Ginkgo::ginkgo_cuda")
         self.cpp_info.components["ginkgo_cuda"].libs = [

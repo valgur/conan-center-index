@@ -37,7 +37,7 @@ class METISConan(ConanFile):
         "with_64bit_types": False,
         "enable_gkrand": False,
         "enable_gkregex": False,
-        "with_openmp": False,
+        "with_openmp": True,
         "with_pcre": False,
         "with_valgrind": False,
     }
@@ -63,6 +63,8 @@ class METISConan(ConanFile):
 
     def requirements(self):
         self.requires("gklib/5.1.1")
+        if self.options.with_openmp:
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

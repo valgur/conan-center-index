@@ -59,8 +59,8 @@ class LightGBMConan(ConanFile):
         self.requires("eigen/3.4.0")
         self.requires("fast_double_parser/0.7.0", transitive_headers=True, transitive_libs=True)
         self.requires("fmt/10.1.1", transitive_headers=True, transitive_libs=True)
-        if self.options.get_safe("with_openmp") and self.settings.compiler in ["clang", "apple-clang"]:
-            self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
+        if self.options.get_safe("with_openmp"):
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -124,17 +124,3 @@ class LightGBMConan(ConanFile):
             self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-
-        # OpenMP preprocessor directives are used in a number of public headers, such as:
-        # https://github.com/microsoft/LightGBM/blob/master/include/LightGBM/tree.h#L188
-        if self.options.get_safe("with_openmp"):
-            openmp_flags = []
-            if is_msvc(self):
-                openmp_flags = ["-openmp"]
-            elif self.settings.compiler == "gcc":
-                openmp_flags = ["-fopenmp"]
-            elif self.settings.compiler in ["clang", "apple-clang"]:
-                openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-            self.cpp_info.cxxflags.extend(openmp_flags)
-            self.cpp_info.exelinkflags.extend(openmp_flags)
-            self.cpp_info.sharedlinkflags.extend(openmp_flags)

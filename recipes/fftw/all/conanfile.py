@@ -44,7 +44,7 @@ class FFTWConan(ConanFile):
         'precision_double': True,
         'precision_longdouble': True,
         'precision_quad': False,
-        "openmp": False,
+        "openmp": True,
         "threads": False,
         "combinedthreads": False,
         "simd": False,
@@ -69,6 +69,10 @@ class FFTWConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.openmp:
+            self.requires("openmp/system")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -137,6 +141,7 @@ class FFTWConan(ConanFile):
             # TODO: back to global scope in conan v2 once cmake_find_package_* & pkg_config generators removed
             if self.options.openmp:
                 component.libs.append(lib_name + "_omp")
+                component.requires.append("openmp::openmp")
             if self.options.threads and not self.options.combinedthreads:
                 component.libs.append(lib_name + "_threads")
             self.cpp_info.components[component_name].libs.append(lib_name)

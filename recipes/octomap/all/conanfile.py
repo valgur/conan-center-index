@@ -28,7 +28,7 @@ class OctomapConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "openmp": False,
+        "openmp": True,
     }
 
     @property
@@ -48,6 +48,11 @@ class OctomapConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.openmp:
+            # https://github.com/OctoMap/octomap/blob/v1.10.0/octomap/include/octomap/OccupancyOcTreeBase.hxx#L122
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
@@ -140,6 +145,8 @@ class OctomapConan(ConanFile):
         self.cpp_info.components["octomath"].libs = ["octomath"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["octomath"].system_libs.append("m")
+        if self.options.openmp:
+            self.cpp_info.components["octomath"].requires.append("openmp::openmp")
         # octomap
         self.cpp_info.components["octomaplib"].set_property("cmake_target_name", self._octomap_target)
         self.cpp_info.components["octomaplib"].libs = ["octomap"]

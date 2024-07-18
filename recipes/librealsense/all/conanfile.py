@@ -51,6 +51,8 @@ class LibrealsenseConan(ConanFile):
 
     def requirements(self):
         self.requires("libusb/1.0.26")
+        # Used only in .cpp files
+        self.requires("openmp/system")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -76,7 +78,7 @@ class LibrealsenseConan(ConanFile):
         tc.variables["BUILD_NETWORK_DEVICE"] = False
         tc.variables["BUILD_UNIT_TESTS"] = False
         tc.variables["BUILD_WITH_CUDA"] = False
-        tc.variables["BUILD_WITH_OPENMP"] = False
+        tc.variables["BUILD_WITH_OPENMP"] = True
         tc.variables["BUILD_WITH_TM2"] = True
         tc.variables["BUILD_PYTHON_BINDINGS"] = False
         tc.variables["BUILD_PYTHON_DOCS"] = False
@@ -128,7 +130,7 @@ class LibrealsenseConan(ConanFile):
         self.cpp_info.components["realsense2"].set_property("cmake_target_name", "realsense2::realsense2")
         self.cpp_info.components["realsense2"].set_property("pkg_config_name", "realsense2")
         self.cpp_info.components["realsense2"].libs = [f"realsense2{postfix}"]
-        self.cpp_info.components["realsense2"].requires = ["libusb::libusb"]
+        self.cpp_info.components["realsense2"].requires = ["libusb::libusb", "openmp::openmp"]
         if not self.options.shared:
             self.cpp_info.components["realsense2"].requires.extend(["realsense-file", "fw"])
         if self.settings.os == "Linux":

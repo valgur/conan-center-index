@@ -24,7 +24,7 @@ class LibpointmatcherConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openmp": False,
+        "with_openmp": True,
     }
 
     @property
@@ -50,6 +50,9 @@ class LibpointmatcherConan(ConanFile):
         # FIXME: eigen 3.4.0 is not compatible yet (see https://github.com/ethz-asl/libpointmatcher/issues/496)
         self.requires("eigen/3.3.9", transitive_headers=True)
         self.requires("libnabo/1.0.7")
+        if self.options.with_openmp:
+            # https://github.com/norlab-ulaval/libpointmatcher/blob/1.4.3/pointmatcher/DataPointsFilters/utils/sparsetv.hpp#L73
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

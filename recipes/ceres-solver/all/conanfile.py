@@ -156,7 +156,7 @@ class CeresSolverConan(ConanFile):
         if self.options.get_safe("use_TBB"):
             self.requires("onetbb/2020.3")
         if self.options.get_safe("use_OpenMP"):
-            self.requires("llvm-openmp/18.1.8")
+            self.requires("openmp/system")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -304,7 +304,7 @@ class CeresSolverConan(ConanFile):
         if self.options.get_safe("use_TBB"):
             requires.append("onetbb::onetbb")
         if self.options.get_safe("use_OpenMP"):
-            requires.append("llvm-openmp::llvm-openmp")
+            requires.append("openmp::openmp")
         self.cpp_info.components["ceres"].requires = requires
 
         if not self.options.shared:

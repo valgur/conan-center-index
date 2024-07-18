@@ -62,7 +62,7 @@ class StellaCvFbowConan(ConanFile):
     def requirements(self):
         # https://github.com/stella-cv/FBoW/blob/master/include/fbow/vocabulary.h#L35
         self.requires("opencv/4.9.0", transitive_headers=True, transitive_libs=True)
-        self.requires("llvm-openmp/18.1.8")
+        self.requires("openmp/system")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -118,7 +118,7 @@ class StellaCvFbowConan(ConanFile):
             "opencv::opencv_core",
             "opencv::opencv_features2d",
             "opencv::opencv_highgui",
-            "llvm-openmp::llvm-openmp",
+            "openmp::openmp",
         ]
         if self.dependencies["opencv"].options.xfeatures2d:
             self.cpp_info.requires.append("opencv::opencv_xfeatures2d")

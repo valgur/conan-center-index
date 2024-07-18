@@ -26,6 +26,7 @@ class AmgclConan(ConanFile):
 
     def requirements(self):
         self.requires("boost/1.85.0")
+        self.requires("openmp/system")
 
     def package_id(self):
         self.info.clear()

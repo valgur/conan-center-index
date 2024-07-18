@@ -78,7 +78,7 @@ class CilantroConan(ConanFile):
         self.requires("qhull/cci.20231130", transitive_headers=True, transitive_libs=True)
         if self.options.with_openmp:
             # '#pragma omp' is used in public headers
-            self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_pangolin:
             self.requires("pangolin/0.9.1", transitive_headers=True, transitive_libs=True)
 

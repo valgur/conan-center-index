@@ -67,7 +67,7 @@ class G2oConan(ConanFile):
         "sse4_1": True,
         "sse4_2": True,
         "sse4_a": False,
-        "with_openmp": False,
+        "with_openmp": True,
         "with_cholmod": False,
         "with_csparse": False,
     }
@@ -126,9 +126,9 @@ class G2oConan(ConanFile):
         # Used in stuff/opengl_wrapper.h
         self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         self.requires("freeglut/3.4.0", transitive_headers=True, transitive_libs=True)
-        if self.options.with_openmp and self.settings.compiler in ["clang", "apple-clang"]:
+        if self.options.with_openmp:
             # Used in core/openmp_mutex.h, also '#pragma omp' is used in several core public headers
-            self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_cholmod:
             self.requires("suitesparse-cholmod/5.2.1")
         if self.options.with_csparse:
@@ -267,20 +267,7 @@ class G2oConan(ConanFile):
                     _add_component("types_sim3", requires=["core", "types_sba"])
 
         if self.options.with_openmp:
-            openmp_flags = []
-            if self.settings.compiler in ["clang", "apple-clang"]:
-                self.cpp_info.components["core"].requires.append("llvm-openmp::llvm-openmp")
-                openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-            elif self.settings.compiler == "gcc":
-                openmp_flags = ["-fopenmp"]
-            elif self.settings.compiler == "intel-cc":
-                openmp_flags = ["/Qopenmp"] if self.settings.os == "Windows" else ["-Qopenmp"]
-            elif is_msvc(self):
-                openmp_flags = ["-openmp"]
-            # '#pragma omp parallel for' is used in multiple public headers in core
-            self.cpp_info.components["core"].cxxflags = openmp_flags
-            self.cpp_info.components["core"].sharedlinkflags = openmp_flags
-            self.cpp_info.components["core"].exelinkflags = openmp_flags
+            self.cpp_info.components["core"].requires.append("openmp::openmp")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["stuff"].system_libs.append("m")

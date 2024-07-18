@@ -27,7 +27,7 @@ class KissfftConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "datatype": "float",
-        "openmp": False,
+        "openmp": True,
         "use_alloca": False,
     }
 
@@ -43,6 +43,11 @@ class KissfftConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.openmp:
+            # Used only in kiss_fft.c, not in public headers
+            self.requires("openmp/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -101,6 +106,9 @@ class KissfftConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libkissfft"].system_libs = ["m"]
+
+        if self.options.openmp:
+            self.cpp_info.components["libkissfft"].requires = ["openmp::openmp"]
 
         # TODO: to remove in conan v2 once cmake_find_package_* generators removed
         self.cpp_info.names["pkg_config"] = lib_name
