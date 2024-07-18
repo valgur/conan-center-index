@@ -1,0 +1,47 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d81880c..001c5b7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -28,6 +28,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem)
+ find_package(GTSAM REQUIRED)
+ find_package(OpenMP REQUIRED)
+ find_package(Eigen3 REQUIRED)
++find_package(nanoflann REQUIRED)
+ 
+ if(${BUILD_WITH_CUDA} AND ${EIGEN3_VERSION_STRING} AND ${EIGEN3_VERSION_STRING} VERSION_LESS "3.3.90")
+   message(WARNING "Detected Eigen ${EIGEN3_VERSION_STRING} is not compatible with CUDA")
+@@ -157,7 +158,6 @@ add_library(gtsam_points SHARED
+ )
+ target_include_directories(gtsam_points PUBLIC
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nanoflann/include>
+   $<INSTALL_INTERFACE:include>
+ )
+ target_link_libraries(gtsam_points
+@@ -166,6 +166,7 @@ target_link_libraries(gtsam_points
+   Eigen3::Eigen
+   GTSAM::GTSAM
+   OpenMP::OpenMP_CXX
++  nanoflann::nanoflann
+ )
+ 
+ # GPU-related
+@@ -274,7 +275,7 @@ endif()
+ #############
+ 
+ include(GNUInstallDirs)
+-install(DIRECTORY include/ thirdparty/nanoflann/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ 
+ list(APPEND GTSAM_POINTS_LIBRARIES gtsam_points)
+ if(BUILD_WITH_CUDA)
+@@ -310,6 +311,5 @@ write_basic_package_version_file(
+ install(FILES
+   "${CMAKE_CURRENT_BINARY_DIR}/gtsam_points-config.cmake"
+   "${CMAKE_CURRENT_BINARY_DIR}/gtsam_points-config-version.cmake"
+-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindGTSAM.cmake"
+   DESTINATION ${CMAKE_CONFIG_INSTALL_DIR}
+ )
+-- 
+2.25.1
+
