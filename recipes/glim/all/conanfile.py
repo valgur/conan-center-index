@@ -56,7 +56,7 @@ class GlimPackage(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("opencv/4.9.0", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/4.2", transitive_headers=True, transitive_libs=True)
-        self.requires("gtsam_points/1.0.0", transitive_headers=True, transitive_libs=True)
+        self.requires("gtsam_points/1.0.0", transitive_headers=True, transitive_libs=True, options={"cuda": self.options.cuda})
         self.requires("nlohmann_json/3.11.3", transitive_headers=True)
         self.requires("openmp/system")
         self.requires("spdlog/1.14.1", transitive_headers=True)
@@ -71,6 +71,9 @@ class GlimPackage(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
+
+        if self.options.cuda and not self.dependencies["gtsam_points"].options.cuda:
+            raise ConanInvalidConfiguration("-o glim/*:cuda=True requires -o gtsam_points/*:cuda=True")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -115,13 +118,12 @@ class GlimPackage(ConanFile):
             "sub_mapping",
             "sub_mapping_passthrough",
         ]
+        if self.options.cuda:
+            self.cpp_info.libs += [
+                "odometry_estimation_gpu",
+            ]
         if self.options.viewer:
             self.cpp_info.libs += [
                 "interactive_viewer",
                 "standard_viewer",
             ]
-
-        # TODO: add CUDA support
-        # self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
-        # cmake_module = os.path.join("lib", "cmake", "conan-cuda-dependency.cmake")
-        # self.cpp_info.set_property("cmake_build_modules", [cmake_module])
