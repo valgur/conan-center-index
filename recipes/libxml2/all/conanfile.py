@@ -1,15 +1,12 @@
-import itertools
 import os
-import textwrap
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building, build_jobs
-from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeDeps, NMakeToolchain
+from conan.tools.meson import Meson, MesonToolchain
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -23,11 +20,9 @@ class Libxml2Conan(ConanFile):
     homepage = "https://gitlab.gnome.org/GNOME/libxml2/-/wikis/"
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
-    # from ./configure and ./win32/configure.js
     default_options = {
         "shared": False,
         "fPIC": True,
-        "include_utils": True,
         "c14n": True,
         "catalog": True,
         "ftp": True,
@@ -60,14 +55,7 @@ class Libxml2Conan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    @property
-    def _configure_option_names(self):
-        return [name for name in self.default_options.keys() if (name in self.options)
-                and (name not in ["shared", "fPIC", "include_utils"])]
-
-    @property
-    def _is_mingw_windows(self):
-        return self.settings.compiler == "gcc" and self.settings.os == "Windows" and self.settings_build.os == "Windows"
+    python_requires = "conan-utils/latest"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -83,254 +71,51 @@ class Libxml2Conan(ConanFile):
             self.requires("icu/[*]")
 
     def build_requirements(self):
-        if not (is_msvc(self) or self._is_mingw_windows):
-            if self.options.zlib or self.options.lzma or self.options.icu:
-                if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                    self.tool_requires("pkgconf/[>=2.2 <3]")
-            if self.settings_build.os == "Windows":
-                self.win_bash = True
-                if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                    self.tool_requires("msys2/cci.latest")
+        self.tool_requires("meson/[>=1.5.0 <2]")
+        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        if is_msvc(self):
-            tc = NMakeToolchain(self)
-            tc.generate()
-            deps = NMakeDeps(self)
-            deps.generate()
-        elif self._is_mingw_windows:
-            pass # nothing to do for mingw?  it calls mingw-make directly
-        else:
-            if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
-            tc = AutotoolsToolchain(self)
-            yes_no = lambda v: "yes" if v else "no"
-            for option_name in self._configure_option_names:
-                value = self.options.get_safe(option_name)
-                tc.configure_args.append(f"--with-{option_name}={yes_no(value)}")
-            tc.generate()
+        def feature(option):
+            return "enabled" if self.options.get_safe(option) else "disabled"
 
-            deps = PkgConfigDeps(self)
-            deps.generate()
+        tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "disabled"
+        for option in self.default_options:
+            if option not in {"shared", "fPIC"}:
+                tc.project_options[option] = feature(option)
+        tc.generate()
 
-            deps = AutotoolsDeps(self)
-            deps.generate()
-
-    def _build_msvc(self):
-        with chdir(self, os.path.join(self.source_folder, "win32")):
-            debug = "yes" if self.settings.build_type == "Debug" else "no"
-            static = "no" if self.options.shared else "yes"
-
-            args = [
-                "cscript",
-                "configure.js",
-                "compiler=msvc",
-                f"prefix={self.package_folder}",
-                f"cruntime=/{msvc_runtime_flag(self)}",
-                f"debug={debug}",
-                f"static={static}",
-            ]
-
-            incdirs = [incdir for dep in self.dependencies.values() for incdir in dep.cpp_info.includedirs]
-            libdirs = [libdir for dep in self.dependencies.values() for libdir in dep.cpp_info.libdirs]
-            args.append(f'include="{";".join(incdirs)}"')
-            args.append(f'lib="{";".join(libdirs)}"')
-
-            for name in self._configure_option_names:
-                value = getattr(self.options, name)
-                value = "yes" if value else "no"
-                args.append(f"{name}={value}")
-
-            configure_command = " ".join(args)
-            self.output.info(configure_command)
-            self.run(configure_command)
-
-            # Fix library names because they can be not just zlib.lib
-            def fix_library(option, package, old_libname):
-                if option:
-                    libs = []
-                    aggregated_cpp_info = self.dependencies[package].cpp_info.aggregated_components()
-                    for lib in itertools.chain(aggregated_cpp_info.libs, aggregated_cpp_info.system_libs):
-                        libname = lib
-                        if not libname.endswith(".lib"):
-                            libname += ".lib"
-                        libs.append(libname)
-                    replace_in_file(self, "Makefile.msvc",
-                                          f"LIBS = $(LIBS) {old_libname}",
-                                          f"LIBS = $(LIBS) {' '.join(libs)}")
-
-            fix_library(self.options.zlib, "zlib-ng", "zlib.lib")
-            fix_library(self.options.lzma, "xz_utils", "liblzma.lib")
-            fix_library(self.options.iconv, "libiconv", "iconv.lib")
-            fix_library(self.options.icu, "icu", "advapi32.lib sicuuc.lib sicuin.lib sicudt.lib")
-            fix_library(self.options.icu, "icu", "icuuc.lib icuin.lib icudt.lib")
-
-            self.run("nmake /f Makefile.msvc libxml libxmla libxmladll")
-
-            if self.options.include_utils:
-                self.run("nmake /f Makefile.msvc utils")
-
-    def _package_msvc(self):
-        with chdir(self, os.path.join(self.source_folder, "win32")):
-            self.run("nmake /f Makefile.msvc install-libs")
-
-            if self.options.include_utils:
-                self.run("nmake /f Makefile.msvc install-dist")
-
-    def _build_mingw(self):
-        with chdir(self, os.path.join(self.source_folder, "win32")):
-            # configuration
-            yes_no = lambda v: "yes" if v else "no"
-            args = [
-                "cscript",
-                "configure.js",
-                "compiler=mingw",
-                f"prefix={self.package_folder}",
-                f"debug={yes_no(self.settings.build_type == 'Debug')}",
-                f"static={yes_no(not self.options.shared)}",
-            ]
-
-            incdirs = [incdir for dep in self.dependencies.values() for incdir in dep.cpp_info.includedirs]
-            libdirs = [libdir for dep in self.dependencies.values() for libdir in dep.cpp_info.libdirs]
-            args.append(f'include="{" -I".join(incdirs)}"')
-            args.append(f'lib="{" -L".join(libdirs)}"')
-
-            for name in self._configure_option_names:
-                args.append(f"{name}={yes_no(getattr(self.options, name))}")
-            configure_command = " ".join(args)
-            self.output.info(configure_command)
-            self.run(configure_command)
-
-            # build
-            def fix_library(option, package, old_libname):
-                if option:
-                    aggregated_cpp_info = self.dependencies[package].cpp_info.aggregated_components()
-                    replace_in_file(self,
-                        "Makefile.mingw",
-                        f"LIBS += -l{old_libname}",
-                        f"LIBS += -l{' -l'.join(aggregated_cpp_info.libs)}",
-                    )
-
-            fix_library(self.options.iconv, "libiconv", "iconv")
-            fix_library(self.options.zlib, "zlib", "z")
-            fix_library(self.options.lzma, "xz_utils", "lzma")
-
-            self.run(f"mingw32-make -j{build_jobs(self)} -f Makefile.mingw libxml libxmla")
-            if self.options.include_utils:
-                self.run(f"mingw32-make -j{build_jobs(self)} -f Makefile.mingw utils")
-
-    def _package_mingw(self):
-        with chdir(self, os.path.join(self.source_folder, "win32")):
-            mkdir(self, os.path.join(self.package_folder, "include", "libxml2"))
-            self.run("mingw32-make -f Makefile.mingw install-libs")
-            if self.options.include_utils:
-                self.run("mingw32-make -f Makefile.mingw install-dist")
-
-    def _patch_sources(self):
-        # Break dependency of install on build
-        for makefile in ("Makefile.mingw", "Makefile.msvc"):
-            replace_in_file(self, os.path.join(self.source_folder, "win32", makefile),
-                                               "install-libs : all",
-                                               "install-libs :")
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
     def build(self):
-        self._patch_sources()
-        if is_msvc(self):
-            self._build_msvc()
-        elif self._is_mingw_windows:
-            self._build_mingw()
-        else:
-            autotools = Autotools(self)
-            autotools.configure()
-            autotools.make("libxml2.la")
-
-            if self.options.include_utils:
-                for target in ["xmllint", "xmlcatalog", "xml2-config"]:
-                    autotools.make(target)
+        meson = Meson(self)
+        meson.configure()
+        meson.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"), ignore_case=True, keep_path=False)
-        copy(self, "Copyright", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"), ignore_case=True, keep_path=False)
-        if is_msvc(self):
-            self._package_msvc()
-            # remove redundant libraries to avoid confusion
-            if not self.options.shared:
-                rm(self, "libxml2.dll", os.path.join(self.package_folder, "bin"))
-            rm(self, "libxml2_a_dll.lib", os.path.join(self.package_folder, "lib"))
-            rm(self, "libxml2_a.lib" if self.options.shared else "libxml2.lib", os.path.join(self.package_folder, "lib"))
-            rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        elif self._is_mingw_windows:
-            self._package_mingw()
-            if self.options.shared:
-                rm(self, "libxml2.a", os.path.join(self.package_folder, "lib"))
-                rename(self, os.path.join(self.package_folder, "lib", "libxml2.lib"),
-                             os.path.join(self.package_folder, "lib", "libxml2.dll.a"))
-            else:
-                rm(self, "libxml2.dll", os.path.join(self.package_folder, "bin"))
-                rm(self, "libxml2.lib", os.path.join(self.package_folder, "lib"))
-        else:
-            autotools = Autotools(self)
-            for target in ["install-libLTLIBRARIES", "install-data"]:
-                autotools.make(target=target, args=[f"DESTDIR={unix_path(self, self.package_folder)}"])
-            if self.options.include_utils:
-                autotools.install()
-
-            rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-            rm(self, "*.sh", os.path.join(self.package_folder, "lib"))
-            rm(self, "run*", os.path.join(self.package_folder, "bin"))
-            rm(self, "test*", os.path.join(self.package_folder, "bin"))
-            rmdir(self, os.path.join(self.package_folder, "share"))
-            rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-            rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            fix_apple_shared_install_name(self)
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"), ignore_case=True, keep_path=False)
+        copy(self, "Copyright", self.source_folder, os.path.join(self.package_folder, "licenses"), ignore_case=True, keep_path=False)
+        meson = Meson(self)
+        meson.install()
+        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        rm(self, "*.sh", os.path.join(self.package_folder, "lib"))
+        rm(self, "run*", os.path.join(self.package_folder, "bin"))
+        rm(self, "test*", os.path.join(self.package_folder, "bin"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-utils"].module.fix_msvc_libnames(self)
 
         for header in ["win32config.h", "wsockcompat.h"]:
             copy(self, header,
                  os.path.join(self.source_folder, "include"),
-                 os.path.join(self.package_folder, "include", "libxml2"),
-                 keep_path=False)
-
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
-
-    def _create_cmake_module_variables(self, module_file):
-        # FIXME: also define LIBXML2_XMLLINT_EXECUTABLE variable
-        content = textwrap.dedent(f"""\
-            set(LibXml2_FOUND TRUE)
-            set(LIBXML2_FOUND TRUE)
-            if(DEFINED LibXml2_INCLUDE_DIRS)
-                set(LIBXML2_INCLUDE_DIR ${{LibXml2_INCLUDE_DIRS}})
-                set(LIBXML2_INCLUDE_DIRS ${{LibXml2_INCLUDE_DIRS}})
-            elseif(DEFINED libxml2_INCLUDE_DIRS)
-                set(LIBXML2_INCLUDE_DIR ${{libxml2_INCLUDE_DIRS}})
-                set(LIBXML2_INCLUDE_DIRS ${{libxml2_INCLUDE_DIRS}})
-            endif()
-            if(DEFINED LibXml2_LIBRARIES)
-                set(LIBXML2_LIBRARIES ${{LibXml2_LIBRARIES}})
-                set(LIBXML2_LIBRARY ${{LibXml2_LIBRARIES}})
-            elseif(DEFINED libxml2_LIBRARIES)
-                set(LIBXML2_LIBRARIES ${{libxml2_LIBRARIES}})
-                set(LIBXML2_LIBRARY ${{libxml2_LIBRARIES}})
-            endif()
-            if(DEFINED LibXml2_DEFINITIONS)
-                set(LIBXML2_DEFINITIONS ${{LibXml2_DEFINITIONS}})
-            elseif(DEFINED libxml2_DEFINITIONS)
-                set(LIBXML2_DEFINITIONS ${{libxml2_DEFINITIONS}})
-            else()
-                set(LIBXML2_DEFINITIONS "")
-            endif()
-            set(LIBXML2_VERSION_STRING "{self.version}")
-        """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
+                 os.path.join(self.package_folder, "include", "libxml2"), keep_path=False)
 
     def package_info(self):
         # FIXME: Provide LibXml2::xmllint & LibXml2::xmlcatalog imported target for executables
@@ -338,7 +123,7 @@ class Libxml2Conan(ConanFile):
         self.cpp_info.set_property("cmake_module_file_name", "LibXml2")
         self.cpp_info.set_property("cmake_file_name", "libxml2")
         self.cpp_info.set_property("cmake_target_name", "LibXml2::LibXml2")
-        self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
+        self.cpp_info.set_property("cmake_additional_variables_prefixes", ["LIBXML"])
         self.cpp_info.set_property("pkg_config_name", "libxml-2.0")
         prefix = "lib" if is_msvc(self) else ""
         suffix = "_a" if is_msvc(self) and not self.options.shared else ""
@@ -355,6 +140,3 @@ class Libxml2Conan(ConanFile):
         elif self.settings.os == "Windows":
             if self.options.ftp or self.options.http:
                 self.cpp_info.system_libs.extend(["ws2_32", "wsock32"])
-            # https://gitlab.gnome.org/GNOME/libxml2/-/issues/791
-            # https://gitlab.gnome.org/GNOME/libxml2/-/blob/2.13/win32/Makefile.msvc?ref_type=heads#L84
-            self.cpp_info.system_libs.append("bcrypt")
