@@ -4,7 +4,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir, download
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -24,11 +23,13 @@ class IridescenceConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "with_openmp": [True, False],
         "with_tbb": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "with_openmp": True,
         "with_tbb": True,
     }
 
@@ -59,8 +60,10 @@ class IridescenceConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
-        # '#pragma omp' is used in public headers
-        self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+        if self.options.with_openmp:
+            # '#pragma omp' is used in public headers
+            # Note: native MSVC OpenMP is not compatible
+            self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
         if self.options.with_tbb:
             self.requires("onetbb/2021.12.0", transitive_headers=True, transitive_libs=True)
 
@@ -87,10 +90,8 @@ class IridescenceConan(ConanFile):
 
         tc = CMakeToolchain(self)
         tc.variables["BUILD_HELPER"] = True
-        tc.variables["BUILD_WITH_OPENMP"] = True
+        tc.variables["BUILD_WITH_OPENMP"] = self.options.with_openmp
         tc.variables["BUILD_WITH_TBB"] = self.options.with_tbb
-        if is_msvc(self):
-            tc.preprocessor_definitions["_USE_MATH_DEFINES"] = ""
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -121,5 +122,3 @@ class IridescenceConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-        elif is_msvc(self):
-            self.cpp_info.defines.append("_USE_MATH_DEFINES")
