@@ -1,84 +1,139 @@
-<p align="center">
-    <img src="assets/JFrogConanCenter.png" width="600"/>
-</p>
+This is a fork of Conan Center Index containing [recipes and changes by @valgur](https://github.com/conan-io/conan-center-index/pulls?q=is%3Aopen+is%3Apr+author%3Avalgur+sort%3Aupdated-desc) not yet merged to the main Conan Center Index.
 
-Conan Center Index is the source index of recipes of the [ConanCenter](https://conan.io/center) package repository for [Conan](https://conan.io).
+## Setup
 
-This repository includes a Continuous Integration system that will build automatically the Conan packages for the recipes submitted via
-[Pull Request](https://github.com/conan-io/conan-center-index/pulls).
-
-### Server Status
-
-The current Conan Center Index CI status can be found on https://status.conan.io/
-
-Any maintenance, outage or important event related to the CI will be informed there.
-
-
-### Add ConanCenter remote
-
-ConanCenter remote is configured by default in any Conan client installation. If, for any reason, you need to add it manually, just execute:
+You can add this repo as a Conan remote with the following commands:
 
 ```
-conan remote add conancenter https://center.conan.io
+git clone https://github.com/valgur/conan-center-index.git cci-valgur
+conan remote add cci-valgur "$PWD/cci-valgur" --type local-recipes-index
 ```
 
-### How to consume recipes
+Requires Conan v2.2 or newer.
 
-Starting to use recipes from this repository is as easy as running
-one simple command after installing Conan:
+## Added recipes and versions
 
-```
-conan install name/version@ [-g <generator>]
-```
+Package versions that are available here but not yet on the main CCI repo as of 2024-07-27:
 
-Of course, we really encourage you to use a `conanfile.txt` or `conanfile.py`
-to list all the requirements or your project and install them all together
-(Conan will build a single graph and ensure congruency).
+- apriltag/3.1.7
+- apriltag/3.2.0
+- apriltag/3.3.0
+- armadillo/12.6.7
+- armadillo/12.8.1
+- aruco/3.1.15
+- aws-cdi-sdk/2.4.1
+- blis/0.9.0
+- casadi/3.6.4
+- cilantro/cci.20230816
+- cimg/3.3.5
+- coin-buildtools/0.8.11
+- coin-cbc/2.10.11
+- coin-cgl/0.60.8
+- coin-clp/1.17.9
+- coin-ipopt/3.14.13
+- coin-mumps/3.0.5
+- coin-osi/0.108.10
+- coin-utils/2.11.11
+- colmap/3.9.1
+- cub/2.2.0
+- cub/2.3.2
+- cub/2.4.0
+- daggy/2.1.3
+- dawn/cci.20240726
+- f2c/20240312
+- folly/2022.10.31.00
+- folly/2023.12.18.00
+- g2o/20230806
+- gdal/3.9.0
+- gdalcpp/1.3.0
+- geos/3.12.1
+- getdns/1.7.3
+- gfortran/13.2.0
+- gici/cci.20240421
+- glim/1.0.0
+- glim_ext/1.0.0
+- glpk/4.48
+- glpk/4.65
+- gnsstk/14.3.0
+- gnu-getopt/2.40
+- gnuradio-volk/3.1.2
+- gobject-introspection/1.78.1
+- gpu.cpp/cci.20240726
+- gtk/3.24.41
+- gtk/4.14.3
+- gtsam_points/1.0.0
+- hscpp/1.0.0-alpha
+- imagemagick/7.1.1.32
+- iridescence/cci.20240709
+- lapack/3.12.0
+- libbasisu/1.16.4
+- libcudacxx/2.2.0
+- libcudacxx/2.3.2
+- libcudacxx/2.4.0
+- libelas/cci.20150630
+- libfabric/1.18.1
+- libosmium/2.20.0
+- librsvg/2.57.0
+- libtomcrypt/1.18.2
+- libtommath/1.2.1
+- libtommath/1.3.0
+- llvm-openmp/18.1.8
+- matplotlib-cpp/cci.20210423
+- matplotplusplus/1.2.0
+- mrcal/2.4.1
+- nanoflann/1.6.0
+- netpbm/11.6.0
+- ogre/14.2.4
+- opengl-registry/20240721
+- openmp/system
+- openmpi/4.1.6
+- openmvg/2.1
+- openni2/2.2.0.33
+- openslide/4.0.0
+- osgearth/3.5
+- osrm/5.27.1
+- pangolin/0.9.1
+- pcl/1.14.1
+- pdal/2.7.1
+- poppler/24.03.0
+- portable-file-dialogs/cci.20221111
+- premake/5.0.0-beta2
+- qhull/cci.20231130
+- reproc/14.2.5
+- rosx_introspection/1.0.0
+- rust/1.72.1
+- rust/1.77.1
+- small_gicp/0.1.2
+- steamworks_sdk/1.60
+- stella_vslam/0.5.0
+- suitesparse-amd/3.3.2
+- suitesparse-btf/2.3.2
+- suitesparse-camd/3.3.2
+- suitesparse-ccolamd/3.3.3
+- suitesparse-cholmod/5.2.1
+- suitesparse-colamd/3.3.3
+- suitesparse-config/7.7.0
+- suitesparse-cxsparse/4.4.0
+- suitesparse-graphblas/9.2.0
+- suitesparse-klu/2.3.3
+- suitesparse-lagraph/1.1.3
+- suitesparse-ldl/3.3.2
+- suitesparse-mongoose/3.3.3
+- suitesparse-paru/0.1.3
+- suitesparse-rbio/4.3.2
+- suitesparse-spex/3.1.0
+- suitesparse-spqr/4.3.3
+- suitesparse-umfpack/6.3.3
+- sundials/5.8.0
+- sundials/6.7.0
+- thrust/2.2.0
+- thrust/2.3.2
+- thrust/2.4.0
+- tiledb/2.22.0
+- vilib/cci.20210625
+- vlfeat/0.9.21
+- vulkan-utility-libraries/1.3.261.1
+- vulkan-utility-libraries/1.3.268.0
+- xgboost/2.0.3
+- zenoh-c/0.10.1-rc
 
-:warning: It is very important to notice that recipes will evolve over time
-and, while they are fixing some issues, they might introduce new features and
-improvements, and your project can break if you upgrade them
-([How to prevent these breaking changes in my project?](docs/consuming_recipes.md)).
-
-
-
-### Documentation
-
-All the documentation is available in this same repository in the [`docs/` subfolder](docs/README.md).
-
-This is a list of shortcuts to some interesting topics:
-
-* :rocket: If you want to learn how to **contribute new recipes**, please read [docs/adding_packages/](docs/adding_packages/README.md).
-* :speech_balloon: **FAQ**: most common questions are listed in [docs/faqs.md](docs/faqs.md).
-* :warning: The conan-center **hook errors** reported by CCI Bot can be found in the [docs/error_knowledge_base.md](docs/error_knowledge_base.md).
-* :hammer_and_wrench: The internal changes related to infrastructure can be checked in [docs/changelog.md](docs/changelog.md).
-* :world_map: There are various community lead initiatives which are outlined in [docs/community_resources.md](docs/community_resources.md).
-* :magic_wand: To start preparing your recipes for **Conan 2.0**, please check [docs/v2_migration.md](docs/v2_migration.md).
-
-### Reporting Issues
-
-You can open issues in the [issue tracker](https://github.com/conan-io/conan-center-index/issues) to:
-
-* :bug: Report **bugs/issues** in a package:
-    - Use the `[package]` tag in the title of the issue to help identifying them.
-    - If you detect any issue or missing feature in a package, for example, a build failure or a recipe that not support a specific configuration.
-    - Specify the name and version (`zlib/1.2.11`) and any relevant details about the fail configuration: Applied profile, building machine...
-
-* :bulb: Request a **new library** to be added:
-    - Use the `[request]` label to search the library in the issue tracker in case it was already requested.
-    - If not, use the same `[request]` tag in the title of the issue to help identifying them.
-    - Indicate the name and the version of the library you would like to have in the repository. Also links to the project's website,
-      source download/repository and in general any relevant information that helps creating a recipe for it.
-
-*  :robot: Report **a failure** in the CI system:
-    - If you open a Pull Request and get an unexpected error you might comment in the failing PR.
-    - If the service or repository is down or failing, use the `[service]` tag in the title of a new issue to help identifying them.
-
-If your issue is not appropriate for a public discussion, please contact us via e-mail at `info@conan.io`. Thanks!
-
-
-### License
-
-All the Conan recipes in this repository are distributed under the [MIT](LICENSE) license. There
-are other files, like patches or examples used to test the packages, that could use different licenses,
-for those files specific license and credit must be checked in the file itself.
