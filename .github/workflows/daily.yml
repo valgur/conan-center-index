@@ -1,0 +1,58 @@
+name: "Update README daily"
+on:
+  schedule:
+    - cron: "33 3 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - ci
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install prereqs
+        run: pip install -U yq
+      - name: Get local package versions
+        shell: bash
+        run: |
+          set -o pipefail
+          cd recipes
+          find * -maxdepth 1 -name config.yml | sort | while read f; do pkg=$(dirname "$f"); yq --raw-output '.versions | "'"$pkg/"'" + keys_unsorted[]' $f | sort; done | tee valgur.list
+      - name: Checkout upstream
+        run: |
+          git remote add upstream https://github.com/conan-io/conan-center-index.git
+          git fetch upstream master
+          git checkout FETCH_HEAD
+      - name: Get upstream package versions
+        shell: bash
+        run: |
+          set -o pipefail
+          cd recipes
+          find * -maxdepth 1 -name config.yml | sort | while read f; do pkg=$(dirname "$f"); yq --raw-output '.versions | "'"$pkg/"'" + keys_unsorted[]' $f | sort; done | tee conan-io.list
+      - name: Compare package versions
+        run: cd recipes && comm -13 conan-io.list valgur.list | tee diff.list
+      - name: Checkout dev branch
+        run: |
+          git fetch origin dev
+          git checkout FETCH_HEAD
+      - name: Update README
+        run: |
+          set -o pipefail
+          # Add a '- ' before each item in diff.list
+          sed -i 's/^/- /' recipes/diff.list
+          # Replace <date> with today's date and <versions> with the diff
+          sed "s/<date>/$(date +%Y-%m-%d)/" .github/README_TEMPLATE.md | sed "/<versions>/r recipes/diff.list" | sed "/<versions>/d" | tee README.md
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Daily README.md update"
+          file_pattern: "README.md"
+          skip_fetch: true
+          branch: dev
