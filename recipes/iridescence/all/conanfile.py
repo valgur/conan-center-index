@@ -3,6 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, rename, replace_in_file
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -35,11 +36,11 @@ class IridescenceConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "Visual Studio": "17",
-            "msvc": "193",
+            "gcc": "9",
+            "clang": "9",
+            "apple-clang": "11",
+            "Visual Studio": "16",
+            "msvc": "192",
         }
 
     def export_sources(self):
@@ -57,8 +58,8 @@ class IridescenceConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("assimp/5.3.1")
-        self.requires("boost/1.85.0", transitive_headers=True)
+        self.requires("assimp/5.4.1")
+        self.requires("boost/1.84.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("glm/cci.20230113")
         self.requires("libjpeg/9e")
@@ -82,6 +83,9 @@ class IridescenceConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
+        if is_msvc(self):
+            # Build fails with several compilation errors
+            raise ConanInvalidConfiguration("MSVC is not supported")
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Shared builds are not supported on Windows")
 
