@@ -1,9 +1,11 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -48,6 +50,13 @@ class PackageConan(ConanFile):
     def validate(self):
         if self.options.cxx and self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
+        if self.settings.os == "Windows" and self.options.shared:
+            # test_package fails with:
+            # unresolved external symbol "class std::chrono::duration<int,struct std::ratio<1,1000> > const reproc::infinite"
+            raise ConanInvalidConfiguration("Shared libraries are not supported on Windows")
+        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
+            # drain.hpp:55:43: error: ‘stream’ is not a class, namespace, or enumeration
+            raise ConanInvalidConfiguration("GCC < 6 is not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -84,11 +93,11 @@ class PackageConan(ConanFile):
             self.cpp_info.components["reproc_c"].system_libs.append("rt")
             if self.options.multithreaded:
                 self.cpp_info.components["reproc_c"].system_libs.append("pthread")
+        elif self.settings.os == "Windows":
+            self.cpp_info.components["reproc_c"].system_libs.append("Ws2_32")
 
         self.cpp_info.components["reproc_cxx"].set_property("pkg_config_name", "reproc++")
         self.cpp_info.components["reproc_cxx"].set_property("cmake_target_name", "reproc++")
         self.cpp_info.components["reproc_cxx"].libs = ["reproc++"]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["reproc_cxx"].system_libs.append("rt")
-            if self.options.multithreaded:
-                self.cpp_info.components["reproc_cxx"].system_libs.append("pthread")
+        self.cpp_info.components["reproc_cxx"].requires = ["reproc_c"]
+
