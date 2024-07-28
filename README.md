@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-07-27:
+Package versions that are available here but not yet on the main CCI repo as of 2024-07-28:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,6 +22,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.8.1
 - aruco/3.1.15
 - aws-cdi-sdk/2.4.1
+- bazel/4.2.4
+- bazel/6.5.0
+- bazel/7.2.1
 - blis/0.9.0
 - casadi/3.6.4
 - cilantro/cci.20230816
@@ -54,6 +57,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glim_ext/1.0.0
 - glpk/4.48
 - glpk/4.65
+- gn/cci.20240611
 - gnsstk/14.3.0
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
@@ -100,9 +104,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - premake/5.0.0-beta2
 - qhull/cci.20231130
 - reproc/14.2.5
-- rosx_introspection/1.0.0
+- rosx_introspection/1.0.1
 - rust/1.72.1
 - rust/1.77.1
+- skia/cci.20240727
 - small_gicp/0.1.2
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
@@ -134,6 +139,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vlfeat/0.9.21
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
+- vulkan-validationlayers/1.3.243.0
 - xgboost/2.0.3
 - zenoh-c/0.10.1-rc
 
