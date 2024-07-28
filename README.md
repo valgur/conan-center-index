@@ -18,6 +18,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - apriltag/3.1.7
 - apriltag/3.2.0
 - apriltag/3.3.0
+- arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
@@ -44,8 +45,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - f2c/20240312
+- filament/1.5.3
 - folly/2022.10.31.00
 - folly/2023.12.18.00
+- fortran/cci.latest
 - g2o/20230806
 - gdal/3.9.0
 - gdalcpp/1.3.0
@@ -74,10 +77,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcudacxx/2.2.0
 - libcudacxx/2.3.2
 - libcudacxx/2.4.0
+- libdatrie/0.2.13
+- libecwj2/3.3
 - libelas/cci.20150630
 - libfabric/1.18.1
+- libhdfs3/cci.20191105
 - libosmium/2.20.0
+- libphonenumber/8.13.42
 - librsvg/2.57.0
+- libsolv/0.7.29
 - libtomcrypt/1.18.2
 - libtommath/1.2.1
 - libtommath/1.3.0
@@ -85,9 +93,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mrcal/2.4.1
+- mysql-connector-cpp/8.2.0
+- nanobind/1.9.2
 - nanoflann/1.6.0
 - netpbm/11.6.0
+- numpy/1.26.4
 - ogre/14.2.4
+- open62541pp/0.12.0
 - opengl-registry/20240721
 - openmp/system
 - openmpi/4.1.6
@@ -107,6 +119,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rosx_introspection/1.0.1
 - rust/1.72.1
 - rust/1.77.1
+- sfcgal/1.5.0
 - skia/cci.20240727
 - small_gicp/0.1.2
 - steamworks_sdk/1.60
@@ -135,6 +148,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.3.2
 - thrust/2.4.0
 - tiledb/2.22.0
+- tpl/cci.20210302
+- usearch/2.9.1
 - vilib/cci.20210625
 - vlfeat/0.9.21
 - vulkan-utility-libraries/1.3.261.1
