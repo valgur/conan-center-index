@@ -64,9 +64,8 @@ class FbgemmConan(ConanFile):
     def requirements(self):
         self.requires("asmjit/cci.20240531", transitive_headers=True, transitive_libs=True)
         self.requires("cpuinfo/cci.20231129", transitive_headers=True, transitive_libs=True)
-        # TODO: #22360
         # Not used in any public headers
-        # self.requires("openmp/system")
+        self.requires("openmp/system")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -91,7 +90,6 @@ class FbgemmConan(ConanFile):
         tc.variables["FBGEMM_BUILD_TESTS"] = False
         tc.variables["FBGEMM_BUILD_BENCHMARKS"] = False
         tc.variables["FBGEMM_BUILD_DOCS"] = False
-        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_OpenMP"] = True
         if not valid_min_cppstd(self, self._min_cppstd):
             tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.generate()
