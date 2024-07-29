@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-07-28:
+Package versions that are available here but not yet on the main CCI repo as of 2024-07-29:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -45,6 +45,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - f2c/20240312
+- fbgemm/0.8.0
 - filament/1.5.3
 - folly/2022.10.31.00
 - folly/2023.12.18.00
