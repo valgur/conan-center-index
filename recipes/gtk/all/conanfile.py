@@ -138,7 +138,7 @@ class GtkConan(ConanFile):
         if self._gtk4:
             self.tool_requires("libxml2/[>=2.12.5 <3]")  # for xmllint
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.2.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
         if self._gtk4:
             self.tool_requires("sassc/3.6.2")
 

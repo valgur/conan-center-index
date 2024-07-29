@@ -91,7 +91,7 @@ class GdkPixbufConan(ConanFile):
         # INFO: gettext provides msgfmt, which is required to build the .mo files
         self.tool_requires("gettext/0.21")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.2.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.72.0")

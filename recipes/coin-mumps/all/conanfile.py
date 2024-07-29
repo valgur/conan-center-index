@@ -73,7 +73,7 @@ class PackageConan(ConanFile):
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.2.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
         self.build_requires("gfortran/<host_version>")
 
     def source(self):

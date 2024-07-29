@@ -86,7 +86,7 @@ class LibsystemdConan(ConanFile):
         self.tool_requires("m4/1.4.19")
         self.tool_requires("gperf/3.1")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.2.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         # Extract using standard Python tools due to Conan's unzip() not handling backslashes in

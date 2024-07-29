@@ -70,7 +70,7 @@ class LibsecretConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/1.4.1")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.2.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
 
         if is_apple_os(self):

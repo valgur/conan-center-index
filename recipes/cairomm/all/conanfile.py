@@ -78,7 +78,7 @@ class CairommConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/1.4.0")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.2.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

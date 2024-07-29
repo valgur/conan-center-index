@@ -1230,7 +1230,7 @@ class OpenCVConan(ConanFile):
             if not self._is_legacy_one_profile:
                 self.tool_requires("wayland/<host_version>")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/2.2.0")
+                self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
