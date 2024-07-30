@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-07-29:
+Package versions that are available here but not yet on the main CCI repo as of 2024-07-30:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -23,9 +23,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.8.1
 - aruco/3.1.15
 - aws-cdi-sdk/2.4.1
-- bazel/4.2.4
-- bazel/6.5.0
-- bazel/7.2.1
 - blis/0.9.0
 - casadi/3.6.4
 - cilantro/cci.20230816
@@ -61,7 +58,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glim_ext/1.0.0
 - glpk/4.48
 - glpk/4.65
-- gn/cci.20240611
 - gnsstk/14.3.0
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
@@ -74,6 +70,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imagemagick/7.1.1.32
 - iridescence/cci.20240709
 - lapack/3.12.0
+- libaec/1.0.4
 - libbasisu/1.16.4
 - libcudacxx/2.2.0
 - libcudacxx/2.3.2
@@ -84,7 +81,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libfabric/1.18.1
 - libhdfs3/cci.20191105
 - libosmium/2.20.0
-- libphonenumber/8.13.42
 - librsvg/2.57.0
 - libsolv/0.7.29
 - libtomcrypt/1.18.2
@@ -96,12 +92,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mrcal/2.4.1
 - mysql-connector-cpp/8.2.0
 - nanobind/1.9.2
-- nanoflann/1.6.0
 - netpbm/11.6.0
 - numpy/1.26.4
 - ogre/14.2.4
 - open62541pp/0.12.0
-- opengl-registry/20240721
 - openmp/system
 - openmpi/4.1.6
 - openmvg/2.1
@@ -112,6 +106,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangolin/0.9.1
 - pcl/1.14.1
 - pdal/2.7.1
+- plutovg/cci.20220103
+- plutovg/cci.20221030
+- plutovg/cci.20230205
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
@@ -123,6 +120,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sfcgal/1.5.0
 - skia/cci.20240727
 - small_gicp/0.1.2
+- stb/cci.20200203
+- stb/cci.20210713
+- stb/cci.20210910
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
 - suitesparse-amd/3.3.2
