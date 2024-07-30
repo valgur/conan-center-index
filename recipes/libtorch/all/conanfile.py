@@ -78,7 +78,7 @@ class LibtorchConan(ConanFile):
         "utilities": False,
         "vulkan_fp16_inference": False,
         "vulkan_relaxed_precision": False,
-        "with_fbgemm": False,  # TODO: enable after #24749
+        "with_fbgemm": True,
         "with_gflags": False,
         "with_glog": False,
         "with_itt": True,
@@ -87,7 +87,7 @@ class LibtorchConan(ConanFile):
         "with_nnpack": True,
         "with_numa": True,
         "with_opencl": False,
-        "with_openmp": False,  # TODO: enable after #22360
+        "with_openmp": True,
         "with_qnnpack": True,
         "with_vulkan": True,
         "with_xnnpack": True,
