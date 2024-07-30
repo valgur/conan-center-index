@@ -3,11 +3,11 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd, valid_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.56.0 <2 || >=2.0.6"
 
@@ -32,6 +32,7 @@ class LibphonenumberConan(ConanFile):
         "use_lite_metadata": [True, False],
         "use_posix_thread": [True, False],
         "use_std_mutex": [True, False],
+        #re2 is not an option, because using it crashes
     }
     default_options = {
         "shared": False,
@@ -52,6 +53,10 @@ class LibphonenumberConan(ConanFile):
        "use_posix_thread": "Use Posix thread for multi-threading",
        "use_std_mutex": "use C++ 2011 std::mutex for multi-threading",
     }
+
+    @property
+    def _min_cppstd(self):
+        return 11 if Version(self.dependencies["abseil"].ref.version) < "20230125.0" else 14
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -85,7 +90,7 @@ class LibphonenumberConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name} not supported in Windows yet, contributions welcome\n"
                                             "https://github.com/google/libphonenumber/blob/master/FAQ.md#what-about-windows")
         if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+            check_min_cppstd(self, self._min_cppstd)
 
         if not self.options.use_std_mutex and not self.options.use_boost and not self.options.get_safe("use_posix_thread"):
             raise ConanInvalidConfiguration("At least one of use_std_mutex, use_boost or use_posix_thread must be enabled")
@@ -95,12 +100,11 @@ class LibphonenumberConan(ConanFile):
             raise ConanInvalidConfiguration("use_icu_regexp=False is not supported")
 
         if conan_version.major == 1:
-            # "Can't find Google Protocol Buffers: can't locate protobuf."
             raise ConanInvalidConfiguration("Conan 1.x is not supported. Contributions are welcome!")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
+            self.tool_requires("pkgconf/2.2.0")
         self.tool_requires("protobuf/<host_version>")
 
     def source(self):
@@ -117,7 +121,7 @@ class LibphonenumberConan(ConanFile):
         tc.variables["USE_LITE_METADATA"] = self.options.use_lite_metadata
         tc.variables["USE_POSIX_THREAD"] = self.options.get_safe("use_posix_thread", False)
         tc.variables["USE_PROTOBUF_LITE"] = self.dependencies["protobuf"].options.lite
-        tc.variables["USE_RE2"] = False
+        tc.variables["USE_RE2"] = False  # Hardcoded, attempt to use it crashed
         tc.variables["USE_STDMUTEX"] = self.options.use_std_mutex
         tc.variables["BUILD_TESTING"] = False
         tc.variables["BUILD_TOOLS_ONLY"] = False
@@ -125,6 +129,8 @@ class LibphonenumberConan(ConanFile):
         # Otherwise tries to use <tr1/unordered_map>, and requires the recipe to export a define accordingly.
         # The define can be set based only on a compilation test.
         tc.variables["USE_STD_MAP"] = True
+        if not valid_min_cppstd(self, self._min_cppstd):
+            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.generate()
@@ -134,20 +140,8 @@ class LibphonenumberConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "cpp", "CMakeLists.txt"),
-                        "find_package(absl)", "find_package(absl REQUIRED)")
-        # Not used yet, because package will not work in Windows/msvc, but at least this managed to get
-        # pass the configure stage (then fails in build step because dirent.h not found)
-        if is_msvc(self):  # In Windows the lib is called differently
-            replace_in_file(self, os.path.join(self.source_folder, "cpp", "CMakeLists.txt"),
-                            "find_required_library (PROTOBUF google/protobuf/message_lite.h protobuf",
-                            "find_required_library (PROTOBUF google/protobuf/message_lite.h libprotobuf")
-            replace_in_file(self, os.path.join(self.source_folder, "cpp", "CMakeLists.txt"),
-                            "find_required_library (ICU_UC unicode/uchar.h icuuc",
-                            "find_required_library (ICU_UC unicode/uchar.h sicuuc")
-            replace_in_file(self, os.path.join(self.source_folder, "cpp", "CMakeLists.txt"),
-                            "find_required_library (ICU_I18N unicode/regex.h icui18n",
-                            "find_required_library (ICU_I18N unicode/regex.h sicuin")
+        # (failed) attempt to make it work in windows/msvc, patching some build scripts
+        # https://github.com/conan-io/conan-center-index/pull/23689/commits/c5e7091d134174fb590218ed066c074f45274a93
         replace_in_file(self, os.path.join(self.source_folder, "cpp", "CMakeLists.txt"), " -Werror", "")
 
     def build(self):
