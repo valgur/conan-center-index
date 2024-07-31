@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-07-30:
+Package versions that are available here but not yet on the main CCI repo as of 2024-07-31:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -70,7 +70,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imagemagick/7.1.1.32
 - iridescence/cci.20240709
 - lapack/3.12.0
-- libaec/1.0.4
 - libbasisu/1.16.4
 - libcudacxx/2.2.0
 - libcudacxx/2.3.2
@@ -86,6 +85,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtomcrypt/1.18.2
 - libtommath/1.2.1
 - libtommath/1.3.0
+- libtorch/2.4.0
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
@@ -106,11 +106,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangolin/0.9.1
 - pcl/1.14.1
 - pdal/2.7.1
-- plutovg/cci.20220103
-- plutovg/cci.20221030
-- plutovg/cci.20230205
+- pocketfft/cci.20240710
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
+- poselib/2.0.3
 - premake/5.0.0-beta2
 - qhull/cci.20231130
 - reproc/14.2.5
@@ -120,9 +119,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sfcgal/1.5.0
 - skia/cci.20240727
 - small_gicp/0.1.2
-- stb/cci.20200203
-- stb/cci.20210713
-- stb/cci.20210910
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
 - suitesparse-amd/3.3.2
