@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-07-31:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-01:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,6 +22,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
+- aws-c-event-stream/0.2.11
+- aws-c-event-stream/0.2.12
+- aws-c-event-stream/0.2.7
 - aws-cdi-sdk/2.4.1
 - blis/0.9.0
 - casadi/3.6.4
