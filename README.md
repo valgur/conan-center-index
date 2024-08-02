@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-01:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-02:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -39,11 +39,19 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.9.1
+- croncpp/cci.20220503
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
 - daggy/2.1.3
 - dawn/cci.20240726
+- etl/20.36.0
+- etl/20.37.3
+- etl/20.38.0
+- etl/20.38.3
+- etl/20.38.4
+- etl/20.38.6
+- etl/20.38.7
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
