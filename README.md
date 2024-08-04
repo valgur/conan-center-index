@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-02:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-04:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,9 +22,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
-- aws-c-event-stream/0.2.11
-- aws-c-event-stream/0.2.12
-- aws-c-event-stream/0.2.7
 - aws-cdi-sdk/2.4.1
 - blis/0.9.0
 - casadi/3.6.4
@@ -39,19 +36,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.9.1
-- croncpp/cci.20220503
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
 - daggy/2.1.3
 - dawn/cci.20240726
-- etl/20.36.0
-- etl/20.37.3
-- etl/20.38.0
-- etl/20.38.3
-- etl/20.38.4
-- etl/20.38.6
-- etl/20.38.7
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
@@ -61,7 +50,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - g2o/20230806
 - gdal/3.9.0
 - gdalcpp/1.3.0
-- geos/3.12.1
 - getdns/1.7.3
 - gfortran/13.2.0
 - gici/cci.20240421
@@ -116,11 +104,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - osrm/5.27.1
 - pangolin/0.9.1
 - pcl/1.14.1
-- pdal/2.7.1
+- pdal/2.7.2
 - pocketfft/cci.20240710
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
-- poselib/2.0.3
 - premake/5.0.0-beta2
 - qhull/cci.20231130
 - reproc/14.2.5
