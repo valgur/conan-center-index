@@ -1,0 +1,9 @@
+sources:
+  "1.0.0":
+    url: "https://github.com/koide3/glim/archive/refs/tags/v1.0.0.tar.gz"
+    sha256: "51861ddeb322478c101fa4953f0fca09102d493f2bb176d7d4f70bb4678c5bb8"
+patches:
+  "1.0.0":
+    - patch_file: "patches/0001-cmake-fixes.patch"
+      patch_description: "Unvendor dependencies, misc CMake fixes"
+      patch_type: "conan"

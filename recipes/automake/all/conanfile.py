@@ -39,7 +39,7 @@ class AutomakeConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("autoconf/2.71")
+        self.requires("autoconf/2.72")
         # automake requires perl-Thread-Queue package
 
     def package_id(self):
@@ -49,7 +49,7 @@ class AutomakeConan(ConanFile):
 
     def build_requirements(self):
         if hasattr(self, "settings_build"):
-            self.tool_requires("autoconf/2.71")
+            self.tool_requires("autoconf/2.72")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

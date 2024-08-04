@@ -1,0 +1,16 @@
+sources:
+  "1.0.0":
+    url: "https://github.com/koide3/glim_ext/archive/refs/tags/v1.0.0.tar.gz"
+    sha256: "7ed31a4365a3a60e405bf9d9eea3630350489011f80d2659343e4058458ae638"
+patches:
+  "1.0.0":
+    - patch_file: "patches/0001-fix-cmake-typo.patch"
+      patch_description: "Fix a typo in a CMake option name"
+      patch_type: "bugfix"
+      patch_source: "https://github.com/koide3/glim_ext/pull/5"
+    - patch_file: "patches/0002-cmake-fixes.patch"
+      patch_description: "Fix handling of env vars, let Conan handle the C++ standard version"
+      patch_type: "conan"
+    - patch_file: "patches/0003-dbow3-cxx-issue.patch"
+      patch_description: "Fix DBow3 C++17 compatibility issue"
+      patch_type: "portability"

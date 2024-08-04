@@ -46,9 +46,8 @@ class MlpackConan(ConanFile):
         self.requires("cereal/1.3.2")
         self.requires("ensmallen/2.21.0")
         self.requires("stb/cci.20230920")
-        # TODO: MSVC OpenMP is not compatible, enable for MSVC after #22353
-        if not is_msvc(self):
-            self.requires("llvm-openmp/17.0.6")
+        # https://github.com/mlpack/mlpack/blob/4.4.0/src/mlpack/methods/det/dt_utils_impl.hpp#L184
+        self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
         self.info.clear()
@@ -82,23 +81,6 @@ class MlpackConan(ConanFile):
              excludes=["mlpack/bindings/*", "mlpack/tests/*", "mlpack/CMakeLists.txt"])
         self._configure_headers()
 
-    @property
-    def _openmp_flags(self):
-        # Based on https://github.com/Kitware/CMake/blob/v3.28.1/Modules/FindOpenMP.cmake#L104-L135
-        if self.settings.compiler == "clang":
-            return ["-fopenmp=libomp"]
-        elif self.settings.compiler == "apple-clang":
-            return ["-Xclang", "-fopenmp"]
-        elif self.settings.compiler == "gcc":
-            return ["-fopenmp"]
-        elif self.settings.compiler == "intel-cc":
-            return ["-Qopenmp"]
-        elif self.settings.compiler == "sun-cc":
-            return ["-xopenmp"]
-        elif is_msvc(self):
-            return ["-openmp:llvm"]
-        return None
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "mlpack")
         self.cpp_info.set_property("cmake_target_name", "mlpack::mlpack")
@@ -112,9 +94,6 @@ class MlpackConan(ConanFile):
 
         if self.settings.get_safe("compiler.libcxx") in ["libstdc++", "libstdc++11"]:
             self.cpp_info.system_libs.append("atomic")
-
-        self.cpp_info.cflags = self._openmp_flags
-        self.cpp_info.cxxflags = self._openmp_flags
 
         # https://github.com/mlpack/mlpack/blob/4.3.0/CMakeLists.txt#L164-L175
         if is_msvc(self):

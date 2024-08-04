@@ -86,7 +86,7 @@ class ScnlibConan(ConanFile):
         if "2.0" <= Version(self.version) < "3.0":
             self.requires("simdutf/4.0.5")
         if self.options.get_safe("regex_backend") in ["boost", "boost_icu"]:
-            self.requires("boost/1.83.0")
+            self.requires("boost/1.85.0")
         elif self.options.get_safe("regex_backend") == "re2":
             self.requires("re2/20231101")
 

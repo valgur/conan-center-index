@@ -27,7 +27,7 @@ class LibsquishConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "openmp": False,
+        "openmp": True,
         "sse2_intrinsics": False,
         "altivec_intrinsics": False,
     }
@@ -57,6 +57,11 @@ class LibsquishConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.openmp:
+            # Not used in public headers
+            self.requires("openmp/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])

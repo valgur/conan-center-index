@@ -131,7 +131,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.get_safe("with_asio"):
             # Should these be private requires?
             self.requires("asio/1.28.1")
-            self.requires("boost/1.83.0")
+            self.requires("boost/1.85.0")
         if self.options.with_curl:
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_dcmtk"):
@@ -492,7 +492,7 @@ class OpenSceneGraphConanFile(ConanFile):
         elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":
             setup_plugin("jpeg").requires.append("libjpeg-turbo::jpeg")
         elif self.options.get_safe("with_jpeg") == "mozjpeg":
-            setup_plugin("jpeg").requires.append("mozjpeg::libjpeg")       
+            setup_plugin("jpeg").requires.append("mozjpeg::libjpeg")
 
         if self.options.with_jasper:
             setup_plugin("jp2").requires.append("jasper::jasper")

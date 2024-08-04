@@ -100,10 +100,7 @@ class StdgpuConan(ConanFile):
             self.output.warning("HIP support requires Thrust with ROCm. "
                                 "Using Thrust from system instead of Conan.")
         if self.options.backend == "openmp":
-            if self.options.openmp == "llvm":
-                self.requires("llvm-openmp/12.0.1", transitive_headers=True, transitive_libs=True)
-            else:
-                self.output.info("Using OpenMP backend with system OpenMP")
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         if Version(self.version) > "1.3.0":
@@ -178,33 +175,10 @@ class StdgpuConan(ConanFile):
              dst=os.path.join(self.package_folder, "lib", "cmake"),
              src=os.path.join(self.export_sources_folder, "cmake"))
 
-    def _configure_system_openmp(self):
-        openmp_flags = []
-        if is_msvc(self):
-            openmp_flags = ["-openmp"]
-        elif self.settings.compiler in ["clang", "apple-clang"]:
-            openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-        elif self.settings.compiler == "gcc":
-            openmp_flags = ["-fopenmp"]
-        elif self.settings.compiler == "intel":
-            openmp_flags = ["/Qopenmp"] if self.settings.os == "Windows" else ["-Qopenmp"]
-        self.cpp_info.cflags += openmp_flags
-        self.cpp_info.cxxflags += openmp_flags
-        self.cpp_info.sharedlinkflags += openmp_flags
-        self.cpp_info.exelinkflags += openmp_flags
-        if self.settings.os == "Windows":
-            if is_msvc(self):
-                self.cpp_info.system_libs.append("delayimp")
-            elif self.settings.compiler == "gcc":
-                self.cpp_info.system_libs.append("gomp")
-
     def package_info(self):
         self.cpp_info.libs = ["stdgpu"]
 
-        if self.options.backend == "openmp":
-            if self.options.openmp == "system":
-                self._configure_system_openmp()
-        elif self.options.backend == "cuda":
+        if self.options.backend == "cuda":
             module_path = os.path.join("lib", "cmake", "stdgpu-dependencies-cuda.cmake")
             self.cpp_info.set_property("cmake_build_modules", [module_path])
         elif self.options.backend == "hip":

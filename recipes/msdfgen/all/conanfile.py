@@ -28,7 +28,7 @@ class MsdfgenConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openmp": False,
+        "with_openmp": True,
         "with_skia": False,
         "utility": True,
     }
@@ -54,6 +54,9 @@ class MsdfgenConan(ConanFile):
         else:
             self.requires("libpng/[>=1.6 <2]")
         self.requires("tinyxml2/10.0.0")
+        if self.options.with_openmp:
+            # Used only in .cpp files
+            self.requires("openmp/system")
 
 
     def validate(self):
@@ -153,6 +156,9 @@ class MsdfgenConan(ConanFile):
 
         if self.options.with_skia:
             self.cpp_info.components["msdfgen-ext"].defines.append("MSDFGEN_USE_SKIA")
+
+        if self.options.with_openmp:
+            self.cpp_info.components["_msdfgen"].requires.append("openmp::openmp")
 
         # TODO: to remove once conan v1 support dropped
         if self.options.utility:

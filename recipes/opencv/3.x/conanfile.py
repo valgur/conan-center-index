@@ -37,7 +37,7 @@ class OpenCVConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "parallel": False,
+        "parallel": "openmp",
         "contrib": False,
         "with_jpeg": "libjpeg",
         "with_png": True,
@@ -94,7 +94,10 @@ class OpenCVConan(ConanFile):
             self.requires("libtiff/4.6.0")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
-        if self.options.parallel == "tbb":
+        if self.options.parallel == "openmp":
+            # not used in any public headers
+            self.requires("openmp/system")
+        elif self.options.parallel == "tbb":
             # opencv 3.x doesn't support onetbb >= 2021
             self.requires("onetbb/2020.3.3")
         if self.options.with_webp:
@@ -348,8 +351,10 @@ class OpenCVConan(ConanFile):
             return ["eigen::eigen"] if self.options.with_eigen else []
 
         def parallel():
-            if self.options.parallel:
-                return ["onetbb::onetbb"] if self.options.parallel == "tbb" else ["openmp"]
+            if self.options.parallel == "tbb":
+                return ["onetbb::onetbb"]
+            if self.options.parallel == "openmp":
+                return ["openmp::openmp"]
             return []
 
         def xfeatures2d():

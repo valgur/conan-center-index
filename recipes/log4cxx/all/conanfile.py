@@ -126,7 +126,7 @@ class Log4cxxConan(ConanFile):
     def build_requirements(self):
         if self.settings.os != "Windows":
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/2.0.3")
+                self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

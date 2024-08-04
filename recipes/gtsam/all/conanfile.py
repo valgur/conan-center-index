@@ -134,7 +134,7 @@ class GtsamConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.84.0", transitive_headers=True)
+        self.requires("boost/1.85.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if self.options.with_TBB:
             if Version(self.version) >= "4.1":
@@ -147,6 +147,8 @@ class GtsamConan(ConanFile):
             # Used in a public header here:
             # https://github.com/borglab/gtsam/blob/4.2.0/gtsam_unstable/partition/FindSeparator-inl.h#L23-L27
             self.requires("metis/5.2.1", transitive_headers=True, transitive_libs=True)
+        if self.options.with_eigen_MKL_OPENMP:
+            self.requires("openmp/system")
 
     @property
     def _required_boost_components(self):
@@ -369,6 +371,8 @@ class GtsamConan(ConanFile):
         gtsam.requires.append("eigen::eigen")
         if self.options.with_TBB:
             gtsam.requires.append("onetbb::onetbb")
+        if self.options.with_eigen_MKL_OPENMP:
+            gtsam.requires.append("openmp::openmp")
         if self.options.default_allocator == "tcmalloc":
             gtsam.requires.append("gperftools::gperftools")
         if self.settings.os == "Windows":

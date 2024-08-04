@@ -163,7 +163,7 @@ class OpenCVConan(ConanFile):
         "shared": False,
         "fPIC": True,
         # global options
-        "parallel": False,
+        "parallel": "openmp",
         "with_ipp": False,
         "with_eigen": True,
         "neon": True,
@@ -407,7 +407,11 @@ class OpenCVConan(ConanFile):
             return []
 
         def parallel():
-            return ["onetbb::onetbb"] if self.options.parallel == "tbb" else []
+            if self.options.parallel == "openmp":
+                return ["openmp::openmp"]
+            if self.options.parallel == "tbb":
+                return ["onetbb::onetbb"]
+            return []
 
         def protobuf():
             return ["protobuf::protobuf"] if self.options.get_safe("with_protobuf") else []
@@ -1092,7 +1096,11 @@ class OpenCVConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
-        if self.options.parallel == "tbb":
+        if self.options.parallel == "openmp":
+            # Used in a public header:
+            # https://github.com/opencv/opencv/blob/4.x/modules/core/include/opencv2/core/parallel/backend/parallel_for.openmp.hpp#L39
+            self.requires("openmp/system")
+        elif self.options.parallel == "tbb":
             self.requires("onetbb/2021.10.0")
         if self.options.with_ipp == "intel-ipp":
             self.requires("intel-ipp/2020")
@@ -1222,7 +1230,7 @@ class OpenCVConan(ConanFile):
             if not self._is_legacy_one_profile:
                 self.tool_requires("wayland/<host_version>")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-                self.tool_requires("pkgconf/2.1.0")
+                self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)

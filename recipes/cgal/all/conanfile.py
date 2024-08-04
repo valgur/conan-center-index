@@ -43,7 +43,7 @@ class CgalConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.83.0")
+        self.requires("boost/1.85.0")
         self.requires("eigen/3.4.0")
         self.requires("mpfr/4.2.1")
         self.requires("gmp/6.3.0")

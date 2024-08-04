@@ -15,7 +15,7 @@ class SdbusCppTestConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        self.tool_requires("pkgconf/2.1.0")
+        self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def layout(self):
         cmake_layout(self)

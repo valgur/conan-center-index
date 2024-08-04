@@ -1,13 +1,13 @@
-from conan import ConanFile, conan_version
+import os
+
+from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import copy, get, rename, rm
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path
-from conan.tools.scm import Version
-import os
+from conan.tools.microsoft import is_msvc, unix_path, check_min_vs
 
 required_conan_version = ">=1.54.0"
 
@@ -24,10 +24,12 @@ class GlpkConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "with_gmp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "with_gmp": True,
     }
 
     @property
@@ -46,6 +48,10 @@ class GlpkConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_gmp:
+            self.requires("gmp/6.3.0")
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
@@ -68,12 +74,11 @@ class GlpkConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
+        tc.configure_args.append("--with-gmp" if self.options.with_gmp else "--without-gmp")
         if is_msvc(self):
             tc.extra_defines.append("__WOE__")
-        if (Version(conan_version).major < "2" and self.settings.compiler == "Visual Studio" \
-            and Version(self.settings.compiler.version) >= "12") or \
-           (self.settings.compiler == "msvc" and Version(self.settings.compiler.version) >= "180"):
-            tc.extra_cflags.append("-FS")
+            if check_min_vs(self, 180, raise_invalid=False):
+                tc.extra_cflags.append("-FS")
         tc.generate()
 
         if is_msvc(self):
@@ -90,6 +95,9 @@ class GlpkConan(ConanFile):
             env.define("RANLIB", ":")
             env.define("STRIP", ":")
             env.vars(self).save_script("conanbuild_msvc")
+
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def build(self):
         autotools = Autotools(self)

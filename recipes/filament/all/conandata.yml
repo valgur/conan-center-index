@@ -1,0 +1,4 @@
+sources:
+  "1.53.1":
+    url: "https://github.com/google/filament/archive/refs/tags/v1.53.1.tar.gz"
+    sha256: "0eee389276f48666f86d234363cf3ac9bb9638fc0d5d1c5d54f79c6c7c2002d7"

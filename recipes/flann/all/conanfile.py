@@ -44,6 +44,9 @@ class FlannConan(ConanFile):
     def requirements(self):
         # see https://github.com/conan-io/conan-center-index/pull/16355#discussion_r1150197550
         self.requires("lz4/1.9.4", transitive_headers=True, transitive_libs=True)
+        # used in a public header:
+        # https://github.com/flann-lib/flann/blob/1.9.2/src/cpp/flann/algorithms/nn_index.h#L323
+        self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if Version(self.version) >= "1.9.2" and self.settings.compiler.get_safe("cppstd"):
@@ -61,8 +64,7 @@ class FlannConan(ConanFile):
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_MATLAB_BINDINGS"] = False
         tc.variables["BUILD_PYTHON_BINDINGS"] = False
-        # OpenMP support can be added later if needed
-        tc.variables["USE_OPENMP"] = False
+        tc.variables["USE_OPENMP"] = True
         # Generate a relocatable shared lib on Macos
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         tc.generate()
@@ -130,7 +132,7 @@ class FlannConan(ConanFile):
             libcxx = stdcpp_library(self)
             if libcxx:
                 self.cpp_info.components["flann_cpp"].system_libs.append(libcxx)
-        self.cpp_info.components["flann_cpp"].requires = ["lz4::lz4"]
+        self.cpp_info.components["flann_cpp"].requires = ["lz4::lz4", "openmp::openmp"]
 
         # flann
         flann_c_lib = "flann" if self.options.shared else "flann_s"

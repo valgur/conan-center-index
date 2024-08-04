@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.microsoft import is_msvc
 from conan.tools.files import get, copy, rm, rmdir
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
@@ -27,7 +26,7 @@ class SoundTouchConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "integer_samples": False,
-        "with_openmp": False,
+        "with_openmp": True,
         "with_dll": False,
         "with_util": False,
     }
@@ -42,6 +41,11 @@ class SoundTouchConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_openmp:
+            # not used in any public headers
+            self.requires("openmp/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
@@ -84,16 +88,8 @@ class SoundTouchConan(ConanFile):
         self.cpp_info.components["_soundtouch"].libs = ["SoundTouch"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_soundtouch"].system_libs.append("m")
-        if not self.options.shared and self.options.with_openmp:
-            openmp_flags = []
-            if is_msvc(self):
-                openmp_flags = ["-openmp"]
-            elif self.settings.compiler in ("gcc", "clang"):
-                openmp_flags = ["-fopenmp"]
-            elif self.settings.compiler == "apple-clang":
-                openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-            self.cpp_info.components["_soundtouch"].sharedlinkflags = openmp_flags
-            self.cpp_info.components["_soundtouch"].exelinkflags = openmp_flags
+        if self.options.with_openmp:
+            self.cpp_info.components["_soundtouch"].requires.append("openmp::openmp")
 
         if self.options.with_dll:
             self.cpp_info.components["SoundTouchDLL"].set_property("cmake_target_name", "SoundTouch::SoundTouchDLL")

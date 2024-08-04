@@ -99,9 +99,9 @@ class WtConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "4.9.0":
-            self.requires("boost/1.80.0", transitive_headers = True)
+            self.requires("boost/1.85.0", transitive_headers = True)
         else:
-            self.requires("boost/1.83.0", transitive_headers = True)
+            self.requires("boost/1.85.0", transitive_headers = True)
         if self.options.connector_http:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_ssl:
@@ -118,7 +118,7 @@ class WtConan(ConanFile):
             self.requires("libunwind/1.7.2")
         if self.options.with_haru:
             self.requires("libharu/2.4.3")
-            
+
     def validate(self):
         miss_boost_required_comp = any(self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
                                        for boost_comp in self._required_boost_components)

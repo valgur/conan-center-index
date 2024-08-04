@@ -146,7 +146,7 @@ class BotanConan(ConanFile):
         if self.options.with_sqlite3:
             self.requires("sqlite3/3.45.1")
         if self.options.with_boost:
-            self.requires("boost/1.84.0")
+            self.requires("boost/1.85.0")
 
     @property
     def _required_boost_components(self):

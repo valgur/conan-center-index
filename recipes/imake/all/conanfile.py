@@ -47,7 +47,7 @@ class ImakeConan(ConanFile):
     @property
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
-    
+
     def validate(self):
         if self.settings.compiler == "clang":
             # See https://github.com/conan-io/conan-center-index/pull/16267#issuecomment-1469824504
@@ -59,7 +59,7 @@ class ImakeConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("automake/1.16.5")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.0.3")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
         if self._settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

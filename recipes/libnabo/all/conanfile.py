@@ -25,7 +25,7 @@ class LibnaboConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openmp": False,
+        "with_openmp": True,
     }
     short_paths = True
 
@@ -49,6 +49,9 @@ class LibnaboConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
+        if self.options.with_openmp:
+            # Only used in .cpp files
+            self.requires("openmp/system")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -95,4 +98,6 @@ class LibnaboConan(ConanFile):
         self.cpp_info.components["nabo"].names["cmake_find_package"] = "nabo"
         self.cpp_info.components["nabo"].names["cmake_find_package_multi"] = "nabo"
         self.cpp_info.components["nabo"].set_property("cmake_target_name", "libnabo::nabo")
-        self.cpp_info.components["nabo"].requires = ["eigen::eigen"]
+        self.cpp_info.components["nabo"].requires.append("eigen::eigen")
+        if self.options.with_openmp:
+            self.cpp_info.components["nabo"].requires.append("openmp::openmp")

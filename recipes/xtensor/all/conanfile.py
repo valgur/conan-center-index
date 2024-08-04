@@ -27,7 +27,7 @@ class XtensorConan(ConanFile):
     default_options = {
         "xsimd": True,
         "tbb": False,
-        "openmp": False,
+        "openmp": True,
     }
 
     @property
@@ -60,6 +60,8 @@ class XtensorConan(ConanFile):
                 self.requires("xsimd/12.0.0")
         if self.options.tbb:
             self.requires("onetbb/2021.10.0")
+        if self.options.openmp:
+            self.requires("openmp/system")
 
     def package_id(self):
         self.info.clear()

@@ -37,7 +37,7 @@ class OpenMPIConan(ConanFile):
         "cxx": False,
         "cxx_exceptions": False,
         "external_hwloc": True,
-        "with_verbs": True,
+        "with_verbs": False,  # FIXME: --with-verbs fails
     }
 
     def config_options(self):
@@ -66,9 +66,9 @@ class OpenMPIConan(ConanFile):
         # transitive_headers=True is not needed for any dependencies.
         self.requires("zlib/[>=1.2.11 <2]")
         if not is_apple_os(self):
-            self.requires("libnl/3.8.0")
+            self.requires("libnl/3.9.0")
         if self.options.external_hwloc:
-            self.requires("hwloc/2.9.3")
+            self.requires("hwloc/2.10.0")
         else:
             self.requires("libpciaccess/0.17")
             self.requires("libudev/system")

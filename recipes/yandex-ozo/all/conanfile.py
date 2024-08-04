@@ -39,7 +39,7 @@ class YandexOzoConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.79.0")
+        self.requires("boost/1.85.0")
         self.requires("resource_pool/cci.20210322")
         self.requires("libpq/15.4")
 

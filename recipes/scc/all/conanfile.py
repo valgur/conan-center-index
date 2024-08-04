@@ -45,7 +45,7 @@ class SystemcComponentsConan(ConanFile):
 
     def requirements(self):
         # https://github.com/Minres/SystemC-Components/blob/2023.06/src/sysc/scc/perf_estimator.h#L20
-        self.requires("boost/1.83.0", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/1.85.0", transitive_headers=True, transitive_libs=True)
         # https://github.com/Minres/SystemC-Components/blob/2023.06/src/sysc/scc/trace/vcd_trace.hh#L28
         self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
         # https://github.com/Minres/SystemC-Components/blob/2023.06/src/common/util/lz4_streambuf.h#L13

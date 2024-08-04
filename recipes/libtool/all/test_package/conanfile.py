@@ -32,8 +32,8 @@ class TestPackageConan(ConanFile):
     def build_requirements(self):
         if hasattr(self, "settings_build") and not cross_building(self):
             self.tool_requires(self.tested_reference_str) # We are testing libtool/libtoolize
-    
-        self.tool_requires("autoconf/2.71")
+
+        self.tool_requires("autoconf/2.72")
         self.tool_requires("automake/1.16.5")
         if self._settings_build.os == "Windows":
             self.win_bash = True
@@ -63,13 +63,13 @@ class TestPackageConan(ConanFile):
         # as we have two different projects with different settings.
         ar_wrapper = unix_path(self, self.conf.get("user.automake:lib-wrapper", check_type=str))
         msvc_vars = {
-            "CC": "cl -nologo", 
-            "CXX": "cl -nologo", 
+            "CC": "cl -nologo",
+            "CXX": "cl -nologo",
             "AR": f"{ar_wrapper} lib",
             "LD": "link"
         }
 
-        # "Autotools" subfolder: project to test integration of Autotools with libtool 
+        # "Autotools" subfolder: project to test integration of Autotools with libtool
         # at build time
         tc = AutotoolsToolchain(self, namespace="autotools")
         env = tc.environment()

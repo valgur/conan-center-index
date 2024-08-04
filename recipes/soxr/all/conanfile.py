@@ -27,7 +27,7 @@ class SoxrConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_openmp": False,
+        "with_openmp": True,
         "with_lsr_bindings": True,
     }
 
@@ -46,6 +46,11 @@ class SoxrConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.with_openmp:
+            # not used in public headers
+            self.requires("openmp/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -91,17 +96,8 @@ class SoxrConan(ConanFile):
             self.cpp_info.components["core"].system_libs = ["m"]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["core"].defines.append("SOXR_DLL")
-        if not self.options.shared and self.options.with_openmp:
-            if is_msvc(self):
-                openmp_flags = ["-openmp"]
-            elif self.settings.compiler in ("gcc", "clang"):
-                openmp_flags = ["-fopenmp"]
-            elif self.settings.compiler == "apple-clang":
-                openmp_flags = ["-Xpreprocessor", "-fopenmp"]
-            else:
-                openmp_flags = []
-            self.cpp_info.components["core"].exelinkflags = openmp_flags
-            self.cpp_info.components["core"].sharedlinkflags = openmp_flags
+        if self.options.with_openmp:
+            self.cpp_info.components["core"].requires.append("openmp::openmp")
         # lsr component
         if self.options.with_lsr_bindings:
             self.cpp_info.components["lsr"].set_property("pkg_config_name", "soxr-lsr")
