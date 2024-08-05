@@ -1,0 +1,50 @@
+From f9457012dfa1536b313f6fc46e47acfe27f20c10 Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Mon, 5 Aug 2024 13:43:52 +0300
+Subject: [PATCH] Use OpenMP::OpenMP_CXX target
+
+---
+ cmake/kokkos_enable_devices.cmake | 13 ++-----------
+ cmake/kokkos_tpls.cmake           |  2 +-
+ 2 files changed, 3 insertions(+), 12 deletions(-)
+
+diff --git a/cmake/kokkos_enable_devices.cmake b/cmake/kokkos_enable_devices.cmake
+index c7d189285..cdbc5abb7 100644
+--- a/cmake/kokkos_enable_devices.cmake
++++ b/cmake/kokkos_enable_devices.cmake
+@@ -74,17 +74,8 @@ ENDIF()
+ 
+ KOKKOS_DEVICE_OPTION(OPENMPTARGET OFF DEVICE "Whether to build the OpenMP target backend")
+ IF (KOKKOS_ENABLE_OPENMPTARGET)
+-  SET(ClangOpenMPFlag -fopenmp=libomp)
+-  IF(KOKKOS_CLANG_IS_CRAY)
+-    SET(ClangOpenMPFlag -fopenmp)
+-  ENDIF()
+-
+-  COMPILER_SPECIFIC_FLAGS(
+-    Clang      ${ClangOpenMPFlag} -Wno-openmp-mapping
+-    IntelLLVM  -fiopenmp -Wno-openmp-mapping
+-    NVHPC      -mp=gpu
+-    DEFAULT    -fopenmp
+-  )
++  find_package(OpenMP REQUIRED)
++  link_libraries(OpenMP::OpenMP_CXX)
+   COMPILER_SPECIFIC_DEFS(
+     Clang KOKKOS_WORKAROUND_OPENMPTARGET_CLANG
+   )
+diff --git a/cmake/kokkos_tpls.cmake b/cmake/kokkos_tpls.cmake
+index 6ef3b79bd..06c48025e 100644
+--- a/cmake/kokkos_tpls.cmake
++++ b/cmake/kokkos_tpls.cmake
+@@ -107,7 +107,7 @@ IF (Kokkos_ENABLE_OPENMP)
+   # FIXME_TRILINOS Trilinos doesn't allow for Kokkos to use find_dependency
+   # so we just append the flags here instead of linking with the OpenMP target.
+   IF(KOKKOS_HAS_TRILINOS)
+-    COMPILER_SPECIFIC_FLAGS(DEFAULT ${OpenMP_CXX_FLAGS})
++    link_libraries(OpenMP::OpenMP_CXX)
+   ELSE()
+     KOKKOS_EXPORT_CMAKE_TPL(OpenMP REQUIRED)
+   ENDIF()
+-- 
+2.25.1
+
