@@ -1,0 +1,9 @@
+sources:
+  "4.3.1":
+    url: "https://github.com/kokkos/kokkos/archive/refs/tags/4.3.01.tar.gz"
+    sha256: "5998b7c732664d6b5e219ccc445cd3077f0e3968b4be480c29cd194b4f45ec70"
+patches:
+  "4.3.1":
+    - patch_file: "patches/0001-use-openmp-cmake-target.patch"
+      patch_description: "Use the OpenMP::OpenMP_CXX target instead of compiler flags"
+      patch_type: "conan"
