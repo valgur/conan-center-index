@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-04:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-05:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -41,6 +41,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cub/2.4.0
 - daggy/2.1.3
 - dawn/cci.20240726
+- dpdk/24.07
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
@@ -86,6 +87,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.3.0
 - libtorch/2.4.0
 - llvm-openmp/18.1.8
+- manif/cci.20240804
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mrcal/2.4.1
@@ -147,6 +149,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - usearch/2.9.1
 - vilib/cci.20210625
 - vlfeat/0.9.21
+- vtk/9.3.1
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
 - vulkan-validationlayers/1.3.243.0
