@@ -49,6 +49,7 @@ class GlomapConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        self.options["ceres-solver"].use_suitesparse = True
 
     def configure(self):
         if self.options.shared:
@@ -75,6 +76,9 @@ class GlomapConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
+
+        if not self.dependencies["ceres-solver"].options.use_suitesparse:
+            raise ConanInvalidConfiguration("'-o ceres-solver/*:use_suitesparse=True' is required")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.28 <4]")
