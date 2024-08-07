@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-06:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-07:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,6 +22,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
+- aws-c-common/0.4.25
+- aws-c-common/0.6.20
+- aws-c-common/0.7.5
+- aws-c-common/0.8.2
+- aws-c-common/0.8.23
+- aws-c-common/0.9.0
+- aws-c-common/0.9.12
+- aws-c-common/0.9.3
+- aws-c-common/0.9.6
 - aws-cdi-sdk/2.4.1
 - blis/0.9.0
 - casadi/3.6.4
@@ -101,6 +110,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - numpy/1.26.4
 - ogre/14.2.4
 - open62541pp/0.12.0
+- openh264/1.7.0
 - openmp/system
 - openmpi/4.1.6
 - openmvg/2.1
