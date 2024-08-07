@@ -354,7 +354,7 @@ class AwsSdkCppConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.get_safe("text-to-speech"):
-                self.requires("pulseaudio/14.2")
+                self.requires("pulseaudio/17.0")
 
     def validate(self):
         if (self.options.shared

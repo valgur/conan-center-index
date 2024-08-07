@@ -316,7 +316,7 @@ class FFMpegConan(ConanFile):
         if self.options.get_safe("with_xcb") or self.options.get_safe("with_vaapi"):
             self.requires("xorg/system")
         if self.options.get_safe("with_pulse"):
-            self.requires("pulseaudio/14.2")
+            self.requires("pulseaudio/17.0")
         if self.options.get_safe("with_vaapi"):
             self.requires("vaapi/system")
         if self.options.get_safe("with_vdpau"):

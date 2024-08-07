@@ -70,7 +70,7 @@ class LibmikmodConan(ConanFile):
             if self.options.with_alsa:
                 self.requires("libalsa/1.2.10")
             if self.options.with_pulse:
-                self.requires("pulseaudio/14.2")
+                self.requires("pulseaudio/17.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

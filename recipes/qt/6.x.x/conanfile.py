@@ -390,7 +390,7 @@ class QtConan(ConanFile):
             self.requires("gstreamer/1.19.2")
             self.requires("gst-plugins-base/1.19.2")
         if self.options.get_safe("with_pulseaudio", False):
-            self.requires("pulseaudio/14.2")
+            self.requires("pulseaudio/17.0")
         if self.options.with_dbus:
             self.requires("dbus/1.15.8")
         if self.settings.os in ['Linux', 'FreeBSD'] and self.options.with_gssapi:
