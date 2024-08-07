@@ -47,6 +47,9 @@ class GKlibConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def requirements(self):
+        self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+
     def validate(self):
         if self.options.shared and is_msvc(self):
             raise ConanInvalidConfiguration(
