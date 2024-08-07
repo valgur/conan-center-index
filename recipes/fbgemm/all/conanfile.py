@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -34,7 +34,7 @@ class FbgemmConan(ConanFile):
 
     @property
     def _min_cppstd(self):
-        return 14
+        return 17
 
     @property
     def _compilers_minimum_version(self):
@@ -68,6 +68,10 @@ class FbgemmConan(ConanFile):
         self.requires("openmp/system")
 
     def validate(self):
+        # https://github.com/pytorch/FBGEMM/issues/2074
+        if str(self.settings.arch).startswith("arm"):
+            raise ConanInvalidConfiguration("FBGEMM does not yet support ARM architectures")
+
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -92,6 +96,7 @@ class FbgemmConan(ConanFile):
         tc.variables["FBGEMM_BUILD_DOCS"] = False
         if not valid_min_cppstd(self, self._min_cppstd):
             tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
+        tc.variables["CMAKE_C_STANDARD"] = 99
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -108,7 +113,12 @@ class FbgemmConan(ConanFile):
         self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
-        cmake.build()
+        try:
+            cmake.build()
+        except ConanException:
+            # Workaround for C3I running out of memory during build
+            self.conf.define("tools.build:jobs", 1)
+            cmake.build()
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
