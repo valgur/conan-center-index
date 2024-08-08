@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-07:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-08:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,6 +22,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
+- aws-c-cal/0.5.13
+- aws-c-cal/0.5.17
+- aws-c-cal/0.5.19
+- aws-c-cal/0.5.20
+- aws-c-cal/0.6.1
+- aws-c-cal/0.6.9
 - aws-c-common/0.4.25
 - aws-c-common/0.6.20
 - aws-c-common/0.7.5
@@ -31,6 +37,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-c-common/0.9.12
 - aws-c-common/0.9.3
 - aws-c-common/0.9.6
+- aws-c-compression/0.2.13
+- aws-c-compression/0.2.15
+- aws-c-compression/0.2.17
 - aws-cdi-sdk/2.4.1
 - blis/0.9.0
 - casadi/3.6.4
@@ -48,6 +57,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
+- cutlass/3.5.0
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
@@ -81,7 +91,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_points/1.0.2
 - hscpp/1.0.0-alpha
 - imagemagick/7.1.1.32
-- iridescence/cci.20240709
+- iridescence/0.1.2
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libcudacxx/2.2.0
@@ -95,12 +105,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libosmium/2.20.0
 - librsvg/2.57.0
 - libsolv/0.7.29
+- libsvtav1/1.2.1
+- libsvtav1/1.3.0
+- libsvtav1/1.4.1
 - libtomcrypt/1.18.2
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
 - llvm-openmp/18.1.8
-- manif/cci.20240804
+- manif/0.0.2.cci.20240804
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mrcal/2.4.1
@@ -121,14 +134,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangolin/0.9.1
 - pcl/1.14.1
 - pdal/2.7.2
-- pocketfft/cci.20240710
+- pocketfft/0.0.0.cci.20240801
 - polyscope/2.2.1
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
 - qhull/cci.20231130
 - reproc/14.2.5
-- rosx_introspection/1.0.1
+- rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.77.1
 - sfcgal/1.5.0
