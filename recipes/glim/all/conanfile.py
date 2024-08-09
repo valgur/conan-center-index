@@ -53,13 +53,13 @@ class GlimPackage(ConanFile):
 
     def requirements(self):
         self.requires("boost/1.85.0", transitive_headers=True, force=True)
-        self.requires("eigen/3.4.0", transitive_headers=True)
+        self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/4.9.0", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/4.2", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam_points/1.0.2", transitive_headers=True, transitive_libs=True, options={"cuda": self.options.cuda})
-        self.requires("nlohmann_json/3.11.3", transitive_headers=True)
+        self.requires("nlohmann_json/3.11.3", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
-        self.requires("spdlog/1.14.1", transitive_headers=True)
+        self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
         if self.options.viewer:
             self.requires("iridescence/0.1.2", transitive_headers=True, transitive_libs=True)
 
