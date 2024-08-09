@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, copy
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, copy, replace_in_file
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -91,7 +91,11 @@ class GlimPackage(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
+        # Make sure third-party deps are unvendored
         rmdir(self, os.path.join(self.source_folder, "thirdparty"))
+        # Forbid building as a ROS package with ROS deps
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "DEFINED ENV{ROS_VERSION}", "FALSE")
 
     def build(self):
         self._patch_sources()
