@@ -96,6 +96,9 @@ class GlimPackage(ConanFile):
         # Forbid building as a ROS package with ROS deps
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "DEFINED ENV{ROS_VERSION}", "FALSE")
+        # Avoid overlinking of OpenCV
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "${OpenCV_LIBRARIES}", "opencv_core")
 
     def build(self):
         self._patch_sources()
@@ -111,23 +114,41 @@ class GlimPackage(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "glim")
-        self.cpp_info.set_property("cmake_target_name", "glim::glim")
+        self.cpp_info.set_property("cmake_target_name", "glim::_glim_all")
 
-        self.cpp_info.libs = [
-            "glim",
-            "global_mapping",
-            "global_mapping_pose_graph",
-            "odometry_estimation_cpu",
-            "odometry_estimation_ct",
-            "sub_mapping",
-            "sub_mapping_passthrough",
+        def _add_component(name, reqs=None):
+            component = self.cpp_info.components[name]
+            component.set_property("cmake_target_name", f"glim::{name}")
+            component.libs = [name]
+            component.requires = reqs or []
+            if name != "glim":
+                component.requires.append("glim")
+
+        main_reqs = [
+            "boost::headers",
+            "boost::serialization",
+            "eigen::eigen",
+            "gtsam::gtsam",
+            "gtsam_points::gtsam_points",
+            "nlohmann_json::nlohmann_json",
+            "opencv::opencv_core",
+            "openmp::openmp",
+            "spdlog::spdlog",
         ]
+
+        _add_component("glim", main_reqs)
+        _add_component("global_mapping")
+        _add_component("global_mapping_pose_graph")
+        _add_component("odometry_estimation_cpu")
+        _add_component("odometry_estimation_ct")
+        _add_component("sub_mapping")
+        _add_component("sub_mapping_passthrough")
+
         if self.options.cuda:
-            self.cpp_info.libs += [
-                "odometry_estimation_gpu",
-            ]
+            # CUDA dependency is provided via gtsam_points
+            _add_component("odometry_estimation_gpu")
+
         if self.options.viewer:
-            self.cpp_info.libs += [
-                "interactive_viewer",
-                "standard_viewer",
-            ]
+            _add_component("interactive_viewer", ["iridescence::iridescence"])
+            _add_component("standard_viewer", ["iridescence::iridescence"])
+            _add_component("memory_monitor", ["iridescence::iridescence"])
