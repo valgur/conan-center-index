@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-09:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-10:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -40,7 +40,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-c-compression/0.2.13
 - aws-c-compression/0.2.15
 - aws-c-compression/0.2.17
+- aws-c-sdkutils/0.1.1
+- aws-c-sdkutils/0.1.12
+- aws-c-sdkutils/0.1.13
+- aws-c-sdkutils/0.1.2
+- aws-c-sdkutils/0.1.3
 - aws-cdi-sdk/2.4.1
+- aws-checksums/0.1.11
+- aws-checksums/0.1.13
+- aws-checksums/0.1.17
+- aws-checksums/0.1.5
 - blis/0.9.0
 - casadi/3.6.4
 - cilantro/cci.20230816
