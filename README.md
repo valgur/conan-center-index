@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-12:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-13:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,34 +22,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
-- aws-c-cal/0.5.13
-- aws-c-cal/0.5.17
-- aws-c-cal/0.5.19
-- aws-c-cal/0.5.20
-- aws-c-cal/0.6.1
-- aws-c-cal/0.6.9
-- aws-c-common/0.4.25
-- aws-c-common/0.6.20
-- aws-c-common/0.7.5
-- aws-c-common/0.8.2
-- aws-c-common/0.8.23
-- aws-c-common/0.9.0
-- aws-c-common/0.9.12
-- aws-c-common/0.9.3
-- aws-c-common/0.9.6
-- aws-c-compression/0.2.13
-- aws-c-compression/0.2.15
-- aws-c-compression/0.2.17
-- aws-c-sdkutils/0.1.1
-- aws-c-sdkutils/0.1.12
-- aws-c-sdkutils/0.1.13
-- aws-c-sdkutils/0.1.2
-- aws-c-sdkutils/0.1.3
 - aws-cdi-sdk/2.4.1
-- aws-checksums/0.1.11
-- aws-checksums/0.1.13
-- aws-checksums/0.1.17
-- aws-checksums/0.1.5
 - blis/0.9.0
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -70,9 +43,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
-- drogon/1.8.4
-- drogon/1.8.5
-- drogon/1.8.6
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
@@ -114,9 +84,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libosmium/2.20.0
 - librsvg/2.57.0
 - libsolv/0.7.29
-- libsvtav1/1.2.1
-- libsvtav1/1.3.0
-- libsvtav1/1.4.1
 - libtomcrypt/1.18.2
 - libtommath/1.2.1
 - libtommath/1.3.0
@@ -132,7 +99,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - numpy/1.26.4
 - ogre/14.2.4
 - open62541pp/0.12.0
-- openh264/1.7.0
 - openmp/system
 - openmpi/4.1.6
 - openmvg/2.1
@@ -183,11 +149,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.4.0
 - tiledb/2.22.0
 - tpl/cci.20210302
-- trantor/1.5.10
-- trantor/1.5.11
-- trantor/1.5.12
-- trantor/1.5.7
-- trantor/1.5.8
 - usearch/2.9.1
 - vilib/cci.20210625
 - vlfeat/0.9.21
