@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-13:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-14:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,7 +22,40 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
+- aws-c-auth/0.6.0
+- aws-c-auth/0.6.11
+- aws-c-auth/0.6.17
+- aws-c-auth/0.6.8
+- aws-c-auth/0.7.21
+- aws-c-auth/0.7.7
+- aws-c-auth/0.7.8
+- aws-c-event-stream/0.1.5
+- aws-c-event-stream/0.2.15
+- aws-c-event-stream/0.2.20
+- aws-c-event-stream/0.3.1
+- aws-c-event-stream/0.3.2
+- aws-c-http/0.6.10
+- aws-c-http/0.6.13
+- aws-c-http/0.6.22
+- aws-c-http/0.6.5
+- aws-c-http/0.7.14
+- aws-c-mqtt/0.7.10
+- aws-c-mqtt/0.7.12
+- aws-c-mqtt/0.7.6
+- aws-c-mqtt/0.7.9
+- aws-c-mqtt/0.8.12
+- aws-c-mqtt/0.9.10
+- aws-c-s3/0.1.27
+- aws-c-s3/0.1.29
+- aws-c-s3/0.1.37
+- aws-c-s3/0.1.49
+- aws-c-s3/0.3.24
+- aws-c-s3/0.4.5
 - aws-cdi-sdk/2.4.1
+- aws-crt-cpp/0.14.3
+- aws-crt-cpp/0.17.12
+- aws-crt-cpp/0.17.23
+- aws-crt-cpp/0.24.1
 - blis/0.9.0
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -88,6 +121,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
+- llama-cpp/b2038
 - llvm-openmp/18.1.8
 - manif/0.0.2.cci.20240804
 - matplotlib-cpp/cci.20210423
