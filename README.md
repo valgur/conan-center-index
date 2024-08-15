@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-14:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-15:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -57,6 +57,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-crt-cpp/0.17.23
 - aws-crt-cpp/0.24.1
 - blis/0.9.0
+- box2d/2.3.1
 - casadi/3.6.6
 - cilantro/cci.20230816
 - cimg/3.3.5
@@ -76,6 +77,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
+- entt/3.13.0
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
@@ -121,6 +123,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
+- libvpx/1.9.0
 - llama-cpp/b2038
 - llvm-openmp/18.1.8
 - manif/0.0.2.cci.20240804
@@ -182,6 +185,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.3.2
 - thrust/2.4.0
 - tiledb/2.22.0
+- toml11/3.1.0
+- toml11/3.4.0
+- toml11/3.5.0
+- toml11/3.6.0
+- toml11/3.6.1
+- toml11/3.7.0
+- toml11/3.7.1
+- toml11/3.8.0
 - tpl/cci.20210302
 - usearch/2.9.1
 - vilib/cci.20210625
