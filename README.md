@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-19:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-20:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -23,6 +23,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.8.1
 - aruco/3.1.15
 - aws-cdi-sdk/2.4.1
+- aws-sdk-cpp/1.8.130
+- aws-sdk-cpp/1.9.100
 - blis/0.9.0
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -36,6 +38,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cpp-httplib/0.13.1
+- cpp-httplib/0.14.0
+- cpp-httplib/0.14.2
+- cpp-httplib/0.15.1
+- cpp-httplib/0.15.2
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
@@ -43,6 +50,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
+- etl/20.39.0
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
@@ -82,6 +90,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libfabric/1.18.1
 - libhdfs3/cci.20191105
 - libosmium/2.20.0
+- libpointmatcher/1.3.1
 - librsvg/2.57.0
 - libsolv/0.7.29
 - libtomcrypt/1.18.2
@@ -150,6 +159,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tiledb/2.22.0
 - tpl/cci.20210302
 - usearch/2.9.1
+- utfcpp/3.1
+- utfcpp/3.1.1
+- utfcpp/3.2
+- utfcpp/3.2.1
+- utfcpp/3.2.2
+- utfcpp/3.2.4
 - vilib/cci.20210625
 - vlfeat/0.9.21
 - vtk-m/2.2.0
