@@ -14,8 +14,6 @@ required_conan_version = ">=1.53.0"
 
 class CernRootConan(ConanFile):
     name = "cern-root"
-    # version format is intentional, ROOT does not follow strict SemVer.
-    # see: https://root.cern/about/versioning/
     description = "CERN ROOT data analysis framework."
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
