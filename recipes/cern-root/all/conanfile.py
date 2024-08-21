@@ -70,7 +70,7 @@ class CernRootConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("arrow/16.1.0")
+        self.requires("arrow/17.0.0")
         self.requires("cfitsio/4.4.0")
         self.requires("fftw/3.3.10")
         self.requires("freetype/2.13.2")
@@ -87,11 +87,11 @@ class CernRootConan(ConanFile):
         self.requires("opengl/system")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/8.45")
-        self.requires("sqlite3/3.46.0")
+        self.requires("sqlite3/3.46.1")
         self.requires("xxhash/0.8.2")
-        self.requires("xz_utils/5.4.5")
+        self.requires("xz_utils/[>=5.4.5 <6]")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("zstd/1.5.5")
+        self.requires("zstd/[~1.5]")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
