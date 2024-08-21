@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-20:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-21:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
