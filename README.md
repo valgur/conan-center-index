@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-19:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-21:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -22,42 +22,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
-- aws-c-auth/0.6.0
-- aws-c-auth/0.6.11
-- aws-c-auth/0.6.17
-- aws-c-auth/0.6.8
-- aws-c-auth/0.7.21
-- aws-c-auth/0.7.7
-- aws-c-auth/0.7.8
-- aws-c-event-stream/0.1.5
-- aws-c-event-stream/0.2.15
-- aws-c-event-stream/0.2.20
-- aws-c-event-stream/0.3.1
-- aws-c-event-stream/0.3.2
-- aws-c-http/0.6.10
-- aws-c-http/0.6.13
-- aws-c-http/0.6.22
-- aws-c-http/0.6.5
-- aws-c-http/0.7.14
-- aws-c-mqtt/0.7.10
-- aws-c-mqtt/0.7.12
-- aws-c-mqtt/0.7.6
-- aws-c-mqtt/0.7.9
-- aws-c-mqtt/0.8.12
-- aws-c-mqtt/0.9.10
-- aws-c-s3/0.1.27
-- aws-c-s3/0.1.29
-- aws-c-s3/0.1.37
-- aws-c-s3/0.1.49
-- aws-c-s3/0.3.24
-- aws-c-s3/0.4.5
 - aws-cdi-sdk/2.4.1
-- aws-crt-cpp/0.14.3
-- aws-crt-cpp/0.17.12
-- aws-crt-cpp/0.17.23
-- aws-crt-cpp/0.24.1
+- aws-sdk-cpp/1.8.130
+- aws-sdk-cpp/1.9.100
 - blis/0.9.0
-- box2d/2.3.1
 - casadi/3.6.6
 - cilantro/cci.20230816
 - cimg/3.3.5
@@ -70,6 +38,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cpp-httplib/0.13.1
+- cpp-httplib/0.14.0
+- cpp-httplib/0.14.2
+- cpp-httplib/0.15.1
+- cpp-httplib/0.15.2
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
@@ -77,7 +50,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
-- entt/3.13.0
+- etl/20.39.0
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
@@ -117,14 +90,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libfabric/1.18.1
 - libhdfs3/cci.20191105
 - libosmium/2.20.0
+- libpointmatcher/1.3.1
 - librsvg/2.57.0
 - libsolv/0.7.29
 - libtomcrypt/1.18.2
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
-- libvpx/1.9.0
-- llama-cpp/b2038
 - llvm-openmp/18.1.8
 - manif/0.0.2.cci.20240804
 - matplotlib-cpp/cci.20210423
@@ -185,16 +157,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.3.2
 - thrust/2.4.0
 - tiledb/2.22.0
-- toml11/3.1.0
-- toml11/3.4.0
-- toml11/3.5.0
-- toml11/3.6.0
-- toml11/3.6.1
-- toml11/3.7.0
-- toml11/3.7.1
-- toml11/3.8.0
 - tpl/cci.20210302
 - usearch/2.9.1
+- utfcpp/3.1
+- utfcpp/3.1.1
+- utfcpp/3.2
+- utfcpp/3.2.1
+- utfcpp/3.2.2
+- utfcpp/3.2.4
 - vilib/cci.20210625
 - vlfeat/0.9.21
 - vtk-m/2.2.0
