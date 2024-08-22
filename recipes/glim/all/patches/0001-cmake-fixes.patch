@@ -28,7 +28,7 @@
  
  if(BUILD_WITH_VIEWER)
    find_package(Iridescence REQUIRED)
-@@ -85,7 +86,6 @@
+@@ -86,7 +87,6 @@
  )
  target_include_directories(glim PUBLIC
    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -36,7 +36,7 @@
    $<INSTALL_INTERFACE:include/glim>
    ${OpenCV_INCLUDE_DIRS}
  )
-@@ -97,6 +97,7 @@
+@@ -98,6 +98,7 @@
    gtsam_points::gtsam_points
    OpenMP::OpenMP_CXX
    spdlog::spdlog
