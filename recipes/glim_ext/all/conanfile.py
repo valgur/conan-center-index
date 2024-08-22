@@ -59,10 +59,10 @@ class GlimExtPackage(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glim/1.0.0", transitive_headers=True, transitive_libs=True)
+        self.requires("glim/1.0.4", transitive_headers=True, transitive_libs=True)
         # Most dependencies are available transitively through glim
         if self.options.imuval:
-            self.requires("iridescence/0.1.2")
+            self.requires("iridescence/0.1.3")
             self.requires("implot/0.16")
         # TODO: add ScanContext for scan_context
         # TODO: add ORB_SLAM3 for orbslam

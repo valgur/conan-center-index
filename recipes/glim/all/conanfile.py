@@ -66,7 +66,7 @@ class GlimPackage(ConanFile):
         self.requires("openmp/system")
         self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
         if self.options.viewer:
-            self.requires("iridescence/0.1.2", transitive_headers=True, transitive_libs=True)
+            self.requires("iridescence/0.1.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.compiler.cppstd:
