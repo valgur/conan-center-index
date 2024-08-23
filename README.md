@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-22:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-23:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -46,8 +46,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - f2c/20240312
 - fbgemm/0.8.0
 - filament/1.5.3
-- folly/2022.10.31.00
-- folly/2023.12.18.00
 - fortran/cci.latest
 - g2o/20230806
 - gdal/3.9.0
@@ -55,7 +53,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - getdns/1.7.3
 - gfortran/13.2.0
 - gici/cci.20240421
-- glim/1.0.3
+- glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
 - glpk/4.48
@@ -67,10 +65,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gpu.cpp/cci.20240726
 - gtk/3.24.41
 - gtk/4.14.3
-- gtsam_points/1.0.2
+- gtsam_points/1.0.4
 - hscpp/1.0.0-alpha
 - imagemagick/7.1.1.32
-- iridescence/0.1.2
+- iridescence/0.1.3
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libcudacxx/2.2.0
@@ -98,11 +96,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - netpbm/11.6.0
 - numpy/1.26.4
 - ogre/14.2.4
-- onnxruntime/1.16.0
-- onnxruntime/1.16.1
-- onnxruntime/1.16.2
 - open62541pp/0.12.0
-- openapi-generator/7.3.0
 - openmp/system
 - openmpi/4.1.6
 - openmvg/2.1
