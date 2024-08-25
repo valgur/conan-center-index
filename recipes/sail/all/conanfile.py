@@ -1,9 +1,11 @@
+import os
+import textwrap
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rename, rmdir
+from conan.tools.files import copy, get, rename, rmdir, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.53.0"
 
@@ -42,9 +44,6 @@ class SAILConan(ConanFile):
         "with_low_priority_codecs": "Enable codecs: ICO, PCX, PNM, PSD, QOI, TGA",
         "with_lowest_priority_codecs": "Enable codecs: WAL, XBM",
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -118,9 +117,18 @@ class SAILConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def build(self):
-        apply_conandata_patches(self)
+    def _patch_sources(self):
+        save(self, os.path.join(self.source_folder, "cmake", "sail_check_openmp.cmake"),
+             textwrap.dedent("""\
+                 function(sail_check_openmp)
+                     find_package(OpenMP 3.0 COMPONENTS C REQUIRED)
+                     set(SAIL_HAVE_OPENMP ON CACHE INTERNAL "")
+                     set(SAIL_HAVE_OPENMP_DISPLAY ON CACHE INTERNAL "")
+                 endfunction()
+             """))
 
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
