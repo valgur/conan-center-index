@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, stdcpp_library
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
 import os
@@ -57,6 +57,8 @@ class MuParserConan(ConanFile):
         tc.variables["ENABLE_SAMPLES"] = False
         tc.variables["ENABLE_OPENMP"] = self.options.with_openmp
         tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
