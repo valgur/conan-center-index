@@ -1,6 +1,6 @@
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -123,14 +123,9 @@
+@@ -123,14 +123,8 @@
  
  
  if (USE_OPENMP)
@@ -13,8 +13,7 @@
 -        message(WARNING "OpenMP NOT found")
 -    endif()
 +    find_package(OpenMP REQUIRED)
-+    link_libraries($<$<LINK_LANGUAGE:C>:OpenMP::OpenMP_C>)
-+    link_libraries($<$<LINK_LANGUAGE:CXX>:OpenMP::OpenMP_CXX>)
++    link_libraries(OpenMP::OpenMP_CXX)
  endif()
  
  

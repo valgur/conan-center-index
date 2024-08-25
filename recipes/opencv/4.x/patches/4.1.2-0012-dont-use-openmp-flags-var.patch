@@ -1,6 +1,6 @@
 --- a/cmake/OpenCVFindFrameworks.cmake
 +++ b/cmake/OpenCVFindFrameworks.cmake
-@@ -30,11 +30,8 @@
+@@ -30,11 +30,7 @@
  if(WITH_OPENMP)
    find_package(OpenMP)
    if(OPENMP_FOUND)
@@ -9,8 +9,7 @@
 -    if(DEFINED OpenMP_CXX_INCLUDE_DIRS AND OpenMP_CXX_INCLUDE_DIRS)
 -      ocv_include_directories(${OpenMP_CXX_INCLUDE_DIRS})
 -    endif()
-+    link_libraries($<$<LINK_LANGUAGE:C>:OpenMP::OpenMP_C>)
-+    link_libraries($<$<LINK_LANGUAGE:CXX>:OpenMP::OpenMP_CXX>)
++    link_libraries(OpenMP::OpenMP_CXX)
    endif()
    set(HAVE_OPENMP "${OPENMP_FOUND}")
  endif()
