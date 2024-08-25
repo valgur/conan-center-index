@@ -1,6 +1,7 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.files import copy, get, rmdir, replace_in_file
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.54.0"
@@ -82,7 +83,16 @@ class ZfpConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
 
+        deps = CMakeDeps(self)
+        deps.generate()
+
+    def _patch_sources(self):
+        if Version(self.version) < "1.0":
+            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+                            "target_compile_options(zfp PRIVATE ${OpenMP_C_FLAGS})", "")
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
