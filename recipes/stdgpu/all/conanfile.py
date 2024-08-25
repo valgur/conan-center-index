@@ -29,7 +29,6 @@ class StdgpuConan(ConanFile):
         "setup_compiler_flags": [True, False],
         "enable_contract_checks": [None, True, False],
         "use_32_bit_index": [True, False],
-        "openmp": ["llvm", "system"],
     }
     default_options = {
         "shared": False,
@@ -38,7 +37,6 @@ class StdgpuConan(ConanFile):
         "setup_compiler_flags": False,
         "enable_contract_checks": None,
         "use_32_bit_index": True,
-        "openmp": "llvm",
     }
 
     @property
@@ -84,10 +82,6 @@ class StdgpuConan(ConanFile):
             self.options["thrust"].device_system = "cuda"
         elif self.options.backend == "openmp":
             self.options["thrust"].device_system = "omp"
-
-    def package_id(self):
-        if self.info.options.backend != "openmp":
-            del self.info.options.openmp
 
     def layout(self):
         cmake_layout(self, src_folder="src")
