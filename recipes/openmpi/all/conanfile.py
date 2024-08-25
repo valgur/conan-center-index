@@ -27,17 +27,15 @@ class OpenMPIConan(ConanFile):
         "fortran": ["yes", "mpifh", "usempi", "usempi80", "no"],
         "cxx": [True, False],
         "cxx_exceptions": [True, False],
-        "external_hwloc": [True, False],
         "with_verbs": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "fortran": "no",
-        "cxx": False,
+        "cxx": True,
         "cxx_exceptions": False,
-        "external_hwloc": True,
-        "with_verbs": False,  # FIXME: --with-verbs fails
+        "with_verbs": True,
     }
 
     def config_options(self):
@@ -64,14 +62,10 @@ class OpenMPIConan(ConanFile):
     def requirements(self):
         # OpenMPI public headers don't include anything besides stddef.h.
         # transitive_headers=True is not needed for any dependencies.
+        self.requires("hwloc/2.9.3")
         self.requires("zlib/[>=1.2.11 <2]")
         if not is_apple_os(self):
-            self.requires("libnl/3.9.0")
-        if self.options.external_hwloc:
-            self.requires("hwloc/2.10.0")
-        else:
-            self.requires("libpciaccess/0.17")
-            self.requires("libudev/system")
+            self.requires("libnl/3.8.0")
         if self.options.get_safe("with_verbs"):
             self.requires("rdma-core/52.0")
 
@@ -102,7 +96,7 @@ class OpenMPIConan(ConanFile):
             f"--enable-mpi-fortran={self.options.fortran}",
             f"--enable-mpi-cxx={yes_no(self.options.cxx)}",
             f"--enable-cxx-exceptions={yes_no(self.options.get_safe('cxx_exceptions'))}",
-            f"--with-hwloc={root('hwloc') if self.options.external_hwloc else 'internal'}",
+            f"--with-hwloc={root('hwloc')}",
             f"--with-libnl={root('libnl') if not is_apple_os(self) else 'no'}",
             f"--with-verbs={root('rdma-core') if self.options.get_safe('with_verbs') else 'no'}",
             f"--with-zlib={root('zlib')}",
@@ -183,16 +177,14 @@ class OpenMPIConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "_ompi-do-not-use")
         # TODO: export a .cmake module to correctly set all variables set by CMake's FindMPI.cmake
 
-        requires = ["zlib::zlib"]
+        requires = [
+            "hwloc::hwloc",
+            "zlib::zlib",
+        ]
         if not is_apple_os(self):
             requires.append("libnl::libnl")
-        if self.options.external_hwloc:
-            requires.append("hwloc::hwloc")
-        else:
-            requires.append("libpciaccess::libpciaccess")
-            requires.append("libudev::system")
         if self.options.get_safe("with_verbs"):
-            requires.append("rdma-core::libibverbs")
+            requires.extend(["rdma-core::libibverbs", "rdma-core::librdmacm"])
 
         # The components are modelled based on OpenMPI's pkg-config files
 
@@ -223,13 +215,13 @@ class OpenMPIConan(ConanFile):
             self.cpp_info.components["ompi-cxx"].set_property("pkg_config_name", "ompi-cxx")
             self.cpp_info.components["ompi-cxx"].set_property("cmake_target_name", "MPI::MPI_CXX")
             self.cpp_info.components["ompi-cxx"].libs = ["mpi_cxx"]
-            self.cpp_info.components["ompi-cxx"].requires = ["mpi"]
+            self.cpp_info.components["ompi-cxx"].requires = ["ompi"]
 
         if self.options.fortran != "no":
             self.cpp_info.components["ompi-fort"].set_property("pkg_config_name", "ompi-fort")
             self.cpp_info.components["ompi-fort"].set_property("cmake_target_name", "MPI::MPI_Fortran")
             self.cpp_info.components["ompi-fort"].libs = ["mpi_mpifh"]
-            self.cpp_info.components["ompi-fort"].requires = ["mpi"]
+            self.cpp_info.components["ompi-fort"].requires = ["ompi"]
             # Aliases
             self.cpp_info.components["ompi-f77"].set_property("pkg_config_name", "ompi-f77")
             self.cpp_info.components["ompi-f77"].requires = ["ompi-fort"]
