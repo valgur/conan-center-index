@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
 import os
 
 required_conan_version = ">=1.54.0"
@@ -96,15 +96,26 @@ class FFTWConan(ConanFile):
         tc.variables["ENABLE_AVX2"] = self.options.simd == "avx2"
         tc.generate()
 
+        deps = CMakeDeps(self)
+        deps.generate()
+
     @property
     def _all_precisions(self):
         return [p for p in ALL if self.options.get_safe(f"precision_{p}")]
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package (OpenMP)", "find_package (OpenMP REQUIRED CONFIG)")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "target_compile_options (${fftw3_lib}_omp PRIVATE ${OpenMP_C_FLAGS})",
+                        "target_link_libraries (${fftw3_lib}_omp OpenMP::OpenMP_C)")
 
     def build(self):
         def on_off(value):
             return "ON" if value else 'OFF'
 
-        apply_conandata_patches(self)
+        self._patch_sources()
         for current_precision in self._all_precisions:
             cmake = CMake(self)
             variables = {
