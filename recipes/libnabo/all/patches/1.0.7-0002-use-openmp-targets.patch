@@ -1,0 +1,19 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -95,14 +95,8 @@
+ # openmp
+ set(USE_OPEN_MP TRUE CACHE BOOL "Set to FALSE to not use OpenMP")
+ if (USE_OPEN_MP)
+-	find_package(OpenMP)
+-	if (OPENMP_FOUND)
+-		add_definitions(-fopenmp -DHAVE_OPENMP)
+-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+-		if (CMAKE_COMPILER_IS_GNUCC)
+-			set(EXTRA_LIBS ${EXTRA_LIBS} gomp)
+-		endif(CMAKE_COMPILER_IS_GNUCC)
+-	endif(OPENMP_FOUND)
++	find_package(OpenMP REQUIRED)
++	link_libraries(OpenMP::OpenMP_CXX)
+ endif (USE_OPEN_MP)
+ 
+ # eigen 2 or 3
