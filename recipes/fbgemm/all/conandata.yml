@@ -10,3 +10,6 @@ patches:
     - patch_file: "patches/0002-let-conan-define-cxx_standard.patch"
       patch_description: "Let Conan define CXX_STANDARD"
       patch_type: "conan"
+    - patch_file: "patches/0003-use-openmp-targets.patch"
+      patch_description: "Use OpenMP targets instead of plain compiler flags"
+      patch_type: "portability"
