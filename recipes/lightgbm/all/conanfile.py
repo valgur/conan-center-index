@@ -97,6 +97,10 @@ class LightGBMConan(ConanFile):
         # Unvendor Eigen3
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "include_directories(${EIGEN_DIR})", "")
+        # Avoid OpenMP_CXX_FLAGS
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")',
+                        'link_libraries(OpenMP::OpenMP_CXX)')
 
     def build(self):
         self._patch_sources()
