@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import (
     apply_conandata_patches,
     copy,
@@ -130,6 +130,9 @@ class GinkgoConan(ConanFile):
         tc.variables["GINKGO_BUILD_MPI"] = False
         tc.generate()
 
+        deps = CMakeDeps(self)
+        deps.generate()
+
     def build(self):
         apply_conandata_patches(self)
         cmake = CMake(self)
@@ -225,7 +228,7 @@ class GinkgoConan(ConanFile):
             self.cpp_info.components["ginkgo_hip"].requires += ["ginkgo_device"]
             self.cpp_info.components["ginkgo_cuda"].requires += ["ginkgo_device"]
             self.cpp_info.components["ginkgo_dpcpp"].requires += ["ginkgo_device"]
-        
+
         if has_config_library:
             self.cpp_info.components["ginkgo_core"].requires += ["ginkgo_config"]
 
