@@ -9,7 +9,13 @@ patches:
   "1.9.2":
     - patch_file: "patches/1.9.2-0001-cxx-11-required.patch"
     - patch_file: "patches/1.9.2-0002-cmake-lz4.patch"
+    - patch_file: "patches/1.9.2-0003-use-openmp-target.patch"
+      patch_description: "Require OpenMP if enabled, use a target instead of plain compiler flags"
+      patch_type: "portability"
   "1.9.1":
+    - patch_file: "patches/1.9.1-0003-use-openmp-target.patch"
+      patch_description: "Require OpenMP if enabled, use a target instead of plain compiler flags"
+      patch_type: "portability"
     - patch_file: "patches/1.9.1-0001-external-lz4-and-export-symbols.patch"
     - patch_file: "patches/1.9.1-0002-support-cpp17.patch"
       patch_description: "Support C++17"
