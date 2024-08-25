@@ -1,6 +1,6 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches
 import os
 
 required_conan_version = ">=1.53.0"
@@ -30,6 +30,9 @@ class KissfftConan(ConanFile):
         "openmp": True,
         "use_alloca": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -63,7 +66,11 @@ class KissfftConan(ConanFile):
         tc.variables["KISSFFT_USE_ALLOCA"] = self.options.use_alloca
         tc.generate()
 
+        deps = CMakeDeps(self)
+        deps.generate()
+
     def build(self):
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
