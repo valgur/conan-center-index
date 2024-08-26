@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15)
 project(vcglib LANGUAGES CXX)
 
 find_package(Eigen3 REQUIRED CONFIG)
@@ -8,6 +8,11 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 target_include_directories(${PROJECT_NAME} PUBLIC ${VCGLIB_SRC_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
+
+if(VCG_USE_OPENMP)
+    find_package(OpenMP REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
+endif()
 
 include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}

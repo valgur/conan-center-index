@@ -19,10 +19,12 @@ class VcglibConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "openmp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "openmp": True,
     }
 
     def export_sources(self):
@@ -43,6 +45,8 @@ class VcglibConan(ConanFile):
     def requirements(self):
         # vcglib public headers include several eigen headers (for example vcg/math/matrix44.h includes Eigen/Core)
         self.requires("eigen/3.4.0", transitive_headers=True)
+        if self.options.openmp:
+            self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):
@@ -54,6 +58,7 @@ class VcglibConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["VCGLIB_SRC_DIR"] = self.source_folder.replace("\\", "/")
+        tc.variables["VCG_USE_OPENMP"] = self.options.openmp
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
