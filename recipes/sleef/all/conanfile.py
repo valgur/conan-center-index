@@ -3,9 +3,9 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rmdir
+from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -24,15 +24,21 @@ class SleefConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "openmp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "openmp": True,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+            del self.options.openmp
 
     def configure(self):
         if self.options.shared:
@@ -42,6 +48,10 @@ class SleefConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.get_safe("openmp"):
+            self.requires("openmp/system")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
@@ -90,14 +100,20 @@ class SleefConan(ConanFile):
             tc.cache_variables["SLEEF_DISABLE_SSL"] = True
             tc.cache_variables["SLEEF_ENABLE_CUDA"] = False
             tc.cache_variables["SLEEF_ENABLE_CXX"] = False
+            tc.cache_variables["SLEEF_DISABLE_OPENMP"] = not self.options.get_safe("openmp", False)
         else:
             tc.cache_variables["BUILD_DFT"] = False
             tc.cache_variables["BUILD_GNUABI_LIBS"] = False
             tc.cache_variables["BUILD_TESTS"] = False
             tc.cache_variables["DISABLE_FFTW"] = True
+            tc.cache_variables["DISABLE_OPENMP"] = not self.options.get_safe("openmp", False)
         tc.generate()
 
+        deps = CMakeDeps(self)
+        deps.generate()
+
     def build(self):
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
