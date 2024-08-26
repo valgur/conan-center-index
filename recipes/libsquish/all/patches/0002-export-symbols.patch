@@ -1,6 +1,6 @@
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -119,3 +119,14 @@ INSTALL(
+@@ -114,3 +114,14 @@ INSTALL(
      RUNTIME DESTINATION bin
      PUBLIC_HEADER DESTINATION include
      )

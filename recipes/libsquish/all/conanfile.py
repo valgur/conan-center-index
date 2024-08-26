@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 import os
 
@@ -73,6 +73,8 @@ class LibsquishConan(ConanFile):
         tc.variables["BUILD_SQUISH_WITH_ALTIVEC"] = self.options.get_safe("altivec_intrinsics") or False
         tc.variables["BUILD_SQUISH_EXTRA"] = False
         tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)
