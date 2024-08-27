@@ -63,9 +63,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnuradio-volk/3.1.2
 - gobject-introspection/1.78.1
 - gpu.cpp/cci.20240726
-- gstreamer/1.18.0
-- gstreamer/1.18.3
-- gstreamer/1.22.3
 - gtk/3.24.41
 - gtk/4.14.3
 - gtsam_points/1.0.4
@@ -124,6 +121,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - skia/cci.20240727
 - sleef/3.6.1
 - small_gicp/0.1.2
+- splinter/3.0
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
 - suitesparse-amd/3.3.2
