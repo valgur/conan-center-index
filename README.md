@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-26:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-27:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -63,6 +63,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnuradio-volk/3.1.2
 - gobject-introspection/1.78.1
 - gpu.cpp/cci.20240726
+- gstreamer/1.18.0
+- gstreamer/1.18.3
+- gstreamer/1.22.3
 - gtk/3.24.41
 - gtk/4.14.3
 - gtsam_points/1.0.4
@@ -119,6 +122,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.77.1
 - sfcgal/1.5.0
 - skia/cci.20240727
+- sleef/3.6.1
 - small_gicp/0.1.2
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
