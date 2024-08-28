@@ -2,6 +2,3 @@ sources:
   "4.3.4":
     url: "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.8.2.tar.gz"
     sha256: "996c48c87baaeb5fc04bd85c7e66d3651a56fe749c531c60926d75b4db5d2181"
-patches:
-  "4.3.4":
-    - patch_file: "patches/001-remove-gpu-extern-c.patch"
