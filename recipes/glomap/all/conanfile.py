@@ -65,7 +65,7 @@ class GlomapConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
         self.requires("poselib/2.0.3", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-cholmod/5.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-cholmod/5.3.0", transitive_headers=True, transitive_libs=True)
 
 
     def validate(self):

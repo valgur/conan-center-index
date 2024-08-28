@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, rm, rmdir, copy, replace_in_file, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import get, rm, rmdir, copy
 
 required_conan_version = ">=1.53.0"
 
@@ -28,9 +28,6 @@ class SuiteSparseParuConan(ConanFile):
         "fPIC": True,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -44,9 +41,9 @@ class SuiteSparseParuConan(ConanFile):
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.7.0", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-cholmod/5.2.1", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-umfpack/6.3.3", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-config/7.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-cholmod/5.3.0", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-umfpack/6.3.4", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <4]")
@@ -71,7 +68,6 @@ class SuiteSparseParuConan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "ParU"))
         cmake.build()

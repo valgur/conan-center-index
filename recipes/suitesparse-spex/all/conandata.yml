@@ -1,9 +1,9 @@
 sources:
-  "3.1.0":
-    url: "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.7.0.tar.gz"
-    sha256: "529b067f5d80981f45ddf6766627b8fc5af619822f068f342aab776e683df4f3"
+  "3.2.1":
+    url: "https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.8.2.tar.gz"
+    sha256: "996c48c87baaeb5fc04bd85c7e66d3651a56fe749c531c60926d75b4db5d2181"
 patches:
-  "3.1.0":
+  "3.2.1":
     - patch_file: "patches/001-disable-unnecessary-cmake-config.patch"
       patch_description: "Skip unnecessary incompatible configuration steps in CMakeLists.txt"
       patch_type: "conan"

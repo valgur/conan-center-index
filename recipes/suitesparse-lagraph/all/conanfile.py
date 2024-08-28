@@ -41,7 +41,7 @@ class SuiteSparseLagraphConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("suitesparse-graphblas/9.1.0", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-graphblas/9.3.1", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.20 <4]")

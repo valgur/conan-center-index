@@ -58,11 +58,11 @@ class SuiteSparseCholmodConan(ConanFile):
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.7.0", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-amd/3.3.2")
-        self.requires("suitesparse-camd/3.3.2")
-        self.requires("suitesparse-colamd/3.3.3")
-        self.requires("suitesparse-ccolamd/3.3.3")
+        self.requires("suitesparse-config/7.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-amd/3.3.3")
+        self.requires("suitesparse-camd/3.3.3")
+        self.requires("suitesparse-colamd/3.3.4")
+        self.requires("suitesparse-ccolamd/3.3.4")
 
         # A modified vendored version of METIS v5.1.0 is included,
         # but it has been modified to not conflict with the general version
