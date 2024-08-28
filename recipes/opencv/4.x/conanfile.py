@@ -1154,8 +1154,7 @@ class OpenCVConan(ConanFile):
             self.requires("quirc/1.2")
         # videoio module dependencies
         if self.options.get_safe("with_ffmpeg"):
-            # opencv doesn't support ffmpeg >= 5.0.0 for the moment (until 4.5.5 at least)
-            self.requires("ffmpeg/4.4.4")
+            self.requires("ffmpeg/7.0.1")
         # freetype module dependencies
         if self.options.freetype:
             self.requires("freetype/2.13.2")

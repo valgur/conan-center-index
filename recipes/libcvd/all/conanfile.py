@@ -75,7 +75,7 @@ class LibCVDConan(ConanFile):
         self.requires("toon/3.2", transitive_headers=True, transitive_libs=True)
         if self.options.with_ffmpeg:
             # FFMPEG v5.x+ are not supported
-            self.requires("ffmpeg/4.4.4", transitive_libs=True)
+            self.requires("ffmpeg/7.0.1", transitive_libs=True)
         if self.options.with_libdc1394:
             # FIXME: libidc1394 seems to be missing raw1394 dependency
             # test_package fails with "undefined reference to `raw1394_new_handle'" etc

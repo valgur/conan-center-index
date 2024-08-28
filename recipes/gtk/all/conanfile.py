@@ -114,7 +114,7 @@ class GtkConan(ConanFile):
         if self.options.with_pango:
             self.requires("pango/1.51.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/6.1")
+            self.requires("ffmpeg/7.0.1")
         if self.options.with_gstreamer:
             self.requires("gstreamer/1.22.6")
         self.requires("fontconfig/2.15.0", override=True)
