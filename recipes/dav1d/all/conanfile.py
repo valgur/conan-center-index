@@ -60,7 +60,7 @@ class Dav1dConan(ConanFile):
             self.output.warning("The 'with_avx512' option is deprecated and has no effect")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.4.0")
+        self.tool_requires("meson/[>=1.2.3 <2]")
         if self.options.assembly:
             self.tool_requires("nasm/2.16.01")
 

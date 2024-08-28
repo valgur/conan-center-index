@@ -71,7 +71,7 @@ class GStLibAVConan(ConanFile):
             self.requires('libalsa/1.2.5.1') # temp - conflict with gst-plugins-base
 
     def build_requirements(self):
-        self.build_requires("meson/0.54.2")
+        self.build_requires("meson/[>=1.2.3 <2]")
         if not tools.which("pkg-config"):
             self.build_requires("pkgconf/[>=2.2 <3]")
         if self.settings.os == 'Windows':

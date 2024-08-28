@@ -55,7 +55,7 @@ class AtSPI2AtkConan(ConanFile):
 
 
     def build_requirements(self):
-        self.build_requires("meson/1.1.1")
+        self.build_requires("meson/[>=1.2.3 <2]")
         self.build_requires('pkgconf/2.2.0')
 
     def requirements(self):

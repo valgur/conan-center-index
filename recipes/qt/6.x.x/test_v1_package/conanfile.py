@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("cmake/3.25.3")
         if self._meson_supported():
-            self.tool_requires("meson/1.1.0")
+            self.tool_requires("meson/[>=1.2.3 <2]")
 
     def generate(self):
         save(self, "qt.conf", """[Paths]

@@ -56,7 +56,7 @@ class PangommConan(ConanFile):
             del self.options.fPIC
 
     def build_requirements(self):
-        self.build_requires("meson/0.59.1")
+        self.build_requires("meson/[>=1.2.3 <2]")
         self.build_requires("pkgconf/[>=2.2 <3]")
 
     def requirements(self):

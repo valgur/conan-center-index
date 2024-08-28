@@ -133,7 +133,7 @@ class GtkConan(ConanFile):
             raise ConanInvalidConfiguration("gtk supports only shared since 4.1.0")
 
     def build_requirements(self):
-        self.tool_requires("meson/1.4.0")
+        self.tool_requires("meson/[>=1.2.3 <2]")
         self.tool_requires("glib/<host_version>")
         if self._gtk4:
             self.tool_requires("libxml2/[>=2.12.5 <3]")  # for xmllint

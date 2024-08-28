@@ -135,7 +135,7 @@ class GStPluginsBaseConan(ConanFile):
             self.requires("pango/1.49.3")
 
     def build_requirements(self):
-        self.build_requires("meson/0.61.2")
+        self.build_requires("meson/[>=1.2.3 <2]")
         if not tools.which("pkg-config"):
             self.build_requires("pkgconf/[>=2.2 <3]")
         if self.settings.os == 'Windows':
