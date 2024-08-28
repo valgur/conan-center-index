@@ -39,7 +39,7 @@ class TinycolormapConan(ConanFile):
             self.requires("eigen/3.4.0")
         if self.options.with_qt:
             # Only Qt5 is supported
-            self.requires("qt/5.15.13")
+            self.requires("qt/[~5.15]")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):

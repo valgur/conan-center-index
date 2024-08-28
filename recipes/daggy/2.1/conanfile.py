@@ -50,7 +50,7 @@ class DaggyConan(ConanFile):
             "clang": "8",
             "apple-clang": "10",
         }
-    
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -68,7 +68,7 @@ class DaggyConan(ConanFile):
 
     def requirements(self):
         # Qt is used in the public headers
-        self.requires("qt/6.7.0", transitive_headers=True, transitive_libs=True)
+        self.requires("qt/[>=6.7 <7]", transitive_headers=True, transitive_libs=True)
         self.requires("kainjow-mustache/4.1")
         if self.options.with_yaml:
             self.requires("yaml-cpp/0.8.0")

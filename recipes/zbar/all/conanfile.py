@@ -74,7 +74,7 @@ class ZbarConan(ConanFile):
         if self.options.with_gtk:
             self.requires("gtk/4.7.0")
         if self.options.with_qt:
-            self.requires("qt/5.15.9")
+            self.requires("qt/[~5.15]")
 
     def validate(self):
         if self.settings.os == "Windows":

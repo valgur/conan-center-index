@@ -75,7 +75,7 @@ class ThriftConan(ConanFile):
         if self.options.with_libevent:
             self.requires("libevent/2.1.12")
         if self.options.with_qt5:
-            self.requires("qt/5.15.13")
+            self.requires("qt/[~5.15]")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":

@@ -52,7 +52,7 @@ class ZintConan(ConanFile):
             self.requires("libpng/[>=1.6 <2]")
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_qt:
-            self.requires("qt/5.15.10")
+            self.requires("qt/[~5.15]")
 
     def validate(self):
         if self.options.with_qt and not self.dependencies["qt"].options.gui:
