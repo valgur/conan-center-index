@@ -1118,7 +1118,7 @@ class OpenCVConan(ConanFile):
             self.requires("ade/0.1.2d")
         # highgui module dependencies
         if self.options.get_safe("with_gtk"):
-            self.requires("gtk/system")
+            self.requires("gtk/[~3.24]")
         if self.options.get_safe("with_qt"):
             self.requires("qt/[>=6.7 <7]")
         if self.options.get_safe("with_wayland"):
