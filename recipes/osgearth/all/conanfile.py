@@ -104,7 +104,7 @@ class OsgearthConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gdal/3.8.0")
+        self.requires("gdal/3.9.2")
         self.requires("lerc/4.0.1")
         self.requires("libcurl/[>=7.78.0 <9]")
         self.requires("libzip/1.10.1")
