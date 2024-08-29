@@ -40,7 +40,7 @@ class LibtiffConan(ConanFile):
         "lzma": True,
         "jpeg": "libjpeg",
         "zlib": True,
-        "lerc": True,
+        "lerc": False,
         "libdeflate": True,
         "zstd": True,
         "jbig": True,
