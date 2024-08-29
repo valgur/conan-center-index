@@ -115,6 +115,10 @@ class GobjectIntrospectionConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "gir", "meson.build"),
                         "join_paths(giounix_dep.get_variable(pkgconfig: 'includedir'), 'gio-unix-2.0')",
                         "giounix_dep.get_variable(pkgconfig: 'includedir')")
+        # Look for data files in res/ instead of share/
+        replace_in_file(self, os.path.join(self.source_folder, "tools", "g-ir-tool-template.in"),
+                        "os.path.join(filedir, '..', 'share')",
+                        "os.path.join(filedir, '..', 'res')")
 
     def build(self):
         self._patch_sources()
