@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-28:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-29:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -63,8 +63,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnuradio-volk/3.1.2
 - gobject-introspection/1.78.1
 - gpu.cpp/cci.20240726
-- gtk/3.24.41
-- gtk/4.14.3
+- gtk/3.24.43
+- gtk/4.15.6
 - gtsam_points/1.0.4
 - hscpp/1.0.0-alpha
 - imagemagick/7.1.1.32
