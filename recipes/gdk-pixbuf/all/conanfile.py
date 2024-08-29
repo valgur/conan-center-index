@@ -74,6 +74,8 @@ class GdkPixbufConan(ConanFile):
             self.requires("libjpeg/9e")
         elif self.options.with_libjpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.5")
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if self.options.shared and not self.dependencies["glib"].options.shared:
@@ -94,7 +96,7 @@ class GdkPixbufConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.72.0")
+            self.tool_requires("gobject-introspection/<host_version>")  # for g-ir-scanner
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
