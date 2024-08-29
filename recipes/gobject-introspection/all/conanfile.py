@@ -8,7 +8,9 @@ from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.env import Environment
 from conan.tools.scm import Version
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 
 required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
@@ -17,7 +19,7 @@ class GobjectIntrospectionConan(ConanFile):
     name = "gobject-introspection"
     description = ("GObject introspection is a middleware layer between "
                    "C libraries (using GObject) and language bindings")
-    license = "LGPL-2.1"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/gobject-introspection"
     topics = ("gobject-instrospection",)
@@ -26,34 +28,49 @@ class GobjectIntrospectionConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
+        "build_introspection_data": [True, False],
     }
     default_options = {
         "fPIC": True,
+        "build_introspection_data": True,
     }
+    short_paths = True
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if self.settings.os in ["Windows", "Macos"] or cross_building(self):
+            # FIXME: tools/g-ir-scanner fails to load glib
+            self.options.build_introspection_data = False
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+        # FIXME: g-ir-scanner fails to load glib correctly, resulting in failure during the build
+        self.options["glib"].shared = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         # https://gitlab.gnome.org/GNOME/gobject-introspection/-/blob/1.76.1/meson.build?ref_type=tags#L127-131
-        glib_minor = Version(self.version).minor
-        self.requires(f"glib/[>=2.{glib_minor}]", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         # FIXME: gobject-introspection links against system python3 libs, which is not reliable
 
     def validate(self):
         if self.settings.os == "Windows" and self.settings.build_type == "Debug":
             # fatal error LNK1104: cannot open file 'python37_d.lib'
             raise ConanInvalidConfiguration(
-                "Debug build on Windows is disabled due to debug version of Python libs likely not being available."
-            )
+                f"{self.ref} debug build on Windows is disabled due to debug version of Python libs likely not being available. Contributions to fix this are welcome.")
+        if self.options.build_introspection_data and not self.dependencies["glib"].options.shared:
+            raise ConanInvalidConfiguration(f"{self.ref} requires shared glib to be built as shared. Use -o 'glib/*:shared=True'.")
+        if self.options.build_introspection_data and self.settings.os in ["Windows", "Macos"]:
+            # FIXME: tools/g-ir-scanner', '--output=gir/GLib-2.0.gir' ... ERROR: can't resolve libraries to shared libraries: glib-2.0, gobject-2.0
+            # FIXME: g-ir-scanner fails to find libgnuintl
+            # giscanner/_giscanner.cpython-37m-darwin.so, 0x0002): Library not loaded: /lib/libgnuintl.8.dylib
+            raise ConanInvalidConfiguration(f"{self.ref} fails to run g-ir-scanner due glib loaded as shared. Use -o 'glib/*:shared=False'. Contributions to fix this are welcome.")
+        if self.options.build_introspection_data and cross_building(self):
+            raise ConanInvalidConfiguration(f"{self.ref} build_introspection_data is not supported when cross-building. Use '&:build_introspection_data=False'.")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -76,12 +93,18 @@ class GobjectIntrospectionConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = MesonToolchain(self)
-        tc.args = ["--wrap-mode=nofallback"]
-        tc.project_options["build_introspection_data"] = self.dependencies["glib"].options.shared
-        tc.project_options["datadir"] = os.path.join(self.package_folder, "res")
+        if cross_building(self):
+            tc.project_options["gi_cross_use_prebuilt_gi"] = "false"
+        tc.project_options["build_introspection_data"] = self.options.build_introspection_data
+        tc.project_options["datadir"] = "res"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
+        # INFO: g-ir-scanner fails to find glib-2.0.pc, so we need to set PKG_CONFIG_PATH
+        env = Environment()
+        env.define("PKG_CONFIG_PATH", self.generators_folder)
+        envvars = env.vars(self)
+        envvars.save_script("pkg_config_env")
 
     def _patch_sources(self):
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
@@ -95,7 +118,6 @@ class GobjectIntrospectionConan(ConanFile):
 
     def build(self):
         self._patch_sources()
-        os.environ["PKG_CONFIG_PATH"] = os.path.join(self.build_folder, "conan")
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -107,6 +129,7 @@ class GobjectIntrospectionConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
+        fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "gobject-introspection-1.0")
@@ -118,6 +141,7 @@ class GobjectIntrospectionConan(ConanFile):
         pkgconfig_variables = {
             "datadir": "${prefix}/res",
             "bindir": "${prefix}/bin",
+            "libdir": "${prefix}/lib",
             "g_ir_scanner": "${bindir}/g-ir-scanner",
             "g_ir_compiler": "${bindir}/g-ir-compiler%s" % exe_ext,
             "g_ir_generate": "${bindir}/g-ir-generate%s" % exe_ext,
