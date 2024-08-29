@@ -195,7 +195,8 @@ class GdkPixbufConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        os.rename(os.path.join(self.package_folder, "share"),
+                  os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
@@ -204,6 +205,7 @@ class GdkPixbufConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "gdk-pixbuf-2.0")
         self.cpp_info.libs = ["gdk_pixbuf-2.0"]
         self.cpp_info.includedirs = [os.path.join("include", "gdk-pixbuf-2.0")]
+        self.cpp_info.resdirs = ["res"]
         if not self.options.shared:
             self.cpp_info.defines.append("GDK_PIXBUF_STATIC_COMPILATION")
         if self.settings.os in ["Linux", "FreeBSD"]:
