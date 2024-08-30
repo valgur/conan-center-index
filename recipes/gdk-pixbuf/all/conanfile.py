@@ -254,6 +254,10 @@ class GdkPixbufConan(ConanFile):
         self.runenv_info.define_path("GDK_PIXBUF_PIXDATA", gdk_pixbuf_pixdata)
         self.env_info.GDK_PIXBUF_PIXDATA = gdk_pixbuf_pixdata # remove in conan v2?
 
+        if self.options.with_introspection:
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "gir-1.0"))
+
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
