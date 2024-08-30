@@ -74,8 +74,6 @@ class GdkPixbufConan(ConanFile):
             self.requires("libjpeg/9e")
         elif self.options.with_libjpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.5")
-        if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if self.options.shared and not self.dependencies["glib"].options.shared:
@@ -96,7 +94,7 @@ class GdkPixbufConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")  # for g-ir-scanner
+            self.tool_requires("gobject-introspection/1.78.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -113,7 +111,10 @@ class GdkPixbufConan(ConanFile):
             env.generate(scope="build")
 
         deps = PkgConfigDeps(self)
+        if self.options.with_introspection:
+            deps.build_context_activated = ["gobject-introspection"]
         deps.generate()
+
         tc = MesonToolchain(self)
         enabled_disabled = lambda v: "enabled" if v else "disabled"
         true_false = lambda v: "true" if v else "false"
@@ -231,8 +232,6 @@ class GdkPixbufConan(ConanFile):
             self.cpp_info.requires.append("libjpeg::libjpeg")
         elif self.options.with_libjpeg == "mozjpeg":
             self.cpp_info.requires.append("mozjpeg::mozjpeg")
-        if self.options.with_introspection:
-            self.cpp_info.requires.append("gobject-introspection::gobject-introspection")
 
         # Breaking change since Conan >= 2.0.8
         # Related to https://github.com/conan-io/conan/pull/14233
