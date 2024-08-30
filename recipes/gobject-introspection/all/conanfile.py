@@ -158,6 +158,9 @@ class GobjectIntrospectionConan(ConanFile):
             "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
         )
 
+        self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+
         # TODO: remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.env_info.PATH.append(bin_path)
+        self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "gir-1.0"))
