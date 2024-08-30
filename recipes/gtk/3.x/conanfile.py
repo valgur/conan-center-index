@@ -369,3 +369,8 @@ class GtkConan(ConanFile):
             self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
             self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "share", "gir-1.0"))
             self.env_info.GI_TYPELIB_PATH.append(os.path.join(self.package_folder, "lib", "girepository-1.0"))
+
+        # TODO: add the following info to all generated .pc files:
+        # targets=wayland x11
+        # gtk_binary_version=3.0.0
+        # gtk_host=x86_64-linux
