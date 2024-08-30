@@ -208,7 +208,7 @@ class ProjConan(ConanFile):
                 self.cpp_info.components["projlib"].system_libs.append(libcxx)
         self.cpp_info.components["projlib"].requires.extend(["nlohmann_json::nlohmann_json", "sqlite3::sqlite3"])
         if self.options.get_safe("with_tiff"):
-            self.cpp_info.components["projlib"].requires.append("libtiff::libtiff")
+            self.cpp_info.components["projlib"].requires.append("libtiff::tiff")
         if self.options.get_safe("with_curl"):
             self.cpp_info.components["projlib"].requires.append("libcurl::libcurl")
         if Version(self.version) < "8.2.0":

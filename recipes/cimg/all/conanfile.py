@@ -236,7 +236,7 @@ class CImgConan(ConanFile):
         if self.options.enable_png:
             requires.append("libpng::libpng")
         if self.options.enable_tiff:
-            requires.append("libtiff::libtiff")
+            requires.append("libtiff::tiff")
         if self.options.enable_opencv:
             requires.append("opencv::opencv_core")
             requires.append("opencv::opencv_highgui")

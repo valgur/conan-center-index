@@ -507,7 +507,7 @@ class OpenSceneGraphConanFile(ConanFile):
             setup_plugin("png").requires.extend(["libpng::libpng", "zlib::zlib"])
 
         if self.options.with_tiff:
-            setup_plugin("tiff").requires.append("libtiff::libtiff")
+            setup_plugin("tiff").requires.append("libtiff::tiff")
 
         if self.options.with_gdal:
             setup_plugin("gdal").requires.extend(["osgTerrain", "gdal::gdal"])

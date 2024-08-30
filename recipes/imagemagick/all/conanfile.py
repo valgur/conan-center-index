@@ -422,7 +422,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_png:
             core_requires.append("libpng::libpng")
         if self.options.with_tiff:
-            core_requires.append("libtiff::libtiff")
+            core_requires.append("libtiff::tiff")
         if self.options.with_webp:
             core_requires.append("libwebp::libwebp")
         if self.options.with_xml2:

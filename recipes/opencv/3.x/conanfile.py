@@ -340,7 +340,7 @@ class OpenCVConan(ConanFile):
             elif self.options.with_jpeg == "mozjpeg":
                 components.append("mozjpeg::libjpeg")
             if self.options.with_tiff:
-                components.append("libtiff::libtiff")
+                components.append("libtiff::tiff")
             if self.options.with_openexr:
                 components.append("openexr::openexr")
             if self.options.with_webp:

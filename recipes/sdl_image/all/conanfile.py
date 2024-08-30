@@ -225,7 +225,7 @@ class SDLImageConan(ConanFile):
         self.cpp_info.components["_sdl_image"].set_property("pkg_config_name", "SDL2_image")
         self.cpp_info.components["_sdl_image"].requires = ["sdl::sdl"]
         if self.options.with_libtiff:
-            self.cpp_info.components["_sdl_image"].requires.append("libtiff::libtiff")
+            self.cpp_info.components["_sdl_image"].requires.append("libtiff::tiff")
         if self.options.with_libjpeg:
             self.cpp_info.components["_sdl_image"].requires.append("libjpeg::libjpeg")
         if self.options.with_libpng:

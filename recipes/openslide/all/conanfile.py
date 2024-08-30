@@ -121,7 +121,7 @@ class OpenSlideConan(ConanFile):
             "glib::gobject-2.0",
             "libdicom::libdicom",
             "libpng::libpng",
-            "libtiff::libtiff",
+            "libtiff::tiff",
             "libxml2::libxml2",
             "openjpeg::openjpeg",
             "sqlite3::sqlite3",

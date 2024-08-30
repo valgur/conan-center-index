@@ -98,4 +98,4 @@ class PDFWriterConan(ConanFile):
         if self.options.with_jpeg:
             self.cpp_info.requires.append("libpng::libpng")
         if self.options.with_tiff:
-            self.cpp_info.requires.append("libtiff::libtiff")
+            self.cpp_info.requires.append("libtiff::tiff")

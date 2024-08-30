@@ -390,7 +390,7 @@ class ITKConan(ConanFile):
             "ITKIOPhilipsREC": {"requires": ["zlib::zlib"]},
             "ITKIOSiemens": {"requires": ["ITKIOImageBase", "ITKIOIPL"]},
             "ITKIOStimulate": {"requires": ["ITKIOImageBase"]},
-            "ITKIOTIFF": {"requires": ["ITKIOImageBase", "libtiff::libtiff"]},
+            "ITKIOTIFF": {"requires": ["ITKIOImageBase", "libtiff::tiff"]},
             "ITKTransformFactory": {"requires": ["ITKCommon", "ITKTransform"]},
             "ITKIOTransformBase": {"requires": ["ITKCommon", "ITKTransform", "ITKTransformFactory"]},
             "ITKIOTransformHDF5": {"requires": ["ITKIOTransformBase", "hdf5::hdf5"]},

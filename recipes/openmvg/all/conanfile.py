@@ -251,7 +251,7 @@ class OpenmvgConan(ConanFile):
             "openmvg_image": {
                 "target": "openMVG_image",
                 "libs": ["openMVG_image"],
-                "requires": ["openmvg_numeric", "libpng::libpng", "libtiff::libtiff"] + jpeg(),
+                "requires": ["openmvg_numeric", "libpng::libpng", "libtiff::tiff"] + jpeg(),
             },
             "openmvg_linearprogramming": {
                 "target": "openMVG_linearProgramming",

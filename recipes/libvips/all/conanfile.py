@@ -379,7 +379,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_poppler:
             self.cpp_info.components["vips"].requires.append("poppler::poppler")
         if self.options.with_tiff:
-            self.cpp_info.components["vips"].requires.append("libtiff::libtiff")
+            self.cpp_info.components["vips"].requires.append("libtiff::tiff")
         if self.options.with_webp:
             self.cpp_info.components["vips"].requires.append("libwebp::libwebp")
         if self.options.with_zlib:

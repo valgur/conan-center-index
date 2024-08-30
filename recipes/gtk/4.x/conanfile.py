@@ -347,7 +347,7 @@ class GtkConan(ConanFile):
             "libepoxy::libepoxy",
             "libjpeg::libjpeg",
             "libpng::libpng",
-            "libtiff::libtiff",
+            "libtiff::tiff",
         ]
         if self.settings.os == "Windows":
             self.cpp_info.components["gtk4"].requires.extend(["glib::gio-windows-2.0"])

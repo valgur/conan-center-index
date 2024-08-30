@@ -192,7 +192,7 @@ class TesseractConan(ConanFile):
         self.cpp_info.components["libtesseract"].libs = [self._libname]
         self.cpp_info.components["libtesseract"].requires = ["leptonica::leptonica"]
         if self.settings.os == "Windows" and Version(self.version) >= "5.0.0":
-            self.cpp_info.components["libtesseract"].requires.append("libtiff::libtiff")
+            self.cpp_info.components["libtesseract"].requires.append("libtiff::tiff")
         if self.options.get_safe("with_libcurl", default=False):
             self.cpp_info.components["libtesseract"].requires.append("libcurl::libcurl")
         if self.options.get_safe("with_libarchive", default=True):

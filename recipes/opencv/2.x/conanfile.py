@@ -112,7 +112,7 @@ class OpenCVConan(ConanFile):
             elif self.options.get_safe("with_jpeg") == "mozjpeg":
                 components.append("mozjpeg::libjpeg")
             if self.options.get_safe("with_tiff"):
-                components.append("libtiff::libtiff")
+                components.append("libtiff::tiff")
             if self.options.get_safe("with_jasper"):
                 components.append("jasper::jasper")
             if self.options.get_safe("with_openexr"):

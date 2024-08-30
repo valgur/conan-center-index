@@ -174,7 +174,7 @@ class SAILConan(ConanFile):
             self.cpp_info.components["sail-codecs"].requires.append("giflib::giflib")
             self.cpp_info.components["sail-codecs"].requires.append("libjpeg::libjpeg")
             self.cpp_info.components["sail-codecs"].requires.append("libpng::libpng")
-            self.cpp_info.components["sail-codecs"].requires.append("libtiff::libtiff")
+            self.cpp_info.components["sail-codecs"].requires.append("libtiff::tiff")
             if Version(self.version) >= "0.9.1":
                 self.cpp_info.components["sail-codecs"].requires.append("nanosvg::nanosvg")
         if self.options.with_medium_priority_codecs:

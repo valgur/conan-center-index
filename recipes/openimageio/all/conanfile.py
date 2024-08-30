@@ -258,7 +258,7 @@ class OpenImageIOConan(ConanFile):
             "boost::system",
             "boost::container",
             "boost::regex",
-            "libtiff::libtiff",
+            "libtiff::tiff",
             "pugixml::pugixml",
             "tsl-robin-map::tsl-robin-map",
             "libsquish::libsquish",

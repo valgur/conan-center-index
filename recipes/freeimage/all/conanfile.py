@@ -158,7 +158,7 @@ class FreeImageConan(ConanFile):
             if self.options.with_jxr:
                 components.append("jxrlib::jxrlib")
             if self.options.with_tiff:
-                components.append("libtiff::libtiff")
+                components.append("libtiff::tiff")
             return components
 
         self.cpp_info.components["FreeImage"].libs = ["freeimage"]

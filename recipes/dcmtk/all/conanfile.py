@@ -278,7 +278,7 @@ class DCMTKConan(ConanFile):
             return ["libpng::libpng"] if self.options.with_libpng else []
 
         def tiff():
-            return ["libtiff::libtiff"] if self.options.with_libtiff else []
+            return ["libtiff::tiff"] if self.options.with_libtiff else []
 
         def openssl():
             return ["openssl::openssl"] if self.options.with_openssl else []
