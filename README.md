@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-29:
+Package versions that are available here but not yet on the main CCI repo as of 2024-08-30:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -66,6 +66,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtk/3.24.43
 - gtk/4.15.6
 - gtsam_points/1.0.4
+- harfbuzz/8.5.0
+- harfbuzz/9.0.0
 - hscpp/1.0.0-alpha
 - imagemagick/7.1.1.32
 - iridescence/0.1.3
@@ -104,6 +106,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openslide/4.0.0
 - osgearth/3.5
 - osrm/5.27.1
+- pango/1.54.0
 - pangolin/0.9.1
 - pcl/1.14.1
 - pdal/2.7.2
@@ -118,6 +121,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.72.1
 - rust/1.77.1
 - sfcgal/1.5.0
+- shaderc/2024.1
 - skia/cci.20240727
 - sleef/3.6.1
 - small_gicp/0.1.2
@@ -157,6 +161,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
 - vulkan-validationlayers/1.3.243.0
+- wayland-protocols/1.36
 - xgboost/2.0.3
 - zenoh-c/0.10.1-rc
 
