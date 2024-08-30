@@ -195,6 +195,8 @@ class PangoConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["pango_"].resdirs = ["res"]
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "gir-1.0"))
 
         if self.options.with_freetype:
             self.cpp_info.components["pangoft2"].libs = ["pangoft2-1.0"]
