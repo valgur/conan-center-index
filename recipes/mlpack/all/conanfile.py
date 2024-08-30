@@ -24,6 +24,8 @@ class MlpackConan(ConanFile):
 
     @property
     def _min_cppstd(self):
+        if Version(self.version) >= "4.4.0":
+            return 17
         if is_msvc(self):
             return 17
         return 14
@@ -95,9 +97,12 @@ class MlpackConan(ConanFile):
         if self.settings.get_safe("compiler.libcxx") in ["libstdc++", "libstdc++11"]:
             self.cpp_info.system_libs.append("atomic")
 
-        # https://github.com/mlpack/mlpack/blob/4.3.0/CMakeLists.txt#L164-L175
-        if is_msvc(self):
-            self.cpp_info.cxxflags.extend(["/bigobj", "/Zm200", "/Zc:__cplusplus"])
-        elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            self.cpp_info.cflags.append("-Wa,-mbig-obj")
-            self.cpp_info.cxxflags.append("-Wa,-mbig-obj")
+        flags = []
+        if self.settings.compiler == "gcc" and self.settings.os == "Windows":
+            flags = ["-Wa,-mbig-obj"]
+        elif is_msvc(self):
+            # https://github.com/mlpack/mlpack/blob/4.3.0/CMakeLists.txt#L164-L175
+            flags = ["/bigobj", "/Zm200", "/Zc:__cplusplus"]
+        if flags:
+            self.cpp_info.cflags = flags
+            self.cpp_info.cxxflags = flags
