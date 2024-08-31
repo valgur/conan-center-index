@@ -1,12 +1,11 @@
 import os
-import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, save, rm, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import copy, get, apply_conandata_patches, export_conandata_patches
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -63,6 +62,10 @@ class PolyscopeConan(ConanFile):
     def configure(self):
         if self.options.get_safe("shared"):
             self.options.rm_safe("fPIC")
+        if self.options.backend_glfw:
+            self.options["imgui"].backend_glfw = True
+        if self.options.backend_glfw or self.options.get_safe("backend_egl"):
+            self.options["imgui"].backend_opengl3 = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -88,6 +91,14 @@ class PolyscopeConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
+        if self.options.backend_glfw and not self.dependencies["imgui"].options.get_safe("backend_glfw"):
+            raise ConanInvalidConfiguration(
+                "'-o imgui/*:backend_glfw=True' option is required when 'backend_glfw' is enabled."
+            )
+        if (self.options.backend_glfw or self.options.get_safe("backend_egl")) and not self.dependencies["imgui"].options.get_safe("backend_opengl3"):
+            raise ConanInvalidConfiguration(
+                "'-o imgui/*:backend_opengl3=True' is required when 'backend_glfw' or 'backend_egl' is enabled."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -95,9 +106,9 @@ class PolyscopeConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_PROJECT_polyscope_INCLUDE"] = "conan_deps.cmake"
-        tc.variables["POLYSCOPE_BACKEND_OPENGL3_GLFW"] = self.options.backend_glfw
-        tc.variables["POLYSCOPE_BACKEND_OPENGL3_EGL"] = self.options.get_safe("backend_egl", False)
-        tc.variables["POLYSCOPE_BACKEND_OPENGL_MOCK"] = self.options.backend_mock
+        tc.cache_variables["POLYSCOPE_BACKEND_OPENGL3_GLFW"] = self.options.backend_glfw
+        tc.cache_variables["POLYSCOPE_BACKEND_OPENGL3_EGL"] = self.options.get_safe("backend_egl", False)
+        tc.cache_variables["POLYSCOPE_BACKEND_OPENGL_MOCK"] = self.options.backend_mock
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         if not valid_min_cppstd(self, self._min_cppstd):
             tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
@@ -107,15 +118,17 @@ class PolyscopeConan(ConanFile):
         deps.set_property("glad", "cmake_target_name", "glad")
         deps.set_property("glfw", "cmake_target_name", "glfw")
         deps.set_property("egl", "cmake_target_name", "EGL")
-        deps.set_property("imgui", "cmake_target_name", "imgui")
+        deps.set_property("imgui::core", "cmake_target_name", "imgui")
         deps.generate()
 
-        copy(self, "*",
-             os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"),
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        copy(self, "imgui_impl_*.h",
+             self.dependencies["imgui"].cpp_info.includedir,
              os.path.join(self.source_folder, "include", "backends"))
 
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -132,3 +145,10 @@ class PolyscopeConan(ConanFile):
             self.cpp_info.system_libs = ["m"]
         elif is_apple_os(self):
             self.cpp_info.frameworks = ["Cocoa", "OpenGL", "CoreVideo", "IOKit"]
+        self.cpp_info.requires = ["glm::glm", "nlohmann_json::nlohmann_json", "imgui::core"]
+        if self.options.backend_glfw:
+            self.cpp_info.requires.extend(["glfw::glfw", "imgui::glfw"])
+        if self.options.get_safe("backend_egl"):
+            self.cpp_info.requires.extend(["egl::egl", "imgui::opengl3"])
+        if self.options.backend_glfw or self.options.get_safe("backend_egl"):
+            self.cpp_info.requires.extend(["glad::glad", "imgui::opengl3"])
