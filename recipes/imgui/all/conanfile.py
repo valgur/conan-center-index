@@ -243,6 +243,9 @@ class ImguiConan(ConanFile):
         copy(self, "*", os.path.join(self.source_folder, "misc", "freetype"), os.path.join(res_folder, "misc", "freetype"))
 
     def package_info(self):
+        # Unofficial aggregate target. Prefer the individual targets instead.
+        self.cpp_info.set_property("cmake_target_name", "imgui::imgui_all")
+
         self.cpp_info.components["core"].set_property("cmake_target_name", "imgui::imgui")
         self.cpp_info.components["core"].set_property("pkg_config_name", "imgui")
         self.cpp_info.components["core"].libs = ["imgui"]
