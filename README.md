@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-08-30:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-01:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -89,6 +89,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.3.0
 - libtorch/2.4.0
 - llvm-openmp/18.1.8
+- luajit/2.0.5
 - manif/0.0.5
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
@@ -111,7 +112,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pcl/1.14.1
 - pdal/2.7.2
 - pocketfft/0.0.0.cci.20240801
-- polyscope/2.2.1
+- polyscope/2.3.0
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
