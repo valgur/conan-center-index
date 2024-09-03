@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-02:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-03:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -36,6 +36,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cppcheck/2.13.3
+- cppcheck/2.14.1
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
@@ -62,6 +64,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
 - gobject-introspection/1.78.1
+- google-cloud-cpp/2.12.0
 - gpu.cpp/cci.20240726
 - gtk/3.24.43
 - gtk/4.15.6
@@ -79,6 +82,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libdatrie/0.2.13
 - libecwj2/3.3
 - libelas/cci.20150630
+- libfabric/1.12.1
 - libfabric/1.18.1
 - libhdfs3/cci.20191105
 - libosmium/2.20.0
@@ -112,6 +116,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pcl/1.14.1
 - pdal/2.7.2
 - pocketfft/0.0.0.cci.20240801
+- podofo/0.9.6
 - polyscope/2.3.0
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
