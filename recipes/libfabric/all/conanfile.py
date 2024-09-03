@@ -3,10 +3,10 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
+from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -23,19 +23,13 @@ class LibfabricConan(ConanFile):
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     _providers = [
-        "bgq",
         "dmabuf_peer_mem",
         "efa",
-        "gni",
         "hook_debug",
         "hook_hmem",
         "mrail",
-        "opx",
         "perf",
-        "psm",
-        "psm2",
-        "psm3",
-        "rstream",
+        "profile",
         "rxd",
         "rxm",
         "shm",
@@ -51,28 +45,18 @@ class LibfabricConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_bgq_progress": [None, "auto", "manual"],
-        "with_bgq_mr": [None, "basic", "scalable"],
-        **{ p: ["yes", "no", "dl", "auto", "ANY"] for p in _providers },
+        **{ p: [None, "ANY"] for p in _providers },
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_bgq_progress": None,
-        "with_bgq_mr": None,
-        "bgq": "no",
         "dmabuf_peer_mem": "yes",
-        "efa": "no",
-        "gni": "no",
+        "efa": "yes",
         "hook_debug": "yes",
         "hook_hmem": "yes",
         "mrail": "yes",
-        "opx": "no",
-        "perf": "yes",
-        "psm": "no",
-        "psm2": "no",
-        "psm3": "no",
-        "rstream": "yes",
+        "perf": "no",
+        "profile": "yes",
         "rxd": "yes",
         "rxm": "yes",
         "shm": "yes",
@@ -83,23 +67,19 @@ class LibfabricConan(ConanFile):
         "ucx": "no",
         "udp": "yes",
         "usnic": "no",
-        "verbs": "no",  # TODO: this and others can be enabled once rdma-core is available
+        "verbs": "yes"
     }
 
     def config_options(self):
         if is_apple_os(self):
             # Requires libnl, which is not available on macOS
             del self.options.usnic
-            # shm2 and sm2 due to missing Linux-specific process_vm_readv syscall
+            # Require Linux-specific process_vm_readv syscall
             del self.options.shm
             del self.options.sm2
-        if Version(self.version) < "1.18.1":
-            del self.options.dmabuf_peer_mem
-            del self.options.hook_hmem
-            del self.options.opx
-            del self.options.trace
-            del self.options.ucx
-            self.options.rm_safe("sm2")
+            # rdma-core is not available on macOS
+            del self.options.efa
+            del self.options.verbs
 
     def configure(self):
         if self.options.shared:
@@ -107,60 +87,90 @@ class LibfabricConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def requirements(self):
-        def is_enabled(opt):
-            return self.options.get_safe(opt) in ["yes", "dl", "auto"]
+    def _is_enabled(self, opt):
+        return str(self.options.get_safe(opt)) == "yes" or str(self.options.get_safe(opt)).startswith("dl")
 
-        if is_enabled("usnic"):
+    def requirements(self):
+        if self._is_enabled("usnic"):
             self.requires("libnl/3.8.0")
-        if is_enabled("efa") or is_enabled("opx") or is_enabled("usnic") or is_enabled("verbs"):
-            self.requires("rdma-core/49.0")
-        if is_enabled("opx"):
-            self.requires("libnuma/2.0.14")
-            self.requires("util-linux-libuuid/2.39")
-        # TODO: bgq, gni, psm, psm2, psm3, ucx each require a corresponding library
+        if self._is_enabled("efa") or self._is_enabled("usnic") or self._is_enabled("verbs"):
+            self.requires("rdma-core/52.0")
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def package_id(self):
-        if not self.info.options.bgq:
-            del self.info.options.with_bgq_progress
-            del self.info.options.with_bgq_mr
-
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("libfabric is not available on Windows")
+            # FIXME: libfabric provides msbuild project files.
+            raise ConanInvalidConfiguration(f"{self.ref} Conan recipes is not supported on Windows. Contributions are welcome.")
 
-        for opt, value in self.options.items():
-            if opt in self._providers and self.options.get_safe(opt) not in ["auto", "yes", "no", "dl"]:
-                path = str(self.options.get_safe(opt))
-                if path.startswith("dl:"):
-                    path = path[3:]
-                if not os.path.isdir(path):
-                    raise ConanInvalidConfiguration(
-                        f"Option {opt} can only be 'yes', 'no', 'dl', 'auto' or a directory path "
-                        "(optionally with a 'dl:' prefix to build as a dynamic library)"
-                    )
+        for provider in self._providers:
+            provider = str(self.options.get_safe(provider))
+            if provider.lower() not in ["yes", "no", "dl", "none"] and \
+                    not os.path.isdir(provider) and \
+                    (not provider.startswith("dl:") and not os.path.isdir(provider[3:])):
+                raise ConanInvalidConfiguration(f"{self.ref} provider option '{provider}' is not valid. It must be 'yes', 'no', 'dl', 'dl:<dir_path>' or a directory path.")
+
+        if self._is_enabled("verbs"):
+            if not self.dependencies["rdma-core"].options.build_librdmacm:
+                raise ConanInvalidConfiguration(f"{self.ref} '-o rdma-core/*:build_librdmacm=True' is required when '-o &:verbs=True'")
+
+    def build_requirements(self):
+        # Used in ./configure tests and build
+        self.tool_requires("libtool/2.4.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        def yes_no_opt(opt):
-            return "yes" if self.options.get_safe(opt) else "no"
-
         tc = AutotoolsToolchain(self)
         for p in self._providers:
-            tc.configure_args.append(f"--enable-{p}={self.options.get_safe(p, 'no')}")
-        tc.configure_args.append("--with-libnl=yes")
-        tc.configure_args.append("--with-numa=yes")
-        tc.configure_args.append(f"--with-bgq-progress={yes_no_opt('with_bgq_progress')}")
-        tc.configure_args.append(f"--with-bgq-mr={yes_no_opt('with_bgq_mr')}")
+            if p == "verbs" and self.options.get_safe(p, "no") != "no":
+                path = self.dependencies["rdma-core"].package_folder
+                if self.options.get_safe("verbs") == "dl":
+                    tc.configure_args.append(f"--enable-verbs=dl:{path}")
+                else:
+                    tc.configure_args.append(f"--enable-verbs={path}")
+            else:
+                tc.configure_args.append(f"--enable-{p}={self.options.get_safe(p, 'no')}")
+        if self.settings.build_type == "Debug":
+            tc.configure_args.append("--enable-debug")
+        tc.configure_args.append(f"--with-bgq-progress=no")
+        tc.configure_args.append(f"--with-bgq-mr=no")
+        tc.configure_args.append("--with-cassin-headers=no")
+        tc.configure_args.append("--with-cuda=no")  # TODO
+        tc.configure_args.append("--with-curl=no")  # TODO
+        tc.configure_args.append("--with-cxi-uapi-headers=no")
+        tc.configure_args.append("--with-dsa=no")
+        tc.configure_args.append("--with-gdrcopy=no")
+        tc.configure_args.append("--with-json-c=no")  # TODO
+        if self._is_enabled("usnic"):
+            tc.configure_args.append(f"--with-libnl={self.dependencies['libnl'].package_folder}")
+        else:
+            tc.configure_args.append("--with-libnl=no")
+        tc.configure_args.append("--with-lttng=no")
+        tc.configure_args.append("--with-neuron=no")
+        tc.configure_args.append(f"--with-numa=no")
+        tc.configure_args.append("--with-psm2-src=no")
+        tc.configure_args.append("--with-psm3-rv=no")
+        tc.configure_args.append("--with-rocr=no")
+        tc.configure_args.append("--with-synapseai=no")
+        tc.configure_args.append("--with-uring=no")  # TODO
+        tc.configure_args.append("--with-ze=no")
+        tc.configure_args.append("-enable-psm=no")
+        tc.configure_args.append("--enable-psm2=no")
+        tc.configure_args.append("--enable-psm3=no")
+        tc.configure_args.append("--enable-xpmem=no")
+        tc.configure_args.append("--enable-cxi=no")
+        tc.configure_args.append("--enable-opx=no")
+        tc.configure_args.append("--enable-bgq=no")
         tc.generate()
 
         deps = AutotoolsDeps(self)
         deps.generate()
+
+        VirtualBuildEnv(self).generate()
+        VirtualRunEnv(self).generate(scope="build")
 
     def build(self):
         autotools = Autotools(self)
