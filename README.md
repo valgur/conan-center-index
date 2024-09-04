@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-03:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-04:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -36,12 +36,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
-- cppcheck/2.13.3
-- cppcheck/2.14.1
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
-- cutlass/3.5.0
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
@@ -64,7 +61,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
 - gobject-introspection/1.78.1
-- google-cloud-cpp/2.12.0
 - gpu.cpp/cci.20240726
 - gtk/3.24.43
 - gtk/4.15.6
@@ -82,8 +78,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libdatrie/0.2.13
 - libecwj2/3.3
 - libelas/cci.20150630
-- libfabric/1.12.1
-- libfabric/1.18.1
 - libhdfs3/cci.20191105
 - libosmium/2.20.0
 - librsvg/2.57.0
@@ -93,7 +87,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.3.0
 - libtorch/2.4.0
 - llvm-openmp/18.1.8
-- luajit/2.0.5
 - manif/0.0.5
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
@@ -116,7 +109,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pcl/1.14.1
 - pdal/2.7.2
 - pocketfft/0.0.0.cci.20240801
-- podofo/0.9.6
 - polyscope/2.3.0
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
@@ -127,7 +119,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.72.1
 - rust/1.77.1
 - sfcgal/1.5.0
-- shaderc/2024.1
 - skia/cci.20240727
 - sleef/3.6.1
 - small_gicp/0.1.2
