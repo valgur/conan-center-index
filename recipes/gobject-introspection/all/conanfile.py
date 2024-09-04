@@ -2,13 +2,16 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
+from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
+from conan.tools.env import Environment
+from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.scm import Version
+from conan import conan_version
 
 required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
@@ -44,8 +47,9 @@ class GobjectIntrospectionConan(ConanFile):
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-        # FIXME: g-ir-scanner fails to load glib correctly, resulting in failure during the build
-        self.options["glib"].shared = True
+        if self.options.get_safe("build_introspection_data"):
+            # INFO: g-ir-scanner looks for dynamic glib and gobject libraries when running
+            self.options["glib"].shared = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -53,9 +57,8 @@ class GobjectIntrospectionConan(ConanFile):
     def requirements(self):
         # https://gitlab.gnome.org/GNOME/gobject-introspection/-/blob/1.76.1/meson.build?ref_type=tags#L127-131
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
-        # Used in girffi.h public header
-        self.requires("libffi/3.4.4", transitive_headers=True, transitive_libs=True)
-        # FIXME: gobject-introspection links against system python3 libs, which is not reliable
+        # ffi.h is exposed by public header gobject-introspection-1.0/girffi.h
+        self.requires("libffi/3.4.4", transitive_headers=True)
 
     def validate(self):
         if self.settings.os == "Windows" and self.settings.build_type == "Debug":
@@ -63,6 +66,9 @@ class GobjectIntrospectionConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} debug build on Windows is disabled due to debug version of Python libs likely not being available. Contributions to fix this are welcome.")
         if self.options.build_introspection_data and not self.dependencies["glib"].options.shared:
+            # FIXME: tools/g-ir-scanner fails to load glib
+            # tools/g-ir-scanner --output=gir/GLib-2.0.gir ...
+            # ERROR: can't resolve libraries to shared libraries: glib-2.0, gobject-2.0
             raise ConanInvalidConfiguration(f"{self.ref} requires shared glib to be built as shared. Use -o 'glib/*:shared=True'.")
         if self.options.build_introspection_data and self.settings.os in ["Windows", "Macos"]:
             # FIXME: tools/g-ir-scanner', '--output=gir/GLib-2.0.gir' ... ERROR: can't resolve libraries to shared libraries: glib-2.0, gobject-2.0
@@ -100,25 +106,40 @@ class GobjectIntrospectionConan(ConanFile):
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
-        # INFO: g-ir-scanner fails to find glib-2.0.pc, so we need to set PKG_CONFIG_PATH
+        # INFO: g-ir-scanner uses PKG_CONFIG_PATH directly instead of pkg-config Meson module
         env = Environment()
-        env.define("PKG_CONFIG_PATH", self.generators_folder)
+        env.define_path("PKG_CONFIG_PATH", self.generators_folder)
         envvars = env.vars(self)
         envvars.save_script("pkg_config_env")
 
     def _patch_sources(self):
+        # Disable tests
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
                         "subdir('tests')",
                         "#subdir('tests')")
-        # gir/meson.build expects the gio-unix-2.0 includedir to be passed as a build flag.
-        # Patch this for glib from Conan.
-        replace_in_file(self, os.path.join(self.source_folder, "gir", "meson.build"),
-                        "join_paths(giounix_dep.get_variable(pkgconfig: 'includedir'), 'gio-unix-2.0')",
-                        "giounix_dep.get_variable(pkgconfig: 'includedir')")
-        # Look for data files in res/ instead of share/
+         # Look for data files in res/ instead of share/
         replace_in_file(self, os.path.join(self.source_folder, "tools", "g-ir-tool-template.in"),
                         "os.path.join(filedir, '..', 'share')",
                         "os.path.join(filedir, '..', 'res')")
+        if Version(conan_version) < "2":
+            # INFO: Conan 1.x generates PkgConfigDeps with libdir1 and includedir1 variables only for glib due its modules
+            replace_in_file(self, os.path.join(self.source_folder, "gir", "meson.build"),
+                            "glib_dep.get_variable(pkgconfig: 'libdir')",
+                            "glib_dep.get_variable(pkgconfig: 'libdir1')")
+            replace_in_file(self, os.path.join(self.source_folder, "gir", "meson.build"),
+                            "join_paths(glib_dep.get_variable(pkgconfig: 'includedir'), 'glib-2.0')",
+                            "join_paths(glib_dep.get_variable(pkgconfig: 'includedir1'), 'glib-2.0')")
+            # gir/meson.build expects the gio-unix-2.0 includedir to be passed as a build flag.
+            # Patch this for glib from Conan.
+            replace_in_file(self, os.path.join(self.source_folder, "gir", "meson.build"),
+                            "join_paths(giounix_dep.get_variable(pkgconfig: 'includedir'), 'gio-unix-2.0')",
+                            "giounix_dep.get_variable(pkgconfig: 'includedir1')")
+        else:
+            # gir/meson.build expects the gio-unix-2.0 includedir to be passed as a build flag.
+            # Patch this for glib from Conan.
+            replace_in_file(self, os.path.join(self.source_folder, "gir", "meson.build"),
+                            "join_paths(giounix_dep.get_variable(pkgconfig: 'includedir'), 'gio-unix-2.0')",
+                            "giounix_dep.get_variable(pkgconfig: 'includedir')")
 
     def build(self):
         self._patch_sources()
@@ -157,12 +178,11 @@ class GobjectIntrospectionConan(ConanFile):
             "pkg_config_custom_content",
             "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
         )
-
-        self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-        self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+        self.buildenv_info.define_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+        self.buildenv_info.define_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         # TODO: remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
         self.env_info.PATH.append(bin_path)
-        self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "gir-1.0"))
-        self.env_info.GI_TYPELIB_PATH.append(os.path.join(self.package_folder, "lib", "girepository-1.0"))
+        self.env_info.GI_GIR_PATH = os.path.join(self.package_folder, "res", "gir-1.0")
+        self.env_info.GI_TYPELIB_PATH = os.path.join(self.package_folder, "lib", "girepository-1.0")

@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rmdir, save
+from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
@@ -17,7 +17,7 @@ class CutlassConan(ConanFile):
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/project/package"
-    topics = ("linear-algebra", "gpu", "cuda", "deep-learning" "nvidia", "header-only")
+    topics = ("linear-algebra", "gpu", "cuda", "deep-learning", "nvidia", "header-only")
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -61,13 +61,28 @@ class CutlassConan(ConanFile):
     def generate(self):
         # Install via CMake to ensure headers are configured correctly
         tc = CMakeToolchain(self)
-        tc.variables["CUTLASS_ENABLE_HEADERS_ONLY"] = True
+        tc.cache_variables["CMAKE_SUPPRESS_REGENERATION"] = True
+        tc.cache_variables["CUTLASS_REVISION"]=f"v{self.version}"
+        tc.cache_variables["CUTLASS_NATIVE_CUDA"] = False
+        tc.cache_variables["CUTLASS_ENABLE_HEADERS_ONLY"] = True
+        tc.cache_variables["CUTLASS_ENABLE_TOOLS"] = False
+        tc.cache_variables["CUTLASS_ENABLE_LIBRARY"] = False
+        tc.cache_variables["CUTLASS_ENABLE_PROFILER"] = False
+        tc.cache_variables["CUTLASS_ENABLE_PERFORMANCE"] = False
+        tc.cache_variables["CUTLASS_ENABLE_TESTS"] = False
+        tc.cache_variables["CUTLASS_ENABLE_GTEST_UNIT_TESTS"] = False
+        tc.cache_variables["CUTLASS_ENABLE_CUBLAS"] = False
+        tc.cache_variables["CUTLASS_ENABLE_CUDNN"] = False
         tc.generate()
         VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
         # Don't look for CUDA, we're only installing the headers
-        save(self, os.path.join(self.source_folder, "CUDA.cmake"), "")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(${CMAKE_CURRENT_SOURCE_DIR}/CUDA.cmake)",
+                                                                                 """
+                                                                                 if(NOT CUTLASS_ENABLE_HEADERS_ONLY)
+                                                                                 include(${CMAKE_CURRENT_SOURCE_DIR}/CUDA.cmake)
+                                                                                 endif()""")
 
     def build(self):
         self._patch_sources()
@@ -86,6 +101,5 @@ class CutlassConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "NvidiaCutlass")
         self.cpp_info.set_property("cmake_target_name", "nvidia::cutlass::cutlass")
-
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
