@@ -31,7 +31,6 @@ class OpenMPIConan(ConanFile):
         # Added in v5.0
         "with_curl": [True, False],
         "with_jansson": [True, False],
-        "with_libev": [True, False],
         # Removed in v5.0
         "enable_cxx": [True, False],
         "enable_cxx_exceptions": [True, False],
@@ -45,7 +44,6 @@ class OpenMPIConan(ConanFile):
         # Added in v5.0
         "with_curl": False,
         "with_jansson": False,
-        "with_libev": False,
         # Removed in v5.0
         "enable_cxx": False,
         "enable_cxx_exceptions": False,
@@ -65,7 +63,6 @@ class OpenMPIConan(ConanFile):
         else:
             del self.options.with_curl
             del self.options.with_jansson
-            del self.options.with_libev
 
     def configure(self):
         if self.options.shared:
@@ -92,9 +89,8 @@ class OpenMPIConan(ConanFile):
         if self.options.get_safe("with_curl"):
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_jansson"):
-            self.requires("jansson/2.14")
-        if self.options.get_safe("with_libev"):
-            self.requires("libev/4.33")
+            # v2.14 is not compatible as of v5.0.5
+            self.requires("jansson/2.13.1")
         if self.options.get_safe("with_libfabric"):
             self.requires("libfabric/1.21.0")
         if self.options.get_safe("with_verbs"):
@@ -154,10 +150,11 @@ class OpenMPIConan(ConanFile):
             tc.configure_args += [
                 f"--with-curl={root('libcurl') if self.options.with_curl else 'no'}",
                 f"--with-jansson={root('jansson') if self.options.with_jansson else 'no'}",
-                f"--with-libev={root('libev') if self.options.with_libev else 'no'}",
                 # Explicitly disable libraries not supported by Conan
+                "--disable-sphinx",  # only used for docs
                 "--with-argobots=no",  # argobots
                 "--with-cxi=no",  # CXI
+                "--with-libev=no",  # not compatible with libevent, which cannot be disabled as of v5.0.5
                 "--with-munge=no",  # munge
                 "--with-pbs=no",  # PBS
                 "--with-prrte=no",  # prrte
@@ -249,8 +246,6 @@ class OpenMPIConan(ConanFile):
             requires.append("libcurl::libcurl")
         if self.options.get_safe("with_jansson"):
             requires.append("jansson::jansson")
-        if self.options.get_safe("with_libev"):
-            requires.append("libev::libev")
         if self.options.get_safe("with_libfabric"):
             requires.append("libfabric::libfabric")
         if self.options.get_safe("with_verbs"):
