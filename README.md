@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-04:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-05:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -86,6 +86,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
+- llvm-core/18.1.7
 - llvm-openmp/18.1.8
 - manif/0.0.5
 - matplotlib-cpp/cci.20210423
