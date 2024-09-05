@@ -81,7 +81,7 @@ class OpenMPIConan(ConanFile):
     def requirements(self):
         # OpenMPI public headers don't include anything besides stddef.h.
         # transitive_headers=True is not needed for any dependencies.
-        self.requires("hwloc/2.10.0")
+        self.requires("hwloc/2.11.1")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("libevent/2.1.12")
         if self.settings.os == "Linux":
@@ -137,7 +137,6 @@ class OpenMPIConan(ConanFile):
             "--with-lsf=no",  # LSF
             "--with-lustre=no",  # Lustre
             "--with-memkind=no",  # memkind
-            "--with-moab=no",  # Moab
             "--with-pmix=internal",  # PMIx
             "--with-portals4=no",  # Portals4
             "--with-psm2=no",  # PSM2
@@ -150,32 +149,26 @@ class OpenMPIConan(ConanFile):
             tc.configure_args += [
                 f"--with-curl={root('libcurl') if self.options.with_curl else 'no'}",
                 f"--with-jansson={root('jansson') if self.options.with_jansson else 'no'}",
-                # Explicitly disable libraries not supported by Conan
+                "--with-prrte=internal",  # PMIx runtime
                 "--disable-sphinx",  # only used for docs
                 "--with-argobots=no",  # argobots
                 "--with-cxi=no",  # CXI
                 "--with-libev=no",  # not compatible with libevent, which cannot be disabled as of v5.0.5
                 "--with-munge=no",  # munge
-                "--with-pbs=no",  # PBS
-                "--with-prrte=no",  # prrte
                 "--with-qthreads=no",  # QThreads
                 "--with-rocm=no",  # ROCm
-                "--with-slingshot=no",  # Slingshot
-                # TODO: maybe add as option
-                # "--enable-c11-atomics",
-                # "--with-threads=pthreads/qthreads/argobots",
             ]
         else:
             tc.configure_args += [
                 f"--enable-mpi-cxx={yes_no(self.options.enable_cxx)}",
                 f"--enable-cxx-exceptions={yes_no(self.options.get_safe('enable_cxx_exceptions'))}",
                 f"--with-verbs={root('rdma-core') if self.options.get_safe('with_verbs') else 'no'}",
-                "--with-x=no",  # X11
-                "--with-xpmem=no",  # XPMEM
                 "--with-fca=no",  # FCA
                 "--with-mxm=no",  # Mellanox MXM
                 "--with-pmi=no",  # PMI
                 "--with-psm=no",  # PSM
+                "--with-xpmem=no",  # XPMEM
+                "--with-x=no",  # X11
             ]
         if is_apple_os(self):
             if self.settings.arch == "armv8":
@@ -256,7 +249,7 @@ class OpenMPIConan(ConanFile):
         self.cpp_info.components["ompi"].libs = ["mpi"]
 
         if Version(self.version) >= "5.0":
-            self.cpp_info.components["ompi"].libs.append("pmix")
+            self.cpp_info.components["ompi"].libs.extend(["pmix", "prrte"])
             main_component = self.cpp_info.components["ompi"]
         else:
             self.cpp_info.components["orte"].set_property("pkg_config_name", "orte")
