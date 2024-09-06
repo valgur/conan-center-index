@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-05:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-06:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -68,6 +68,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
 - hscpp/1.0.0-alpha
+- hwloc/2.11.1
 - imagemagick/7.1.1.32
 - iridescence/0.1.3
 - lapack/3.12.0
@@ -99,9 +100,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/14.2.4
 - open62541pp/0.12.0
 - openmp/system
-- openmpi/4.1.6
+- openmpi/5.0.5
 - openmvg/2.1
 - openni2/2.2.0.33
+- openpmix/5.0.3
 - openslide/4.0.0
 - osgearth/3.5
 - osrm/5.27.1
