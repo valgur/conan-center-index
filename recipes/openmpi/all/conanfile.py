@@ -117,13 +117,14 @@ class OpenMPIConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         tc.configure_args += [
+            "--with-pic" if self.options.get_safe("fPIC") else "--without-pic",
             f"--enable-mpi-fortran={self.options.fortran}",
             f"--with-hwloc={root('hwloc')}",
             f"--with-libevent={root('libevent')}",
             f"--with-libnl={root('libnl') if not is_apple_os(self) else 'no'}",
             f"--with-ofi={root('libfabric') if self.options.get_safe('with_libfabric') else 'no'}",
             f"--with-zlib={root('zlib')}",
-            "--with-pic" if self.options.get_safe("fPIC", True) else "--without-pic",
+            "--with-pmix=internal",
             "--disable-wrapper-rpath",
             "--disable-wrapper-runpath",
             "--exec-prefix=/",
@@ -137,7 +138,6 @@ class OpenMPIConan(ConanFile):
             "--with-lsf=no",  # LSF
             "--with-lustre=no",  # Lustre
             "--with-memkind=no",  # memkind
-            "--with-pmix=internal",  # PMIx
             "--with-portals4=no",  # Portals4
             "--with-psm2=no",  # PSM2
             "--with-pvfs2=no",  # Pvfs2
@@ -249,7 +249,12 @@ class OpenMPIConan(ConanFile):
         self.cpp_info.components["ompi"].libs = ["mpi"]
 
         if Version(self.version) >= "5.0":
-            self.cpp_info.components["ompi"].libs.extend(["pmix", "prrte"])
+            self.cpp_info.components["pmix"].set_property("pkg_config_name", "pmix")
+            self.cpp_info.components["pmix"].libs = ["pmix"]
+            self.cpp_info.components["prrte"].set_property("pkg_config_name", "prrte")
+            self.cpp_info.components["prrte"].libs = ["prrte"]
+            self.cpp_info.components["prrte"].requires = ["pmix"]
+            self.cpp_info.components["ompi"].requires = ["pmix"]
             main_component = self.cpp_info.components["ompi"]
         else:
             self.cpp_info.components["orte"].set_property("pkg_config_name", "orte")
