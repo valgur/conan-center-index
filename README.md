@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-06:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-07:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -49,7 +49,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - g2o/20230806
 - gdal/3.9.2
 - gdalcpp/1.3.0
-- getdns/1.7.3
 - gfortran/13.2.0
 - gici/cci.20240421
 - glim/1.0.4
@@ -60,7 +59,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnsstk/14.3.0
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
-- gobject-introspection/1.78.1
 - gpu.cpp/cci.20240726
 - gtk/3.24.43
 - gtk/4.15.6
@@ -68,7 +66,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
 - hscpp/1.0.0-alpha
-- hwloc/2.11.1
 - imagemagick/7.1.1.32
 - iridescence/0.1.3
 - lapack/3.12.0
