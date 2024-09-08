@@ -27,21 +27,3 @@ endif()
 if(USE_LIBIDN2)
     custom_find_package(Libidn2)
 endif()
-if(USE_GNUTLS)
-    # FIXME: GnuTLS and Nettle should package individual components correctly
-    custom_find_package(GnuTLS)
-    add_library(GnuTLS::Dane ALIAS GnuTLS::GnuTLS)
-    custom_find_package(Nettle)
-    add_library(Nettle::Hogweed ALIAS Nettle::Nettle)
-endif()
-
-if(WIN32)
-    link_libraries(ws2_32)
-endif()
-
-add_subdirectory(src)
-
-if(NOT HAVE_DSA_SIG_SET0)
-    # This should have been found for OpenSSL from CCI
-    message(FATAL_ERROR "OpenSSL feature detection failed, probably due to a bug in getdns recipe.")
-endif()

@@ -2,10 +2,11 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
-from conan.tools.files import rename, get, rmdir, save, copy, replace_in_file, rm
+from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import get, copy, rm, export_conandata_patches, apply_conandata_patches, replace_in_file
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -24,7 +25,7 @@ class MysqlConnectorCppConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "fPIC": [True], # fPIC is required by internal libraries
+        "fPIC": [True, False],
     }
     default_options = {
         "shared": False,
@@ -40,12 +41,13 @@ class MysqlConnectorCppConan(ConanFile):
         return {
             "Visual Studio": "16",
             "msvc": "192",
-            "gcc": "5",
-            "clang": "6",
+            "gcc": "8",
+            "clang": "7",
+            "apple-clang": "10",
         }
 
     def export_sources(self):
-        copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -60,79 +62,60 @@ class MysqlConnectorCppConan(ConanFile):
 
     def requirements(self):
         # None of the dependencies are used transitively
-        self.requires("libmysqlclient/8.2.0")
-        self.requires("lz4/1.9.4")
+        self.requires("protobuf/3.21.12")  # v4 and newer are not supported as of v9.0.0
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("rapidjson/cci.20230929")
+        self.requires("rapidjson/1.1.0")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("zstd/1.5.5")
-        self.requires("protobuf/3.21.12")
-
-    def validate_build(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        self.requires("lz4/1.9.4")
+        self.requires("zstd/[~1.5]")
 
     def validate(self):
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires {self.settings.compiler} {minimum_version} or newer")
 
     def build_requirements(self):
+        self.tool_requires("cmake/[>=3.24 <4]")
         self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _patch_sources(self):
-        # Unvendor dependencies
-        for subdir in ["lz4", "protobuf", "rapidjson", "zlib", "zstd"]:
-            rmdir(self, os.path.join(self.source_folder, "cdk", "extra", subdir))
-            save(self, os.path.join(self.source_folder, "cdk", "extra", subdir, "CMakeLists.txt"), "")
-
-        # Dependencies are found by conan_deps.cmake, adjust modules accordingly
-        for find_module in self.source_path.joinpath("cdk", "cmake").rglob("DepFind*.cmake"):
-            if "SSL" not in find_module.name:
-                replace_in_file(self, find_module, "if(TARGET ", "if(0) # if(TARGET ", strict=False)
-                replace_in_file(self, find_module, "add_ext_targets", "message(TRACE #", strict=False)
-        save(self, os.path.join(self.source_folder, "cdk", "cmake", "DepFindCompression.cmake"), "")
-        replace_in_file(self, os.path.join(self.source_folder, "cdk", "cmake", "DepFindProtobuf.cmake"),
-                        "ext::protoc", "protoc")
-
-        # Buggy and not required for the build
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        'set_target_properties(${T} PROPERTIES FOLDER "CDK")', "")
-
-        # Link against protobuf instead of protobuf-lite, if necessary
-        if not self.dependencies["protobuf"].options.lite:
-            replace_in_file(self, os.path.join(self.source_folder, "cdk", "core", "CMakeLists.txt"),
-                            "ext::protobuf-lite", "ext::protobuf")
-            replace_in_file(self, os.path.join(self.source_folder, "cdk", "protocol", "mysqlx", "CMakeLists.txt"),
-                            "set(use_full_protobuf ${WITH_TESTS})", "set(use_full_protobuf 1)")
-
     def generate(self):
         VirtualBuildEnv(self).generate()
-        VirtualRunEnv(self).generate(scope="build")
+        if self.dependencies["protobuf"].options.shared:
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
-        tc.cache_variables["CMAKE_PROJECT_MySQL_CONCPP_INCLUDE"] = os.path.join(self.source_folder, "conan_deps.cmake")
         tc.cache_variables["BUNDLE_DEPENDENCIES"] = False
         tc.cache_variables["BUILD_STATIC"] = not self.options.shared
         tc.cache_variables["STATIC_MSVCRT"] = is_msvc_static_runtime(self)
         tc.cache_variables["WITH_TESTS"] = False
-        tc.cache_variables["WITH_SSL"] = "system"
-        tc.cache_variables["OPENSSL_ROOT_DIR"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
+        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
+        tc.cache_variables["WITH_SSL"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
+        tc.cache_variables["CMAKE_PREFIX_PATH"] = self.generators_folder.replace("\\", "/")
+        tc.cache_variables["IS64BIT"] = True
         tc.generate()
 
         deps = CMakeDeps(self)
-        deps.set_property("libmysqlclient", "cmake_file_name", "MySQL")
-        deps.set_property("libmysqlclient", "cmake_target_name", "MySQL::client")
-        deps.set_property("lz4", "cmake_target_name", "ext::lz4")
         deps.set_property("protobuf::libprotobuf", "cmake_target_name", "ext::protobuf")
         deps.set_property("protobuf::libprotobuf-lite", "cmake_target_name", "ext::protobuf-lite")
         deps.set_property("rapidjson", "cmake_target_name", "RapidJSON::rapidjson")
         deps.set_property("zlib", "cmake_target_name", "ext::z")
+        deps.set_property("lz4", "cmake_target_name", "ext::lz4")
         deps.set_property("zstd", "cmake_target_name", "ext::zstd")
         deps.generate()
+
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        if is_apple_os(self):
+            # The CMAKE_OSX_ARCHITECTURES value set by Conan seems to be having no effect for some reason.
+            # This is a workaround for that.
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "PROJECT(MySQL_CONCPP)",
+                            f"PROJECT(MySQL_CONCPP)\n\nadd_compile_options(-arch {self.settings.arch})\n")
 
     def build(self):
         self._patch_sources()
@@ -144,15 +127,29 @@ class MysqlConnectorCppConan(ConanFile):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        if self.package_path.joinpath("lib64").exists():
-            rename(self, self.package_path.joinpath("lib64"), self.package_path.joinpath("lib"))
-        rm(self, "*.pdb", self.package_folder, recursive=True)
+        rm(self, "INFO_SRC", self.package_folder)
+        rm(self, "INFO_BIN", self.package_folder)
+        rm(self, "*.cmake", self.package_folder)
 
     def package_info(self):
-        major_ver = Version(self.version).major
-        lib = f"mysqlcppconn{major_ver}"
+        self.cpp_info.set_property("cmake_file_name", "mysql-concpp")
+        self.cpp_info.set_property("cmake_target_name", "mysql::concpp")
+
+        aliases = ["mysql::concpp-xdevapi"]
+        if not self.options.shared:
+            aliases.append("mysql::concpp-static")
+            aliases.append("mysql::concpp-xdevapi-static")
+            if self.settings.build_type == "Debug":
+                aliases.append("mysql::concpp-static-debug")
+                aliases.append("mysql::concpp-xdevapi-static-debug")
+        aliases.append("mysql::openssl")
+        self.cpp_info.set_property("cmake_target_aliases", aliases)
+
+        lib = "mysqlcppconnx"
         if not self.options.shared:
             lib += "-static"
+            if is_msvc_static_runtime(self):
+                lib += "-mt"
         self.cpp_info.libs = [lib]
 
         if self.settings.os == "Windows":
@@ -163,3 +160,12 @@ class MysqlConnectorCppConan(ConanFile):
         if self.settings.os == "SunOS":
             self.cpp_info.system_libs.append("socket")
             self.cpp_info.system_libs.append("nsl")
+
+        if not self.options.shared:
+            self.cpp_info.defines = ["MYSQL_STATIC", "STATIC_CONCPP"]
+
+
+        if is_apple_os(self) or self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs.extend(["resolv"])
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                self.cpp_info.system_libs.extend(["m", "pthread"])
