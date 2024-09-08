@@ -17,23 +17,15 @@ index 341ed2de..4d747849 100644
  
 -CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
 +CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
-+PROJECT(MySQL_CONCPP)
-+
  
 -CMAKE_POLICY(VERSION 3.1)
 -cmake_policy(SET CMP0022 NEW)
++
++
  
  
  SET(BUILDTYPE_DOCSTRING
-@@ -73,7 +73,7 @@ endif()
- 
- ##########################################################################
- 
--PROJECT(MySQL_CONCPP)
-+
- 
- # Load cmake modules
- 
+
 @@ -87,7 +87,7 @@
  # Detect if we are configured as stand-alone project, or sub-project.
  #
