@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-08:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-09:
 
 - apriltag/3.1.7
 - apriltag/3.2.0
@@ -90,7 +90,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mrcal/2.4.1
-- mysql-connector-cpp/8.2.0
+- mysql-connector-cpp/9.0.0
 - nanobind/1.9.2
 - netpbm/11.6.0
 - numpy/1.26.4
