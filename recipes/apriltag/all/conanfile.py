@@ -1,7 +1,7 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file, save
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -11,10 +11,10 @@ required_conan_version = ">=1.54.0"
 
 class ApriltagConan(ConanFile):
     name = "apriltag"
-    description = ("AprilTag is a visual fiducial system, useful for a wide variety of tasks \
-                    including augmented reality, robotics, and camera calibration")
+    description = ("AprilTag is a visual fiducial system, useful for a wide variety of tasks"
+                   " including augmented reality, robotics, and camera calibration")
     homepage = "https://april.eecs.umich.edu/software/apriltag"
-    topics = ("robotics",)
+    topics = ("robotics", "computer-vision", "augmented-reality", "camera-calibration")
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
@@ -48,44 +48,36 @@ class ApriltagConan(ConanFile):
         if is_msvc(self) and Version(self.version) < "3.3.0":
             self.requires("pthreads4w/3.0.0", transitive_headers=True)
 
-    def validate(self):
-        if is_msvc(self) and self.settings.build_type == "Debug":
-            # segfault in test package...
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support Debug with msvc yet")
+    def build_requirements(self):
+        if Version(self.version) >= "3.4.0":
+            self.tool_requires("cmake/[>=3.16 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
         tc.cache_variables["BUILD_EXAMPLES"] = False
-        if Version(self.version) >= "3.1.4":
-            tc.variables["BUILD_PYTHON_WRAPPER"] = False
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        tc.variables["BUILD_PYTHON_WRAPPER"] = False
+        if Version(self.version) < "3.4.0":
+            # Newer versions set it in the project CMakelists.txt
+            tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         if self.settings.os == "Windows":
             tc.preprocessor_definitions["NOMINMAX"] = ""
         tc.generate()
-        if is_msvc(self):
+        if is_msvc(self) and Version(self.version) < "3.3.0":
             deps = CMakeDeps(self)
             deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # Fix DLL installation
-        if Version(self.version) <= "3.3.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}",
-                            "ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}\n"
-                            "RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
-
     def build(self):
-        self._patch_sources()
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
