@@ -94,15 +94,19 @@ class CairoConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_freetype:
+            # Used in public cairo-ft.h header
             self.requires("freetype/2.13.2", transitive_headers=True, transitive_libs=True)
         if self.options.with_fontconfig:
+            # Used in public cairo-ft.h header
             self.requires("fontconfig/2.15.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_png:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_glib:
-            self.requires("glib/2.78.3")
+            # Used in public cairo-gobject.h header
+            self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_xlib or self.options.with_xlib_xrender or self.options.with_xcb:
+                # Used in public cairo-xlib.h, cairo-xlib-xrender.h and cairo-xcb.h headers
                 self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_opengl") == "desktop":
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
