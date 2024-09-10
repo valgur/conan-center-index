@@ -13,11 +13,9 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-09:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-10:
 
-- apriltag/3.1.7
-- apriltag/3.2.0
-- apriltag/3.3.0
+- apriltag/3.4.2
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
@@ -44,6 +42,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dpdk/24.07
 - f2c/20240312
 - fbgemm/0.8.0
+- fenster/0.0.0.cci.20240909
 - filament/1.5.3
 - fortran/cci.latest
 - g2o/20230806
@@ -101,7 +100,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openmvg/2.1
 - openni2/2.2.0.33
 - openpmix/5.0.3
-- openslide/4.0.0
 - osgearth/3.5
 - osrm/5.27.1
 - pango/1.54.0
@@ -153,6 +151,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - usearch/2.9.1
 - vilib/cci.20210625
 - vlfeat/0.9.21
+- vswhere/3.1.7
 - vtk-m/2.2.0
 - vtk/9.3.1
 - vulkan-utility-libraries/1.3.261.1
