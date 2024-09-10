@@ -1,0 +1,25 @@
+From ae97d1614be86622cc15d8ddf9820c98a8891b84 Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Tue, 10 Sep 2024 19:57:13 +0300
+Subject: [PATCH] verbose configure
+
+---
+ meson/cargo_wrapper.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/meson/cargo_wrapper.py b/meson/cargo_wrapper.py
+index 48ce2f15..d7126af6 100755
+--- a/meson/cargo_wrapper.py
++++ b/meson/cargo_wrapper.py
+@@ -173,6 +173,8 @@ if features:
+ for p in args.packages:
+     cargo_cmd.extend(["-p", p])
+ 
++cargo_cmd.append("-vvv")
++
+ if args.command == "test":
+     cargo_cmd.extend(["--", "--include-ignored"])
+ 
+-- 
+2.25.1
+

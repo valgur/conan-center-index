@@ -1,13 +1,15 @@
 import os
+import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building
-from conan.tools.cmake import cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import copy, get, rm, replace_in_file, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.files import copy, get, replace_in_file, export_conandata_patches, apply_conandata_patches
+from conan.tools.gnu import PkgConfigDeps
+from conan.tools.layout import basic_layout
+from conan.tools.meson import Meson
+from conan.tools.meson.toolchain import MesonToolchain
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
@@ -35,6 +37,9 @@ class LibrsvgConan(ConanFile):
     def _settings_build(self):
         return getattr(self, "settings_build", self.settings)
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -48,7 +53,7 @@ class LibrsvgConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
-        cmake_layout(self, src_folder="src")
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         # https://gitlab.gnome.org/GNOME/librsvg/-/blob/main/ci/build-dependencies.sh#L5-13
@@ -57,7 +62,6 @@ class LibrsvgConan(ConanFile):
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True, force=True)
         # self.requires("gobject-introspection/1.78.1")
         self.requires("freetype/2.13.2")
-        self.requires("fontconfig/2.15.0")
         self.requires("cairo/1.18.0", transitive_headers=True, transitive_libs=True)
         self.requires("harfbuzz/8.3.0")
         self.requires("pango/1.54.0")
@@ -75,60 +79,52 @@ class LibrsvgConan(ConanFile):
             raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_freetype=True")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
-        self.tool_requires("rust/1.77.1")
+        self.tool_requires("rust/1.81.0")
+        self.tool_requires("cargo-cbuild/0.10.4")
         self.tool_requires("gdk-pixbuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-        tc = AutotoolsToolchain(self)
-        yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args += [
-            "--disable-gtk-doc",
-            f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
-            # TODO: introspection can be enabled once gobject-introspection is available
-            "--disable-introspection",
-        ]
+        VirtualBuildEnv(self).generate()
+        tc = MesonToolchain(self)
+        tc.project_options["pixbuf"] = "enabled"
+        tc.project_options["pixbuf-loader"] = "enabled"
+        tc.project_options["introspection"] = "disabled"
+        tc.project_options["avif"] = "disabled"
+        tc.project_options["vala"] = "disabled"
+        tc.project_options["docs"] = "disabled"
+        tc.project_options["tests"] = "false"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
+        env = Environment()
+        env.define_path("CARGO_HOME", os.path.join(self.build_folder, "cargo"))
+        env.vars(self).save_script("cargo_build_env")
 
     def _patch_sources(self):
+        apply_conandata_patches(self)
         # Fix freetype version check, which uses a different versioning format
-        replace_in_file(self, os.path.join(self.source_folder, "configure"), "20.0.14", "2.8")
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "20.0.14", "2.8")
         replace_in_file(self, os.path.join(self.source_folder, "rsvg", "Cargo.toml"), "20.0.14", "2.8")
-        # Disable building of rsvg_convert executable and installation of non-essential files
-        # Also, rsvg_convert failed to link with libpango-c8d4953be534d8af.rlib: undefined reference to `pango_attr_overline_new'
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), "$(EXTRA_DIST)", "$(LIBRSVG_SRC)")
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), "bin_SCRIPTS =", "bin_SCRIPTS = #")
 
     def build(self):
         self._patch_sources()
-        autotools = Autotools(self)
-        autotools.configure()
-        autotools.make()
+        meson = Meson(self)
+        meson.configure()
+        meson.build()
 
     def package(self):
         copy(self, "COPYING.LIB", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
-        autotools.install()
-        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
-        rmdir(self, os.path.join(self.package_folder, "gdk-pixbuf-2.0"))
+        meson = Meson(self)
+        meson.install()
+        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        # rmdir(self, os.path.join(self.package_folder, "share"))
+        # rmdir(self, os.path.join(self.package_folder, "gdk-pixbuf-2.0"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
