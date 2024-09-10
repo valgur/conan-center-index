@@ -50,21 +50,18 @@ class LibrsvgConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def export_sources(self):
-        pass
-
     def requirements(self):
         # https://gitlab.gnome.org/GNOME/librsvg/-/blob/main/ci/build-dependencies.sh#L5-13
         # All public includes are located here:
         # https://gitlab.gnome.org/GNOME/librsvg/-/blob/2.57.0/include/librsvg/rsvg.h#L30-34
-        self.requires("glib/2.78.1", transitive_headers=True, transitive_libs=True, force=True)
-        # self.requires("gobject-introspection/1.78.0")
-        self.requires("freetype/2.13.0")
-        self.requires("fontconfig/2.14.2")
+        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True, force=True)
+        # self.requires("gobject-introspection/1.78.1")
+        self.requires("freetype/2.13.2")
+        self.requires("fontconfig/2.15.0")
         self.requires("cairo/1.18.0", transitive_headers=True, transitive_libs=True)
-        self.requires("harfbuzz/8.2.2")
-        self.requires("pango/1.51.0")
-        self.requires("libxml2/2.11.5")
+        self.requires("harfbuzz/8.3.0")
+        self.requires("pango/1.54.0")
+        self.requires("libxml2/[>=2.12.5 <3]")
         self.requires("gdk-pixbuf/2.42.10", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
@@ -85,7 +82,7 @@ class LibrsvgConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
-        self.tool_requires("rust/1.73.0")
+        self.tool_requires("rust/1.77.1")
         self.tool_requires("gdk-pixbuf/<host_version>")
 
     def source(self):
