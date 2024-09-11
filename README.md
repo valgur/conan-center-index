@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-10:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-11:
 
 - apriltag/3.4.2
 - arbiter/cci.20231122
@@ -22,6 +22,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aruco/3.1.15
 - aws-cdi-sdk/2.4.1
 - blis/0.9.0
+- cargo-cbuild/0.10.4
 - casadi/3.6.6
 - cilantro/cci.20230816
 - cimg/3.3.5
@@ -116,6 +117,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.77.1
+- rust/1.81.0
 - sfcgal/1.5.0
 - skia/cci.20240727
 - sleef/3.6.1
