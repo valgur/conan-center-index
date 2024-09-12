@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-11:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-12:
 
 - apriltag/3.4.2
 - arbiter/cci.20231122
@@ -113,6 +113,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
 - qhull/cci.20231130
+- qscintilla/2.14.1
 - reproc/14.2.5
 - rosx_introspection/1.0.2
 - rust/1.72.1
@@ -145,6 +146,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - suitesparse-umfpack/6.3.4
 - sundials/5.8.0
 - sundials/6.7.0
+- sundials/7.1.1
 - thrust/2.2.0
 - thrust/2.3.2
 - thrust/2.4.0
