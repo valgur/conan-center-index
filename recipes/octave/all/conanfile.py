@@ -28,10 +28,10 @@ class OctaveConan(ConanFile):
         "with_fltk": [True, False],
         "with_fontconfig": [True, False],
         "with_freetype": [True, False],
+        "with_gl2ps": [True, False],
         "with_glpk": [True, False],
         "with_hdf5": [True, False],
         "with_magick": [True, False],
-        "with_opengl": [True, False],
         "with_openmp": [True, False],
         "with_openssl": [True, False],
         "with_qhull": [True, False],
@@ -48,10 +48,10 @@ class OctaveConan(ConanFile):
         "with_fltk": True,
         "with_fontconfig": True,
         "with_freetype": True,
+        "with_gl2ps": True,
         "with_glpk": True,
         "with_hdf5": True,
         "with_magick": True,
-        "with_opengl": True,
         "with_openmp": True,
         "with_openssl": True,
         "with_qhull": True,
@@ -70,6 +70,10 @@ class OctaveConan(ConanFile):
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_x
+        if not self.options.with_qt and not self.options.with_fltk:
+            del self.options.with_fontconfig
+            del self.options.with_freetype
+            del self.options.with_gl2ps
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -89,18 +93,18 @@ class OctaveConan(ConanFile):
             self.requires("fftw/3.3.10")
         if self.options.with_fltk:
             self.requires("fltk/1.3.9")
-        if self.options.with_fontconfig:
+        if self.options.get_safe("with_fontconfig"):
             self.requires("fontconfig/2.15.0")
-        if self.options.with_freetype:
+        if self.options.get_safe("with_freetype"):
             self.requires("freetype/2.13.2")
+        if self.options.get_safe("with_gl2ps"):
+            self.requires("gl2ps/1.4.2")
         if self.options.with_glpk:
             self.requires("glpk/5.0")
         if self.options.with_hdf5:
             self.requires("hdf5/1.14.4.3")
         if self.options.with_magick:
             self.requires("imagemagick/7.1.1.38")
-        if self.options.with_opengl:
-            self.requires("opengl/system")
         if self.options.with_openmp:
             self.requires("openmp/system")
         if self.options.with_openssl:
@@ -138,7 +142,6 @@ class OctaveConan(ConanFile):
 
         # TODO:
         # - ARPACK-NG
-        # - GL2PS
         # - gnuplot
         # - PortAudio
         # - QRUPDATE
@@ -186,10 +189,8 @@ class OctaveConan(ConanFile):
             f"--with-pkgconfigdir={unix_path(self, self.generators_folder)}",
             "--with-blas=openblas",
             "--with-framework-carbon",
-            f"--with-framework-opengl={yes_no(self.options.with_opengl)}",
             "--disable-java",
             "--without-java",
-            f"--with-opengl={yes_no(self.options.with_opengl)}",
             f"--enable-openmp={yes_no(self.options.with_openmp)}",
             "--without-pcre",
             f"--enable-rapidjson={yes_no(self.options.with_rapidjson)}",
@@ -227,8 +228,8 @@ class OctaveConan(ConanFile):
         _configure_dep("fftw3", "fftw", self.options.with_fftw)
         _configure_dep("fftw3f", "fftw", self.options.with_fftw)
         _configure_dep("fltk", "fltk", self.options.with_fltk)
-        _configure_dep("fontconfig", "fontconfig", self.options.with_fontconfig)
-        _configure_dep("freetype", "freetype", self.options.with_freetype)
+        _configure_dep("fontconfig", "fontconfig", self.options.get_safe("with_fontconfig"))
+        _configure_dep("freetype", "freetype", self.options.get_safe("with_freetype"))
         _configure_dep("glpk", "glpk", self.options.with_glpk)
         _configure_dep("hdf5", "hdf5", self.options.with_hdf5)
         _configure_dep("lapack", "openblas", True)
