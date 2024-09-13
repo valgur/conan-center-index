@@ -126,20 +126,13 @@ class ImageMagicConan(ConanFile):
         if is_msvc(self) and self.settings.arch not in ["x86_64", "x86", "armv8"]:
             raise ConanInvalidConfiguration(f"{self.settings.arch} architecture is not supported for MSVC")
 
-    @property
-    def _modules(self):
-        return ["Magick++", "MagickWand", "MagickCore"]
-
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
-        if is_msvc(self):
-            get(self, **self.conan_data["sources"][self.version]["windows"], strip_root=True)
-            get(self, **self.conan_data["sources"][self.version]["source"], destination="ImageMagick", strip_root=True)
-        else:
-            get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["windows"], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["source"], destination="ImageMagick", strip_root=True)
 
     @property
     def _arch_flag(self):
@@ -277,9 +270,9 @@ class ImageMagicConan(ConanFile):
         deps.generate()
 
     def _build_autotools(self):
-        with chdir(self, self.source_folder):
+        with chdir(self, os.path.join(self.source_folder, "ImageMagick")):
             autotools = Autotools(self)
-            autotools.configure()
+            autotools.configure(build_script_folder=os.path.join(self.source_folder, "ImageMagick"))
             autotools.make()
 
     def generate(self):
@@ -295,7 +288,7 @@ class ImageMagicConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", os.path.join(self.source_folder, "ImageMagick"), os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             output_dir = os.path.join(self.source_folder, "Output")
             copy(self, "NOTICE.txt", output_dir, os.path.join(self.package_folder, "licenses"))
@@ -309,7 +302,7 @@ class ImageMagicConan(ConanFile):
             copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "MagickWand"), os.path.join(include_dir, "MagickWand"))
             copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "Magick++", "lib"), include_dir)
         else:
-            with chdir(self, self.source_folder):
+            with chdir(self, os.path.join(self.source_folder, "ImageMagick")):
                 autotools = Autotools(self)
                 autotools.install()
             with chdir(self, self.package_folder):
