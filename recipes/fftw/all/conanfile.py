@@ -106,7 +106,7 @@ class FFTWConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package (OpenMP)", "find_package (OpenMP REQUIRED CONFIG)")
+                        "find_package (OpenMP)", "find_package(OpenMP REQUIRED)")
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "target_compile_options (${fftw3_lib}_omp PRIVATE ${OpenMP_C_FLAGS})",
                         "target_link_libraries (${fftw3_lib}_omp OpenMP::OpenMP_C)")
