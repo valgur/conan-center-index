@@ -23,6 +23,7 @@ class OctaveConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "fortran": ["f2c", "system"],
         "with_curl": [True, False],
         "with_fftw": [True, False],
         "with_fltk": [True, False],
@@ -43,6 +44,7 @@ class OctaveConan(ConanFile):
         "with_x": [True, False],
     }
     default_options = {
+        "fortran": "f2c",
         "with_curl": True,
         "with_fftw": True,
         "with_fltk": True,
@@ -162,9 +164,10 @@ class OctaveConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
+        if self.options.fortran == "f2c":
+            self.tool_requires("f2c/20240312")
         if self.options.with_qt:
             self.tool_requires("qt/<host_version>")
-        self.tool_requires("f2c/20240312")
         self.tool_requires("flex/2.6.4")
         self.tool_requires("bison/3.8.2")
         self.tool_requires("gperf/3.1")
@@ -185,7 +188,6 @@ class OctaveConan(ConanFile):
             "--disable-docs",
             "--disable-rpath",
             "--disable-hg-id",
-            "--enable-fortran-calling-convention=f2c",
             f"--with-pkgconfigdir={unix_path(self, self.generators_folder)}",
             "--with-blas=openblas",
             "--with-framework-carbon",
