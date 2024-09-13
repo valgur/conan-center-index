@@ -1,0 +1,23 @@
+From: SVN-Git Migration <python-modules-team@lists.alioth.debian.org>
+Date: Thu, 8 Oct 2015 13:39:22 -0700
+Subject: build_debug_libs
+
+Build libs and designer plugin with debug for -dbg packages
+Patch-Name: build_debug_libs.patch
+---
+ designer/designer.pro | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/designer/designer.pro b/designer/designer.pro
+index f238460..2021a3d 100644
+--- a/designer/designer.pro
++++ b/designer/designer.pro
+@@ -8,7 +8,7 @@ TARGET = qscintillaplugin
+ # on macOS.
+ #QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
+ 
+-CONFIG += plugin qscintilla2
++CONFIG += plugin qscintilla2 debug
+ 
+ QT += designer
+ 

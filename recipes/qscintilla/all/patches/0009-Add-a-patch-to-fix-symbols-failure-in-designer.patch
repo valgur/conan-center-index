@@ -1,0 +1,22 @@
+From: "Gudjon I. Gudjonsson" <gudjon@gudjon.org>
+Date: Thu, 21 Feb 2019 19:31:17 +0100
+Subject: Add a patch to fix symbols failure in designer
+
+---
+ designer/designer.pro | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/designer/designer.pro
++++ b/designer/designer.pro
+@@ -14,6 +14,11 @@
+ 
+ # Work around QTBUG-39300.
+ CONFIG -= android_install
++greaterThan(QT_MAJOR_VERSION, 5) { 
++     LIBS += -lqscintilla2_qt6
++} else {
++     LIBS += -lqscintilla2_qt5
++}
+ 
+ HEADERS = qscintillaplugin.h
+ SOURCES = qscintillaplugin.cpp
