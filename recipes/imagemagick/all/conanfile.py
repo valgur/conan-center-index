@@ -3,14 +3,11 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.build import can_run, cross_building
 from conan.tools.cmake import CMakeToolchain, CMake
-from conan.tools.env import VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, replace_in_file, rm, rmdir, save, rename
+from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load,  replace_in_file, rm, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, msvs_toolset, MSBuildDeps, check_min_vs
+from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, msvc_runtime_flag, msvs_toolset, MSBuildDeps
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -67,11 +64,11 @@ class ImageMagicConan(ConanFile):
         "with_pango": True,
         "with_png": True,
         "with_tiff": True,
-        "with_webp": True,
+        "with_webp": False,
         "with_xml2": True,
         "with_freetype": True,
-        "with_djvu": True,
-        "utilities": False,
+        "with_djvu": False,
+        "utilities": True,
     }
 
     def export_sources(self):
@@ -80,10 +77,6 @@ class ImageMagicConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if is_msvc(self):
-            self.options.with_heic = False
-            self.options.with_lcms = False
-            self.options.with_pango = False
 
     def configure(self):
         if self.options.shared:
@@ -121,7 +114,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/4.6.0")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/1.4.0")
         if self.options.with_xml2:
             self.requires("libxml2/[>=2.12.5 <3]")
         if self.options.with_freetype:
@@ -130,31 +123,19 @@ class ImageMagicConan(ConanFile):
             self.requires("djvulibre/3.5.28")
 
     def validate(self):
-        if self.settings.os == "Windows" and not is_msvc(self):
-            raise ConanInvalidConfiguration("Only MSVC is supported on Windows")
-        if is_msvc(self):
-            if self.settings.arch not in ["x86_64", "x86", "armv8"]:
-                raise ConanInvalidConfiguration(f"{self.settings.arch} architecture is not supported for MSVC")
-            # Only VS 2017, 2019 and 2022 are supported by configure.exe
-            # TODO: older versions could probably be supported by patching the generated projects
-            check_min_vs(self, 193)
-            if self.options.with_heic:
-                raise ConanInvalidConfiguration("with_heic option is currently not supported on MSVC")
-            if self.options.with_lcms:
-                raise ConanInvalidConfiguration("with_lcms option is currently not supported on MSVC")
-            if self.options.with_pango:
-                raise ConanInvalidConfiguration("with_pango option is currently not supported on MSVC")
-        if self.settings.compiler == "apple-clang" and self.options.shared:
-            # configure: error: cannot run C compiled programs.
-            raise ConanInvalidConfiguration("Shared build is not supported on apple-clang. Contributions are welcome.")
+        if is_msvc(self) and self.settings.arch not in ["x86_64", "x86", "armv8"]:
+            raise ConanInvalidConfiguration(f"{self.settings.arch} architecture is not supported for MSVC")
 
+    @property
+    def _modules(self):
+        return ["Magick++", "MagickWand", "MagickCore"]
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
+            self.tool_requires("pkgconf/2.2.0")
 
     def source(self):
-        if is_msvc(self.info):
+        if is_msvc(self):
             get(self, **self.conan_data["sources"][self.version]["windows"], strip_root=True)
             get(self, **self.conan_data["sources"][self.version]["source"], destination="ImageMagick", strip_root=True)
         else:
@@ -169,20 +150,37 @@ class ImageMagicConan(ConanFile):
         }.get(str(self.settings.arch))
 
     @property
+    def _msvc_runtime_suffix(self):
+        return {
+            "MT": "StaticMT",
+            "MTd": "StaticMTD",
+            "MD": "DynamicMT",
+            "MDd": "DynamicMT",
+        }.get(msvc_runtime_flag(self))
+
+    @property
     def _visual_studio_version(self):
         return {
+            "v110": "/VS2012",
+            "v120": "/VS2013",
+            "v140": "/VS2015",
             "v141": "/VS2017",
             "v142": "/VS2019",
             "v143": "/VS2022",
         }.get(msvs_toolset(self), "/VS2022")
 
     @property
-    def _msbuild_configuration(self):
-        return "Debug" if self.settings.build_type == "Debug" else "Release"
+    def _msvc_runtime_flag(self):
+        return {
+            "MT": "/smt",
+            "MTd": "/smtd",
+            "MD": "/dmt",
+            "MDd": "/mdt",
+        }.get(msvc_runtime_flag(self))
 
     @property
-    def _modules(self):
-        return ["Magick++", "MagickWand", "MagickCore"]
+    def _msbuild_configuration(self):
+        return "Debug" if self.settings.build_type == "Debug" else "Release"
 
     def _generate_msvc(self):
         tc = CMakeToolchain(self)
@@ -191,56 +189,14 @@ class ImageMagicConan(ConanFile):
         # https://github.com/ImageMagick/ImageMagick-Windows/blob/0b13f5dc7b4725e452f395193c0ce7f869774c21/Configure/CommandLineInfo.cpp#L128-L185
         configure_args = []
         configure_args.append(self._arch_flag)
+        configure_args.append(self._msvc_runtime_flag)
         configure_args.append(self._visual_studio_version)
-        configure_args.append("/dmt" if self.options.shared else "/smt")
         configure_args.append("/hdri" if self.options.hdri else "/noHdri")
         configure_args.append(f"/Q{self.options.quantum_depth}")
         save(self, os.path.join(self.generators_folder, "configure_args"), " ".join(configure_args))
 
         tc = MSBuildToolchain(self)
         tc.configuration = self._msbuild_configuration
-        delegates = {
-            "AUTOTRACE": False,
-            "BZLIB": self.options.with_bzlib,
-            "CAIRO": False,
-            "DJVU": self.options.with_djvu,
-            "DMR": False,
-            "DPS": False,
-            "EMF": False,
-            "FLIF": False,
-            "FPX": False,
-            "FREETYPE": self.options.with_freetype,
-            "GS": False,
-            "GVC": False,
-            "HEIC": self.options.with_heic,
-            "JBIG": self.options.with_jbig,
-            "JP2": self.options.with_openjp2,
-            "JPEG": self.options.with_jpeg,
-            "JXL": False,
-            "LIBOPENJP2": self.options.with_openjp2,
-            "LZMA": self.options.with_lzma,
-            "OPENEXR": self.options.with_openexr,
-            "PANGOCAIRO": False, # self.options.with_pango,
-            "PNG": self.options.with_png,
-            "RAW_R": False,
-            "RSVG": False,
-            "SANS": False,
-            "TIFF": self.options.with_tiff,
-            "UHDR": False,
-            "WEBP": self.options.with_webp,
-            "WEBPMUX": False,
-            "WINGDI32": False,
-            "WMF": False,
-            "WMFLITE": False,
-            "X11": False,
-            "XML": self.options.with_xml2,
-            "ZIP": False,
-            "ZLIB": self.options.with_zlib,
-            "ZSTD": False,
-        }
-        for delegate_name, enabled in delegates.items():
-            if enabled:
-                tc.preprocessor_definitions[f"MAGICKCORE_{delegate_name}_DELEGATE"] = "1"
         tc.generate()
 
         deps = MSBuildDeps(self)
@@ -254,20 +210,15 @@ class ImageMagicConan(ConanFile):
             if os.path.exists(props_path):
                 import_conan_generators += f'<Import Project="{props_path}" />'
         for vcxproj_file in Path(self.source_folder).rglob("*.vcxproj"):
-            replace_in_file(
-                self, vcxproj_file,
-                '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-                f'{import_conan_generators}<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
-            )
+            if props_path:
+                replace_in_file(
+                    self, vcxproj_file,
+                    '<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                    f'{import_conan_generators}<Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />',
+                )
 
     def _build_msvc(self):
         apply_conandata_patches(self)
-
-        # skip irrelevant components
-        rmdir(self, os.path.join(self.source_folder, "Projects", "demos"))
-        rmdir(self, os.path.join(self.source_folder, "Projects", "oss-fuzz"))
-        if not self.options.utilities:
-            rmdir(self, os.path.join(self.source_folder, "Projects", "utilities"))
 
         # Build and run configure.exe to generate .sln and .vcxproj files
         cmake = CMake(self)
@@ -278,14 +229,9 @@ class ImageMagicConan(ConanFile):
 
         self._patch_sources_msvc()
         msbuild = MSBuild(self)
-        solution_type = "Dynamic" if self.options.shared else "Static"
-        msbuild.build(os.path.join(self.source_folder, f"IM7.{solution_type}.sln"))
+        msbuild.build(os.path.join(self.source_folder, "IM7.Dynamic.sln"))
 
     def _generate_autotools(self):
-        if can_run(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-
         def yes_no(o):
             return "yes" if o else "no"
 
@@ -322,6 +268,9 @@ class ImageMagicConan(ConanFile):
         tc.generate()
 
         deps = AutotoolsDeps(self)
+        # FIXME: workaround for xorg/system adding system includes https://github.com/conan-io/conan-center-index/issues/6880
+        # if "/usr/include/uuid" in tc.include_paths:
+        #     tc.include_paths.remove("/usr/include/uuid")
         deps.generate()
 
         deps = PkgConfigDeps(self)
@@ -346,12 +295,15 @@ class ImageMagicConan(ConanFile):
             self._build_autotools()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         if is_msvc(self):
             output_dir = os.path.join(self.source_folder, "Output")
             copy(self, "NOTICE.txt", output_dir, os.path.join(self.package_folder, "licenses"))
-            copy(self, "*", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "bin"), excludes=["*.pdb"])
+            copy(self, "*.dll", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "bin"))
+            copy(self, "*.exe", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "bin"))
             copy(self, "*.lib", os.path.join(output_dir, "lib"), os.path.join(self.package_folder, "lib"))
+            copy(self, "*.xml", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "res"))
+            copy(self, "*.icc", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "res"))
             include_dir = os.path.join(self.package_folder, "include", f"ImageMagick-{Version(self.version).major}")
             copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "MagickCore"), os.path.join(include_dir, "MagickCore"))
             copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "MagickWand"), os.path.join(include_dir, "MagickWand"))
@@ -360,40 +312,20 @@ class ImageMagicConan(ConanFile):
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
                 autotools.install()
-            rename(self,
-                   os.path.join(self.package_folder, "share"),
-                   os.path.join(self.package_folder, "res"))
-            rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            rmdir(self, os.path.join(self.package_folder, "etc"))
-            rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
-            fix_apple_shared_install_name(self)
-
-    @property
-    def _lib_infix(self):
-        return "DB" if self.settings.build_type == "Debug" else "RL"
+            with chdir(self, self.package_folder):
+                # remove undesired files
+                rmdir(self, os.path.join("lib", "pkgconfig"))  # pc files
+                rmdir(self, "etc")
+                rmdir(self, "share")
+                rm(self, "*.la", "lib", recursive=True)
 
     def _libname(self, library):
         if is_msvc(self):
-            return f"CORE_{self._lib_infix}_{library}_"
+            infix = "DB" if self.settings.build_type == "Debug" else "RL"
+            return f"CORE_{infix}_{library}_"
         else:
             suffix = "HDRI" if self.options.hdri else ""
             return f"{library}-{Version(self.version).major}.Q{self.options.quantum_depth}{suffix}"
-
-    @property
-    def _im_modules(self):
-        return [
-            "vips", "wbmp", "webp", "wpg", "xbm", "xc", "xcf", "xpm", "xps", "yaml", "ycbcr", "yuv", "aai", "art",
-            "ashlar", "avs", "bayer", "bgr", "bmp", "braille", "cals", "caption", "cin", "cip", "clip", "clipboard",
-            "cmyk", "cube", "cut", "dcm", "dds", "debug", "dib", "djvu", "dmr", "dng", "dot", "dps", "dpx", "emf",
-            "ept", "exr", "farbfeld", "fax", "fits", "fl32", "flif", "fpx", "ftxt", "gif", "gradient", "gray", "hald",
-            "hdr", "heic", "histogram", "hrz", "html", "icon", "info", "inline", "ipl", "jbig", "jnx", "jp2", "jpeg",
-            "json", "jxl", "kernel", "label", "mac", "magick", "map", "mask", "mat", "matte", "meta", "miff", "mono",
-            "mpc", "mpr", "msl", "mtv", "mvg", "null", "ora", "otb", "palm", "pango", "pattern", "pcd", "pcl", "pcx",
-            "pdb", "pdf", "pes", "pgx", "pict", "pix", "plasma", "png", "pnm", "ps", "ps2", "ps3", "psd", "pwp", "qoi",
-            "raw", "rgb", "rgf", "rla", "rle", "scr", "screenshot", "sct", "sfw", "sgi", "sixel", "stegano", "strimg",
-            "sun", "svg", "tga", "thumbnail", "tiff", "tile", "tim", "tim2", "ttf", "txt", "uhdr", "uil", "url", "uyvy",
-            "vicar", "vid", "video", "viff",
-        ]
 
     def package_info(self):
         # FIXME model official FindImageMagick https://cmake.org/cmake/help/latest/module/FindImageMagick.html
@@ -422,7 +354,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_png:
             core_requires.append("libpng::libpng")
         if self.options.with_tiff:
-            core_requires.append("libtiff::tiff")
+            core_requires.append("libtiff::libtiff")
         if self.options.with_webp:
             core_requires.append("libwebp::libwebp")
         if self.options.with_xml2:
@@ -432,18 +364,10 @@ class ImageMagicConan(ConanFile):
         if self.options.with_djvu:
             core_requires.append("djvulibre::djvulibre")
 
-        if is_msvc(self):
-            if self.options.shared:
-                self.cpp_info.components["MagickCore"].libs.append("FILTER_analyze_")
-                infix = self._lib_infix
-                self.cpp_info.components["MagickCore"].libs.extend([f"IM_MOD_{infix}_{mod}_" for mod in self._im_modules])
-            else:
-                self.cpp_info.components["MagickCore"].libs.append(self._libname("coders"))
-                self.cpp_info.components["MagickCore"].libs.append(self._libname("filters"))
+        if is_msvc(self) and not self.options.shared:
+            self.cpp_info.components["MagickCore"].libs.append(self._libname("coders"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["MagickCore"].system_libs.append("pthread")
-        elif is_apple_os(self):
-            self.cpp_info.components["MagickCore"].frameworks.append("CoreText")
 
         self.cpp_info.components["MagickCore"].defines.append(f"MAGICKCORE_QUANTUM_DEPTH={self.options.quantum_depth}")
         self.cpp_info.components["MagickCore"].defines.append(f"MAGICKCORE_HDRI_ENABLE={int(bool(self.options.hdri))}")

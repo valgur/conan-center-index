@@ -35,7 +35,7 @@ diff --git a/Configure/main.cpp b/Configure/main.cpp
 +       if (argv[i][0] != '/') continue;
 +		wchar_t arg[256];
 +		mbstowcs_s(nullptr, arg, argv[i] + 1, sizeof(arg));
-+		info.ParseParam(arg, TRUE, i == argc - 1);
++		info.ParseParam(arg, FALSE, i == argc - 1);
 +	}
 +	wizard.parseCommandLineInfo(info);
 +
