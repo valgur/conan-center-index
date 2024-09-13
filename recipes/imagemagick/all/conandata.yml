@@ -1,13 +1,16 @@
 sources:
-  "7.1.1-32":
+  "7.1.1.38":
     source:
-      url: "https://github.com/ImageMagick/ImageMagick/archive/refs/tags/7.1.1-32.tar.gz"
-      sha256: "fda0c1a5fdf511721893014370a6303413c70e0c11f2b543a7a4aff36f8c6e92"
+      url: "https://github.com/ImageMagick/ImageMagick/archive/refs/tags/7.1.1-38.tar.gz"
+      sha256: "5e449530ccec8b85ae2bfd1ad773184fb7a4737d40fd9439db8a5d4beee4403e"
     windows:
       url: "https://github.com/ImageMagick/ImageMagick-Windows/archive/0b13f5dc7b4725e452f395193c0ce7f869774c21.zip"
       sha256: "cb3a1d666afcde3df6fd5a9ec22f8ff03d9a11b12c1d1ccea08f0e2092e3f044"
 patches:
-  "7.1.1-32":
+  "7.1.1.38":
     - patch_file: "patches/001-remove-unnecessary-dependencies.patch"
+      base_path: "ImageMagick"
     - patch_file: "patches/002-no-warnings-as-error.patch"
+      base_path: "ImageMagick"
     - patch_file: "patches/003-remove-mfc-dependency.patch"
+      base_path: "ImageMagick"
