@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-13:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-14:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -50,6 +50,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gdalcpp/1.3.0
 - gfortran/13.2.0
 - gici/cci.20240421
+- gl2ps/1.4.2
 - glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
@@ -65,7 +66,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
 - hscpp/1.0.0-alpha
-- imagemagick/7.1.1.32
+- imagemagick/7.1.1.38
 - iridescence/0.1.3
 - lapack/3.12.0
 - libbasisu/1.16.4
