@@ -57,7 +57,7 @@ class OctaveConan(ConanFile):
         "with_openmp": True,
         "with_openssl": True,
         "with_qhull": True,
-        "with_qt": False,
+        "with_qt": True,
         "with_rapidjson": True,
         "with_sndfile": True,
         "with_suitesparse": True,
