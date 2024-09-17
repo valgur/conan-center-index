@@ -23,7 +23,7 @@ class OctaveConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fortran": ["f2c", "system"],
+        "fortran": ["gfortran", "system"],
         "with_curl": [True, False],
         "with_fftw": [True, False],
         "with_fltk": [True, False],
@@ -44,7 +44,7 @@ class OctaveConan(ConanFile):
         "with_x": [True, False],
     }
     default_options = {
-        "fortran": "f2c",
+        "fortran": "gfortran",
         "with_curl": True,
         "with_fftw": True,
         "with_fltk": True,
@@ -164,8 +164,8 @@ class OctaveConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
-        if self.options.fortran == "f2c":
-            self.tool_requires("f2c/20240312")
+        if self.options.fortran == "gfortran":
+            self.tool_requires("gfortran/[*]")
         if self.options.with_qt:
             self.tool_requires("qt/<host_version>")
         self.tool_requires("flex/2.6.4")
