@@ -81,6 +81,7 @@ class GlslangConan(ConanFile):
         venv.generate()
 
         tc = CMakeToolchain(self)
+        tc.variables["GLSLANG_ENABLE_INSTALL"] = True
         tc.variables["BUILD_EXTERNAL"] = False
         tc.variables["SKIP_GLSLANG_INSTALL"] = False
         tc.variables["ENABLE_SPVREMAPPER"] = self.options.spv_remapper
@@ -163,7 +164,6 @@ class GlslangConan(ConanFile):
             self.cpp_info.components["glslang-core"].requires.append("oglcompiler")
         if self.options.hlsl:
             self.cpp_info.components["glslang-core"].defines.append("ENABLE_HLSL")
-            self.cpp_info.components["glslang-core"].requires.append("hlsl")
 
         if has_machineindependent:
             # MachineIndependent
@@ -212,11 +212,12 @@ class GlslangConan(ConanFile):
             self.cpp_info.components["spirv"].defines.append("ENABLE_OPT")
 
         # HLSL
-        if self.options.hlsl:
+        if self.options.hlsl and Version(self.version) <= "1.3.268.0":
             self.cpp_info.components["hlsl"].set_property("cmake_target_name", "glslang::HLSL")
             self.cpp_info.components["hlsl"].names["cmake_find_package"] = "HLSL"
             self.cpp_info.components["hlsl"].names["cmake_find_package_multi"] = "HLSL"
             self.cpp_info.components["hlsl"].libs = [f"HLSL{lib_suffix}"]
+            self.cpp_info.components["glslang-core"].requires.append("hlsl")
 
         # SPVRemapper
         if self.options.spv_remapper:
