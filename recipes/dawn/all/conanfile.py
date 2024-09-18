@@ -31,12 +31,12 @@ class DawnConan(ConanFile):
 
     def requirements(self):
         self.requires("abseil/20240116.2")
-        self.requires("spirv-headers/1.3.268.0", transitive_headers=True)
-        self.requires("spirv-tools/1.3.268.0")
-        self.requires("glslang/1.3.268.0")
+        self.requires("spirv-headers/1.3.290.0", transitive_headers=True)
+        self.requires("spirv-tools/1.3.290.0")
+        self.requires("glslang/1.3.290.0")
         self.requires("glfw/3.4")
-        self.requires("vulkan-headers/1.3.268.0")
-        self.requires("vulkan-utility-libraries/1.3.268.0")
+        self.requires("vulkan-headers/1.3.290.0")
+        self.requires("vulkan-utility-libraries/1.3.290.0")
         self.requires("opengl-registry/20240721")
 
     def validate(self):

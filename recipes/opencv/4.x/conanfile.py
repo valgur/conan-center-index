@@ -1112,7 +1112,7 @@ class OpenCVConan(ConanFile):
             # Symbols are exposed https://github.com/conan-io/conan-center-index/pull/16678#issuecomment-1507811867
             self.requires("protobuf/3.21.12", transitive_libs=True)
         if self.options.get_safe("with_vulkan"):
-            self.requires("vulkan-headers/1.3.268.0")
+            self.requires("vulkan-headers/1.3.290.0")
         # gapi module dependencies
         if self.options.gapi:
             self.requires("ade/0.1.2d")

@@ -49,7 +49,7 @@ class VsgConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def requirements(self):
-        self.requires("vulkan-loader/1.3.239.0", transitive_headers=True)
+        self.requires("vulkan-loader/1.3.290.0", transitive_headers=True)
 
     def validate(self):
         if self.info.settings.compiler.cppstd:
@@ -68,7 +68,7 @@ class VsgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
- 
+
     def generate(self):
         tc = CMakeToolchain(self)
         if is_msvc(self):
