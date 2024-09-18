@@ -69,12 +69,6 @@ class GlslangConan(ConanFile):
             if self.settings.os == "Windows":
                 raise ConanInvalidConfiguration(f"{self.ref} shared library build is broken on {self.settings.os}")
 
-        if self.options.enable_optimizer and self.dependencies["spirv-tools"].options.shared:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} with enable_optimizer requires static spirv-tools, "
-                "because SPIRV-Tools-opt is not built if shared"
-            )
-
     def build_requirements(self):
         if Version(self.version) >= "1.3.261":
             self.tool_requires("cmake/[>=3.17.2 <4]")
