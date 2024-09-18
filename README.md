@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-17:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-18:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -34,6 +34,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cpptrace/0.3.0
+- cpptrace/0.4.0
+- cpptrace/0.4.1
+- cpptrace/0.5.0
+- cpptrace/0.5.1
+- cpptrace/0.5.2
+- cpptrace/0.5.3
+- cpptrace/0.5.4
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
@@ -101,6 +109,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openmvg/2.1
 - openni2/2.2.0.33
 - openpmix/5.0.3
+- openspecfun/0.5.7
 - osgearth/3.5
 - osrm/5.27.1
 - pango/1.54.0
