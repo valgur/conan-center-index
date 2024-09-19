@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-18:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-19:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -34,14 +34,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
-- cpptrace/0.3.0
-- cpptrace/0.4.0
-- cpptrace/0.4.1
-- cpptrace/0.5.0
-- cpptrace/0.5.1
-- cpptrace/0.5.2
-- cpptrace/0.5.3
-- cpptrace/0.5.4
 - cub/2.2.0
 - cub/2.3.2
 - cub/2.4.0
@@ -64,6 +56,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glomap/cci.20240802
 - glpk/4.48
 - glpk/4.65
+- glslang/1.3.290.0
 - gnsstk/14.3.0
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
@@ -75,13 +68,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/9.0.0
 - hscpp/1.0.0-alpha
 - imagemagick/7.1.1.38
+- imlib2/1.12.3
 - iridescence/0.1.3
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libcudacxx/2.2.0
 - libcudacxx/2.3.2
 - libcudacxx/2.4.0
-- libdatrie/0.2.13
 - libecwj2/3.3
 - libelas/cci.20150630
 - libhdfs3/cci.20191105
@@ -94,7 +87,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtorch/2.4.0
 - llvm-core/18.1.7
 - llvm-openmp/18.1.8
-- manif/0.0.5
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mrcal/2.4.1
@@ -116,7 +108,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangolin/0.9.1
 - pcl/1.14.1
 - pdal/2.7.2
-- pocketfft/0.0.0.cci.20240801
 - polyscope/2.3.0
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
@@ -129,9 +120,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.77.1
 - rust/1.81.0
 - sfcgal/1.5.0
+- shader-slang/2024.11.1
 - skia/cci.20240727
 - sleef/3.6.1
 - small_gicp/0.1.2
+- spirv-cross/1.3.290.0
+- spirv-headers/1.3.290.0
+- spirv-tools/1.3.290.0
 - splinter/3.0
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
@@ -164,12 +159,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - usearch/2.9.1
 - vilib/cci.20210625
 - vlfeat/0.9.21
+- volk/1.3.290.0
 - vswhere/3.1.7
 - vtk-m/2.2.0
 - vtk/9.3.1
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
+- vulkan-utility-libraries/1.3.290.0
 - vulkan-validationlayers/1.3.243.0
+- vulkan-validationlayers/1.3.268.0
+- vulkan-validationlayers/1.3.290.0
 - wayland-protocols/1.36
 - xgboost/2.0.3
 - zenoh-c/0.10.1-rc
