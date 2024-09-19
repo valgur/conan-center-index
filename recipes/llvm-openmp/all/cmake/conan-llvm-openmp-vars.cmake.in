@@ -35,6 +35,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# Required for CMAKE_<LANG>_LINK_LIBRARY_FLAG
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+
 # For Conan v1 compatibility
 foreach(_suffix RELEASE DEBUG RELWITHDEBINFO MINSIZEREL)
     if(DEFINED OpenMP_OpenMP_INCLUDE_DIRS_${_suffix})
@@ -42,19 +45,12 @@ foreach(_suffix RELEASE DEBUG RELWITHDEBINFO MINSIZEREL)
     endif()
 endforeach()
 
-# Due to a non-global library location, the library cannot be consumed via OpenMP_C_FLAGS/OpenMP_CXX_FLAGS alone.
-# The OpenMP::OpenMP_C and OpenMP::OpenMP_CXX targets must be used instead.
-# Setting the flags for internal use only.
-set(_OpenMP_FLAGS "@OpenMP_FLAGS@")
-
-set(OpenMP_C_FLAGS "--dont-use-OpenMP_C_FLAGS--use-OpenMP::OpenMP_C-target-instead")
 set(OpenMP_C_INCLUDE_DIR "${OpenMP_INCLUDE_DIR${_v1_suffix}}")
 set(OpenMP_C_INCLUDE_DIRS "${OpenMP_INCLUDE_DIRS${_v1_suffix}}")
 set(OpenMP_C_LIB_NAMES OpenMP::OpenMP_C)
 set(OpenMP_C_LIBRARIES OpenMP::OpenMP_C)
 set(OpenMP_C_DEFINITIONS "${OpenMP_DEFINITIONS${_v1_suffix}}")
 
-set(OpenMP_CXX_FLAGS "--dont-use-OpenMP_CXX_FLAGS--use-OpenMP::OpenMP_CXX-target-instead")
 set(OpenMP_CXX_INCLUDE_DIR "${OpenMP_C_INCLUDE_DIR}")
 set(OpenMP_CXX_INCLUDE_DIRS "${OpenMP_C_INCLUDE_DIRS}")
 set(OpenMP_CXX_LIB_NAMES OpenMP::OpenMP_CXX)
@@ -62,6 +58,11 @@ set(OpenMP_CXX_LIBRARIES OpenMP::OpenMP_CXX)
 set(OpenMP_CXX_DEFINITIONS "${OpenMP_C_DEFINITIONS}")
 
 set(OpenMP_omp_LIBRARY OpenMP::OpenMP)
+
+get_filename_component(_OpenMP_LIB_DIR "${OpenMP_C_INCLUDE_DIR}/../lib" ABSOLUTE)
+set(_OpenMP_FLAGS "\"-I${OpenMP_C_INCLUDE_DIR}\" \"${CMAKE_LIBRARY_PATH_FLAG}${_OpenMP_LIB_DIR}\" @OpenMP_FLAGS@")
+set(OpenMP_C_FLAGS "${_OpenMP_FLAGS}")
+set(OpenMP_CXX_FLAGS "${_OpenMP_FLAGS}")
 
 # Determine OpenMP specification date and version supported by the compiler.
 function(_openmp_get_compiler_spec_date)
@@ -91,7 +92,6 @@ function(_openmp_get_compiler_spec_date)
   try_compile(OpenMP_SPECTEST ${BUILD_DIR}
     SOURCES "${SRC_FILE}"
     COMPILE_DEFINITIONS "${_OpenMP_FLAGS}"
-    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${OpenMP_C_INCLUDE_DIR}"
     COPY_FILE "${BIN_FILE}"
   )
   if(NOT OpenMP_SPECTEST)
