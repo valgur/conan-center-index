@@ -86,7 +86,7 @@ class OpenblasConan(ConanFile):
         "fPIC": True,
         "ilp64": False,
         "build_lapack": True,
-        "build_relapack": False,
+        "build_relapack": True,
         "build_bfloat16": False,
         "use_openmp": True,
         "use_thread": True,
@@ -130,6 +130,8 @@ class OpenblasConan(ConanFile):
             self.options.rm_safe("fPIC")
         if not self.options.build_lapack:
             del self.options.build_relapack
+        else:
+            self.options.build_relapack = self.settings.compiler in ["gcc", "clang"]
         if not self.options.use_thread:
             del self.options.max_threads
         if not self.options.use_openmp:
