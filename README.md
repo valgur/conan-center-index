@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-20:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-21:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -97,6 +97,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - numpy/1.26.4
 - ogre/14.2.4
 - open62541pp/0.12.0
+- openblas/0.3.28
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
