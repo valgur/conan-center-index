@@ -3,7 +3,8 @@ import glob
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.apple import is_apple_os
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -39,6 +40,8 @@ class PangoConan(ConanFile):
         "with_libthai": False,
         "with_cairo": True,
         "with_xft": True,
+        # TODO: Currently can't actually disable this in Macos at least,
+        #  it always shows up as detected in meson
         "with_freetype": True,
         "with_fontconfig": True,
         "with_introspection": False,
@@ -49,17 +52,18 @@ class PangoConan(ConanFile):
             del self.options.fPIC
         if self.settings.os not in ["FreeBSD", "Linux"]:
             del self.options.with_xft
+
+        # Optional in Windows/Macos but false by default
+        # https://gitlab.gnome.org/GNOME/pango/-/blob/1.54.0/meson.build#L242
         if self.settings.os in ["Macos", "Windows"]:
-            self.options.with_freetype = False
             self.options.with_fontconfig = False
+            self.options.with_freetype = False
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-        self.options["cairo"].with_freetype = self.options.with_freetype
-        self.options["cairo"].with_fontconfig = self.options.with_fontconfig
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -71,8 +75,7 @@ class PangoConan(ConanFile):
             self.requires("fontconfig/2.15.0")
         if self.options.get_safe("with_xft"):
             self.requires("libxft/2.3.8")
-            if self.options.with_fontconfig and self.options.with_freetype:
-                self.requires("xorg/system")  # for xorg::xrender
+            self.requires("xorg/system")  # for xorg::xrender
         if self.options.with_cairo:
             # "pango/pangocairo.h" includes "cairo.h"
             self.requires("cairo/1.18.0", transitive_headers=True)
@@ -90,12 +93,21 @@ class PangoConan(ConanFile):
 
         if self.options.get_safe("with_xft"):
             if not self.options.with_freetype or not self.options.with_fontconfig:
-               raise ConanInvalidConfiguration("Xft requires freetype and fontconfig")
+                raise ConanInvalidConfiguration(f"-o=&:with_xft=True requires -o=&:with_freetype=True and -o=&:with_fontconfig=True")
 
         if self.dependencies["glib"].options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(
                 "Linking shared glib with the MSVC static runtime is not supported"
             )
+
+        # Can't be turned off outside Macos/Windows
+        # https://gitlab.gnome.org/GNOME/pango/-/blob/1.54.0/meson.build#L240
+        if self.settings.os not in ["Macos", "Windows"] and not self.options.with_fontconfig:
+            raise ConanInvalidConfiguration(f"{self.ref} requires -o=&:with_fontconfig=True for {self.settings.os}")
+
+        if (self.options.with_fontconfig and self.options.with_freetype
+                and not self.dependencies["cairo"].options.with_fontconfig):
+            raise ConanInvalidConfiguration(f"{self.ref} with -o=&:with_fontconfig=True and -o=&:with_freetype=True requires -o=cairo/*:with_fontconfig=True")
 
         if self.options.shared:
             if not self.dependencies["glib"].options.shared:
@@ -127,6 +139,7 @@ class PangoConan(ConanFile):
 
         deps = PkgConfigDeps(self)
         if self.options.with_introspection:
+            # gnome.generate_gir() in Meson looks for gobject-introspection-1.0.pc
             deps.build_context_activated = ["gobject-introspection"]
         deps.generate()
 
@@ -140,12 +153,15 @@ class PangoConan(ConanFile):
         tc.project_options["freetype"] = enabled_disabled(self.options.with_freetype)
         tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         meson_build = os.path.join(self.source_folder, "meson.build")
         replace_in_file(self, meson_build, "subdir('tests')", "")
         replace_in_file(self, meson_build, "subdir('tools')", "")
         replace_in_file(self, meson_build, "subdir('utils')", "")
         replace_in_file(self, meson_build, "subdir('examples')", "")
+
+    def build(self):
+        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -183,10 +199,9 @@ class PangoConan(ConanFile):
             self.cpp_info.components["pango_"].requires.append("fontconfig::fontconfig")
 
         if self.options.get_safe("with_xft"):
-            self.cpp_info.components["pango_"].requires.append("libxft::libxft")
-            # Pango only uses xrender when Xft, fontconfig and freetype are enabled
-            if self.options.with_fontconfig and self.options.with_freetype:
-                self.cpp_info.components["pango_"].requires.append("xorg::xrender")
+            # Pango only uses xrender when Xft, fontconfig and freetype are enabled, which if with_xft is true,
+            # means that the other options are true because they are checked in the validate() method
+            self.cpp_info.components["pango_"].requires.extend(["libxft::libxft", "xorg::xrender"])
         if self.options.with_cairo:
             self.cpp_info.components["pango_"].requires.append("cairo::cairo_")
         self.cpp_info.components["pango_"].includedirs = [
@@ -200,21 +215,29 @@ class PangoConan(ConanFile):
             self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "gir-1.0"))
             self.env_info.GI_TYPELIB_PATH.append(os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
-        if self.options.with_freetype:
+        # From meson.build: "To build pangoft2, we need HarfBuzz, FontConfig and FreeType"
+        if self.options.with_freetype and self.options.with_fontconfig:
             self.cpp_info.components["pangoft2"].libs = ["pangoft2-1.0"]
             self.cpp_info.components["pangoft2"].set_property("pkg_config_name", "pangoft2")
             self.cpp_info.components["pangoft2"].requires = [
                 "pango_",
                 "freetype::freetype",
+                "fontconfig::fontconfig",
             ]
             self.cpp_info.components["pangoft2"].includedirs = [
                 os.path.join(self.package_folder, "include", "pango-1.0")
             ]
 
+            # https://gitlab.gnome.org/GNOME/pango/-/blob/1.54.0/meson.build#L320
+            self.cpp_info.components["pango_"].requires.append("freetype::freetype")
+
         if self.options.with_fontconfig:
             self.cpp_info.components["pangofc"].set_property("pkg_config_name", "pangofc")
             if self.options.with_freetype:
-                self.cpp_info.components["pangofc"].requires = ["pangoft2"]
+                # pangoft2 is always built if pango has fontconfig and freetype support
+                self.cpp_info.components["pangofc"].requires = ["freetype::freetype", "harfbuzz::harfbuzz", "pangoft2"]
+        elif self.options.with_freetype:
+            self.cpp_info.components["pango_"].requires.append("freetype::freetype")
 
         if self.settings.os != "Windows":
             self.cpp_info.components["pangoroot"].set_property("pkg_config_name", "pangoroot")
@@ -224,6 +247,8 @@ class PangoConan(ConanFile):
         if self.options.get_safe("with_xft"):
             self.cpp_info.components["pangoxft"].libs = ["pangoxft-1.0"]
             self.cpp_info.components["pangoxft"].set_property("pkg_config_name", "pangoxft")
+            # pangoft2 is always built if pango has fontconfig and freetype support,
+            # which is always true if pango has xft support enabled
             self.cpp_info.components["pangoxft"].requires = ["pango_", "pangoft2"]
             self.cpp_info.components["pangoxft"].includedirs = [
                 os.path.join(self.package_folder, "include", "pango-1.0")
@@ -237,11 +262,16 @@ class PangoConan(ConanFile):
             if Version(self.version) >= "1.50.12":
                 self.cpp_info.components["pangowin32"].system_libs.append("dwrite")
 
+        if is_apple_os(self):
+            # https://gitlab.gnome.org/GNOME/pango/-/blob/1.54.0/meson.build#L333-346
+            self.cpp_info.components["pango_"].frameworks.extend(["CoreText", "CoreFoundation", "ApplicationServices"])
+
         if self.options.with_cairo:
             self.cpp_info.components["pangocairo"].libs = ["pangocairo-1.0"]
             self.cpp_info.components["pangocairo"].set_property("pkg_config_name", "pangocairo")
-            self.cpp_info.components["pangocairo"].requires = ["pango_"]
-            if self.options.with_freetype:
+            self.cpp_info.components["pangocairo"].requires = ["pango_", "cairo::cairo_"]
+            if self.options.with_freetype and self.options.with_fontconfig:
+                # https://gitlab.gnome.org/GNOME/pango/-/blob/1.54.0/meson.build#L506
                 self.cpp_info.components["pangocairo"].requires.append("pangoft2")
             if self.settings.os == "Windows":
                 self.cpp_info.components["pangocairo"].requires.append("pangowin32")
