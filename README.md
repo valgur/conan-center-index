@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-23:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-24:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -73,6 +73,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - iridescence/0.1.3
 - lapack/3.12.0
 - libbasisu/1.16.4
+- libcroco/0.6.13
 - libcudacxx/2.2.0
 - libcudacxx/2.3.2
 - libcudacxx/2.4.0
@@ -80,6 +81,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libelas/cci.20150630
 - libhdfs3/cci.20191105
 - libosmium/2.20.0
+- librsvg/2.40.21
 - librsvg/2.57.0
 - libsolv/0.7.29
 - libtomcrypt/1.18.2
@@ -106,7 +108,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openspecfun/0.5.7
 - osgearth/3.5
 - osrm/5.27.1
-- pango/1.54.0
 - pangolin/0.9.1
 - pcl/1.14.1
 - pdal/2.7.2
@@ -171,7 +172,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.3.243.0
 - vulkan-validationlayers/1.3.268.0
 - vulkan-validationlayers/1.3.290.0
-- wayland-protocols/1.36
 - xgboost/2.0.3
 - zenoh-c/0.10.1-rc
 
