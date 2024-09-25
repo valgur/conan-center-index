@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-24:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-25:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -88,6 +88,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
+- libxml2/2.11.7
+- libxml2/2.11.8
+- libxml2/2.12.5
+- libxml2/2.12.6
+- libxml2/2.12.7
 - llvm-core/18.1.7
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
