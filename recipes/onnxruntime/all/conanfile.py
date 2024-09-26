@@ -92,7 +92,7 @@ class OnnxRuntimeConan(ConanFile):
             # v1.* is required, newer versions are not compatible
             self.requires("flatbuffers/1.12.0")
         # using 1.84.0+ fails on CCI as it prevents the cpp 17 version to be picked up when building with cpp 20
-        self.requires("boost/1.83.0", headers=True, libs=False)  # for mp11, header only, no need for libraries
+        self.requires("boost/1.85.0", headers=True, libs=False)  # for mp11, header only, no need for libraries
         self.requires("safeint/3.0.28")
         self.requires("nlohmann_json/3.11.3")
         self.requires("eigen/3.4.0")
@@ -196,7 +196,7 @@ class OnnxRuntimeConan(ConanFile):
         if Version(self.version) >= "1.17":
             # https://github.com/microsoft/onnxruntime/commit/5bfca1dc576720627f3af8f65e25af408271079b
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "onnxruntime_providers_cuda.cmake"),
-                            'option(onnxruntime_NVCC_THREADS "Number of threads that NVCC can use for compilation." 1)', 
+                            'option(onnxruntime_NVCC_THREADS "Number of threads that NVCC can use for compilation." 1)',
                             'set(onnxruntime_NVCC_THREADS "1" CACHE STRING "Number of threads that NVCC can use for compilation.")')
 
     def build(self):

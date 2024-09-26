@@ -68,7 +68,7 @@ class LibpointmatcherConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.81.0", transitive_headers=True)
+        self.requires("boost/1.85.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("libnabo/1.0.7")
         self.requires("yaml-cpp/0.7.0", transitive_headers=True)
