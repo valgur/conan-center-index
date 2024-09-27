@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-26:
+Package versions that are available here but not yet on the main CCI repo as of 2024-09-27:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -34,12 +34,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
-- cub/2.2.0
-- cub/2.3.2
-- cub/2.4.0
+- cub/2.6.1
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
+- duckdb/0.5.1
+- duckdb/0.6.0
+- duckdb/0.6.1
+- duckdb/0.7.1
+- duckdb/0.8.0
+- duckdb/0.8.1
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/0.8.0
@@ -74,9 +78,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libcroco/0.6.13
-- libcudacxx/2.2.0
-- libcudacxx/2.3.2
-- libcudacxx/2.4.0
+- libcudacxx/2.6.1
 - libecwj2/3.3
 - libelas/cci.20150630
 - libhdfs3/cci.20191105
@@ -88,11 +90,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
-- libxml2/2.11.7
-- libxml2/2.11.8
-- libxml2/2.12.5
-- libxml2/2.12.6
-- libxml2/2.12.7
 - llvm-core/18.1.7
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
@@ -159,9 +156,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/5.8.0
 - sundials/6.7.0
 - sundials/7.1.1
-- thrust/2.2.0
-- thrust/2.3.2
-- thrust/2.4.0
+- thrust/2.6.1
 - tiledb/2.22.0
 - tpl/cci.20210302
 - usearch/2.9.1
