@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-09-30:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-01:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -119,6 +119,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - premake/5.0.0-beta2
 - qhull/cci.20231130
 - qscintilla/2.14.1
+- qt/6.7.1
 - reproc/14.2.5
 - rosx_introspection/1.0.2
 - rust/1.72.1
