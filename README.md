@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-01:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-02:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -56,6 +56,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gfortran/13.2.0
 - gici/cci.20240421
 - gl2ps/1.4.2
+- glaze/2.1.6
+- glaze/2.6.2
+- glaze/2.6.9
+- glaze/2.7.0
+- glaze/2.9.0
+- glaze/2.9.2
 - glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
@@ -75,6 +81,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
 - iridescence/0.1.3
+- itlib/1.8.0
+- itlib/1.8.1
+- itlib/1.8.2
+- itlib/1.8.3
+- itlib/1.9.0
+- itlib/1.9.1
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libcroco/0.6.13
@@ -120,6 +132,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qhull/cci.20231130
 - qscintilla/2.14.1
 - qt/6.7.1
+- quill/3.3.1
+- quill/3.4.1
+- quill/3.5.1
+- quill/3.6.0
+- quill/3.7.0
+- quill/3.8.0
+- quill/3.9.0
+- quill/4.3.0
+- quill/4.4.0
+- qxlsx/1.4.3
 - reproc/14.2.5
 - rosx_introspection/1.0.2
 - rust/1.72.1
@@ -161,6 +183,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tiledb/2.22.0
 - tpl/cci.20210302
 - usearch/2.9.1
+- uwebsockets/18.3.0
+- uwebsockets/19.3.0
+- uwebsockets/20.53.0
+- uwebsockets/20.55.0
+- uwebsockets/20.56.0
+- uwebsockets/20.57.0
+- uwebsockets/20.58.0
+- uwebsockets/20.60.0
 - vilib/cci.20210625
 - vlfeat/0.9.21
 - volk/1.3.290.0
