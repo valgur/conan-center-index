@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-03:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-04:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -36,6 +36,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - colmap/3.10
 - cub/2.6.1
 - daggy/2.1.3
+- dataframe/1.18.0
+- dataframe/1.19.0
+- dataframe/1.20.0
+- dataframe/1.21.0
+- dataframe/1.22.0
 - dawn/cci.20240726
 - dpdk/24.07
 - duckdb/0.5.1
@@ -143,6 +148,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - quill/4.4.0
 - qxlsx/1.4.3
 - reproc/14.2.5
+- roaring/1.0.0
+- roaring/1.1.5
+- roaring/1.3.0
+- roaring/2.0.4
 - rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.77.1
@@ -191,6 +200,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.6.1
 - tiledb/2.22.0
 - tpl/cci.20210302
+- tree-sitter/0.17.3
+- tree-sitter/0.20.0
+- tree-sitter/0.20.6
 - usearch/2.9.1
 - uwebsockets/18.3.0
 - uwebsockets/19.3.0
