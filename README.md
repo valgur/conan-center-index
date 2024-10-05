@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-04:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-05:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -36,19 +36,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - colmap/3.10
 - cub/2.6.1
 - daggy/2.1.3
-- dataframe/1.18.0
-- dataframe/1.19.0
-- dataframe/1.20.0
-- dataframe/1.21.0
-- dataframe/1.22.0
 - dawn/cci.20240726
 - dpdk/24.07
-- duckdb/0.5.1
-- duckdb/0.6.0
-- duckdb/0.6.1
-- duckdb/0.7.1
-- duckdb/0.8.0
-- duckdb/0.8.1
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/0.8.0
@@ -61,12 +50,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gfortran/13.2.0
 - gici/cci.20240421
 - gl2ps/1.4.2
-- glaze/2.1.6
-- glaze/2.6.2
-- glaze/2.6.9
-- glaze/2.7.0
-- glaze/2.9.0
-- glaze/2.9.2
 - glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
@@ -86,12 +69,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
 - iridescence/0.1.3
-- itlib/1.8.0
-- itlib/1.8.1
-- itlib/1.8.2
-- itlib/1.8.3
-- itlib/1.9.0
-- itlib/1.9.1
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libcroco/0.6.13
@@ -136,35 +113,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - premake/5.0.0-beta2
 - qhull/cci.20231130
 - qscintilla/2.14.1
-- qt/6.7.1
-- quill/3.3.1
-- quill/3.4.1
-- quill/3.5.1
-- quill/3.6.0
-- quill/3.7.0
-- quill/3.8.0
-- quill/3.9.0
-- quill/4.3.0
-- quill/4.4.0
-- qxlsx/1.4.3
 - reproc/14.2.5
-- roaring/1.0.0
-- roaring/1.1.5
-- roaring/1.3.0
-- roaring/2.0.4
 - rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.77.1
 - rust/1.81.0
-- sdl/2.24.0
-- sdl/2.24.1
-- sdl/2.26.0
-- sdl/2.26.1
-- sdl/2.26.5
-- sdl/2.28.2
-- sdl/2.30.1
-- sdl/2.30.2
-- sdl/2.30.3
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/cci.20240727
@@ -200,18 +153,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.6.1
 - tiledb/2.22.0
 - tpl/cci.20210302
-- tree-sitter/0.17.3
-- tree-sitter/0.20.0
-- tree-sitter/0.20.6
 - usearch/2.9.1
-- uwebsockets/18.3.0
-- uwebsockets/19.3.0
-- uwebsockets/20.53.0
-- uwebsockets/20.55.0
-- uwebsockets/20.56.0
-- uwebsockets/20.57.0
-- uwebsockets/20.58.0
-- uwebsockets/20.60.0
 - vilib/cci.20210625
 - vlfeat/0.9.21
 - volk/1.3.290.0
