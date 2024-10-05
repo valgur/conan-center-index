@@ -1,3 +1,5 @@
 versions:
+  "2.43":
+    folder: all
   "system":
-    folder: "all"
+    folder: system
