@@ -1,0 +1,6 @@
+sources:
+  "1.8.10":
+    url:
+      - "https://www.x.org/archive/individual/lib/libX11-1.8.10.tar.xz"
+      - "https://xorg.freedesktop.org/releases/individual/lib/libX11-1.8.10.tar.xz"
+    sha256: "2b3b3dad9347db41dca56beb7db5878f283bde1142f04d9f8e478af435dfdc53"
