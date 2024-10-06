@@ -105,9 +105,16 @@ class CairoConan(ConanFile):
             # Used in public cairo-gobject.h header
             self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
-            if self.options.with_xlib or self.options.with_xlib_xrender or self.options.with_xcb:
-                # Used in public cairo-xlib.h, cairo-xlib-xrender.h and cairo-xcb.h headers
-                self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
+            if self.options.with_xlib:
+                # Used in public cairo-xlib.h header
+                self.requires("libx11/1.8.10", transitive_headers=True)
+                self.requires("libxext/1.3.6", transitive_headers=True)
+            if self.options.with_xlib_xrender:
+                # Used in public cairo-xlib-xrender.h header
+                self.requires("libxrender/0.9.11", transitive_headers=True)
+            if self.options.with_xcb:
+                # Used in public cairo-xcb.h header
+                self.requires("libxcb/1.17.0", transitive_headers=True)
         if self.options.get_safe("with_opengl") == "desktop":
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
             if self.settings.os == "Windows":
@@ -276,17 +283,16 @@ class CairoConan(ConanFile):
             add_component_and_base_requirements("cairo-ft", ["freetype::freetype"])
 
         if self.options.get_safe("with_xlib"):
-            add_component_and_base_requirements("cairo-xlib", ["xorg::x11", "xorg::xext"])
+            add_component_and_base_requirements("cairo-xlib", ["libx11::x11", "libxext::libxext"])
+            if self.options.get_safe("with_xcb"):
+                add_component_and_base_requirements("cairo-xlib-xcb", ["libx11::x11-xcb"])
 
         if self.options.get_safe("with_xlib_xrender"):
-            add_component_and_base_requirements("cairo-xlib-xrender", ["xorg::xrender"])
+            add_component_and_base_requirements("cairo-xlib-xrender", ["libxrender::libxrender"])
 
         if self.options.get_safe("with_xcb"):
-            add_component_and_base_requirements("cairo-xcb", ["xorg::xcb", "xorg::xcb-render"])
-            add_component_and_base_requirements("cairo-xcb-shm", ["xorg::xcb", "xorg::xcb-shm"])
-
-            if self.options.get_safe("with_xlib"):
-                add_component_and_base_requirements("cairo-xlib-xcb", ["xorg::x11-xcb"])
+            add_component_and_base_requirements("cairo-xcb", ["libxcb::xcb", "libxcb::xcb-render"])
+            add_component_and_base_requirements("cairo-xcb-shm", ["libxcb::xcb", "libxcb::xcb-shm"])
 
         if is_apple_os(self):
             self.cpp_info.components["cairo-quartz"].set_property("pkg_config_name", "cairo-quartz")
