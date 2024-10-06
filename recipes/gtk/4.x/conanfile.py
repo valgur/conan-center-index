@@ -144,7 +144,15 @@ class GtkConan(ConanFile):
             self.requires("xkbcommon/1.6.0")
         if self.options.get_safe("with_x11"):
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/x11/gdkx11display.h#L35-36
-            self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
+            self.requires("libx11/1.8.10", transitive_headers=True, transitive_libs=True)
+            self.requires("libxcursor/1.2.2")
+            self.requires("libxdamage/1.1.6")
+            self.requires("libxext/1.3.6")
+            self.requires("libxfixes/6.0.1")
+            self.requires("libxi/1.8.2")
+            self.requires("libxinerama/1.1.5")
+            self.requires("libxrandr/1.5.4")
+            self.requires("libxrender/0.9.11")
             self.requires("fontconfig/2.15.0")
         if self.options.with_vulkan:
             self.requires("vulkan-loader/1.3.290.0")
@@ -381,16 +389,16 @@ class GtkConan(ConanFile):
             self.cpp_info.components["gtk4-x11"].requires = ["gtk4"]
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.15.6/gdk/x11/meson.build#L63-73
             self.cpp_info.components["gtk4"].requires.extend([
-                "xorg::xrandr",
-                "xorg::x11",
-                "xorg::xrender",
-                "xorg::xi",
-                "xorg::xext",
-                "xorg::xcursor",
-                "xorg::xdamage",
-                "xorg::xfixes",
-                "xorg::xinerama",
                 "fontconfig::fontconfig",
+                "libx11::x11",
+                "libxcursor::libxcursor",
+                "libxdamage::libxdamage",
+                "libxext::libxext",
+                "libxfixes::libxfixes",
+                "libxi::libxi",
+                "libxinerama::libxinerama",
+                "libxrandr::libxrandr",
+                "libxrender::libxrender",
             ])
 
         if self.options.get_safe("with_wayland"):
