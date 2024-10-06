@@ -54,7 +54,7 @@ class ImakeConan(ConanFile):
             raise ConanInvalidConfiguration("Recipe cannot be built with clang")
 
     def requirements(self):
-        self.requires("xorg-proto/2022.2")
+        self.requires("xorg-proto/2024.1")
 
     def build_requirements(self):
         self.tool_requires("automake/1.16.5")
