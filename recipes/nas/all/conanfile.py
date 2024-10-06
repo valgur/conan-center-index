@@ -3,7 +3,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.layout import basic_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import chdir, get, export_conandata_patches, apply_conandata_patches, rm, copy, load, save
+from conan.tools.files import chdir, get, export_conandata_patches, apply_conandata_patches, rm, copy, load, save, replace_in_file
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 import os
 
@@ -48,14 +48,17 @@ class NasRecipe(ConanFile):
             raise ConanInvalidConfiguration("Recipe cannot be built with clang")
 
     def requirements(self):
-        self.requires("xorg/system")
+        self.requires("libx11/1.8.10")
+        self.requires("libxau/1.0.11")
+        self.requires("libxcb/1.17.0")
+        self.requires("libxdmcp/1.1.5")
 
     def build_requirements(self):
-        self.tool_requires("bison/3.7.1")
+        self.tool_requires("bison/3.8.2")
         self.tool_requires("flex/2.6.4")
-        self.tool_requires("imake/1.0.8")
-        self.tool_requires("xorg-cf-files/1.0.7")
-        self.tool_requires("xorg-makedepend/1.0.6")
+        self.tool_requires("imake/1.0.9")
+        self.tool_requires("xorg-cf-files/1.0.8")
+        self.tool_requires("xorg-makedepend/1.0.8")
         self.tool_requires("xorg-gccmakedep/1.0.3")
         self.tool_requires("gnu-config/cci.20210814")
 
@@ -68,6 +71,9 @@ class NasRecipe(ConanFile):
 
     def generate(self):
         autotools = AutotoolsToolchain(self)
+        # Quite hacky, but required for relocated X11 libraries
+        ldflags = " ".join("-L{}".format(os.path.join(self.dependencies[dep].package_folder, "lib")) for dep in ["libx11", "libxau", "libxcb", "libxdmcp"])
+        autotools.make_args.append(f"CPPFLAGS={ldflags}")
         autotools.generate()
 
         deps = AutotoolsDeps(self)
@@ -143,8 +149,6 @@ class NasRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["audio"]
-        self.cpp_info.requires = ["xorg::xau"]
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
         self.env_info.path.append(bin_path)
