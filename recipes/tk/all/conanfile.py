@@ -59,7 +59,12 @@ class TkConan(ConanFile):
         )
         if self.settings.os == "Linux":
             self.requires("fontconfig/2.13.93")
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            self.requires("libxau/1.0.11")
+            self.requires("libxcb/1.17.0")
+            self.requires("libxdmcp/1.1.5")
+            self.requires("libxrender/0.9.11")
+            self.requires("libxss/1.2.4")
 
     @property
     def _settings_build(self):
@@ -242,7 +247,7 @@ class TkConan(ConanFile):
             # This can only be modified after build since the value being replaced is a result
             # of variable substitution in tkConfig.sh.in
             replace_in_file(self, tkConfigShPath, "//", "${TK_ROOT}/")
-        
+
         fix_apple_shared_install_name(self)
 
     def package_info(self):
@@ -281,11 +286,12 @@ class TkConan(ConanFile):
             self.cpp_info.requires = [
                 "tcl::tcl",
                 "fontconfig::fontconfig",
-                "xorg::x11",
-                "xorg::xcb",
-                "xorg::xrender",
-                "xorg::xau",
-                "xorg::xdmcp",
+                "libx11::x11",
+                "libxau::libxau",
+                "libxcb::xcb",
+                "libxdmcp::libxdmcp",
+                "libxrender::libxrender",
+                "libxss::libxss",
             ]
 
         tk_library = os.path.join(
