@@ -1,16 +1,10 @@
+import os
+
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
-import os
-
 
 required_conan_version = ">=1.53.0"
 
@@ -43,7 +37,10 @@ class PackageConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("xorg/system")
+        self.requires("libx11/1.8.10")
+        if self.options.with_dri2:
+            self.requires("libxext/1.3.6")
+            self.requires("xorg-proto/2024.1")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
