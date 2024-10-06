@@ -103,7 +103,7 @@ class freeglutConan(ConanFile):
             self.requires("wayland/1.22.0")
             self.requires("xkbcommon/1.6.0")
         if self._with_x11:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
 
     def validate(self):
         if self.settings.os == "Macos":
@@ -203,7 +203,7 @@ class freeglutConan(ConanFile):
         else:
             self.cpp_info.components["freeglut_"].requires.append("opengl::opengl")
         if self._with_x11:
-            self.cpp_info.components["freeglut_"].requires.append("xorg::xorg")
+            self.cpp_info.components["freeglut_"].requires.append("libx11::x11")
         if self.options.get_safe("with_wayland"):
             self.cpp_info.components["freeglut_"].requires.extend(["wayland::wayland-client", "wayland::wayland-cursor", "wayland::wayland-egl", "xkbcommon::xkbcommon"])
         if is_apple_os(self) or self.settings.os == "Windows":
