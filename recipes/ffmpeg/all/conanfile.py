@@ -320,8 +320,12 @@ class FFMpegConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_libalsa"):
             self.requires("libalsa/1.2.10")
-        if self.options.get_safe("with_xcb") or self.options.get_safe("with_xlib"):
-            self.requires("xorg/system")
+        if self.options.get_safe("with_xlib") or self.options.get_safe("with_xcb"):
+            self.requires("libx11/1.8.10")
+            self.requires("libxv/1.0.12")
+            self.requires("libxext/1.3.6")
+        if self.options.get_safe("with_xcb"):
+            self.requires("libxcb/1.17.0")
         if self.options.get_safe("with_pulse"):
             self.requires("pulseaudio/17.0")
         if self.options.get_safe("with_vaapi"):
@@ -845,9 +849,9 @@ class FFMpegConan(ConanFile):
             if self.options.get_safe("with_libalsa"):
                 avdevice.requires.append("libalsa::libalsa")
             if self.options.get_safe("with_xcb"):
-                avdevice.requires.extend(["xorg::xcb", "xorg::xcb-shm", "xorg::xcb-xfixes", "xorg::xcb-shape", "xorg::xv", "xorg::xext"])
+                avdevice.requires.extend(["libxcb::xcb", "libxcb::xcb-shm", "libxcb::xcb-xfixes", "libxcb::xcb-shape", "libxv::libxv", "libxext::libxext"])
             if self.options.get_safe("with_xlib"):
-                avdevice.requires.extend(["xorg::x11", "xorg::xext", "xorg::xv"])
+                avdevice.requires.extend(["libx11::x11", "libxext::libxext", "libxv::libxv"])
             if self.options.get_safe("with_pulse"):
                 avdevice.requires.append("pulseaudio::pulseaudio")
             if self.options.get_safe("with_appkit"):
@@ -924,7 +928,7 @@ class FFMpegConan(ConanFile):
         if self.options.get_safe("with_vaapi"):
             avutil.requires.append("vaapi::vaapi")
         if self.options.get_safe("with_xcb"):
-            avutil.requires.append("xorg::x11")
+            avutil.requires.append("libx11::x11")
 
         if self.options.get_safe("with_vdpau"):
             avutil.requires.append("vdpau::vdpau")
