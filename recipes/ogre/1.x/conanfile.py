@@ -261,6 +261,8 @@ class OgreConanFile(ConanFile):
         self.requires("zziplib/0.13.72")
         if self.options.get_safe("build_component_bites") or self.options.get_safe("build_rendersystem_tiny"):
             self.requires("sdl/2.30.7")
+            self.requires("libxt/1.3.0")
+            self.requires("libxaw/1.0.16")
         if self.options.get_safe("build_rendersystem_tiny") and self.options.with_openmp:
             self.requires("openmp/system")
         if self._build_opengl:
@@ -272,7 +274,8 @@ class OgreConanFile(ConanFile):
             if self.options.use_wayland:
                 self.requires("wayland/1.22.0")
             else:
-                self.requires("xorg/system")
+                self.requires("libx11/1.8.10")
+                self.requires("libxrandr/1.5.4")
         if self.options.build_component_bullet:
             self.requires("bullet3/3.25")
         if self.options.build_component_overlay:
@@ -603,15 +606,12 @@ class OgreConanFile(ConanFile):
                 ])
             else:
                 self.cpp_info.components["OgreMain"].requires.extend([
-                    "xorg::x11",
-                    "xorg::xaw7",
-                    "xorg::xext",
-                    "xorg::xrandr",
-                    "xorg::xt",
+                    "libx11::x11",
+                    "libxrandr::libxrandr",
                 ])
 
         if self.options.get_safe("build_component_bites"):
-            _add_core_component("Bites", requires=["Overlay", "sdl::sdl"])
+            _add_core_component("Bites", requires=["Overlay", "sdl::sdl", "libxaw::xaw7", "libxt::libxt"])
         if self.options.get_safe("build_component_bullet"):
             _add_core_component("Bullet", requires=["bullet3::bullet3"])
         if self.options.build_component_meshlodgenerator:
