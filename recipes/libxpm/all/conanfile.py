@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import copy, get
 
 required_conan_version = ">=1.53.0"
@@ -14,7 +14,7 @@ class LibXpmConan(ConanFile):
     license = "MIT-open-group"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/xorg/lib/libxpm"
-    topics = ("xpm",)
+    topics = ("xorg", "x11", "xpm")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -45,7 +45,7 @@ class LibXpmConan(ConanFile):
 
     def requirements(self):
         if self.settings.os != "Windows":
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
 
     def validate(self):
         if self.settings.os not in ("Windows", "Linux", "FreeBSD"):
@@ -63,6 +63,8 @@ class LibXpmConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def package(self):
         copy(self, "COPYING",

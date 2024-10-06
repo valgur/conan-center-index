@@ -1,20 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-
 project(libXpm VERSION "${CONAN_libXpm_VERSION}" LANGUAGES C)
-
-# ---- X11 dependency ----
-
-if(NOT WIN32)
-  find_path(X11_INCLUDE_DIR X11/Xlib.h)
-  find_library(X11_LIBRARY X11)
-  foreach(var X11_INCLUDE_DIR X11_LIBRARY)
-    if(NOT ${var})
-      message(FATAL_ERROR "${var} is required. (Value: ${${var}})")
-    endif()
-  endforeach()
-endif()
-
-# ---- Library ----
 
 add_library(Xpm
     src/Attrib.c
@@ -41,6 +26,7 @@ add_library(Xpm
 )
 
 if(UNIX)
+  find_package(X11 REQUIRED)
   # Pixmap-related functions require X11 and are not available on Windows
   target_sources(Xpm PRIVATE
       src/CrBufFrP.c
@@ -52,8 +38,7 @@ if(UNIX)
       src/RdFToP.c
       src/WrFFrP.c
   )
-  target_include_directories(Xpm PRIVATE "${X11_INCLUDE_DIR}")
-  target_link_libraries(Xpm PRIVATE "${X11_LIBRARY}")
+  target_link_libraries(Xpm PRIVATE X11::X11)
 endif()
 
 if(WIN32)
