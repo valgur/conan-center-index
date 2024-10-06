@@ -78,7 +78,7 @@ class NetpbmConan(ConanFile):
             elif self.options.with_libjpeg == "mozjpeg":
                 self.requires("mozjpeg/4.1.5")
             if self.options.get_safe("with_x11"):
-                self.requires("xorg/system")
+                self.requires("libx11/1.8.10")
             # TODO: add ghostscript to CCI
 
     def validate(self):
@@ -235,4 +235,4 @@ class NetpbmConan(ConanFile):
             elif self.options.with_libjpeg == "mozjpeg":
                 self.cpp_info.requires.append("mozjpeg::libjpeg")
             if self.options.get_safe("with_x11"):
-                self.cpp_info.requires.append("xorg::x11")
+                self.cpp_info.requires.append("libx11::x11")
