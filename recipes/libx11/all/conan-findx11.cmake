@@ -23,17 +23,21 @@ set(X11_X11_xcb_LIB X11::X11_xcb)
 
 # X11_Xkblib_INCLUDE_PATH,                                 X11_Xkb_FOUND,            X11::Xkb
 set(X11_Xkb_FOUND TRUE)
-add_library(X11::Xkb INTERFACE IMPORTED)
-target_include_directories(X11::Xkb INTERFACE "${X11_INCLUDE_DIR}")
 set(X11_Xkblib_INCLUDE_PATH "${X11_INCLUDE_DIR}")
 set(X11_Xkb_LIB X11::Xkb)
+if(NOT TARGET X11::Xkb)
+    add_library(X11::Xkb INTERFACE IMPORTED)
+    target_include_directories(X11::Xkb INTERFACE "${X11_INCLUDE_DIR}")
+endif()
 
 # X11_Xutil_INCLUDE_PATH,                                  X11_Xutil_FOUND,          X11::Xutil
 set(X11_Xutil_FOUND TRUE)
-add_library(X11::Xutil INTERFACE IMPORTED)
-target_include_directories(X11::Xutil INTERFACE "${X11_INCLUDE_DIR}")
 set(X11_Xutil_INCLUDE_PATH "${X11_INCLUDE_DIR}")
 set(X11_Xutil_LIB X11::Xutil)
+if(NOT TARGET X11::Xutil)
+    add_library(X11::Xutil INTERFACE IMPORTED)
+    target_include_directories(X11::Xutil INTERFACE "${X11_INCLUDE_DIR}")
+endif()
 
 # X11_ICE_INCLUDE_PATH,            X11_ICE_LIB,            X11_ICE_FOUND,            X11::ICE
 find_package(libice CONFIG QUIET)
