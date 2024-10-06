@@ -102,12 +102,12 @@ class OpenCascadeConan(ConanFile):
         self.requires("tcl/8.6.10")
         if self._link_tk:
             self.requires("tk/8.6.10")
-        self.requires("freetype/2.13.0")
+        self.requires("freetype/2.13.2")
         if self._link_opengl:
             self.requires("opengl/system")
         if self._is_linux:
             self.requires("fontconfig/2.13.93")
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
         # TODO: add vtk support?
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/7.0.1")
@@ -491,7 +491,7 @@ class OpenCascadeConan(ConanFile):
             "CSF_FREETYPE": {"externals": ["freetype::freetype"]},
             "CSF_TclLibs": {"externals": ["tcl::tcl"]},
             "CSF_fontconfig": {"externals": ["fontconfig::fontconfig"] if self._is_linux else []},
-            "CSF_XwLibs": {"externals": ["xorg::xorg"] if self._is_linux else []},
+            "CSF_XwLibs": {"externals": ["libx11::x11"] if self._is_linux else []},
             # Optional dependencies
             "CSF_OpenGlLibs": {"externals": ["opengl::opengl"] if self._link_opengl else []},
             "CSF_TclTkLibs": {"externals": ["tk::tk"] if self._link_tk else []},
