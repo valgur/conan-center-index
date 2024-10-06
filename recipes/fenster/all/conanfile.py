@@ -31,7 +31,7 @@ class FensterConan(ConanFile):
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
 
     def package_id(self):
         self.info.clear()
@@ -48,7 +48,7 @@ class FensterConan(ConanFile):
         self.cpp_info.libdirs = []
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.requires.append("xorg::x11")
+            self.cpp_info.requires.append("libx11::x11")
             # Also has an optional dependency on "asound" if fenster_audio.h is used.
             # It can be provided either as a system lib or via libalsa Conan package.
             # I'll leave it for the consumer to handle to keep the recipe simple.
