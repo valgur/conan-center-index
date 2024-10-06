@@ -52,7 +52,7 @@ class AggConan(ConanFile):
         if self.options.with_freetype:
             self.requires("freetype/2.13.2")
         if self.options.with_platform and self.settings.os in ["Linux"]:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
 
     def validate(self):
         if self.settings.os not in ("Windows", "Linux"):
@@ -129,7 +129,7 @@ class AggConan(ConanFile):
             self.cpp_info.components["platform"].libs = ["aggplatform"]
             self.cpp_info.components["platform"].includedirs = [os.path.join("include", "agg", "platform")]
             if self.settings.os in ["Linux"]:
-                self.cpp_info.components["platform"].requires = ["xorg::xorg", "agg"]
+                self.cpp_info.components["platform"].requires = ["libx11::x11", "agg"]
 
         if self.options.with_controls:
             self.cpp_info.components["controls"].set_property("cmake_target_name", "agg::controls")
