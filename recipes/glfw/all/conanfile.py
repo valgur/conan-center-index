@@ -71,7 +71,11 @@ class GlfwConan(ConanFile):
             self.requires("vulkan-loader/1.3.290.0")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.get_safe("with_x11", True):
-                self.requires("xorg/system")
+                self.requires("libx11/1.8.10")
+                self.requires("libxcursor/1.2.2")
+                self.requires("libxi/1.8.2")
+                self.requires("libxinerama/1.1.5")
+                self.requires("libxrandr/1.5.4")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/1.22.0")
             self.requires("xkbcommon/1.6.0")
@@ -82,9 +86,9 @@ class GlfwConan(ConanFile):
 
     def build_requirements(self):
         if self.options.get_safe("with_wayland"):
-            self.tool_requires("wayland-protocols/1.33")
+            self.tool_requires("wayland-protocols/1.36")
             if self._has_build_profile:
-                self.tool_requires("wayland/<host_version>")
+                self.tool_requires("wayland/1.22.0")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
 
