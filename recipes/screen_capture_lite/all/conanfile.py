@@ -58,7 +58,10 @@ class ScreenCaptureLiteConan(ConanFile):
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            self.requires("libxext/1.3.6")
+            self.requires("libxfixes/6.0.1")
+            self.requires("libxinerama/1.1.5")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -118,10 +121,10 @@ class ScreenCaptureLiteConan(ConanFile):
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("pthread")
             self.cpp_info.requires.extend([
-                "xorg::x11",
-                "xorg::xinerama",
-                "xorg::xext",
-                "xorg::xfixes",
+                "libx11::x11",
+                "libxext::libxext",
+                "libxfixes::libxfixes",
+                "libxinerama::libxinerama",
             ])
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.extend([
