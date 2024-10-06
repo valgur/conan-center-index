@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save, replace_in_file
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -51,8 +51,6 @@ class RaylibConan(ConanFile):
         if self.settings.os not in ["Android", "Emscripten"]:
             self.requires("glfw/3.4")
             self.requires("opengl/system")
-        if self.settings.os == "Linux":
-            self.requires("xorg/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
