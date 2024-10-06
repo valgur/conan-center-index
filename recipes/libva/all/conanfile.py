@@ -66,7 +66,10 @@ class PackageConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_x11"):
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            self.requires("libxext/1.3.6")
+            self.requires("libxfixes/6.0.1")
+            self.requires("libxcb/1.17.0")
         if self.options.get_safe("with_drm"):
             self.requires("libdrm/2.4.119")
         if self.options.get_safe("with_wayland"):
@@ -147,7 +150,15 @@ class PackageConan(ConanFile):
         if self.options.get_safe("with_x11"):
             self.cpp_info.components["libva-x11"].libs = ["va-x11"]
             self.cpp_info.components["libva-x11"].set_property("pkg_config_name", "libva-x11")
-            self.cpp_info.components["libva-x11"].requires = ["libva_", "xorg::xorg"]
+            self.cpp_info.components["libva-x11"].requires = [
+                "libva_",
+                "libx11::x11",
+                "libx11::x11-xcb",
+                "libxcb::xcb",
+                "libxcb::xcb-dri3",
+                "libxext::libxext",
+                "libxfixes::libxfixes",
+            ]
 
         if self.options.get_safe("with_glx"):
             self.cpp_info.components["libva-glx"].libs = ["va-glx"]
