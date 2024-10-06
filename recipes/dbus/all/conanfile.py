@@ -87,7 +87,7 @@ class DbusConan(ConanFile):
             # X11 is only linked into an executable and should not be propagated as a library dependency.
             # It should still be provided in a VirtualRunEnv context, though,
             # but Conan as of v2.2 does not yet provide a fine-grained enough control over this.
-            self.requires("xorg/system", visible=False)
+            self.requires("libx11/1.8.10", visible=False)
 
     def package_id(self):
         # The dbus_user option only effects the installation of dbus during the package method.
@@ -213,6 +213,8 @@ class DbusConan(ConanFile):
             self.cpp_info.requires.append("libsystemd::libsystemd")
         if self.options.get_safe("with_selinux"):
             self.cpp_info.requires.append("libselinux::selinux")
+        if self.options.get_safe("with_x11"):
+            self.cpp_info.requires.append("libx11::x11")
 
         # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
         self.cpp_info.filenames["cmake_find_package"] = "DBus1"
