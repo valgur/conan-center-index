@@ -26,8 +26,8 @@ class XorgMakedepend(ConanFile):
         export_conandata_patches(self)
 
     def requirements(self):
-        self.requires("xorg-macros/1.19.3")
-        self.requires("xorg-proto/2022.2")
+        self.requires("xorg-macros/1.20.0")
+        self.requires("xorg-proto/2024.1")
 
     def build_requirements(self):
         self.build_requires("pkgconf/[>=2.2 <3]")
@@ -47,8 +47,7 @@ class XorgMakedepend(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _user_info_build(self):
