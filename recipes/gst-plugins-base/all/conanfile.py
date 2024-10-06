@@ -104,7 +104,9 @@ class GStPluginsBaseConan(ConanFile):
         if self.options.get_safe("with_libalsa"):
             self.requires("libalsa/1.2.5.1")
         if self.options.get_safe("with_xorg"):
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            self.requires("libxext/1.3.6")
+            self.requires("libxv/1.0.12")
         if self.options.with_gl:
             self.requires("opengl/system")
             if self.settings.os == "Windows":
@@ -457,7 +459,7 @@ class GStPluginsBaseConan(ConanFile):
             elif self.options.with_libjpeg == "libjpeg-turbo":
                 self.cpp_info.components["gstopengl"].requires.append("libjpeg-turbo::libjpeg-turbo")
             if self.options.get_safe("with_xorg"):
-                self.cpp_info.components["gstopengl"].requires.append("xorg::x11")
+                self.cpp_info.components["gstopengl"].requires.append("libx11::x11")
             if self.settings.os == "Linux":
                 self.cpp_info.components["gstopengl"].system_libs = ["m"]
             gst_plugins.append("gstopengl")
@@ -536,7 +538,7 @@ class GStPluginsBaseConan(ConanFile):
             self.cpp_info.components["gstximagesink"].requires = [
                 "gstreamer::gstreamer-1.0", "gstreamer::gstreamer-base-1.0",
                 "gstreamer-video-1.0",
-                "xorg::x11", "xorg::xext", "glib::glib-2.0", "glib::gobject-2.0"]
+                "libx11::x11", "libxext::libxext", "glib::glib-2.0", "glib::gobject-2.0"]
             gst_plugins.append("gstximagesink")
 
             self.cpp_info.components["gstxvimagesink"].libs = ["gstxvimagesink"]
@@ -544,7 +546,7 @@ class GStPluginsBaseConan(ConanFile):
             self.cpp_info.components["gstxvimagesink"].requires = [
                 "gstreamer::gstreamer-1.0", "gstreamer::gstreamer-base-1.0",
                 "gstreamer-video-1.0",
-                "xorg::x11", "xorg::xext", "xorg::xv", "glib::glib-2.0", "glib::gobject-2.0"]
+                "libx11::x11", "libxext::libxext", "libxv::libxv", "glib::glib-2.0", "glib::gobject-2.0"]
             if self.settings.os == "Linux":
                 self.cpp_info.components["gstxvimagesink"].system_libs = ["m"]
             gst_plugins.append("gstxvimagesink")
@@ -607,7 +609,7 @@ class GStPluginsBaseConan(ConanFile):
             if self.options.get_safe("with_egl"):
                 self.cpp_info.components["gstreamer-gl-1.0"].requires.extend(["egl::egl"])
             if self.options.get_safe("with_xorg"):
-                self.cpp_info.components["gstreamer-gl-1.0"].requires.extend(["xorg::x11", "xorg::x11-xcb"])
+                self.cpp_info.components["gstreamer-gl-1.0"].requires.extend(["libx11::x11", "libx11::x11-xcb"])
             if self.options.get_safe("with_wayland"):
                 self.cpp_info.components["gstreamer-gl-1.0"].requires.extend([
                     "wayland::wayland-client", "wayland::wayland-cursor", "wayland::wayland-egl",
@@ -639,7 +641,7 @@ class GStPluginsBaseConan(ConanFile):
 
             if self.options.get_safe("with_xorg"):
                 self.cpp_info.components["gstreamer-gl-x11-1.0"].names["pkg_config"] = "gstreamer-gl-x11-1.0"
-                self.cpp_info.components["gstreamer-gl-x11-1.0"].requires = ["gstreamer-gl-1.0", "xorg::x11-xcb"]
+                self.cpp_info.components["gstreamer-gl-x11-1.0"].requires = ["gstreamer-gl-1.0", "libx11::x11-xcb"]
 
         self.cpp_info.components["gstreamer-pbutils-1.0"].names["pkg_config"] = "gstreamer-pbutils-1.0"
         self.cpp_info.components["gstreamer-pbutils-1.0"].libs = ["gstpbutils-1.0"]
