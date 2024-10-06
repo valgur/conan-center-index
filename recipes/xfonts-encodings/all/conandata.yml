@@ -1,0 +1,6 @@
+sources:
+  "1.1.0":
+    url:
+      - "https://www.x.org/archive/individual/font/encodings-1.1.0.tar.xz"
+      - "https://xorg.freedesktop.org/releases/individual/font/encodings-1.1.0.tar.xz"
+    sha256: "9ff13c621756cfa12e95f32ba48a5b23839e8f577d0048beda66c67dab4de975"
