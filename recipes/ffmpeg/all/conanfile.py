@@ -331,7 +331,7 @@ class FFMpegConan(ConanFile):
         if self.options.get_safe("with_vaapi"):
             self.requires("vaapi/system")
         if self.options.get_safe("with_vdpau"):
-            self.requires("vdpau/system")
+            self.requires("libvdpau/1.5")
         if self.options.get_safe("with_vulkan"):
             self.requires("vulkan-loader/1.3.290.0")
         if self.options.get_safe("with_libsvtav1"):
@@ -931,7 +931,7 @@ class FFMpegConan(ConanFile):
             avutil.requires.append("libx11::x11")
 
         if self.options.get_safe("with_vdpau"):
-            avutil.requires.append("vdpau::vdpau")
+            avutil.requires.append("libvdpau::libvdpau")
 
         if self.options.with_ssl == "openssl":
             avutil.requires.append("openssl::ssl")
