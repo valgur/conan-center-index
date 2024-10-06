@@ -58,7 +58,9 @@ class SfmlConan(ConanFile):
                 self.requires("opengl/system")
             if self.settings.os == "Linux":
                 self.requires("libudev/system")
-                self.requires("xorg/system")
+                self.requires("libx11/1.8.10")
+                self.requires("libxcursor/1.2.2")
+                self.requires("libxrandr/1.5.4")
         if self.options.graphics:
             self.requires("freetype/2.13.2")
             self.requires("stb/cci.20230920")
@@ -154,7 +156,7 @@ class SfmlConan(ConanFile):
             return ["libudev::libudev"] if self.settings.os == "Linux" else []
 
         def xorg():
-            return ["xorg::xorg"] if self.settings.os == "Linux" else []
+            return ["libx11::x11", "libxrandr::libxrandr", "libxcursor::libxcursor"] if self.settings.os == "Linux" else []
 
         def pthread():
             return ["pthread"] if self.settings.os in ["Linux", "FreeBSD"] else []
