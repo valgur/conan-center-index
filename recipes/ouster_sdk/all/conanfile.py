@@ -33,7 +33,7 @@ class OusterSdkConan(ConanFile):
         "fPIC": True,
         "build_osf": True,
         "build_pcap": True,
-        "build_viz": False,
+        "build_viz": True,
         "eigen_max_align_bytes": False,
     }
     options_description = {
