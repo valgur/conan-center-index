@@ -1,11 +1,11 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.53"
 
@@ -166,7 +166,11 @@ class CImgConan(ConanFile):
         if self.options.enable_magick:
             self.requires("imagemagick/7.0.11-14")
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.enable_display:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            if self.options.enable_xrandr:
+                self.requires("libxrandr/1.5.4")
+            if self.options.enable_xshm:
+                self.requires("libxext/1.3.6")
         if self.options.enable_openmp:
             self.requires("openmp/system")
         if self.options.enable_heif:
@@ -249,11 +253,11 @@ class CImgConan(ConanFile):
         if self.options.enable_magick:
             requires.append("imagemagick::Magick++")
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.enable_display:
-            requires.append("xorg::x11")
+            requires.append("libx11::x11")
             if self.options.enable_xrandr:
-                requires.append("xorg::xrandr")
+                requires.append("libxrandr::libxrandr")
             if self.options.enable_xshm:
-                requires.append("xorg::xext")
+                requires.append("libxext::libxext")
         if self.options.enable_openmp:
             requires.append("openmp::openmp")
         if self.options.enable_heif:
