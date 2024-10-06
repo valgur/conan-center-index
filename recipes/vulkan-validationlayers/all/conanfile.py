@@ -84,8 +84,10 @@ class VulkanValidationLayersConan(ConanFile):
             self.requires(f"vulkan-utility-libraries/{self._vulkan_sdk_version}")
 
         self.requires("robin-hood-hashing/3.11.5")
-        if self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib"):
-            self.requires("xorg/system")
+        if self.options.get_safe("with_wsi_xlib"):
+            self.requires("libx11/1.8.10")
+        if self.options.get_safe("with_wsi_xcb"):
+            self.requires("libxcb/1.17.0")
         if self.options.get_safe("with_wsi_wayland"):
             self.requires("wayland/1.22.0")
 
