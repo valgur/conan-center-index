@@ -50,9 +50,10 @@ class LibGlvndConan(ConanFile):
 
     def requirements(self):
         if self.options.x11:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            self.requires("libxext/1.3.6")
         if self.options.glx:
-            self.requires("xorg-proto/2022.2")
+            self.requires("xorg-proto/2024.1")
 
     def validate(self):
         if self.settings.os not in ['Linux', 'FreeBSD']:
@@ -143,18 +144,18 @@ class LibGlvndConan(ConanFile):
             self.cpp_info.components['egl'].system_libs.extend(["pthread", "dl", "m"])
             self.cpp_info.components['egl'].requires.append("gldispatch")
             if self.options.x11:
-                self.cpp_info.components['egl'].requires.append("xorg::x11")
+                self.cpp_info.components['egl'].requires.append("libx11::x11")
             self.cpp_info.components['egl'].set_property("pkg_config_name", "egl")
 
         if self.options.glx:
             self.cpp_info.components['glx'].libs = ["GLX"]
             self.cpp_info.components['glx'].system_libs.extend(["dl"])
-            self.cpp_info.components['glx'].requires.extend(["xorg::x11", "xorg-proto::glproto", "gldispatch"])
+            self.cpp_info.components['glx'].requires.extend(["libx11::x11", "libxext::libxext", "xorg-proto::glproto", "gldispatch"])
             self.cpp_info.components['glx'].set_property("pkg_config_name", "glx")
 
             self.cpp_info.components['gl'].libs = ["GL"]
             self.cpp_info.components['gl'].system_libs.extend(["dl"])
-            self.cpp_info.components['gl'].requires.extend(["xorg::x11", "glx", "gldispatch"])
+            self.cpp_info.components['gl'].requires.extend(["libx11::x11", "glx", "gldispatch"])
             self.cpp_info.components['gl'].set_property("pkg_config_name", "gl")
 
         if self.options.gles1:
