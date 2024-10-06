@@ -1,116 +1,132 @@
-from conan import ConanFile, conan_version
-from conan.tools.gnu import PkgConfig
-from conan.tools.system import package_manager
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.scm import Version
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=1.53.0"
 
 
 class XorgConan(ConanFile):
     name = "xorg"
-    package_type = "shared-library"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "MIT"
-    homepage = "https://www.x.org/wiki/"
     description = "The X.Org project provides an open source implementation of the X Window System."
+    license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.x.org/"
+    topics = ("xorg", "x11")
     settings = "os", "arch", "compiler", "build_type"
-    topics = ("x11", "xorg")
 
-    def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
 
-    def system_requirements(self):
-        apt = package_manager.Apt(self)
-        apt.install(["libx11-dev", "libx11-xcb-dev", "libfontenc-dev", "libice-dev", "libsm-dev", "libxau-dev", "libxaw7-dev",
-                     "libxcomposite-dev", "libxcursor-dev", "libxdamage-dev", "libxdmcp-dev", "libxext-dev", "libxfixes-dev",
-                     "libxi-dev", "libxinerama-dev", "libxkbfile-dev", "libxmu-dev", "libxmuu-dev",
-                     "libxpm-dev", "libxrandr-dev", "libxrender-dev", "libxres-dev", "libxss-dev", "libxt-dev", "libxtst-dev",
-                     "libxv-dev", "libxxf86vm-dev", "libxcb-glx0-dev", "libxcb-render0-dev",
-                     "libxcb-render-util0-dev", "libxcb-xkb-dev", "libxcb-icccm4-dev", "libxcb-image0-dev",
-                     "libxcb-keysyms1-dev", "libxcb-randr0-dev", "libxcb-shape0-dev", "libxcb-sync-dev", "libxcb-xfixes0-dev",
-                     "libxcb-xinerama0-dev", "libxcb-dri3-dev", "uuid-dev", "libxcb-cursor-dev", "libxcb-dri2-0-dev",
-                     "libxcb-dri3-dev", "libxcb-present-dev", "libxcb-composite0-dev", "libxcb-ewmh-dev",
-                     "libxcb-res0-dev"], update=True, check=True)
-        apt.install_substitutes(
-            ["libxcb-util-dev"], ["libxcb-util0-dev"], update=True, check=True)
+    def requirements(self):
+        self.requires("libfontenc/1.1.8", transitive_headers=True, transitive_libs=True)
+        self.requires("libice/1.1.1", transitive_headers=True, transitive_libs=True)
+        self.requires("libsm/1.2.4", transitive_headers=True, transitive_libs=True)
+        self.requires("libx11/1.8.10", transitive_headers=True, transitive_libs=True)
+        self.requires("libxau/1.0.11", transitive_headers=True, transitive_libs=True)
+        self.requires("libxaw/1.0.16", transitive_headers=True, transitive_libs=True)
+        self.requires("libxcb/1.17.0", transitive_headers=True, transitive_libs=True)
+        self.requires("libxcomposite/0.4.6", transitive_headers=True, transitive_libs=True)
+        self.requires("libxcursor/1.2.2", transitive_headers=True, transitive_libs=True)
+        self.requires("libxdamage/1.1.6", transitive_headers=True, transitive_libs=True)
+        self.requires("libxdmcp/1.1.5", transitive_headers=True, transitive_libs=True)
+        self.requires("libxext/1.3.6", transitive_headers=True, transitive_libs=True)
+        self.requires("libxfixes/6.0.1", transitive_headers=True, transitive_libs=True)
+        self.requires("libxi/1.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("libxinerama/1.1.5", transitive_headers=True, transitive_libs=True)
+        self.requires("libxkbfile/1.1.3", transitive_headers=True, transitive_libs=True)
+        self.requires("libxmu/1.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("libxpm/3.5.17", transitive_headers=True, transitive_libs=True)
+        self.requires("libxrandr/1.5.4", transitive_headers=True, transitive_libs=True)
+        self.requires("libxrender/0.9.11", transitive_headers=True, transitive_libs=True)
+        self.requires("libxres/1.2.2", transitive_headers=True, transitive_libs=True)
+        self.requires("libxss/1.2.4", transitive_headers=True, transitive_libs=True)
+        self.requires("libxt/1.3.0", transitive_headers=True, transitive_libs=True)
+        self.requires("libxtst/1.2.5", transitive_headers=True, transitive_libs=True)
+        self.requires("libxv/1.0.12", transitive_headers=True, transitive_libs=True)
+        self.requires("libxxf86vm/1.1.5", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util-cursor/0.1.5", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util-errors/1.0.1", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util-image/0.4.1", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util-keysyms/0.4.1", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util-renderutil/0.3.10", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util-wm/0.4.2", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util-xrm/1.3", transitive_headers=True, transitive_libs=True)
+        self.requires("xcb-util/0.4.1", transitive_headers=True, transitive_libs=True)
+        self.requires("xorg-proto/2024.1", transitive_headers=True, transitive_libs=True)
+        self.requires("xtrans/1.5.0", transitive_headers=True, transitive_libs=True)
 
-        yum = package_manager.Yum(self)
-        yum.install(["libxcb-devel", "libfontenc-devel", "libXaw-devel", "libXcomposite-devel",
-                           "libXcursor-devel", "libXdmcp-devel", "libXtst-devel", "libXinerama-devel",
-                           "libxkbfile-devel", "libXrandr-devel", "libXres-devel", "libXScrnSaver-devel",
-                           "xcb-util-wm-devel", "xcb-util-image-devel", "xcb-util-keysyms-devel",
-                           "xcb-util-renderutil-devel", "libXdamage-devel", "libXxf86vm-devel", "libXv-devel",
-                           "xcb-util-devel", "libuuid-devel", "xcb-util-cursor-devel"], update=True, check=True)
-
-        dnf = package_manager.Dnf(self)
-        dnf.install(["libxcb-devel", "libfontenc-devel", "libXaw-devel", "libXcomposite-devel",
-                           "libXcursor-devel", "libXdmcp-devel", "libXtst-devel", "libXinerama-devel",
-                           "libxkbfile-devel", "libXrandr-devel", "libXres-devel", "libXScrnSaver-devel",
-                           "xcb-util-wm-devel", "xcb-util-image-devel", "xcb-util-keysyms-devel",
-                           "xcb-util-renderutil-devel", "libXdamage-devel", "libXxf86vm-devel", "libXv-devel",
-                           "xcb-util-devel", "libuuid-devel", "xcb-util-cursor-devel"], update=True, check=True)
-
-        zypper = package_manager.Zypper(self)
-        zypper.install(["libxcb-devel", "libfontenc-devel", "libXaw-devel", "libXcomposite-devel",
-                              "libXcursor-devel", "libXdmcp-devel", "libXtst-devel", "libXinerama-devel",
-                              "libxkbfile-devel", "libXrandr-devel", "libXres-devel", "libXss-devel",
-                              "xcb-util-wm-devel", "xcb-util-image-devel", "xcb-util-keysyms-devel",
-                              "xcb-util-renderutil-devel", "libXdamage-devel", "libXxf86vm-devel", "libXv-devel",
-                              "xcb-util-devel", "libuuid-devel", "xcb-util-cursor-devel"], update=True, check=True)
-
-        pacman = package_manager.PacMan(self)
-        pacman.install(["libxcb", "libfontenc", "libice", "libsm", "libxaw", "libxcomposite", "libxcursor",
-                              "libxdamage", "libxdmcp", "libxtst", "libxinerama", "libxkbfile", "libxrandr", "libxres",
-                              "libxss", "xcb-util-wm", "xcb-util-image", "xcb-util-keysyms", "xcb-util-renderutil",
-                              "libxxf86vm", "libxv", "xcb-util", "util-linux-libs", "xcb-util-cursor"], update=True, check=True)
-
-        package_manager.Pkg(self).install(["libX11", "libfontenc", "libice", "libsm", "libxaw", "libxcomposite", "libxcursor",
-                           "libxdamage", "libxdmcp", "libxtst", "libxinerama", "libxkbfile", "libxrandr", "libxres",
-                           "libXScrnSaver", "xcb-util-wm", "xcb-util-image", "xcb-util-keysyms", "xcb-util-renderutil",
-                           "libxxf86vm", "libxv", "xkeyboard-config", "xcb-util", "xcb-util-cursor"], update=True, check=True)
-
-        if Version(conan_version) >= "2.0.10":
-            alpine = package_manager.Apk(self)
-            alpine.install(["libx11-dev", "	libxcb-dev", "libfontenc-dev", "libice-dev", "libsm-dev", "	libxau-dev", "libxaw-dev",
-                            "libxcomposite-dev", "libxcursor-dev", "libxdamage-dev", "libxdmcp-dev", "	libxext-dev", "libxfixes-dev", "libxi-dev",
-                            "libxinerama-dev", "libxkbfile-dev", "	libxmu-dev", "libxpm-dev", "libxrandr-dev", "libxrender-dev", "libxres-dev",
-                            "libxscrnsaver-dev", "libxt-dev", "libxtst-dev", "libxv-dev", "libxxf86vm-dev",
-                            "xcb-util-wm-dev", "xcb-util-image-dev", "xcb-util-keysyms-dev", "xcb-util-renderutil-dev",
-                            "libxinerama-dev", "libxcb-dev", "xcb-util-dev", "xcb-util-cursor-dev"], update=True, check=True)
+    def validate(self):
+        if is_msvc(self):
+            raise ConanInvalidConfiguration("MSVC is not supported.")
 
     def package_info(self):
-        if Version(conan_version) >= 2:
-            self.cpp_info.bindirs = []
-            self.cpp_info.includedirs = []
-            self.cpp_info.libdirs = []
+        self.cpp_info.bindirs = []
+        self.cpp_info.includedirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.resdirs = []
 
-        for name in ["x11", "x11-xcb", "fontenc", "ice", "sm", "xau", "xaw7",
-                     "xcomposite", "xcursor", "xdamage", "xdmcp", "xext", "xfixes", "xi",
-                     "xinerama", "xkbfile", "xmu", "xmuu", "xpm", "xrandr", "xrender", "xres",
-                     "xscrnsaver", "xt", "xtst", "xv", "xxf86vm",
-                     "xcb-xkb", "xcb-icccm", "xcb-image", "xcb-keysyms", "xcb-randr", "xcb-render",
-                     "xcb-renderutil", "xcb-shape", "xcb-shm", "xcb-sync", "xcb-xfixes",
-                     "xcb-xinerama", "xcb", "xcb-atom", "xcb-aux", "xcb-event", "xcb-util",
-                     "xcb-dri3", "xcb-cursor", "xcb-dri2", "xcb-dri3", "xcb-glx", "xcb-present",
-                     "xcb-composite", "xcb-ewmh", "xcb-res"] + ([] if self.settings.os == "FreeBSD" else ["uuid"]):
-            pkg_config = PkgConfig(self, name)
-            pkg_config.fill_cpp_info(
-                self.cpp_info.components[name], is_system=self.settings.os != "FreeBSD")
-            self.cpp_info.components[name].version = pkg_config.version
-            self.cpp_info.components[name].set_property(
-                "pkg_config_name", name)
-            self.cpp_info.components[name].set_property(
-                "component_version", pkg_config.version)
-            self.cpp_info.components[name].bindirs = []
-            self.cpp_info.components[name].includedirs = []
-            self.cpp_info.components[name].libdirs = []
-            self.cpp_info.components[name].set_property("pkg_config_custom_content",
-                                                        "\n".join(f"{key}={value}" for key, value in pkg_config.variables.items() if key not in ["pcfiledir","prefix", "includedir"]))
-
-        if self.settings.os == "Linux":
-            self.cpp_info.components["sm"].requires.append("uuid")
+        components = {
+            "fontenc":        "libfontenc::libfontenc",
+            "ice":            "libice::libice",
+            "sm":             "libsm::libsm",
+            "x11":            "libx11::x11",
+            "x11-xcb":        "libx11::x11-xcb",
+            "xau":            "libxau::libxau",
+            "xaw7":           "libxaw::xaw7",
+            "xcb":            "libxcb::xcb",
+            "xcb-atom":       "xcb-util::xcb-util",
+            "xcb-aux":        "xcb-util::xcb-util",
+            "xcb-composite":  "libxcb::xcb-composite",
+            "xcb-cursor":     "xcb-util-cursor::xcb-util-cursor",
+            "xcb-dri2":       "libxcb::xcb-dri2",
+            "xcb-dri3":       "libxcb::xcb-dri3",
+            "xcb-errors":     "xcb-util-errors::xcb-util-errors",
+            "xcb-event":      "xcb-util::xcb-util",
+            "xcb-ewmh":       "xcb-util-wm::xcb-ewmh",
+            "xcb-glx":        "libxcb::xcb-glx",
+            "xcb-icccm":      "xcb-util-wm::xcb-icccm",
+            "xcb-image":      "xcb-util-image::xcb-util-image",
+            "xcb-keysyms":    "xcb-util-keysyms::xcb-util-keysyms",
+            "xcb-present":    "libxcb::xcb-present",
+            "xcb-randr":      "libxcb::xcb-randr",
+            "xcb-render":     "libxcb::xcb-render",
+            "xcb-renderutil": "xcb-util-renderutil::xcb-util-renderutil",
+            "xcb-res":        "libxcb::xcb-res",
+            "xcb-shape":      "libxcb::xcb-shape",
+            "xcb-shm":        "libxcb::xcb-shm",
+            "xcb-sync":       "libxcb::xcb-sync",
+            "xcb-util":       "xcb-util::xcb-util",
+            "xcb-xfixes":     "libxcb::xcb-xfixes",
+            "xcb-xinerama":   "libxcb::xcb-xinerama",
+            "xcb-xkb":        "libxcb::xcb-xkb",
+            "xcb-xrm":        "xcb-util-xrm::xcb-util-xrm",
+            "xcomposite":     "libxcomposite::libxcomposite",
+            "xcursor":        "libxcursor::libxcursor",
+            "xdamage":        "libxdamage::libxdamage",
+            "xdmcp":          "libxdmcp::libxdmcp",
+            "xext":           "libxext::libxext",
+            "xfixes":         "libxfixes::libxfixes",
+            "xi":             "libxi::libxi",
+            "xinerama":       "libxinerama::libxinerama",
+            "xkbfile":        "libxkbfile::libxkbfile",
+            "xmu":            "libxmu::xmu",
+            "xmuu":           "libxmu::xmuu",
+            "xpm":            "libxpm::libxpm",
+            "xproto":         "xorg-proto::xorg-proto",
+            "xrandr":         "libxrandr::libxrandr",
+            "xrender":        "libxrender::libxrender",
+            "xres":           "libxres::libxres",
+            "xscrnsaver":     "libxss::libxss",
+            "xt":             "libxt::libxt",
+            "xtrans":         "xtrans::xtrans",
+            "xtst":           "libxtst::libxtst",
+            "xv":             "libxv::libxv",
+            "xxf86vm":        "libxxf86vm::libxxf86vm",
+        }
+        for component, require in components.items():
+            self.cpp_info.components[component].requires = [require]

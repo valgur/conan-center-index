@@ -1,3 +1,6 @@
 versions:
+  # Using X11 versions
+  "1.8.10":
+    folder: system
   "system":
-    folder: "all"
+    folder: system

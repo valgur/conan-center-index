@@ -1,27 +1,36 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, cmake_layout
-from conan.tools.gnu import PkgConfigDeps
+from conan.tools.build import can_run
+from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
+
+    @property
+    def _full_findx11_test(self):
+        # Test full FindX11.cmake compatibility.
+        # Adds dependencies that are otherwise not included with xorg/system.
+        return False
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+        if self._full_findx11_test:
+            self.requires("libxft/2.3.8", transitive_headers=True, transitive_libs=True)
+            self.requires("xkbcommon/1.6.0", transitive_headers=True, transitive_libs=True, options={
+                "with_wayland": False,
+                "with_x11": True
+            })
 
     def layout(self):
         cmake_layout(self)
 
     def generate(self):
-        pkg_config_deps = PkgConfigDeps(self)
-        pkg_config_deps.generate()
-        pkg_config = self.conf_info.get("tools.gnu:pkg_config", default="pkg-config")
-        uuid_pkg_config_file = os.path.join(self.generators_folder, "uuid.pc")
-        self.run(f"{pkg_config} --validate {uuid_pkg_config_file}")
+        tc = CMakeToolchain(self)
+        tc.cache_variables["FULL_TEST"] = self._full_findx11_test
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -29,6 +38,6 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
-        if not cross_building(self):
-            cmd = os.path.join(self.cpp.build.bindirs[0], "test_package")
+        if can_run(self):
+            cmd = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(cmd, env="conanrun")
