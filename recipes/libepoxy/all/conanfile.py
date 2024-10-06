@@ -61,7 +61,7 @@ class EpoxyConan(ConanFile):
         self.requires("opengl/system")
         if self.settings.os == "Linux":
             if self.options.x11:
-                self.requires("xorg/system")
+                self.requires("libx11/1.8.10")
             if self.options.egl:
                 self.requires("egl/system")
 
