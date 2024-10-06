@@ -1,22 +1,24 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import PkgConfigDeps, AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
 
-class libxftConan(ConanFile):
-    name = "libxft"
-    description = "X FreeType library"
-    license = "HPND-sell-variant"
+class LibXtConan(ConanFile):
+    name = "libxt"
+    description = "libXt: X Toolkit Intrinsics library"
+    license = "MIT AND HPND-sell-variant AND SMLNJ AND MIT-open-group AND X11"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://gitlab.freedesktop.org/xorg/lib/libxft"
-    topics = ("x11", "xorg", "freetype")
+    homepage = "https://gitlab.freedesktop.org/xorg/lib/libxt"
+    topics = ("xorg", "x11")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -48,9 +50,13 @@ class libxftConan(ConanFile):
 
     def requirements(self):
         self.requires("xorg-proto/2024.1", transitive_headers=True)
-        self.requires("libxrender/0.9.11", transitive_headers=True)
-        self.requires("freetype/2.13.2", transitive_headers=True)
-        self.requires("fontconfig/2.15.0", transitive_headers=True)
+        self.requires("libx11/1.8.10", transitive_headers=True)
+        self.requires("libsm/1.2.4", transitive_headers=True)
+        self.requires("libice/1.1.1")
+
+    def validate(self):
+        if is_msvc(self):
+            raise ConanInvalidConfiguration("MSVC is not supported.")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -86,6 +92,41 @@ class libxftConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "xft")
-        self.cpp_info.set_property("cmake_target_name", "X11::Xft")
-        self.cpp_info.libs = ["Xft"]
+        self.cpp_info.set_property("pkg_config_name", "xt")
+        self.cpp_info.set_property("cmake_target_name", "X11::Xt")
+        self.cpp_info.libs = ["Xt"]
+        self.cpp_info.requires = [
+            "xorg-proto::xorg-proto",
+            "libx11::x11",
+            "libice::libice",
+            "libsm::libsm",
+        ]
+
+        # Copied from the generated official .pc file
+        xfilesearchpath = ":".join([
+            "$(sysconfdir)/X11/%L/%T/%N%C%S",
+            "$(sysconfdir)/X11/%l/%T/%N%C%S",
+            "$(sysconfdir)/X11/%T/%N%C%S",
+            "$(sysconfdir)/X11/%L/%T/%N%S",
+            "$(sysconfdir)/X11/%l/%T/%N%S",
+            "$(sysconfdir)/X11/%T/%N%S",
+            "$(datadir)/X11/%L/%T/%N%C%S",
+            "$(datadir)/X11/%l/%T/%N%C%S",
+            "$(datadir)/X11/%T/%N%C%S",
+            "$(datadir)/X11/%L/%T/%N%S",
+            "$(datadir)/X11/%l/%T/%N%S",
+            "$(datadir)/X11/%T/%N%S",
+            "$(libdir)/X11/%L/%T/%N%C%S",
+            "$(libdir)/X11/%l/%T/%N%C%S",
+            "$(libdir)/X11/%T/%N%C%S",
+            "$(libdir)/X11/%L/%T/%N%S",
+            "$(libdir)/X11/%l/%T/%N%S",
+            "$(libdir)/X11/%T/%N%S",
+        ])
+        self.cpp_info.set_property("pkg_config_custom_content", "\n".join([
+            "appdefaultdir=${prefix}/res/X11/app-defaults",
+            "datarootdir=${prefix}/res",
+            "errordbdir=${datarootdir}/X11",
+            f"xfilesearchpath={xfilesearchpath}",
+        ]))
+
