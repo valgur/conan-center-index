@@ -75,6 +75,8 @@ class LibXpmConan(ConanFile):
         cmake.install()
 
     def package_info(self):
+        self.cpp_info.set_property("pkg_config_name", "xpm")
+        self.cpp_info.set_property("cmake_target_aliases", ["X11::Xpm"])
         self.cpp_info.libs = ["Xpm"]
         if self.settings.os == "Windows":
             self.cpp_info.defines = ["FOR_MSW"]
