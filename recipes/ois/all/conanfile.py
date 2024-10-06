@@ -1,13 +1,10 @@
-import os
 import glob
+import os
+
 from conan import ConanFile
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get, copy, rmdir, collect_libs
-    )
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, collect_libs
 
 required_conan_version = ">=1.53.0"
 
@@ -50,7 +47,7 @@ class OisConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == "Linux":
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -64,6 +61,9 @@ class OisConan(ConanFile):
         tc.variables["OIS_BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["OIS_BUILD_DEMOS"] = False
         tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("libx11::x11", "cmake_target_name", "X11")
+        deps.generate()
 
     def build(self):
         apply_conandata_patches(self)
