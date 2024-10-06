@@ -390,7 +390,8 @@ class VtkConan(ConanFile):
             self.requires("libtiff/4.6.0")
         if self.options.get_safe("with_x11"):
             # Used in public vtkXOpenGLRenderWindow.h
-            self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
+            self.requires("libx11/1.8.10", transitive_headers=True, transitive_libs=True)
+            self.requires("libxcursor/1.2.2")
         if self.options.with_zeromq:
             self.requires("zeromq/4.3.5")
         if self.options.smp_enable_openmp:
@@ -808,8 +809,8 @@ class VtkConan(ConanFile):
             "OpenGL::GLU": "glu::glu",
             "OpenGL::GLX": "opengl::opengl",
             "OpenGL::OpenGL": "opengl::opengl",
-            "X11::X11": "xorg::x11",
-            "X11::Xcursor": "xorg::xcursor",
+            "X11::X11": "libx11::x11",
+            "X11::Xcursor": "libxcursor::libxcursor",
         })
         return cmake_targets_map
 
@@ -1158,7 +1159,7 @@ class VtkConan(ConanFile):
             if self.options.with_sdl2:
                 self.cpp_info.components["RenderingOpenGL2"].requires.append("sdl::sdl")
             if self.options.get_safe("with_x11"):
-                self.cpp_info.components["RenderingOpenGL2"].requires.extend(["xorg::x11", "xorg::xcursor"])
+                self.cpp_info.components["RenderingOpenGL2"].requires.extend(["libx11::x11", "libxcursor::libxcursor"])
             if self.options.get_safe("with_cocoa"):
                 self.cpp_info.components["RenderingOpenGL2"].frameworks.append("Cocoa")
             if self.options.get_safe("with_directx"):
@@ -1167,7 +1168,7 @@ class VtkConan(ConanFile):
             if self.options.with_sdl2:
                 self.cpp_info.components["RenderingUI"].requires.append("sdl::sdl")
             if self.options.get_safe("with_x11"):
-                self.cpp_info.components["RenderingUI"].requires.append("xorg::x11")
+                self.cpp_info.components["RenderingUI"].requires.append("libx11::x11")
             if self.options.get_safe("with_cocoa"):
                 self.cpp_info.components["RenderingUI"].frameworks.append("Cocoa")
         if "RenderingWebGPU" in components and self.settings.os != "Emscripten":
