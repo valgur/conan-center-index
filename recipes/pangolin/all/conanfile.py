@@ -140,7 +140,7 @@ class PangolinConan(ConanFile):
             self.requires("xkbcommon/1.6.0")
         if self.options.get_safe("with_x11"):
             # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_windowing/include/pangolin/windowing/X11Window.h#L35
-            self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
+            self.requires("libx11/1.8.10", transitive_headers=True, transitive_libs=True)
         if self.options.with_dc1394:
             # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_video/include/pangolin/video/drivers/firewire.h#L32
             self.requires("libdc1394/2.2.7", transitive_headers=True, transitive_libs=True)
@@ -380,4 +380,4 @@ class PangolinConan(ConanFile):
                 "xkbcommon::xkbcommon",
             ])
         if self.options.get_safe("with_x11"):
-            pango_windowing.requires.append("xorg::x11")
+            pango_windowing.requires.append("libx11::x11")
