@@ -83,7 +83,7 @@ class ShaderSlangConan(ConanFile):
             if is_apple_os(self):
                 self.requires("metal-cpp/14.2")
             if self.options.get_safe("with_x11"):
-                self.requires("xorg/system")
+                self.requires("libx11/1.8.10")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -171,7 +171,7 @@ class ShaderSlangConan(ConanFile):
             if is_apple_os(self):
                 self.cpp_info.components["gfx"].requires.append("metal-cpp::metal-cpp")
             if self.options.get_safe("with_x11"):
-                self.cpp_info.components["gfx"].requires.append("xorg::x11")
+                self.cpp_info.components["gfx"].requires.append("libx11::x11")
             if self.options.with_cuda:
                 self.cpp_info.components["gfx"].system_libs.append("cuda")
 
