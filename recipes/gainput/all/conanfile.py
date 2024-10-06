@@ -44,7 +44,7 @@ class GainputConan(ConanFile):
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
