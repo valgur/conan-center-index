@@ -56,7 +56,7 @@ class DacapClipConan(ConanFile):
         if self.options.get_safe("with_png", False):
             self.requires("libpng/[>=1.6 <2]")
         if self.settings.os == "Linux":
-            self.requires("xorg/system")
+            self.requires("libxcb/1.17.0")
 
     def validate(self):
         if self.info.settings.compiler.cppstd:
@@ -103,7 +103,7 @@ class DacapClipConan(ConanFile):
             self.cpp_info.defines.append("CLIP_ENABLE_IMAGE=1")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.requires.append("xorg::xcb")
+            self.cpp_info.requires.append("libxcb::xcb")
             self.cpp_info.system_libs.append("pthread")
         elif is_apple_os(self):
             self.cpp_info.frameworks = ['Cocoa', 'Carbon', 'CoreFoundation', 'Foundation', 'AppKit']
