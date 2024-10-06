@@ -106,8 +106,17 @@ class GtkConan(ConanFile):
             self.requires("wayland-protocols/1.33")
             self.requires("xkbcommon/1.6.0")
         if self.options.get_safe("with_x11"):
-            # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/x11/gdkx11display.h#L35-36
-            self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
+            # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.37/gdk/x11/gdkx11display.h#L34-35
+            self.requires("libx11/1.8.10", transitive_headers=True, transitive_libs=True)
+            self.requires("libxcomposite/0.4.6")
+            self.requires("libxcursor/1.2.2")
+            self.requires("libxdamage/1.1.6")
+            self.requires("libxext/1.3.6")
+            self.requires("libxfixes/6.0.1")
+            self.requires("libxi/1.8.2")
+            self.requires("libxinerama/1.1.5")
+            self.requires("libxrandr/1.5.4")
+            self.requires("libxrender/0.9.11")
             self.requires("fontconfig/2.15.0")
 
         # TODO: fix libintl support on macOS by using gnuintl from gettext
@@ -296,16 +305,16 @@ class GtkConan(ConanFile):
             self.cpp_info.components["gtk-x11-3.0"].requires = ["gtk+-3.0"]
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gdk/x11/meson.build#L59-70
             self.cpp_info.components["gdk-3.0"].requires.extend([
-                "xorg::xrender",
-                "xorg::xi",
-                "xorg::xext",
-                "xorg::x11",
-                "xorg::xcursor",
-                "xorg::xdamage",
-                "xorg::xfixes",
-                "xorg::xcomposite",
-                "xorg::xrandr",
-                "xorg::xinerama",
+                "libx11::x11",
+                "libxcomposite::libxcomposite",
+                "libxcursor::libxcursor",
+                "libxdamage::libxdamage",
+                "libxext::libxext",
+                "libxfixes::libxfixes",
+                "libxi::libxi",
+                "libxinerama::libxinerama",
+                "libxrandr::libxrandr",
+                "libxrender::libxrender",
             ])
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/meson.build#L497-500
             self.cpp_info.components["gdk-3.0"].requires.append("cairo::cairo-xlib")
