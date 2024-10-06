@@ -61,7 +61,9 @@ class AtSpi2CoreConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("dbus/1.15.8")
         if self.options.get_safe("with_x11"):
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            self.requires("libxtst/1.2.5")
+            self.requires("libxi/1.8.2")
 
     def validate(self):
         if self.options.shared and not self.dependencies["glib"].options.shared:
@@ -131,7 +133,7 @@ class AtSpi2CoreConan(ConanFile):
             self.cpp_info.components["atspi"].includedirs = ["include/at-spi-2.0"]
             self.cpp_info.components["atspi"].requires = ["dbus::dbus", "glib::glib-2.0", "glib::gobject-2.0"]
             if self.options.with_x11:
-                self.cpp_info.components["atspi"].requires.extend(["xorg::x11", "xorg::xtst", "xorg::xi"])
+                self.cpp_info.components["atspi"].requires.extend(["libx11::x11", "libxtst::libxtst", "libxi::libxi"])
 
         self.cpp_info.components["atk"].set_property("pkg_config_name", "atk")
         self.cpp_info.components["atk"].libs = ["atk-1.0"]
