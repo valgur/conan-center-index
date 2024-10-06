@@ -33,7 +33,7 @@ class XorgProtoConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("automake/1.16.5")
-        self.tool_requires("xorg-macros/1.19.3")
+        self.tool_requires("xorg-macros/1.20.0")
         self.tool_requires("pkgconf/[>=2.2 <3]")
         if self._settings_build.os == "Windows":
             self.win_bash = True
@@ -42,7 +42,7 @@ class XorgProtoConan(ConanFile):
 
     def requirements(self):
         if hasattr(self, "settings_build"):
-            self.requires("xorg-macros/1.19.3")
+            self.requires("xorg-macros/1.20.0")
 
     def package_id(self):
         self.info.clear()
