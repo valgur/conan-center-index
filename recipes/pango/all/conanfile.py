@@ -75,7 +75,7 @@ class PangoConan(ConanFile):
             self.requires("fontconfig/2.15.0")
         if self.options.get_safe("with_xft"):
             self.requires("libxft/2.3.8")
-            self.requires("xorg/system")  # for xorg::xrender
+            self.requires("libxrender/0.9.11")
         if self.options.with_cairo:
             # "pango/pangocairo.h" includes "cairo.h"
             self.requires("cairo/1.18.0", transitive_headers=True)
@@ -201,7 +201,7 @@ class PangoConan(ConanFile):
         if self.options.get_safe("with_xft"):
             # Pango only uses xrender when Xft, fontconfig and freetype are enabled, which if with_xft is true,
             # means that the other options are true because they are checked in the validate() method
-            self.cpp_info.components["pango_"].requires.extend(["libxft::libxft", "xorg::xrender"])
+            self.cpp_info.components["pango_"].requires.extend(["libxft::libxft", "libxrender::libxrender"])
         if self.options.with_cairo:
             self.cpp_info.components["pango_"].requires.append("cairo::cairo_")
         self.cpp_info.components["pango_"].includedirs = [
