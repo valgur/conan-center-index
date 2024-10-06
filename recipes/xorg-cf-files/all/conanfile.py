@@ -36,8 +36,8 @@ class XorgCfFilesConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("xorg-macros/1.19.3")
-        self.requires("xorg-proto/2022.2")
+        self.requires("xorg-macros/1.20.0")
+        self.requires("xorg-proto/2024.1")
 
     def package_id(self):
         del self.info.settings.compiler
