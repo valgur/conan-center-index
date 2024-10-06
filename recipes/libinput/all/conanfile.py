@@ -4,7 +4,7 @@ import textwrap
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import copy, get, rmdir, save
+from conan.tools.files import copy, get, rmdir, save, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -61,11 +61,11 @@ class LibinputConan(ConanFile):
         if self.options.debug_gui:
             self.requires("cairo/1.18.0")
             self.requires("glib/2.78.3")
-            self.requires("gtk/system")
+            self.requires("gtk/4.15.6")
             if self.options.with_wayland:
                 self.requires("wayland/1.22.0")
             if self.options.with_x11:
-                self.requires("xorg/system")
+                self.requires("libx11/1.8.10")
 
         if self.options.with_libudev == "systemd":
             self.requires("libudev/system", transitive_libs=True)
@@ -84,8 +84,8 @@ class LibinputConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_wayland"):
             if self._has_build_profile:
-                self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.33")
+                self.tool_requires("wayland/1.22.0")
+            self.tool_requires("wayland-protocols/1.36")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -130,7 +130,14 @@ class LibinputConan(ConanFile):
                 save(self, os.path.join(self.generators_folder, "wayland-protocols.pc"), wp_pkg_content)
         pkg_config_deps.generate()
 
+    def _patch_sources(self):
+        # The version check fails for some reason.
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                        "dependency('gtk4', version : '>= 4.0',",
+                        "dependency('gtk4',")
+
     def build(self):
+        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
