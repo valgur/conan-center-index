@@ -26,7 +26,7 @@ class XorgGccmakedep(ConanFile):
         export_conandata_patches(self)
 
     def requirements(self):
-        self.requires("xorg-macros/1.19.3")
+        self.requires("xorg-macros/1.20.0")
 
     def build_requirements(self):
         self.tool_requires("pkgconf/[>=2.2 <3]")
