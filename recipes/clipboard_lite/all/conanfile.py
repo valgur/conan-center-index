@@ -57,7 +57,9 @@ class ClipboardLiteConan(ConanFile):
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("xorg/system")
+            self.requires("libx11/1.8.10")
+            self.requires("libxcb/1.17.0")
+            self.requires("libxfixes/6.0.1")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -94,7 +96,7 @@ class ClipboardLiteConan(ConanFile):
         self.cpp_info.libs = ["clipboard_lite"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.requires.extend(["xorg::xcb", "xorg::x11", "xorg::xfixes"])
+            self.cpp_info.requires.extend(["libxcb::xcb", "libx11::x11", "libxfixes::libxfixes"])
             self.cpp_info.system_libs.extend(["m", "pthread"])
         elif is_apple_os(self):
             self.cpp_info.frameworks = ['Cocoa', 'Carbon', 'CoreFoundation', 'CoreGraphics', 'Foundation', 'AppKit']
