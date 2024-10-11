@@ -147,7 +147,15 @@ class PackageConan(ConanFile):
         if self.options.get_safe("with_x11"):
             self.cpp_info.components["libva-x11"].libs = ["va-x11"]
             self.cpp_info.components["libva-x11"].set_property("pkg_config_name", "libva-x11")
-            self.cpp_info.components["libva-x11"].requires = ["libva_", "xorg::xorg"]
+            self.cpp_info.components["libva-x11"].requires = [
+                "libva_",
+                "xorg::x11",
+                "xorg::x11-xcb",
+                "xorg::xcb",
+                "xorg::xcb-dri3",
+                "xorg::xext",
+                "xorg::xfixes",
+            ]
 
         if self.options.get_safe("with_glx"):
             self.cpp_info.components["libva-glx"].libs = ["va-glx"]

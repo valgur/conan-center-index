@@ -117,3 +117,10 @@ class EpoxyConan(ConanFile):
             "pkg_config_custom_content",
             "\n".join(f"{key}={value}" for key,value in pkgconfig_variables.items()),
         )
+
+        self.cpp_info.requires = ["opengl::opengl"]
+        if self.settings.os == "Linux":
+            if self.options.x11:
+                self.cpp_info.requires.append("xorg::x11")
+            if self.options.egl:
+                self.cpp_info.requires.append("egl::egl")

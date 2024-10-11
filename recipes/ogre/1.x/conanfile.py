@@ -602,16 +602,10 @@ class OgreConanFile(ConanFile):
                     "wayland::wayland-egl",
                 ])
             else:
-                self.cpp_info.components["OgreMain"].requires.extend([
-                    "xorg::x11",
-                    "xorg::xaw7",
-                    "xorg::xext",
-                    "xorg::xrandr",
-                    "xorg::xt",
-                ])
+                self.cpp_info.components["OgreMain"].requires.extend(["xorg::x11", "xorg::xrandr"])
 
         if self.options.get_safe("build_component_bites"):
-            _add_core_component("Bites", requires=["Overlay", "sdl::sdl"])
+            _add_core_component("Bites", requires=["Overlay", "sdl::sdl", "xorg::xaw7", "xorg::xt"])
         if self.options.get_safe("build_component_bullet"):
             _add_core_component("Bullet", requires=["bullet3::bullet3"])
         if self.options.build_component_meshlodgenerator:

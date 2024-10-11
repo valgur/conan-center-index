@@ -1,0 +1,131 @@
+--- a/qtbase/cmake/3rdparty/extra-cmake-modules/find-modules/FindXCB.cmake
++++ b/qtbase/cmake/3rdparty/extra-cmake-modules/find-modules/FindXCB.cmake
+@@ -86,6 +86,7 @@
+ 
+ include(${CMAKE_CURRENT_LIST_DIR}/ECMFindModuleHelpersStub.cmake)
+ 
++if(0)
+ ecm_find_package_version_check(XCB)
+ 
+ # Note that this list needs to be ordered such that any component
+@@ -177,7 +178,72 @@
+ ecm_find_package_handle_library_components(XCB
+     COMPONENTS ${XCB_components}
+ )
+-
++endif()
++
++include(CMakeFindDependencyMacro)
++find_dependency(X11 COMPONENTS xcb)
++
++if(TARGET XCB::XCB)
++    return()
++endif()
++
++macro(_add_xcb_component qt_name cmake_name)
++    set(XCB_${qt_name}_FOUND FALSE)
++    if(TARGET X11::xcb_${cmake_name})
++        add_library(XCB::${qt_name} INTERFACE IMPORTED)
++        set_target_properties(XCB::${qt_name} PROPERTIES INTERFACE_LINK_LIBRARIES X11::xcb_${cmake_name})
++        list(APPEND XCB_TARGETS XCB::${qt_name})
++        list(APPEND XCB_LIBRARIES XCB::${qt_name})
++        set(XCB_${qt_name}_FOUND TRUE)
++    endif()
++endmacro()
++
++if(TARGET X11::xcb)
++    add_library(XCB::XCB INTERFACE IMPORTED)
++    set_target_properties(XCB::XCB PROPERTIES INTERFACE_LINK_LIBRARIES X11::xcb)
++
++    _add_xcb_component(ATOM atom)
++    _add_xcb_component(AUX aux)
++    _add_xcb_component(COMPOSITE composite)
++    _add_xcb_component(CURSOR cursor)
++    _add_xcb_component(DAMAGE damage)
++    _add_xcb_component(DPMS dpms)
++    _add_xcb_component(DRI2 dri2)
++    _add_xcb_component(DRI3 dri3)
++    _add_xcb_component(ERRORS errors)
++    _add_xcb_component(EVENT event)
++    _add_xcb_component(EWMH ewmh)
++    _add_xcb_component(GLX glx)
++    _add_xcb_component(ICCCM icccm)
++    _add_xcb_component(IMAGE image)
++    _add_xcb_component(KEYSYMS keysyms)
++    _add_xcb_component(PRESENT present)
++    _add_xcb_component(RANDR randr)
++    _add_xcb_component(RECORD record)
++    _add_xcb_component(RENDER render)
++    _add_xcb_component(RENDERUTIL render_util)
++    _add_xcb_component(RES res)
++    _add_xcb_component(SCREENSAVER screensaver)
++    _add_xcb_component(SHAPE shape)
++    _add_xcb_component(SHM shm)
++    _add_xcb_component(SYNC sync)
++    _add_xcb_component(UTIL util)
++    _add_xcb_component(XEVIE xevie)
++    _add_xcb_component(XF86DRI xf86dri)
++    _add_xcb_component(XFIXES xfixes)
++    _add_xcb_component(XINERAMA xinerama)
++    _add_xcb_component(XINPUT xinput)
++    _add_xcb_component(XKB xkb)
++    _add_xcb_component(XRM xrm)
++    _add_xcb_component(XPRINT xprint)
++    _add_xcb_component(XTEST xtest)
++    _add_xcb_component(XV xv)
++    _add_xcb_component(XVMC xvmc)
++
++    set(XCB_VERSION ${X11_VERSION})
++endif()
++
++include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(XCB
+     FOUND_VAR
+         XCB_FOUND
+
+--- a/qtbase/cmake/3rdparty/extra-cmake-modules/find-modules/FindX11_XCB.cmake
++++ b/qtbase/cmake/3rdparty/extra-cmake-modules/find-modules/FindX11_XCB.cmake
+@@ -65,6 +65,8 @@
+ 
+ include(${CMAKE_CURRENT_LIST_DIR}/ECMFindModuleHelpersStub.cmake)
+ 
++
++if(0)
+ ecm_find_package_version_check(X11_XCB)
+ 
+ # use pkg-config to get the directories and then use these values
+@@ -83,6 +85,25 @@
+     NAMES X11-xcb
+     HINTS ${PKG_X11_XCB_LIBRARY_DIRS}
+ )
++endif(0)
++
++find_dependency(X11 COMPONENTS x11_xcb)
++
++if(TARGET X11::XCB)
++    return()
++endif()
++
++if(TARGET X11::X11_xcb)
++    add_library(X11::XCB INTERFACE IMPORTED)
++    set_target_properties(X11::XCB PROPERTIES INTERFACE_LINK_LIBRARIES X11::X11_xcb)
++
++    # compatibility variables
++    set(X11_XCB_FOUND TRUE)
++    set(X11_XCB_VERSION ${X11_VERSION})
++    set(X11_XCB_LIBRARY X11::X11_xcb)
++    set(X11_XCB_INCLUDE_DIR ${X11_X11_xcb_INCLUDE_PATH})
++endif()
++
+ 
+ include(FindPackageHandleStandardArgs)
+ find_package_handle_standard_args(X11_XCB
+@@ -95,7 +116,7 @@
+         X11_XCB_VERSION
+ )
+ 
+-if(X11_XCB_FOUND AND NOT TARGET X11::XCB)
++if(0)
+     add_library(X11::XCB UNKNOWN IMPORTED)
+     set_target_properties(X11::XCB PROPERTIES
+         IMPORTED_LOCATION "${X11_XCB_LIBRARY}"

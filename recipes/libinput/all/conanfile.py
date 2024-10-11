@@ -65,6 +65,7 @@ class LibinputConan(ConanFile):
             if self.options.with_wayland:
                 self.requires("wayland/1.22.0")
             if self.options.with_x11:
+                # Only xorg::x11 is used.
                 self.requires("xorg/system")
 
         if self.options.with_libudev == "systemd":

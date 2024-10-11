@@ -129,7 +129,7 @@ class AggConan(ConanFile):
             self.cpp_info.components["platform"].libs = ["aggplatform"]
             self.cpp_info.components["platform"].includedirs = [os.path.join("include", "agg", "platform")]
             if self.settings.os in ["Linux"]:
-                self.cpp_info.components["platform"].requires = ["xorg::xorg", "agg"]
+                self.cpp_info.components["platform"].requires = ["xorg::x11", "agg"]
 
         if self.options.with_controls:
             self.cpp_info.components["controls"].set_property("cmake_target_name", "agg::controls")

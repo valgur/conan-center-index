@@ -277,6 +277,8 @@ class CairoConan(ConanFile):
 
         if self.options.get_safe("with_xlib"):
             add_component_and_base_requirements("cairo-xlib", ["xorg::x11", "xorg::xext"])
+            if self.options.get_safe("with_xcb"):
+                add_component_and_base_requirements("cairo-xlib-xcb", ["xorg::x11-xcb"])
 
         if self.options.get_safe("with_xlib_xrender"):
             add_component_and_base_requirements("cairo-xlib-xrender", ["xorg::xrender"])
@@ -284,9 +286,6 @@ class CairoConan(ConanFile):
         if self.options.get_safe("with_xcb"):
             add_component_and_base_requirements("cairo-xcb", ["xorg::xcb", "xorg::xcb-render"])
             add_component_and_base_requirements("cairo-xcb-shm", ["xorg::xcb", "xorg::xcb-shm"])
-
-            if self.options.get_safe("with_xlib"):
-                add_component_and_base_requirements("cairo-xlib-xcb", ["xorg::x11-xcb"])
 
         if is_apple_os(self):
             self.cpp_info.components["cairo-quartz"].set_property("pkg_config_name", "cairo-quartz")

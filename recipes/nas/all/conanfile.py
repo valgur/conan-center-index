@@ -51,11 +51,11 @@ class NasRecipe(ConanFile):
         self.requires("xorg/system")
 
     def build_requirements(self):
-        self.tool_requires("bison/3.7.1")
+        self.tool_requires("bison/3.8.2")
         self.tool_requires("flex/2.6.4")
-        self.tool_requires("imake/1.0.8")
-        self.tool_requires("xorg-cf-files/1.0.7")
-        self.tool_requires("xorg-makedepend/1.0.6")
+        self.tool_requires("imake/1.0.9")
+        self.tool_requires("xorg-cf-files/1.0.8")
+        self.tool_requires("xorg-makedepend/1.0.8")
         self.tool_requires("xorg-gccmakedep/1.0.3")
         self.tool_requires("gnu-config/cci.20210814")
 
@@ -143,8 +143,12 @@ class NasRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["audio"]
-        self.cpp_info.requires = ["xorg::xau"]
+        self.cpp_info.requires = [
+            "xorg::x11",
+            "xorg::xau",
+            "xorg::xcb",
+            "xorg::xdmcp",
+        ]
 
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
         self.env_info.path.append(bin_path)

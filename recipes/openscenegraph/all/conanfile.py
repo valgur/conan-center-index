@@ -430,7 +430,7 @@ class OpenSceneGraphConanFile(ConanFile):
         library.requires = ["osgGA", "osgText", "osgDB", "osgUtil", "osg"]
         if self.options.enable_windowing_system:
             if self.settings.os in ["Linux", "FreeBSD"]:
-                library.requires.append("xorg::xorg")
+                library.requires.extend(["xorg::xrandr", "xorg::xinerama"])
             elif is_apple_os(self):
                 library.frameworks = ["Cocoa"]
         if self.settings.os == "Windows":

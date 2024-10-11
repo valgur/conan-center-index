@@ -242,7 +242,7 @@ class TkConan(ConanFile):
             # This can only be modified after build since the value being replaced is a result
             # of variable substitution in tkConfig.sh.in
             replace_in_file(self, tkConfigShPath, "//", "${TK_ROOT}/")
-        
+
         fix_apple_shared_install_name(self)
 
     def package_info(self):
@@ -286,6 +286,7 @@ class TkConan(ConanFile):
                 "xorg::xrender",
                 "xorg::xau",
                 "xorg::xdmcp",
+                "xorg::xss",
             ]
 
         tk_library = os.path.join(

@@ -62,6 +62,7 @@ class PDCursesConan(ConanFile):
             self.requires("sdl/2.28.5", transitive_libs=True)
         if self.options.get_safe("with_x11"):
             self.requires("xorg/system")
+            self.requires("libxpm/3.5.17")
 
     def validate(self):
         if self.options.with_sdl and self.settings.os == "Windows":
@@ -196,3 +197,14 @@ class PDCursesConan(ConanFile):
         if self.options.get_safe("with_x11"):
             self.cpp_info.includedirs.append(os.path.join("include", "xcurses"))
             self.cpp_info.libs += ["XCurses"]
+
+        if self.options.with_sdl:
+            self.cpp_info.requires.append("sdl::sdl")
+        if self.options.get_safe("with_x11"):
+            self.cpp_info.requires.extend([
+                "xorg::x11",
+                "xorg::xaw",
+                "xorg::xmu",
+                "xorg::xt",
+                "libxpm::libxpm",
+            ])

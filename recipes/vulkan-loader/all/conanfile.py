@@ -191,3 +191,11 @@ class VulkanLoaderConan(ConanFile):
             self.cpp_info.system_libs = ["dl", "pthread", "m"]
         elif self.settings.os == "Macos":
             self.cpp_info.frameworks = ["CoreFoundation"]
+
+        self.cpp_info.requires.append("vulkan-headers::vulkan-headers")
+        if self.options.get_safe("with_wsi_xlib"):
+            self.cpp_info.requires.append("xorg::x11")
+        if self.options.get_safe("with_wsi_xcb"):
+            self.cpp_info.requires.append("xorg::xcb")
+        if Version(self.version) < "1.3.231" and self.options.get_safe("with_wsi_wayland"):
+            self.cpp_info.requires.append("wayland::wayland")

@@ -65,7 +65,7 @@ class MaterialXConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.with_openimageio: 
+        if self.options.with_openimageio:
             self.requires("openimageio/2.5.14.0")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
@@ -127,7 +127,7 @@ class MaterialXConan(ConanFile):
         rm(self, "README.md", self.package_folder)
         rm(self, "CHANGELOG.md", self.package_folder)
         rm(self, "THIRD-PARTY.md", self.package_folder)
-        rm(self, "LICENSE", self.package_folder)    
+        rm(self, "LICENSE", self.package_folder)
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -178,7 +178,7 @@ class MaterialXConan(ConanFile):
         self.cpp_info.components["MaterialXRenderHw"].libs = ["MaterialXRenderHw"]
         self.cpp_info.components["MaterialXRenderHw"].requires = ["MaterialXRender"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["MaterialXRenderHw"].requires.append("xorg::xorg")
+            self.cpp_info.components["MaterialXRenderHw"].requires.extend(["xorg::x11", "xorg::xt"])
         elif self.settings.os in ["Macos", "iOS"]:
             self.cpp_info.frameworks.extend(["Foundation", "Cocoa", "AppKit", "Metal"])
             if self.settings.os == "Macos":
@@ -192,7 +192,7 @@ class MaterialXConan(ConanFile):
         if self.options.build_gen_msl:
             self.cpp_info.components["MaterialXGenMsl"].libs = ["MaterialXGenMsl"]
             self.cpp_info.components["MaterialXGenMsl"].requires = ["MaterialXCore", "MaterialXGenShader"]
-            
+
         if self.options.build_gen_msl and self.settings.os == "Macos":
             self.cpp_info.components["MaterialXRenderMsl"].libs = ["MaterialXRenderMsl"]
             self.cpp_info.components["MaterialXRenderMsl"].requires = ["MaterialXRenderHw", "MaterialXGenMsl"]

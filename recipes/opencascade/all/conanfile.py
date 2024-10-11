@@ -491,7 +491,7 @@ class OpenCascadeConan(ConanFile):
             "CSF_FREETYPE": {"externals": ["freetype::freetype"]},
             "CSF_TclLibs": {"externals": ["tcl::tcl"]},
             "CSF_fontconfig": {"externals": ["fontconfig::fontconfig"] if self._is_linux else []},
-            "CSF_XwLibs": {"externals": ["xorg::xorg"] if self._is_linux else []},
+            "CSF_XwLibs": {"externals": ["xorg::x11"] if self._is_linux else []},
             # Optional dependencies
             "CSF_OpenGlLibs": {"externals": ["opengl::opengl"] if self._link_opengl else []},
             "CSF_TclTkLibs": {"externals": ["tk::tk"] if self._link_tk else []},

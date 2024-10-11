@@ -149,7 +149,7 @@ class LibGlvndConan(ConanFile):
         if self.options.glx:
             self.cpp_info.components['glx'].libs = ["GLX"]
             self.cpp_info.components['glx'].system_libs.extend(["dl"])
-            self.cpp_info.components['glx'].requires.extend(["xorg::x11", "xorg-proto::glproto", "gldispatch"])
+            self.cpp_info.components['glx'].requires.extend(["xorg::x11", "xorg::xext", "xorg-proto::glproto", "gldispatch"])
             self.cpp_info.components['glx'].set_property("pkg_config_name", "glx")
 
             self.cpp_info.components['gl'].libs = ["GL"]

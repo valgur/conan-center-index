@@ -154,7 +154,7 @@ class SfmlConan(ConanFile):
             return ["libudev::libudev"] if self.settings.os == "Linux" else []
 
         def xorg():
-            return ["xorg::xorg"] if self.settings.os == "Linux" else []
+            return ["xorg::x11", "xorg::xrandr", "xorg::xcursor"] if self.settings.os == "Linux" else []
 
         def pthread():
             return ["pthread"] if self.settings.os in ["Linux", "FreeBSD"] else []
