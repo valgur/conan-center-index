@@ -86,8 +86,8 @@ class LibSmConan(ConanFile):
         copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        # rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
 
