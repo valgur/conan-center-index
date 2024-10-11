@@ -1,0 +1,6 @@
+sources:
+  "1.0.12":
+    url:
+      - "https://www.x.org/archive/individual/lib/libXv-1.0.12.tar.xz"
+      - "https://xorg.freedesktop.org/releases/individual/lib/libXv-1.0.12.tar.xz"
+    sha256: "aaf7fa09f689f7a2000fe493c0d64d1487a1210db154053e9e2336b860c63848"

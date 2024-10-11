@@ -29,6 +29,7 @@ class XkbcommonConan(ConanFile):
         "with_x11": [True, False],
         "with_wayland": [True, False],
         "xkbregistry": [True, False],
+        "use_xorg_system": [True, False],
     }
     default_options = {
         "shared": False,
@@ -36,6 +37,7 @@ class XkbcommonConan(ConanFile):
         "with_x11": True,
         "with_wayland": True,
         "xkbregistry": True,
+        "use_xorg_system": True
     }
 
     @property
@@ -57,6 +59,8 @@ class XkbcommonConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+        if not self.options.with_x11:
+            del self.options.use_xorg_system
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -64,7 +68,10 @@ class XkbcommonConan(ConanFile):
     def requirements(self):
         self.requires("xkeyboard-config/system")
         if self.options.with_x11:
-            self.requires("xorg/system")
+            if self.options.use_xorg_system:
+                self.requires("xorg/system")
+            else:
+                self.requires("libxcb/1.17.0")
         if self.options.get_safe("xkbregistry"):
             self.requires("libxml2/[>=2.12.5 <3]")
         if self.options.get_safe("with_wayland"):
@@ -154,16 +161,23 @@ class XkbcommonConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["libxkbcommon"].set_property("pkg_config_name", "xkbcommon")
+        self.cpp_info.components["libxkbcommon"].set_property("cmake_target_aliases", ["X11::xkbcommon"])
         self.cpp_info.components["libxkbcommon"].libs = ["xkbcommon"]
         self.cpp_info.components["libxkbcommon"].requires = ["xkeyboard-config::xkeyboard-config"]
         self.cpp_info.components["libxkbcommon"].resdirs = ["res"]
 
         if self.options.with_x11:
             self.cpp_info.components["libxkbcommon-x11"].set_property("pkg_config_name", "xkbcommon-x11")
+            self.cpp_info.components["libxkbcommon-x11"].set_property("cmake_target_aliases", ["X11::xkbcommon_X11"])
             self.cpp_info.components["libxkbcommon-x11"].libs = ["xkbcommon-x11"]
-            self.cpp_info.components["libxkbcommon-x11"].requires = ["libxkbcommon", "xorg::xcb", "xorg::xcb-xkb"]
+            self.cpp_info.components["libxkbcommon-x11"].requires = ["libxkbcommon"]
+            if self.options.use_xorg_system:
+                self.cpp_info.components["libxkbcommon-x11"].requires.extend(["xorg::xcb", "xorg::xcb-xkb"])
+            else:
+                self.cpp_info.components["libxkbcommon-x11"].requires.extend(["libxcb::xcb", "libxcb::xcb-xkb"])
         if self.options.get_safe("xkbregistry"):
             self.cpp_info.components["libxkbregistry"].set_property("pkg_config_name", "xkbregistry")
+            self.cpp_info.components["libxkbregistry"].set_property("cmake_target_aliases", ["X11::xkbregistry"])
             self.cpp_info.components["libxkbregistry"].libs = ["xkbregistry"]
             self.cpp_info.components["libxkbregistry"].requires = ["libxml2::libxml2"]
         if self.options.get_safe("with_wayland", False):

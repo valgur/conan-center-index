@@ -1,53 +1,79 @@
-from conan import ConanFile
-from conan.tools.gnu import PkgConfig
-from conan.tools.system import package_manager
-from conan.errors import ConanInvalidConfiguration
+import os
 
-required_conan_version = ">=1.47"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import copy, get, rmdir, rename
+from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc
+
+required_conan_version = ">=1.53.0"
 
 
 class XtransConan(ConanFile):
     name = "xtrans"
-    url = "https://github.com/conan-io/conan-center-index"
-    license = "MIT"
-    homepage = "https://www.x.org/wiki/"
     description = "X Network Transport layer shared code"
-    settings = "os", "arch", "compiler", "build_type"
-    topics = ("x11", "xorg")
+    license = "HPND AND HPND-sell-variant AND MIT AND MIT-open-group AND X11"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://gitlab.freedesktop.org/xorg/lib/libxtrans"
+    topics = ("xorg", "x11")
 
-    def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
+    package_type = "header-library"
+    settings = "os", "arch", "compiler", "build_type"
+
+    @property
+    def _settings_build(self):
+        return getattr(self, "settings_build", self.settings)
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.info.settings.compiler
-        del self.info.settings.arch
-        del self.info.settings.build_type
+        self.info.clear()
 
-    def system_requirements(self):
-        apt = package_manager.Apt(self)
-        apt.install(["xtrans-dev"], update=True, check=True)
+    def requirements(self):
+        self.requires("xorg-proto/2024.1")
 
-        yum = package_manager.Yum(self)
-        yum.install(["xorg-x11-xtrans-devel"], update=True, check=True)
+    def validate(self):
+        if is_msvc(self):
+            raise ConanInvalidConfiguration("MSVC is not supported.")
 
-        dnf = package_manager.Dnf(self)
-        dnf.install(["xorg-x11-xtrans-devel"], update=True, check=True)
+    def build_requirements(self):
+        if self._settings_build.os == "Windows":
+            self.win_bash = True
+            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
+                self.tool_requires("msys2/cci.latest")
+        self.tool_requires("xorg-macros/1.20.0")
 
-        zypper = package_manager.Zypper(self)
-        zypper.install(["xtrans"], update=True, check=True)
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-        pacman = package_manager.PacMan(self)
-        pacman.install(["xtrans"], update=True, check=True)
+    def generate(self):
+        VirtualBuildEnv(self).generate()
+        tc = AutotoolsToolchain(self)
+        tc.generate()
 
-        package_manager.Pkg(self).install(["xtrans"], update=True, check=True)
+    def build(self):
+        autotools = Autotools(self)
+        autotools.configure()
+        autotools.make()
+
+    def package(self):
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        autotools = Autotools(self)
+        autotools.install()
+        rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rename(self, os.path.join(self.package_folder, "share"),
+                     os.path.join(self.package_folder, "res"))
 
     def package_info(self):
-        pkg_config = PkgConfig(self, "xtrans")
-        pkg_config.fill_cpp_info(
-            self.cpp_info, is_system=self.settings.os != "FreeBSD")
-        self.cpp_info.version = pkg_config.version
         self.cpp_info.set_property("pkg_config_name", "xtrans")
-        self.cpp_info.set_property("component_version", pkg_config.version)
-        self.cpp_info.set_property("pkg_config_custom_content",
-                                                    "\n".join(f"{key}={value}" for key, value in pkg_config.variables.items() if key not in ["pcfiledir","prefix", "includedir"]))
+        self.cpp_info.defines = ["_DEFAULT_SOURCE", "_BSD_SOURCE", "HAS_FCHOWN", "HAS_STICKY_DIR_BIT"]
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+
+        # For res/aclocal/xtrans.m4
+        aclocal = os.path.join(self.package_folder, "res", "aclocal")
+        self.buildenv_info.prepend_path("ACLOCAL_PATH", aclocal)
