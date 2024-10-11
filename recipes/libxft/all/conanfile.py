@@ -28,7 +28,7 @@ class libxftConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "use_xorg_system": True,
+        "use_xorg_system": False,
     }
 
     @property

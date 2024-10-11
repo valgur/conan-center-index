@@ -27,7 +27,7 @@ class LibXpmConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "use_xorg_system": True,
+        "use_xorg_system": False,
     }
 
     def export_sources(self):

@@ -37,7 +37,7 @@ class XkbcommonConan(ConanFile):
         "with_x11": True,
         "with_wayland": True,
         "xkbregistry": True,
-        "use_xorg_system": True
+        "use_xorg_system": False
     }
 
     @property
