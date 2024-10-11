@@ -54,7 +54,7 @@ class LibxshmfenceConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("xorg-proto/2022.2", transitive_headers=True)
+        self.requires("xorg-proto/2024.1", transitive_headers=True)
 
     def validate(self):
         if self.settings.os == "Windows":
