@@ -124,7 +124,7 @@ class LibX11Conan(ConanFile):
              os.path.join(self.package_folder, "lib", "cmake", "X11"))
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_find_mode", "module")
+        self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "X11")
         self.cpp_info.set_property("pkg_config_name", "_x11_do_not_use")
 
