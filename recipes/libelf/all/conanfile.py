@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
@@ -55,6 +56,7 @@ class LibelfConan(ConanFile):
             basic_layout(self, src_folder="src")
 
     def build_requirements(self):
+        self.tool_requires("libtool/2.4.7")
         if self.settings.os != "Windows":
             self.tool_requires("autoconf/2.72")
             self.tool_requires("gnu-config/cci.20210814")
@@ -79,6 +81,12 @@ class LibelfConan(ConanFile):
                 # it's required, libelf doesnt seem to understand DESTDIR
                 f"--prefix={unix_path(self, self.package_folder)}",
             ])
+            if not can_run(self):
+                # The check for native ELF support tries to run an executable and fails on cross-compilation,
+                # which in turn breaks shared library output support.
+                elf_supported = self.settings.os in ["Linux", "FreeBSD", "Android", "SunOS"]
+                yes_no = lambda x: "yes" if x else "no"
+                tc.configure_args.append(f"mr_cv_target_elf={yes_no(elf_supported)}")
             tc.generate()
 
     def build(self):
