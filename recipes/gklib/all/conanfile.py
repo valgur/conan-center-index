@@ -1,8 +1,9 @@
+import os
 from os import path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
 required_conan_version = ">=1.53.0"
@@ -66,8 +67,13 @@ class GKlibConan(ConanFile):
 
         tc.generate()
 
-    def build(self):
+    def _patch_sources(self):
         apply_conandata_patches(self)
+        # Disable -march=native, which breaks cross-compilation and produces non-portable binaries
+        replace_in_file(self, os.path.join(self.source_folder, "GKlibSystem.cmake"),  "-march=native", "")
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
