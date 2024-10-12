@@ -97,6 +97,8 @@ class CyrusSaslConan(ConanFile):
             self.requires("libmysqlclient/8.1.0")
         if self.options.get_safe("with_sqlite3"):
             self.requires("sqlite3/3.44.2")
+        if self.options.with_saslauthd and self.settings.os in ["Linux", "FreeBSD"]:
+            self.requires("libxcrypt/4.4.36")
 
     def validate(self):
         if is_msvc(self) and not self.options.shared:
@@ -249,8 +251,6 @@ class CyrusSaslConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["resolv"]
-            if self.options.with_saslauthd:
-                self.cpp_info.system_libs.append("crypt")
         elif is_msvc(self):
             self.cpp_info.system_libs = ["ws2_32"]
 
