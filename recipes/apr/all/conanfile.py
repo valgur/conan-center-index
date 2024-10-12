@@ -8,7 +8,7 @@ from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -67,6 +67,10 @@ class AprConan(ConanFile):
             cmake_layout(self, src_folder="src")
         else:
             basic_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.requires("libxcrypt/4.4.36", transitive_headers=True, transitive_libs=True)
 
     def validate_build(self):
         if cross_building(self) and not is_msvc(self):
@@ -152,6 +156,8 @@ class AprConan(ConanFile):
             if cross_building(self):
                 tc.configure_args.extend(self._get_cross_building_configure_args())
             tc.generate()
+            deps = AutotoolsDeps(self)
+            deps.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -201,7 +207,7 @@ class AprConan(ConanFile):
         if not self.options.shared:
             self.cpp_info.defines = ["APR_DECLARE_STATIC"]
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.system_libs = ["crypt", "dl", "pthread", "rt"]
+                self.cpp_info.system_libs = ["dl", "pthread", "rt"]
             if self.settings.os == "Windows":
                 self.cpp_info.system_libs = ["mswsock", "rpcrt4", "ws2_32"]
 
