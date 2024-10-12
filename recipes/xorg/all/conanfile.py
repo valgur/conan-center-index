@@ -64,12 +64,6 @@ class XorgConan(ConanFile):
             raise ConanInvalidConfiguration("MSVC is not supported.")
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.includedirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = []
-
         components = {
             "fontenc":        "libfontenc::libfontenc",
             "ice":            "libice::libice",
@@ -129,4 +123,10 @@ class XorgConan(ConanFile):
             "xxf86vm":        "libxxf86vm::libxxf86vm",
         }
         for component, require in components.items():
-            self.cpp_info.components[component].requires = [require]
+            component = self.cpp_info.components[component]
+            component.requires = [require]
+            component.bindirs = []
+            component.frameworkdirs = []
+            component.includedirs = []
+            component.libdirs = []
+            component.resdirs = []
