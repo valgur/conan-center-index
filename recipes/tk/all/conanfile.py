@@ -286,7 +286,7 @@ class TkConan(ConanFile):
                 "xorg::xrender",
                 "xorg::xau",
                 "xorg::xdmcp",
-                "xorg::xss",
+                "xorg::xscrnsaver",
             ]
 
         tk_library = os.path.join(
