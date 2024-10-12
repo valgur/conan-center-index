@@ -37,7 +37,7 @@ class XkbcommonConan(ConanFile):
         "with_x11": True,
         "with_wayland": True,
         "xkbregistry": True,
-        "use_xorg_system": True
+        "use_xorg_system": True,
     }
 
     @property
@@ -66,7 +66,10 @@ class XkbcommonConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("xkeyboard-config/system")
+        if self.options.use_xorg_system:
+            self.requires("xkeyboard-config/system")
+        else:
+            self.requires("xkeyboard-config/2.43")
         if self.options.with_x11:
             if self.options.use_xorg_system:
                 self.requires("xorg/system")
