@@ -4,7 +4,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -83,6 +83,8 @@ class AprUtilConan(ConanFile):
             # transitive_libs needs to be set because some sys-frameworks on the old mac images for c3i
             # are pulling it in - discovered in https://github.com/conan-io/conan-center-index/pull/16266
             self.requires("libiconv/1.17", transitive_libs=True)
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.requires("libxcrypt/4.4.36", transitive_headers=True, transitive_libs=True)
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_mysql:
@@ -151,6 +153,8 @@ class AprUtilConan(ConanFile):
                 f"--with-berkeley-db={rootpath_no(self.options.dbm == 'db', 'libdb')}",
                 f"--with-gdbm={rootpath_no(self.options.dbm == 'gdbm', 'gdbm')}",
                 f"--with-ndbm={rootpath_no(self.options.dbm == 'ndbm', 'ndbm')}",
+                f"--with-odbc={yes_no(self.settings.os == 'Windows')}",
+                "--with-sqlite2=no",
             ])
             if self.options.dbm:
                 tc.configure_args.append(f"--with-dbm={self.options.dbm}")
@@ -203,7 +207,7 @@ class AprUtilConan(ConanFile):
         if not self.options.shared:
             self.cpp_info.defines = ["APU_DECLARE_STATIC"]
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.system_libs = ["crypt", "dl", "pthread", "rt"]
+                self.cpp_info.system_libs = ["dl", "pthread", "rt"]
             elif self.settings.os == "Windows":
                 self.cpp_info.system_libs = ["mswsock", "odbc32", "rpcrt4", "ws2_32"]
 
