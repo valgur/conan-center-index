@@ -120,10 +120,13 @@ class LibtiffConan(ConanFile):
             tc.variables["tiff-contrib"] = False
             tc.variables["tiff-docs"] = False
         tc.variables["cxx"] = self.options.get_safe("cxx", False)
+        tc.variables["jbg_newlen"] = True  # Skip a buggy check_symbol_exists()
+        tc.variables["CMath_HAVE_LIBC_POW"] = self.settings.os in ["Linux", "FreeBSD"]  # Skip a buggy check when cross-compiling
         # BUILD_SHARED_LIBS must be set in command line because defined upstream before project()
         tc.cache_variables["BUILD_SHARED_LIBS"] = bool(self.options.shared)
         tc.cache_variables["CMAKE_FIND_PACKAGE_PREFER_CONFIG"] = True
         tc.generate()
+
         deps = CMakeDeps(self)
         if Version(self.version) >= "4.5.1":
             deps.set_property("jbig", "cmake_target_name", "JBIG::JBIG")
