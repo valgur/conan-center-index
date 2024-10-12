@@ -2,11 +2,11 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building, stdcpp_library
 from conan.tools.env import Environment
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.files import copy, get, replace_in_file
+from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, unix_path
 from conan.tools.scm import Version
@@ -58,7 +58,6 @@ class NCursesConan(ConanFile):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     def export_sources(self):
-        export_conandata_patches(self)
         copy(self, "*.cmake", src=self.recipe_folder, dst=self.export_sources_folder)
 
     def config_options(self):
@@ -89,11 +88,16 @@ class NCursesConan(ConanFile):
             if self.options.get_safe("with_extended_colors"):
                 self.requires("naive-tsearch/0.1.1")
 
+    @property
+    def _need_strip_from_toolchain(self):
+        return cross_building(self) and not is_msvc(self) and not is_apple_os(self)
+
+    def validate_build(self):
+        executables = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+        if self._need_strip_from_toolchain and not "strip" in executables:
+            raise ConanInvalidConfiguration("Cross-building requires 'strip' tool to be defined in 'tools.build:compiler_executables'")
+
     def validate(self):
-        if cross_building(self) and ("arm" in str(self.settings.arch) or "arm" in str(self._settings_build.arch)):
-            # FIXME: Cannot build ncurses from x86_64 to armv8 (Apple M1).  Cross building from Linux/x86_64 to Mingw/x86_64 works flawless.
-            # FIXME: Need access to environment of build profile to set build compiler (BUILD_CC/CC_FOR_BUILD)
-            raise ConanInvalidConfiguration("Cross building to/from arm is (currently) not supported")
         if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Cannot build shared libraries with static (MT) runtime")
         if self.settings.os == "Windows":
@@ -114,54 +118,46 @@ class NCursesConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = AutotoolsToolchain(self)
+        tc = GnuToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args += [
-            "--with-shared={}".format(yes_no(self.options.shared)),
-            "--with-cxx-shared={}".format(yes_no(self.options.shared)),
-            "--with-normal={}".format(yes_no(not self.options.shared)),
-            "--enable-widec={}".format(yes_no(self.options.with_widec)),
-            "--enable-ext-colors={}".format(yes_no(self.options.get_safe("with_extended_colors"))),
-            "--enable-reentrant={}".format(yes_no(self.options.with_reentrant)),
-            "--with-pcre2={}".format(yes_no(self.options.with_pcre2)),
-            "--with-cxx-binding={}".format(yes_no(self.options.with_cxx)),
-            "--with-progs={}".format(yes_no(self.options.with_progs)),
-            "--with-termlib={}".format(yes_no(self.options.with_tinfo)),
-            "--with-ticlib={}".format(yes_no(self.options.with_ticlib)),
-            "--without-libtool",
-            "--without-ada",
-            "--without-manpages",
-            "--without-tests",
-            "--disable-echo",
-            "--without-debug",
-            "--without-profile",
-            "--with-sp-funcs",
-            "--disable-rpath",
-            "--disable-pc-files",
-            "--datarootdir=${prefix}/res",
-        ]
+        tc.configure_args["--with-shared"] = yes_no(self.options.shared)
+        tc.configure_args["--with-cxx-shared"] = yes_no(self.options.shared)
+        tc.configure_args["--with-normal"] = yes_no(not self.options.shared)
+        tc.configure_args["--enable-widec"] = yes_no(self.options.with_widec)
+        tc.configure_args["--enable-ext-colors"] = yes_no(self.options.get_safe("with_extended_colors"))
+        tc.configure_args["--enable-reentrant"] = yes_no(self.options.with_reentrant)
+        tc.configure_args["--with-pcre2"] = yes_no(self.options.with_pcre2)
+        tc.configure_args["--with-cxx-binding"] = yes_no(self.options.with_cxx)
+        tc.configure_args["--with-progs"] = yes_no(self.options.with_progs)
+        tc.configure_args["--with-termlib"] = yes_no(self.options.with_tinfo)
+        tc.configure_args["--with-ticlib"] = yes_no(self.options.with_ticlib)
+        tc.configure_args["--with-libtool"] = "no"
+        tc.configure_args["--with-ada"] = "no"
+        tc.configure_args["--with-manpages"] = "no"
+        tc.configure_args["--with-tests"] = "no"
+        tc.configure_args["--enable-echo"] = "no"
+        tc.configure_args["--with-debug"] = "no"
+        tc.configure_args["--with-profile"] = "no"
+        tc.configure_args["--with-sp-funcs"] = "yes"
+        tc.configure_args["--enable-rpath"] = "no"
+        tc.configure_args["--enable-pc-files"] = "no"
+        tc.configure_args["--datarootdir"] = "${prefix}/res"
         build = None
         host = None
         if self.settings.os == "Windows":
-            tc.configure_args += [
-                "--disable-macros",
-                "--disable-termcap",
-                "--enable-database",
-                "--enable-sp-funcs",
-                "--enable-term-driver",
-                "--enable-interop",
-            ]
+            tc.configure_args["--enable-macros"] = "no"
+            tc.configure_args["--enable-termcap"] = "no"
+            tc.configure_args["--enable-database"] = "yes"
+            tc.configure_args["--enable-sp-funcs"] = "yes"
+            tc.configure_args["--enable-term-driver"] = "yes"
+            tc.configure_args["--enable-interop"] = "yes"
         if is_msvc(self):
             build = host = f"{self.settings.arch}-w64-mingw32-msvc"
-            tc.configure_args += [
-                "ac_cv_func_getopt=yes",
-                "ac_cv_func_setvbuf_reversed=no",
-            ]
+            tc.configure_args["ac_cv_func_getopt"] = "yes",
+            tc.configure_args["ac_cv_func_setvbuf_reversed"] = "no"
             # The env vars below are used by ./configure, but not during make
-            tc.make_args += [
-                "CC=cl -nologo",
-                "CPP=cl -nologo -E",
-            ]
+            tc.make_args["CC"] = "cl -nologo"
+            tc.make_args["CPP"] = "cl -nologo -E"
             tc.extra_cflags.append("-FS")
             tc.extra_cxxflags.append("-FS")
             tc.extra_cxxflags.append("-EHsc")
@@ -172,25 +168,13 @@ class NCursesConan(ConanFile):
             # add libssp (gcc support library) for some missing symbols (e.g. __strcpy_chk)
             tc.extra_ldflags.extend(["-lmingwex", "-lssp"])
         if build:
-            tc.configure_args.append(f"ac_cv_build={build}")
+            tc.configure_args["ac_cv_build"] = build
         if host:
-            tc.configure_args.append(f"ac_cv_host={host}")
-            tc.configure_args.append(f"ac_cv_target={host}")
+            tc.configure_args["ac_cv_host"] = host
+            tc.configure_args["ac_cv_target"] = host
         # Allow ncurses to set the include dir with an appropriate subdir
-        tc.configure_args.remove("--includedir=${prefix}/include")
+        tc.configure_args.pop("--includedir", None)
         tc.generate()
-
-        if is_msvc(self):
-            env = Environment()
-            env.define("CC", "cl -nologo -FS")
-            env.define("CXX", "cl -nologo -FS")
-            env.define("LD", "link")
-            env.define("AR", "lib")
-            env.define("NM", "dumpbin -symbols")
-            env.define("OBJDUMP", ":")
-            env.define("RANLIB", ":")
-            env.define("STRIP", ":")
-            env.vars(self).save_script("conanbuild_msvc")
 
         if is_msvc(self):
             # Custom AutotoolsDeps for cl like compilers
@@ -222,8 +206,15 @@ class NCursesConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
+    def _patch_sources(self):
+        if self._need_strip_from_toolchain:
+            # https://forums.raspberrypi.com/viewtopic.php?p=1559247&sid=8c8904db75c823abdeeecfc761a76e3f#p1559247
+            replace_in_file(self, os.path.join(self.source_folder, "configure"),
+                            'INSTALL_OPT_S="-s"',
+                            'INSTALL_OPT_S="-s --strip-program=${STRIP}"')
+
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
