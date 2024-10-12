@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir, rename
 from conan.tools.gnu import PkgConfigDeps, AutotoolsToolchain, Autotools
@@ -101,6 +102,9 @@ class LibX11Conan(ConanFile):
             "--without-xsltproc",
             "--without-xmlto",
         ])
+        if not can_run(self):
+            # Skip a check that tries to run a test executable
+            tc.configure_args.append("xorg_cv_malloc0_returns_null=no")
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
