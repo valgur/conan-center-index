@@ -1,7 +1,7 @@
 import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import get, copy
 from conan.tools.scm import Version
 
@@ -25,7 +25,7 @@ class WiringpiConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "wpi_extensions": False,
+        "wpi_extensions": True,
         "with_devlib": True,
     }
 
@@ -44,6 +44,8 @@ class WiringpiConan(ConanFile):
     def requirements(self):
         if  Version(self.version) >= "3.2":
             self.requires("linux-headers-generic/6.5.9", transitive_headers=True)
+        if self.options.wpi_extensions:
+            self.requires("libxcrypt/4.4.36")
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -70,6 +72,9 @@ class WiringpiConan(ConanFile):
             tc.variables["WIRINGPI_LINUX_HEADERS_DIR"] = self.dependencies["linux-headers-generic"].cpp_info.includedirs[0]
         tc.generate()
 
+        deps = CMakeDeps(self)
+        deps.generate()
+
     def build(self):
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
@@ -84,7 +89,5 @@ class WiringpiConan(ConanFile):
         self.cpp_info.libs = ["wiringPi"]
         if self.options.with_devlib:
             self.cpp_info.libs.append("wiringPiDevLib")
-        if self.options.wpi_extensions:
-            self.cpp_info.libs.append("crypt")
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["pthread", "m", "rt"]

@@ -1,10 +1,13 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.15)
 project(wiringPi LANGUAGES C)
 
 file(GLOB SRC_FILES ${WIRINGPI_SRC_DIR}/wiringPi/*.c)
 
 message(STATUS "SRC_FILES: ${SRC_FILES}")
-if(NOT WIRINGPI_WITH_WPI_EXTENSIONS)
+if(WIRINGPI_WITH_WPI_EXTENSIONS)
+  find_package(libxcrypt REQUIRED CONFIG)
+  link_libraries(libxcrypt::libxcrypt)
+else()
   list(FILTER SRC_FILES EXCLUDE REGEX ".*wpiExtensions.c")
   list(FILTER SRC_FILES EXCLUDE REGEX ".*drcNet.c")
 endif()
