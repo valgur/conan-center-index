@@ -320,6 +320,9 @@ class SDLConan(ConanFile):
             tc.variables["SDL_LIBICONV"] = self.options.get_safe("iconv", False)
             tc.variables["SDL_SYSTEM_ICONV"] = False
 
+        # TODO: add support
+        tc.variables["SDL_LIBSAMPLERATE"] = False
+
         # Add extra information collected from the deps
         tc.variables["EXTRA_LDFLAGS"] = ";".join(cmake_extra_ldflags)
         tc.variables["CMAKE_REQUIRED_INCLUDES"] = ";".join(cmake_required_includes)
