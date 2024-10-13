@@ -57,8 +57,8 @@ class SfmlConan(ConanFile):
             if self.settings.os in ["Windows", "Linux", "FreeBSD", "Macos"]:
                 self.requires("opengl/system")
             if self.settings.os == "Linux":
-                self.requires("libudev/system")
-                self.requires("xorg/system")
+                self.requires("libudev/255.13")
+                self.requires("xorg/1.8.10")
         if self.options.graphics:
             self.requires("freetype/2.13.2")
             self.requires("stb/cci.20230920")

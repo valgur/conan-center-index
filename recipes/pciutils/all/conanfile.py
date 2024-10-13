@@ -52,7 +52,7 @@ class PciUtilsConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_udev:
-            self.requires("libudev/system")
+            self.requires("libudev/255.13")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:

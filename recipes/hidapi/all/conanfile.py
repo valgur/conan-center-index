@@ -59,7 +59,7 @@ class HidapiConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libusb/1.0.26")
         if self.settings.os == "Linux":
-            self.requires("libudev/system")
+            self.requires("libudev/255.13")
 
     def validate(self):
         if is_msvc(self) and not self.options.shared:

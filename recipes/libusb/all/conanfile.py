@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuild, MSBuildToolchain
 from conan.tools.scm import Version
@@ -67,7 +67,7 @@ class LibUSBConan(ConanFile):
     def requirements(self):
         if self.settings.os == "Linux":
             if self.options.enable_udev:
-                self.requires("libudev/system")
+                self.requires("libudev/255.13")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows" and not is_msvc(self):
@@ -90,6 +90,8 @@ class LibUSBConan(ConanFile):
             if self.settings.os in ["Linux", "Android"]:
                 tc.configure_args.append("--enable-udev" if self.options.enable_udev else "--disable-udev")
             tc.generate()
+            deps = AutotoolsDeps(self)
+            deps.generate()
 
     def build(self):
         apply_conandata_patches(self)
