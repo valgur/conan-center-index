@@ -4,12 +4,11 @@ import shutil
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import cross_building
-from conan.tools.env import Environment
+from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rename, replace_in_file, rmdir, mkdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path_package_info_legacy
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path_package_info_legacy, unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.57.0"
@@ -63,8 +62,6 @@ class NsprConan(ConanFile):
         if Version(self.version) < "4.29":
             if is_apple_os(self) and self.settings.arch == "armv8":
                 raise ConanInvalidConfiguration("NSPR does not support mac M1 before 4.29")
-        if cross_building(self):
-            raise ConanInvalidConfiguration("Cross-building is not supported")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
@@ -109,6 +106,15 @@ class NsprConan(ConanFile):
             # conan adds `-arch`, which conflicts with nspr's apple silicon support
             tc.cflags.remove("-arch arm64")
             tc.cxxflags.remove("-arch arm64")
+
+        # For cross-compilation support
+        buildenv_vars = VirtualBuildEnv(self).vars()
+        build_cc = unix_path(self, buildenv_vars.get("CC", str(self.settings_build.compiler)))
+        tc.configure_args.append(f"HOST_CC={build_cc}")
+        compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+        strip = compilers_from_conf.get("strip", buildenv_vars.get("STRIP", "strip"))
+        tc.make_args.append(f"STRIP={unix_path(self, strip)}")
+
         tc.generate()
 
         if is_msvc(self):
