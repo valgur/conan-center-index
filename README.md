@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-12:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-13:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -100,7 +100,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxi/1.8.2
 - libxinerama/1.1.5
 - libxkbfile/1.1.3
-- libxmlpp/2.42.1
 - libxmu/1.2.1
 - libxrandr/1.5.4
 - libxrender/0.9.11
