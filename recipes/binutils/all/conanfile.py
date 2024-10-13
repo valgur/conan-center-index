@@ -34,6 +34,7 @@ class BinutilsConan(ConanFile):
         "target_os": [None, "ANY"],
         "target_triplet": [None, "ANY"],
         "prefix": [None, "ANY"],
+        "add_unprefixed_to_path": [True, False],
     }
 
     default_options = {
@@ -43,6 +44,7 @@ class BinutilsConan(ConanFile):
         "target_os": None,  # Initialized in configure, checked in validate
         "target_triplet": None,  # Initialized in configure, checked in validate
         "prefix": None,  # Initialized in configure (NOT config_options, because it depends on target_{arch,os})
+        "add_unprefixed_to_path": True,
     }
 
     def layout(self):
@@ -123,6 +125,7 @@ class BinutilsConan(ConanFile):
 
     def package_id(self):
         del self.info.settings.compiler
+        del self.info.options.add_unprefixed_to_path
 
     def _raise_unsupported_configuration(self, key, value):
         raise ConanInvalidConfiguration(f"This configuration is unsupported by this conan recip. Please consider adding support. ({key}={value})")
@@ -183,20 +186,14 @@ class BinutilsConan(ConanFile):
         target_bindir = os.path.join(self._exec_prefix, str(self.options.target_triplet), "bin")
         self.cpp_info.bindirs = ["bin", target_bindir]
 
-        absolute_target_bindir = os.path.join(self.package_folder, target_bindir)
-
-        # v1 exports
         bindir = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bindir)
-        self.env_info.PATH.append(absolute_target_bindir)
-        self.output.info(f"GNU triplet={self.options.target_triplet}")
-        self.user_info.gnu_triplet = self.options.target_triplet
-        self.user_info.prefix = self.options.prefix
-        self.output.info(f"executable prefix={self.options.prefix}")
-
-        # v2 exports
+        absolute_target_bindir = os.path.join(self.package_folder, target_bindir)
         self.buildenv_info.append_path("PATH", bindir)
-        self.buildenv_info.append_path("PATH", absolute_target_bindir)
+        if self.options.add_unprefixed_to_path:
+            self.buildenv_info.append_path("PATH", absolute_target_bindir)
+
+        self.conf_info.define("user.binutils:gnu_triplet", str(self.options.target_triplet))
+        self.conf_info.define("user.binutils:prefix", str(self.options.prefix))
 
         # Add recipe path to enable running the self test in the test package.
         # Don't use this property in production code. It's unsupported.
@@ -205,6 +202,15 @@ class BinutilsConan(ConanFile):
         self.buildenv_info.define("GPROFNG_SYSCONFDIR", os.path.join(self.package_folder, "etc"))
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs = ["dl", "rt"]
+
+        # v1 exports
+        self.env_info.PATH.append(bindir)
+        if self.options.add_unprefixed_to_path:
+            self.env_info.PATH.append(absolute_target_bindir)
+        self.output.info(f"GNU triplet={self.options.target_triplet}")
+        self.user_info.gnu_triplet = self.options.target_triplet
+        self.user_info.prefix = self.options.prefix
+        self.output.info(f"executable prefix={self.options.prefix}")
 
 class _ArchOs:
     def __init__(self, arch: str, os: str, extra: typing.Optional[typing.Dict[str, str]] = None):
