@@ -1,12 +1,11 @@
 import os
-import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import XCRun
-from conan.tools.env import VirtualBuildEnv
+from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building
 from conan.tools.files import chdir, copy, get, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
+from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
@@ -64,34 +63,30 @@ class PciUtilsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
-    def _cc(self):
-        compilers_by_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
-        cxx = compilers_by_conf.get("c") or VirtualBuildEnv(self).vars().get("CC")
-        if cxx:
-            return cxx
-        if self.settings.compiler == "apple-clang":
-            return XCRun(self).cxx
-        compiler_version = str(self.settings.compiler.version)
-        major = compiler_version.split(".", 1)[0]
-        if self.settings.compiler == "gcc":
-            return shutil.which(f"gcc-{compiler_version}") or shutil.which(f"gcc-{major}") or shutil.which("gcc") or ""
-        if self.settings.compiler == "clang":
-            return shutil.which(f"clang-{compiler_version}") or shutil.which(f"clang-{major}") or shutil.which("clang") or ""
-        return ""
+    def _host(self):
+        # https://github.com/pciutils/pciutils/blob/v3.13.0/lib/configure#L69-L233
+        cpu = "i686" if self.settings.arch == "x86" else self.settings.arch
+        sys = "darwin" if is_apple_os(self) else str(self.settings.os).lower()
+        return f"{cpu}-{sys}"
 
     def generate(self):
         yes_no = lambda v: "yes" if v else "no"
-        tc = AutotoolsToolchain(self)
-        tc.make_args = [
-            f"SHARED={yes_no(self.options.shared)}",
-            f"ZLIB={yes_no(self.options.with_zlib)}",
-            f"HWDB={yes_no(self.options.with_udev)}",
-            f"DESTDIR={self.package_folder}",
-            "PREFIX=/",
-            "DNS=no",
-            f"CC={self._cc}",
-        ]
+        tc = GnuToolchain(self)
+        tc.make_args["SHARED"] = yes_no(self.options.shared)
+        tc.make_args["ZLIB"] = yes_no(self.options.with_zlib)
+        tc.make_args["HWDB"] = yes_no(self.options.with_udev)
+        tc.make_args["DESTDIR"] = self.package_folder
+        tc.make_args["PREFIX"] = "/"
+        tc.make_args["DNS"] = "no"
+        tc.make_args["HOST"] = self._host
+        if cross_building(self):
+            cross_compile_prefix = tc.extra_env.vars(self)["STRIP"].replace("-strip", "-")
+            tc.make_args["CROSS_COMPILE"] = cross_compile_prefix
+        for dep in reversed(self.dependencies.host.topological_sort.values()):
+            for lib in dep.cpp_info.aggregated_components().libs:
+                tc.extra_ldflags.append(f"-l{lib}")
         tc.generate()
+
         deps = AutotoolsDeps(self)
         deps.generate()
 
