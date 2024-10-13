@@ -54,8 +54,6 @@ class TcpWrappersConan(ConanFile):
     def validate(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
-        if cross_building(self):
-            raise ConanInvalidConfiguration("Cross-building is not current supported.")
 
     def build_requirements(self):
         if self._settings_build.os == "Windows":
