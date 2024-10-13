@@ -13,9 +13,10 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
 from conan.tools.files import export_conandata_patches, get, rmdir, rename, replace_in_file, load, save, copy, apply_conandata_patches
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=1.56 <2 || >=2.0.6"
 
 
 class VtkConan(ConanFile):
@@ -152,7 +153,7 @@ class VtkConan(ConanFile):
         "with_libproj": False,  # FIXME: missing binaries
         "with_libxml2": True,
         "with_metaio": True,
-        "with_mpi": False,  # TODO: #18980 Should enable, since disabling this disables all parallel modules
+        "with_mpi": False,  # Disabled due to openmpi/*:enable_cxx being False by default
         "with_mysql": False,  # FIXME: missing binaries
         "with_netcdf": False,  # FIXME: missing binaries
         "with_nlohmannjson": True,
@@ -225,6 +226,7 @@ class VtkConan(ConanFile):
     @functools.lru_cache()
     def _module_ext_deps(self):
         return json.loads(Path(self.recipe_folder, "options", f"{self.version}.json").read_text())["flat_external_deps"]
+
     @property
     @functools.lru_cache()
     def _module_opt_deps(self):
@@ -246,6 +248,8 @@ class VtkConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+            # FIXME: System ODBC not found on Windows?
+            self.options.with_odbc = False
         else:
             # Uses windows.h
             del self.options.with_zspace
@@ -276,7 +280,7 @@ class VtkConan(ConanFile):
         # These are always required by CommonArchive, CommonCore, CommonMath, CommonDataModel, CommonMisc, IOCore, FiltersCore, FiltersGeneral
         self.requires("double-conversion/3.3.0")
         self.requires("exprtk/0.0.2")
-        self.requires("fast_float/6.1.3")
+        self.requires("fast_float/6.1.4")
         self.requires("libarchive/3.7.4")
         self.requires("lz4/1.9.4")
         self.requires("pugixml/1.14")
@@ -339,7 +343,7 @@ class VtkConan(ConanFile):
             self.requires("libxml2/[>=2.12.5 <3]", transitive_headers=True, transitive_libs=True)
         if self.options.with_mpi:
             # Used in public vtk_mpi.h
-            self.requires("openmpi/4.1.6", transitive_headers=True, transitive_libs=True)
+            self.requires("openmpi/4.1.6", transitive_headers=True, transitive_libs=True, options={"enable_cxx": True})
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/8.1.0")
         elif self.options.with_mysql == "mariadb-connector-c":
@@ -350,7 +354,8 @@ class VtkConan(ConanFile):
             self.requires("netcdf/4.8.1", transitive_headers=is_public, transitive_libs=is_public)
         if self.options.with_nlohmannjson:
             self.requires("nlohmann_json/3.11.3")
-        if self.options.with_odbc:
+        if self.options.with_odbc and self.settings.os != "Windows":
+            # odbc is a system lib on Windows
             self.requires("odbc/2.3.11")
         if self.options.with_ogg:
             self.requires("ogg/1.3.5")
@@ -409,6 +414,7 @@ class VtkConan(ConanFile):
         # HoloPlayCore | HoloPlayCore::HoloPlayCore
         # MEMKIND | MEMKIND::MEMKIND | VTK_USE_MEMKIND
         # OpenImageDenoise | OpenImageDenoise | VTK_ENABLE_OSPRAY AND VTKOSPRAY_ENABLE_DENOISER
+        # OpenTURNS | ${OPENTURNS_LIBRARY}
         # OpenXR | OpenXR::OpenXR
         # OpenXRRemoting | OpenXR::Remoting
         # VisRTX | VisRTX_DynLoad | VTK_ENABLE_VISRTX
@@ -422,6 +428,15 @@ class VtkConan(ConanFile):
             self.tool_requires("qt/<host_version>")
 
     def validate(self):
+        if conan_version.major == 1:
+            # The automatic component creation fails due to generator differences.
+            raise ConanInvalidConfiguration("Conan v1 is not supported.")
+        if is_msvc(self) and not self.options.shared:
+            # vtkCommonCore.lib(vtkSMPToolsAPI.obj) : error LNK2019: unresolved external symbol
+            # "public: bool __cdecl vtk::detail::smp::vtkSMPToolsImpl<1>::IsParallelScope(void)"
+            raise ConanInvalidConfiguration(
+                "-o shared=False is currently not supported on MSVC due to linker errors. Contributions are welcome!"
+            )
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
@@ -436,6 +451,8 @@ class VtkConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires kissfft/*:datatype=double")
         if self.options.with_qt and not self.dependencies["qt"].options.widgets:
             raise ConanInvalidConfiguration(f"{self.ref} requires qt/*:widgets=True")
+        if self.options.with_mpi and not self.dependencies["openmpi"].options.enable_cxx:
+            raise ConanInvalidConfiguration(f"{self.ref} requires openmpi/*:enable_cxx=True")
 
         # Just to check for conflicts
         self._compute_module_values()
@@ -507,10 +524,12 @@ class VtkConan(ConanFile):
         modules["CommonPython"] = "NO"
         modules["CommonSystem"] = "YES"
         modules["CommonTransforms"] = "YES"
+        modules["FiltersOpenTURNS"] = "NO"
         modules["IOCore"] = "YES"
         modules["Python"] = "NO"
         modules["GUISupportQtQuick"] = _maybe(self.options.with_qt and qt.opengl != "no" and qt.gui and qt.qtshadertools and qt.qtdeclarative)
         modules["RenderingWebGPU"] = _maybe(self.options.with_sdl2 and (self.settings.os == "Emscripten" or self.options.get_safe("with_dawn")))
+        modules["RenderingFreeTypeFontConfig"] = _yes_no(self.options.with_freetype and self.options.with_fontconfig)
         modules["cgns"] = _yes_no(self.options.with_cgns)
         modules["diy2"] = _yes_no(self.options.with_diy2)
         modules["doubleconversion"] = "YES"
@@ -677,6 +696,10 @@ class VtkConan(ConanFile):
             tc.variables["NetCDF_HAS_PARALLEL"] = ""
         if self.options.with_libproj:
             tc.variables["LibPROJ_MAJOR_VERSION"] = Version(self.dependencies["proj"].ref.version).major
+
+        # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
+        # Needed for try_compile() calls with MPI::MPI_CXX to work.
+        tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -846,7 +869,7 @@ class VtkConan(ConanFile):
         #   include_directories (always "${_IMPORT_PREFIX}/include/vtk")
         #   link_libraries
         #   system_include_directories (still include/vtk, but silent)
-        txt = load(self, targets_file)
+        txt = Path(targets_file).read_text("utf8")
         raw_targets = re.findall(r"add_library\(VTK::(\S+) (\S+) IMPORTED\)", txt)
         targets = {name: {"is_interface": kind == "INTERFACE"} for name, kind in raw_targets if name not in ["vtkbuild"]}
         props_raw = re.findall(r"set_target_properties\(VTK::(\S+) PROPERTIES\n((?: *.+\n)+)\)", txt)
@@ -900,7 +923,13 @@ class VtkConan(ConanFile):
 
     @property
     def _known_system_libs(self):
-        return ["m", "dl", "pthread", "rt", "log", "embind", "socket", "nsl", "wsock32", "ws2_32"]
+        # System libraries used by VTK or its vendored dependencies
+        return [
+            "m", "dl", "pthread", "rt", "socket", "nsl", "execinfo", # Linux/FreeBSD
+            "android", "log", # Android
+            "embind", # Emscripten
+            "ws2_32", "wsock32", "dbghelp", "psapi", "opengl32", "comctl32", "import32", # Windows
+        ]
 
     def _transform_link_libraries(self, values):
         # Converts a list of LINK_LIBRARIES values into a list of component requirements, system_libs and frameworks.
@@ -918,7 +947,7 @@ class VtkConan(ConanFile):
                 # e.g. "\$<\$<PLATFORM_ID:WIN32>:wsock32>"
                 platform_id = re.search(r"PLATFORM_ID:(\w+)", v).group(1)
                 if self._is_matching_cmake_platform(platform_id):
-                    lib = re.search(":(.+)>$", v).group(1)
+                    lib = re.search(r":(\w+)>$", v).group(1)
                     system_libs.append(lib)
             elif v.lower().replace(".lib", "") in self._known_system_libs:
                 system_libs.append(v)
@@ -980,7 +1009,7 @@ class VtkConan(ConanFile):
 
     @property
     def _components_json(self):
-        return os.path.join(self.package_folder, "share", "conan_components.json")
+        return os.path.join(self.package_folder, "res", "conan_components.json")
 
     def package(self):
         cmake = CMake(self)
