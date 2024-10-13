@@ -57,6 +57,9 @@ class LibharuConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["LIBHPDF_SHARED"] = self.options.shared
         tc.variables["LIBHPDF_STATIC"] = not self.options.shared
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["MATH_LIB"] = "m"
+            tc.variables["M_LIB"] = "m"
         # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
