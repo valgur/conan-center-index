@@ -3,21 +3,23 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, chdir, export_conandata_patches, get, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import unix_path
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.3.0"
 
 
 class LibcapConan(ConanFile):
     name = "libcap"
-    license = ("GPL-2.0-only", "BSD-3-Clause")
+    license = "BSD-3-Clause OR GPL-2.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://git.kernel.org/pub/scm/libs/libcap/libcap.git"
     description = "This is a library for getting and setting POSIX.1e" \
                   " (formerly POSIX 6) draft 15 capabilities"
-    topics = ("capabilities")
+    topics = ("capabilities",)
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -46,26 +48,35 @@ class LibcapConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.name} only supports Linux")
 
+    def build_requirements(self):
+        if cross_building(self):
+            # Get arch-specific objcopy
+            self.tool_requires("binutils/2.42")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = AutotoolsToolchain(self)
-        tc.fpic = self.options.get_safe("fPIC", True)
-        env = tc.environment()
-        env.define("SHARED", "yes" if self.options.shared else "no")
-        env.define("PTHREADS", "yes" if self.options.psx_syscals else "no")
-        env.define("DESTDIR", self.package_folder)
-        env.define("prefix", "/")
-        env.define("lib", "lib")
-
+        tc = GnuToolchain(self)
+        tc.extra_env.define("SHARED", "yes" if self.options.shared else "no")
+        tc.extra_env.define("PTHREADS", "yes" if self.options.psx_syscals else "no")
+        tc.extra_env.define_path("DESTDIR", self.package_folder)
+        tc.extra_env.define_path("prefix", "/")
+        tc.extra_env.define_path("lib", "lib")
         if cross_building(self):
             # libcap needs to run an executable that is compiled from sources
             # during the build - so it needs a native compiler (it doesn't matter which)
-            # Assume the `cc` command points to a working C compiler
-            env.define("BUILD_CC", "cc")
+            tc.extra_env.define_path("BUILD_CC", tc.extra_env.vars(self)["CC_FOR_BUILD"])
+            triplet = self.dependencies.build["binutils"].conf_info.get("user.binutils:gnu_triplet", check_type=str)
+            binutils_dir = os.path.join(self.dependencies.build["binutils"].package_folder, "bin")
+            tc.extra_env.define_path("OBJCOPY", unix_path(self, os.path.join(binutils_dir, f"{triplet}-objcopy")))
+        tc.generate()
 
-        tc.generate(env)
+        # Ugly workaround for binutils/*:add_unprefixed_to_path=False having no effect
+        venv = VirtualBuildEnv(self)
+        env = venv.environment()
+        env.define("PATH", env.vars(self).get("PATH").replace("exec_prefix", "exec_prefix_skip"))
+        venv.generate()
 
     def build(self):
         apply_conandata_patches(self)
