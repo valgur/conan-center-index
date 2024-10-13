@@ -45,7 +45,6 @@ class PlutoVGConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        c
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
