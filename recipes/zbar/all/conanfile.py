@@ -14,12 +14,12 @@ required_conan_version = ">=1.53.0"
 
 class ZbarConan(ConanFile):
     name = "zbar"
+    description = ("ZBar is an open source software suite for reading bar codes "
+                   "from various sources, such as video streams, image files and raw intensity sensors")
     license = "LGPL-2.1-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://zbar.sourceforge.net/"
     topics = ("barcode", "scanner", "decoder", "reader", "bar")
-    description = "ZBar is an open source software suite for reading bar codes\
-                   from various sources, such as video streams, image files and raw intensity sensors"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -72,19 +72,18 @@ class ZbarConan(ConanFile):
         if self.options.with_imagemagick:
             self.requires("imagemagick/7.0.11-14")
         if self.options.with_gtk:
-            self.requires("gtk/4.7.0")
+            # GTK 4 is not yet supported
+            self.requires("gtk/3.24.43")
         if self.options.with_qt:
             self.requires("qt/[~5.15]")
+        if self.options.with_xv or self.options.with_xshm or self.options.with_x:
+            self.requires("xorg/system")
 
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Zbar can't be built on Windows")
         if is_apple_os(self) and not self.options.shared:
             raise ConanInvalidConfiguration("Zbar can't be built static on macOS")
-        if self.options.with_xv:            #TODO add when available
-            self.output.warning("There is no Xvideo package available on Conan (yet). This recipe will use the one present on the system (if available).")
-        if Version(self.version) >= "0.22" and cross_building(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can't be built on cross building environment currently because autopoint(part of gettext) doesn't execute correctly.")
 
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20210814")
@@ -119,9 +118,10 @@ class ZbarConan(ConanFile):
             f"--enable-pthread={yes_no(self.options.enable_pthread)}",
         ])
         env = tc.environment()
-        if self.settings.os == "Macos" and self.settings.arch == "armv8":
-            # ./libtool: eval: line 961: syntax error near unexpected token `|'
-            env.define("NM", "nm")
+        compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+        buildenv_vars = VirtualBuildEnv(self).vars()
+        nm = compilers_from_conf.get("nm", buildenv_vars.get("NM", "nm"))
+        env.define_path("NM", nm)
         tc.generate(env)
 
         AutotoolsDeps(self).generate()
@@ -158,3 +158,19 @@ class ZbarConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "zbar")
         if self.settings.os in ("FreeBSD", "Linux") and self.options.enable_pthread:
             self.cpp_info.system_libs = ["pthread"]
+
+        self.cpp_info.requires.append("libiconv::libiconv")
+        if self.options.with_jpeg:
+            self.cpp_info.requires.append("libjpeg::libjpeg")
+        if self.options.with_imagemagick:
+            self.cpp_info.requires.append("imagemagick::MagickWand")
+        if self.options.with_gtk:
+            self.cpp_info.requires.append("gtk::gtk+-3.0")
+        if self.options.with_qt:
+            self.cpp_info.requires.extend(["qt::qtBase", "qt::qtGui", "qt::qtWidgets"])
+            if Version(self.dependencies["qt"].version).major == 5:
+                self.cpp_info.requires.append("qt::qtX11Extras")
+        if self.options.with_xv:
+            self.cpp_info.requires.append("xorg::xv")
+        if self.options.with_x or self.options.with_xshm:
+            self.cpp_info.requires.append("xorg::x11")
