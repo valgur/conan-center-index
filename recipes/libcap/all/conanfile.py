@@ -75,7 +75,9 @@ class LibcapConan(ConanFile):
         # Ugly workaround for binutils/*:add_unprefixed_to_path=False having no effect
         venv = VirtualBuildEnv(self)
         env = venv.environment()
-        env.define("PATH", env.vars(self).get("PATH").replace("exec_prefix", "exec_prefix_skip"))
+        path = env.vars(self).get("PATH")
+        if path and "exec_prefix" in path:
+            env.define("PATH", path.replace("exec_prefix", "exec_prefix_skip"))
         venv.generate()
 
     def build(self):
