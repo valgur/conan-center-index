@@ -41,7 +41,7 @@ class BearConan(ConanFile):
 
     def requirements(self):
         self.requires("grpc/1.50.1")
-        self.requires("fmt/9.1.0")
+        self.requires("fmt/10.0.0")
         self.requires("spdlog/1.11.0")
         self.requires("nlohmann_json/3.11.2")
 
@@ -74,7 +74,7 @@ class BearConan(ConanFile):
         # In case there are dependencies listed on requirements, CMakeDeps should be used
         tc = CMakeDeps(self)
         tc.generate()
-        
+
         pc = PkgConfigDeps(self)
         pc.generate()
 
