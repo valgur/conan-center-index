@@ -7,3 +7,6 @@ patches:
     - patch_file: "patches/001_linux64_compilation_fixes.patch"
     - patch_file: "patches/002_fix_clang_inline.patch"
     - patch_file: "patches/003_fix_missing_cast.patch"
+    - patch_file: "patches/004_fix_non_portable_asm.patch"
+      patch_description: "Fix a non-portable x86/x86_64 assembly instruction"
+      patch_type: "portability"

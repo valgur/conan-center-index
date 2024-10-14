@@ -1,0 +1,19 @@
+asm("int $3"); is only compatible with x86 and x86_64 architectures.
+
+--- a/crnlib/crn_platform.h
++++ b/crnlib/crn_platform.h
+@@ -36,7 +36,13 @@
+    #define CRNLIB_BREAKPOINT DebugBreak();
+    #define CRNLIB_BUILTIN_EXPECT(c, v) c
+ #elif defined(__GNUC__)
+-   #define CRNLIB_BREAKPOINT asm("int $3");
++   #if defined(__x86_64__) || defined(__i386__)
++       #define CRNLIB_BREAKPOINT asm("int $3");
++   #elif defined(__aarch64__)
++       #define CRNLIB_BREAKPOINT asm("brk #0");
++   #else
++       #define CRNLIB_BREAKPOINT
++   #endif
+    #define CRNLIB_BUILTIN_EXPECT(c, v) __builtin_expect(c, v)
+ #else
+    #define CRNLIB_BREAKPOINT
