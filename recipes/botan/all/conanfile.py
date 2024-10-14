@@ -298,12 +298,18 @@ class BotanConan(ConanFile):
 
     @property
     def _configure_cmd(self):
-        if self.settings.compiler in ('clang', 'apple-clang'):
-            botan_compiler = 'clang'
-        elif self.settings.compiler == 'gcc':
-            botan_compiler = 'gcc'
-        else:
-            botan_compiler = 'msvc'
+        botan_compiler = {
+            'apple-clang': 'clang',
+            'clang': 'clang',
+            'gcc': 'gcc',
+            'msvc': 'msvc',
+            'Visual Studio': 'msvc',
+            'intel-cc': 'icc',
+            'sun-cc': 'sunstudio',
+        }[str(self.settings.compiler)]
+
+        tc_vars = AutotoolsToolchain(self).environment().vars(self)
+        cc_bin = tc_vars['CC']
 
         botan_abi_flags = []
         botan_extra_cxx_flags = []
@@ -467,26 +473,18 @@ class BotanConan(ConanFile):
         botan_abi = ' '.join(botan_abi_flags) if botan_abi_flags else ' '
         botan_cxx_extras = ' '.join(botan_extra_cxx_flags) if botan_extra_cxx_flags else ' '
 
-        configure_cmd = ('{python_call} ./configure.py'
-                         ' --build-targets={targets}'
-                         ' --distribution-info="Conan"'
-                         ' --without-documentation'
-                         ' --cc-abi-flags="{abi}"'
-                         ' --extra-cxxflags="{cxxflags}"'
-                         ' --cc={compiler}'
-                         ' --cpu={cpu}'
-                         ' --prefix="{prefix}"'
-                         ' --os={os}'
-                         ' {build_flags}').format(
-                             python_call=call_python,
-                             targets=','.join(build_targets),
-                             abi=botan_abi,
-                             cxxflags=botan_cxx_extras,
-                             compiler=botan_compiler,
-                             cpu=self.settings.arch,
-                             prefix=prefix,
-                             os=self._botan_os,
-                             build_flags=' '.join(build_flags))
+        configure_cmd = (f'{call_python} ./configure.py'
+                         f' --build-targets={",".join(build_targets)}'
+                         f' --distribution-info="Conan"'
+                         f' --without-documentation'
+                         f' --cc-abi-flags="{botan_abi}"'
+                         f' --extra-cxxflags="{botan_cxx_extras}"'
+                         f' --cc={botan_compiler}'
+                         f' --cc-bin="{cc_bin}"'
+                         f' --cpu={self.settings.arch}'
+                         f' --prefix="{prefix}"'
+                         f' --os={self._botan_os}'
+                         f' {" ".join(build_flags)}')
 
         return configure_cmd
 
