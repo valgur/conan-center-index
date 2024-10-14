@@ -1,3 +1,6 @@
+// gzip/utils.hpp is missing #include <cstdint>
+#include <cstdint>
+
 // Include the specific gzip headers your code needs, for example...
 #include <gzip/compress.hpp>
 #include <gzip/config.hpp>
