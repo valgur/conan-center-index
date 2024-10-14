@@ -1,0 +1,31 @@
+From 8e52e542993708db4d2a1a19f5dca533710aee00 Mon Sep 17 00:00:00 2001
+From: aavbsouza <aavbsouza@gmail.com>
+Date: Tue, 10 Sep 2024 19:27:52 -0300
+Subject: [PATCH] remove template specification
+
+---
+ dispenso/graph.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/dispenso/graph.h b/dispenso/graph.h
+index 3131c93..0dd6d8f 100644
+--- a/dispenso/graph.h
++++ b/dispenso/graph.h
+@@ -486,7 +486,7 @@ class DISPENSO_DLL_ACCESS SubgraphT {
+ 
+   static constexpr size_t kNodeSizeP2 = detail::nextPow2(sizeof(NodeType));
+ 
+-  explicit SubgraphT<N>(GraphT<N>* graph) : graph_(graph), nodes_(), allocator_(getAllocator()) {}
++  explicit SubgraphT(GraphT<N>* graph) : graph_(graph), nodes_(), allocator_(getAllocator()) {}
+ 
+   inline void removeNodeFromBiPropSet(Node* /* node */) {}
+   void removeNodeFromBiPropSet(BiPropNode* node) {
+@@ -527,7 +527,7 @@ class DISPENSO_DLL_ACCESS GraphT {
+   /**
+    * Create empty graph.
+    **/
+-  GraphT<N>() {
++  GraphT() {
+     subgraphs_.push_back(SubgraphType(this));
+   }
+   /**
