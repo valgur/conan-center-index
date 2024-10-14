@@ -1,9 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save, move_folder_contents
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save, \
+    move_folder_contents
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -89,9 +90,10 @@ class Hdf4Conan(ConanFile):
         tc.cache_variables["HDF4_BUILD_TOOLS"] = False
         tc.cache_variables["HDF4_BUILD_EXAMPLES"] = False
         tc.cache_variables["HDF4_BUILD_JAVA"] = False
-        if cross_building(self):
+        if not can_run(self):
             tc.cache_variables["H4_PRINTF_LL_TEST_RUN"] = "0"
             tc.cache_variables["H4_PRINTF_LL_TEST_RUN__TRYRUN_OUTPUT"] = ""
+            tc.cache_variables["TEST_LFS_WORKS_RUN"] = "0"
         tc.generate()
 
         deps = CMakeDeps(self)
