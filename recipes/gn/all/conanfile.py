@@ -63,9 +63,9 @@ class GnConan(ConanFile):
     def validate_build(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
-        if self._minimum_compiler_version and Version(self.settings.compiler.version) < self._minimum_compiler_version:
+        minimum_version = self._minimum_compiler_version.get(str(self.settings.compiler))
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"gn requires a compiler supporting C++{self._min_cppstd}")
-
 
     def build_requirements(self):
         # FIXME: add cpython build requirements for `build/gen.py`.
