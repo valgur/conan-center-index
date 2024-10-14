@@ -86,6 +86,8 @@ class CfitsioConan(ConanFile):
             tc.variables["UTILS"] = False
         else:
             tc.variables["UseCurl"] = self.options.get_safe("with_curl", False)
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["M_LIB"] = "m"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
