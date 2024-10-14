@@ -55,6 +55,8 @@ class AstroInformaticsSO3(ConanFile):
         tc.variables["conan_deps"] = False
         tc.variables["CONAN_EXPORTED"] = True
         tc.variables["BUILD_TESTING"] = False
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["MATH_LIBRARY"] = "m"
         tc.generate()
         deps = CMakeDeps(self)
         deps.set_property("fftw", "cmake_target_name", "FFTW3::FFTW3")
