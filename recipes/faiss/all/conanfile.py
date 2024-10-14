@@ -58,6 +58,8 @@ class FaissRecipe(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if self.settings.arch != "x86_64":
+            del self.options.opt_level
 
     def configure(self):
         if self.options.shared:
@@ -83,8 +85,6 @@ class FaissRecipe(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
-        if self.settings.arch != "x86_64" and self.options.opt_level != "generic":
-            raise ConanInvalidConfiguration(f"-o opt_level={self.options.opt_level} is only supported on x86_64")
         if self.options.enable_gpu and not self.options.shared:
             raise ConanInvalidConfiguration(f"-o enable_gpu={self.options.enable_gpu} is only supported with -o shared=True")
 
@@ -94,7 +94,7 @@ class FaissRecipe(ConanFile):
     def generate(self):
         VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
-        tc.cache_variables["FAISS_OPT_LEVEL"] = self.options.opt_level
+        tc.cache_variables["FAISS_OPT_LEVEL"] = self.options.get_safe("opt_level", "generic")
         tc.cache_variables["FAISS_ENABLE_C_API"] = self.options.enable_c_api
         tc.cache_variables["FAISS_ENABLE_GPU"] = bool(self.options.enable_gpu)
         tc.cache_variables["FAISS_ENABLE_RAFT"] = False
@@ -130,7 +130,7 @@ class FaissRecipe(ConanFile):
     @property
     def _enabled_opt_levels(self):
         levels = ["generic", "avx2", "avx512", "sve"]
-        return levels[:levels.index(self.options.opt_level) + 1]
+        return levels[:levels.index(self.options.get_safe("opt_level", "generic")) + 1]
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "faiss")
