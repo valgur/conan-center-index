@@ -51,6 +51,7 @@ class AvahiConan(ConanFile):
         self.requires("dbus/1.15.8")
         self.requires("gdbm/1.23")
         self.requires("libevent/2.1.12")
+        self.requires("libcap/2.70")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -132,7 +133,7 @@ class AvahiConan(ConanFile):
 
         self.cpp_info.components["autoipd"].requires = ["libdaemon::libdaemon"]
         self.cpp_info.components["browse"].requires = ["client", "gdbm::gdbm"]
-        self.cpp_info.components["daemon"].requires = ["core", "expat::expat", "libdaemon::libdaemon"]
+        self.cpp_info.components["daemon"].requires = ["core", "expat::expat", "libdaemon::libdaemon", "libcap::libcap"]
         self.cpp_info.components["dnsconfd"].requires = ["common", "libdaemon::libdaemon"]
         self.cpp_info.components["publish"].requires = ["client"]
         self.cpp_info.components["resolve"].requires = ["client"]
@@ -140,5 +141,4 @@ class AvahiConan(ConanFile):
 
         # TODO: Remove after dropping Conan 1.x support
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
