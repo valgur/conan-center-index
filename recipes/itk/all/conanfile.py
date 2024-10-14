@@ -244,8 +244,9 @@ class ITKConan(ConanFile):
 
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("fftw", "cmake_file_name", "FFTW")
+        deps.generate()
 
         venv = VirtualBuildEnv(self)
         venv.generate()
