@@ -65,8 +65,6 @@ class CairommConan(ConanFile):
             self.requires("libsigcpp/2.10.8", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration("Cross-building not implemented")
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
         if self.options.shared and not self.dependencies["cairo"].options.shared:
