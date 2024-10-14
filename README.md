@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-13:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-14:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -65,6 +65,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_points/1.0.4
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
+- hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
@@ -87,6 +88,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
+- libudev/255.13
 - libx11/1.8.10
 - libxau/1.0.11
 - libxaw/1.0.16
@@ -118,6 +120,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mysql-connector-cpp/9.0.0
 - nanobind/1.9.2
 - netpbm/11.6.0
+- nss/3.104
 - numpy/1.26.4
 - ogre/14.3.0
 - open62541pp/0.12.0
