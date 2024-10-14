@@ -46,14 +46,11 @@ class FtjamConan(ConanFile):
             # NMAKE : fatal error U1077: 'jam0 JamFile' : return code '0xc0000005'
             raise ConanInvalidConfiguration("ftjam doesn't build with Visual Studio yet")
 
-    def validate_build(self):    
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration("ftjam can't be cross-built")
-
     def build_requirements(self):
         if self._settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.24")
         else:
+            self.tool_requires("libtool/2.4.7")
             self.tool_requires("bison/3.8.2")
 
     def source(self):
@@ -96,6 +93,7 @@ class FtjamConan(ConanFile):
                     autotools.make(args=[f"JAM_TOOLSET={jam_toolset}", "-f", "builds/win32-gcc.mk"])
             else:
                 autotools = Autotools(self)
+                autotools.autoreconf(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
                 autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
                 autotools.make()
 
