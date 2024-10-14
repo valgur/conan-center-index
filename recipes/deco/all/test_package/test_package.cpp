@@ -1,12 +1,14 @@
+// deco is missing an #include <cstdint>
+#include <cstdint>
+
 #include <deco/Deco.h>
+
 #include <iostream>
 #include <string>
 
 int main()
 {
-	using namespace std;
-
-	const string sample {
+	const std::string sample{
 		"hello:\n"
 		"	world!\n"
 		":\n"
@@ -14,5 +16,5 @@ int main()
 
 	deco::parse(sample.begin(), sample.end());
 
-	cout << sample << endl;
+	std::cout << sample << std::endl;
 }
