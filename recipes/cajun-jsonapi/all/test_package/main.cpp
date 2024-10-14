@@ -1,3 +1,6 @@
+// #include <cstdint> is missing from cajun/json/reader.inl
+#include <cstdint>
+
 #include <cajun/json/reader.h> // Recommended include path as of v2.1.0
 #include <cajun/json/writer.h>
 #include <json/elements.h> // Shortened include path used prior to v2.1.0
