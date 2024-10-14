@@ -3,7 +3,7 @@ import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building, check_min_cppstd
+from conan.tools.build import cross_building, check_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -115,6 +115,10 @@ class DCMTKConan(ConanFile):
         del self.info.options.external_dictionary
 
     def validate(self):
+        if not can_run(self):
+            # Need to supply an architecture-specific arith.h header to cross-compile.
+            # TODO: add support when https://github.com/DCMTK/dcmtk/commit/eeb7f7e4b913ccf661481da2099736c358c581b9 is released
+            raise ConanInvalidConfiguration("Cross building is not supported")
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
         if hasattr(self, "settings_build") and cross_building(self) and self.settings.os == "Macos":
@@ -158,6 +162,24 @@ class DCMTKConan(ConanFile):
         if is_msvc(self):
             tc.variables["DCMTK_ICONV_FLAGS_ANALYZED"] = True
             tc.variables["DCMTK_COMPILE_WIN32_MULTITHREADED_DLL"] = not is_msvc_static_runtime(self)
+        if not can_run(self):
+            tc.variables["DCMTK_NO_TRY_RUN"] = True
+            tc.variables["DCMTK_ICONV_FLAGS_ANALYZED"] = True
+            tc.variables["DCMTK_STDLIBC_ICONV_HAS_DEFAULT_ENCODING"] = True
+            # Might have a different value on NetBSD
+            # https://github.com/DCMTK/dcmtk/commit/cd89a3bc97758fdf07627af22f7259deea172ad5
+            tc.variables["DCMTK_FIXED_ICONV_CONVERSION_FLAGS"] = "AbortTranscodingOnIllegalSequence"
+            tc.variables["HAVE_STL_ALGORITHM_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_LIMITS_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_LIST_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_MAP_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_MEMORY_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_STACK_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_STRING_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_SYSTEM_ERROR_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_TUPLE_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_TYPE_TRAITS_TEST_RESULT"] = True
+            tc.variables["HAVE_STL_VECTOR_TEST_RESULT"] = True
         tc.generate()
 
         deps = CMakeDeps(self)
