@@ -49,6 +49,8 @@ class LibccdConan(ConanFile):
         tc.variables["BUILD_DOCUMENTATION"] = False
         tc.variables["ENABLE_DOUBLE_PRECISION"] = self.options.enable_double_precision
         tc.variables["CCD_HIDE_ALL_SYMBOLS"] = not self.options.shared
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["LIBM_LIBRARY"] = "m"
         tc.generate()
 
     def build(self):
