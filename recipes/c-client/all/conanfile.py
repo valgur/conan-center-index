@@ -63,13 +63,21 @@ class CclientConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+    @property
+    def _cc(self):
+        tc_vars = AutotoolsToolchain(self).vars()
+        if "CC" in tc_vars:
+            return tc_vars["CC"]
+        compiler = str(self.settings.compiler)
+        return compiler if compiler in ["gcc", "clang"] else "cc"
+
     def generate(self):
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()
         else:
             tc = AutotoolsToolchain(self)
-            tc.make_args.append(f"CC={tc.vars()['CC']}")
+            tc.make_args.append(f"CC={self._cc}")
             tc.generate()
             deps = AutotoolsDeps(self)
             deps.generate()
