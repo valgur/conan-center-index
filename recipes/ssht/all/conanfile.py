@@ -46,6 +46,9 @@ class SshtConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["tests"] = False
         tc.cache_variables["python"] = False
+        tc.cache_variables["BUILD_TESTING"] = False
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["MATH_LIBRARY"] = "m"
         tc.generate()
         deps = CMakeDeps(self)
         deps.set_property("fftw", "cmake_target_name", "FFTW3::FFTW3")
