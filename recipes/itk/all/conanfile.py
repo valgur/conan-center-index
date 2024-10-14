@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -67,13 +68,13 @@ class ITKConan(ConanFile):
         # - vtk
         # - opencv
         #todo: enable after fixing dcmtk compatibility with openssl on Windows
-        #self.requires("dcmtk/3.6.7")
+        #self.requires("dcmtk/3.6.8")
         self.requires("double-conversion/3.3.0")
         self.requires("eigen/3.4.0")
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("fftw/3.3.10")
         self.requires("gdcm/3.0.23")
-        self.requires("hdf5/1.14.3")
+        self.requires("hdf5/1.14.1")
         self.requires("libjpeg/9e")
         self.requires("libpng/[>=1.6 <2]")
         self.requires("libtiff/4.6.0")
@@ -86,9 +87,9 @@ class ITKConan(ConanFile):
             self.tool_requires("cmake/[>=3.16.3 <4]")
 
     def validate(self):
-        if self.options.shared and not self.dependencies["hdf5"].options.shared:
-            raise ConanInvalidConfiguration("When building a shared itk, hdf5 needs to be shared too (or not linked to by the consumer).\n"
-                                            "This is because H5::DataSpace::ALL might get initialized twice, which will cause a H5::DataSpaceIException to be thrown).")
+        if Version(self.version) < "5.2" and is_apple_os(self) and self.settings.arch == "armv8":
+            # https://discourse.itk.org/t/error-building-v5-1-1-for-mac-big-sur-11-2-3/3959
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported on on Apple armv8 architecture.")
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 190)
@@ -256,6 +257,29 @@ class ITKConan(ConanFile):
                         os.path.join(self.source_folder, "Modules", "ThirdParty", "VNL", "src", "vxl", "config", "cmake", "config", "VXLIntrospectionConfig.cmake"),
                         "-DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}",
                         "-DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}")
+        # Ensure that new versions don't introduce any vendored libs by accident
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(ExternalProject)", "")
+        # Unvendor ZLIB
+        for path in [
+            os.path.join(self.source_folder, "Modules", "IO", "GIPL", "src", "itkGiplImageIO.cxx"),
+            os.path.join(self.source_folder, "Modules", "IO", "PhilipsREC", "src", "itkPhilipsRECImageIO.cxx"),
+            os.path.join(self.source_folder, "Modules", "Nonunit", "Review", "src", "itkVoxBoCUBImageIO.cxx"),
+            os.path.join(self.source_folder, "Modules", "ThirdParty", "GDCM", "src", "gdcm", "Utilities", "gdcm_zlib.h"),
+            os.path.join(self.source_folder, "Modules", "ThirdParty", "GIFTI", "src", "gifticlib", "gifti_io.h"),
+            os.path.join(self.source_folder, "Modules", "ThirdParty", "NIFTI", "src", "nifti", "znzlib", "znzlib.h"),
+            os.path.join(self.source_folder, "Modules", "ThirdParty", "MetaIO", "src", "MetaIO", "src", "localMetaConfiguration.h"),
+            os.path.join(self.source_folder, "Modules", "ThirdParty", "MINC", "src", "libminc", "nifti", "znzlib.h"),
+            os.path.join(self.source_folder, "Modules", "ThirdParty", "NrrdIO", "src", "NrrdIO", "unteem.pl"),
+            os.path.join(self.source_folder, "Modules", "ThirdParty", "NrrdIO", "src", "NrrdIO", "privateNrrd.h"),
+        ]:
+            replace_in_file(self, path, "itk_zlib.h", "zlib.h")
+        # Truncate some third-party modules that are provided by conan_cmake_project_include.cmake
+        for pkg in ["DCMTK", "DoubleConversion", "GDCM", "Expat", "HDF5", "JPEG", "PNG", "TIFF", "ZLIB"]:
+            save(self, os.path.join(self.source_folder, "Modules", "ThirdParty", pkg, "CMakeLists.txt"),
+                 f"project(ITK{pkg})\n"
+                 f"set(ITK{pkg}_THIRD_PARTY 1)\n"
+                 f"set(ITK{pkg}_NO_SRC 1)\n"
+                 "itk_module_impl()\n")
 
     def build(self):
         self._patch_sources()
