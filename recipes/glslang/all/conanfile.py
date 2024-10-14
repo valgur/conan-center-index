@@ -143,7 +143,7 @@ class GlslangConan(ConanFile):
         has_machineindependent = not self.options.shared
         has_genericcodegen = not self.options.shared
         has_osdependent = not self.options.shared
-        has_oglcompiler = not self.options.shared
+        has_oglcompiler = not self.options.shared and Version(self.version) < "1.3.275.0"
 
         # glslang
         self.cpp_info.components["glslang-core"].set_property("cmake_target_name", "glslang::glslang")
