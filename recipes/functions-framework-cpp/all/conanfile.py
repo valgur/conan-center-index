@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
@@ -94,11 +96,6 @@ class FunctionsFrameworkCppConan(ConanFile):
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("Fails to build for Visual Studio as a DLL")
 
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Recipe not prepared for cross-building (yet)"
-            )
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -110,8 +107,14 @@ class FunctionsFrameworkCppConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def build(self):
+    def _patch_sources(self):
         apply_conandata_patches(self)
+        # Add a missing include
+        path = Path(self.source_folder, "google/cloud/functions/internal/parse_options.cc")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
