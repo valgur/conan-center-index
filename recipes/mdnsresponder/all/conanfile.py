@@ -1,12 +1,13 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import symlinks, rmdir, get, replace_in_file, rename, chdir, patch, mkdir, copy, apply_conandata_patches
-from conan.tools.scm import Version
-from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
-from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain, VCVars
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import symlinks, rmdir, get, replace_in_file, rename, chdir, patch, mkdir, copy, \
+    apply_conandata_patches
+from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain, VCVars
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -154,7 +155,7 @@ class MdnsResponderConan(ConanFile):
 
     def generate(self):
         if self.settings.os == "Linux":
-            tc = AutotoolsToolchain(self)
+            tc = GnuToolchain(self)
             # fix for error: 'for' loop initial declarations are only allowed in C99 or C11 mode
             tc.extra_cflags.append("-std=gnu99")
             tc.generate()
