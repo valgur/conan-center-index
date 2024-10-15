@@ -1,14 +1,14 @@
-from conan import ConanFile
-from conan.tools.scm import Version
-from conan.tools.files import get, chdir, replace_in_file, copy, rmdir, export_conandata_patches, apply_conandata_patches
-from conan.tools.microsoft import is_msvc, MSBuildToolchain, VCVars, unix_path
-from conan.tools.layout import basic_layout
-from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.apple import is_apple_os
-from conan.tools.build import cross_building
-from conan.errors import ConanInvalidConfiguration
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building
+from conan.tools.files import get, chdir, replace_in_file, copy, rmdir, export_conandata_patches, apply_conandata_patches
+from conan.tools.gnu import Autotools, GnuToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, MSBuildToolchain, VCVars, unix_path
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -49,7 +49,20 @@ class LuajitConan(ConanFile):
 
     def source(self):
         filename = f"LuaJIT-{self.version}.tar.gz"
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, filename=filename, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], filename=filename, strip_root=True)
+
+    @property
+    def _target_sys(self):
+        if self.settings.os == "iOS":
+            return "iOS"
+        if is_apple_os(self):
+            return "Darwin"
+        return {
+            "Linux": "Linux",
+            "FreeBSD": "GNU/kFreeBSD",
+            "SunOS": "SunOS",
+            "Windows": "Windows",
+        }.get(str(self.settings.os), "Linux")
 
     def generate(self):
         if is_msvc(self):
@@ -58,7 +71,15 @@ class LuajitConan(ConanFile):
             tc = VCVars(self)
             tc.generate()
         else:
-            tc = AutotoolsToolchain(self)
+            tc = GnuToolchain(self)
+            tc_vars = tc.extra_env.vars(self)
+            if cross_building(self):
+                tc.make_args["HOST_CC"] = tc_vars["CC_FOR_BUILD"]
+                tc.make_args["CROSS"] = tc_vars["STRIP"].replace("-strip", "-")
+                if self.settings.os != self.settings_build.os:
+                    tc.make_args["TARGET_SYS"] = self._target_sys
+            else:
+                tc.make_args["CC"] = tc_vars["CC"]
             tc.generate()
 
     def _patch_sources(self):
