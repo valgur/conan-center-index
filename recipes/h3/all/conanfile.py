@@ -65,6 +65,8 @@ class H3Conan(ConanFile):
         tc.variables["ENABLE_LINTING"] = False
         tc.variables["ENABLE_DOCS"] = False
         tc.variables["BUILD_TESTING"] = False
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["M_LIB"] = "m"
         tc.generate()
 
     def build(self):
