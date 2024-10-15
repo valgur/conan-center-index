@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -116,6 +117,8 @@ class Opene57Conan(ConanFile):
             replace_in_file(self, compiler_opts, "$<$<CONFIG:DEBUG>:-fsanitize=leak>", "")
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "8":
             replace_in_file(self, compiler_opts, "-fstack-clash-protection", "")
+        path = Path(self.source_folder, "src", "lib", "include", "openE57", "openE57.h")
+        path.write_text("#include <cstdint>\n" + path.read_text())
 
     def build(self):
         self._patch_sources()
