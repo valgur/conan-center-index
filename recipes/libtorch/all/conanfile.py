@@ -261,13 +261,13 @@ class LibtorchConan(ConanFile):
         # fmt/11.x is not yet supported as of v2.4.0
         self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
         self.requires("foxi/cci.20210217", libs=False)
-        self.requires("onnx/1.16.1", transitive_headers=True, transitive_libs=True)
+        self.requires("onnx/1.17.0", transitive_headers=True, transitive_libs=True)
         self.requires("protobuf/3.21.12")
         self.requires("fp16/cci.20210320")
-        self.requires("cpp-httplib/0.16.0")
-        self.requires("libbacktrace/cci.20210118")
+        self.requires("cpp-httplib/0.18.0")
+        self.requires("libbacktrace/cci.20240730")
         if self._depends_on_sleef:
-            self.requires("sleef/3.6")
+            self.requires("sleef/3.6.1")
         if self._depends_on_flatbuffers:
             self.requires("flatbuffers/24.3.25", libs=False)
         if self.options.blas == "openblas":
