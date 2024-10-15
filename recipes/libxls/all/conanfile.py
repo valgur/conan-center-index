@@ -1,14 +1,15 @@
+import os
+import textwrap
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
-
-import os
 
 required_conan_version = ">=1.54.0"
 
@@ -47,8 +48,6 @@ class LibxlsConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -68,16 +67,16 @@ class LibxlsConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
-        if not cross_building(self):
+        if can_run(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = AutotoolsToolchain(self)
-        if cross_building(self):
+        if not can_run(self):
             tc.configure_args.append("ac_cv_func_malloc_0_nonnull=yes")
             tc.configure_args.append("ac_cv_func_realloc_0_nonnull=yes")
         tc.generate()
@@ -86,11 +85,11 @@ class LibxlsConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        config_h_content = """
-#define HAVE_ICONV 1
-#define ICONV_CONST
-#define PACKAGE_VERSION "{}"
-""".format(self.version)
+        config_h_content = textwrap.dedent(f"""
+            #define HAVE_ICONV 1
+            #define ICONV_CONST
+            #define PACKAGE_VERSION "{self.version}"
+            """)
         if self.settings.os == "Macos":
             config_h_content += "#define HAVE_XLOCALE_H 1\n"
         save(self, os.path.join(self.source_folder, "include", "config.h"), config_h_content)

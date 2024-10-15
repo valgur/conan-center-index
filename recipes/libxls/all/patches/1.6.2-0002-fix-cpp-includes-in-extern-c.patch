@@ -1,0 +1,13 @@
+Include the necessary C++ headers before the extern "C" block.
+
+--- a/include/xls.h
++++ b/include/xls.h
+@@ -35,6 +35,8 @@
+ #define XLS_INCLUDE
+  
+ #ifdef __cplusplus
++#include <cstdint>
++#include <cstdio>
+ namespace xls {
+ extern "C" {
+ #endif
