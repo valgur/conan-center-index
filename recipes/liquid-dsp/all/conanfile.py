@@ -64,15 +64,12 @@ class LiquidDspConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if cross_building(self):
-            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
         if is_msvc(self):
             raise ConanInvalidConfiguration("MSVC is not supported due to missing 'complex' data type support")
 
     def build_requirements(self):
         # For ./bootstrap.sh
-        self.tool_requires("autoconf/2.71")
-        self.tool_requires("automake/1.16.5")
+        self.tool_requires("libtool/2.4.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
