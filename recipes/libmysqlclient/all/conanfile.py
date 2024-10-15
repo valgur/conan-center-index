@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library
+from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, can_run
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
 from conan.tools.files import rename, get, apply_conandata_patches, replace_in_file, rmdir, rm, export_conandata_patches, mkdir
@@ -25,10 +25,12 @@ class LibMysqlClientCConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "enable_build_id": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "enable_build_id": True,
     }
 
     package_type = "library"
@@ -53,6 +55,9 @@ class LibMysqlClientCConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if not can_run(self):
+            # Cannot run ./build_id_test when cross-compiling
+            del self.options.enable_build_id
 
     def configure(self):
         if self.options.shared:
@@ -76,9 +81,6 @@ class LibMysqlClientCConan(ConanFile):
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
-        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
-            raise ConanInvalidConfiguration("Cross compilation not yet supported by the recipe. Contributions are welcomed.")
-
     def validate(self):
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -100,6 +102,9 @@ class LibMysqlClientCConan(ConanFile):
             self.tool_requires("cmake/[>=3.18 <4]")
         if self.settings.os == "FreeBSD" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if not can_run(self):
+            # Required for comp_err, comp_sql, etc. build executables.
+            self.tool_requires(f"libmysqlclient/{self.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -191,6 +196,21 @@ class LibMysqlClientCConan(ConanFile):
                         "  INSTALL_DEBUG_SYMBOLS(",
                         "  # INSTALL_DEBUG_SYMBOLS(")
 
+        if getattr(self, "settings_target") is not None:
+            # Building for tool_requires() to help with cross-compilation. Install comp_sql and other utilities.
+            for subdir in ["scripts", "strings", "libmysql", "utilities"]:
+                replace_in_file(self, os.path.join(self.source_folder, subdir, "CMakeLists.txt"),
+                                " SKIP_INSTALL", "")
+            # Re-add for skipped executables.
+            replace_in_file(self, os.path.join(self.source_folder, "utilities", "CMakeLists.txt"),
+                            "EXCLUDE_FROM_ALL", "EXCLUDE_FROM_ALL SKIP_INSTALL")
+
+
+        if not can_run(self):
+            # Don't run a test executable if cross-compiling.
+            replace_in_file(self, os.path.join(self.source_folder, "libmysql", "CMakeLists.txt"),
+                            "MY_ADD_CUSTOM_TARGET(run_libmysql_api_test ALL", "message(TRACE ")
+
     def generate(self):
         vbenv = VirtualBuildEnv(self)
         vbenv.generate()
@@ -227,6 +247,24 @@ class LibMysqlClientCConan(ConanFile):
 
         # Remove to ensure reproducible build, this only affects docs generation
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Doxygen"] = True
+
+        tc.variables["WITH_BUILD_ID"] = self.options.get_safe("enable_build_id", False)
+
+        if self.settings.os == "Linux":
+            # find_library() for libresolv can fail if cross-compiling
+            tc.variables["RESOLV_LIBRARY"] = "resolv"
+
+        if not can_run(self):
+            # Add guesses for try_run() checks.
+            # FMA (fused multiply-add) is typically available on modern x86_64 and ARMv8 CPUs
+            tc.variables["HAVE_C_FLOATING_POINT_FUSED_MADD_EXITCODE"] = self.settings.arch in ["x86_64", "armv8"]
+            tc.variables["HAVE_CXX_FLOATING_POINT_FUSED_MADD_EXITCODE"] = self.settings.arch in ["x86_64", "armv8"]
+            # setns() is available on Linux Kernel >= 3.0
+            tc.variables["HAVE_SETNS"] = self.settings.os == "Linux"
+            # clock_gettime() is available on Linux, FreeBSD, macOS, but not Windows
+            tc.variables["HAVE_CLOCK_GETTIME"] = self.settings.os != "Windows"
+            tc.variables["HAVE_CLOCK_REALTIME"] = self.settings.os != "Windows"
+
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -277,7 +315,9 @@ class LibMysqlClientCConan(ConanFile):
             if stdcpplib:
                 self.cpp_info.system_libs.append(stdcpplib)
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.system_libs.extend(["m", "resolv"])
+                self.cpp_info.system_libs.append("m")
+            if self.settings.os == "Linux":
+                self.cpp_info.system_libs.append("resolv")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["dnsapi", "secur32"])
 
