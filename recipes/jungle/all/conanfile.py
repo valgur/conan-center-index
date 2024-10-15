@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -59,6 +60,9 @@ class JungleConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
+        # TODO: add a patch file
+        path = Path(self.source_folder, "include", "libjungle", "sized_buf.h")
+        path.write_text("#include <stdint.h>\n" + path.read_text())
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
