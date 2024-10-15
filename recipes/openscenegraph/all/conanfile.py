@@ -5,9 +5,10 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -167,11 +168,6 @@ class OpenSceneGraphConanFile(ConanFile):
                 "ASIO support in OSG is broken, "
                 "see https://github.com/openscenegraph/OpenSceneGraph/issues/921"
             )
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                "openscenegraph recipe cannot be cross-built yet. "
-                "Contributions are welcome."
-            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -240,6 +236,13 @@ class OpenSceneGraphConanFile(ConanFile):
 
         if is_apple_os(self):
             tc.preprocessor_definitions["GL_SILENCE_DEPRECATION"] = "1"
+
+        if not can_run(self):
+            tc.variables["_OPENTHREADS_ATOMIC_USE_GCC_BUILTINS"] = self.settings.compiler in ["gcc", "clang", "apple-clang"]
+            tc.variables["_OPENTHREADS_ATOMIC_USE_MIPOSPRO_BUILTINS"] = self.settings.arch in ["mips", "mips64"]
+            tc.variables["_OPENTHREADS_ATOMIC_USE_SUN"] = self.settings.compiler == "sun-cc"
+            tc.variables["_OPENTHREADS_ATOMIC_USE_WIN32_INTERLOCKED"] = is_msvc(self)
+            tc.variables["_OPENTHREADS_ATOMIC_USE_BSD_ATOMIC"] = self.settings.os == "FreeBSD"
 
         tc.generate()
 
