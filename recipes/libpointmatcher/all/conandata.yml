@@ -11,3 +11,6 @@ patches:
       patch_description: "Fix ScalarType const_cast compile error"
       patch_type: "bugfix"
       patch_source: "https://github.com/norlab-ulaval/libpointmatcher/pull/580"
+    - patch_file: "patches/1.4.3-0003-replace-deprecated-boost-functions.patch"
+      patch_description: "Replace removed deprecated boost::filesystem functions"
+      patch_type: "portability"
