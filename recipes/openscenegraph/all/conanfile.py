@@ -225,6 +225,19 @@ class OpenSceneGraphConanFile(ConanFile):
         tc.variables["OSG_WITH_PNG"] = self.options.get_safe("with_png", False)
         tc.variables["OSG_WITH_TIFF"] = self.options.with_tiff
 
+        # Force-disable
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_COLLADA"] = not self.options.get_safe("with_collada", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_FBX"] = not self.options.get_safe("with_fbx", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_GLIB"] = not self.options.get_safe("with_gstreamer", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_GStreamer"] = not self.options.get_safe("with_gstreamer", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_GtkGl"] = not self.options.get_safe("with_gtk", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Lua51"] = not self.options.get_safe("with_lua", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Lua52"] = not self.options.get_safe("with_lua", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Poppler-glib"] = not self.options.get_safe("with_poppler", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SDL"] = not self.options.get_safe("with_sdl", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SDL2"] = not self.options.get_safe("with_sdl", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_ilmbase"] = not self.options.get_safe("with_ilmbase", False)
+
         if (self.options.get_safe("with_avfoundation")):
             tc.variables["OSG_WITH_AV_FOUNDATION"] = True
 
