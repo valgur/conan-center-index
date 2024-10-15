@@ -102,7 +102,7 @@ class OpenCascadeConan(ConanFile):
         self.requires("tcl/8.6.10")
         if self._link_tk:
             self.requires("tk/8.6.10")
-        self.requires("freetype/2.13.0")
+        self.requires("freetype/2.13.2")
         if self._link_opengl:
             self.requires("opengl/system")
         if self._is_linux:
@@ -116,11 +116,11 @@ class OpenCascadeConan(ConanFile):
         if self.options.with_openvr:
             self.requires("openvr/1.16.8")
         if self.options.with_rapidjson:
-            self.requires("rapidjson/1.1.0")
+            self.requires("rapidjson/cci.20230929")
         if self.options.get_safe("with_draco"):
             self.requires("draco/1.5.6")
         if self.options.with_tbb:
-            self.requires("onetbb/2021.10.0")
+            self.requires("onetbb/2021.12.0")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
