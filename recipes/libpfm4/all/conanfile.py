@@ -23,6 +23,9 @@ class Libpfm4Conan(ConanFile):
         # and currently does not compile on modern Mac OS X && Windows
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("This library is Linux only")
+        if self.settings.arch not in ["x86", "x86_64"]:
+            # Makes use of inline assembly.
+            raise ConanInvalidConfiguration("This library only supports x86 and x86_64 architectures")
 
     def configure(self):
         if self.options.shared:
