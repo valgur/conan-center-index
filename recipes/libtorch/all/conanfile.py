@@ -194,6 +194,9 @@ class LibtorchConan(ConanFile):
             # del self.options.distributed
         if self.settings.arch not in ["x86", "x86_64", "armv8"]:
             self.options.rm_safe("with_mkldnn")
+        if self.settings.arch not in ["x86", "x86_64"]:
+            # armv8 is not yet supported
+            self.options.with_fbgemm = False
         if not is_apple_os(self) or self.settings.os not in ["Linux", "Android"]:
             del self.options.with_nnpack
         self.options.with_itt = self.settings.arch in ["x86", "x86_64"]
