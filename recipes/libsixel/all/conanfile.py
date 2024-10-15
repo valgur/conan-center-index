@@ -69,8 +69,6 @@ class LibSixelConan(ConanFile):
             self.requires("libpng/1.6.40")
 
     def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration("Cross-building not implemented")
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support Visual Studio")
 
