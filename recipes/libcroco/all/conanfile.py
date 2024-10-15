@@ -1,13 +1,13 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, PkgConfigDeps
+from conan.tools.gnu import Autotools, PkgConfigDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.54.0"
 
@@ -52,6 +52,9 @@ class LibcrocoConan(ConanFile):
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         self.requires("libxml2/[>=2.12.5 <3]", transitive_headers=True, transitive_libs=True)
 
+    def validate(self):
+        if is_msvc(self) and self.options.shared:
+            raise ConanInvalidConfiguration("Shared builds are not supported with MSVC")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -61,15 +64,25 @@ class LibcrocoConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
-            self.tool_requires("automake/x.y.z")
+            self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
-        tc = PkgConfigDeps(self)
+
+        tc = AutotoolsToolchain(self)
+        # ./configure fails in C3I otherwise with:
+        # error: -Bsymbolic requested but not supported by ld
+        tc.configure_args.append("--disable-Bsymbolic")
+        if is_msvc(self):
+            tc.extra_cflags.append("-FS")
+            tc.extra_cxxflags.append("-FS")
         tc.generate()
+
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
         if is_msvc(self):
             env = Environment()
@@ -92,7 +105,8 @@ class LibcrocoConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYRIGHTS", self.source_folder, os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
@@ -100,11 +114,9 @@ class LibcrocoConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        ver = Version(self.version)
-        name = f"croco-{ver.major}.{ver.minor}"
-        self.cpp_info.set_property("pkg_config_name", f"lib{name}")
-        self.cpp_info.libs = [name]
-        self.cpp_info.includedirs.append(os.path.join("include", f"lib{name}"))
+        self.cpp_info.set_property("pkg_config_name", "libcroco-0.6")
+        self.cpp_info.libs = ["croco-0.6"]
+        self.cpp_info.includedirs.append(os.path.join("include", "libcroco-0.6"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
         self.cpp_info.requires = [
