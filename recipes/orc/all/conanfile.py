@@ -119,7 +119,7 @@ class OrcRecipe(ConanFile):
         if self.version < "1.9.0":
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
 
-        protoc_path = os.path.join(self.dependencies["protobuf"].cpp_info.bindir, "protoc")
+        protoc_path = os.path.join(self.dependencies.build["protobuf"].cpp_info.bindir, "protoc")
         tc.variables["PROTOBUF_EXECUTABLE"] = protoc_path.replace("\\", "/")
         tc.variables["HAS_POST_2038"] = self.settings.os != "Windows"
         tc.variables["HAS_PRE_1970"] = self.settings.os != "Windows"
