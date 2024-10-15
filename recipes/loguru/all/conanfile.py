@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import get, load, save, rmdir, rm
+from conan.tools.files import get, load, save, rmdir, rm, export_conandata_patches, apply_conandata_patches
 from conan.tools.build import check_min_cppstd
 
 
@@ -51,6 +51,9 @@ class LoguruConan(ConanFile):
         "filename_width": 23,
         "threadname_width": 16,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -101,6 +104,7 @@ class LoguruConan(ConanFile):
         deps.generate()
 
     def build(self):
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
