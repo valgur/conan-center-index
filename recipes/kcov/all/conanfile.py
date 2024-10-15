@@ -61,6 +61,9 @@ class KcovConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_PROJECT_kcov_INCLUDE"] = "conan_deps.cmake"
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["DL_LIBRARY"] = "dl"
+            tc.variables["M_LIBRARY"] = "m"
         tc.generate()
         deps = CMakeDeps(self)
         # Match Find*.cmake module names used by the project
