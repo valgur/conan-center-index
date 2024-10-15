@@ -169,6 +169,8 @@ class OpenmvgConan(ConanFile):
         deps.set_property("coin-osi", "cmake_file_name", "Osi")
         deps.set_property("coin-utils", "cmake_file_name", "CoinUtils")
         deps.set_property("flann", "cmake_file_name", "Flann")
+        deps.set_property("flann::flann_c", "cmake_target_name", "flann::flann")
+        deps.set_property("flann::flann_cpp", "cmake_target_name", "flann::flann_cpp")
         deps.generate()
 
     def _patch_sources(self):
