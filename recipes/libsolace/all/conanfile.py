@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -78,6 +79,8 @@ class LibsolaceConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)\nconan_basic_setup()",
                         "")
+        path = Path(self.source_folder, "include/solace/array.hpp")
+        path.write_text("#include <utility>\n" + path.read_text())
 
     def build(self):
         self._patch_sources()
