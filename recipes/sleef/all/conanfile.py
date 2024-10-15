@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
+from conan.tools.build import cross_building, can_run
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches
@@ -73,6 +73,8 @@ class SleefConan(ConanFile):
     def build_requirements(self):
         if Version(self.version) >= "3.6":
             self.tool_requires("cmake/[>=3.18 <4]")
+        if not can_run(self):
+            self.tool_requires(f"sleef/{self.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -107,6 +109,8 @@ class SleefConan(ConanFile):
             tc.cache_variables["BUILD_TESTS"] = False
             tc.cache_variables["DISABLE_FFTW"] = True
             tc.cache_variables["DISABLE_OPENMP"] = not self.options.get_safe("openmp", False)
+        if not can_run(self):
+            tc.cache_variables["NATIVE_BUILD_DIR"] = self.dependencies.build["sleef"].package_folder.replace("\\", "/")
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -127,6 +131,9 @@ class SleefConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "dummy"))
+        if getattr(self, "settings_target") is not None:
+            # Building for tool_requires() in cross-compilation. Copy build utils.
+            copy(self, "*", os.path.join(self.build_folder, "bin"), os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "sleef")
