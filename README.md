@@ -13,13 +13,14 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-14:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-15:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aruco/3.1.15
 - aws-cdi-sdk/2.4.1
+- azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
@@ -34,6 +35,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- confu_json/1.0.1
+- confu_json/1.1.0
+- cppserver/1.0.4.1
 - cub/2.6.1
 - daggy/2.1.3
 - dawn/cci.20240726
@@ -71,6 +75,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imlib2/1.12.3
 - iridescence/0.1.3
 - lapack/3.12.0
+- libarchive/3.7.1
 - libbasisu/1.16.4
 - libcroco/0.6.13
 - libcudacxx/2.6.1
@@ -147,6 +152,20 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.72.1
 - rust/1.77.1
 - rust/1.81.0
+- s2n/1.0.11
+- s2n/1.1.0
+- s2n/1.1.1
+- s2n/1.2.0
+- s2n/1.3.31
+- s2n/1.3.49
+- s2n/1.3.50
+- s2n/1.3.52
+- s2n/1.3.55
+- s2n/1.3.56
+- s2n/1.3.9
+- s2n/1.4.0
+- s2n/1.4.1
+- s2n/1.4.13
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/cci.20240727
