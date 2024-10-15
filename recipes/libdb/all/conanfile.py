@@ -1,6 +1,9 @@
+import re
+from pathlib import Path
+
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file, rename, rm, rmdir
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file, rename, rm, rmdir, save
 from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, is_msvc, check_min_vs, vs_layout
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -70,7 +73,7 @@ class LibdbConan(ConanFile):
             # FIXME: it used to work with previous versions of Visual Studio 2019 in CI of CCI.
             # Currently won't work with Visual Studio 2019 or newer
             raise ConanInvalidConfiguration(f"{self.ref} Visual Studio 2019 is currently not supported. Contributions are welcomed!")
-            
+
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration(f"{self.ref} Macos Apple Sillicon is currently not supported. Contributions are welcomed!")
 
@@ -155,6 +158,14 @@ class LibdbConan(ConanFile):
                                   "\n    --datarootdir=*)"
                                   "\n      ;;"
                                   "\n    --disable-option-checking)")
+            if not self.options.with_tcl:
+                # The configure script desperately tries to find tclConfig.sh and enable tcl support,
+                # even if --without-tcl is passed.
+                # This fails when cross-compiling or when Tcl is not installed systme-wide.
+                configure = Path(dist_configure).read_text()
+                configure, n = re.subn("# Optional Tcl support.+# Optional sequence code", "#", configure, flags=re.DOTALL | re.MULTILINE)
+                assert n == 1
+                Path(dist_configure).write_text(configure)
 
 
     def generate(self):
@@ -183,6 +194,9 @@ class LibdbConan(ConanFile):
 
             if self.options.with_tcl:
                 tc.configure_args.append(f"--with-tcl={os.path.join(self.dependencies['tcl'].package_folder, 'lib')}")
+            else:
+                tc.configure_args.append("--without-tcl")
+                tc.configure_args.append("enable_tcl=no")
 
             if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) >= "12":
                 tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
