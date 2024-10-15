@@ -71,6 +71,8 @@ class NiftiClibConan(ConanFile):
         if is_msvc(self):
             tc.variables["USE_MSVC_RUNTIME_LIBRARY_DLL"] = not is_msvc_static_runtime(self)
             tc.preprocessor_definitions["_CRT_SECURE_NO_WARNINGS"] = 1
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            tc.variables["NIFTI_SYSTEM_MATH_LIB"] = "m"
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
