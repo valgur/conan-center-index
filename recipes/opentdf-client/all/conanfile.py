@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -111,6 +112,8 @@ class OpenTDFConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
+        path = Path(self.source_folder, "src/lib/include/tdf_reader.h")
+        path.write_text("#include <cstdint>\n" + path.read_text())
 
     def build(self):
         self._patch_sources()
