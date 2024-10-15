@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import check_min_vs, is_msvc
@@ -13,9 +15,7 @@ required_conan_version = ">=1.53.0"
 
 class MBitsUtfConvConan(ConanFile):
     name = "mbits-utfconv"
-    description = (
-        "Conversion library between string, u16string, u32string and u8string."
-    )
+    description = "Conversion library between string, u16string, u32string and u8string."
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mbits-libs/utfconv"
@@ -81,18 +81,18 @@ class MBitsUtfConvConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
+    def _patch_sources(self):
+        path = Path(self.source_folder, "src", "utf.cpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
