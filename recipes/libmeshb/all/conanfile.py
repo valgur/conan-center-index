@@ -50,6 +50,7 @@ class LibmeshbConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["WITH_GMF_AIO"] = self.options.get_safe("with_gmf_asio", False)
+        tc.variables["CMAKE_Fortran_COMPILER"] = ""
         tc.generate()
 
     def _patch_sources(self):
