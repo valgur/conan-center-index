@@ -92,6 +92,9 @@ class JoltPhysicsConan(ConanFile):
         self.tool_requires("cmake/[>=3.16 <4]")
 
     def validate(self):
+        if self.settings.arch not in ["x86", "x86_64"]:
+            raise ConanInvalidConfiguration("JoltPhysics only supports x86 architectures")
+
         if self.settings.compiler.get_safe("cppstd"):
             check_min_cppstd(self, self._min_cppstd)
 
