@@ -79,7 +79,7 @@ class LibsndioConan(ConanFile):
         tc.configure_args.append("--datadir=${prefix}/res")
 
         # Bundled `configure` script does not support these options, so remove
-        exclusions = ["--enable-shared", "--disable-shared", "--disable-static", "--enable-static", "--sbindir", "--oldincludedir"]
+        exclusions = ["--enable-shared", "--disable-shared", "--disable-static", "--enable-static", "--sbindir", "--oldincludedir", "--host", "--build"]
         tc.configure_args = [arg for arg in tc.configure_args if not any(exclusion in arg for exclusion in exclusions)]
 
         # Add alsa support
@@ -91,7 +91,7 @@ class LibsndioConan(ConanFile):
         # The original project source has a hand-written `configure` script that does not expose
         # many hooks for specifying additional build flags and library dependencies. Because the script is
         # not auto-generated with Autotools, the standard Conan workflow of using AutoolsDeps is not possible.
-        # The one hook the script does provide is a command line arg: `CC=*|CFLAGS=*|LDFLAGS=*|AR=*)`. 
+        # The one hook the script does provide is a command line arg: `CC=*|CFLAGS=*|LDFLAGS=*|AR=*)`.
         # We use this to inject the various flags, paths, and libraries that the Conan dependency tree specifies.
         dep_cflags = []
         dep_ldflags = []
