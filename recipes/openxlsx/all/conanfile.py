@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy, rmdir
@@ -71,7 +73,16 @@ class OpenXlsxConan(ConanFile):
         tc.variables["OPENXLSX_LIBRARY_TYPE"] = "SHARED" if self.options.shared else "STATIC"
         tc.generate()
 
+    def _patch_sources(self):
+        for file in [
+            os.path.join("OpenXLSX", "headers", "XLCellReference.hpp"),
+            os.path.join("OpenXLSX", "sources", "XLColor.cpp"),
+        ]:
+            path = Path(self.source_folder, file)
+            path.write_text("#include <cstdint>\n" + path.read_text())
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
