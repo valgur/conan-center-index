@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get
 from conan.tools.gnu import PkgConfigDeps
 
@@ -34,23 +35,25 @@ class libuiConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.options["gtk"].version = 3
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("gtk/system")
+            # GTK 4 is not yet supported
+            self.requires("gtk/3.24.43")
+
+    def build_requirements(self):
+        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
-        tc.generate()
-        tc = CMakeDeps(self)
         tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()
@@ -61,26 +64,17 @@ class libuiConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
-        copy(self, "*.h",
-             dst=os.path.join(self.package_folder, "include"),
-             src=self.source_folder)
-        copy(self, "*.dll",
-             dst=os.path.join(self.package_folder, "bin"),
-             src=self.build_folder,
-             keep_path=False)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h", self.source_folder, os.path.join(self.package_folder, "include"))
+        copy(self, "*.dll", self.build_folder, os.path.join(self.package_folder, "bin"), keep_path=False)
         for pattern in ["*.a", "*.so*", "*.dylib*", "*.lib"]:
-            copy(self, pattern,
-                 dst=os.path.join(self.package_folder, "lib"),
-                 src=self.build_folder,
-                 keep_path=False)
+            copy(self, pattern, self.build_folder, os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs += ["dl"]
+            self.cpp_info.requires = ["gtk::gtk+-3.0"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs += [
                 "user32",
