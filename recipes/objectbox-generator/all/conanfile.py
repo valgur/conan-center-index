@@ -26,10 +26,6 @@ class PackageConan(ConanFile):
         del self.info.settings.compiler
         del self.info.settings.build_type
 
-    def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD", "Windows", "Macos"] or self.settings.arch != "x86_64":
-            raise ConanInvalidConfiguration(f"{self.name} doesn't support current environment")
-
     def build(self):
         get(self, **self.conan_data["sources"][self.version][str(self.info.settings.os)])
         download(self, **self.conan_data["sources"][self.version]["License"], filename="LICENSE.txt")
