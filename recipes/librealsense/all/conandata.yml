@@ -39,6 +39,9 @@ patches:
     - patch_file: "patches/2.53.1-0004-use-openmp-targets.patch"
       patch_description: "Use OpenMP targets instead of plain compiler flags"
       patch_type: "portability"
+    - patch_file: "patches/2.53.1-0005-fix-udev-handling.patch"
+      patch_description: "Fix linking against relocated libudev"
+      patch_type: "conan"
   "2.49.0":
     - patch_file: "patches/2.49.0-0001-fix-cmake.patch"
     - patch_file: "patches/2.49.0-0002-fix-avx-check.patch"

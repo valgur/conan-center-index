@@ -1,10 +1,12 @@
+import os
+import urllib
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, download, export_conandata_patches, get, rm, rmdir
 from conan.tools.microsoft import is_msvc
-import os
-import urllib
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -51,6 +53,8 @@ class LibrealsenseConan(ConanFile):
 
     def requirements(self):
         self.requires("libusb/1.0.26")
+        if Version(self.version) >= "2.50.0":
+            self.requires("libudev/255.13")
         # Used only in .cpp files
         self.requires("openmp/system")
 
@@ -130,11 +134,13 @@ class LibrealsenseConan(ConanFile):
         self.cpp_info.components["realsense2"].set_property("cmake_target_name", "realsense2::realsense2")
         self.cpp_info.components["realsense2"].set_property("pkg_config_name", "realsense2")
         self.cpp_info.components["realsense2"].libs = [f"realsense2{postfix}"]
-        self.cpp_info.components["realsense2"].requires = ["libusb::libusb", "openmp::openmp"]
         if not self.options.shared:
             self.cpp_info.components["realsense2"].requires.extend(["realsense-file", "fw"])
+        self.cpp_info.components["realsense2"].requires = ["libusb::libusb", "openmp::openmp"]
+        if Version(self.version) >= "2.50.0":
+            self.cpp_info.components["realsense2"].requires.append("libudev::libudev")
         if self.settings.os == "Linux":
-            self.cpp_info.components["realsense2"].system_libs.extend(["m", "pthread", "udev"])
+            self.cpp_info.components["realsense2"].system_libs.extend(["m", "pthread"])
         elif self.settings.os == "Windows":
             self.cpp_info.components["realsense2"].system_libs.extend([
                 "cfgmgr32", "setupapi",
