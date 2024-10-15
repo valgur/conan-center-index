@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.build import stdcpp_library
+from conan.tools.build import stdcpp_library, check_max_cppstd
 from conan.tools.files import chdir, copy, get, replace_in_file, rm, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -43,6 +43,12 @@ class LibsassConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.compiler.cppstd:
+            # C++20 fails with
+            # ast_sel_cmp.cpp:17:51: error: ambiguous overload for 'operator=='
+            check_max_cppstd(self, 17)
 
     def build_requirements(self):
         if self.settings.os != "Windows":
