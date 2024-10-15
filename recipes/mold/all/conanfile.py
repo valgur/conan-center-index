@@ -2,7 +2,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.files import copy, get, rmdir
+from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.scm import Version
 from conan.tools.env import VirtualBuildEnv
@@ -44,6 +44,9 @@ class MoldConan(ConanFile):
             "msvc": "192",
         }
 
+    def export_sources(self):
+        copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+
     def configure(self):
         if Version(self.version) < "2.0.0":
             self.license = "AGPL-3.0"
@@ -55,9 +58,10 @@ class MoldConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zstd/[~1.5]")
         self.requires("xxhash/0.8.2")
         if self.options.with_mimalloc:
-            self.requires("mimalloc/2.1.2")
+            self.requires("mimalloc/2.1.7")
         if Version(self.version) < "2.2.0":
             # Newer versions use vendored-in BLAKE3
             self.requires("openssl/[>=1.1 <4]")
@@ -102,6 +106,7 @@ class MoldConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.variables["CMAKE_PROJECT_mold_INCLUDE"] = "conan_deps.cmake"
         tc.variables["MOLD_USE_MIMALLOC"] = self.options.with_mimalloc
         tc.variables["MOLD_USE_SYSTEM_MIMALLOC"] = True
         tc.variables["MOLD_USE_SYSTEM_TBB"] = False # see https://github.com/conan-io/conan-center-index/pull/23575#issuecomment-2059154281
@@ -109,12 +114,23 @@ class MoldConan(ConanFile):
         tc.generate()
 
         cd = CMakeDeps(self)
+        cd.set_property("zstd", "cmake_target_name", "zstd::zstd")
         cd.generate()
 
         vbe = VirtualBuildEnv(self)
         vbe.generate()
 
+    def _patch_sources(self):
+        # Make sure these have been unvendored correctly.
+        for dep in ["mimalloc", "xxhash", "zlib", "zstd"]:
+            # TODO: blake3, rust-demangle
+            rmdir(self, os.path.join(self.source_folder, "third-party", dep))
+        replace_in_file(self, os.path.join(self.source_folder, "lib", "common.h"),
+                        '#include "../third-party/xxhash/xxhash.h"',
+                        "#include <xxhash.h>")
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
