@@ -28,7 +28,7 @@ class PackageConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "with_python": True,
+        "with_python": False,
     }
     short_paths = True
 
@@ -57,9 +57,8 @@ class PackageConan(ConanFile):
     def requirements(self):
         self.requires("tomlplusplus/3.4.0")
         if self.options.with_python:
-            self.requires("ncurses/6.4")
-            self.requires("cpython/3.10.0")
-            self.requires("pybind11/2.12.0")
+            self.requires("cpython/3.12.7")
+            self.requires("pybind11/2.13.6")
 
     def validate(self):
         if is_apple_os(self):
@@ -79,7 +78,8 @@ class PackageConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25 <4]")
-        self.tool_requires("cpython/<host_version>")
+        if self.options.with_python:
+            self.tool_requires("cpython/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
