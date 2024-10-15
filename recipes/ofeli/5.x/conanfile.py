@@ -65,6 +65,8 @@ class OfeliConan(ConanFile):
         replace_in_file(self, cmakelists, "add_definitions", "add_compile_options")
         # Fix -fPIC support
         replace_in_file(self, cmakelists, " -fPIE", "")
+        # -mtune is not portable
+        replace_in_file(self, cmakelists, " -mtune=native", "")
 
     def build(self):
         self._patch_sources()

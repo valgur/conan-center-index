@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import chdir, copy, get
+from conan.tools.files import chdir, copy, get, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
@@ -53,7 +53,12 @@ class OfeliConan(ConanFile):
         tc.configure_args.append(f"--enable-{config}")
         tc.generate()
 
+    def _patch_sources(self):
+        # -mtune is not portable
+        replace_in_file(self, os.path.join(self.source_folder, "configure"), " -mtune=native", "")
+
     def build(self):
+        self._patch_sources()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
