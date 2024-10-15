@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.build import can_run
 from conan.tools.files import get, copy
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
@@ -46,13 +47,16 @@ class KplotConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
 
     def requirements(self):
-        self.requires("cairo/1.17.4", transitive_headers=True)
+        self.requires("cairo/1.18.0", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if not can_run(self):
+            # Evaluates to False on libc.
+            tc.variables["HAVE_reallocarray"] = False
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
