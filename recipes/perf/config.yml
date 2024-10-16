@@ -1,3 +1,5 @@
 versions:
+  "6.11":
+    folder: all
   "5.13":
     folder: all

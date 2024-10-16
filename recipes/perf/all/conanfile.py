@@ -2,8 +2,9 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import can_run
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, GnuToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.47.0"
@@ -29,6 +30,43 @@ class Perf(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
 
+    @property
+    def _arch(self):
+        return {
+            "x86": "x86",
+            "x86_64": "x86",
+            "armv6": "arm",
+            "armv7": "arm",
+            "armv7hf": "arm",
+            "armv8": "arm64",
+            "armv8_32": "arm64",
+            "armv8_64": "arm64",
+            "ppc32": "powerpc",
+            "ppc64": "powerpc",
+            "ppc64le": "powerpc",
+            "mips": "mips",
+            "mips64": "mips",
+            "sparc": "sparc",
+            "sparcv9": "sparc",
+            "s390": "s390",
+            "s390x": "s390",
+            "riscv32": "riscv",
+            "riscv64": "riscv64"
+        }.get(str(self.settings.arch))
+
+    def requirements(self):
+        self.requires("capstone/5.0.1")
+        self.requires("libbpf/1.4.6")
+        self.requires("libcap/2.70")
+        self.requires("libelf/0.8.13")
+        self.requires("libnuma/2.0.16")
+        self.requires("libunwind/1.8.1")
+        self.requires("openssl/[>=1.1 <4]")
+        self.requires("xz_utils/[>=5.4.5 <6]")
+        self.requires("zstd/[~1.5]")
+        # TODO: libtraceevent
+        # TODO: babeltrace
+
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("perf is supported only on Linux")
@@ -41,8 +79,28 @@ class Perf(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = AutotoolsToolchain(self)
-        tc.make_args += ["NO_LIBPYTHON=1"]
+        tc = GnuToolchain(self)
+        tc_vars = tc.extra_env.vars(self)
+        deps_vars = AutotoolsDeps(self).environment.vars(self)
+        tc.make_args["NO_LIBPYTHON"] = 1
+        tc.make_args["NO_LIBPERL"] = 1
+        tc.make_args["NO_LIBTRACEEVENT"] = 1
+        tc.make_args["SRCARCH"] = self._arch
+        tc.make_args["CC"] = tc_vars["CC"]
+        tc.make_args["CPPFLAGS"] = deps_vars["CPPFLAGS"]
+        tc.make_args["CPPFLAGS"] += f" -I{self.dependencies['openssl'].cpp_info.includedirs[0]}/openssl"
+        tc.make_args["CFLAGS"] = deps_vars["CFLAGS"] + " " + tc.make_args["CPPFLAGS"]
+        tc.make_args["LDFLAGS"] = deps_vars["LDFLAGS"]
+        tc.make_args["LIBS"] = deps_vars["LIBS"]
+        if not can_run(self):
+            tc.make_args["HOSTCC"] = "cc"
+            tc.make_args["LD"] = tc_vars["CC"]
+            tc.make_args["STRIP"] = tc_vars["STRIP"]
+            tc.make_args["OBJDUMP"] = tc.make_args["STRIP"].replace("strip", "objdump")
+            tc.make_args["READELF"] = tc.make_args["STRIP"].replace("strip", "readelf")
+        for val in list(tc.make_args):
+            if not tc.make_args[val]:
+                del tc.make_args[val]
         tc.generate()
 
     def build(self):
@@ -70,5 +128,4 @@ class Perf(ConanFile):
 
         # TODO: remove in conan v2
         bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
         self.env_info.PATH.append(bin_path)
