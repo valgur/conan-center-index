@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.gnu import AutotoolsToolchain, Autotools, PkgConfigDeps
+from conan.tools.gnu import AutotoolsToolchain, Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.microsoft import is_msvc, unix_path
 from conan.tools.files import get, rmdir, copy, apply_conandata_patches, export_conandata_patches
 from conan.tools.env import VirtualBuildEnv
@@ -68,16 +68,8 @@ class XorgCfFilesConan(ConanFile):
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
-
-        tc = AutotoolsToolchain(self)
-        env = tc.environment()
-        if is_msvc(self):
-            compile_wrapper = unix_path(self, self.conf.get('user.automake:compile-wrapper'))
-            env.define("CC", f"{compile_wrapper} cl -nologo")
-            env.define("CXX", f"{compile_wrapper} cl -nologo")
-            env.define("CPP", f"{compile_wrapper} cl -E")
-        tc.generate(env)
-
+        tc = GnuToolchain(self)
+        tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
 

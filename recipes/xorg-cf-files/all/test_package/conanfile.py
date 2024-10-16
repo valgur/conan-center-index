@@ -1,12 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.layout import basic_layout
-from conan.tools.files import copy
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.microsoft import is_msvc
 from conan.tools.build import can_run
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import copy
+from conan.tools.gnu import Autotools, GnuToolchain
+from conan.tools.layout import basic_layout
 
 
 class TestPackageConan(ConanFile):
@@ -18,7 +17,7 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
         self.tool_requires("imake/1.0.9")
         if not self.conf_info.get("tools.gnu:make_program", check_type=str):
-            self.tool_requires("make/4.4")
+            self.tool_requires("make/4.4.1")
 
     @property
     def _settings_build(self):
@@ -28,10 +27,11 @@ class TestPackageConan(ConanFile):
         basic_layout(self)
 
     def generate(self):
-        tc = AutotoolsToolchain(self)
-        env = tc.environment()
-        if is_msvc(self):
-            env.define("CC", "cl -nologo")
+        tc = GnuToolchain(self)
+        tc_vars = tc.extra_env.vars(self)
+        tc.make_args["CC"] = tc_vars["CC"]
+        # Instruct Imake to use the native compiler for its own C code
+        tc.extra_env.define("CC", "cc")
         tc.generate()
 
         buildenv = VirtualBuildEnv(self)
