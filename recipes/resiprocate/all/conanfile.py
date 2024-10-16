@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import cross_building
+from conan.tools.build import cross_building, check_max_cppstd
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy, get, rm, rmdir, chdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
@@ -45,9 +45,6 @@ class ResiprocateConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.settings.os == "Windows" or is_apple_os(self):
-            # FIXME: unreleased versions of resiprocate use CMake and should support Windows and macOS
-            raise ConanInvalidConfiguration(f"reSIProcate recipe does not currently support {self.settings.os}.")
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
@@ -61,6 +58,14 @@ class ResiprocateConan(ConanFile):
             self.requires("libpq/15.4")
         if self.options.with_mysql:
             self.requires("libmysqlclient/8.1.0")
+
+    def validate(self):
+        if self.settings.os == "Windows" or is_apple_os(self):
+            # FIXME: unreleased versions of resiprocate use CMake and should support Windows and macOS
+            raise ConanInvalidConfiguration(f"reSIProcate recipe does not currently support {self.settings.os}.")
+        if self.settings.compiler.cppstd:
+            # Uses deprecated std::allocator<void>::const_pointer, which has been removed in C++20
+            check_max_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
