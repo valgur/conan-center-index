@@ -97,9 +97,8 @@ class vvencRecipe(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["VVENC_ENABLE_LINK_TIME_OPT"] = False
         tc.cache_variables["VVENC_ENABLE_LINK_TIME_OPT"] = False
-        if self.settings.compiler in ["gcc", 'clang']:
-            tc.blocks["cmake_flags_init"].template += '\nstring(APPEND CMAKE_C_FLAGS_INIT " -Wno-uninitialized")'
-            tc.blocks["cmake_flags_init"].template += '\nstring(APPEND CMAKE_CXX_FLAGS_INIT " -Wno-uninitialized")'
+        tc.extra_cxxflags.append("-Wno-error=maybe-uninitialized")
+        tc.extra_cxxflags.append("-Wno-error=uninitialized")
         tc.generate()
 
     def build(self):
