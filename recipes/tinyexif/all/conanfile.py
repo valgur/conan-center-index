@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.tools.files import get, rmdir, save, load
 from conan.tools.build import check_min_cppstd
@@ -61,7 +63,12 @@ class TinyEXIFConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
+    def _patch_sources(self):
+        path = Path(self.source_folder, "TinyEXIF.h")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
