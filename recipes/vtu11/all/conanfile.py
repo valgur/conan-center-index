@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, copy
@@ -19,7 +21,6 @@ class PackageConan(ConanFile):
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
     options = {
         "with_zlib": [True, False],
     }
@@ -47,6 +48,8 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        path = Path(self.source_folder, "vtu11", "inc", "alias.hpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
 
     def package(self):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
