@@ -13,7 +13,7 @@ class RecklessConan(ConanFile):
     name = "reckless"
     description = "Reckless is an extremely low-latency, high-throughput logging library."
     license = "MIT"
-    topics = ("logging")
+    topics = ("logging",)
     homepage = "https://github.com/mattiasflodin/reckless"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -36,10 +36,7 @@ class RecklessConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -53,12 +50,14 @@ class RecklessConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} only supports Visual Studio on Windows")
         if is_msvc(self) and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
+        # Atomic operations support in reckless requires either libstdc++ or MSVC on an x86 architecture.
         if self.info.settings.compiler == "clang" and self.info.settings.compiler.get_safe("libcxx") == "libc++":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support clang with libc++")
+        if self.settings.arch not in ["x86", "x86_64"]:
+            raise ConanInvalidConfiguration(f"{self.ref} only supports x86 and x86_64")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
