@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import get, copy, rm, rmdir
+from conan.tools.files import get, copy, rm, rmdir, apply_conandata_patches, export_conandata_patches
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
@@ -30,6 +30,9 @@ class SoundTouchConan(ConanFile):
         "with_dll": False,
         "with_util": False,
     }
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -65,6 +68,7 @@ class SoundTouchConan(ConanFile):
         tc.generate()
 
     def build(self):
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

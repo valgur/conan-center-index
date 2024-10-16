@@ -1,0 +1,36 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.1)
++cmake_minimum_required(VERSION 3.15)
+ project(SoundTouch VERSION 2.3.2 LANGUAGES CXX)
+ 
+ include(GNUInstallDirs)
+@@ -59,14 +59,20 @@
+   target_compile_definitions(SoundTouch PRIVATE SOUNDTOUCH_FLOAT_SAMPLES)
+ endif()
+ 
+-if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(armv7.*|armv8.*|aarch64.*)$")
+-  set(NEON_CPU ON)
+-else()
+-  set(NEON_CPU OFF)
+-endif()
+-
+ option(NEON "Use ARM Neon SIMD instructions if in ARM CPU" ON)
+-if(${NEON} AND ${NEON_CPU})
++include(CheckCXXSourceCompiles)
++set(CMAKE_REQUIRED_FLAGS -mfpu=neon)
++check_cxx_source_compiles("
++    #if defined(__ARM_NEON) || defined(__ARM_NEON__)
++      int main() { return 0; }
++    #else
++      #error NEON is not available
++    #endif
++  "
++  HAVE_NEON_SUPPORT
++)
++unset(CMAKE_REQUIRED_FLAGS)
++if(NEON AND HAVE_NEON_SUPPORT)
+   target_compile_definitions(SoundTouch PRIVATE SOUNDTOUCH_USE_NEON)
+   target_compile_options(SoundTouch PRIVATE -mfpu=neon)
+ endif()
