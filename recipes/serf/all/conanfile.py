@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, mkdir, rm, rmdir, save
-from conan.tools.gnu import AutotoolsToolchain
+from conan.tools.gnu import GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, msvs_toolset
 from conan.tools.scm import Version
@@ -60,31 +60,22 @@ class SerfConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def _cc(self):
-        if "CC" in os.environ:
-            return os.environ["CC"]
-        if is_apple_os(self):
-            return "clang"
-        if is_msvc(self):
-            return "cl"
-        return str(self.settings.compiler)
-
     def _lib_path_arg(self, path):
         argname = "LIBPATH:" if is_msvc(self) else "L"
-        return "-{}'{}'".format(argname, unix_path(self, path))
+        return f"-{argname}'{unix_path(self, path)}'"
 
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
 
-        autotools = AutotoolsToolchain(self)
+        tc = GnuToolchain(self)
+        tc_vars = tc.extra_env.vars(self)
         args = ["-Y", self.source_folder]
         libdirs = sum([dep.cpp_info.libdirs for dep in self.dependencies.values()], [])
         sharedlinkflags = sum([dep.cpp_info.sharedlinkflags for dep in self.dependencies.values()], [])
         includedirs = sum([dep.cpp_info.includedirs for dep in self.dependencies.values()], [])
         cflags = sum([dep.cpp_info.cflags for dep in self.dependencies.values()], [])
-        cflags += autotools.cflags
+        cflags += tc.cflags
         libs = sum([dep.cpp_info.libs for dep in self.dependencies.values()], [])
         if self.options.get_safe("fPIC"):
             cflags.append("-fPIC")
@@ -99,8 +90,8 @@ class SerfConan(ConanFile):
             "APR_STATIC": not self.dependencies["apr"].options.shared,
             "CFLAGS": " ".join(cflags),
             "LINKFLAGS": " ".join(sharedlinkflags + [self._lib_path_arg(l) for l in libdirs]),
-            "CPPFLAGS": " ".join([f"-D{d}" for d in autotools.defines] + [f"-I'{unix_path(self, inc)}'" for inc in includedirs]),
-            "CC": self._cc,
+            "CPPFLAGS": " ".join([f"-D{d}" for d in tc.defines] + [f"-I'{unix_path(self, inc)}'" for inc in includedirs]),
+            "CC": tc_vars["CC"],
             "SOURCE_LAYOUT": "False",
         }
 
