@@ -1,12 +1,13 @@
-import os
 import glob
+import os
 import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir, \
+    replace_in_file
 from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -27,12 +28,13 @@ class RocksDBConan(ConanFile):
         "fPIC": [True, False],
         "lite": [True, False],
         "with_gflags": [True, False],
-        "with_snappy": [True, False],
+        "with_jemalloc": [True, False],
+        "with_liburing": [True, False],
         "with_lz4": [True, False],
+        "with_snappy": [True, False],
+        "with_tbb": [True, False],
         "with_zlib": [True, False],
         "with_zstd": [True, False],
-        "with_tbb": [True, False],
-        "with_jemalloc": [True, False],
         "enable_sse": [False, "sse42", "avx2"],
         "use_rtti": [True, False],
     }
@@ -41,12 +43,13 @@ class RocksDBConan(ConanFile):
         "fPIC": True,
         "lite": False,
         "with_snappy": False,
+        "with_gflags": False,
+        "with_jemalloc": False,
+        "with_liburing": False,
         "with_lz4": False,
+        "with_tbb": False,
         "with_zlib": False,
         "with_zstd": False,
-        "with_gflags": False,
-        "with_tbb": False,
-        "with_jemalloc": False,
         "enable_sse": False,
         "use_rtti": False,
     }
@@ -71,6 +74,10 @@ class RocksDBConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if self.settings.os != "Linux":
+            del self.options.with_liburing
+        if self.settings.arch not in ["x86", "x86_64"]:
+            del self.options.enable_sse
         if self.settings.arch != "x86_64":
             del self.options.with_tbb
         if self.settings.build_type == "Debug":
@@ -88,6 +95,8 @@ class RocksDBConan(ConanFile):
             self.requires("gflags/2.2.2")
         if self.options.with_snappy:
             self.requires("snappy/1.1.10")
+        if self.options.get_safe("with_liburing"):
+            self.requires("liburing/2.7")
         if self.options.with_lz4:
             self.requires("lz4/1.9.4")
         if self.options.with_zlib:
@@ -110,15 +119,9 @@ class RocksDBConan(ConanFile):
             )
 
         if self.settings.arch not in ["x86_64", "ppc64le", "ppc64", "mips64", "armv8"]:
-            raise ConanInvalidConfiguration("Rocksdb requires 64 bits")
+            raise ConanInvalidConfiguration("Rocksdb requires a 64-bit architecture.")
 
         check_min_vs(self, "191")
-
-        if self.version == "6.20.3" and \
-           self.settings.os == "Linux" and \
-           self.settings.compiler == "gcc" and \
-           Version(self.settings.compiler.version) < "5":
-            raise ConanInvalidConfiguration("Rocksdb 6.20.3 is not compilable with gcc <5.") # See https://github.com/facebook/rocksdb/issues/3522
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -137,6 +140,7 @@ class RocksDBConan(ConanFile):
         tc.variables["ROCKSDB_LITE"] = self.options.lite
         tc.variables["WITH_GFLAGS"] = self.options.with_gflags
         tc.variables["WITH_SNAPPY"] = self.options.with_snappy
+        tc.variables["WITH_LIBURING"] = self.options.get_safe("with_liburing", False)
         tc.variables["WITH_LZ4"] = self.options.with_lz4
         tc.variables["WITH_ZLIB"] = self.options.with_zlib
         tc.variables["WITH_ZSTD"] = self.options.with_zstd
@@ -146,13 +150,13 @@ class RocksDBConan(ConanFile):
         tc.variables["ROCKSDB_LIBRARY_EXPORTS"] = self.settings.os == "Windows" and self.options.shared
         tc.variables["ROCKSDB_DLL" ] = self.settings.os == "Windows" and self.options.shared
         tc.variables["USE_RTTI"] = self.options.use_rtti
-        if not bool(self.options.enable_sse):
+        if not bool(self.options.get_safe("enable_sse")):
             tc.variables["PORTABLE"] = True
             tc.variables["FORCE_SSE42"] = False
-        elif self.options.enable_sse == "sse42":
+        elif self.options.get_safe("enable_sse") == "sse42":
             tc.variables["PORTABLE"] = True
             tc.variables["FORCE_SSE42"] = True
-        elif self.options.enable_sse == "avx2":
+        elif self.options.get_safe("enable_sse") == "avx2":
             tc.variables["PORTABLE"] = False
             tc.variables["FORCE_SSE42"] = False
         # not available yet in CCI
@@ -163,12 +167,20 @@ class RocksDBConan(ConanFile):
         if self.options.with_jemalloc:
             deps.set_property("jemalloc", "cmake_file_name", "JeMalloc")
             deps.set_property("jemalloc", "cmake_target_name", "JeMalloc::JeMalloc")
+        if self.options.get_safe("with_liburing"):
+            deps.set_property("liburing", "cmake_file_name", "uring")
+            deps.set_property("liburing", "cmake_target_name", "uring::uring")
         if self.options.with_zstd:
             deps.set_property("zstd", "cmake_target_name", "zstd::zstd")
         deps.generate()
 
-    def build(self):
+    def _patch_sources(self):
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package(uring)", "find_package(uring REQUIRED CONFIG)")
+
+    def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -223,6 +235,8 @@ class RocksDBConan(ConanFile):
             self.cpp_info.components["librocksdb"].requires.append("gflags::gflags")
         if self.options.with_snappy:
             self.cpp_info.components["librocksdb"].requires.append("snappy::snappy")
+        if self.options.get_safe("with_liburing"):
+            self.cpp_info.components["librocksdb"].requires.append("liburing::liburing")
         if self.options.with_lz4:
             self.cpp_info.components["librocksdb"].requires.append("lz4::lz4")
         if self.options.with_zlib:
