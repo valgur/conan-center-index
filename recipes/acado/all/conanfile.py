@@ -3,7 +3,7 @@ import os
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
@@ -85,6 +85,8 @@ class AcadoConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
+        # -march=native is not portable and not supported on all architectures
+        replace_in_file(self, os.path.join(self.source_folder, "cmake", "CompilerOptions.cmake"), " -march=native", "")
         # TODO: Use Eigen from Conan. Failed with static assert errors even if using matching eigen/3.2.0 version for some reason.
         # rmdir(self, os.path.join(self.source_folder, "external_packages", "eigen3"))
         # replace_in_file(self, os.path.join(self.source_folder, "acado/matrix_vector/matrix_vector_tools.hpp"),
