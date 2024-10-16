@@ -1,11 +1,13 @@
+import os
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc
-from conan.tools.files import get, copy
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-import os
+from conan.tools.files import get, copy
+from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -51,9 +53,9 @@ class SeadexEssentialsConan(ConanFile):
 
     def requirements(self):
         # Headers are exposed https://github.com/SeadexGmbH/essentials/blob/622a07dc1530f5668f5dde0ce18007d420c371cd/essentials/include/essentials/log/log_level.hpp#L15
-        self.requires("spdlog/1.12.0", transitive_headers=True)
+        self.requires("spdlog/1.14.1", transitive_headers=True)
         # Exposes headers and symbols https://github.com/SeadexGmbH/essentials/blob/622a07dc1530f5668f5dde0ce18007d420c371cd/essentials/include/essentials/type_wrapper.hpp#L282
-        self.requires("fmt/10.1.0", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -64,17 +66,17 @@ class SeadexEssentialsConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
-        check_min_vs(self, 192)
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires at least {self.settings.compiler} {minimum_version}."
-                )
+            # C++20 fails with
+            # essentials/log/log_sink_type.hpp:17:1: error: ‘_what’ is not a constant expression
+            #    17 | SXE_ENHANCED_ENUM( log_sink_type, STD_SINK, SYSLOG_SINK, FILE_SINK, ANDROID_SINK )
+            check_max_cppstd(self, 17)
+        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires at least {self.settings.compiler} {minimum_version}."
+            )
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
-        if not self.dependencies["spdlog"].options.header_only:
-            raise ConanInvalidConfiguration("Spdlog must be header only!")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -82,7 +84,12 @@ class SeadexEssentialsConan(ConanFile):
         tc.cache_variables["ESS_BUILD_EXAMPLES"] = False
         tc.generate()
 
+    def _patch_sources(self):
+        path = Path(self.source_folder, "essentials", "include", "essentials", "conversion.hpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
