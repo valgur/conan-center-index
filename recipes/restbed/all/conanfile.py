@@ -1,12 +1,14 @@
+import os
+import re
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, rm, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
-import re
 
 required_conan_version = ">=1.53.0"
 
@@ -83,6 +85,7 @@ class RestbedConan(ConanFile):
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_SSL"] = self.options.with_openssl
         tc.variables["BUILD_IPC"] = self.options.get_safe("ipc", False)
+        tc.extra_cxxflags.append("-Wno-narrowing")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -90,14 +93,10 @@ class RestbedConan(ConanFile):
     def _patch_sources(self):
         apply_conandata_patches(self)
         if not self.options.shared:
-            # Remove __declspec(dllexport) and __declspec(dllimport)
-            for root, _, files in os.walk(self.source_folder):
-                for file in files:
-                    if os.path.splitext(file)[1] in (".hpp", ".h"):
-                        full_path = os.path.join(root, file)
-                        data = load(self, full_path)
-                        data, _ = re.subn(r"__declspec\((dllexport|dllimport)\)", "", data)
-                        save(self, full_path, data)
+            for file in list(Path(self.source_folder).rglob("*.h")) + list(Path(self.source_folder).rglob("*.hpp")):
+                data = file.read_text()
+                data = re.sub(r"__declspec\((dllexport|dllimport)\)", "", data)
+                file.write_text(data)
 
     def build(self):
         self._patch_sources()
