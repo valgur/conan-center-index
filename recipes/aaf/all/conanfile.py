@@ -5,6 +5,8 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import is_msvc
 import os
 
+from conans.errors import ConanInvalidConfiguration
+
 required_conan_version = ">=1.52.0"
 
 
@@ -39,6 +41,17 @@ class AafConan(ConanFile):
         self.requires("libjpeg/9e")
         if self.settings.os in ("FreeBSD", "Linux"):
             self.requires("util-linux-libuuid/2.39.2")
+
+    def validate(self):
+        # Based on ref-impl/include/AAFPlatform.h
+        supported = False
+        supported |= is_apple_os(self) and self.settings.arch in ["armv8", "x86", "x86_64", "ppc32", "ppc64", "ppc64le"]
+        supported |= self.settings.os == "Windows" and self.settings.arch in ["x86", "x86_64"]
+        supported |= self.settings.os == "Linux" and self.settings.arch in ["x86", "x86_64", "ppc32", "ppc64", "ppc64le"]
+        supported |= self.settings.os == "FreeBSD" and self.settings.arch in ["x86", "x86_64"]
+        supported |= self.settings.os == "SunOS" and self.settings.arch in ["sparc"]
+        if not supported:
+            raise ConanInvalidConfiguration(f"{self.settings.os} {self.settings.arch} is not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
