@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, mkdir, rename, rmdir
+from conan.tools.files import copy, get, mkdir, rename, rmdir, replace_in_file
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
@@ -38,7 +38,14 @@ class UncrustifyConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
 
+    def _patch_sources(self):
+        # Use a more robust regex to convert file paths into sanitized CMake target names.
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        'string(REGEX REPLACE "[/:]" "_" source_target ${source})',
+                        'string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" source_target ${source})')
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
