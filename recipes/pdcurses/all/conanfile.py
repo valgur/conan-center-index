@@ -7,7 +7,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, load, replace_in_file, rmdir, save, rename
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeToolchain, NMakeDeps
 
@@ -76,6 +76,7 @@ class PDCursesConan(ConanFile):
                 raise ConanInvalidConfiguration("Cross-building is not supported for with_sdl option")
 
     def build_requirements(self):
+        self.tool_requires("libtool/2.4.7")
         if not is_msvc(self):
             if not self.conf.get("tools.gnu:make_program", check_type=str):
                 self.tool_requires("make/4.4.1")
@@ -110,7 +111,15 @@ class PDCursesConan(ConanFile):
                 ]
                 if self.options.enable_widec:
                     tc.make_args.append("WIDE=Y")
+
+            # PDCurses insists on including X11 headers without an X11/ prefix.
+            x11_includedirs = AutotoolsDeps(self).environment.vars(self).get("CPPFLAGS", "").split(" ")
+            x11_includedirs = " ".join(f"{inc}/X11" for inc in x11_includedirs if inc.startswith("-I"))
+            tc.configure_args.append(f"MH_XINC_DIR={x11_includedirs}")
             tc.generate()
+
+            deps = AutotoolsDeps(self)
+            deps.generate()
 
     def _patch_sources(self):
         if is_msvc(self):
@@ -124,6 +133,12 @@ class PDCursesConan(ConanFile):
                         "\nall:\t",
                         "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"))
 
+        # X11 handling in the autoconf macros is broken when using relocated X11 libs.
+        # Provide them via AutotoolsToolchain instead.
+        replace_in_file(self, os.path.join(self.source_folder, "x11", "configure.ac"),
+                        "MH_CHECK_X_INC",
+                        "AC_SUBST(MH_XINC_DIR)")
+
     def build(self):
         self._patch_sources()
         if is_msvc(self):
@@ -135,6 +150,7 @@ class PDCursesConan(ConanFile):
         if self.options.get_safe("with_x11"):
             with chdir(self, os.path.join(self.source_folder, "x11")):
                 autotools = Autotools(self)
+                autotools.autoreconf(build_script_folder=os.path.join(self.source_folder, "x11"))
                 autotools.configure(build_script_folder=os.path.join(self.source_folder, "x11"))
                 autotools.make()
         if self.options.with_sdl:
@@ -203,7 +219,7 @@ class PDCursesConan(ConanFile):
         if self.options.get_safe("with_x11"):
             self.cpp_info.requires.extend([
                 "xorg::x11",
-                "xorg::xaw",
+                "xorg::xaw7",
                 "xorg::xmu",
                 "xorg::xt",
                 "libxpm::libxpm",
