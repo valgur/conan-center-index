@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
@@ -41,12 +41,13 @@ class BearConan(ConanFile):
 
     def requirements(self):
         self.requires("grpc/1.50.1")
-        self.requires("fmt/10.0.0")
-        self.requires("spdlog/1.11.0")
         self.requires("nlohmann_json/3.11.2")
+        # Newer spdlog is not compatible due to a too new fmt.
+        self.requires("spdlog/1.10.0")
 
     def build_requirements(self):
-        self.tool_requires("grpc/1.50.1")
+        self.tool_requires("grpc/<host_version>")
+        self.tool_requires("protobuf/3.21.12")
 
     def package_id(self):
         del self.info.settings.compiler
@@ -55,6 +56,8 @@ class BearConan(ConanFile):
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
+            # fmt/ranges.h fails to compile with C++20
+            check_max_cppstd(self, 17)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
