@@ -13,7 +13,7 @@ required_conan_version = ">=1.53.0"
 class QuickfixConan(ConanFile):
     name = "quickfix"
     description = "QuickFIX is a free and open source implementation of the FIX protocol"
-    license = "The QuickFIX Software License, Version 1.0"
+    license = "DocumentRef-LICENSE:LicenseRef-QuickFIX-Software-License-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.quickfixengine.org"
     topics = ("FIX", "Financial Information Exchange", "libraries", "cpp")
