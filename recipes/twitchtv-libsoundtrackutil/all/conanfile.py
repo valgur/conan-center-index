@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -83,17 +84,17 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
     def build(self):
         apply_conandata_patches(self)
+        path = Path(self.source_folder, "libsoundtrackutil", "include", "libsoundtrackutil", "ByteStream.h")
+        path.write_text("#include <cstdint>\n" + path.read_text())
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
+        rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["libsoundtrackutil"]
