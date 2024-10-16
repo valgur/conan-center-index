@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -74,6 +76,14 @@ class XlntConan(ConanFile):
         # Remove unvendored third party libs
         for third_party in ("libstudxml", "miniz", "utfcpp"):
             rmdir(self, os.path.join(self.source_folder, "third-party", third_party))
+        path = Path(self.source_folder, "include", "xlnt", "cell", "phonetic_run.hpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+        path = Path(self.source_folder, "source", "utils", "timedelta.cpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+        path = Path(self.source_folder, "source", "utils", "time.cpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+        path = Path(self.source_folder, "include", "xlnt", "utils", "variant.hpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
 
     def build(self):
         self._patch_sources()
