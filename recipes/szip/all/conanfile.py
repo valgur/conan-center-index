@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, collect_libs, get, copy, replace_in_file, save
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 import os
 import textwrap
 
@@ -40,18 +40,9 @@ class SzipConan(ConanFile):
 
     def configure(self):
         if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.cppstd")
+        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -75,10 +66,14 @@ class SzipConan(ConanFile):
         tc.variables["SZIP_BUILD_FRAMEWORKS"] = False
         tc.variables["SZIP_PACK_MACOSX_FRAMEWORK"] = False
         tc.variables["SZIP_ENABLE_LARGE_FILE"] = self.options.enable_large_file
-        if cross_building(self, skip_x64_x86=True) and self.options.enable_large_file:
-            # Assume it works, otherwise raise in 'validate' function
-            tc.variables["TEST_LFS_WORKS_RUN"] = True
-            tc.variables["TEST_LFS_WORKS_RUN__TRYRUN_OUTPUT"] = True
+        if not can_run(self):
+            if self.options.enable_large_file:
+                # Assume it works, otherwise raise in 'validate' function
+                tc.variables["TEST_LFS_WORKS_RUN"] = 0
+                tc.variables["TEST_LFS_WORKS_RUN__TRYRUN_OUTPUT"] = ""
+            # Assume POSIX is supported, rather than BSD
+            tc.variables["HAVE_DEFAULT_SOURCE_RUN"] = 1
+            tc.variables["HAVE_DEFAULT_SOURCE_RUN__TRYRUN_OUTPUT"] = ""
         # Honor BUILD_SHARED_LIBS from conan_toolchain (see https://github.com/conan-io/conan/issues/11840)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
