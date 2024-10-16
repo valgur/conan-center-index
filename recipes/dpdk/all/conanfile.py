@@ -66,14 +66,14 @@ class DpdkConan(ConanFile):
         self.requires("libnuma/2.0.16", options={"shared": True})
         self.requires("libelf/0.8.13")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("linux-headers-generic/5.15.128", transitive_headers=True)
+        # self.requires("linux-headers-generic/6.5.9", transitive_headers=True)
         if self.options.with_jansson:
             # rte_metrics_telemetry.h
             self.requires("jansson/2.14", transitive_headers=True, transitive_libs=True)
         if self.options.with_libarchive:
-            self.requires("libarchive/3.7.4")
+            self.requires("libarchive/3.7.6")
         if self.options.with_libbpf:
-            self.requires("libbpf/1.3.0")
+            self.requires("libbpf/1.4.6")
         if self.options.with_libbsd:
             self.requires("libbsd/0.10.0")
         if self.options.with_libibverbs:
@@ -108,7 +108,7 @@ class DpdkConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("cpython/[~3.12]")
+        self.tool_requires("cpython/3.12.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
