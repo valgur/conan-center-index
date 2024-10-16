@@ -36,8 +36,9 @@ add_library(tsil
   ${TSIL_SRC_DIR}/setbold.c
 )
 
-find_library(LIBM NAMES m)
-target_link_libraries(tsil PRIVATE $<$<BOOL:${LIBM}>:${LIBM}>)
+include(CheckLibraryExists)
+check_library_exists(m pow "" LIBM)
+target_link_libraries(tsil PRIVATE $<$<BOOL:${LIBM}>:m>)
 
 set(TSIL_SIZE long CACHE STRING "set floating point data size")
 set_property(CACHE TSIL_SIZE PROPERTY STRINGS long double)
