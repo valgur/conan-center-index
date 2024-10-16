@@ -22,7 +22,6 @@ class TinyDnnConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {"with_tbb": [True, False]}
     default_options = {"with_tbb": False}
-    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -66,6 +65,11 @@ class TinyDnnConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["USE_TBB"] = self.options.with_tbb
         tc.variables["USE_GEMMLOWP"] = False
+        # Ensure auto-detection of dependencies is disabled
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_TBB"] = not self.options.with_tbb
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_NNPACK"] = True
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_OpenCL"] = True
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_GreenteaLibDNN"] = True
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
