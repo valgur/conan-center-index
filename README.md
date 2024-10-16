@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-15:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-16:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -22,6 +22,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
+- c-ares/1.19.1
+- c-ares/1.26.0
+- c-ares/1.27.0
+- c-ares/1.28.1
+- c-ares/1.30.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -39,6 +44,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - confu_json/1.1.0
 - cppserver/1.0.4.1
 - cub/2.6.1
+- cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
@@ -64,6 +70,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
 - gpu.cpp/cci.20240726
+- gst-libav/1.19.2
 - gtk/3.24.43
 - gtk/4.15.6
 - gtsam_points/1.0.4
@@ -136,7 +143,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.3
 - openspecfun/0.5.7
-- osgearth/3.5
+- osgearth/3.6
 - osrm/5.27.1
 - pangolin/0.9.1
 - pcl/1.14.1
