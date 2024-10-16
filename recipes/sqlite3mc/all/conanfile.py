@@ -1,7 +1,7 @@
 import os
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMakeDeps, CMakeToolchain, CMake
-from conan.tools.files import get, copy
+from conan.tools.files import get, copy, replace_in_file
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -203,7 +203,13 @@ class sqlite3mc(ConanFile):
 
         tc.generate()
 
+    def _patch_sources(self):
+        if self.settings.arch not in ["x86", "x86_64"]:
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            " -msse4.2 -maes", "")
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
