@@ -3,6 +3,8 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
+from conan.tools.build import can_run
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -38,13 +40,19 @@ class ScdocInstallerConan(ConanFile):
     def build_requirements(self):
         if not self.conf.get("tools.gnu:make_program", check_type=str):
             self.tool_requires("make/4.3")
+        if not can_run(self):
+            self.tool_requires(f"scdoc/{self.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        VirtualBuildEnv(self).generate()
         tc = AutotoolsToolchain(self)
         tc.make_args = ["PREFIX=/"]
+        if not can_run(self):
+            host_scdoc = os.path.join(self.dependencies.build["scdoc"].package_folder, "bin", "scdoc")
+            tc.make_args.append(f"HOST_SCDOC={host_scdoc}")
         tc.generate()
 
     def build(self):
@@ -84,5 +92,4 @@ class ScdocInstallerConan(ConanFile):
         )
 
         # TODO: Legacy, to be removed on Conan 2.0
-        self.output.info(f"Appending PATH environment variable: {scdoc_root}")
         self.env_info.PATH.append(scdoc_root)
