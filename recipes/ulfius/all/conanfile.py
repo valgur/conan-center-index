@@ -56,7 +56,7 @@ class UlfiusConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
 
     def requirements(self):
-        self.requires("orcania/2.3.1", transitive_headers=True)
+        self.requires("orcania/2.3.3", transitive_headers=True)
         self.requires("libmicrohttpd/0.9.75", transitive_headers=True)
         if self.options.with_yder:
             self.requires("yder/1.4.18", transitive_headers=True)
