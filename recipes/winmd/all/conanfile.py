@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -20,7 +21,6 @@ class WinMDConan(ConanFile):
     topics = ("native", "C++", "WinRT", "WinMD")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
 
     @property
     def _min_cppstd(self):
@@ -54,6 +54,8 @@ class WinMDConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        path = Path(self.source_folder, "src", "impl", "winmd_reader", "view.h")
+        path.write_text("#include <utility>\n" + path.read_text())
 
     def package(self):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
