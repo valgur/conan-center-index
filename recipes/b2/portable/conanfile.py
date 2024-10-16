@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get
 from conan.tools.layout import basic_layout
@@ -67,10 +66,6 @@ class B2Conan(ConanFile):
 
         if self._is_macos_intel_or_arm(self.info.settings):
             self.info.settings.arch = "x86_64,armv8"
-
-    def validate_build(self):
-        if hasattr(self, "settings_build") and cross_building(self) and not self._is_macos_intel_or_arm(self.settings):
-            raise ConanInvalidConfiguration(f"{self.ref} recipe doesn't support cross-build yet")
 
     def validate(self):
         if (self.options.toolset == 'cxx' or self.options.toolset == 'cross-cxx') and not self.options.use_cxx_env:
