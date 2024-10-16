@@ -68,8 +68,6 @@ class SplunkOpentelemetryConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
 
     def validate(self):
-        if self.settings.arch != "x86_64":
-            raise ConanInvalidConfiguration(f"{self.settings.arch} architecture not supported")
         if self.options.build_jaeger_exporter and not self.dependencies["opentelemetry-cpp"].options.get_safe("with_jaeger"):
             raise ConanInvalidConfiguration("Cannot build Jaeger exporter without with_jaeger=True in opentelemetry-cpp")
 
