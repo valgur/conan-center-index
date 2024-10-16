@@ -67,6 +67,7 @@ class SimdConan(ConanFile):
             tc = CMakeToolchain(self)
             tc.variables["SIMD_TEST"] = False
             tc.variables["SIMD_SHARED"] = self.options.shared
+            tc.variables["SIMD_TOOLCHAIN"] = ""
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
             tc.generate()
 
