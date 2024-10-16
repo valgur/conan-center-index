@@ -17,8 +17,8 @@ class TileDBConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/TileDB-Inc/TileDB"
-    topics = ("data science", "storage engine", "s3", "sparse data", "scientific computing", "s3 storage",
-              "arrays", "data analysis", "dataframes", "dense data", "sparse arrays")
+    topics = ("data-science", "storage-engine", "s3", "sparse-data", "scientific-computing", "s3-storage",
+              "arrays", "data-analysis", "dataframes", "dense-data", "sparse-arrays")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -90,6 +90,8 @@ class TileDBConan(ConanFile):
             self.options.rm_safe("fPIC")
         if self.options.serialization:
             self.options["libcurl"].with_zstd = True
+        if self.options.azure:
+            self.options["azure-sdk-for-cpp"]["azure-storage-blobs"] = True
         if self.options.s3:
             self.options["aws-sdk-cpp"].s3 = True
             self.options["aws-sdk-cpp"]["identity-management"] = True
@@ -101,28 +103,35 @@ class TileDBConan(ConanFile):
     def requirements(self):
         # TileDB has no transitive header deps
         self.requires("bzip2/1.0.8")
-        self.requires("libxml2/2.12.5")
+        self.requires("libxml2/[>=2.12.5 <3]")
         self.requires("lz4/1.9.4")
-        self.requires("spdlog/1.13.0")
-        self.requires("xz_utils/5.4.4")
+        self.requires("spdlog/1.14.1")
+        self.requires("xz_utils/[>=5.4.5 <6]")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("zstd/1.5.5")
+        self.requires("zstd/[^1.5]")
         if self.settings.os != "Windows":
             self.requires("openssl/[>=1.1 <4]")
         self.requires("libmagic/5.45")
         if self.options.azure:
-            self.requires("azure-storage-cpp/12.6.1")
+            self.requires("azure-sdk-for-cpp/1.11.3")
         if self.options.gcs:
-            self.requires("google-cloud-cpp/2.19.0")
+            self.requires("google-cloud-cpp/2.28.0")
         if self.options.serialization:
-            self.requires("capnproto/1.0.1")
-            self.requires("libcurl/[>=7.78.0 <9]")
+            self.requires("capnproto/1.0.2")
+            self.requires("libcurl/[>=7.78 <9]")
         if self.options.s3:
-            self.requires("aws-sdk-cpp/1.11.160")
+            self.requires("aws-sdk-cpp/1.11.352")
         if self.options.tools:
             self.requires("clipp/1.2.3")
         if self.options.webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/1.4.0")
+
+        # TODO: unvendor
+        #  - bitshuffle
+        #  - blosc
+        #  - boost::interprocess
+        #  - nlohmann_json
+        #  - tcb-span
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -152,33 +161,32 @@ class TileDBConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        # https://github.com/TileDB-Inc/TileDB/blob/2.21.0/cmake/Options/BuildOptions.cmake
+        # https://github.com/TileDB-Inc/TileDB/blob/2.26.1/cmake/Options/BuildOptions.cmake
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.cache_variables["TILEDB_AZURE"] = self.options.azure
         tc.cache_variables["TILEDB_CPP_API"] = self.options.cpp_api
+        tc.cache_variables["TILEDB_DISABLE_AUTO_VCPKG"] = True
         tc.cache_variables["TILEDB_EXPERIMENTAL_FEATURES"] = self.options.experimental_features
         tc.cache_variables["TILEDB_GCS"] = self.options.gcs
         tc.cache_variables["TILEDB_INSTALL_LIBDIR"] = os.path.join(self.package_folder, "lib")
-        tc.cache_variables["TILEDB_LOG_OUTPUT_ON_FAILURE"] = True
         tc.cache_variables["TILEDB_REMOVE_DEPRECATIONS"] = self.options.remove_deprecations
         tc.cache_variables["TILEDB_S3"] = self.options.s3
         tc.cache_variables["TILEDB_SERIALIZATION"] = self.options.serialization
         tc.cache_variables["TILEDB_STATS"] = self.options.stats
-        tc.cache_variables["TILEDB_SUPERBUILD"] = False
         tc.cache_variables["TILEDB_TESTS"] = False
         tc.cache_variables["TILEDB_TOOLS"] = self.options.tools
-        tc.cache_variables["TILEDB_VCPKG"] = True
         tc.cache_variables["TILEDB_VERBOSE"] = self.options.verbose
         tc.cache_variables["TILEDB_WEBP"] = self.options.webp
         tc.cache_variables["TILEDB_WERROR"] = False
         # Disable ExternalProject just in case
         tc.cache_variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
+        tc.cache_variables["libmagic_DICTIONARY"] = os.path.join(self.dependencies["libmagic"].package_folder, "res", "magic.mgc").replace("\\", "/")
         tc.generate()
 
         deps = CMakeDeps(self)
         conan_to_cmake_name = {
             "aws-sdk-cpp": "AWSSDK",
-            "azure-storage-cpp": "azure-storage-blobs-cpp",
+            "azure-sdk-for-cpp": "azure-storage-blobs-cpp",
             "bzip2": "BZip2",
             "capnproto": "CapnProto",
             "clipp": "clipp",
@@ -197,18 +205,18 @@ class TileDBConan(ConanFile):
             deps.set_property(conan_name, "cmake_file_name", cmake_name)
 
         renamed_targets = {
-            "azure-storage-cpp":         "Azure::azure-storage-blobs",
-            "bzip2":                     "BZip2::BZip2",
-            "clipp":                     "clipp::clipp",
+            "azure-sdk-for-cpp::azure-storage-blobs": "Azure::azure-storage-blobs",
+            "bzip2": "BZip2::BZip2",
+            "clipp": "clipp::clipp",
             "google-cloud-cpp::storage": "google-cloud-cpp::storage",
-            "libmagic":                  "unofficial::libmagic::libmagic",
-            "libwebp::webp":             "WebP::webp",
-            "libwebp::webpdecoder":      "WebP::webpdecoder",
-            "libwebp::webpdemux":        "WebP::webpdemux",
-            "libwebp::webpmux":          "WebP::libwebpmux",
-            "lz4":                       "LZ4::LZ4",
-            "zlib":                      "ZLIB::ZLIB",
-            "zstd":                      "Zstd::Zstd",
+            "libmagic": "unofficial::libmagic::libmagic",
+            "libwebp::webp": "WebP::webp",
+            "libwebp::webpdecoder": "WebP::webpdecoder",
+            "libwebp::webpdemux": "WebP::webpdemux",
+            "libwebp::webpmux": "WebP::libwebpmux",
+            "lz4": "LZ4::LZ4",
+            "zlib": "ZLIB::ZLIB",
+            "zstd": "Zstd::Zstd",
         }
         for component, new_target_name in renamed_targets.items():
             deps.set_property(component, "cmake_target_name", new_target_name)
