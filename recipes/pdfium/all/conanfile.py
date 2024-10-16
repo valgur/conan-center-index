@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -95,7 +96,12 @@ class PdfiumConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
+    def _patch_sources(self):
+        path = Path(self.source_folder, "core", "fxcodec", "fx_codec.cpp")
+        path.write_text("#include <cstdint>\n" + path.read_text())
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join("pdfium-cmake", "cmake"))
         cmake.build()
