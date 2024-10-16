@@ -1,3 +1,6 @@
+// quaternion.h is missing a #include <cstdint>
+#include <cstdint>
+
 #include <quaternion.h>
 #include <quaternion_io.h>
 
