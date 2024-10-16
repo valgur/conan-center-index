@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -32,6 +33,8 @@ class TermcolorConan(ConanFile):
         tc.generate()
 
     def build(self):
+        path = Path(os.path.join(self.source_folder, "include", "termcolor", "termcolor.hpp"))
+        path.write_text("#include <cstdint>\n" + path.read_text())
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
