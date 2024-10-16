@@ -2,10 +2,10 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, collect_libs
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -26,6 +26,7 @@ class QuickfixConan(ConanFile):
         "with_ssl": [True, False],
         "with_postgres": [True, False],
         "with_mysql": [None, "libmysqlclient"],
+        "enable_boost_atomic_count": [True, False],
     }
     default_options = {
         "shared": False,
@@ -33,6 +34,7 @@ class QuickfixConan(ConanFile):
         "with_ssl": False,
         "with_postgres": False,
         "with_mysql": None,
+        "enable_boost_atomic_count": False,
     }
 
     def export_sources(self):
@@ -41,6 +43,9 @@ class QuickfixConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if not is_msvc(self) and self.settings.arch not in ["x86", "x86_64"]:
+            # Otherwise inline x86 assembly is used for atomic operations.
+            self.options.enable_boost_atomic_count = True
 
     def configure(self):
         if self.options.shared:
@@ -52,19 +57,16 @@ class QuickfixConan(ConanFile):
     def requirements(self):
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")
-
         if self.options.with_postgres:
             self.requires("libpq/15.3")
-
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/8.0.31")
+        if self.options.enable_boost_atomic_count:
+            self.requires("boost/1.85.0")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("QuickFIX cannot be built as shared lib on Windows")
-        if is_apple_os(self) and self.settings.arch == "armv8":
-            # See issue: https://github.com/quickfix/quickfix/issues/206
-            raise ConanInvalidConfiguration("QuickFIX doesn't support ARM compilation")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")
@@ -79,6 +81,8 @@ class QuickfixConan(ConanFile):
         tc.variables["HAVE_SSL"] = self.options.with_ssl
         tc.variables["HAVE_POSTGRESQL"] = self.options.with_postgres
         tc.variables["HAVE_MYSQL"] = bool(self.options.with_mysql)
+        if self.options.enable_boost_atomic_count:
+            tc.preprocessor_definitions["ENABLE_BOOST_ATOMIC_COUNT"] = ""
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
@@ -119,3 +123,12 @@ class QuickfixConan(ConanFile):
             self.cpp_info.system_libs.extend(["ws2_32"])
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["pthread", "m"])
+
+        if self.options.with_ssl:
+            self.cpp_info.requires.append("openssl::openssl")
+        if self.options.with_postgres:
+            self.cpp_info.requires.append("libpq::libpq")
+        if self.options.with_mysql == "libmysqlclient":
+            self.cpp_info.requires.append("libmysqlclient::libmysqlclient")
+        if self.options.enable_boost_atomic_count:
+            self.cpp_info.requires.append("boost::headers")
