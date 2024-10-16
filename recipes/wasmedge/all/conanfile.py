@@ -30,11 +30,16 @@ class WasmedgeConan(ConanFile):
         self.settings.compiler.rm_safe("libcxx")
         self.settings.compiler.rm_safe("cppstd")
 
+    def requirements(self):
+        self.requires("zlib/[>=1.2.11 <2]", options={"shared": True})
+
     def validate(self):
         try:
             self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][self._compiler_alias]
         except KeyError:
             raise ConanInvalidConfiguration("Binaries for this combination of version/os/arch/compiler are not available")
+        if not self.dependencies["zlib"].options.shared:
+            raise ConanInvalidConfiguration("wasmedge requires zlib to be built as a shared library")
 
     def package_id(self):
         del self.info.settings.compiler.version
