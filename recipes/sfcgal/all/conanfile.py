@@ -58,7 +58,7 @@ class SfcgalConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cgal/5.6")
+        self.requires("cgal/5.6", transitive_headers=True, transitive_libs=True)
         self.requires("boost/1.85.0")
         if self.options.with_osg:
             self.requires("openscenegraph/3.6.5")
