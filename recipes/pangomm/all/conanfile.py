@@ -69,9 +69,6 @@ class PangommConan(ConanFile):
             self.requires("cairomm/1.14.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if cross_building(self):
-            raise ConanInvalidConfiguration("Cross-building not implemented")
-
         if self.settings.compiler.get_safe("cppstd"):
             if self._is_2_48_api:
                 check_min_cppstd(self, 17)
