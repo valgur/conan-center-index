@@ -72,6 +72,7 @@ class QtConan(ConanFile):
         "gui": [True, False],
         "widgets": [True, False],
 
+        "unity_build": [True, False],
         "device": [None, "ANY"],
         "cross_compile": [None, "ANY"],
         "sysroot": [None, "ANY"],
@@ -117,6 +118,7 @@ class QtConan(ConanFile):
         "gui": True,
         "widgets": True,
 
+        "unity_build": False,
         "device": None,
         "cross_compile": None,
         "sysroot": None,
@@ -517,6 +519,8 @@ class QtConan(ConanFile):
         tc = CMakeToolchain(self, generator="Ninja")
 
         tc.absolute_paths = True
+
+        tc.variables["QT_UNITY_BUILD"] = self.options.unity_build
 
         tc.variables["QT_BUILD_TESTS"] = "OFF"
         tc.variables["QT_BUILD_EXAMPLES"] = "OFF"
