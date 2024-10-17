@@ -24,24 +24,31 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         path = self.dependencies["qt"].package_folder.replace("\\", "/")
-        save(self, "qt.conf", f"""[Paths]
-Prefix = {path}""")
+        save(self, "qt.conf", f"[Paths]\nPrefix = {path}\n")
 
         VirtualRunEnv(self).generate()
         if can_run(self):
             VirtualRunEnv(self).generate(scope="build")
 
+    @property
+    def _can_build(self):
+        qt = self.dependencies["qt"]
+        return qt.options.gui and qt.options.widgets
+
     def build(self):
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
+        if self._can_build:
+            cmake = CMake(self)
+            cmake.configure()
+            cmake.build()
 
     def test(self):
         if can_run(self):
-            copy(self, "qt.conf", src=self.generators_folder, dst=os.path.join(self.cpp.build.bindirs[0]))
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
-            self.run(bin_path, env="conanrun")
-            # Related to https://github.com/conan-io/conan-center-index/issues/20574
-            if self.settings.os == "Macos":
-                bin_macos_path = os.path.join(self.cpp.build.bindirs[0], "test_macos_bundle.app", "Contents", "MacOS", "test_macos_bundle")
-                self.run(bin_macos_path, env="conanrun")
+            self.run("moc --version")
+            if self._can_build:
+                copy(self, "qt.conf", self.generators_folder, self.cpp.build.bindir)
+                bin_path = os.path.join(self.cpp.build.bindir, "test_package")
+                self.run(bin_path, env="conanrun")
+                # Related to https://github.com/conan-io/conan-center-index/issues/20574
+                if self.settings.os == "Macos":
+                    bin_macos_path = os.path.join(self.cpp.build.bindir, "test_macos_bundle.app", "Contents", "MacOS", "test_macos_bundle")
+                    self.run(bin_macos_path, env="conanrun")
