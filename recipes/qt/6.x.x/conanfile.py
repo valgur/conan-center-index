@@ -15,23 +15,12 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
 from conan.tools.scm import Version
 from conan.errors import ConanException, ConanInvalidConfiguration
+import yaml
 
 required_conan_version = ">=1.55.0"
 
 
 class QtConan(ConanFile):
-    _submodules = ["qtsvg", "qtdeclarative", "qttools", "qttranslations", "qtdoc",
-                   "qtwayland", "qtquickcontrols2", "qtquicktimeline", "qtquick3d", "qtshadertools", "qt5compat",
-                   "qtactiveqt", "qtcharts", "qtdatavis3d", "qtlottie", "qtscxml", "qtvirtualkeyboard",
-                   "qt3d", "qtimageformats", "qtnetworkauth", "qtcoap", "qtmqtt", "qtopcua",
-                   "qtmultimedia", "qtlocation", "qtsensors", "qtconnectivity", "qtserialbus",
-                   "qtserialport", "qtwebsockets", "qtwebchannel", "qtwebengine", "qtwebview",
-                   "qtremoteobjects", "qtpositioning", "qtlanguageserver",
-                   "qtspeech", "qthttpserver", "qtquick3dphysics", "qtgrpc", "qtquickeffectmaker"]
-    _submodules += ["qtgraphs"] # new modules for qt 6.6.0
-
-    _module_statuses = ["essential", "addon", "deprecated", "preview"]
-
     name = "qt"
     description = "Qt is a cross-platform framework for graphical user interfaces."
     topics = ("framework", "ui")
@@ -80,12 +69,6 @@ class QtConan(ConanFile):
         "multiconfiguration": [True, False],
         "disabled_features": [None, "ANY"],
     }
-    options.update({module: [True, False] for module in _submodules})
-    options.update({f"{status}_modules": [True, False] for status in _module_statuses})
-
-    # this significantly speeds up windows builds
-    no_copy_source = True
-
     default_options = {
         "shared": False,
         "opengl": "desktop",
@@ -126,6 +109,54 @@ class QtConan(ConanFile):
         "multiconfiguration": False,
         "disabled_features": "",
     }
+    # All submodules are exposed as options as well
+    _submodules = [
+        "qt3d",
+        "qt5compat",
+        "qtactiveqt",
+        "qtcharts",
+        "qtcoap",
+        "qtconnectivity",
+        "qtdatavis3d",
+        "qtdeclarative",
+        "qtdoc",
+        "qtgraphs",
+        "qtgrpc",
+        "qthttpserver",
+        "qtimageformats",
+        "qtlanguageserver",
+        "qtlocation",
+        "qtlottie",
+        "qtmqtt",
+        "qtmultimedia",
+        "qtnetworkauth",
+        "qtopcua",
+        "qtpositioning",
+        "qtquick3d",
+        "qtquick3dphysics",
+        "qtquickcontrols2",
+        "qtquickeffectmaker",
+        "qtquicktimeline",
+        "qtremoteobjects",
+        "qtscxml",
+        "qtsensors",
+        "qtserialbus",
+        "qtserialport",
+        "qtshadertools",
+        "qtspeech",
+        "qtsvg",
+        "qttools",
+        "qttranslations",
+        "qtvirtualkeyboard",
+        "qtwayland",
+        "qtwebchannel",
+        "qtwebengine",
+        "qtwebsockets",
+        "qtwebview",
+    ]
+    _module_statuses = ["essential", "addon", "deprecated", "preview"]
+    options.update({module: [True, False] for module in _submodules})
+    options.update({f"{status}_modules": [True, False] for status in _module_statuses})
     # essential_modules, addon_modules, deprecated_modules, preview_modules:
     #    these are only provided for convenience, set to False by default
     default_options.update({f"{status}_modules": False for status in _module_statuses})
@@ -143,7 +174,7 @@ class QtConan(ConanFile):
         if self._submodules_tree:
             return self._submodules_tree
         config = configparser.ConfigParser()
-        config.read(os.path.join(self.recipe_folder, f"qtmodules{self.version}.conf"))
+        config.read(os.path.join(self.recipe_folder, "qtmodules", f"{self.version}.conf"))
         self._submodules_tree = {}
         assert config.sections(), f"no qtmodules.conf file for version {self.version}"
         for s in config.sections():
@@ -169,7 +200,9 @@ class QtConan(ConanFile):
         export_conandata_patches(self)
 
     def export(self):
-        copy(self, f"qtmodules{self.version}.conf", self.recipe_folder, self.export_folder)
+        copy(self, f"{self.version}.conf", os.path.join(self.recipe_folder, "qtmodules"), os.path.join(self.export_folder, "qtmodules"))
+        copy(self, f"{self.version}.yml", os.path.join(self.recipe_folder, "sources"), os.path.join(self.export_folder, "sources"))
+        copy(self, "mirrors.txt", self.recipe_folder, self.export_folder)
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -704,19 +737,65 @@ class QtConan(ConanFile):
             del self.info.options.android_sdk
 
     def source(self):
+        pass
+
+    def _get_download_info(self):
+        mirrors = Path(self.recipe_folder, "mirrors.txt").read_text().strip().split()
+        archive_info = yaml.safe_load(Path(self.recipe_folder, "sources", f"{self.version}.yml").read_text())
+        hashes = archive_info["hashes"]
+        # Modules that are not available as source archives and must be downloaded from git instead.
+        git_only = archive_info["git_only"]
+        # Modules that are no longer stand-alone.
+        merged_modules = {"qtquickcontrols2": "qtdeclarative"}
+
+        def _get_module_urls(component):
+            version = Version(self.version)
+            if component in git_only:
+                return [f"https://github.com/qt/{component}/archive/refs/tags/v{version}.tar.gz"]
+            return [f"{base_url}qt/{version.major}.{version.minor}/{version}/submodules/{component}-everywhere-src-{version}.tar.xz" for base_url in mirrors]
+
+        def _get_info(component):
+            return {
+                "url": _get_module_urls(component),
+                "sha256": hashes[component],
+            }
+
+        download_info = {
+            "root": _get_info("qt5"),
+            "qtbase": _get_info("qtbase"),
+        }
+        for module in self._submodules:
+            if self.options.get_safe(module):
+                module = merged_modules.get(module, module)
+                download_info[module] = _get_info(merged_modules.get(module, module))
+        return download_info
+
+    def _get_sources(self):
         destination = self.source_folder
         if platform.system() == "Windows":
             # Don't use os.path.join, or it removes the \\?\ prefix, which enables long paths
             destination = rf"\\?\{self.source_folder}"
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=destination)
+        download_info = self._get_download_info()
+        get(self, **download_info["root"], strip_root=True, destination=destination)
+        for component, info in download_info.items():
+            if component == "root":
+                continue
+            self.output.info(f"Fetching {component}...")
+            get(self, **info, strip_root=True, destination=os.path.join(destination, component))
+        # Remove empty subdirs
+        for path in Path(self.source_folder).iterdir():
+            if path.is_dir() and not list(path.iterdir()):
+                path.rmdir()
 
-        # patching in source method because of no_copy_source attribute
+    def _patch_sources(self):
+        # Exclude patches that are for modules that are not enabled
+        patches = []
+        for patch in self.conan_data["patches"][self.version]:
+            base_path = patch.get("base_path")
+            if base_path is None or Path(self.source_folder, patch["base_path"]).is_dir():
+                patches.append(patch)
+        self.conan_data["patches"][self.version] = patches
         apply_conandata_patches(self)
-        for f in ["renderer", os.path.join("renderer", "core"), os.path.join("renderer", "platform")]:
-            replace_in_file(self, os.path.join(self.source_folder, "qtwebengine", "src", "3rdparty", "chromium", "third_party", "blink", f, "BUILD.gn"),
-                                  "  if (enable_precompiled_headers) {\n    if (is_win) {",
-                                  "  if (enable_precompiled_headers) {\n    if (false) {"
-                                  )
 
         for f in ["FindPostgreSQL.cmake"]:
             file = Path(self.source_folder, "qtbase", "cmake", f)
@@ -743,6 +822,14 @@ class QtConan(ConanFile):
                     " find_package(moltenvk REQUIRED QUIET)\n"
                     " target_include_directories(WrapVulkanHeaders::WrapVulkanHeaders INTERFACE ${moltenvk_INCLUDE_DIR})"
         )
+
+        if self.options.qtwebengine:
+            for f in ["renderer", os.path.join("renderer", "core"), os.path.join("renderer", "platform")]:
+                replace_in_file(self, os.path.join(self.source_folder, "qtwebengine", "src", "3rdparty", "chromium", "third_party", "blink", f, "BUILD.gn"),
+                                "  if (enable_precompiled_headers) {\n    if (is_win) {",
+                                "  if (enable_precompiled_headers) {\n    if (false) {"
+                                )
+
 
     def _xplatform(self):
         if self.settings.os == "Linux":
@@ -843,6 +930,8 @@ class QtConan(ConanFile):
         return None
 
     def build(self):
+        self._get_sources()
+        self._patch_sources()
         if self.settings.os == "Macos":
             save(self, ".qmake.stash", "")
             save(self, ".qmake.super", "")
