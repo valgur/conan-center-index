@@ -60,7 +60,7 @@ class ProjConan(ConanFile):
 
     def requirements(self):
         self.requires("nlohmann_json/3.11.3")
-        self.requires("sqlite3/3.45.3")
+        self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_tiff"):
             self.requires("libtiff/4.6.0")
         if self.options.get_safe("with_curl"):
@@ -70,7 +70,7 @@ class ProjConan(ConanFile):
         if Version(self.version) >= "9.4.0":
             self.tool_requires("cmake/[>=3.16 <4]")
         if not self._is_legacy_one_profile:
-            self.tool_requires("sqlite3/<host_version>")
+            self.tool_requires("sqlite3/[>=3.45.0 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

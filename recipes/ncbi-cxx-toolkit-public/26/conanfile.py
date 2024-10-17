@@ -39,7 +39,7 @@ class NcbiCxxToolkit(ConanFile):
         "NGHTTP2":      "libnghttp2/1.46.0",
         "PCRE":         "pcre/8.45",
         "PNG":          "libpng/1.6.37",
-        "SQLITE3":      "sqlite3/3.37.2",
+        "SQLITE3":      "sqlite3/[>=3.45.0 <4]",
         "TIFF":         "libtiff/4.3.0",
         "XML":          "libxml2/2.9.12",
         "XSLT":         "libxslt/1.1.34",
@@ -84,7 +84,7 @@ class NcbiCxxToolkit(ConanFile):
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
             tools.check_min_cppstd(self, 17)
-        if self.settings.os not in ["Linux", "Macos", "Windows"]:   
+        if self.settings.os not in ["Linux", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("This operating system is not supported")
         if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":
             raise ConanInvalidConfiguration("This version of Visual Studio is not supported")
