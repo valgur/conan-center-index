@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-16:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-17:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -22,11 +22,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
-- c-ares/1.19.1
-- c-ares/1.26.0
-- c-ares/1.27.0
-- c-ares/1.28.1
-- c-ares/1.30.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -82,8 +77,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imlib2/1.12.3
 - iridescence/0.1.3
 - lapack/3.12.0
-- libarchive/3.7.1
 - libbasisu/1.16.4
+- libbpf/1.4.6
 - libcroco/0.6.13
 - libcudacxx/2.6.1
 - libecwj2/3.3
@@ -143,11 +138,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.3
 - openspecfun/0.5.7
-- osgearth/3.6
+- osgearth/3.7
 - osrm/5.27.1
 - pangolin/0.9.1
 - pcl/1.14.1
 - pdal/2.7.2
+- perf/6.11
 - polyscope/2.3.0
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
@@ -159,20 +155,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.72.1
 - rust/1.77.1
 - rust/1.81.0
-- s2n/1.0.11
-- s2n/1.1.0
-- s2n/1.1.1
-- s2n/1.2.0
-- s2n/1.3.31
-- s2n/1.3.49
-- s2n/1.3.50
-- s2n/1.3.52
-- s2n/1.3.55
-- s2n/1.3.56
-- s2n/1.3.9
-- s2n/1.4.0
-- s2n/1.4.1
-- s2n/1.4.13
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/cci.20240727
@@ -206,7 +188,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/6.7.0
 - sundials/7.1.1
 - thrust/2.6.1
-- tiledb/2.22.0
+- tiledb/2.26.1
 - tpl/cci.20210302
 - usearch/2.9.1
 - vilib/cci.20210625
