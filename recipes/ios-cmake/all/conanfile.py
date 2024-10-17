@@ -87,7 +87,7 @@ class IosCMakeConan(ConanFile):
 
     def package_info(self):
         if self.settings.os == "Macos":
-            if not getattr(self, "settings_target", None):
+            if not self.settings_target:
                 #  not a build_require , but can be fine since its build as a ppr:b, but nothing to do
                 return
             # this is where I want to be, expecting this as a build_require for a host

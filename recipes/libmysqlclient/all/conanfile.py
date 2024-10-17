@@ -196,7 +196,7 @@ class LibMysqlClientCConan(ConanFile):
                         "  INSTALL_DEBUG_SYMBOLS(",
                         "  # INSTALL_DEBUG_SYMBOLS(")
 
-        if getattr(self, "settings_target") is not None:
+        if self.settings_target is not None:
             # Building for tool_requires() to help with cross-compilation. Install comp_sql and other utilities.
             for subdir in ["scripts", "strings", "libmysql", "utilities"]:
                 replace_in_file(self, os.path.join(self.source_folder, subdir, "CMakeLists.txt"),

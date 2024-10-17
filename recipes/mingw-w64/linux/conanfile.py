@@ -295,7 +295,7 @@ class MingwConan(ConanFile):
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
 
-        if getattr(self, "settings_target", None):
+        if self.settings_target:
             if self.settings_target.compiler != "gcc":
                 self.output.warning("Only GCC is allowed as the compiler.")
             if str(self.settings_target.compiler.threads) != str(self.options.threads):

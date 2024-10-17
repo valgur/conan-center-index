@@ -44,7 +44,7 @@ class MingwConan(ConanFile):
         if str(self.settings.arch) not in valid_arch:
             raise ConanInvalidConfiguration(f"MinGW {self.version} is only supported for the following architectures on {self.settings.os}: {valid_arch}")
 
-        if getattr(self, "settings_target", None):
+        if self.settings_target:
             if str(self.settings_target.os) not in valid_os:
                 raise ConanInvalidConfiguration(f"MinGW {self.version} is only supported for the following operating systems: {valid_os}")
             valid_arch = ["x86_64"]
@@ -88,7 +88,7 @@ class MingwConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "opt", "lib", "cmake"))
 
     def package_info(self):
-        if getattr(self, "settings_target", None):
+        if self.settings_target:
             if self.settings_target.compiler != "gcc":
                 self.output.warning("Only GCC is allowed as compiler. Make sure you are using the right compiler with this package!")
             threads_value = self.settings_target.compiler.get_safe("threads")

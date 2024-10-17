@@ -56,7 +56,7 @@ class BinutilsConan(ConanFile):
 
     @property
     def _settings_target(self):
-        return getattr(self, "settings_target", None) or self.settings
+        return self.settings_target or self.settings
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -116,7 +116,7 @@ class BinutilsConan(ConanFile):
             raise ConanInvalidConfiguration(f"target_arch={target_archos.arch}/target_os={target_archos.os} is not compatible with {target_gnu_triplet.triplet}. Change target triplet to {suggested_gnu_triplet.triplet}, or change target_arch/target_os to {suggested_archos.arch}/{suggested_archos.os}.")
 
         # Check, when used as build requirement in a cross build, whether the target arch/os agree
-        settings_target = getattr(self, "settings_target", None)
+        settings_target = self.settings_target
         if settings_target is not None:
             if self.options.target_arch != settings_target.arch:
                 raise ConanInvalidConfiguration(f"binutils:target_arch={self.options.target_arch} does not match target architecture={settings_target.arch}")
