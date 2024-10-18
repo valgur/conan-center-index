@@ -1,13 +1,13 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import check_min_cppstd, cross_building
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
 
 # Load the generated component dependency information.
 #
@@ -72,10 +72,6 @@ class GoogleCloudCppConan(ConanFile):
         "bigquery", "bigtable", "iam", "oauth2", "pubsub", "spanner", "storage",
     }
 
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -97,11 +93,6 @@ class GoogleCloudCppConan(ConanFile):
         check_min_vs(self, "192")
         if is_msvc(self) and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
-
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Recipe not prepared for cross-building (yet)"
-            )
 
         if str(self.version) not in self._GA_COMPONENTS:
             print(f"{type(self.version)} {self.version}")
@@ -160,9 +151,8 @@ class GoogleCloudCppConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
 
     def build_requirements(self):
-        # For the `grpc-cpp-plugin` executable, and indirectly `protoc`
-        if not self._is_legacy_one_profile:
-            self.tool_requires("grpc/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("grpc/<host_version>")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -173,8 +163,6 @@ class GoogleCloudCppConan(ConanFile):
         tc.variables["GOOGLE_CLOUD_CPP_ENABLE"] = ",".join(self._components())
         tc.generate()
         VirtualBuildEnv(self).generate()
-        if self._is_legacy_one_profile:
-            VirtualRunEnv(self).generate(scope="build")
         deps = CMakeDeps(self)
         deps.generate()
 
