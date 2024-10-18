@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building, check_min_cppstd, default_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -64,10 +64,11 @@ class QtConan(ConanFile):
 
         "unity_build": [True, False],
         "device": [None, "ANY"],
-        "cross_compile": [None, "ANY"],
         "sysroot": [None, "ANY"],
         "multiconfiguration": [True, False],
         "disabled_features": [None, "ANY"],
+        "cross_compile": [None, "ANY"],
+        "force_build_tools": [True, False],
     }
     default_options = {
         "shared": False,
@@ -104,10 +105,11 @@ class QtConan(ConanFile):
 
         "unity_build": False,
         "device": None,
-        "cross_compile": None,
         "sysroot": None,
         "multiconfiguration": False,
         "disabled_features": "",
+        "cross_compile": None,
+        "force_build_tools": False,
     }
     # All submodules are exposed as options as well
     _modules = [
@@ -225,6 +227,9 @@ class QtConan(ConanFile):
             del self.options.with_gssapi
         if self.settings.os != "Linux":
             self.options.qtwayland = False
+        if not cross_building(self):
+            del self.options.cross_compile
+            del self.options.force_build_tools
 
     def configure(self):
         if not self.options.gui:
@@ -342,15 +347,15 @@ class QtConan(ConanFile):
             raise ConanInvalidConfiguration("sqlite3 option enable_column_metadata must be enabled for qt")
 
     def validate_build(self):
-        if self.options.cross_compile.value is not None:
-            if not os.path.isdir(str(self.options.cross_compile)):
+        if cross_building(self):
+            if self.options.cross_compile.value is not None and not os.path.isdir(str(self.options.cross_compile)):
                 raise ConanInvalidConfiguration(f"Qt host path {self.options.cross_compile} provided via cross_compile option does not exist")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.info.options.cross_compile
+        self.info.options.rm_safe("cross_compile")
         del self.info.options.sysroot
         if self.info.options.multiconfiguration:
             if self.info.settings.compiler == "Visual Studio":
@@ -466,7 +471,15 @@ class QtConan(ConanFile):
         if self._is_enabled("qtwayland"):
             self.tool_requires("wayland/1.22.0")
         if cross_building(self) and self.options.cross_compile.value is None:
-            self.tool_requires(f"qt/{self.version}")
+            self.tool_requires(f"qt/{self.version}", options={
+                # Make sure all required tools are built
+                "qttools": self._is_enabled("qttools"),
+                "qtshadertools": self._is_enabled("qtshadertools"),
+                "qtdeclarative": self._is_enabled("qtdeclarative"),
+                "qtremoteobjects": self._is_enabled("qtremoteobjects"),
+                "qtscxml": self._is_enabled("qtscxml"),
+                "with_dbus": self.options.with_dbus,
+            })
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -679,6 +692,9 @@ class QtConan(ConanFile):
             tc.variables["QT_QMAKE_DEVICE_OPTIONS"] = f"CROSS_COMPILE={host_path}"
             tc.variables["QT_HOST_PATH"] = host_path
             tc.variables["QT_HOST_PATH_CMAKE_DIR"] = f"{host_path}/lib/cmake"
+            # Tools are not built by default when cross compiling, and we won't build them by default either,
+            # since the Qt CMake macros will try to use them as build tools in consuming projects.
+            tc.variables["QT_FORCE_BUILD_TOOLS"] = self.options.force_build_tools
 
         tc.generate()
 
@@ -801,6 +817,36 @@ class QtConan(ConanFile):
     def _cmake_qt6_private_file(self, module):
         return os.path.join("lib", "cmake", f"Qt6{module}", f"conan_qt_qt6_{module.lower()}private.cmake")
 
+    @property
+    def _built_tools(self):
+        if cross_building(self) and not self.options.force_build_tools:
+            return []
+        targets = ["moc", "rcc", "tracegen", "cmake_automoc_parser", "qlalr", "qmake"]
+        if self.options.with_dbus:
+            targets.extend(["qdbuscpp2xml", "qdbusxml2cpp"])
+        if self.options.gui:
+            targets.append("qvkgen")
+        if self.options.widgets:
+            targets.append("uic")
+        if self.settings_build.os == "Macos" and self.settings.os != "iOS":
+            targets.extend(["macdeployqt"])
+        if self.settings.os == "Windows":
+            targets.extend(["windeployqt"])
+        if self._is_enabled("qttools"):
+            targets.extend(["qhelpgenerator", "qtattributionsscanner"])
+            targets.extend(["lconvert", "lprodump", "lrelease", "lrelease-pro", "lupdate", "lupdate-pro"])
+        if self._is_enabled("qtshadertools"):
+            targets.append("qsb")
+        if self._is_enabled("qtdeclarative"):
+            targets.extend(["qmltyperegistrar", "qmlcachegen", "qmllint", "qmlimportscanner"])
+            targets.extend(["qmlformat", "qml", "qmlprofiler", "qmlpreview"])
+            # Note: consider "qmltestrunner", see https://github.com/conan-io/conan-center-index/issues/24276
+        if self._is_enabled("qtremoteobjects"):
+            targets.append("repc")
+        if self._is_enabled("qtscxml"):
+            targets.append("qscxmlc")
+        return targets
+
     def package(self):
         package_path = Path(self.package_folder)
 
@@ -845,38 +891,14 @@ class QtConan(ConanFile):
         filecontents += f"set(QT_VERSION_PATCH {ver.patch})\n"
         if self.settings.os == "Macos":
             filecontents += 'set(__qt_internal_cmake_apple_support_files_path "${PACKAGE_PREFIX_DIR}/lib/cmake/Qt6/macos")\n'
-        targets = ["moc", "rcc", "tracegen", "cmake_automoc_parser", "qlalr", "qmake"]
-        if self.options.with_dbus:
-            targets.extend(["qdbuscpp2xml", "qdbusxml2cpp"])
-        if self.options.gui:
-            targets.append("qvkgen")
-        if self.options.widgets:
-            targets.append("uic")
-        if self.settings_build.os == "Macos" and self.settings.os != "iOS":
-            targets.extend(["macdeployqt"])
-        if self.settings.os == "Windows":
-            targets.extend(["windeployqt"])
-        if self._is_enabled("qttools"):
-            targets.extend(["qhelpgenerator", "qtattributionsscanner"])
-            targets.extend(["lconvert", "lprodump", "lrelease", "lrelease-pro", "lupdate", "lupdate-pro"])
-        if self._is_enabled("qtshadertools"):
-            targets.append("qsb")
-        if self._is_enabled("qtdeclarative"):
-            targets.extend(["qmltyperegistrar", "qmlcachegen", "qmllint", "qmlimportscanner"])
-            targets.extend(["qmlformat", "qml", "qmlprofiler", "qmlpreview"])
-            # Note: consider "qmltestrunner", see https://github.com/conan-io/conan-center-index/issues/24276
-        if self._is_enabled("qtremoteobjects"):
-            targets.append("repc")
-        if self._is_enabled("qtscxml"):
-            targets.append("qscxmlc")
         extension = ".exe" if self.settings.os == "Windows" else ""
-        for target in targets:
+        for target in self._built_tools:
             for subdir in ["bin", "lib", "libexec"]:
                 exe_path = f"{subdir}/{target}{extension}"
                 if package_path.joinpath(exe_path).is_file():
                     break
             else:
-                assert False, f"Could not find executable {target}{extension} in {self.package_folder}"
+                raise ConanException(f"Could not find executable {target}{extension} in {self.package_folder}")
             filecontents += textwrap.dedent(f"""\
                 if(NOT TARGET ${{QT_CMAKE_EXPORT_NAMESPACE}}::{target})
                     add_executable(${{QT_CMAKE_EXPORT_NAMESPACE}}::{target} IMPORTED)
@@ -945,10 +967,15 @@ class QtConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "qt6")
 
         # consumers will need the QT_PLUGIN_PATH defined in runenv
-        self.runenv_info.define("QT_PLUGIN_PATH", os.path.join(self.package_folder, "plugins"))
-        self.buildenv_info.define("QT_PLUGIN_PATH", os.path.join(self.package_folder, "plugins"))
+        self.runenv_info.define_path("QT_PLUGIN_PATH", os.path.join(self.package_folder, "plugins"))
+        self.buildenv_info.define_path("QT_PLUGIN_PATH", os.path.join(self.package_folder, "plugins"))
 
-        self.buildenv_info.define("QT_HOST_PATH", self.package_folder)
+        if not cross_building(self):
+            self.buildenv_info.define_path("QT_HOST_PATH", self.package_folder)
+            self.buildenv_info.define_path("QT_HOST_PATH_CMAKE_DIR", os.path.join(self.package_folder, "lib", "cmake"))
+        elif self.options.cross_compile.value is not None:
+            self.buildenv_info.define_path("QT_HOST_PATH", str(self.options.cross_compile))
+            self.buildenv_info.define_path("QT_HOST_PATH_CMAKE_DIR", os.path.join(str(self.options.cross_compile), "lib", "cmake"))
 
         build_modules = {}
         def _add_build_module(component, module):
