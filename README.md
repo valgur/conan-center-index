@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-17:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-18:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -122,7 +122,23 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
+- mbedtls/2.23.0
+- mbedtls/2.24.0
+- mbedtls/2.28.8
+- mbedtls/2.28.9
+- mbedtls/3.0.0
+- mbedtls/3.1.0
+- mbedtls/3.4.1
+- mbedtls/3.5.1
 - mkfontscale/1.2.3
+- moltenvk/1.1.0
+- moltenvk/1.1.1
+- moltenvk/1.1.10
+- moltenvk/1.1.4
+- moltenvk/1.1.5
+- moltenvk/1.1.6
+- moltenvk/1.1.8
+- moltenvk/1.1.9
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
 - nanobind/1.9.2
@@ -150,6 +166,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - premake/5.0.0-beta2
 - qhull/cci.20231130
 - qscintilla/2.14.1
+- qt/6.8.0
 - reproc/14.2.5
 - rosx_introspection/1.0.2
 - rust/1.72.1
@@ -157,6 +174,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.81.0
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
+- simdutf/4.0.9
+- simdutf/5.0.0
+- simdutf/5.2.2
+- simdutf/5.2.3
+- simdutf/5.2.6
+- simdutf/5.2.8
 - skia/cci.20240727
 - sleef/3.6.1
 - small_gicp/0.1.2
