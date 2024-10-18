@@ -975,7 +975,7 @@ class QtConan(ConanFile):
                 reqs.append(corrected_req)
             return reqs
 
-        def _create_module(module, requires, has_include_dir=True):
+        def _create_module(module, requires=None, has_include_dir=True):
             name = f"qt{module}"
             assert name not in self.cpp_info.components, f"Module {module} already present in self.cpp_info.components"
             self.cpp_info.components[name].set_property("cmake_target_name", f"Qt6::{module}")
@@ -985,12 +985,13 @@ class QtConan(ConanFile):
             if has_include_dir:
                 self.cpp_info.components[name].includedirs = ["include", os.path.join("include", f"Qt{module}")]
             self.cpp_info.components[name].defines = [f"QT_{module.upper()}_LIB"]
+            requires = requires or []
             if module != "Core" and "Core" not in requires:
                 requires.append("Core")
             self.cpp_info.components[name].requires = _get_corrected_reqs(requires)
             return self.cpp_info.components[name]
 
-        def _create_plugin(pluginname, libname, plugintype, requires):
+        def _create_plugin(pluginname, libname, plugintype, requires=None):
             name = f"qt{pluginname}"
             assert name not in self.cpp_info.components, f"Plugin {pluginname} already present in self.cpp_info.components"
             self.cpp_info.components[name].set_property("cmake_target_name", f"Qt6::{pluginname}")
@@ -998,146 +999,192 @@ class QtConan(ConanFile):
                 self.cpp_info.components[name].libs = [libname + libsuffix]
             self.cpp_info.components[name].libdirs = [os.path.join("plugins", plugintype)]
             self.cpp_info.components[name].includedirs = []
+            requires = requires or []
             if "Core" not in requires:
                 requires.append("Core")
             self.cpp_info.components[name].requires = _get_corrected_reqs(requires)
             return self.cpp_info.components[name]
 
-        core_reqs = ["zlib::zlib"]
-        if self.options.with_pcre2:
-            core_reqs.append("pcre2::pcre2")
-        if self.options.with_doubleconversion:
-            core_reqs.append("double-conversion::double-conversion")
-        if self.options.get_safe("with_icu"):
-            core_reqs.append("icu::icu")
-        if self.options.with_zstd:
-            core_reqs.append("zstd::zstd")
-        if self.options.with_glib:
-            core_reqs.append("glib::glib")
-        if self.options.openssl:
-            core_reqs.append("openssl::openssl") # used by QCryptographicHash
+        qtPlatform = self.cpp_info.components["qtPlatform"]
+        qtPlatform.set_property("cmake_target_name", "Qt6::Platform")
+        qtPlatform.includedirs = [os.path.join("mkspecs", self._xplatform)]
 
-        qtCore = _create_module("Core", core_reqs)
+        qtCore = _create_module("Core")
         qtCore.set_property("pkg_config_custom_content", "\n".join([
             "bindir=${prefix}/bin",
             "libexecdir=${prefix}/libexec",
             "exec_prefix=${prefix}",
         ]))
-
-        if self.settings.build_type != "Debug":
-            qtCore.defines.append("QT_NO_DEBUG")
-        if self.settings.os == "Windows":
-            qtCore.system_libs.append("authz")
+        qtCore.builddirs.append(os.path.join("bin"))
+        _add_build_module("qtCore", self._cmake_executables_file)
+        _add_build_module("qtCore", self._cmake_qt6_private_file("Core"))
+        if self.settings.os in ["Windows", "iOS"]:
+            _add_build_module("qtCore", self._cmake_entry_point_file)
         if is_msvc(self):
             qtCore.cxxflags.append("-permissive-")
             qtCore.cxxflags.append("-Zc:__cplusplus")
-            qtCore.system_libs.append("synchronization")
-            qtCore.system_libs.append("runtimeobject")
-        qtPlatform = self.cpp_info.components["qtPlatform"]
-        qtPlatform.set_property("cmake_target_name", "Qt6::Platform")
-        qtPlatform.includedirs = [os.path.join("mkspecs", self._xplatform)]
-        if self.options.with_dbus:
-            qtDBus = _create_module("DBus", ["dbus::dbus"])
+        elif self.settings.os != "Windows":
+            qtCore.cxxflags.append("-fPIC")
+        qtCore.requires.append("zlib::zlib")
+        if self.options.with_pcre2:
+            qtCore.requires.append("pcre2::pcre2")
+        if self.options.with_doubleconversion:
+            qtCore.requires.append("double-conversion::double-conversion")
+        if self.options.get_safe("with_icu"):
+            qtCore.requires.append("icu::icu")
+        if self.options.with_zstd:
+            qtCore.requires.append("zstd::zstd")
+        if self.options.with_glib:
+            qtCore.requires.append("glib::glib")
+        if self.options.openssl:
+            qtCore.requires.append("openssl::openssl") # used by QCryptographicHash
+        if self.settings.build_type != "Debug":
+            qtCore.defines.append("QT_NO_DEBUG")
+        if not self.options.shared:
+            if is_msvc(self):
+                qtCore.system_libs.append("synchronization")
+                qtCore.system_libs.append("runtimeobject")
             if self.settings.os == "Windows":
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/dbus/CMakeLists.txt#L73-L79
-                qtDBus.system_libs.append("advapi32")
-                qtDBus.system_libs.append("netapi32")
-                qtDBus.system_libs.append("user32")
-                qtDBus.system_libs.append("ws2_32")
+                # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L527-L541
+                qtCore.system_libs.extend([
+                    "advapi32", "authz", "kernel32", "netapi32", "ole32", "shell32",
+                    "user32", "uuid", "version", "winmm", "ws2_32", "mpr", "userenv",
+                ])
+            elif is_apple_os(self):
+                # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L626-L630
+                qtCore.frameworks.extend(["CoreFoundation", "Foundation", "IOKit"])
+                if self.settings.os == "Macos":
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L645-L651
+                    qtCore.frameworks.extend([
+                        "AppKit",
+                        "ApplicationServices",
+                        "CoreServices",
+                        "Security",
+                        "DiskArbitration",
+                    ])
+                else:
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L1052
+                    qtCore.frameworks.append("MobileCoreServices")
+                if self.settings.os in ["iOS", "tvOS"]:
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L1169
+                    qtCore.frameworks.append("UIKit")
+                if self.settings.os == "watchOS":
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L1174
+                    qtCore.frameworks.append("WatchKit")
+
+        if self._is_enabled("qt5compat"):
+            _create_module("Core5Compat")
+
         if self.options.gui:
-            gui_reqs = []
+            qtGui = _create_module("Gui")
+            _add_build_module("qtGui", self._cmake_qt6_private_file("Gui"))
             if self.options.with_dbus:
-                gui_reqs.append("DBus")
+                qtGui.requires.append("DBus")
             if self.options.with_freetype:
-                gui_reqs.append("freetype::freetype")
+                qtGui.requires.append("freetype::freetype")
             if self.options.with_libpng:
-                gui_reqs.append("libpng::libpng")
+                qtGui.requires.append("libpng::libpng")
             if self.options.get_safe("with_fontconfig"):
-                gui_reqs.append("fontconfig::fontconfig")
+                qtGui.requires.append("fontconfig::fontconfig")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 if self._is_enabled("qtwayland") or self.options.get_safe("with_x11"):
-                    gui_reqs.append("xkbcommon::xkbcommon")
+                    qtGui.requires.append("xkbcommon::xkbcommon")
                 if self.options.get_safe("with_x11"):
-                    gui_reqs.append("xorg::xorg")
+                    qtGui.requires.append("xorg::xorg")
                 if self.options.get_safe("with_egl"):
-                    gui_reqs.append("egl::egl")
+                    qtGui.requires.append("egl::egl")
             if self.settings.os != "Windows" and self.options.get_safe("opengl", "no") != "no":
-                gui_reqs.append("opengl::opengl")
+                qtGui.requires.append("opengl::opengl")
             if self.options.get_safe("with_vulkan"):
-                gui_reqs.append("vulkan-loader::vulkan-loader")
-                gui_reqs.append("vulkan-headers::vulkan-headers")
+                qtGui.requires.append("vulkan-loader::vulkan-loader")
+                qtGui.requires.append("vulkan-headers::vulkan-headers")
                 if is_apple_os(self):
-                    gui_reqs.append("moltenvk::moltenvk")
+                    qtGui.requires.append("moltenvk::moltenvk")
             if self.options.with_harfbuzz:
-                gui_reqs.append("harfbuzz::harfbuzz")
+                qtGui.requires.append("harfbuzz::harfbuzz")
             if self.options.with_glib:
-                gui_reqs.append("glib::glib")
+                qtGui.requires.append("glib::glib")
             if self.options.with_md4c:
-                gui_reqs.append("md4c::md4c")
-            qtGui = _create_module("Gui", gui_reqs)
+                qtGui.requires.append("md4c::md4c")
+            if not self.options.shared:
+                if self.settings.os == "Windows":
+                    # https://github.com/qt/qtbase/blob/v6.6.1/src/gui/CMakeLists.txt#L419-L429
+                    qtGui.system_libs += [
+                        "advapi32", "gdi32", "ole32", "shell32", "user32",
+                        "d3d11", "dxgi", "dxguid"
+                    ]
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L796
+                    qtGui.system_libs.append("d2d1")
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L803
+                    qtGui.system_libs.append("dwrite")
+                    if self.settings.compiler == "gcc":
+                        # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L813
+                        qtGui.system_libs.append("uuid")  # FIXME: should be util-linux-libuuid?
+                    if Version(self.version) >= "6.6.0":
+                        # https://github.com/qt/qtbase/blob/v6.6.0/src/gui/CMakeLists.txt#L428
+                        qtGui.system_libs.append("d3d12")
+                    if Version(self.version) >= "6.7.0":
+                        # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L430
+                        qtGui.system_libs.append("uxtheme")
+                    if self.settings.compiler == "gcc":
+                        qtGui.system_libs.append("uuid")
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/direct2d/CMakeLists.txt#L59-L81
+                    qtGui.system_libs += [
+                        "advapi32", "d2d1", "d3d11", "dwmapi", "dwrite", "dxgi", "dxguid", "gdi32", "imm32", "ole32",
+                        "oleaut32", "setupapi", "shell32", "shlwapi", "user32", "version", "winmm", "winspool",
+                        "wtsapi32", "shcore", "comdlg32", "d3d9", "runtimeobject"
+                    ]
+                elif is_apple_os(self):
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L423-L429
+                    qtGui.frameworks = ["CoreFoundation", "CoreGraphics", "CoreText", "Foundation", "ImageIO"]
+                    if self.options.get_safe("opengl", "no") != "no":
+                        # https://github.com/qt/qtbase/commit/2ed63e587eefb246dba9e69aa01fdb2abb2def13
+                        qtGui.frameworks.append("AGL")
+                    if self.settings.os == "Macos":
+                        # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L394-L398
+                        qtGui.frameworks += ["AppKit", "Carbon"]
 
-            _add_build_module("qtGui", self._cmake_qt6_private_file("Gui"))
-
+            _create_plugin("QGifPlugin", "qgif", "imageformats", ["Gui"])
+            _create_plugin("QIcoPlugin", "qico", "imageformats", ["Gui"])
+            if self.options.get_safe("with_libjpeg"):
+                QJpegPlugin = _create_plugin("QJpegPlugin", "qjpeg", "imageformats", ["Gui"])
+                if self.options.with_libjpeg == "libjpeg-turbo":
+                    QJpegPlugin.requires.append("libjpeg-turbo::libjpeg-turbo")
+                if self.options.with_libjpeg == "libjpeg":
+                    QJpegPlugin.requires.append("libjpeg::libjpeg")
+            if self.options.get_safe("with_x11"):
+                _create_module("XcbQpaPrivate", ["xkbcommon::libxkbcommon-x11", "xorg::xorg"], has_include_dir=False)
+                _create_plugin("QXcbIntegrationPlugin", "qxcb", "platforms", ["Core", "Gui", "XcbQpaPrivate"])
             if self.settings.os == "Windows":
-                # https://github.com/qt/qtbase/blob/v6.6.1/src/gui/CMakeLists.txt#L419-L429
-                qtGui.system_libs += [
-                    "advapi32", "gdi32", "ole32", "shell32", "user32",
-                    "d3d11", "dxgi", "dxguid"
-                ]
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L796
-                qtGui.system_libs.append("d2d1")
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L803
-                qtGui.system_libs.append("dwrite")
-                if self.settings.compiler == "gcc":
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L813
-                    qtGui.system_libs.append("uuid")  # FIXME: should be util-linux-libuuid?
-                if Version(self.version) >= "6.6.0":
-                    # https://github.com/qt/qtbase/blob/v6.6.0/src/gui/CMakeLists.txt#L428
-                    qtGui.system_libs.append("d3d12")
-                if Version(self.version) >= "6.7.0":
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L430
-                    qtGui.system_libs.append("uxtheme")
-                if self.settings.compiler == "gcc":
-                    qtGui.system_libs.append("uuid")
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/direct2d/CMakeLists.txt#L59-L81
-                qtGui.system_libs += [
-                    "advapi32", "d2d1", "d3d11", "dwmapi", "dwrite", "dxgi", "dxguid", "gdi32", "imm32", "ole32",
-                    "oleaut32", "setupapi", "shell32", "shlwapi", "user32", "version", "winmm", "winspool",
-                    "wtsapi32", "shcore", "comdlg32", "d3d9", "runtimeobject"
-                ]
                 QWindowsIntegrationPlugin = _create_plugin("QWindowsIntegrationPlugin", "qwindows", "platforms", ["Core", "Gui"])
+                if not self.options.shared:
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/windows/CMakeLists.txt#L52-L68
+                    QWindowsIntegrationPlugin.system_libs += [
+                        "advapi32", "dwmapi", "gdi32", "imm32", "ole32", "oleaut32", "setupapi", "shell32", "shlwapi",
+                        "user32", "winmm", "winspool", "wtsapi32", "shcore", "comdlg32", "d3d9", "runtimeobject"
+                    ]
                 # https://github.com/qt/qtbase/commit/65d58e6c41e3c549c89ea4f05a8e467466e79ca3
                 if Version(self.version) >= "6.7.0":
                     _create_plugin("QModernWindowsStylePlugin", "qmodernwindowsstyle", "styles", ["Core", "Gui"])
                 else:
                     _create_plugin("QWindowsVistaStylePlugin", "qwindowsvistastyle", "styles", ["Core", "Gui"])
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/windows/CMakeLists.txt#L52-L68
-                QWindowsIntegrationPlugin.system_libs += [
-                    "advapi32", "dwmapi", "gdi32", "imm32", "ole32", "oleaut32", "setupapi", "shell32", "shlwapi",
-                    "user32", "winmm", "winspool", "wtsapi32", "shcore", "comdlg32", "d3d9", "runtimeobject"
-                ]
             elif self.settings.os == "Android":
                 QAndroidIntegrationPlugin = _create_plugin("QAndroidIntegrationPlugin", "qtforandroid", "platforms", ["Core", "Gui"])
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/android/CMakeLists.txt#L66-L67
-                QAndroidIntegrationPlugin.system_libs = ["android", "jnigraphics"]
-            elif is_apple_os(self):
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L423-L429
-                qtGui.frameworks = ["CoreFoundation", "CoreGraphics", "CoreText", "Foundation", "ImageIO"]
-                if self.options.get_safe("opengl", "no") != "no":
-                    # https://github.com/qt/qtbase/commit/2ed63e587eefb246dba9e69aa01fdb2abb2def13
-                    qtGui.frameworks.append("AGL")
-                if self.settings.os == "Macos":
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L394-L398
-                    qtGui.frameworks += ["AppKit", "Carbon"]
+                if not self.options.shared:
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/android/CMakeLists.txt#L66-L67
+                    QAndroidIntegrationPlugin.system_libs = ["android", "jnigraphics"]
+            elif self.settings.os == "Macos":
                     QCocoaIntegrationPlugin = _create_plugin("QCocoaIntegrationPlugin", "qcocoa", "platforms", ["Core", "Gui"])
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/cocoa/CMakeLists.txt#L51-L58
-                    QCocoaIntegrationPlugin.frameworks = [
-                        "AppKit", "Carbon", "CoreServices", "CoreVideo", "IOKit", "IOSurface", "Metal", "QuartzCore"
-                    ]
-                    if Version(self.version) >= "6.8.0":
-                        QCocoaIntegrationPlugin.frameworks.append("UniformTypeIdentifiers")
-                elif self.settings.os in ["iOS", "tvOS"]:
-                    QIOSIntegrationPlugin = _create_plugin("QIOSIntegrationPlugin", "qios", "platforms", [])
+                    if not self.options.shared:
+                        # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/cocoa/CMakeLists.txt#L51-L58
+                        QCocoaIntegrationPlugin.frameworks = [
+                            "AppKit", "Carbon", "CoreServices", "CoreVideo", "IOKit", "IOSurface", "Metal", "QuartzCore"
+                        ]
+                        if Version(self.version) >= "6.8.0":
+                            QCocoaIntegrationPlugin.frameworks.append("UniformTypeIdentifiers")
+            elif self.settings.os in ["iOS", "tvOS"]:
+                QIOSIntegrationPlugin = _create_plugin("QIOSIntegrationPlugin", "qios", "platforms")
+                if not self.options.shared:
                     # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/ios/CMakeLists.txt#L51-L56
                     QIOSIntegrationPlugin.frameworks = ["AudioToolbox", "Foundation", "Metal", "QuartzCore", "UIKit", "CoreGraphics"]
                     if self.settings.os != "tvOS":
@@ -1145,60 +1192,74 @@ class QtConan(ConanFile):
                         QIOSIntegrationPlugin.frameworks += ["UniformTypeIdentifiers", "Photos"]
                         if Version(self.version) < "6.8.0":
                             QIOSIntegrationPlugin.frameworks.append("AssetsLibrary")
-                elif self.settings.os == "watchOS":
-                    _create_plugin("QMinimalIntegrationPlugin", "qminimal", "platforms", [])
+            elif self.settings.os == "watchOS":
+                _create_plugin("QMinimalIntegrationPlugin", "qminimal", "platforms")
             elif self.settings.os == "Emscripten":
                 _create_plugin("QWasmIntegrationPlugin", "qwasm", "platforms", ["Core", "Gui"])
-            elif self.options.get_safe("with_x11"):
-                _create_module("XcbQpaPrivate", ["xkbcommon::libxkbcommon-x11", "xorg::xorg"], has_include_dir=False)
-                _create_plugin("QXcbIntegrationPlugin", "qxcb", "platforms", ["Core", "Gui", "XcbQpaPrivate"])
 
-            _create_plugin("QGifPlugin", "qgif", "imageformats", ["Gui"])
-            _create_plugin("QIcoPlugin", "qico", "imageformats", ["Gui"])
-            if self.options.get_safe("with_libjpeg"):
-                jpeg_reqs = ["Gui"]
-                if self.options.with_libjpeg == "libjpeg-turbo":
-                    jpeg_reqs.append("libjpeg-turbo::libjpeg-turbo")
-                if self.options.with_libjpeg == "libjpeg":
-                    jpeg_reqs.append("libjpeg::libjpeg")
-                _create_plugin("QJpegPlugin", "qjpeg", "imageformats", jpeg_reqs)
+        if self.options.widgets:
+            qtWidgets = _create_module("Widgets", ["Gui"])
+            _add_build_module("qtWidgets", self._cmake_qt6_private_file("Widgets"))
+            if not self.options.shared and self.settings.os == "Windows":
+                # https://github.com/qt/qtbase/blob/v6.8.0/src/widgets/CMakeLists.txt#L383-L385
+                qtWidgets.system_libs += ["dwmapi", "shell32", "uxtheme"]
 
+        if self.options.gui and self.options.widgets:
+            qtPrintSupport = _create_module("PrintSupport", ["Gui", "Widgets"])
+            if not self.options.shared:
+                if self.settings.os == "Windows":
+                    qtPrintSupport.system_libs.extend(["gdi32", "user32", "comdlg32", "winspool"])
+                elif is_apple_os(self):
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/printsupport/CMakeLists.txt#L59-L61
+                    qtPrintSupport.system_libs.append("cups")
+                    qtPrintSupport.frameworks.append("ApplicationServices")
+
+        if self.options.with_dbus:
+            qtDBus = _create_module("DBus", ["dbus::dbus"])
+            if not self.options.shared and self.settings.os == "Windows":
+                # https://github.com/qt/qtbase/blob/v6.8.0/src/dbus/CMakeLists.txt#L73-L79
+                qtDBus.system_libs.extend(["advapi32", "netapi32", "user32", "ws2_32"])
         if self.options.with_sqlite3:
             _create_plugin("QSQLiteDriverPlugin", "qsqlite", "sqldrivers", ["sqlite3::sqlite3"])
         if self.options.with_pq:
             _create_plugin("QPSQLDriverPlugin", "qsqlpsql", "sqldrivers", ["libpq::libpq"])
         if self.options.with_odbc:
-            QODBCDriverPlugin = _create_plugin("QODBCDriverPlugin", "qsqlodbc", "sqldrivers", [])
-            if self.settings.os != "Windows":
-                QODBCDriverPlugin.requires.append("odbc::odbc")
+            QODBCDriverPlugin = _create_plugin("QODBCDriverPlugin", "qsqlodbc", "sqldrivers")
+            if self.settings.os == "Windows":
+                if not self.options.shared:
+                    QODBCDriverPlugin.system_libs.append("odbc32")
             else:
-                QODBCDriverPlugin.system_libs.append("odbc32")
-        qtNetwork = _create_module("Network", [])
+                QODBCDriverPlugin.requires.append("odbc::odbc")
+
+        qtNetwork = _create_module("Network")
         if self.options.openssl:
             qtNetwork.requires.append("openssl::openssl")
         if self.options.with_brotli:
             qtNetwork.requires.append("brotli::brotli")
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.with_gssapi:
             qtNetwork.requires.append("krb5::krb5-gssapi")
-        _create_module("Sql", [])
-        _create_module("Test", [])
-        if self.options.widgets:
-            qtWidgets = _create_module("Widgets", ["Gui"])
-            _add_build_module("qtWidgets", self._cmake_qt6_private_file("Widgets"))
+        if not self.options.shared:
             if self.settings.os == "Windows":
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/widgets/CMakeLists.txt#L383-L385
-                qtWidgets.system_libs += ["dwmapi", "shell32", "uxtheme"]
-        if self.options.gui and self.options.widgets:
-            qtPrintSupport = _create_module("PrintSupport", ["Gui", "Widgets"])
-        if self.options.get_safe("opengl", "no") != "no" and self.options.gui:
-            _create_module("OpenGL", ["Gui"])
-        if self.options.widgets and self.options.get_safe("opengl", "no") != "no":
-            _create_module("OpenGLWidgets", ["OpenGL", "Widgets"])
-        _create_module("Concurrent", [])
-        _create_module("Xml", [])
+                # https://github.com/qt/qtbase/blob/v6.8.0/src/network/CMakeLists.txt#L196-L200
+                qtNetwork.system_libs.extend(["advapi32", "dnsapi", "iphlpapi", "secur32", "winhttp"])
+            elif is_apple_os(self):
+                qtNetwork.system_libs.append("resolv")
+                if self.options.with_gssapi:
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/network/CMakeLists.txt#L273
+                    qtNetwork.frameworks.append("GSS")
+                if self.settings.os not in ["iOS", "tvOS"]:
+                    qtNetwork.frameworks.append("CoreServices")
+                    qtNetwork.frameworks.append("SystemConfiguration")
 
-        if self._is_enabled("qt5compat"):
-            _create_module("Core5Compat", [])
+        _create_module("Sql")
+        _create_module("Test")
+        _create_module("Concurrent")
+        _create_module("Xml")
+        if self.options.get_safe("opengl", "no") != "no":
+            if self.options.gui:
+                _create_module("OpenGL", ["Gui"])
+            if self.options.widgets:
+                _create_module("OpenGLWidgets", ["OpenGL", "Widgets"])
 
         # since https://github.com/qt/qtdeclarative/commit/4fb84137f1c0a49d64b8bef66fef8a4384cc2a68
         qt_quick_enabled = self.options.gui and self._is_enabled("qtshadertools")
@@ -1244,8 +1305,8 @@ class QtConan(ConanFile):
 
         if self._is_enabled("qtsvg") and self.options.gui:
             _create_module("Svg", ["Gui"])
-            _create_plugin("QSvgIconPlugin", "qsvgicon", "iconengines", [])
-            _create_plugin("QSvgPlugin", "qsvg", "imageformats", [])
+            _create_plugin("QSvgIconPlugin", "qsvgicon", "iconengines")
+            _create_plugin("QSvgPlugin", "qsvg", "imageformats")
             if self.options.widgets:
                 _create_module("SvgWidgets", ["Gui", "Svg", "Widgets"])
 
@@ -1256,8 +1317,9 @@ class QtConan(ConanFile):
         if self._is_enabled("qtactiveqt") and self.settings.os == "Windows":
             _create_module("AxBase", ["Gui", "Widgets"])
             qtAxServer = _create_module("AxServer", ["AxBase"])
-            qtAxServer.system_libs.append("shell32")
             qtAxServer.defines.append("QAXSERVER")
+            if not self.options.shared:
+                qtAxServer.system_libs.append("shell32")
             _create_module("AxContainer", ["AxBase"])
         if self._is_enabled("qtcharts"):
             _create_module("Charts", ["Gui", "Widgets"])
@@ -1266,9 +1328,9 @@ class QtConan(ConanFile):
         if self._is_enabled("qtlottie"):
             _create_module("Bodymovin", ["Gui"])
         if self._is_enabled("qtscxml"):
-            _create_module("StateMachine", [])
+            _create_module("StateMachine")
             _create_module("StateMachineQml", ["StateMachine", "Qml"])
-            _create_module("Scxml", [])
+            _create_module("Scxml")
             _create_plugin("QScxmlEcmaScriptDataModelPlugin", "qscxmlecmascriptdatamodel", "scxmldatamodel", ["Scxml", "Qml"])
             _create_module("ScxmlQml", ["Scxml", "Qml"])
         if self._is_enabled("qtvirtualkeyboard") and qt_quick_enabled:
@@ -1332,33 +1394,33 @@ class QtConan(ConanFile):
                     "gst-plugins-base::gst-plugins-base"])
 
         if self._is_enabled("qtpositioning"):
-            _create_module("Positioning", [])
-            _create_plugin("QGeoPositionInfoSourceFactoryGeoclue2", "qtposition_geoclue2", "position", [])
-            _create_plugin("QGeoPositionInfoSourceFactoryPoll", "qtposition_positionpoll", "position", [])
+            _create_module("Positioning")
+            _create_plugin("QGeoPositionInfoSourceFactoryGeoclue2", "qtposition_geoclue2", "position")
+            _create_plugin("QGeoPositionInfoSourceFactoryPoll", "qtposition_positionpoll", "position")
 
         if self._is_enabled("qtsensors"):
-            _create_module("Sensors", [])
-            _create_plugin("genericSensorPlugin", "qtsensors_generic", "sensors", [])
-            _create_plugin("IIOSensorProxySensorPlugin", "qtsensors_iio-sensor-proxy", "sensors", [])
+            _create_module("Sensors")
+            _create_plugin("genericSensorPlugin", "qtsensors_generic", "sensors")
+            _create_plugin("IIOSensorProxySensorPlugin", "qtsensors_iio-sensor-proxy", "sensors")
             if self.settings.os == "Linux":
-                _create_plugin("LinuxSensorPlugin", "qtsensors_linuxsys", "sensors", [])
-            _create_plugin("QtSensorGesturePlugin", "qtsensorgestures_plugin", "sensorgestures", [])
-            _create_plugin("QShakeSensorGesturePlugin", "qtsensorgestures_shakeplugin", "sensorgestures", [])
+                _create_plugin("LinuxSensorPlugin", "qtsensors_linuxsys", "sensors")
+            _create_plugin("QtSensorGesturePlugin", "qtsensorgestures_plugin", "sensorgestures")
+            _create_plugin("QShakeSensorGesturePlugin", "qtsensorgestures_shakeplugin", "sensorgestures")
 
         if self._is_enabled("qtconnectivity"):
             _create_module("Bluetooth", ["Network"])
-            _create_module("Nfc", [])
+            _create_module("Nfc")
 
         if self._is_enabled("qtserialport"):
-            _create_module("SerialPort", [])
+            _create_module("SerialPort")
 
         if self._is_enabled("qtserialbus"):
             _create_module("SerialBus", ["SerialPort"] if self._is_enabled("qtserialport") else [])
-            _create_plugin("PassThruCanBusPlugin", "qtpassthrucanbus", "canbus", [])
-            _create_plugin("PeakCanBusPlugin", "qtpeakcanbus", "canbus", [])
-            _create_plugin("SocketCanBusPlugin", "qtsocketcanbus", "canbus", [])
-            _create_plugin("TinyCanBusPlugin", "qttinycanbus", "canbus", [])
-            _create_plugin("VirtualCanBusPlugin", "qtvirtualcanbus", "canbus", [])
+            _create_plugin("PassThruCanBusPlugin", "qtpassthrucanbus", "canbus")
+            _create_plugin("PeakCanBusPlugin", "qtpeakcanbus", "canbus")
+            _create_plugin("SocketCanBusPlugin", "qtsocketcanbus", "canbus")
+            _create_plugin("TinyCanBusPlugin", "qttinycanbus", "canbus")
+            _create_plugin("VirtualCanBusPlugin", "qtvirtualcanbus", "canbus")
 
         if self._is_enabled("qtwebsockets"):
             _create_module("WebSockets", ["Network"])
@@ -1378,13 +1440,13 @@ class QtConan(ConanFile):
             _create_module("WebEngineWidgets", ["WebEngineCore", "Quick", "PrintSupport", "Widgets", "Gui", "Network"])
 
         if self._is_enabled("qtremoteobjects"):
-            _create_module("RemoteObjects", [])
+            _create_module("RemoteObjects")
 
         if self._is_enabled("qtwebview"):
             _create_module("WebView", ["Core", "Gui"])
 
         if self._is_enabled("qtspeech"):
-            _create_module("TextToSpeech", [])
+            _create_module("TextToSpeech")
 
         if self._is_enabled("qthttpserver"):
             http_server_deps = ["Core", "Network"]
@@ -1393,7 +1455,7 @@ class QtConan(ConanFile):
             _create_module("HttpServer", http_server_deps)
 
         if self._is_enabled("qtgrpc"):
-            _create_module("Protobuf", [])
+            _create_module("Protobuf")
             _create_module("Grpc", ["Core", "Protobuf", "Network"])
 
         if self.settings.os in ["Windows", "iOS"]:
@@ -1401,13 +1463,15 @@ class QtConan(ConanFile):
                 qtEntryPointImplementation = self.cpp_info.components["qtEntryPointImplementation"]
                 qtEntryPointImplementation.set_property("cmake_target_name", "Qt6::EntryPointImplementation")
                 qtEntryPointImplementation.libs = [f"Qt6EntryPoint{libsuffix}"]
-                qtEntryPointImplementation.system_libs = ["shell32"]
+                if not self.options.shared:
+                    qtEntryPointImplementation.system_libs = ["shell32"]
 
                 if self.settings.compiler == "gcc":
                     qtEntryPointMinGW32 = self.cpp_info["qtEntryPointMinGW32"]
                     qtEntryPointMinGW32.set_property("cmake_target_name", "Qt6::EntryPointMinGW32")
-                    qtEntryPointMinGW32.system_libs = ["mingw32"]
                     qtEntryPointMinGW32.requires = ["qtEntryPointImplementation"]
+                    if not self.options.shared:
+                        qtEntryPointMinGW32.system_libs = ["mingw32"]
 
             qtEntryPointPrivate = self.cpp_info.components["qtEntryPointPrivate"]
             qtEntryPointPrivate.set_property("cmake_target_name", "Qt6::EntryPointPrivate")
@@ -1419,68 +1483,6 @@ class QtConan(ConanFile):
                     qtEntryPointPrivate.requires.append("qtEntryPointImplementation")
             if self.settings.os == "iOS":
                 qtEntryPointPrivate.exelinkflags.append("-Wl,-e,_qt_main_wrapper")
-
-        if self.settings.os != "Windows":
-            qtCore.cxxflags.append("-fPIC")
-
-        if not self.options.shared:
-            if self.settings.os == "Windows":
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L527-L541
-                qtCore.system_libs.extend([
-                    "advapi32", "authz", "kernel32", "netapi32", "ole32", "shell32",
-                    "user32", "uuid", "version", "winmm", "ws2_32", "mpr", "userenv",
-                ])
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/network/CMakeLists.txt#L196-L200
-                qtNetwork.system_libs.extend(["advapi32", "dnsapi", "iphlpapi", "secur32", "winhttp"])
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/printsupport/CMakeLists.txt#L70-L75
-                if self.options.gui and self.options.widgets:
-                    qtPrintSupport.system_libs.extend(["gdi32", "user32", "comdlg32", "winspool"])
-
-            if is_apple_os(self):
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L626-L630
-                qtCore.frameworks.append("CoreFoundation")
-                qtCore.frameworks.append("Foundation")
-                qtCore.frameworks.append("IOKit")
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/network/CMakeLists.txt#L234
-                qtNetwork.frameworks.append("CFNetwork")
-                # https://github.com/qt/qtbase/blob/v6.8.0/src/network/CMakeLists.txt#L237-L242
-                # qtcore requires "_OBJC_CLASS_$_NSApplication" and more, which are in "Cocoa" framework
-                qtCore.frameworks.append("Cocoa")
-                qtNetwork.system_libs.append("resolv")
-                if self.options.with_gssapi:
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/network/CMakeLists.txt#L273
-                    qtNetwork.requires.append("krb5::krb5-gssapi")
-                if self.options.gui and self.options.widgets:
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/printsupport/CMakeLists.txt#L59-L61
-                    qtPrintSupport.system_libs.append("cups")
-                    qtPrintSupport.frameworks.append("ApplicationServices")
-                if self.settings.os == "Macos":
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L645-L651
-                    qtCore.frameworks.extend([
-                        "AppKit",
-                        "ApplicationServices",
-                        "CoreServices",
-                        "Security",
-                        "DiskArbitration",
-                    ])
-                else:
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L1052
-                    qtCore.frameworks.append("MobileCoreServices")
-                if self.settings.os not in ["iOS", "tvOS"]:
-                    qtNetwork.frameworks.append("CoreServices")
-                    qtNetwork.frameworks.append("SystemConfiguration")
-                else:
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L1169
-                    qtCore.frameworks.append("UIKit")
-                if self.settings.os == "watchOS":
-                    # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/CMakeLists.txt#L1174
-                    qtCore.frameworks.append("WatchKit")
-
-        qtCore.builddirs.append(os.path.join("bin"))
-        _add_build_module("qtCore", self._cmake_executables_file)
-        _add_build_module("qtCore", self._cmake_qt6_private_file("Core"))
-        if self.settings.os in ["Windows", "iOS"]:
-            _add_build_module("qtCore", self._cmake_entry_point_file)
 
         for path in sorted(Path("lib", "cmake").iterdir()):
             name = path.name
@@ -1526,7 +1528,7 @@ class QtConan(ConanFile):
                 _add_build_modules_for_component(req)
             build_modules_list.extend(build_modules.pop(component, []))
 
-        for c in self.cpp_info.components:
+        for c in list(self.cpp_info.components):
             _add_build_modules_for_component(c)
 
         self.cpp_info.set_property("cmake_build_modules", build_modules_list)
