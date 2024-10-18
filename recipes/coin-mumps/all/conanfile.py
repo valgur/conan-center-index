@@ -21,7 +21,8 @@ class PackageConan(ConanFile):
     homepage = "https://github.com/coin-or-tools/ThirdParty-Mumps"
     topics = ("solver", "sparse", "direct", "parallel", "linear-algebra")
 
-    package_type = "library"
+    # Always build as shared to avoid having to manage Fortran runtime library dependencies.
+    package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -44,6 +45,11 @@ class PackageConan(ConanFile):
         "with_pthread": True,
     }
 
+    @property
+    def _fortran_compiler(self):
+        executables = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+        return executables.get("fortran")
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -65,7 +71,8 @@ class PackageConan(ConanFile):
             self.requires("metis/5.2.1")
         if self.options.with_openmp:
             self.requires("openmp/system")
-        self.requires("gfortran/13.2.0", headers=False, libs=True)
+        if not self._fortran_compiler:
+            self.requires("gfortran/13.2.0", headers=False, libs=True)
 
     def validate(self):
         if self.options.with_lapack and not self.dependencies["openblas"].options.build_lapack:
@@ -74,7 +81,8 @@ class PackageConan(ConanFile):
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.build_requires("gfortran/<host_version>")
+        if not self._fortran_compiler:
+            self.build_requires("gfortran/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["build_scripts"], strip_root=True)
@@ -102,6 +110,8 @@ class PackageConan(ConanFile):
             dep_info = self.dependencies["openblas"].cpp_info.aggregated_components()
             lib_flags = " ".join([f"-l{lib}" for lib in dep_info.libs + dep_info.system_libs])
             tc.configure_args.append(f"--with-lapack-lflags=-L{dep_info.libdir} {lib_flags}")
+        if self._fortran_compiler:
+            tc.configure_args.append(f"F77={self._fortran_compiler}")
         tc.generate()
 
         deps = PkgConfigDeps(self)
@@ -148,4 +158,4 @@ class PackageConan(ConanFile):
             self.cpp_info.requires.append("metis::metis")
         if self.options.with_openmp:
             self.cpp_info.requires.append("openmp::openmp")
-        self.cpp_info.requires.extend(["gfortran::libgfortran", "gfortran::libquadmath"])
+        # self.cpp_info.requires.extend(["gfortran::libgfortran", "gfortran::libquadmath"])
