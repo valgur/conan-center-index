@@ -13,12 +13,11 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-21:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-22:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
-- aruco/3.1.15
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
@@ -37,6 +36,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - colmap/3.10
 - confu_json/1.0.1
 - confu_json/1.1.0
+- cpp-httplib/0.10.9
+- cpp-httplib/0.11.4
+- cpp-httplib/0.12.6
+- cpp-httplib/0.13.3
 - cppserver/1.0.4.1
 - cub/2.6.1
 - cuda-samples/12.5
@@ -96,6 +99,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.3.0
 - libtorch/2.4.0
 - libudev/255.13
+- libuv/1.41.0
+- libuv/1.41.1
+- libuv/1.44.1
 - libx11/1.8.10
 - libxau/1.0.11
 - libxaw/1.0.16
