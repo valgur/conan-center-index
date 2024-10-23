@@ -378,7 +378,7 @@ class DCMTKConan(ConanFile):
         if self.settings.os == "Windows":
             system_libs = ["iphlpapi", "ws2_32", "netapi32", "wsock32"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
-            system_libs = ["m", "nsl"]
+            system_libs = ["m"]
             if self.options.with_multithreading:
                 system_libs.append("pthread")
             if Version(self.version) >= "3.6.8":
