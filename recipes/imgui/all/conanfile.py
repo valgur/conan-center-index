@@ -2,6 +2,7 @@ import os
 import re
 from pathlib import Path
 
+import yaml
 from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.apple import is_apple_os
@@ -224,9 +225,11 @@ class ImguiConan(ConanFile):
         deps.generate()
 
     def _source(self):
+        # self.conan_data is empty in build() when running with 'conan install' on CCI for some reason
+        conan_data = yaml.safe_load(Path(self.recipe_folder, "conandata.yml").read_text())
         version = self.version.replace("-docking", "")
         kind = "docking" if self.options.docking else "regular"
-        get(self, **self.conan_data["sources"][version][kind], destination=self.source_folder, strip_root=True)
+        get(self, **conan_data["sources"][version][kind], destination=self.source_folder, strip_root=True)
 
     def _configure_header(self):
         defines = {}
