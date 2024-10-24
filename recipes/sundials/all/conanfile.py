@@ -105,7 +105,7 @@ class SundialsConan(ConanFile):
         if self.options.get_safe("with_ginkgo"):
             self.requires("ginkgo/1.8.0", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_klu"):
-            self.requires("suitesparse-klu/2.3.4", transitive_headers=True, transitive_libs=True)
+            self.requires("suitesparse-klu/2.3.5", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_lapack"):
             self.requires("openblas/0.3.27")
         if self.options.get_safe("with_mpi"):

@@ -44,7 +44,7 @@ class SuiteSparseUmfpackConan(ConanFile):
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-config/7.8.3", transitive_headers=True, transitive_libs=True)
         self.requires("suitesparse-amd/3.3.3", transitive_headers=True, transitive_libs=True)
         if self.options.with_cholmod:
             self.requires("suitesparse-cholmod/5.3.0")

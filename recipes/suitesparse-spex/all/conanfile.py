@@ -43,7 +43,7 @@ class SuiteSparseSpexConan(ConanFile):
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-config/7.8.3", transitive_headers=True, transitive_libs=True)
         self.requires("suitesparse-amd/3.3.3")
         self.requires("suitesparse-colamd/3.3.4")
         # https://github.com/DrTimothyAldenDavis/SuiteSparse/blob/v7.7.0/SPEX/Include/SPEX.h#L96-L97

@@ -41,9 +41,9 @@ class SuiteSparseParuConan(ConanFile):
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.8.2", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-config/7.8.3", transitive_headers=True, transitive_libs=True)
         self.requires("suitesparse-cholmod/5.3.0", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-umfpack/6.3.4", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-umfpack/6.3.5", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <4]")
