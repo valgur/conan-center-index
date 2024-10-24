@@ -94,6 +94,9 @@ class ImguiConan(ConanFile):
         "build_programs": False,
     }
 
+    def export(self):
+        copy(self, "conandata.yml", self.recipe_folder, self.export_folder)
+
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
@@ -188,10 +191,6 @@ class ImguiConan(ConanFile):
             raise ConanException("Docking support requires version 1.89 or newer.")
         if self.version.endswith("-docking"):
             self.output.warning("The -docking versions of imgui are deprecated. Use -o imgui/*:docking=True instead.")
-
-    def source(self):
-        # Handled in build() instead to support self.options.docking.
-        pass
 
     def generate(self):
         tc = CMakeToolchain(self)
