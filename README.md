@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-24:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-25:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -36,10 +36,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - colmap/3.10
 - confu_json/1.0.1
 - confu_json/1.1.0
-- cpp-httplib/0.10.9
-- cpp-httplib/0.11.4
-- cpp-httplib/0.12.6
-- cpp-httplib/0.13.3
 - cppserver/1.0.4.1
 - cub/2.6.1
 - cuda-samples/12.5
@@ -99,9 +95,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtommath/1.3.0
 - libtorch/2.4.0
 - libudev/255.13
-- libuv/1.41.0
-- libuv/1.41.1
-- libuv/1.44.1
 - libv4l/1.28.1
 - libx11/1.8.10
 - libxau/1.0.11
@@ -180,18 +173,18 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - suitesparse-ccolamd/3.3.4
 - suitesparse-cholmod/5.3.0
 - suitesparse-colamd/3.3.4
-- suitesparse-config/7.8.2
+- suitesparse-config/7.8.3
 - suitesparse-cxsparse/4.4.1
 - suitesparse-graphblas/9.3.1
-- suitesparse-klu/2.3.4
+- suitesparse-klu/2.3.5
 - suitesparse-lagraph/1.1.4
 - suitesparse-ldl/3.3.2
 - suitesparse-mongoose/3.3.4
-- suitesparse-paru/0.3.0
-- suitesparse-rbio/4.3.3
+- suitesparse-paru/1.0.0
+- suitesparse-rbio/4.3.4
 - suitesparse-spex/3.2.1
 - suitesparse-spqr/4.3.4
-- suitesparse-umfpack/6.3.4
+- suitesparse-umfpack/6.3.5
 - sundials/5.8.0
 - sundials/6.7.0
 - sundials/7.1.1
