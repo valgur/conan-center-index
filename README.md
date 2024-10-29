@@ -13,11 +13,32 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-28:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-29:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
+- asio/1.12.2
+- asio/1.13.0
+- asio/1.14.0
+- asio/1.14.1
+- asio/1.16.0
+- asio/1.17.0
+- asio/1.18.0
+- asio/1.18.2
+- asio/1.19.0
+- asio/1.19.1
+- asio/1.19.2
+- asio/1.20.0
+- asio/1.21.0
+- asio/1.22.0
+- asio/1.22.1
+- asio/1.23.0
+- asio/1.24.0
+- asio/1.26.0
+- asio/1.28.0
+- asio/1.28.2
+- asio/1.30.1
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
