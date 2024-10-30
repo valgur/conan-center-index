@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-29:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-30:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -143,6 +143,50 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
+- md4qt/2.0.0
+- md4qt/2.0.1
+- md4qt/2.0.10
+- md4qt/2.0.11
+- md4qt/2.0.12
+- md4qt/2.0.13
+- md4qt/2.0.14
+- md4qt/2.0.15
+- md4qt/2.0.16
+- md4qt/2.0.18
+- md4qt/2.0.2
+- md4qt/2.0.3
+- md4qt/2.0.4
+- md4qt/2.0.5
+- md4qt/2.0.6
+- md4qt/2.0.7
+- md4qt/2.0.8
+- md4qt/2.0.9
+- md4qt/2.1.0
+- md4qt/2.1.1
+- md4qt/2.2.0
+- md4qt/2.2.1
+- md4qt/2.2.2
+- md4qt/2.2.3
+- md4qt/2.3.0
+- md4qt/2.3.1
+- md4qt/2.3.2
+- md4qt/2.3.3
+- md4qt/2.3.4
+- md4qt/2.3.9
+- md4qt/2.4.0
+- md4qt/2.4.1
+- md4qt/2.4.2
+- md4qt/2.4.3
+- md4qt/2.4.4
+- md4qt/2.5.0
+- md4qt/2.5.1
+- md4qt/2.5.2
+- md4qt/2.7.0
+- md4qt/2.7.1
+- md4qt/2.7.2
+- md4qt/2.7.3
+- md4qt/2.8.0
+- md4qt/2.8.1
 - mkfontscale/1.2.3
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
@@ -177,6 +221,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.72.1
 - rust/1.77.1
 - rust/1.81.0
+- sentry-native/0.7.5
+- sentry-native/0.7.6
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/cci.20240727
