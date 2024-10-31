@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-30:
+Package versions that are available here but not yet on the main CCI repo as of 2024-10-31:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -209,6 +209,17 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pcl/1.14.1
 - pdal/2.7.2
 - perf/6.11
+- perfetto/26.1
+- perfetto/27.0
+- perfetto/27.1
+- perfetto/30.0
+- perfetto/31.0
+- perfetto/32.1
+- perfetto/34.0
+- perfetto/35.0
+- perfetto/37.0
+- perfetto/38.0
+- perfetto/39.0
 - polyscope/2.3.0
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
