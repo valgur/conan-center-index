@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-10-31:
+Package versions that are available here but not yet on the main CCI repo as of 2024-11-01:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -267,7 +267,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/6.7.0
 - sundials/7.1.1
 - thrust/2.6.1
-- tiledb/2.26.1
 - tpl/cci.20210302
 - usearch/2.9.1
 - vilib/cci.20210625
