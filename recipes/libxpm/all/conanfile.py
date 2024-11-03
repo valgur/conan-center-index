@@ -66,13 +66,13 @@ class LibXpmConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["CONAN_libXpm_VERSION"] = self.version
         tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-        deps = CMakeDeps(self)
-        deps.generate()
 
     def package(self):
         copy(self, "COPYING",
