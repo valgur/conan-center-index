@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -70,7 +70,7 @@ class M4Conan(ConanFile):
             ])
         if cross_building(self) and is_msvc(self):
             triplet_arch_windows = {"x86_64": "x86_64", "x86": "i686", "armv8": "aarch64"}
-            
+
             host_arch = triplet_arch_windows.get(str(self.settings.arch))
             build_arch = triplet_arch_windows.get(str(self._settings_build.arch))
 
@@ -101,7 +101,10 @@ class M4Conan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        if shutil.which("help2man") == None:
+        # Disable tests and examples
+        save(self, os.path.join(self.source_folder, "tests", "Makefile.in"), "all:\n\t\ninstall:\n\t\n")
+        save(self, os.path.join(self.source_folder, "examples", "Makefile.in"), "all:\n\t\ninstall:\n\t\n")
+        if shutil.which("help2man") is None:
             # dummy file for configure
             help2man = os.path.join(self.source_folder, "help2man")
             save(self, help2man, "#!/usr/bin/env bash\n:")
