@@ -38,9 +38,9 @@ class HighFiveConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "2.5.1":
-            self.requires("hdf5/1.14.1")
+            self.requires("hdf5/1.14.5")
         else:
-            self.requires("hdf5/1.14.3")
+            self.requires("hdf5/1.14.5")
         if self.options.with_boost:
             self.requires("boost/1.85.0")
         if self.options.with_eigen:
