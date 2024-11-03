@@ -279,6 +279,29 @@ class OpenblasConan(ConanFile):
         self.cpp_info.components[component].set_property("cmake_target_name", f"OpenBLAS::{component}")
         self.cpp_info.components[component].requires = ["openblas_component"]
 
+        if self.options.use_openmp:
+            if self.options.use_openmp and self.settings.compiler in ["clang", "apple-clang"]:
+                self.cpp_info.components["openblas_component"].requires.append("openmp::openmp")
+            else:
+                if is_msvc(self):
+                    openmp_flags = ["-openmp"]
+                elif self.settings.compiler == "gcc":
+                    openmp_flags = ["-fopenmp"]
+                elif self.settings.compiler == "intel-cc":
+                    openmp_flags = ["-Qopenmp"]
+                self.cpp_info.exelinkflags.extend(openmp_flags)
+                self.cpp_info.sharedlinkflags.extend(openmp_flags)
+
+        # OpenBLAS always has one and only one of these components defined: openmp, pthread or serial.
+        if self.options.use_openmp:
+            component = "openmp"
+        elif self.options.use_thread:
+            component = "pthread"
+        else:
+            component = "serial"
+        self.cpp_info.components[component].set_property("cmake_target_name", f"OpenBLAS::{component}")
+        self.cpp_info.components[component].requires = ["openblas_component"]
+
         self.buildenv_info.define_path("OpenBLAS_HOME", self.package_folder)
         self.runenv_info.define_path("OpenBLAS_HOME", self.package_folder)
 
