@@ -16,3 +16,6 @@ patches:
     - patch_file: "patches/004-increase-minimum-cmakelists.patch"
       patch_type: "conan"
       patch_description: "Increase minium CMake version required"
+    - patch_file: "patches/005-handle-android-execinfo.h.patch"
+      patch_type: "portability"
+      patch_description: "Fix HAVE_EXECINFO_H detection for Android"

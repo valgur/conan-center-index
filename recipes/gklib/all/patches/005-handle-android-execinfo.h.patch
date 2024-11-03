@@ -1,0 +1,14 @@
+`backtrace` and `backtrace_symbols` are not available in execinfo.h on Android.
+
+--- a/GKlibSystem.cmake
++++ b/GKlibSystem.cmake
+@@ -98,7 +98,8 @@
+ 
+ 
+ # Check for features.
+-check_include_file(execinfo.h HAVE_EXECINFO_H)
++include(CheckSymbolExists)
++check_symbol_exists(backtrace_symbols execinfo.h HAVE_EXECINFO_H)
+ if(HAVE_EXECINFO_H)
+   set(GKlib_COPTIONS "${GKlib_COPTIONS} -DHAVE_EXECINFO_H")
+ endif(HAVE_EXECINFO_H)
