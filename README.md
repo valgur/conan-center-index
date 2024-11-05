@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-11-04:
+Package versions that are available here but not yet on the main CCI repo as of 2024-11-05:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -36,6 +36,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - colmap/3.10
 - confu_json/1.0.1
 - confu_json/1.1.0
+- cppfront/cci.20220924
+- cppfront/cci.20221024
+- cppfront/cci.20230103
+- cppfront/cci.20231017
 - cppserver/1.0.4.1
 - cub/2.6.1
 - cuda-samples/12.5
@@ -120,6 +124,19 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxxf86vm/1.1.5
 - llvm-core/18.1.7
 - llvm-openmp/18.1.8
+- luau/0.558
+- luau/0.563
+- luau/0.568
+- luau/0.572
+- luau/0.577
+- luau/0.582
+- luau/0.589
+- luau/0.593
+- luau/0.598
+- luau/0.603
+- luau/0.607
+- luau/0.610
+- luau/0.615
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mkfontscale/1.2.3
@@ -148,6 +165,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
+- prometheus-cpp/0.11.0
+- prometheus-cpp/0.12.1
+- prometheus-cpp/0.12.3
+- prometheus-cpp/1.0.0
 - qhull/cci.20231130
 - qscintilla/2.14.1
 - qt/6.8.0
@@ -156,6 +177,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.72.1
 - rust/1.77.1
 - rust/1.81.0
+- scnlib/1.0
+- scnlib/1.1.2
+- scnlib/1.1.3
+- scnlib/2.0.0
+- scnlib/2.0.1
+- scnlib/2.0.2
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/cci.20240727
