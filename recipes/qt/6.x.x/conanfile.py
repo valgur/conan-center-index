@@ -17,7 +17,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.0.9"
 
 
 class QtConan(ConanFile):
@@ -166,19 +166,6 @@ class QtConan(ConanFile):
     short_paths = True
 
     @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "9",
-            "apple-clang": "12"
-        }
-
-    @property
     @lru_cache()
     def _qtmodules_info(self):
         """
@@ -296,12 +283,7 @@ class QtConan(ConanFile):
                 self.info.settings.compiler == "clang" and Version(self.info.settings.compiler.version) >= "12":
                 raise ConanInvalidConfiguration("qt is not supported on gcc11 and clang >= 12 on C3I until conan-io/conan-center-index#13472 is fixed")
 
-        # C++ minimum standard required
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"C++{self._min_cppstd} support required, which your compiler does not support.")
+        check_min_cppstd(self, 17)
 
         if Version(self.version) >= "6.6.1" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "13.1":
             # https://bugreports.qt.io/browse/QTBUG-119490
