@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-11-07:
+Package versions that are available here but not yet on the main CCI repo as of 2024-11-08:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -21,6 +21,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
+- boost/1.71.0
+- boost/1.72.0
+- boost/1.73.0
+- boost/1.74.0
+- boost/1.75.0
+- boost/1.76.0
+- boost/1.77.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -124,6 +131,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mkfontscale/1.2.3
+- mongo-c-driver/1.23.5
+- mongo-c-driver/1.27.1
+- mongo-c-driver/1.27.2
+- mongo-c-driver/1.27.3
+- mongo-c-driver/1.27.4
+- mongo-c-driver/1.27.5
+- mongo-c-driver/1.28.0
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
 - nanobind/1.9.2
