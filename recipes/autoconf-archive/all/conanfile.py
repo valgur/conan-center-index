@@ -64,10 +64,3 @@ class AutoconfArchiveConan(ConanFile):
         # Use ACLOCAL_PATH to access the .m4 files provided with autoconf-archive
         aclocal_path = os.path.join(self.package_folder, "res", "aclocal")
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_path)
-
-        # Remove for Conan 2.0
-        aclocal_path = "/" + aclocal_path.replace("\\", "/").replace(":", "") # Can't use unix_path with Conan 2.0
-        self.output.info(f'Appending ACLOCAL_PATH env: {aclocal_path}')
-        self.env_info.ACLOCAL_PATH.append(aclocal_path)
-        self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment var: {}".format(aclocal_path))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal_path)

@@ -96,7 +96,3 @@ class ExpatConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "EXPAT"
-        self.cpp_info.names["cmake_find_package_multi"] = "expat"

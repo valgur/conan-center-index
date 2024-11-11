@@ -97,7 +97,3 @@ class ImutilsCppConan(ConanFile):
         self.cpp_info.libs = ["imutils_cpp"]
         self.cpp_info.set_property("cmake_file_name", "imutils_cpp")
         self.cpp_info.set_property("cmake_target_name", "imutils_cpp::imutils_cpp")
-
-        # TODO: Remove after Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "imutils_cpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "imutils_cpp"

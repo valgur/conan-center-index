@@ -120,22 +120,13 @@ class RedisPlusPlusConan(ConanFile):
         target_suffix = "" if self.options.shared else "_static"
         self.cpp_info.set_property("cmake_target_name", f"redis++::redis++{target_suffix}")
         self.cpp_info.set_property("pkg_config_name", "redis++")
-        # TODO: back to global scope in conan v2
         lib_suffix = "_static" if self.settings.os == "Windows" and not self.options.shared else ""
-        self.cpp_info.components["redis++lib"].libs = [f"redis++{lib_suffix}"]
-        self.cpp_info.components["redis++lib"].requires = ["hiredis::hiredis"]
+        self.cpp_info.libs = [f"redis++{lib_suffix}"]
+        self.cpp_info.requires = ["hiredis::hiredis"]
         if self.options.with_tls:
-            self.cpp_info.components["redis++lib"].requires.append("hiredis::hiredis_ssl")
+            self.cpp_info.requires.append("hiredis::hiredis_ssl")
         if self.options.get_safe("build_async"):
-            self.cpp_info.components["redis++lib"].requires.append("libuv::libuv")
+            self.cpp_info.requires.append("libuv::libuv")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["redis++lib"].system_libs.append("pthread")
-            self.cpp_info.components["redis++lib"].system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "redis++"
-        self.cpp_info.names["cmake_find_package_multi"] = "redis++"
-        self.cpp_info.components["redis++lib"].names["cmake_find_package"] = f"redis++{target_suffix}"
-        self.cpp_info.components["redis++lib"].names["cmake_find_package_multi"] = f"redis++{target_suffix}"
-        self.cpp_info.components["redis++lib"].set_property("cmake_target_name", f"redis++::redis++{target_suffix}")
-        self.cpp_info.components["redis++lib"].set_property("pkg_config_name", "redis++")
+            self.cpp_info.system_libs.append("pthread")
+            self.cpp_info.system_libs.append("m")

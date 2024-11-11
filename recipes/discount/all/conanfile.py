@@ -77,13 +77,4 @@ class DiscountConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "discount")
         self.cpp_info.set_property("cmake_target_name", "discount::libmarkdown")
         self.cpp_info.set_property("pkg_config_name", "libmarkdown")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.components["_discount"].libs = ["markdown"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "discount"
-        self.cpp_info.names["cmake_find_package_multi"] = "discount"
-        self.cpp_info.names["pkg_config"] = "libmarkdown"
-        self.cpp_info.components["_discount"].names["cmake_find_package"] = "libmarkdown"
-        self.cpp_info.components["_discount"].names["cmake_find_package_multi"] = "libmarkdown"
-        self.cpp_info.components["_discount"].set_property("pkg_config_name", "libmarkdown")
+        self.cpp_info.libs = ["markdown"]

@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.gnu import AutotoolsToolchain, Autotools, PkgConfigDeps, GnuToolchain
-from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
+from conan.tools.microsoft import is_msvc
 from conan.tools.files import get, rmdir, copy, apply_conandata_patches, export_conandata_patches
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.apple import is_apple_os
@@ -87,5 +87,3 @@ class XorgCfFilesConan(ConanFile):
 
         x11_config_files = os.path.join(self.package_folder, "lib", "X11", "config")
         self.conf_info.define("user.xorg-cf-files:config-path", x11_config_files)
-
-        self.user_info.CONFIG_PATH = x11_config_files.replace("\\", "/")

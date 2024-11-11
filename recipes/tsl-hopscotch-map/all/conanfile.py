@@ -43,14 +43,3 @@ class TslHopscotchMapConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "tsl::hopscotch_map")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "tsl-hopscotch-map"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tsl-hopscotch-map"
-        self.cpp_info.names["cmake_find_package"] = "tsl"
-        self.cpp_info.names["cmake_find_package_multi"] = "tsl"
-        self.cpp_info.components["hopscotch_map"].names["cmake_find_package"] = "hopscotch_map"
-        self.cpp_info.components["hopscotch_map"].names["cmake_find_package_multi"] = "hopscotch_map"
-        self.cpp_info.components["hopscotch_map"].set_property("cmake_target_name", "tsl::hopscotch_map")
-        self.cpp_info.components["hopscotch_map"].bindirs = []
-        self.cpp_info.components["hopscotch_map"].libdirs = []

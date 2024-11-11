@@ -170,8 +170,5 @@ class SpirvtoolsConan(ConanFile):
         self.cpp_info.components["spirv-tools-diff"].libs = ["SPIRV-Tools-diff"]
         self.cpp_info.components["spirv-tools-diff"].requires = ["spirv-tools-core", "spirv-tools-opt"]
 
-        if self.options.build_executables:
-            self.env_info.path.append(os.path.join(self.package_folder, "bin"))
-
         if Version(self.version) < "1.3":
             del self.cpp_info.components["spirv-tools-diff"]

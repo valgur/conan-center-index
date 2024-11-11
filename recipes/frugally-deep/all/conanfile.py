@@ -62,16 +62,14 @@ class FrugallyDeepConan(ConanFile):
         copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("cmake_file_name", "frugally-deep")
         self.cpp_info.set_property("cmake_target_name", "frugally-deep::fdeep")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["fdeep"].requires = [
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.requires = [
             "eigen::eigen",
             "functionalplus::functionalplus",
             "nlohmann_json::nlohmann_json",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["fdeep"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]

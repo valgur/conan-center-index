@@ -154,22 +154,3 @@ class IgnitionMathConan(ConanFile):
         eigen3_component = self.cpp_info.components["eigen3"]
         eigen3_component.includedirs.append(os.path.join("include", "ignition", "math" + version_major))
         eigen3_component.requires = ["eigen::eigen"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = lib_name
-        self.cpp_info.names["cmake_find_package_multi"] = lib_name
-        self.cpp_info.names["cmake_paths"] = lib_name
-        main_component.names["cmake_find_package"] = lib_name
-        main_component.names["cmake_find_package_multi"] = lib_name
-        main_component.names["cmake_paths"] = lib_name
-        main_component.builddirs = [self._module_file_rel_dir]
-        main_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        main_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        main_component.build_modules["cmake_paths"] = [self._module_file_rel_path]
-        eigen3_component.names["cmake_find_package"] = "eigen3"
-        eigen3_component.names["cmake_find_package_multi"] = "eigen3"
-        eigen3_component.names["cmake_paths"] = "eigen3"
-        eigen3_component.builddirs = [self._module_file_rel_dir]
-        eigen3_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        eigen3_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        eigen3_component.build_modules["cmake_paths"] = [self._module_file_rel_path]

@@ -70,7 +70,3 @@ class JsonconsConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "jsoncons")
         self.cpp_info.set_property("cmake_target_name", "jsoncons")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "jsoncons"
-        self.cpp_info.names["cmake_find_package_multi"] = "jsoncons"

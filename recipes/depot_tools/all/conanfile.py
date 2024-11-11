@@ -98,9 +98,3 @@ class DepotToolsConan(ConanFile):
 
         self.runenv_info.define("DEPOT_TOOLS_UPDATE", "0")
         self.buildenv_info.define("DEPOT_TOOLS_UPDATE", "0")
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH env var with : {bin_path}")
-        self.env_info.PATH.append(bin_path)
-        self.env_info.DEPOT_TOOLS_UPDATE = "0"

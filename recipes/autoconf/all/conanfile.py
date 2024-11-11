@@ -105,10 +105,3 @@ class AutoconfConan(ConanFile):
         self.buildenv_info.define_path("AUTORECONF", os.path.join(bin_path, "autoreconf"))
         self.buildenv_info.define_path("AUTOHEADER", os.path.join(bin_path, "autoheader"))
         self.buildenv_info.define_path("AUTOM4TE", os.path.join(bin_path, "autom4te"))
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(bin_path)
-        self.env_info.AUTOCONF = "autoconf"
-        self.env_info.AUTORECONF = "autoreconf"
-        self.env_info.AUTOHEADER = "autoheader"
-        self.env_info.AUTOM4TE = "autom4te"

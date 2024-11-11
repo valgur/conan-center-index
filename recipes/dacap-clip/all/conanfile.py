@@ -115,7 +115,3 @@ class DacapClipConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "clip")
         self.cpp_info.set_property("cmake_target_name", "clip::clip")
-
-    # TODO: Remove on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "clip"
-        self.cpp_info.names["cmake_find_package_multi"] = "clip"

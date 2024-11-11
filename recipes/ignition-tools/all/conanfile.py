@@ -118,7 +118,3 @@ class IgnitionToolsConan(ConanFile):
 
         # The package builds an ignition-tools-backward wrapper library,
         # but it's only meant to be used as a runtime dependency of the ign script
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_folder = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_folder)

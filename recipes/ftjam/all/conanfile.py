@@ -128,9 +128,3 @@ class FtjamConan(ConanFile):
         if jam_toolset:
             self.buildenv.define("JAM_TOOLSET", jam_toolset)
             self.runenv.define("JAM_TOOLSET", jam_toolset)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(jam_path)
-        self.env_info.JAM = jam_bin
-        if jam_toolset:
-            self.env_info.JAM_TOOLSET = jam_toolset

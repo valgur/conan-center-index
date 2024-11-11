@@ -90,25 +90,14 @@ class OatppLibresslConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
 
-        # TODO: back to global scope in conan v2 once legacy generators removed
-        self.cpp_info.components["_oatpp-libressl"].includedirs = [
+        self.cpp_info.includedirs = [
             os.path.join("include", f"oatpp-{self.version}", "oatpp-libressl")
         ]
-        self.cpp_info.components["_oatpp-libressl"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
+        self.cpp_info.libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["_oatpp-libressl"].bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
+            self.cpp_info.bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
         else:
-            self.cpp_info.components["_oatpp-libressl"].bindirs = []
-        self.cpp_info.components["_oatpp-libressl"].libs = ["oatpp-libressl"]
+            self.cpp_info.bindirs = []
+        self.cpp_info.libs = ["oatpp-libressl"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_oatpp-libressl"].system_libs = ["pthread"]
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "oatpp-libressl"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "oatpp-libressl"
-        self.cpp_info.names["cmake_find_package"] = "oatpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
-        self.cpp_info.components["_oatpp-libressl"].names["cmake_find_package"] = "oatpp-libressl"
-        self.cpp_info.components["_oatpp-libressl"].names["cmake_find_package_multi"] = "oatpp-libressl"
-        self.cpp_info.components["_oatpp-libressl"].set_property("cmake_target_name", "oatpp::oatpp-libressl")
-        self.cpp_info.components["_oatpp-libressl"].requires = ["oatpp::oatpp", "libressl::libressl"]
+            self.cpp_info.system_libs = ["pthread"]

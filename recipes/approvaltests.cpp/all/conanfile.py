@@ -91,7 +91,3 @@ class ApprovalTestsCppConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ApprovalTests::ApprovalTests")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "ApprovalTests"
-        self.cpp_info.names["cmake_find_package_multi"] = "ApprovalTests"

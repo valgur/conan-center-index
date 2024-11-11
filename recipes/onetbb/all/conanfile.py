@@ -202,10 +202,3 @@ class OneTBBConan(ConanFile):
                 tbbproxy.requires = ["tbbmalloc"]
                 if self.settings.os in ["Linux", "FreeBSD"]:
                     tbbproxy.system_libs = ["m", "dl", "pthread"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "TBB"
-        self.cpp_info.names["cmake_find_package_multi"] = "TBB"
-        self.cpp_info.names["pkg_config"] = "tbb"
-        tbb.names["cmake_find_package"] = "tbb"
-        tbb.names["cmake_find_package_multi"] = "tbb"

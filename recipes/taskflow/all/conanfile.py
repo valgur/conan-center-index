@@ -85,7 +85,3 @@ class TaskflowConan(ConanFile):
             self.cpp_info.system_libs.append("pthread")
         if is_msvc(self):
             self.cpp_info.defines.append("_ENABLE_EXTENDED_ALIGNED_STORAGE")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Taskflow"
-        self.cpp_info.names["cmake_find_package_multi"] = "Taskflow"

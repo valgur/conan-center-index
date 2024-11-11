@@ -111,6 +111,3 @@ class MosquittoConan(ConanFile):
         self.cpp_info.components["libmosquittopp"].set_property("pkg_config_name", "libmosquittopp")
         self.cpp_info.components["libmosquittopp"].libs = [f"mosquittopp{lib_suffix}"]
         self.cpp_info.components["libmosquittopp"].requires = ["libmosquitto"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

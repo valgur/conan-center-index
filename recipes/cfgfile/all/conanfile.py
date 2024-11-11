@@ -87,6 +87,3 @@ class CfgfileConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "cfgfile")
         self.cpp_info.set_property("cmake_target_name", "cfgfile::cfgfile")
         self.cpp_info.includedirs.append(os.path.join("include", "cfgfile"))
-
-        # TODO: to remove once conan v1 support dropped
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

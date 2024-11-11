@@ -95,16 +95,7 @@ class PahoMqttCppConan(ConanFile):
         target = "paho-mqttpp3" if self.options.shared else "paho-mqttpp3-static"
         self.cpp_info.set_property("cmake_file_name", "PahoMqttCpp")
         self.cpp_info.set_property("cmake_target_name", f"PahoMqttCpp::{target}")
-        # TODO: back to root level once conan v1 support removed
         if self.settings.os == "Windows":
-            self.cpp_info.components["paho-mqttpp"].libs = [target]
+            self.cpp_info.libs = [target]
         else:
-            self.cpp_info.components["paho-mqttpp"].libs = ["paho-mqttpp3"]
-
-        # TODO: to remove once conan v1 support removed
-        self.cpp_info.names["cmake_find_package"] = "PahoMqttCpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "PahoMqttCpp"
-        self.cpp_info.components["paho-mqttpp"].names["cmake_find_package"] = target
-        self.cpp_info.components["paho-mqttpp"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["paho-mqttpp"].set_property("cmake_target_name", f"PahoMqttCpp::{target}")
-        self.cpp_info.components["paho-mqttpp"].requires = ["paho-mqtt-c::paho-mqtt-c"]
+            self.cpp_info.libs = ["paho-mqttpp3"]

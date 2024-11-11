@@ -377,8 +377,6 @@ class OpenTelemetryCppConan(ConanFile):
         for lib in self._otel_libraries:
             self.cpp_info.components[lib].libs = [lib]
             self.cpp_info.components[lib].builddirs.append(self._module_subfolder)
-            self.cpp_info.components[lib].build_modules["cmake_find_package"] = self._otel_build_modules
-            self.cpp_info.components[lib].build_modules["cmake_find_package_multi"] = self._otel_build_modules
 
         self.cpp_info.components["opentelemetry_resources"].requires.extend([
             "opentelemetry_common",

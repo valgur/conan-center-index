@@ -105,7 +105,3 @@ class ResiprocateConan(ConanFile):
         self.cpp_info.libs = ["resip", "rutil", "dum", "resipares"]
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs = ["pthread"]
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

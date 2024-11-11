@@ -131,7 +131,3 @@ class SevenBitDIConan(ConanFile):
 
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "7bitDI"
-        self.cpp_info.names["cmake_find_package_multi"] = "7bitDI"

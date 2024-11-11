@@ -352,16 +352,6 @@ class OpenmvgConan(ConanFile):
             self.cpp_info.components[component].system_libs = values.get("system_libs", [])
             self.cpp_info.components[component].resdirs = ["res"]
 
-            # TODO: to remove in conan v2
-            self.cpp_info.components[component].names["cmake_find_package"] = target
-            self.cpp_info.components[component].names["cmake_find_package_multi"] = target
-
         if self.options.with_openmp:
             for component_name in ["cameras", "features", "image", "matching", "matching_image_collection", "robust_estimation", "sfm", "vlsift"]:
                 self.cpp_info.components[f"openmvg_{component_name}"].requires.append("openmp::openmp")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "OpenMVG"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenMVG"
-        if self.options.programs:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

@@ -73,15 +73,4 @@ class XxHashConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "xxHash")
         self.cpp_info.set_property("cmake_target_name", "xxHash::xxhash")
         self.cpp_info.set_property("pkg_config_name", "libxxhash")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libxxhash"].libs = ["xxhash"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "xxHash"
-        self.cpp_info.names["cmake_find_package_multi"] = "xxHash"
-        self.cpp_info.names["pkg_config"] = "libxxhash"
-        self.cpp_info.components["libxxhash"].names["cmake_find_package"] = "xxhash"
-        self.cpp_info.components["libxxhash"].names["cmake_find_package_multi"] = "xxhash"
-        self.cpp_info.components["libxxhash"].set_property("cmake_target_name", "xxHash::xxhash")
-        if self.options.utility:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+        self.cpp_info.libs = ["xxhash"]

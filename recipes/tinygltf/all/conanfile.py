@@ -67,7 +67,3 @@ class TinygltfConan(ConanFile):
             self.cpp_info.defines.append("TINYGLTF_NO_STB_IMAGE")
         if not self.options.stb_image_write:
             self.cpp_info.defines.append("TINYGLTF_NO_STB_IMAGE_WRITE")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "TinyGLTF"
-        self.cpp_info.names["cmake_find_package_multi"] = "TinyGLTF"

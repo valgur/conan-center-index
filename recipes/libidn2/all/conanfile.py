@@ -141,6 +141,3 @@ class LibIdn(ConanFile):
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.defines = ["IDN2_STATIC"]
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

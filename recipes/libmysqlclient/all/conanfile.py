@@ -323,5 +323,3 @@ class LibMysqlClientCConan(ConanFile):
 
         # TODO: There is no official FindMySQL.cmake, but it's a common Find files in many projects
         #       do we want to support it in CMakeDeps?
-        self.cpp_info.names["cmake_find_package"] = "MySQL"
-        self.cpp_info.names["cmake_find_package_multi"] = "MySQL"

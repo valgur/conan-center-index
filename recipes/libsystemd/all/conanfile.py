@@ -212,6 +212,3 @@ class LibsystemdConan(ConanFile):
         self.cpp_info.set_property("component_version", str(Version(self.version).major))
         self.cpp_info.libs = ["systemd"]
         self.cpp_info.system_libs = ["rt", "pthread", "dl"]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.version = str(Version(self.version).major)

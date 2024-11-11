@@ -167,7 +167,3 @@ class GFortranConan(ConanFile):
 
         gfortran_path = os.path.join(self.package_folder, "bin", self._gfortran_full_executable)
         self.buildenv_info.define_path("FC", gfortran_path)
-
-        # TODO: Legacy, remove when Conan v1 support is dropped
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.FC = gfortran_path

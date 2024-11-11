@@ -96,6 +96,3 @@ class LibTasn1Conan(ConanFile):
         self.cpp_info.libs = ["tasn1"]
         if not self.options.shared:
             self.cpp_info.defines = ["ASN1_STATIC"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

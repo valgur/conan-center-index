@@ -104,6 +104,3 @@ class DoxygenConan(ConanFile):
         self.cpp_info.includedirs = []
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

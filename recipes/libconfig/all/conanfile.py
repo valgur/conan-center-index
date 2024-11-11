@@ -95,12 +95,3 @@ class LibconfigConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.components["libconfig_"].system_libs.append("shlwapi")
             self.cpp_info.components["libconfig++"].system_libs.append("shlwapi")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libconfig_"].names["cmake_find_package"] = "libconfig"
-        self.cpp_info.components["libconfig_"].names["cmake_find_package_multi"] = "libconfig"
-        self.cpp_info.components["libconfig_"].names["pkg_config"] = "libconfig"
-
-        self.cpp_info.components["libconfig++"].names["cmake_find_package"] = "libconfig++"
-        self.cpp_info.components["libconfig++"].names["cmake_find_package_multi"] = "libconfig++"
-        self.cpp_info.components["libconfig++"].names["pkg_config"] = "libconfig++"

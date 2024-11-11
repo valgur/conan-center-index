@@ -101,8 +101,6 @@ class LibkmlConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "LibKML")
         self.cpp_info.set_property("pkg_config_name", "libkml")
 
-        self.cpp_info.names["cmake_find_package"] = "LibKML"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibKML"
 
         self._register_components({
             "kmlbase": {

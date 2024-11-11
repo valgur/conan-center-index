@@ -184,7 +184,3 @@ class LibjpegConan(ConanFile):
         self.cpp_info.resdirs = ["res"]
         if not self.options.shared:
             self.cpp_info.defines.append("LIBJPEG_STATIC")
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "JPEG"
-        self.cpp_info.names["cmake_find_package_multi"] = "JPEG"

@@ -105,19 +105,8 @@ class SystemcConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SystemCLanguage")
         self.cpp_info.set_property("cmake_target_name", "SystemC::systemc")
-
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_systemc"].libs = ["systemc"]
+        self.cpp_info.libs = ["systemc"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_systemc"].system_libs = ["pthread", "m"]
+            self.cpp_info.system_libs = ["pthread", "m"]
         if is_msvc(self):
-            self.cpp_info.components["_systemc"].cxxflags.append("/vmg")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "SystemCLanguage"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "SystemCLanguage"
-        self.cpp_info.names["cmake_find_package"] = "SystemC"
-        self.cpp_info.names["cmake_find_package_multi"] = "SystemC"
-        self.cpp_info.components["_systemc"].names["cmake_find_package"] = "systemc"
-        self.cpp_info.components["_systemc"].names["cmake_find_package_multi"] = "systemc"
-        self.cpp_info.components["_systemc"].set_property("cmake_target_name", "SystemC::systemc")
+            self.cpp_info.cxxflags.append("/vmg")

@@ -160,8 +160,6 @@ class WhisperCppConan(ConanFile):
 
         if self.options.get_safe("with_openvino"):
             tc.variables["WHISPER_OPENVINO"] = True
-            # TODO: remove with Conan 1.x support
-            tc.variables["CMAKE_CXX_STANDARD"] = str(self.settings.get_safe("compiler.cppstd", 11)).replace("gnu", "")
 
         if is_apple_os(self):
             if self.options.no_accelerate:

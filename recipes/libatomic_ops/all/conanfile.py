@@ -91,10 +91,6 @@ class Atomic_opsConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Atomic_ops")
         self.cpp_info.set_property("cmake_target_name", "Atomic_ops::atomic_ops_gpl") # workaround to not define an unofficial target
 
-        # TODO: Remove on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "Atomic_ops"
-        self.cpp_info.names["cmake_find_package_multi"] = "Atomic_ops"
-
         self.cpp_info.components["atomic_ops"].set_property("cmake_target_name", "Atomic_ops::atomic_ops")
         self.cpp_info.components["atomic_ops"].set_property("pkg_config_name", "atomic_ops")
         self.cpp_info.components["atomic_ops"].libs = ["atomic_ops"]

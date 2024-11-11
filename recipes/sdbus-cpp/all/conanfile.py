@@ -143,32 +143,5 @@ class SdbusCppConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "sdbus-c++")
         self.cpp_info.set_property("cmake_target_name", "SDBusCpp::sdbus-c++")
         self.cpp_info.set_property("pkg_config_name", "sdbus-c++")
-        # TODO: back to root cpp_info in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["sdbus-c++"].libs = ["sdbus-c++"]
-        self.cpp_info.components["sdbus-c++"].system_libs = ["pthread", "m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "SDBusCpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "SDBusCpp"
-        self.cpp_info.filenames["cmake_find_package"] = "sdbus-c++"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "sdbus-c++"
-        self.cpp_info.components["sdbus-c++"].names["cmake_find_package"] = "sdbus-c++"
-        self.cpp_info.components["sdbus-c++"].names["cmake_find_package_multi"] = "sdbus-c++"
-        self.cpp_info.components["sdbus-c++"].names["pkg_config"] = "sdbus-c++"
-        self.cpp_info.components["sdbus-c++"].set_property(
-            "cmake_target_name", "SDBusCpp::sdbus-c++")
-        self.cpp_info.components["sdbus-c++"].set_property(
-            "pkg_config_name", "sdbus-c++")
-        if self._with_sdbus == "systemd":
-            self.cpp_info.components["sdbus-c++"].requires.append(
-                "libsystemd::libsystemd")
-        elif self._with_sdbus == "basu":
-            self.cpp_info.components["sdbus-c++"].requires.append(
-                "basu::basu")
-        if self.options.with_code_gen:
-            # Not a dependency of the lib, only of executable, but there is no way to modelize this
-            # with conan
-            self.cpp_info.components["sdbus-c++"].requires.append("expat::expat")
-        if self.options.with_code_gen:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.env_info.PATH.append(bin_path)
+        self.cpp_info.libs = ["sdbus-c++"]
+        self.cpp_info.system_libs = ["pthread", "m"]

@@ -107,7 +107,3 @@ class ICCConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32", "wsock32"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "icc"
-        self.cpp_info.names["cmake_find_package_multi"] = "icc"

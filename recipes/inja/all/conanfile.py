@@ -69,15 +69,3 @@ class InjaConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "pantor::inja")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "inja"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "inja"
-        self.cpp_info.names["cmake_find_package"] = "pantor"
-        self.cpp_info.names["cmake_find_package_multi"] = "pantor"
-        self.cpp_info.components["libinja"].names["cmake_find_package"] = "inja"
-        self.cpp_info.components["libinja"].names["cmake_find_package_multi"] = "inja"
-        self.cpp_info.components["libinja"].set_property("cmake_target_name", "pantor::inja")
-        self.cpp_info.components["libinja"].requires = ["nlohmann_json::nlohmann_json"]
-        self.cpp_info.components["libinja"].bindirs = []
-        self.cpp_info.components["libinja"].libdirs = []

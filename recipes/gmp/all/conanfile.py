@@ -173,12 +173,3 @@ class GmpConan(ConanFile):
             self.cpp_info.components["gmpxx"].requires = ["libgmp"]
             if self.settings.os != "Windows":
                 self.cpp_info.components["gmpxx"].system_libs = ["m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        #       GMP doesn't have any official CMake Find nor config file, do not port these names to CMakeDeps
-        self.cpp_info.names["pkg_config"] = "gmp-all-do-not-use"
-        self.cpp_info.components["libgmp"].names["cmake_find_package"] = "GMP"
-        self.cpp_info.components["libgmp"].names["cmake_find_package_multi"] = "GMP"
-        if self.options.enable_cxx:
-            self.cpp_info.components["gmpxx"].names["cmake_find_package"] = "GMPXX"
-            self.cpp_info.components["gmpxx"].names["cmake_find_package_multi"] = "GMPXX"

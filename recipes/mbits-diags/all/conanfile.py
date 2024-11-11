@@ -103,10 +103,6 @@ class MBitsDiagsConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mbits-diags")
         self.cpp_info.set_property("cmake_target_name", "mbits::diags")
 
-        self.cpp_info.filenames["cmake_find_package"] = "mbits-diags"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-diags"
-        self.cpp_info.names["cmake_find_package"] = "mbits"
-        self.cpp_info.names["cmake_find_package_multi"] = "mbits"
         self.cpp_info.components["diags"].set_property(
             "cmake_target_name", "mbits::diags"
         )

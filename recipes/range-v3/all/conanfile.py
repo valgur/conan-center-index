@@ -27,7 +27,6 @@ class Rangev3Conan(ConanFile):
         return {
             "gcc": "5" if Version(self.version) < "0.10.0" else "6.5",
             "msvc": "192",
-            "Visual Studio": "16", # TODO: remove when only Conan2 is supported
             "clang": "3.6" if Version(self.version) < "0.10.0" else "3.9"
         }
 
@@ -70,14 +69,10 @@ class Rangev3Conan(ConanFile):
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.bindirs = []
-        self.cpp_info.components["range-v3-meta"].names["cmake_find_package"] = "meta"
-        self.cpp_info.components["range-v3-meta"].names["cmake_find_package_multi"] = "meta"
         if is_msvc(self):
             self.cpp_info.components["range-v3-meta"].cxxflags = ["/permissive-"]
 
             if "0.9.0" <= Version(self.version) < "0.11.0":
                 self.cpp_info.components["range-v3-meta"].cxxflags.append(
                     "/experimental:preprocessor")
-        self.cpp_info.components["range-v3-concepts"].names["cmake_find_package"] = "concepts"
-        self.cpp_info.components["range-v3-concepts"].names["cmake_find_package_multi"] = "concepts"
         self.cpp_info.components["range-v3-concepts"].requires = ["range-v3-meta"]

@@ -84,19 +84,7 @@ class PackageConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "libInterpolate")
+        self.cpp_info.set_property("cmake_target_name", "libInterpolate::Interpolate")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        self.cpp_info.set_property("cmake_file_name", "libInterpolate")
-        self.cpp_info.set_property(
-            "cmake_target_name", "libInterpolate::Interpolate"
-        )
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "libInterpolate"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "libInterpolate"
-        self.cpp_info.names["cmake_find_package"] = "libInterpolate"
-        self.cpp_info.names["cmake_find_package_multi"] = "libInterpolate"
-        self.cpp_info.components["Interpolate"].names["cmake_find_package"] = "Interpolate"
-        self.cpp_info.components["Interpolate"].names["cmake_find_package_multi"] = "Interpolate"
-        self.cpp_info.components["Interpolate"].requires = ["eigen::eigen","boost::boost"]

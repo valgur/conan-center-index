@@ -118,13 +118,3 @@ class LightGBMConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LightGBM")
         self.cpp_info.set_property("cmake_target_name", "LightGBM::LightGBM")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "LightGBM"
-        self.cpp_info.names["cmake_find_package_multi"] = "LightGBM"
-
-        self.cpp_info.libs = ["lib_lightgbm"] if is_msvc(self) else ["_lightgbm"]
-        if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
-        elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("pthread")

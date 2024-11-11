@@ -101,17 +101,5 @@ class HiponyEnumerateConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "hipony-enumerate")
         self.cpp_info.set_property("cmake_target_name", "hipony::enumerate")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         if self.options.aggregates:
-            self.cpp_info.components["enumerate"].defines.append(
-                "HIPONY_ENUMERATE_AGGREGATES_ENABLED")
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "hipony-enumerate"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "hipony-enumerate"
-        self.cpp_info.names["cmake_find_package"] = "hipony"
-        self.cpp_info.names["cmake_find_package_multi"] = "hipony"
-        self.cpp_info.components["enumerate"].names["cmake_find_package"] = "enumerate"
-        self.cpp_info.components["enumerate"].names["cmake_find_package_multi"] = "enumerate"
-        self.cpp_info.components["enumerate"].set_property("cmake_target_name", "hipony::enumerate")
-        if self.options.aggregates:
-            self.cpp_info.components["enumerate"].requires.append("pfr::pfr")
+            self.cpp_info.defines.append("HIPONY_ENUMERATE_AGGREGATES_ENABLED")

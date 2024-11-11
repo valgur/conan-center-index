@@ -118,9 +118,3 @@ class NASMConan(ConanFile):
         self.buildenv_info.define_path("NASM", self._nasm)
         self.buildenv_info.define_path("NDISASM", self._ndisasm)
         self.buildenv_info.define_path("AS", self._nasm)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.NASM = self._nasm
-        self.env_info.NDISASM = self._ndisasm
-        self.env_info.AS = self._nasm

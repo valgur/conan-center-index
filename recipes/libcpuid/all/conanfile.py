@@ -80,11 +80,3 @@ class LibCpuidConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "cpuid::cpuid")
         self.cpp_info.set_property("pkg_config_name", "libcpuid")
         self.cpp_info.libs = ["cpuid"]
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-        self.env_info.PATH.append(bin_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "cpuid"
-        self.cpp_info.names["cmake_find_package_multi"] = "cpuid"

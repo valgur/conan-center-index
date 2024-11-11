@@ -30,7 +30,7 @@ class TinyAlsaConan(ConanFile):
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-    
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -66,13 +66,3 @@ class TinyAlsaConan(ConanFile):
         self.cpp_info.libs = ["tinyalsa"]
         if Version(self.version) >= "2.0.0":
             self.cpp_info.system_libs.append("dl")
-        
-        if self.options.with_utils:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bin_path}")
-            self.env_info.path.append(bin_path)
-        
-        # Needed for compatibility with v1.x - Remove when 2.0 becomes the default
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f'Appending PATH environment variable: {bin_path}')
-        self.env_info.PATH.append(bin_path)

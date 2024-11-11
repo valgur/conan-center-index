@@ -125,17 +125,6 @@ class LibreSSLConan(ConanFile):
         self.cpp_info.components["tls"].resdirs = ["res"]
         self.cpp_info.components["tls"].requires = ["crypto", "ssl"]
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "LibreSSL"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibreSSL"
-        self.cpp_info.names["pkg_config"] = "openssl"
-        self.cpp_info.components["crypto"].names["cmake_find_package"] = "Crypto"
-        self.cpp_info.components["crypto"].names["cmake_find_package_multi"] = "Crypto"
-        self.cpp_info.components["ssl"].names["cmake_find_package"] = "SSL"
-        self.cpp_info.components["ssl"].names["cmake_find_package_multi"] = "SSL"
-        self.cpp_info.components["tls"].names["cmake_find_package"] = "TLS"
-        self.cpp_info.components["tls"].names["cmake_find_package_multi"] = "TLS"
-
     def _lib_name(self, name):
         libressl_version = Version(self.version)
         if self.settings.os == "Windows" and \

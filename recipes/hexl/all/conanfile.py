@@ -153,9 +153,3 @@ class HexlConan(ConanFile):
         self.cpp_info.components["Hexl"].requires.append("cpu_features::libcpu_features")
         if self.settings.build_type == "Debug":
             self.cpp_info.components["Hexl"].requires.append("easyloggingpp::easyloggingpp")
-
-        # TODO: Remove in Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "Hexl"
-        self.cpp_info.names["cmake_find_package_multi"] = "Hexl"
-        self.cpp_info.components["Hexl"].names["cmake_find_package"] = "hexl"
-        self.cpp_info.components["Hexl"].names["cmake_find_package_multi"] = "hexl"

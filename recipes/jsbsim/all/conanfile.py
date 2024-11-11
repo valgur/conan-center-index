@@ -90,6 +90,3 @@ class JsbsimConan(ConanFile):
             self.cpp_info.system_libs.extend(["wsock32", "ws2_32"])
             if not self.options.shared:
                 self.cpp_info.defines.append("JSBSIM_STATIC_LINK")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

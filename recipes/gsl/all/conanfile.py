@@ -128,12 +128,3 @@ class GslConan(ConanFile):
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.components["libgsl"].system_libs = ["m"]
             self.cpp_info.components["libgslcblas"].system_libs = ["m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GSL"
-        self.cpp_info.names["cmake_find_package_multi"] = "GSL"
-        self.cpp_info.components["libgsl"].names["cmake_find_package"] = "gsl"
-        self.cpp_info.components["libgsl"].names["cmake_find_package_multi"] = "gsl"
-        self.cpp_info.components["libgslcblas"].names["cmake_find_package"] = "gslcblas"
-        self.cpp_info.components["libgslcblas"].names["cmake_find_package_multi"] = "gslcblas"
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

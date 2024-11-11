@@ -80,7 +80,3 @@ class CCTZConan(ConanFile):
             self.cpp_info.system_libs.append("m")
         elif is_apple_os(self):
             self.cpp_info.frameworks.append("CoreFoundation")
-
-        # TODO: to remove in conan v2
-        if self.options.build_tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

@@ -169,11 +169,3 @@ class LibjpegTurboConan(ConanFile):
             self.cpp_info.components["turbojpeg"].set_property("pkg_config_name", "libturbojpeg")
             self.cpp_info.components["turbojpeg"].libs = [f"turbojpeg{lib_suffix}"]
 
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "JPEG"
-        self.cpp_info.names["cmake_find_package_multi"] = "libjpeg-turbo"
-        self.cpp_info.components["jpeg"].names["cmake_find_package"] = "JPEG"
-        self.cpp_info.components["jpeg"].names["cmake_find_package_multi"] = f"jpeg{cmake_target_suffix}"
-        if self.options.get_safe("turbojpeg"):
-            self.cpp_info.components["turbojpeg"].names["cmake_find_package"] = f"turbojpeg{cmake_target_suffix}"
-            self.cpp_info.components["turbojpeg"].names["cmake_find_package_multi"] = f"turbojpeg{cmake_target_suffix}"

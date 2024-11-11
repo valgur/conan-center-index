@@ -210,10 +210,3 @@ class OusterSdkConan(ConanFile):
                 "glad::glad",
                 "glfw::glfw",
             ]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "OusterSDK"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "OusterSDK"
-        self.cpp_info.names["cmake_find_package"] = "OusterSDK"
-        self.cpp_info.names["cmake_find_package_multi"] = "OusterSDK"
-

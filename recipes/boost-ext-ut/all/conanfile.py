@@ -124,13 +124,6 @@ class UTConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "ut")
         self.cpp_info.set_property("cmake_target_name", f"{namespace}::ut")
 
-        self.cpp_info.names["cmake_find_package"] = namespace
-        self.cpp_info.names["cmake_find_package_multi"] = namespace
-        self.cpp_info.filenames["cmake_find_package"] = "ut"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ut"
-        self.cpp_info.components["ut"].names["cmake_find_package"] = "ut"
-        self.cpp_info.components["ut"].names["cmake_find_package_multi"] = "ut"
-
         if newer_than_1_1_8:
             self.cpp_info.components["ut"].includedirs = [os.path.join("include", "ut-" + self.version, "include")]
 

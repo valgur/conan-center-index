@@ -40,6 +40,3 @@ class OpenTelemetryProtoConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
-
-        # TODO: to remove in conan v2
-        self.user_info.proto_root = os.path.join(self.package_folder, "res")

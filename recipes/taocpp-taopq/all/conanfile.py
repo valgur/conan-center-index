@@ -97,19 +97,8 @@ class TaoCPPTaopqConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "taopq")
         self.cpp_info.set_property("cmake_target_name", "taocpp::taopq")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["_taocpp-taopq"].libs = ["taopq"]
+        self.cpp_info.libs = ["taopq"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_taocpp-taopq"].system_libs.append("m")
+            self.cpp_info.system_libs.append("m")
         elif self.settings.os == "Windows":
-            self.cpp_info.components["_taocpp-taopq"].system_libs.append("ws2_32")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "taopq"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "taopq"
-        self.cpp_info.names["cmake_find_package"] = "taocpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
-        self.cpp_info.components["_taocpp-taopq"].names["cmake_find_package"] = "taopq"
-        self.cpp_info.components["_taocpp-taopq"].names["cmake_find_package_multi"] = "taopq"
-        self.cpp_info.components["_taocpp-taopq"].set_property("cmake_target_name", "taocpp::taopq")
-        self.cpp_info.components["_taocpp-taopq"].requires = ["libpq::libpq"]
+            self.cpp_info.system_libs.append("ws2_32")

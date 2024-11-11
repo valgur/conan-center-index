@@ -63,12 +63,8 @@ class GaiaConan(ConanFile):
     def package_info(self):
         if self.settings.os in ["FreeBSD", "Linux"]:
             self.cpp_info.system_libs = ["pthread"]
-        
+
         self.cpp_info.set_property("cmake_file_name", "gaia")
         self.cpp_info.set_property("cmake_target_name", "gaia::gaia")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: remove when v1 support drops
-        self.cpp_info.names["cmake_find_package"] = "gaia"
-        self.cpp_info.names["cmake_find_package_multi"] = "gaia"

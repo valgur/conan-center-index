@@ -185,6 +185,3 @@ class LibX264Conan(ConanFile):
             self.cpp_info.system_libs.extend(["dl", "pthread", "m"])
         elif self.settings.os == "Android":
             self.cpp_info.system_libs.extend(["dl", "m"])
-
-        # TODO: to remove in conan v2 once pkg_config generator removed
-        self.cpp_info.names["pkg_config"] = "x264"

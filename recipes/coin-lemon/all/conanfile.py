@@ -88,8 +88,3 @@ class CoinLemonConan(ConanFile):
         self.cpp_info.defines.append("LEMON_ONLY_TEMPLATES")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "LEMON"
-        self.cpp_info.names["cmake_find_package_multi"] = "LEMON"
-        self.cpp_info.names["pkg_config"] = "lemon"

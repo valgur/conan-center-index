@@ -95,8 +95,6 @@ class OatppConan(ConanFile):
         lib_dir = os.path.join("lib", f"oatpp-{self._version}")
 
         # oatpp
-        self.cpp_info.components["_oatpp"].names["cmake_find_package"] = "oatpp"
-        self.cpp_info.components["_oatpp"].names["cmake_find_package_multi"] = "oatpp"
         self.cpp_info.components["_oatpp"].set_property("cmake_target_name", "oatpp::oatpp")
         self.cpp_info.components["_oatpp"].includedirs = [include_dir]
         self.cpp_info.components["_oatpp"].libdirs = [lib_dir]
@@ -108,8 +106,6 @@ class OatppConan(ConanFile):
 
         # oatpp-test
         if self.options.with_test_library:
-            self.cpp_info.components["oatpp-test"].names["cmake_find_package"] = "oatpp-test"
-            self.cpp_info.components["oatpp-test"].names["cmake_find_package_multi"] = "oatpp-test"
             self.cpp_info.components["oatpp-test"].set_property("cmake_target_name", "oatpp-test::oatpp-test")
             self.cpp_info.components["oatpp-test"].includedirs = [include_dir]
             self.cpp_info.components["oatpp-test"].libdirs = [lib_dir]

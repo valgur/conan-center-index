@@ -78,7 +78,3 @@ class ButteraugliConan(ConanFile):
         self.cpp_info.libs = ["butteraugli_lib"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
-
-        if self.options.tool:
-            # TODO: to remove in conan v2
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

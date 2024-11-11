@@ -100,20 +100,5 @@ class SoundTouchConan(ConanFile):
             self.cpp_info.components["SoundTouchDLL"].libs = ["SoundTouchDLL"]
             self.cpp_info.components["SoundTouchDLL"].requires = ["_soundtouch"]
 
-        if self.options.with_util:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bin_path}")
-            self.env_info.PATH.append(bin_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "SoundTouch"
-        self.cpp_info.names["cmake_find_package_multi"] = "SoundTouch"
-        self.cpp_info.components["_soundtouch"].names["cmake_find_package"] = "SoundTouch"
-        self.cpp_info.components["_soundtouch"].names["cmake_find_package_multi"] = "SoundTouch"
-        self.cpp_info.names["pkg_config"] = "SoundTouch"
-        if self.options.with_dll:
-            self.cpp_info.components["SoundTouchDLL"].names["cmake_find_package"] = "SoundTouchDLL"
-            self.cpp_info.components["SoundTouchDLL"].names["cmake_find_package_multi"] = "SoundTouchDLL"
-
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("mvec")

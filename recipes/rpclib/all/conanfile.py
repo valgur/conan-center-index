@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -28,10 +29,6 @@ class rpclibConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return "11"
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -47,8 +44,7 @@ class rpclibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -77,24 +73,16 @@ class rpclibConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.settings.os == "Windows" and self.options.shared:
-            mkdir(self, self.package_path / "bin")
-            for dll in (self.package_path / "lib").glob("*.dll"):
-                rename(self, dll, self.package_path / "bin" / dll.name)
+            mkdir(self, os.path.join(self.self.package_folder, "bin"))
+            for dll in Path(self.self.package_folder, "lib").glob("*.dll"):
+                rename(self, dll, os.path.join(self.package_path, "bin", dll.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rpclib")
         self.cpp_info.set_property("cmake_target_name", "rpclib::rpc")
         self.cpp_info.set_property("pkg_config_name", "rpclib")
-
-        # TODO: back to global scope after Conan 2.0
-        self.cpp_info.components["_rpc"].libs = ["rpc"]
+        self.cpp_info.libs = ["rpc"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_rpc"].system_libs.extend(["m", "pthread"])
+            self.cpp_info.system_libs.extend(["m", "pthread"])
         elif self.settings.os == "Windows":
-            self.cpp_info.components["_rpc"].system_libs.extend(["mswsock", "ws2_32"])
-
-        # TODO: Remove after Conan 2.0
-        self.cpp_info.components["_rpc"].names["cmake_find_package"] = "rpc"
-        self.cpp_info.components["_rpc"].names["cmake_find_package_multi"] = "rpc"
-        self.cpp_info.components["_rpc"].set_property("cmake_target_name", "rpclib::rpc")
-        self.cpp_info.components["_rpc"].set_property("pkg_config_name", "rpclib")
+            self.cpp_info.system_libs.extend(["mswsock", "ws2_32"])

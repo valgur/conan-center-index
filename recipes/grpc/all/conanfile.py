@@ -347,10 +347,6 @@ class GrpcConan(ConanFile):
             self.cpp_info.components[component].system_libs = values.get("system_libs", [])
             self.cpp_info.components[component].frameworks = values.get("frameworks", [])
 
-            # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-            self.cpp_info.components[component].names["cmake_find_package"] = target
-            self.cpp_info.components[component].names["cmake_find_package_multi"] = target
-
         # Executable imported targets are added through custom CMake module files,
         # since conan generators don't know how to emulate these kind of targets.
         grpc_modules = []
@@ -361,12 +357,3 @@ class GrpcConan(ConanFile):
                 grpc_module_filename = "{}.cmake".format(executable)
                 grpc_modules.append(os.path.join(self._module_path, grpc_module_filename))
         self.cpp_info.set_property("cmake_build_modules", grpc_modules)
-
-        # TODO: to remove once conan v1 not supported anymore
-        self.cpp_info.names["cmake_find_package"] = "gRPC"
-        self.cpp_info.names["cmake_find_package_multi"] = "gRPC"
-        self.env_info.GRPC_DEFAULT_SSL_ROOTS_FILE_PATH = ssl_roots_file_path
-        if grpc_modules:
-            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package"] = grpc_modules
-            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package_multi"] = grpc_modules
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

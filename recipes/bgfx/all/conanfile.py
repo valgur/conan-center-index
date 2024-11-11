@@ -93,7 +93,6 @@ class bgfxConan(ConanFile):
             "clang": "3.3",
             "apple-clang": "12", #to keep CCI compiling on osx 11.0 or higher, for now
             "msvc": "191",
-            "Visual Studio": "15" #TODO remove with conan 2.0
         }
 
     @property
@@ -309,9 +308,3 @@ class bgfxConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "bgfx")
         self.cpp_info.set_property("cmake_target_name", "bgfx::bgfx")
         self.cpp_info.set_property("pkg_config_name", "bgfx")
-
-        #  TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "bgfx"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "bgfx"
-        self.cpp_info.names["cmake_find_package"] = "bgfx"
-        self.cpp_info.names["cmake_find_package_multi"] = "bgfx"

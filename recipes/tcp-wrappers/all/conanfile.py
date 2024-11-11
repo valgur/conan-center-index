@@ -109,6 +109,3 @@ class TcpWrappersConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["wrap"]
-
-        # TODO: to remove once conan v1 not supported anymore
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

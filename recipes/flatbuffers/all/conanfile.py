@@ -144,11 +144,10 @@ class FlatbuffersConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", f"flatbuffers::{cmake_target}")
         self.cpp_info.set_property("pkg_config_name", "flatbuffers")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         if not self.options.header_only:
-            self.cpp_info.components["libflatbuffers"].libs = collect_libs(self)
+            self.cpp_info.libs = collect_libs(self)
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components["libflatbuffers"].system_libs.append("m")
+                self.cpp_info.system_libs.append("m")
 
         # Provide flatbuffers::flatc target and CMake functions from BuildFlatBuffers.cmake
         build_modules = [
@@ -156,17 +155,3 @@ class FlatbuffersConan(ConanFile):
             os.path.join(self._module_path, "BuildFlatBuffers.cmake"),
         ]
         self.cpp_info.set_property("cmake_build_modules", build_modules)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "flatbuffers"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "flatbuffers"
-        self.cpp_info.names["cmake_find_package"] = "flatbuffers"
-        self.cpp_info.names["cmake_find_package_multi"] = "flatbuffers"
-        self.cpp_info.components["libflatbuffers"].names["cmake_find_package"] = cmake_target
-        self.cpp_info.components["libflatbuffers"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["libflatbuffers"].build_modules["cmake_find_package"] = build_modules
-        self.cpp_info.components["libflatbuffers"].build_modules["cmake_find_package_multi"] = build_modules
-        self.cpp_info.components["libflatbuffers"].set_property("cmake_file_name", f"flatbuffers::{cmake_target}")
-        self.cpp_info.components["libflatbuffers"].set_property("pkg_config_name", "flatbuffers")
-        if self._has_flatc():
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

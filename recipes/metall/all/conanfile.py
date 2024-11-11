@@ -82,9 +82,6 @@ class MetallConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Metall")
         self.cpp_info.set_property("cmake_target_name", "Metall::Metall")
 
-        self.cpp_info.names["cmake_find_package"] = "Metall"
-        self.cpp_info.names["cmake_find_package_multi"] = "Metall"
-
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 

@@ -773,8 +773,6 @@ class FFMpegConan(ConanFile):
         version = self._read_component_version(component_name)
         if version is not None:
             self.cpp_info.components[component_name].set_property("component_version", version)
-            # TODO: to remove once support of conan v1 dropped
-            self.cpp_info.components[component_name].version = version
         else:
             self.output.warning(f"cannot determine version of lib{component_name} packaged with ffmpeg!")
 

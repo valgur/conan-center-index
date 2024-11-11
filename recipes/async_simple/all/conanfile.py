@@ -88,9 +88,9 @@ class AsyncSimpleConan(ConanFile):
             tc.cache_variables["ASYNC_SIMPLE_ENABLE_TESTS"] = False
             tc.cache_variables["ASYNC_SIMPLE_ENABLE_ASAN"] = False
             #libaio is only used in SimpleIOExecutor which is only used in executor tests and not meant for end users
-            tc.cache_variables["ASYNC_SIMPLE_DISABLE_AIO"] = True 
+            tc.cache_variables["ASYNC_SIMPLE_DISABLE_AIO"] = True
             tc.generate()
-            
+
     def build(self):
         apply_conandata_patches(self)
         if not self.options.header_only:
@@ -101,7 +101,7 @@ class AsyncSimpleConan(ConanFile):
 
     def package(self):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        
+
         if self.options.header_only:
             hCopyExcludes = ("test", "uthread", "executors")
         if not self.options.header_only:
@@ -132,27 +132,12 @@ class AsyncSimpleConan(ConanFile):
         )
 
     def package_info(self):
-        if not self.options.header_only:
-            self.cpp_info.libs = ["async_simple"]
-        
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["m", "pthread"]
-
         self.cpp_info.set_property("cmake_file_name", "async_simple")
         if self.options.header_only:
             self.cpp_info.set_property("cmake_target_name", "async_simple::async_simple_header_only")
-            
-            self.cpp_info.components["_async_simple"].names["cmake_find_package"] = "async_simple_header_only"
-            self.cpp_info.components["_async_simple"].names["cmake_find_package_multi"] = "async_simple_header_only"
-            self.cpp_info.components["_async_simple"].set_property("cmake_target_name", "async_simple::async_simple_header_only")
         else:
             self.cpp_info.set_property("cmake_target_name", "async_simple::async_simple")
-            
-            self.cpp_info.components["_async_simple"].names["cmake_find_package"] = "async_simple"
-            self.cpp_info.components["_async_simple"].names["cmake_find_package_multi"] = "async_simple"
-            self.cpp_info.components["_async_simple"].set_property("cmake_target_name", "async_simple::async_simple")
+            self.cpp_info.libs = ["async_simple"]
 
-        self.cpp_info.filenames["cmake_find_package"] = "async_simple"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "async_simple"
-        self.cpp_info.names["cmake_find_package"] = "async_simple"
-        self.cpp_info.names["cmake_find_package_multi"] = "async_simple"
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m", "pthread"]

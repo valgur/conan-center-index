@@ -158,17 +158,3 @@ class KtxConan(ConanFile):
             self.cpp_info.components["libktx"].defines.append("BASISU_NO_ITERATOR_DEBUG_LEVEL")
         elif self.settings.os == "Linux":
             self.cpp_info.components["libktx"].system_libs.extend(["m", "dl", "pthread"])
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "Ktx"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Ktx"
-        self.cpp_info.names["cmake_find_package"] = "KTX"
-        self.cpp_info.names["cmake_find_package_multi"] = "KTX"
-        self.cpp_info.components["libktx"].names["cmake_find_package"] = "ktx"
-        self.cpp_info.components["libktx"].names["cmake_find_package_multi"] = "ktx"
-        self.cpp_info.components["libktx"].set_property("cmake_target_name", "KTX::ktx")
-        self.cpp_info.components["libktx"].requires = ["zstd::zstd"]
-        if Version(self.version) < "4.2.0":
-            self.cpp_info.components["libktx"].requires.append("lodepng::lodepng")
-        if self.options.tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

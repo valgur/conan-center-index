@@ -161,25 +161,15 @@ class QpdfConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "qpdf")
         self.cpp_info.set_property("cmake_target_name", "qpdf::libqpdf")
         self.cpp_info.set_property("pkg_config_name", "libqpdf")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libqpdf"].libs = ["qpdf"]
-        self.cpp_info.components["libqpdf"].requires.append("zlib::zlib")
-        if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.components["libqpdf"].requires.append("libjpeg::libjpeg")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.components["libqpdf"].requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.cpp_info.components["libqpdf"].requires.append("mozjpeg::libjpeg")
-        if self.options.with_ssl == "openssl":
-            self.cpp_info.components["libqpdf"].requires.append("openssl::openssl")
-
+        self.cpp_info.libs = ["qpdf"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libqpdf"].system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "qpdf"
-        self.cpp_info.names["cmake_find_package_multi"] = "qpdf"
-        self.cpp_info.components["libqpdf"].names["cmake_find_package"] = "libqpdf"
-        self.cpp_info.components["libqpdf"].names["cmake_find_package_multi"] = "libqpdf"
-        self.cpp_info.components["libqpdf"].set_property("pkg_config_name", "libqpdf")
-        self.cpp_info.components["libqpdf"].set_property("cmake_target_name", "qpdf::libqpdf")
+            self.cpp_info.system_libs.append("m")
+        self.cpp_info.requires.append("zlib::zlib")
+        if self.options.with_jpeg == "libjpeg":
+            self.cpp_info.requires.append("libjpeg::libjpeg")
+        elif self.options.with_jpeg == "libjpeg-turbo":
+            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
+        elif self.options.with_jpeg == "mozjpeg":
+            self.cpp_info.requires.append("mozjpeg::libjpeg")
+        if self.options.with_ssl == "openssl":
+            self.cpp_info.requires.append("openssl::openssl")

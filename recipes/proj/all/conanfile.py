@@ -210,17 +210,3 @@ class ProjConan(ConanFile):
         self.runenv_info.prepend_path(proj_data_env_var_name, res_path)
         if self.options.build_executables:
             self.buildenv_info.prepend_path(proj_data_env_var_name, res_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = cmake_config_filename
-        self.cpp_info.filenames["cmake_find_package_multi"] = cmake_config_filename
-        self.cpp_info.names["cmake_find_package"] = cmake_namespace
-        self.cpp_info.names["cmake_find_package_multi"] = cmake_namespace
-        self.cpp_info.components["projlib"].names["cmake_find_package"] = "proj"
-        self.cpp_info.components["projlib"].names["cmake_find_package_multi"] = "proj"
-        if Version(self.version) < "9.1.0":
-            self.env_info.PROJ_LIB.append(res_path)
-        else:
-            self.env_info.PROJ_DATA.append(res_path)
-        if self.options.build_executables:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

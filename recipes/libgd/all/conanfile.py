@@ -152,10 +152,3 @@ class LibgdConan(ConanFile):
             self.cpp_info.defines.append("BGDWIN32")
         if self.settings.os in ("FreeBSD", "Linux", "Android", "SunOS", "AIX"):
             self.cpp_info.system_libs.append("m")
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["pkg_config"]= "gdlib"

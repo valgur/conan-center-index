@@ -82,29 +82,15 @@ class OatppSwaggerConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "oatpp-swagger")
         self.cpp_info.set_property("cmake_target_name", "oatpp::oatpp-swagger")
-        # TODO: back to global scope in conan v2 once legacy generators removed
-        self.cpp_info.components["_oatpp-swagger"].includedirs = [
-            os.path.join("include", f"oatpp-{self.version}", "oatpp-swagger")
-        ]
-        self.cpp_info.components["_oatpp-swagger"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
+        self.cpp_info.includedirs = [os.path.join("include", f"oatpp-{self.version}", "oatpp-swagger")]
+        self.cpp_info.libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["_oatpp-swagger"].bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
+            self.cpp_info.bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
         else:
-            self.cpp_info.components["_oatpp-swagger"].bindirs = []
-        self.cpp_info.components["_oatpp-swagger"].libs = ["oatpp-swagger"]
+            self.cpp_info.bindirs = []
+        self.cpp_info.libs = ["oatpp-swagger"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_oatpp-swagger"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
         # export env var
         res_path = os.path.join(self.package_folder, "include", f"oatpp-{self.version}", "bin", "oatpp-swagger", "res")
         self.runenv_info.prepend_path("OATPP_SWAGGER_RES_PATH", res_path)
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "oatpp-swagger"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "oatpp-swagger"
-        self.cpp_info.names["cmake_find_package"] = "oatpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
-        self.cpp_info.components["_oatpp-swagger"].names["cmake_find_package"] = "oatpp-swagger"
-        self.cpp_info.components["_oatpp-swagger"].names["cmake_find_package_multi"] = "oatpp-swagger"
-        self.cpp_info.components["_oatpp-swagger"].set_property("cmake_target_name", "oatpp::oatpp-swagger")
-        self.cpp_info.components["_oatpp-swagger"].requires = ["oatpp::oatpp"]
-        self.env_info.OATPP_SWAGGER_RES_PATH = res_path

@@ -320,14 +320,6 @@ class ArmadilloConan(ConanFile):
         self.cpp_info.set_property("cmake_target_aliases", ["armadillo", "armadillo::armadillo"])
         self.cpp_info.set_property("cmake_build_modules", [self._module_vars_rel_path])
 
-        # Remove when cmake_find_package and pkg_config generators are no
-        # longer supported
-        self.cpp_info.names["pkg_config"] = "armadillo"
-        self.cpp_info.names["cmake_find_package"] = "Armadillo"
-        self.cpp_info.names["cmake_find_package_multi"] = "Armadillo"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_vars_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_vars_rel_path]
-
         if self.options.get_safe("use_extern_rng"):
             self.cpp_info.defines.append("ARMA_USE_EXTERN_RNG")
 

@@ -234,11 +234,3 @@ class GinkgoConan(ConanFile):
 
             self.cpp_info.components["ginkgo_config"].set_property("cmake_target_name", "Ginkgo::ginkgo_core")
             self.cpp_info.components["ginkgo_config"].libs = ["ginkgo_core" + debug_suffix]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Ginkgo"
-        self.cpp_info.names["cmake_find_package_multi"] = "Ginkgo"
-        self.cpp_info.components["ginkgo_core"].names["cmake_find_package"] = "ginkgo"
-        self.cpp_info.components["ginkgo_core"].names[
-            "cmake_find_package_multi"
-        ] = "ginkgo"

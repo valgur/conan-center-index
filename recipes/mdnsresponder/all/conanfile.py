@@ -212,8 +212,6 @@ class MdnsResponderConan(ConanFile):
 
     def package_info(self):
         # although not one of the find-modules in the CMake distribution, FindDNSSD.cmake is commonly used for this package
-        self.cpp_info.names["cmake_find_package"] = "DNSSD"
-        self.cpp_info.names["cmake_find_package_multi"] = "DNSSD"
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "DNSSD")
         self.cpp_info.set_property("cmake_target_name", "DNSSD::DNSSD")
@@ -222,8 +220,3 @@ class MdnsResponderConan(ConanFile):
             self.cpp_info.libs = ["dns_sd"]
         elif self.settings.os == "Windows":
             self.cpp_info.libs = ["dnssd"]
-
-        # add path for daemon (mdnsd, mDNSResponder) and client (dns-sd)
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)

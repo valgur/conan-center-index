@@ -55,9 +55,3 @@ class EnumFlagsConan(ConanFile):
         # since enum classes prevent implicit conversions already.
         if self.options.forbid_implicit_conversions:
             self.cpp_info.defines = ["ENUM_CLASS_FLAGS_FORBID_IMPLICT_CONVERSION"]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "enumflags"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "enumflags"
-        self.cpp_info.names["cmake_find_package"] = "EnumFlags"
-        self.cpp_info.names["cmake_find_package_multi"] = "EnumFlags"

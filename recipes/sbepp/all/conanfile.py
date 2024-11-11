@@ -130,7 +130,3 @@ class PackageConan(ConanFile):
 
         self.cpp_info.builddirs.append(self._module_path)
         self.cpp_info.set_property("cmake_build_modules", build_modules)
-
-        # TODO: to remove in conan v2
-        if self.options.with_sbeppc:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

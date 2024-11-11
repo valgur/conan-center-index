@@ -101,10 +101,6 @@ class NloptConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "NLopt::nlopt")
         self.cpp_info.set_property("pkg_config_name", "nlopt")
 
-        self.cpp_info.names["cmake_find_package"] = "NLopt"
-        self.cpp_info.names["cmake_find_package_multi"] = "NLopt"
-        self.cpp_info.components["nloptlib"].names["cmake_find_package"] = "nlopt"
-        self.cpp_info.components["nloptlib"].names["cmake_find_package_multi"] = "nlopt"
         self.cpp_info.components["nloptlib"].set_property("cmake_target_name", "NLopt::nlopt")
         self.cpp_info.components["nloptlib"].set_property("pkg_config_name", "nlopt")
 

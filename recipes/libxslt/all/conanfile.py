@@ -226,15 +226,3 @@ class LibxsltConan(ConanFile):
         self.cpp_info.components["exslt"].requires = ["xslt"]
         if not self.options.shared:
             self.cpp_info.components["exslt"].defines = ["LIBEXSLT_STATIC"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "LibXslt"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibXslt"
-        self.cpp_info.names["pkg_config"] = "libxslt_full_package"
-        self.cpp_info.components["xslt"].names["cmake_find_package"] = "LibXslt"
-        self.cpp_info.components["xslt"].names["cmake_find_package_multi"] = "LibXslt"
-        self.cpp_info.components["xslt"].names["pkg_config"] = "libxslt"
-        self.cpp_info.components["exslt"].names["cmake_find_package"] = "LibExslt"
-        self.cpp_info.components["exslt"].names["cmake_find_package_multi"] = "LibExslt"
-        self.cpp_info.components["exslt"].names["pkg_config"] = "libexslt"
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

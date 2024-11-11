@@ -336,5 +336,3 @@ class SundialsConan(ConanFile):
             self.cpp_info.builddirs.append(os.path.join("lib", "cmake", "sundials"))
             cmake_module = os.path.join("lib", "cmake", "sundials", "conan-cuda-support.cmake")
             self.cpp_info.set_property("cmake_build_modules", [cmake_module])
-            self.cpp_info.build_modules["cmake_find_package"] = [cmake_module]
-            self.cpp_info.build_modules["cmake_find_package_multi"] = [cmake_module]

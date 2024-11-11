@@ -245,15 +245,11 @@ class MagnumConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "MagnumPlugins"
-        self.cpp_info.names["cmake_find_package_multi"] = "MagnumPlugins"
 
         magnum_plugin_libdir = "magnum-d" if self.settings.build_type == "Debug" and self.options.shared_plugins else "magnum"
         plugin_lib_suffix = "-d" if self.settings.build_type == "Debug" and not self.options.shared_plugins else ""
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
 
-        self.cpp_info.components["magnumopenddl"].names["cmake_find_package"] = "MagnumOpenDdl"
-        self.cpp_info.components["magnumopenddl"].names["cmake_find_package_multi"] = "MagnumOpenDdl"
         self.cpp_info.components["magnumopenddl"].libs = ["MagnumOpenDdl{}".format(lib_suffix)]
         self.cpp_info.components["magnumopenddl"].requires = ["magnum::magnum"]
 
@@ -271,19 +267,14 @@ class MagnumConan(ConanFile):
             raise ConanException("Component not defined, please contribute it to the Conan recipe")
 
         # The global target doesn't provide anything in this package. Null it.
-        self.cpp_info.components["_global_target"].names["cmake_find_package"] = "MagnumPlugins"
-        self.cpp_info.components["_global_target"].names["cmake_find_package_multi"] = "MagnumPlugins"
-        self.cpp_info.components["_global_target"].build_modules["cmake_find_package"].append(os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake"))
 
         # Add all the plugins
         for component, target, library, folder, deps in self._plugins:
-            self.cpp_info.components[component].names["cmake_find_package"] = target
-            self.cpp_info.components[component].names["cmake_find_package_multi"] = target
             self.cpp_info.components[component].libs = ["{}{}".format(library, plugin_lib_suffix)]
             self.cpp_info.components[component].libdirs = [os.path.join(self.package_folder, "lib", magnum_plugin_libdir, folder)]
             self.cpp_info.components[component].requires = deps
             if not self.options.shared_plugins:
-                self.cpp_info.components[component].build_modules.append(os.path.join("lib", "cmake", "conan-magnum-plugins-{}.cmake".format(component)))
+                self.cpp_info.components[component].build_modules.append(os.path.join("lib", "cmake", f"conan-magnum-plugins-{component}.cmake"))
         plugin_dir = "bin" if self.settings.os == "Windows" else "lib"
         self.user_info.plugins_basepath = os.path.join(self.package_folder, plugin_dir, magnum_plugin_libdir)
 

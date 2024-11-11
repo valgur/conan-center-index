@@ -86,11 +86,6 @@ class LuauConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Luau")
         self.cpp_info.set_property("cmake_target_name", "Luau::Luau")
 
-        self.cpp_info.filenames["cmake_find_package"] = "Luau"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Luau"
-        self.cpp_info.names["cmake_find_package_multi"] = "Luau"
-        self.cpp_info.names["cmake_find_package"] = "Luau"
-
         self.cpp_info.components["Ast"].libs = ["Luau.Ast"]
         self.cpp_info.components["Ast"].set_property("cmake_target_name", "Luau::Ast")
 
@@ -112,11 +107,6 @@ class LuauConan(ConanFile):
         self.cpp_info.components["CodeGen"].set_property("cmake_target_name", "Luau::CodeGen")
         self.cpp_info.components["CodeGen"].requires = ["Ast"]
         self.cpp_info.components["CodeGen"].requires.append("VM")
-
-        if self.options.with_cli:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bin_path}")
-            self.env_info.PATH.append(bin_path)
 
         if self.options.with_web:
             self.cpp_info.components["Web"].libs = ["Luau.Web"]

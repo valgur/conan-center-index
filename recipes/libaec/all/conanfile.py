@@ -104,7 +104,3 @@ class LibaecConan(ConanFile):
         if self.settings.os == "Windows":
             szip_name = "szip" if self.options.shared else "szip-static"
         self.cpp_info.components["sz"].libs = [szip_name]
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

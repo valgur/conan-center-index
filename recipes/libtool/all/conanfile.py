@@ -234,8 +234,3 @@ class LibtoolConan(ConanFile):
         self.buildenv_info.append_path("AUTOMAKE_CONAN_INCLUDES", libtool_aclocal_dir)
         self.runenv_info.append_path("ACLOCAL_PATH", libtool_aclocal_dir)
         self.runenv_info.append_path("AUTOMAKE_CONAN_INCLUDES", libtool_aclocal_dir)
-
-        # For Conan 1.x downstream consumers, can be removed once recipe is Conan 1.x only:
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.ACLOCAL_PATH.append(unix_path_package_info_legacy(self, libtool_aclocal_dir))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, libtool_aclocal_dir))

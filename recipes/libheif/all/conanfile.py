@@ -135,34 +135,14 @@ class LibheifConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "libheif")
         self.cpp_info.set_property("cmake_target_name", "libheif::heif")
         self.cpp_info.set_property("pkg_config_name", "libheif")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["heif"].libs = ["heif"]
+        self.cpp_info.libs = ["heif"]
         if not self.options.shared:
-            self.cpp_info.components["heif"].defines = ["LIBHEIF_STATIC_BUILD"]
+            self.cpp_info.defines = ["LIBHEIF_STATIC_BUILD"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["heif"].system_libs.extend(["m", "pthread"])
+            self.cpp_info.system_libs.extend(["m", "pthread"])
             if Version(self.version) >= "1.18.0":
-                self.cpp_info.components["heif"].system_libs.append("dl")
+                self.cpp_info.system_libs.append("dl")
         if not self.options.shared:
             libcxx = stdcpp_library(self)
             if libcxx:
-                self.cpp_info.components["heif"].system_libs.append(libcxx)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["heif"].set_property("cmake_target_name", "libheif::heif")
-        self.cpp_info.components["heif"].set_property("pkg_config_name", "libheif")
-        self.cpp_info.components["heif"].requires = []
-        if self.options.with_libde265:
-            self.cpp_info.components["heif"].requires.append("libde265::libde265")
-        if self.options.with_x265:
-            self.cpp_info.components["heif"].requires.append("libx265::libx265")
-        if self.options.with_libaomav1:
-            self.cpp_info.components["heif"].requires.append("libaom-av1::libaom-av1")
-        if self.options.with_dav1d:
-            self.cpp_info.components["heif"].requires.append("dav1d::dav1d")
-        if self.options.get_safe("with_jpeg"):
-            self.cpp_info.components["heif"].requires.append("libjpeg::libjpeg")
-        if self.options.get_safe("with_openjpeg"):
-            self.cpp_info.components["heif"].requires.append("openjpeg::openjpeg")
-        if self.options.get_safe("with_openjph"):
-            self.cpp_info.components["heif"].requires.append("openjph::openjph")
+                self.cpp_info.system_libs.append(libcxx)

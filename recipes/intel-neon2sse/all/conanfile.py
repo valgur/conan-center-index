@@ -62,7 +62,3 @@ class IntelNeon2sseConan(ConanFile):
             self.cpp_info.defines.append("USE_SSE4")
         if self.options.disable_performance_warnings:
             self.cpp_info.defines.append("NEON2SSE_DISABLE_PERFORMANCE_WARNING")
-
-        # TODO: remove once generators for legacy generators is no longer needed
-        self.cpp_info.names["cmake_find_package"] = "NEON_2_SSE"
-        self.cpp_info.names["cmake_find_package_multi"] = "NEON_2_SSE"

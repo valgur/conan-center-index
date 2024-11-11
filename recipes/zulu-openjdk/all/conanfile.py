@@ -60,14 +60,5 @@ class ZuluOpenJDK(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs.append(self._jni_folder)
         self.cpp_info.libdirs = []
-
-        java_home = self.package_folder
-        bin_path = os.path.join(java_home, "bin")
-
-        self.output.info(f"Creating JAVA_HOME environment variable with : {java_home}")
-        self.env_info.JAVA_HOME = java_home
-        self.buildenv_info.define_path("JAVA_HOME", java_home)
-        self.runenv_info.define_path("JAVA_HOME", java_home)
-
-        self.output.info(f"Appending PATH environment variable with : {bin_path}")
-        self.env_info.PATH.append(bin_path)
+        self.buildenv_info.define_path("JAVA_HOME", self.package_folder)
+        self.runenv_info.define_path("JAVA_HOME", self.package_folder)

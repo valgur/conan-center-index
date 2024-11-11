@@ -89,8 +89,5 @@ class LibuclConan(ConanFile):
 
         self.cpp_info.set_property("pkg_config_name", "libucl")
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["pkg_config"] = "libucl"
-
         if Version(self.version) >= "0.9.0" and self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

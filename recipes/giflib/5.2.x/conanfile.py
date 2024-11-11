@@ -79,8 +79,3 @@ class GiflibConan(ConanFile):
         self.cpp_info.libs = ["gif"]
         if is_msvc(self):
             self.cpp_info.defines.append("USE_GIF_DLL" if self.options.shared else "USE_GIF_LIB")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "GIF"
-        self.cpp_info.names["cmake_find_package_multi"] = "GIF"
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

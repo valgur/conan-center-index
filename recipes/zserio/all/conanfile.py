@@ -123,6 +123,3 @@ class ZserioConanFile(ConanFile):
         zserio_compiler_module = os.path.join(self.package_folder, self._cmake_module_path,
                                               "zserio_compiler.cmake")
         self.cpp_info.set_property("cmake_build_modules", [zserio_compiler_module])
-
-        # TODO: remove in conan v2
-        self.env_info.ZSERIO_JAR_FILE = zserio_jar_file

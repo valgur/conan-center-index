@@ -104,10 +104,6 @@ class MBitsUtfConvConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mbits-utfconv")
         self.cpp_info.set_property("cmake_target_name", "mbits::utfconv")
 
-        self.cpp_info.filenames["cmake_find_package"] = "mbits-utfconv"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-utfconv"
-        self.cpp_info.names["cmake_find_package"] = "mbits"
-        self.cpp_info.names["cmake_find_package_multi"] = "mbits"
         self.cpp_info.components["utfconv"].set_property(
             "cmake_target_name", "mbits::utfconv"
         )

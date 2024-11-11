@@ -43,12 +43,3 @@ class FastFloatConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "FastFloat::fast_float")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "FastFloat"
-        self.cpp_info.names["cmake_find_package_multi"] = "FastFloat"
-        self.cpp_info.components["fastfloat"].names["cmake_find_package"] = "fast_float"
-        self.cpp_info.components["fastfloat"].names["cmake_find_package_multi"] = "fast_float"
-        self.cpp_info.components["fastfloat"].set_property("cmake_target_name", "FastFloat::fast_float")
-        self.cpp_info.components["fastfloat"].bindirs = []
-        self.cpp_info.components["fastfloat"].libdirs = []

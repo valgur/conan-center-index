@@ -84,8 +84,6 @@ class OpenTracingConan(ConanFile):
         # opentracing
         opentracing = self.cpp_info.components["opentracing"]
         opentracing.set_property("cmake_target_name", "OpenTracing::opentracing" + target_suffix)
-        opentracing.names["cmake_find_package"] = "opentracing" + target_suffix
-        opentracing.names["cmake_find_package_multi"] = "opentracing" + target_suffix
         opentracing.libs = ["opentracing" + lib_suffix]
         if not self.options.shared:
             opentracing.defines.append("OPENTRACING_STATIC")
@@ -96,13 +94,7 @@ class OpenTracingConan(ConanFile):
         if self.options.enable_mocktracer:
             opentracing_mocktracer = self.cpp_info.components["opentracing_mocktracer"]
             opentracing_mocktracer.set_property("cmake_target_name", "OpenTracing::opentracing_mocktracer" + target_suffix)
-            opentracing_mocktracer.names["cmake_find_package"] = "opentracing_mocktracer" + target_suffix
-            opentracing_mocktracer.names["cmake_find_package_multi"] = "opentracing_mocktracer" + target_suffix
             opentracing_mocktracer.libs = ["opentracing_mocktracer" + lib_suffix]
             opentracing_mocktracer.requires = ["opentracing"]
             if not self.options.shared:
                 opentracing_mocktracer.defines.append("OPENTRACING_MOCK_TRACER_STATIC")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenTracing"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenTracing"

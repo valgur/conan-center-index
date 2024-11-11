@@ -80,10 +80,6 @@ class WasmedgeConan(ConanFile):
         else:
             self.cpp_info.libs = ["wasmedge_c"]
 
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
-
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("ws2_32")
             self.cpp_info.system_libs.append("wsock32")

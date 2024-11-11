@@ -125,13 +125,3 @@ class PrometheusCppConan(ConanFile):
                 self.cpp_info.components["prometheus-cpp-pull"].requires.append("zlib::zlib")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["prometheus-cpp-pull"].system_libs = ["pthread", "rt"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["prometheus-cpp-core"].names["cmake_find_package"] = "core"
-        self.cpp_info.components["prometheus-cpp-core"].names["cmake_find_package_multi"] = "core"
-        if self.options.with_push:
-            self.cpp_info.components["prometheus-cpp-push"].names["cmake_find_package"] = "push"
-            self.cpp_info.components["prometheus-cpp-push"].names["cmake_find_package_multi"] = "push"
-        if self.options.with_pull:
-            self.cpp_info.components["prometheus-cpp-pull"].names["cmake_find_package"] = "pull"
-            self.cpp_info.components["prometheus-cpp-pull"].names["cmake_find_package_multi"] = "pull"

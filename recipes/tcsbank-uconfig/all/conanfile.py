@@ -86,7 +86,3 @@ class TCSBankUconfigConan(ConanFile):
 
         if self.options.with_rapidjson:
             self.cpp_info.defines = ["RAPIDJSON_HAS_STDSTRING=1"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "uconfig"
-        self.cpp_info.names["cmake_find_package_multi"] = "uconfig"

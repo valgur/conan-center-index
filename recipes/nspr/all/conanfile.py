@@ -202,8 +202,3 @@ class NsprConan(ConanFile):
             self.cpp_info.system_libs.extend(["winmm", "ws2_32"])
 
         self.cpp_info.resdirs = ["res"]
-
-        # TODO: the following can be removed when the recipe supports Conan >= 2.0 only
-        aclocal = unix_path_package_info_legacy(self, os.path.join(self.package_folder, "res", "aclocal"))
-        self.output.info(f"Appending AUTOMAKE_CONAN_INCLUDES environment variable: {aclocal}")
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal)

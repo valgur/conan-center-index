@@ -137,37 +137,21 @@ class TracyConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Tracy")
         self.cpp_info.set_property("cmake_target_name", "Tracy::TracyClient")
-        # TODO: back to global scope in conan v2
-        self.cpp_info.components["tracyclient"].libs = ["TracyClient"]
+        self.cpp_info.libs = ["TracyClient"]
         if self.options.shared:
-            self.cpp_info.components["tracyclient"].defines.append(
-                "TRACY_IMPORTS")
+            self.cpp_info.defines.append("TRACY_IMPORTS")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["tracyclient"].system_libs.extend([
-                "pthread",
-                "m"
-            ])
+            self.cpp_info.system_libs.extend(["pthread", "m"])
         if self.settings.os == "Linux":
-            self.cpp_info.components["tracyclient"].system_libs.append("dl")
+            self.cpp_info.system_libs.append("dl")
         if self.settings.os == "Windows":
-            self.cpp_info.components["tracyclient"].system_libs.extend([
-                "dbghelp",
-                "ws2_32"
-            ])
+            self.cpp_info.system_libs.extend(["dbghelp", "ws2_32"])
         if self.options.get_safe("libunwind_backtrace"):
-            self.cpp_info.components["tracyclient"].requires.append("libunwind::libunwind")
+            self.cpp_info.requires.append("libunwind::libunwind")
 
         # Tracy CMake adds options set to ON as public
         for opt in self._tracy_options.keys():
             switch = getattr(self.options, opt)
             opt = f"TRACY_{opt.upper()}"
             if switch:
-                self.cpp_info.components["tracyclient"].defines.append(opt)
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "Tracy"
-        self.cpp_info.names["cmake_find_package_multi"] = "Tracy"
-        self.cpp_info.components["tracyclient"].names["cmake_find_package"] = "TracyClient"
-        self.cpp_info.components["tracyclient"].names["cmake_find_package_multi"] = "TracyClient"
-        self.cpp_info.components["tracyclient"].set_property(
-            "cmake_target_name", "Tracy::TracyClient")
+                self.cpp_info.defines.append(opt)

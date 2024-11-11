@@ -43,14 +43,3 @@ class TaoCPPOperatorsConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "taocpp::operators")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "taocpp-operators"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "taocpp-operators"
-        self.cpp_info.names["cmake_find_package"] = "taocpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
-        self.cpp_info.components["_taocpp-operators"].names["cmake_find_package"] = "operators"
-        self.cpp_info.components["_taocpp-operators"].names["cmake_find_package_multi"] = "operators"
-        self.cpp_info.components["_taocpp-operators"].set_property("cmake_target_name", "taocpp::operators")
-        self.cpp_info.components["_taocpp-operators"].bindirs = []
-        self.cpp_info.components["_taocpp-operators"].libdirs = []

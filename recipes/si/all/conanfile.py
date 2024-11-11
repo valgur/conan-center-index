@@ -85,5 +85,3 @@ class SiConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "SI")
         self.cpp_info.set_property("cmake_target_name", "SI::SI")
 
-        self.cpp_info.names["cmake_find_package"] = "SI"
-        self.cpp_info.names["cmake_find_package_multi"] = "SI"

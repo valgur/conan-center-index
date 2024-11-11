@@ -74,21 +74,4 @@ class OpenDisConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_module_file_name", "OpenDIS")
         self.cpp_info.set_property("cmake_file_name", "OpenDIS")
-
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["OpenDIS6"].libs = ["OpenDIS6"]
-        self.cpp_info.components["OpenDIS7"].libs = ["OpenDIS7"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "OpenDIS"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "OpenDIS"
-        self.cpp_info.names["cmake_find_package"] = "OpenDIS"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenDIS"
-        self.cpp_info.components["OpenDIS6"].names["cmake_find_package"] = "OpenDIS6"
-        self.cpp_info.components["OpenDIS6"].names["cmake_find_package_multi"] = "OpenDIS6"
-        self.cpp_info.components["OpenDIS6"].set_property("cmake_target_name", "OpenDIS::OpenDIS6")
-        self.cpp_info.components["OpenDIS6"].set_property("cmake_target_aliases", ["OpenDIS::DIS6","OpenDIS6"])
-        self.cpp_info.components["OpenDIS7"].names["cmake_find_package"] = "OpenDIS7"
-        self.cpp_info.components["OpenDIS7"].names["cmake_find_package_multi"] = "OpenDIS7"
-        self.cpp_info.components["OpenDIS7"].set_property("cmake_target_name", "OpenDIS::OpenDIS7")
-        self.cpp_info.components["OpenDIS7"].set_property("cmake_target_aliases", ["OpenDIS::DIS7","OpenDIS7"])
+        self.cpp_info.libs = ["OpenDIS6", "OpenDIS7"]

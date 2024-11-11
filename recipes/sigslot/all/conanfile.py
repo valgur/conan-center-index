@@ -65,20 +65,10 @@ class SigslotConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "PalSigslot")
         self.cpp_info.set_property("cmake_target_name", "Pal::Sigslot")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_sigslot"].bindirs = []
-        self.cpp_info.components["_sigslot"].libdirs = []
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_sigslot"].system_libs.append("pthread")
+            self.cpp_info.system_libs.append("pthread")
         elif self.settings.os == "Windows":
             if is_msvc(self) or self.settings.compiler == "clang":
-                self.cpp_info.components["_sigslot"].exelinkflags.append('-OPT:NOICF')
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "PalSigslot"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "PalSigslot"
-        self.cpp_info.names["cmake_find_package"] = "Pal"
-        self.cpp_info.names["cmake_find_package_multi"] = "Pal"
-        self.cpp_info.components["_sigslot"].names["cmake_find_package"] = "Sigslot"
-        self.cpp_info.components["_sigslot"].names["cmake_find_package_multi"] = "Sigslot"
-        self.cpp_info.components["_sigslot"].set_property("cmake_target_name", "Pal::Sigslot")
+                self.cpp_info.exelinkflags.append('-OPT:NOICF')

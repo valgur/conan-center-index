@@ -81,7 +81,3 @@ class FuseppConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
-
-        # TODO: Remove after Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "fusepp"
-        self.cpp_info.names["cmake_find_package_multi"] = "fusepp"

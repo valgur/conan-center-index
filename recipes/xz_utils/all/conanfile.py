@@ -205,8 +205,3 @@ class XZUtilsConan(ConanFile):
             self.cpp_info.defines.append("LZMA_API_STATIC")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "LibLZMA"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibLZMA"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

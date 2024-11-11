@@ -86,13 +86,3 @@ class DragonboxConan(ConanFile):
         self.cpp_info.components["_dragonbox"].set_property("cmake_target_name", "dragonbox::dragonbox")
         self.cpp_info.components["dragonbox_to_chars_headers"].set_property("cmake_target_name", "dragonbox::dragonbox_to_chars")
         self.cpp_info.components["dragonbox_to_chars_headers"].libs = ["dragonbox_to_chars"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "dragonbox"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "dragonbox"
-        self.cpp_info.names["cmake_find_package"] = "dragonbox"
-        self.cpp_info.names["cmake_find_package_multi"] = "dragonbox"
-        self.cpp_info.components["_dragonbox"].names["cmake_find_package"] = "dragonbox"
-        self.cpp_info.components["_dragonbox"].names["cmake_find_package_multi"] = "dragonbox"
-        self.cpp_info.components["dragonbox_to_chars_headers"].names["cmake_find_package"] = "dragonbox_to_chars"
-        self.cpp_info.components["dragonbox_to_chars_headers"].names["cmake_find_package_multi"] = "dragonbox_to_chars"

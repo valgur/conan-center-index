@@ -43,14 +43,3 @@ class TslArrayHashConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "tsl::array_hash")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "tsl-array-hash"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tsl-array-hash"
-        self.cpp_info.names["cmake_find_package"] = "tsl"
-        self.cpp_info.names["cmake_find_package_multi"] = "tsl"
-        self.cpp_info.components["array_hash"].names["cmake_find_package"] = "array_hash"
-        self.cpp_info.components["array_hash"].names["cmake_find_package_multi"] = "array_hash"
-        self.cpp_info.components["array_hash"].set_property("cmake_target_name", "tsl::array_hash")
-        self.cpp_info.components["array_hash"].bindirs = []
-        self.cpp_info.components["array_hash"].libdirs = []

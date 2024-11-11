@@ -5,7 +5,6 @@ from conan.tools.layout import basic_layout
 from conan.tools.apple import XCRun
 from conan.tools.files import copy, get, replace_in_file, rmdir, rm
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -29,7 +28,7 @@ class GccConan(ConanFile):
         if self.settings.compiler in ["clang", "apple-clang"]:
             # Can't remove this from cxxflags with autotools - so get rid of it
             del self.settings.compiler.libcxx
-            
+
         # https://github.com/gcc-mirror/gcc/blob/6b5248d15c6d10325c6cbb92a0e0a9eb04e3f122/libcody/configure#L2505C11-L2505C25
         del self.settings.compiler.cppstd
 
@@ -76,11 +75,6 @@ class GccConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def generate(self):
-        # Ensure binutils and flex are on the path.
-        # TODO: Remove when conan 2.0 is released as this will be default behaviour
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--enable-languages=c,c++,fortran")
         tc.configure_args.append("--disable-nls")
@@ -181,11 +175,3 @@ class GccConan(ConanFile):
         ranlib = os.path.join(bindir, f"gcc-ranlib-{self.version}")
         self.output.info("Creating RANLIB env var with: " + ranlib)
         self.buildenv_info.define("RANLIB", ranlib)
-
-        # TODO: Remove after conan 2.0 is released
-        self.env_info.CC = cc
-        self.env_info.CXX = cxx
-        self.env_info.FC = fc
-        self.env_info.AR = ar
-        self.env_info.NM = nm
-        self.env_info.RANLIB = ranlib

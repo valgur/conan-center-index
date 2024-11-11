@@ -122,9 +122,6 @@ class OdbcConan(ConanFile):
         # to avoid conflict with pkgconfig file of _odbc component
         self.cpp_info.set_property("pkg_config_name", "odbc_full_package")
 
-        self.cpp_info.names["cmake_find_package"] = "ODBC"
-        self.cpp_info.names["cmake_find_package_multi"] = "ODBC"
-
         # odbc
         self.cpp_info.components["_odbc"].set_property("pkg_config_name", "odbc")
         self.cpp_info.components["_odbc"].libs = ["odbc"]
@@ -144,6 +141,3 @@ class OdbcConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_odbc"].system_libs = ["pthread"]
             self.cpp_info.components["odbcinst"].system_libs = ["pthread"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

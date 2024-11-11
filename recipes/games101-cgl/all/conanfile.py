@@ -83,9 +83,3 @@ class Games101CglConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "games101-cgl")
         self.cpp_info.set_property("cmake_target_name", "games101-cgl::games101-cgl")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "games101-cgl"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "games101-cgl"
-        self.cpp_info.names["cmake_find_package"] = "games101-cgl"
-        self.cpp_info.names["cmake_find_package_multi"] = "games101-cgl"

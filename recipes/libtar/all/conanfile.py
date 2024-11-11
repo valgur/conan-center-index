@@ -100,6 +100,3 @@ class LibTarConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["tar"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

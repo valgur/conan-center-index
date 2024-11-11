@@ -49,7 +49,7 @@ class ProtobufConan(ConanFile):
     @property
     def _is_clang_x86(self):
         return self.settings.compiler == "clang" and self.settings.arch == "x86"
-    
+
     @property
     def _protobuf_release(self):
         current_ver = Version(self.version)
@@ -93,7 +93,7 @@ class ProtobufConan(ConanFile):
     def validate(self):
         if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Protobuf can't be built with shared + MT(d) runtimes")
-        
+
         if is_msvc(self) and self._protobuf_release >= "22" and self.options.shared and \
             not self.dependencies["abseil"].options.shared:
             raise ConanInvalidConfiguration("When building protobuf as a shared library on Windows, "
@@ -109,7 +109,7 @@ class ProtobufConan(ConanFile):
                     raise ConanInvalidConfiguration(
                         f"{self.ref} requires C++14, which your compiler does not support.",
                     )
-        
+
         check_min_vs(self, "190")
 
         if self.settings.compiler == "clang":
@@ -259,7 +259,7 @@ class ProtobufConan(ConanFile):
         self.cpp_info.components["libprotobuf"].libs = [lib_prefix + "protobuf" + lib_suffix]
         if self.options.with_zlib:
             self.cpp_info.components["libprotobuf"].requires = ["zlib::zlib"]
-        if self._protobuf_release >= "22.0":     
+        if self._protobuf_release >= "22.0":
             self.cpp_info.components["libprotobuf"].requires.extend(absl_deps)
             if not self.options.shared:
                 self.cpp_info.components["libprotobuf"].requires.extend(["utf8_validity"])
@@ -299,14 +299,3 @@ class ProtobufConan(ConanFile):
                 self.cpp_info.components["libprotobuf-lite"].system_libs.append("log")
             if self._protobuf_release >= "22.0":
                 self.cpp_info.components["libprotobuf-lite"].requires.extend(absl_deps)
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Protobuf"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "protobuf"
-        self.cpp_info.names["pkg_config"] ="protobuf_full_package"
-        for generator in ["cmake_find_package", "cmake_find_package_multi"]:
-            self.cpp_info.components["libprotobuf"].build_modules[generator] = build_modules
-        if self.options.lite:
-            for generator in ["cmake_find_package", "cmake_find_package_multi"]:
-                self.cpp_info.components["libprotobuf-lite"].build_modules[generator] = build_modules
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

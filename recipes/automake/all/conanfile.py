@@ -116,13 +116,7 @@ class AutomakeConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = ["res"]
 
-        # For consumers with new integrations (Conan 1 and 2 compatible):
         compile_wrapper = os.path.join(self._automake_libdir, "compile")
         lib_wrapper = os.path.join(self._automake_libdir, "ar-lib")
         self.conf_info.define("user.automake:compile-wrapper", compile_wrapper)
         self.conf_info.define("user.automake:lib-wrapper", lib_wrapper)
-
-        # For legacy Conan 1.x consumers only:
-        self.user_info.compile = compile_wrapper
-        self.user_info.ar_lib = lib_wrapper
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

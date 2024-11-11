@@ -76,6 +76,3 @@ class BreakpadConan(ConanFile):
 
         # workaround to always produce a global pkgconfig file for PkgConfigDeps
         self.cpp_info.set_property("pkg_config_name", "breakpad-do-not-use")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

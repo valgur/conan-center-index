@@ -161,44 +161,16 @@ class MinizipNgConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "MINIZIP::minizip")
         self.cpp_info.set_property("pkg_config_name", "minizip")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         prefix = "lib" if is_msvc(self) or self._is_clang_cl else ""
         suffix = "" if self.options.mz_compatibility else "-ng"
-        self.cpp_info.components["minizip"].libs = [f"{prefix}minizip{suffix}"]
+        self.cpp_info.libs = [f"{prefix}minizip{suffix}"]
         if self.options.with_lzma:
-            self.cpp_info.components["minizip"].defines.append("HAVE_LZMA")
+            self.cpp_info.defines.append("HAVE_LZMA")
         if is_apple_os(self) and self.options.get_safe("with_libcomp"):
-            self.cpp_info.components["minizip"].defines.append("HAVE_LIBCOMP")
+            self.cpp_info.defines.append("HAVE_LIBCOMP")
         if self.options.with_bzip2:
-            self.cpp_info.components["minizip"].defines.append("HAVE_BZIP2")
+            self.cpp_info.defines.append("HAVE_BZIP2")
 
         if Version(self.version) >= "4.0.0":
             minizip_dir = "minizip" if self.options.mz_compatibility else "minizip-ng"
-            self.cpp_info.components["minizip"].includedirs.append(os.path.join(self.package_folder, "include", minizip_dir))
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "minizip"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "minizip"
-        self.cpp_info.names["cmake_find_package"] = "MINIZIP"
-        self.cpp_info.names["cmake_find_package_multi"] = "MINIZIP"
-        self.cpp_info.components["minizip"].names["cmake_find_package"] = "minizip"
-        self.cpp_info.components["minizip"].names["cmake_find_package_multi"] = "minizip"
-        self.cpp_info.components["minizip"].set_property("cmake_target_name", "MINIZIP::minizip")
-        self.cpp_info.components["minizip"].set_property("pkg_config_name", "minizip")
-        if self.options.get_safe("with_zlib"):
-            self.cpp_info.components["minizip"].requires.append("zlib::zlib")
-        if self.options.with_bzip2:
-            self.cpp_info.components["minizip"].requires.append("bzip2::bzip2")
-        if self.options.with_lzma:
-            self.cpp_info.components["minizip"].requires.append("xz_utils::xz_utils")
-        if self.options.with_zstd:
-            self.cpp_info.components["minizip"].requires.append("zstd::zstd")
-        if self.options.with_openssl:
-            self.cpp_info.components["minizip"].requires.append("openssl::openssl")
-        elif is_apple_os(self):
-            self.cpp_info.components["minizip"].frameworks.extend(["CoreFoundation", "Security"])
-        elif self.settings.os == "Windows":
-            self.cpp_info.components["minizip"].system_libs.append("crypt32")
-        if self.settings.os != "Windows" and self.options.with_iconv:
-            self.cpp_info.components["minizip"].requires.append("libiconv::libiconv")
-
+            self.cpp_info.includedirs.append(os.path.join(self.package_folder, "include", minizip_dir))

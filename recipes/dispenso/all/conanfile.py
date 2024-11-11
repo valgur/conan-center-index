@@ -78,10 +78,6 @@ class DispensoPackage(ConanFile):
         if self.settings.os == "Windows":
             tc.preprocessor_definitions["NOMINMAX"] = 1
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = 1
-        if self.settings.get_safe("compiler.cppstd") is None:
-            # TODO: Remove once Conan 1 is deprecated, this is needed so apple-clang
-            # can compile, as it defaults to C++98
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

@@ -264,6 +264,3 @@ class SDLMixerConan(ConanFile):
             self.cpp_info.frameworks.extend(["AudioToolbox", "AudioUnit", "CoreServices", "CoreGraphics", "CoreFoundation"])
             if self.settings.os == "Macos":
                 self.cpp_info.frameworks.append("AppKit")
-
-        self.cpp_info.names["cmake_find_package"] = "SDL2_mixer"
-        self.cpp_info.names["cmake_find_package_multi"] = "SDL2_mixer"

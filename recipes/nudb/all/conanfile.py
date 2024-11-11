@@ -57,10 +57,4 @@ class NudbConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
 
         self.cpp_info.components["core"].set_property("cmake_target_name", "nudb")
-        self.cpp_info.components["core"].names["cmake_find_package"] = "nudb"
-        self.cpp_info.components["core"].names["cmake_find_package_multi"] = "nudb"
         self.cpp_info.components["core"].requires = ["boost::thread", "boost::system"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "NuDB"
-        self.cpp_info.names["cmake_find_package_multi"] = "NuDB"

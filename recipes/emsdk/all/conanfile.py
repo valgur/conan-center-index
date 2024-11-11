@@ -176,17 +176,3 @@ class EmSDKConan(ConanFile):
             os.path.join("bin", "upstream", "emscripten", "tests", "cmake", "target_library"),
             os.path.join("bin", "upstream", "lib", "cmake", "llvm"),
         ]
-
-        if Version(conan_version).major < 2:
-            self.env_info.PATH.extend(self._paths)
-            self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = toolchain
-            self.env_info.EMSDK = self._emsdk
-            self.env_info.EMSCRIPTEN = self._emscripten
-            self.env_info.EM_CONFIG = self._em_config
-            self.env_info.EM_CACHE = self._em_cache
-            self.env_info.CC = compiler_executables["c"]
-            self.env_info.CXX = compiler_executables["cpp"]
-            self.env_info.AR = self._define_tool_var("emar")
-            self.env_info.NM = self._define_tool_var("emnm")
-            self.env_info.RANLIB = self._define_tool_var("emranlib")
-            self.env_info.STRIP = self._define_tool_var("emstrip")

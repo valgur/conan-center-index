@@ -187,8 +187,3 @@ class GfCompleteConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
-
-        if not is_msvc(self):
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bin_path}")
-            self.env_info.PATH.append(bin_path)

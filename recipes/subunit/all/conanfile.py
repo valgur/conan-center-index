@@ -158,6 +158,3 @@ class SubunitConan(ConanFile):
         self.cpp_info.components["libcppunit_subunit"].libs = ["cppunit_subunit"]
         self.cpp_info.components["libcppunit_subunit"].requires = ["cppunit::cppunit"]
         self.cpp_info.components["libcppunit_subunit"].set_property("pkg_config_name", "libcppunit_subunit")
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

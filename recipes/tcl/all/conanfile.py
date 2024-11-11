@@ -243,11 +243,3 @@ class TclConan(ConanFile):
         tclsh_list = list(filter(lambda fn: fn.startswith("tclsh"), os.listdir(os.path.join(self.package_folder, "bin"))))
         tclsh = os.path.join(self.package_folder, "bin", tclsh_list[0])
         self.runenv_info.define_path("TCLSH", tclsh)
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "TCL"
-        self.cpp_info.names["cmake_find_package_multi"] = "TCL"
-        self.env_info.TCL_LIBRARY = tcl_library
-        self.env_info.TCL_ROOT = tcl_root
-        self.env_info.TCLSH = tclsh
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

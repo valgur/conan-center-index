@@ -161,7 +161,3 @@ class LibIdnConan(ConanFile):
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.defines = ["LIBIDN_STATIC"]
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

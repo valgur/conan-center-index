@@ -89,16 +89,3 @@ class OneDplConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "pstl::ParallelSTL")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "ParallelSTL"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ParallelSTL"
-        self.cpp_info.names["cmake_find_package"] = "pstl"
-        self.cpp_info.names["cmake_find_package_multi"] = "pstl"
-        self.cpp_info.components["_onedpl"].names["cmake_find_package"] = "ParallelSTL"
-        self.cpp_info.components["_onedpl"].names["cmake_find_package_multi"] = "ParallelSTL"
-        self.cpp_info.components["_onedpl"].set_property("cmake_target_name", "pstl::ParallelSTL")
-        self.cpp_info.components["_onedpl"].bindirs = []
-        self.cpp_info.components["_onedpl"].libdirs = []
-        if self.options.backend == "tbb":
-            self.cpp_info.components["_onedpl"].requires = ["onetbb::onetbb"]

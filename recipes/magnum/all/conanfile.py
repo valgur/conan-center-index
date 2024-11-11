@@ -438,8 +438,6 @@ class MagnumConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Magnum")
-        self.cpp_info.names["cmake_find_package"] = "Magnum"
-        self.cpp_info.names["cmake_find_package_multi"] = "Magnum"
 
         magnum_plugin_libdir = "magnum-d" if self.settings.build_type == "Debug" and self.options.shared_plugins else "magnum"
         plugin_lib_suffix = "-d" if self.settings.build_type == "Debug" and not self.options.shared_plugins else ""
@@ -453,18 +451,13 @@ class MagnumConan(ConanFile):
 
         # Magnum contains just the main library
         self.cpp_info.components["magnum_main"].set_property("cmake_target_name", "Magnum::Magnum")
-        self.cpp_info.components["magnum_main"].names["cmake_find_package"] = "Magnum"
-        self.cpp_info.components["magnum_main"].names["cmake_find_package_multi"] = "Magnum"
         self.cpp_info.components["magnum_main"].libs = ["Magnum{}".format(lib_suffix)]
         self.cpp_info.components["magnum_main"].requires = ["_magnum", "corrade::utility"]
         build_modules.append(os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake"))
-        self.cpp_info.components["magnum_main"].build_modules["cmake_find_package"].append(os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake"))
 
         # Audio
         if self.options.audio:
             self.cpp_info.components["audio"].set_property("cmake_target_name", "Magnum::Audio")
-            self.cpp_info.components["audio"].names["cmake_find_package"] = "Audio"
-            self.cpp_info.components["audio"].names["cmake_find_package_multi"] = "Audio"
             self.cpp_info.components["audio"].libs = ["MagnumAudio{}".format(lib_suffix)]
             self.cpp_info.components["audio"].requires = ["magnum_main", "corrade::plugin_manager", "openal::openal"]
             if self.options.scene_graph:
@@ -473,8 +466,6 @@ class MagnumConan(ConanFile):
         # DebugTools
         if self.options.debug_tools:
             self.cpp_info.components["debug_tools"].set_property("cmake_target_name", "Magnum::DebugTools")
-            self.cpp_info.components["debug_tools"].names["cmake_find_package"] = "DebugTools"
-            self.cpp_info.components["debug_tools"].names["cmake_find_package_multi"] = "DebugTools"
             self.cpp_info.components["debug_tools"].libs = ["MagnumDebugTools{}".format(lib_suffix)]
             self.cpp_info.components["debug_tools"].requires = ["magnum_main"]
             if self.options["corrade"].with_testsuite and self.options.trade:
@@ -483,56 +474,42 @@ class MagnumConan(ConanFile):
         # GL
         if self.options.gl:
             self.cpp_info.components["gl"].set_property("cmake_target_name", "Magnum::GL")
-            self.cpp_info.components["gl"].names["cmake_find_package"] = "GL"
-            self.cpp_info.components["gl"].names["cmake_find_package_multi"] = "GL"
             self.cpp_info.components["gl"].libs = ["MagnumGL{}".format(lib_suffix)]
             self.cpp_info.components["gl"].requires = ["magnum_main", "opengl::opengl"]
 
         # MeshTools
         if self.options.mesh_tools:
             self.cpp_info.components["mesh_tools"].set_property("cmake_target_name", "Magnum::MeshTools")
-            self.cpp_info.components["mesh_tools"].names["cmake_find_package"] = "MeshTools"
-            self.cpp_info.components["mesh_tools"].names["cmake_find_package_multi"] = "MeshTools"
             self.cpp_info.components["mesh_tools"].libs = ["MagnumMeshTools{}".format(lib_suffix)]
             self.cpp_info.components["mesh_tools"].requires = ["magnum_main", "trade", "gl"]
 
         # Primitives
         if self.options.primitives:
             self.cpp_info.components["primitives"].set_property("cmake_target_name", "Magnum::Primitives")
-            self.cpp_info.components["primitives"].names["cmake_find_package"] = "Primitives"
-            self.cpp_info.components["primitives"].names["cmake_find_package_multi"] = "Primitives"
             self.cpp_info.components["primitives"].libs = ["MagnumPrimitives{}".format(lib_suffix)]
             self.cpp_info.components["primitives"].requires = ["magnum_main", "mesh_tools", "trade"]
 
         # SceneGraph
         if self.options.scene_graph:
             self.cpp_info.components["scene_graph"].set_property("cmake_target_name", "Magnum::SceneGraph")
-            self.cpp_info.components["scene_graph"].names["cmake_find_package"] = "SceneGraph"
-            self.cpp_info.components["scene_graph"].names["cmake_find_package_multi"] = "SceneGraph"
             self.cpp_info.components["scene_graph"].libs = ["MagnumSceneGraph{}".format(lib_suffix)]
             self.cpp_info.components["scene_graph"].requires = ["magnum_main"]
 
         # Shaders
         if self.options.shaders:
             self.cpp_info.components["shaders"].set_property("cmake_target_name", "Magnum::Shaders")
-            self.cpp_info.components["shaders"].names["cmake_find_package"] = "Shaders"
-            self.cpp_info.components["shaders"].names["cmake_find_package_multi"] = "Shaders"
             self.cpp_info.components["shaders"].libs = ["MagnumShaders{}".format(lib_suffix)]
             self.cpp_info.components["shaders"].requires = ["magnum_main", "gl"]
 
         # Text
         if self.options.text:
             self.cpp_info.components["text"].set_property("cmake_target_name", "Magnum::Text")
-            self.cpp_info.components["text"].names["cmake_find_package"] = "Text"
-            self.cpp_info.components["text"].names["cmake_find_package_multi"] = "Text"
             self.cpp_info.components["text"].libs = ["MagnumText{}".format(lib_suffix)]
             self.cpp_info.components["text"].requires = ["magnum_main", "texture_tools", "corrade::plugin_manager", "gl"]
 
         # TextureTools
         if self.options.texture_tools:
             self.cpp_info.components["texture_tools"].set_property("cmake_target_name", "Magnum::TextureTools")
-            self.cpp_info.components["texture_tools"].names["cmake_find_package"] = "TextureTools"
-            self.cpp_info.components["texture_tools"].names["cmake_find_package_multi"] = "TextureTools"
             self.cpp_info.components["texture_tools"].libs = ["MagnumTextureTools{}".format(lib_suffix)]
             self.cpp_info.components["texture_tools"].requires = ["magnum_main"]
             if self.options.gl:
@@ -541,16 +518,12 @@ class MagnumConan(ConanFile):
         # Trade
         if self.options.trade:
             self.cpp_info.components["trade"].set_property("cmake_target_name", "Magnum::Trade")
-            self.cpp_info.components["trade"].names["cmake_find_package"] = "Trade"
-            self.cpp_info.components["trade"].names["cmake_find_package_multi"] = "Trade"
             self.cpp_info.components["trade"].libs = ["MagnumTrade{}".format(lib_suffix)]
             self.cpp_info.components["trade"].requires = ["magnum_main", "corrade::plugin_manager"]
 
         # VK
         if self.options.vk:
             self.cpp_info.components["vk"].set_property("cmake_target_name", "Magnum::Vk")
-            self.cpp_info.components["vk"].names["cmake_find_package"] = "Vk"
-            self.cpp_info.components["vk"].names["cmake_find_package_multi"] = "Vk"
             self.cpp_info.components["vk"].libs = ["MagnumVk{}".format(lib_suffix)]
             self.cpp_info.components["vk"].requires = ["magnum_main", "vulkan-loader::vulkan-loader"]
 
@@ -567,15 +540,11 @@ class MagnumConan(ConanFile):
 
         if self.options.get_safe("glx_application", False):
             self.cpp_info.components["glx_application"].set_property("cmake_target_name", "Magnum::GlxApplication")
-            self.cpp_info.components["glx_application"].names["cmake_find_package"] = "GlxApplication"
-            self.cpp_info.components["glx_application"].names["cmake_find_package_multi"] = "GlxApplication"
             self.cpp_info.components["glx_application"].libs = ["MagnumGlxApplication{}".format(lib_suffix)]
             self.cpp_info.components["glx_application"].requires = ["gl"]  # TODO: Add x11
 
         if self.options.glfw_application:
             self.cpp_info.components["glfw_application"].set_property("cmake_target_name", "Magnum::GlfwApplication")
-            self.cpp_info.components["glfw_application"].names["cmake_find_package"] = "GlfwApplication"
-            self.cpp_info.components["glfw_application"].names["cmake_find_package_multi"] = "GlfwApplication"
             self.cpp_info.components["glfw_application"].libs = ["MagnumGlfwApplication{}".format(lib_suffix)]
             self.cpp_info.components["glfw_application"].requires = ["magnum_main", "glfw::glfw"]
             if self.options.target_gl:
@@ -583,8 +552,6 @@ class MagnumConan(ConanFile):
 
         if self.options.sdl2_application:
             self.cpp_info.components["sdl2_application"].set_property("cmake_target_name", "Magnum::Sdl2Application")
-            self.cpp_info.components["sdl2_application"].names["cmake_find_package"] = "Sdl2Application"
-            self.cpp_info.components["sdl2_application"].names["cmake_find_package_multi"] = "Sdl2Application"
             self.cpp_info.components["sdl2_application"].libs = ["MagnumSdl2Application{}".format(lib_suffix)]
             self.cpp_info.components["sdl2_application"].requires = ["magnum_main", "sdl::sdl"]
             if self.options.target_gl:
@@ -592,36 +559,26 @@ class MagnumConan(ConanFile):
 
         if self.options.get_safe("xegl_application", False):
             self.cpp_info.components["xegl_application"].set_property("cmake_target_name", "Magnum::XEglApplication")
-            self.cpp_info.components["xegl_application"].names["cmake_find_package"] = "XEglApplication"
-            self.cpp_info.components["xegl_application"].names["cmake_find_package_multi"] = "XEglApplication"
             self.cpp_info.components["xegl_application"].libs = ["MagnumXEglApplication{}".format(lib_suffix)]
             self.cpp_info.components["xegl_application"].requires = ["gl", "egl::egl"] # TODO: Add x11
 
         if self.options.get_safe("windowless_cgl_application", False):
             self.cpp_info.components["windowless_cgl_application"].set_property("cmake_target_name", "Magnum::WindowlessCglApplication")
-            self.cpp_info.components["windowless_cgl_application"].names["cmake_find_package"] = "WindowlessCglApplication"
-            self.cpp_info.components["windowless_cgl_application"].names["cmake_find_package_multi"] = "WindowlessCglApplication"
             self.cpp_info.components["windowless_cgl_application"].libs = ["MagnumWindowlessCglApplication{}".format(lib_suffix)]
             self.cpp_info.components["windowless_cgl_application"].requires = ["gl"]
 
         if self.options.get_safe("windowless_egl_application", False):
             self.cpp_info.components["windowless_egl_application"].set_property("cmake_target_name", "Magnum::WindowlessEglApplication")
-            self.cpp_info.components["windowless_egl_application"].names["cmake_find_package"] = "WindowlessEglApplication"
-            self.cpp_info.components["windowless_egl_application"].names["cmake_find_package_multi"] = "WindowlessEglApplication"
             self.cpp_info.components["windowless_egl_application"].libs = ["MagnumWindowlessEglApplication{}".format(lib_suffix)]
             self.cpp_info.components["windowless_egl_application"].requires = ["gl", "egl::egl"]
 
         if self.options.get_safe("windowless_glx_application", False):
             self.cpp_info.components["windowless_glx_application"].set_property("cmake_target_name", "Magnum::WindowlessGlxApplication")
-            self.cpp_info.components["windowless_glx_application"].names["cmake_find_package"] = "WindowlessGlxApplication"
-            self.cpp_info.components["windowless_glx_application"].names["cmake_find_package_multi"] = "WindowlessGlxApplication"
             self.cpp_info.components["windowless_glx_application"].libs = ["MagnumWindowlessGlxApplication{}".format(lib_suffix)]
             self.cpp_info.components["windowless_glx_application"].requires = ["gl"]  # TODO: Add x11
 
         if self.options.get_safe("windowless_wgl_application", False):
             self.cpp_info.components["windowless_wgl_application"].set_property("cmake_target_name", "Magnum::WindowlessWglApplication")
-            self.cpp_info.components["windowless_wgl_application"].names["cmake_find_package"] = "WindowlessWglApplication"
-            self.cpp_info.components["windowless_wgl_application"].names["cmake_find_package_multi"] = "WindowlessWglApplication"
             self.cpp_info.components["windowless_wgl_application"].libs = ["MagnumWindowlessWglApplication{}".format(lib_suffix)]
             self.cpp_info.components["windowless_wgl_application"].requires = ["gl"]
 
@@ -629,36 +586,26 @@ class MagnumConan(ConanFile):
             raise Exception("Recipe doesn't define this component")
 
         # # If there is only one application, here it is an alias
-        # self.cpp_info.components["application"].names["cmake_find_package"] = "Application"
-        # self.cpp_info.components["application"].names["cmake_find_package_multi"] = "Application"
         # self.cpp_info.components["application"].requires = ["sdl2_application"]
 
         #### CONTEXTS ####
         if self.options.get_safe("cgl_context", False):
             self.cpp_info.components["cgl_context"].set_property("cmake_target_name", "Magnum::CglContext")
-            self.cpp_info.components["cgl_context"].names["cmake_find_package"] = "CglContext"
-            self.cpp_info.components["cgl_context"].names["cmake_find_package_multi"] = "CglContext"
             self.cpp_info.components["cgl_context"].libs = ["MagnumCglContext{}".format(lib_suffix)]
             self.cpp_info.components["cgl_context"].requires = ["gl"]
 
         if self.options.get_safe("egl_context", False):
             self.cpp_info.components["egl_context"].set_property("cmake_target_name", "Magnum::EglContext")
-            self.cpp_info.components["egl_context"].names["cmake_find_package"] = "EglContext"
-            self.cpp_info.components["egl_context"].names["cmake_find_package_multi"] = "EglContext"
             self.cpp_info.components["egl_context"].libs = ["MagnumEglContext{}".format(lib_suffix)]
             self.cpp_info.components["egl_context"].requires = ["gl", "egl::egl"]
 
         if self.options.glx_context:
             self.cpp_info.components["glx_context"].set_property("cmake_target_name", "Magnum::GlxContext")
-            self.cpp_info.components["glx_context"].names["cmake_find_package"] = "GlxContext"
-            self.cpp_info.components["glx_context"].names["cmake_find_package_multi"] = "GlxContext"
             self.cpp_info.components["glx_context"].libs = ["MagnumGlxContext{}".format(lib_suffix)]
             self.cpp_info.components["glx_context"].requires = ["gl"]
 
         if self.options.get_safe("wgl_context", False):
             self.cpp_info.components["wgl_context"].set_property("cmake_target_name", "Magnum::WglContext")
-            self.cpp_info.components["wgl_context"].names["cmake_find_package"] = "WglContext"
-            self.cpp_info.components["wgl_context"].names["cmake_find_package_multi"] = "WglContext"
             self.cpp_info.components["wgl_context"].libs = ["MagnumWglContext{}".format(lib_suffix)]
             self.cpp_info.components["wgl_context"].requires = ["gl"]
 
@@ -666,8 +613,6 @@ class MagnumConan(ConanFile):
         ######## PLUGINS ########
         for component, target, library, folder, deps in self._plugins:
             self.cpp_info.components[component].set_property("cmake_target_name", f"Magnum::{target}")
-            self.cpp_info.components[component].names["cmake_find_package"] = target
-            self.cpp_info.components[component].names["cmake_find_package_multi"] = target
             self.cpp_info.components[component].libs = ["{}{}".format(library, plugin_lib_suffix)]
             self.cpp_info.components[component].libdirs = [os.path.join(self.package_folder, "lib", magnum_plugin_libdir, folder)]
             self.cpp_info.components[component].requires = deps
@@ -678,13 +623,9 @@ class MagnumConan(ConanFile):
         self.user_info.plugins_basepath = os.path.join(self.package_folder, plugin_dir, magnum_plugin_libdir)
 
         #### EXECUTABLES ####
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
-
         for executable in self._executables:
-            build_modules.append(os.path.join("lib", "cmake", "conan-magnum-{}.cmake".format(executable)))
-            self.cpp_info.components["_magnum"].build_modules.append(os.path.join("lib", "cmake", "conan-magnum-{}.cmake".format(executable)))
+            build_modules.append(os.path.join("lib", "cmake", f"conan-magnum-{executable}.cmake"))
+            self.cpp_info.components["_magnum"].build_modules.append(os.path.join("lib", "cmake", f"conan-magnum-{executable}.cmake"))
 
         # build modules for CMakeDeps
         self.cpp_info.set_property("cmake_build_modules", build_modules)

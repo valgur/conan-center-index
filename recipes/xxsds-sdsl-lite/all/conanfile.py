@@ -59,7 +59,3 @@ class XXSDSSDSLLite(ConanFile):
 
         if is_msvc(self):
             self.cpp_info.defines.append("MSVC_COMPILER")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "sdsl-lite"
-        self.cpp_info.names["cmake_find_package_multi"] = "sdsl-lite"

@@ -284,24 +284,9 @@ class BehaviorTreeCPPConan(ConanFile):
             requires.append("zeromq::zeromq")
 
         postfix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components[libname].libs = [f"{libname}{postfix}"]
-        self.cpp_info.components[libname].requires = requires
+        self.cpp_info.libs = [f"{libname}{postfix}"]
+        self.cpp_info.requires = requires
         if self.settings.os in ("Linux", "FreeBSD"):
-            self.cpp_info.components[libname].system_libs.extend(["pthread", "dl"])
-        if Version(self.version) >= "4.0" and \
-            self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
-            self.cpp_info.components[libname].system_libs.append("stdc++fs")
-
-        if self.options.with_tools:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.env_info.PATH.append(bin_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = cmake_file_name
-        self.cpp_info.filenames["cmake_find_package_multi"] = cmake_file_name
-        self.cpp_info.names["cmake_find_package"] = "BT"
-        self.cpp_info.names["cmake_find_package_multi"] = "BT"
-        self.cpp_info.components[libname].names["cmake_find_package"] = libname
-        self.cpp_info.components[libname].names["cmake_find_package_multi"] = libname
-        self.cpp_info.components[libname].set_property("cmake_target_name", f"BT::{libname}")
+            self.cpp_info.system_libs.extend(["pthread", "dl"])
+        if Version(self.version) >= "4.0" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
+            self.cpp_info.system_libs.append("stdc++fs")

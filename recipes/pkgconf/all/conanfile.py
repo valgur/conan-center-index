@@ -128,8 +128,6 @@ class PkgConfConan(ConanFile):
             self.cpp_info.libdirs = []
 
         bindir = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bindir)
-
         exesuffix = ".exe" if self.settings.os == "Windows" else ""
         pkg_config = os.path.join(bindir, "pkgconf" + exesuffix).replace("\\", "/")
         self.buildenv_info.define_path("PKG_CONFIG", pkg_config)
@@ -138,8 +136,3 @@ class PkgConfConan(ConanFile):
         self.buildenv_info.prepend_path("ACLOCAL_PATH", pkgconf_aclocal)
         # TODO: evaluate if `ACLOCAL_PATH` is enough and we can stop using `AUTOMAKE_CONAN_INCLUDES`
         self.buildenv_info.prepend_path("AUTOMAKE_CONAN_INCLUDES", pkgconf_aclocal)
-
-        # TODO: remove in conanv2
-        automake_extra_includes = unix_path_package_info_legacy(self, pkgconf_aclocal.replace("\\", "/"))
-        self.env_info.PKG_CONFIG = pkg_config
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(automake_extra_includes)

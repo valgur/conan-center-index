@@ -83,7 +83,3 @@ class LibRHashConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "librhash")
         self.cpp_info.libs = ["rhash"]
         self.cpp_info.defines.append(f"RHASH_XVERSION={self._xversion}")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "LibRHash"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibRHash"

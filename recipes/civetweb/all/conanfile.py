@@ -187,11 +187,3 @@ class CivetwebConan(ConanFile):
             elif self.settings.os == "Windows":
                 if self.options.shared:
                     self.cpp_info.components["civetweb-cpp"].defines.append("CIVETWEB_CXX_DLL_IMPORTS")
-
-        # TODO: to remove once conan v1 support dropped
-        self.cpp_info.components["_civetweb"].names["cmake_find_package"] = "civetweb"
-        self.cpp_info.components["_civetweb"].names["cmake_find_package_multi"] = "civetweb"
-        if self.options.with_cxx:
-            self.cpp_info.components["civetweb-cpp"].names["cmake_find_package"] = "civetweb-cpp"
-            self.cpp_info.components["civetweb-cpp"].names["cmake_find_package_multi"] = "civetweb-cpp"
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

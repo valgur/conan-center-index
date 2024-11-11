@@ -93,5 +93,3 @@ class LibcudacxxConan(ConanFile):
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
         module_path = os.path.join("lib", "cmake", "libcudacxx-config-official.cmake")
         self.cpp_info.set_property("cmake_build_modules", [module_path])
-        self.cpp_info.build_modules["cmake_find_package"] = [module_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [module_path]

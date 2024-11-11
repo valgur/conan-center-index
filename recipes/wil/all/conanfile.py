@@ -23,8 +23,8 @@ class WilConan(ConanFile):
     topics = ("win", "wil", "header-only")
     package_type = "header-library"
     # only arch is aplicable, windows library
-    settings = "os", "arch", "compiler", "build_type" 
-    
+    settings = "os", "arch", "compiler", "build_type"
+
     no_copy_source = True
 
     @property
@@ -33,7 +33,7 @@ class WilConan(ConanFile):
 
     @property
     def _compilers_minimum_version(self):
-        # About compiler version: https://github.com/microsoft/wil/issues/207#issuecomment-991722592 
+        # About compiler version: https://github.com/microsoft/wil/issues/207#issuecomment-991722592
         return {
             "Visual Studio": "15",
             "msvc": "191"
@@ -84,9 +84,3 @@ class WilConan(ConanFile):
         # https://github.com/microsoft/wil/blob/56e3e5aa79234f8de3ceeeaf05b715b823bc2cca/CMakeLists.txt#L53
         self.cpp_info.set_property("cmake_file_name", "wil")
         self.cpp_info.set_property("cmake_target_name", "WIL::WIL")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "wil"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "wil"
-        self.cpp_info.names["cmake_find_package"] = "WIL"
-        self.cpp_info.names["cmake_find_package_multi"] = "WIL"

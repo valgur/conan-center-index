@@ -61,11 +61,3 @@ class ProCxxBoostExSimdConan(ConanFile):
         # The original find_package() name here:
         self.cpp_info.components["SIMD"].set_property("cmake_target_name", "Boost::SIMD")
         self.cpp_info.components["SIMD"].requires = ["boost::headers"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Boost.SIMD"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Boost.SIMD"
-        self.cpp_info.names["cmake_find_package"] = "Boost"
-        self.cpp_info.names["cmake_find_package_multi"] = "Boost"
-        self.cpp_info.components["SIMD"].names["cmake_find_package"] = "SIMD"
-        self.cpp_info.components["SIMD"].names["cmake_find_package_multi"] = "SIMD"

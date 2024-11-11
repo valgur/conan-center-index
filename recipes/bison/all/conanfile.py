@@ -156,9 +156,3 @@ class BisonConan(ConanFile):
         # yacc is a shell script, so requires a shell (such as bash)
         yacc = os.path.join(self.package_folder, "bin", "yacc").replace("\\", "/")
         self.conf_info.define("user.bison:yacc", yacc)
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.CONAN_BISON_ROOT = self.package_folder.replace("\\", "/")
-        self.env_info.BISON_PKGDATADIR = pkgdir
-        self.user_info.YACC = yacc

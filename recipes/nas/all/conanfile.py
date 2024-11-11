@@ -149,6 +149,3 @@ class NasRecipe(ConanFile):
             "xorg::xcb",
             "xorg::xdmcp",
         ]
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.path.append(bin_path)

@@ -49,12 +49,8 @@ class ProtobufCConan(ConanFile):
 
     def build_requirements(self):
         # Since the package using protobuf-c will also need to use protoc (part of protobuf),
-        # we want to make sure the protobuf dep is visible, but the visible param is only available in v2
-        # TODO: Remove after dropping Conan 1.x
-        if conan_version >= Version("2"):
-            self.tool_requires("protobuf/3.21.9", visible=True)
-        else:
-            self.tool_requires("protobuf/3.21.9")
+        # we want to make sure the protobuf dep is visible.
+        self.tool_requires("protobuf/3.21.9", visible=True)
         if Version(self.version) >= "1.5.0":
             self.tool_requires("cmake/[>=3.19 <4]")
 
@@ -93,9 +89,6 @@ class ProtobufCConan(ConanFile):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
-        # TODO: This won't be needed once upstream PR (https://github.com/protobuf-c/protobuf-c/pull/555) gets merged
-        copy(self, "protobuf-c.cmake", dst=os.path.join(self.package_folder, self._cmake_install_base_path), src=self.export_sources_folder)
 
     def package_info(self):
         # upstream CMake config file name and target name matches the package name

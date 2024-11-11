@@ -87,4 +87,3 @@ class opengvConan(ConanFile):
         if self.options.with_python_bindings:
             opengv_dist_packages = os.path.join(self.package_folder, "lib", "python3", "dist-packages")
             self.runenv_info.prepend_path("PYTHONPATH", opengv_dist_packages)
-            self.env_info.PYTHONPATH.append(opengv_dist_packages) # remove in conan v2?

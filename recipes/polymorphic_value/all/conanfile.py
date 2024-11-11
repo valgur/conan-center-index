@@ -71,5 +71,3 @@ class PolymorphictValueConan(ConanFile):
         self.cpp_info.set_property(
             "cmake_target_name", "polymorphic_value::polymorphic_value")
 
-        self.cpp_info.names["cmake_find_package"] = "polymorphic_value"
-        self.cpp_info.names["cmake_find_package_multi"] = "polymorphic_value"

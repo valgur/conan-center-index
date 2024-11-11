@@ -14,9 +14,9 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/psyinf/gmtl"
     topics = ("linear-algebra", "collision", "vector", "matrix", "template", "math", "header-only")
-    settings = "os", "arch", "compiler", "build_type" 
-    no_copy_source = True 
-   
+    settings = "os", "arch", "compiler", "build_type"
+    no_copy_source = True
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -39,11 +39,9 @@ class PackageConan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.names["cmake_find_package"] = "gmtl"
-        self.cpp_info.names["cmake_find_package_multi"] = "gmtl"
-        
+
         self.cpp_info.set_property("cmake_file_name", "gmtl")
         self.cpp_info.set_property("cmake_target_name", "gmtl::gmtl")
         self.cpp_info.set_property("pkg_config_name", "gmtl")
 
-  
+

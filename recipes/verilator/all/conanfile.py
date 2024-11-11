@@ -179,11 +179,3 @@ class VerilatorConan(ConanFile):
 
         module_path = os.path.join("bin", "share", "verilator", "verilator-tools.cmake")
         self.cpp_info.set_property("cmake_build_modules", [module_path])
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(bindir)
-        self.env_info.VERILATOR_BIN = verilator_bin
-        self.env_info.VERILATOR_ROOT = self.package_folder
-        self.cpp_info.builddirs.append(os.path.join("bin", "share", "verilator"))
-        self.cpp_info.build_modules["cmake_find_package"].append(module_path)
-        self.cpp_info.build_modules["cmake_find_package_multi"].append(module_path)

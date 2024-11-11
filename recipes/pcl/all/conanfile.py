@@ -568,8 +568,6 @@ class PclConan(ConanFile):
 
         for name in sorted(self._enabled_components()):
             component = self.cpp_info.components[name]
-            component.names["cmake_find_package"] = name
-            component.names["cmake_find_package_multi"] = name
             component.set_property("cmake_file_name", name)
             component.set_property("cmake_module_file_name", name)
             component.set_property("cmake_target_name", f"PCL::{name}")
@@ -607,7 +605,3 @@ class PclConan(ConanFile):
                 common.system_libs.append("pthread")
         if self.settings.os == "Windows":
             common.system_libs.append("ws2_32")
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "PCL"
-        self.cpp_info.names["cmake_find_package_multi"] = "PCL"

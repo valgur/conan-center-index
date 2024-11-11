@@ -144,22 +144,14 @@ class ScnlibConan(ConanFile):
         target = "scn-header-only" if self.options.get_safe("header_only") else "scn"
         self.cpp_info.set_property("cmake_file_name", "scn")
         self.cpp_info.set_property("cmake_target_name", f"scn::{target}")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         if self.options.get_safe("header_only"):
-            self.cpp_info.components["_scnlib"].defines = ["SCN_HEADER_ONLY=1"]
+            self.cpp_info.defines = ["SCN_HEADER_ONLY=1"]
         else:
-            self.cpp_info.components["_scnlib"].defines = ["SCN_HEADER_ONLY=0"]
-            self.cpp_info.components["_scnlib"].libs = ["scn"]
-        self.cpp_info.components["_scnlib"].requires.append("fast_float::fast_float")
+            self.cpp_info.defines = ["SCN_HEADER_ONLY=0"]
+            self.cpp_info.libs = ["scn"]
+        self.cpp_info.requires.append("fast_float::fast_float")
         if Version(self.version) < "3.0":
-            self.cpp_info.components["_scnlib"].requires.append("simdutf::simdutf")
+            self.cpp_info.requires.append("simdutf::simdutf")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_scnlib"].system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "scn"
-        self.cpp_info.names["cmake_find_package_multi"] = "scn"
-        self.cpp_info.components["_scnlib"].names["cmake_find_package"] = target
-        self.cpp_info.components["_scnlib"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["_scnlib"].set_property("cmake_target_name", f"scn::{target}")
+            self.cpp_info.system_libs.append("m")

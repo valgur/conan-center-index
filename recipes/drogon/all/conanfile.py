@@ -178,22 +178,11 @@ class DrogonConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "Drogon")
+        self.cpp_info.set_property("cmake_target_name", "Drogon::Drogon")
+
         self.cpp_info.libs = ["drogon"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["rpcrt4", "ws2_32", "crypt32", "advapi32"])
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
             self.cpp_info.system_libs.append("stdc++fs")
-
-        if self.options.with_ctl:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bin_path}")
-            self.env_info.PATH.append(bin_path)
-
-        self.cpp_info.set_property("cmake_file_name", "Drogon")
-        self.cpp_info.set_property("cmake_target_name", "Drogon::Drogon")
-
-        # TODO: Remove after Conan 2.0
-        self.cpp_info.filenames["cmake_find_package"] = "Drogon"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Drogon"
-        self.cpp_info.names["cmake_find_package"] = "Drogon"
-        self.cpp_info.names["cmake_find_package_multi"] = "Drogon"

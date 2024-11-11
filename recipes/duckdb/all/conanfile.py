@@ -238,9 +238,3 @@ class DuckdbConan(ConanFile):
             self.cpp_info.system_libs.append("ws2_32")
             if Version(self.version) >= "0.10.0":
                 self.cpp_info.system_libs.extend(["rstrtmgr", "bcrypt"])
-
-
-        if self.options.with_shell:
-            binpath = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH env var: {binpath}")
-            self.env_info.PATH.append(binpath)

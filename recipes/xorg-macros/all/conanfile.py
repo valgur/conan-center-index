@@ -69,7 +69,6 @@ class XorgMacrosConan(ConanFile):
         rmdir(self, os.path.join(self._datarootdir, "util-macros"))
 
     def package_info(self):
-        self.cpp_info.names["pkg_config"] = "xorg-macros"
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.set_property("pkg_config_custom_content", textwrap.dedent("""\
@@ -85,7 +84,3 @@ class XorgMacrosConan(ConanFile):
 
         aclocal = os.path.join(self._datarootdir, "aclocal")
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal)
-
-        # TODO: remove once recipe only supports Conan >= 2.0 only
-        self.output.info("Appending AUTOMAKE_CONAN_INCLUDES environment variable: {}".format(aclocal))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, aclocal ))

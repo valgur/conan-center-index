@@ -250,8 +250,7 @@ class GLibConan(ConanFile):
         if self.options.get_safe("with_elf"):
             self.cpp_info.components["gresource"].requires.append("libelf::libelf")  # this is actually an executable
 
-        self.env_info.GLIB_COMPILE_SCHEMAS = os.path.join(self.package_folder, "bin", "glib-compile-schemas")
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+        self.buildenv_info.define_path("GLIB_COMPILE_SCHEMAS", os.path.join(self.package_folder, "bin", "glib-compile-schemas"))
 
         pkgconfig_variables = {
             'datadir': '${prefix}/res',

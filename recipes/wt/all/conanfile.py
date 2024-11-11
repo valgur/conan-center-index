@@ -384,38 +384,3 @@ class WtConan(ConanFile):
                 self.cpp_info.components["wtdbomssqlserver"].system_libs.append("odbc32")
             else:
                 self.cpp_info.components["wtdbomssqlserver"].requires.append("odbc::odbc")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "wt"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "wt"
-        self.cpp_info.names["cmake_find_package"] = "Wt"
-        self.cpp_info.names["cmake_find_package_multi"] = "Wt"
-        self.cpp_info.components["wtmain"].names["cmake_find_package"] = "Wt"
-        self.cpp_info.components["wtmain"].names["cmake_find_package_multi"] = "Wt"
-        if self.options.with_test:
-            self.cpp_info.components["wttest"].names["cmake_find_package"] = "Test"
-            self.cpp_info.components["wttest"].names["cmake_find_package_multi"] = "Test"
-        if self.options.connector_http:
-            self.cpp_info.components["wthttp"].names["cmake_find_package"] = "HTTP"
-            self.cpp_info.components["wthttp"].names["cmake_find_package_multi"] = "HTTP"
-        if self.options.get_safe("connector_isapi"):
-            self.cpp_info.components["wtisapi"].names["cmake_find_package"] = "Isapi"
-            self.cpp_info.components["wtisapi"].names["cmake_find_package_multi"] = "Isapi"
-        if self.options.get_safe("connector_fcgi"):
-            self.cpp_info.components["wtfcgi"].names["cmake_find_package"] = "FCGI"
-            self.cpp_info.components["wtfcgi"].names["cmake_find_package_multi"] = "FCGI"
-        if self.options.with_dbo:
-            self.cpp_info.components["wtdbo"].names["cmake_find_package"] = "Dbo"
-            self.cpp_info.components["wtdbo"].names["cmake_find_package_multi"] = "Dbo"
-        if self.options.get_safe("with_sqlite"):
-            self.cpp_info.components["wtdbosqlite3"].names["cmake_find_package"] = "DboSqlite3"
-            self.cpp_info.components["wtdbosqlite3"].names["cmake_find_package_multi"] = "DboSqlite3"
-        if self.options.get_safe("with_postgres"):
-            self.cpp_info.components["wtdbopostgres"].names["cmake_find_package"] = "DboPostgres"
-            self.cpp_info.components["wtdbopostgres"].names["cmake_find_package_multi"] = "DboPostgres"
-        if self.options.get_safe("with_mysql"):
-            self.cpp_info.components["wtdbomysql"].names["cmake_find_package"] = "DboMySQL"
-            self.cpp_info.components["wtdbomysql"].names["cmake_find_package_multi"] = "DboMySQL"
-        if self.options.get_safe("with_mssql"):
-            self.cpp_info.components["wtdbomssqlserver"].names["cmake_find_package"] = "DboMSSQLServer"
-            self.cpp_info.components["wtdbomssqlserver"].names["cmake_find_package_multi"] = "DboMSSQLServer"

@@ -159,6 +159,5 @@ class CycloneDDSCXXConan(ConanFile):
         self.cpp_info.components["idlcxx"].libs = ["cycloneddsidlcxx"]
         self.cpp_info.components["idlcxx"].set_property("cmake_target_name", "CycloneDDS-CXX::idlcxx")
         self.cpp_info.components["idlcxx"].requires = ["cyclonedds::idl"]
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
         self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
         self.runenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))

@@ -64,9 +64,3 @@ class Greg7mdpGtlConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "gtl")
         self.cpp_info.set_property("cmake_target_name", "gtl::gtl")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "gtl"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "gtl"
-        self.cpp_info.names["cmake_find_package"] = "gtl"
-        self.cpp_info.names["cmake_find_package_multi"] = "gtl"

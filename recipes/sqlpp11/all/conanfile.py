@@ -63,6 +63,3 @@ class Sqlpp11Conan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "Sqlpp11")
         self.cpp_info.set_property("cmake_target_name", "sqlpp11::sqlpp11")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

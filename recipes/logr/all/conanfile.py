@@ -114,9 +114,6 @@ class LogrConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_file_name", "logr")
 
-        self.cpp_info.names["cmake_find_package"] = "logr"
-        self.cpp_info.names["cmake_find_package_multi"] = "logr"
-
         self.cpp_info.components["logr_base"].includedirs = ["include"]
         self.cpp_info.components["logr_base"].requires = ["fmt::fmt"]
 

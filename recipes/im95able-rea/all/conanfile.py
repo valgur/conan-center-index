@@ -74,9 +74,3 @@ class Im95ableReaConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "rea")
         self.cpp_info.set_property("cmake_target_name", "rea::rea")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "rea"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "rea"
-        self.cpp_info.names["cmake_find_package"] = "rea"
-        self.cpp_info.names["cmake_find_package_multi"] = "rea"

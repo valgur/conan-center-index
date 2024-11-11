@@ -101,7 +101,3 @@ class TCSBankUriTemplateConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "uri-template::uri-template")
         self.cpp_info.set_property("pkg_config_name", "uri-template")
         self.cpp_info.libs = collect_libs(self)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "uri-template"
-        self.cpp_info.names["cmake_find_package_multi"] = "uri-template"

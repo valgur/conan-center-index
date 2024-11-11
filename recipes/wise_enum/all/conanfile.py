@@ -77,14 +77,3 @@ class WiseEnumConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "WiseEnum")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "WiseEnum"
-        self.cpp_info.names["cmake_find_package_multi"] = "WiseEnum"
-        self.cpp_info.names["pkg_config"] = "WiseEnum"
-        self.cpp_info.components["_wise_enum"].names["cmake_find_package"] = "wise_enum"
-        self.cpp_info.components["_wise_enum"].names["cmake_find_package_multi"] = "wise_enum"
-        self.cpp_info.components["_wise_enum"].set_property("cmake_target_name", "WiseEnum::wise_enum")
-        self.cpp_info.components["_wise_enum"].set_property("pkg_config_name", "WiseEnum")
-        self.cpp_info.components["_wise_enum"].bindirs = []
-        self.cpp_info.components["_wise_enum"].libdirs = []

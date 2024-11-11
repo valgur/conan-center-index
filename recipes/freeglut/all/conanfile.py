@@ -172,41 +172,11 @@ class freeglutConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", f"FreeGLUT::{config_target}")
         self.cpp_info.set_property("pkg_config_name", pkg_config)
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["freeglut_"].libs = collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ["FreeBSD", "Linux"]:
-            self.cpp_info.components["freeglut_"].system_libs.extend(["pthread", "m", "dl", "rt"])
+            self.cpp_info.system_libs.extend(["pthread", "m", "dl", "rt"])
         elif self.settings.os == "Windows":
             if not self.options.shared:
-                self.cpp_info.components["freeglut_"].defines.append("FREEGLUT_STATIC=1")
-            self.cpp_info.components["freeglut_"].defines.append("FREEGLUT_LIB_PRAGMAS=0")
-            self.cpp_info.components["freeglut_"].system_libs.extend(["glu32", "gdi32", "winmm", "user32"])
-
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "GLUT"
-        self.cpp_info.names["cmake_find_package_multi"] = "FreeGLUT"
-        self.cpp_info.names["pkg_config"] = pkg_config
-        self.cpp_info.components["freeglut_"].names["cmake_find_package"] = "GLUT"
-        self.cpp_info.components["freeglut_"].set_property("cmake_module_target_name", "GLUT::GLUT")
-        self.cpp_info.components["freeglut_"].names["cmake_find_package_multi"] = config_target
-        self.cpp_info.components["freeglut_"].set_property("cmake_target_name", f"FreeGLUT::{config_target}")
-        self.cpp_info.components["freeglut_"].set_property("pkg_config_name", pkg_config)
-        if self._requires_libglvnd_egl:
-            self.cpp_info.components["freeglut_"].requires.append("libglvnd::egl")
-        if self._requires_libglvnd_gles:
-            self.cpp_info.components["freeglut_"].requires.append("libglvnd::gles1")
-            self.cpp_info.components["freeglut_"].requires.append("libglvnd::gles2")
-        if self._requires_libglvnd_glx:
-            self.cpp_info.components["freeglut_"].requires.append("libglvnd::gl")
-        if self._with_libglvnd:
-            self.cpp_info.components["freeglut_"].requires.append("libglvnd::opengl")
-        else:
-            self.cpp_info.components["freeglut_"].requires.append("opengl::opengl")
-        if self._with_x11:
-            self.cpp_info.components["freeglut_"].requires.append("xorg::x11")
-        if self.options.get_safe("with_wayland"):
-            self.cpp_info.components["freeglut_"].requires.extend(["wayland::wayland-client", "wayland::wayland-cursor", "wayland::wayland-egl", "xkbcommon::xkbcommon"])
-        if is_apple_os(self) or self.settings.os == "Windows":
-            self.cpp_info.components["freeglut_"].requires.append("glu::glu")
-        else:
-            self.cpp_info.components["freeglut_"].requires.append("mesa-glu::mesa-glu")
+                self.cpp_info.defines.append("FREEGLUT_STATIC=1")
+            self.cpp_info.defines.append("FREEGLUT_LIB_PRAGMAS=0")
+            self.cpp_info.system_libs.extend(["glu32", "gdi32", "winmm", "user32"])

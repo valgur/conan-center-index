@@ -160,7 +160,3 @@ class Libfreenect2Conan(ConanFile):
             self.cpp_info.requires += ["libva::libva"]
         if self.options.with_cuda:
             self.cpp_info.requires += ["cuda-samples::cuda-samples"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "freenect2"
-        self.cpp_info.names["cmake_find_package_multi"] = "freenect2"

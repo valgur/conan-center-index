@@ -104,8 +104,6 @@ class AvcppConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "avcpp")
         self.cpp_info.set_property("cmake_target_name", f"avcpp::{target_name}")
 
-        self.cpp_info.components["AvCpp"].names["cmake_find_package"] = target_name
-        self.cpp_info.components["AvCpp"].names["cmake_find_package_multi"] = target_name
         self.cpp_info.components["AvCpp"].set_property("cmake_target_name", f"avcpp::{target_name}")
         self.cpp_info.components["AvCpp"].libs = ["avcpp", ]
         self.cpp_info.components["AvCpp"].requires = ["ffmpeg::ffmpeg", ]
@@ -113,9 +111,3 @@ class AvcppConan(ConanFile):
             self.cpp_info.components["AvCpp"].system_libs = ["mvec"]
         if self.settings.os == "Windows":
             self.cpp_info.components["AvCpp"].system_libs = ["mfplat"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "avcpp"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "avcpp"
-        self.cpp_info.names["cmake_find_package"] = "avcpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "avcpp"

@@ -217,8 +217,6 @@ class GetTextConan(ConanFile):
         if is_apple_os(self):
             self.cpp_info.frameworks.append("CoreFoundation")
 
-        self.cpp_info.names["cmake_find_package"] = "Intl"
-        self.cpp_info.names["cmake_find_package_multi"] = "Intl"
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""

@@ -335,11 +335,6 @@ class PocoConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Poco")
         self.cpp_info.set_property("cmake_target_name", "Poco::Poco")
 
-        self.cpp_info.filenames["cmake_find_package"] = "Poco"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Poco"
-        self.cpp_info.names["cmake_find_package"] = "Poco"
-        self.cpp_info.names["cmake_find_package_multi"] = "Poco"
-
         suffix = msvc_runtime_flag(self).lower() \
                  if is_msvc(self) and not self.options.shared \
                  else ("d" if self.settings.build_type == "Debug" else "")
@@ -350,8 +345,6 @@ class PocoConan(ConanFile):
                 requires = [f"poco_{dependency.lower()}" for dependency in comp.dependencies] + comp.external_dependencies
                 self.cpp_info.components[conan_component].set_property("cmake_target_name", f"Poco::{compname}")
                 self.cpp_info.components[conan_component].set_property("cmake_file_name", compname)
-                self.cpp_info.components[conan_component].names["cmake_find_package"] = compname
-                self.cpp_info.components[conan_component].names["cmake_find_package_multi"] = compname
                 if comp.is_lib:
                     self.cpp_info.components[conan_component].libs = [f"Poco{compname}{suffix}"]
                 self.cpp_info.components[conan_component].requires = requires

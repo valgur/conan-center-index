@@ -234,9 +234,3 @@ class CapnprotoConan(ConanFile):
             self.cpp_info.components[name].libs = [name]
             self.cpp_info.components[name].requires = comp_info.get("requires", [])
             self.cpp_info.components[name].system_libs = comp_info.get("system_libs", [])
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CapnProto"
-        self.cpp_info.names["cmake_find_package_multi"] = "CapnProto"
-        self.cpp_info.components["kj"].build_modules = [capnprotomacros]
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

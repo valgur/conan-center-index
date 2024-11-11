@@ -97,17 +97,9 @@ class PackageConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
-        self.cpp_info.libs = ["asyncly"]
-        self.cpp_info.requires = ["boost::headers", "function2::function2", "prometheus-cpp::prometheus-cpp-core"]
-
         self.cpp_info.set_property("cmake_file_name", "asyncly")
         self.cpp_info.set_property("cmake_target_name", "asyncly::asyncly")
-
+        self.cpp_info.libs = ["asyncly"]
+        self.cpp_info.requires = ["boost::headers", "function2::function2", "prometheus-cpp::prometheus-cpp-core"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "asyncly"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "asyncly"
-        self.cpp_info.names["cmake_find_package"] = "asyncly"
-        self.cpp_info.names["cmake_find_package_multi"] = "asyncly"

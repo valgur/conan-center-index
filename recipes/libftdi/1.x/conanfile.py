@@ -111,7 +111,3 @@ class LibFtdiConan(ConanFile):
             self.cpp_info.components["ftdipp"].requires = ["ftdi", "boost::headers"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["ftdipp"].system_libs.append("m")
-
-        # TODO: Remove "self.cpp_info.filenames.." statements in Conan V2
-        self.cpp_info.filenames["cmake_find_package"] = "LibFTDI1"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "LibFTDI1"

@@ -112,10 +112,6 @@ class MBitsArgsConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mbits-args")
         self.cpp_info.set_property("cmake_target_name", "mbits::args")
 
-        self.cpp_info.filenames["cmake_find_package"] = "mbits-args"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-args"
-        self.cpp_info.names["cmake_find_package"] = "mbits"
-        self.cpp_info.names["cmake_find_package_multi"] = "mbits"
         self.cpp_info.components["args"].set_property(
             "cmake_target_name", "mbits::args"
         )

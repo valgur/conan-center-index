@@ -166,22 +166,3 @@ class IgnitionUtilsConan(ConanFile):
         cli_component.includedirs.append(os.path.join(include_dir, "ignition", "utils"))
         if self.options.ign_utils_vendor_cli11:
             cli_component.requires.append("cli11::cli11")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = lib_name
-        self.cpp_info.names["cmake_find_package_multi"] = lib_name
-        self.cpp_info.names["cmake_paths"] = lib_name
-        main_component.names["cmake_find_package"] = lib_name
-        main_component.names["cmake_find_package_multi"] = lib_name
-        main_component.names["cmake_paths"] = lib_name
-        main_component.builddirs.append(build_dirs)
-        main_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        main_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        main_component.build_modules["cmake_paths"] = [self._module_file_rel_path]
-        cli_component.names["cmake_find_package"] = "cli"
-        cli_component.names["cmake_find_package_multi"] = "cli"
-        cli_component.names["cmake_paths"] = "cli"
-        cli_component.builddirs.append(build_dirs)
-        cli_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        cli_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        cli_component.build_modules["cmake_paths"] = [self._module_file_rel_path]

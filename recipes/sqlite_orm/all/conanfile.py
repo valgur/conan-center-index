@@ -78,7 +78,3 @@ class SqliteOrmConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        self.cpp_info.filenames["cmake_find_package"] = "SqliteOrm"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "SqliteOrm"
-        self.cpp_info.names["cmake_find_package"] = "sqlite_orm"
-        self.cpp_info.names["cmake_find_package_multi"] = "sqlite_orm"

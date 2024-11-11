@@ -183,7 +183,3 @@ class CoinCbcConan(ConanFile):
         self.cpp_info.components["osi-cbc"].set_property("pkg_config_name", "osi-cbc")
         self.cpp_info.components["osi-cbc"].libs = ["OsiCbc"]
         self.cpp_info.components["osi-cbc"].requires = ["libcbc"]
-
-        # TODO: remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

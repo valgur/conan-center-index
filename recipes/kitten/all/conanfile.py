@@ -75,11 +75,3 @@ class KittenConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "kitten")
         self.cpp_info.set_property("cmake_target_name", "rvarago::kitten")
         self.cpp_info.components["libkitten"].set_property("cmake_target_name", "rvarago::kitten")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "kitten"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "kitten"
-        self.cpp_info.names["cmake_find_package"] = "rvarago"
-        self.cpp_info.names["cmake_find_package_multi"] = "rvarago"
-        self.cpp_info.components["libkitten"].names["cmake_find_package"] = "kitten"
-        self.cpp_info.components["libkitten"].names["cmake_find_package_multi"] = "kitten"

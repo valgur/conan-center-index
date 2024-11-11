@@ -203,11 +203,3 @@ class XapianCoreConan(ConanFile):
 
         xapian_aclocal_dir = os.path.join(self._datarootdir, "aclocal")
         self.buildenv_info.prepend_path("AUTOMAKE_CONAN_INCLUDES", xapian_aclocal_dir)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "xapian"
-        self.cpp_info.names["cmake_find_package_multi"] = "xapian"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, xapian_aclocal_dir))

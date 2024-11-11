@@ -98,7 +98,3 @@ class IMGUIConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("imm32")
         self.cpp_info.srcdirs = [os.path.join("res", "bindings")]
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH env var with : {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)

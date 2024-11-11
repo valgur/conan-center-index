@@ -193,9 +193,3 @@ class F2cConan(ConanFile):
         if is_msvc(self):
             cflags += " -DMAIN__=main"
         self.buildenv_info.define("CFLAGSF2C", cflags)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_folder = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_folder)
-        self.env_info.F2C = f2c_path
-        self.env_info.CFLAGSF2C = cflags

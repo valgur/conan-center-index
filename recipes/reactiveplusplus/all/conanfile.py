@@ -83,12 +83,3 @@ class ReactivePlusPlusConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "RPP::rpp")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "RPP"
-        self.cpp_info.names["cmake_find_package_multi"] = "RPP"
-        self.cpp_info.components["_reactiveplusplus"].names["cmake_find_package"] = "rpp"
-        self.cpp_info.components["_reactiveplusplus"].names["cmake_find_package_multi"] = "rpp"
-        self.cpp_info.components["_reactiveplusplus"].set_property("cmake_target_name", "RPP::rpp")
-        self.cpp_info.components["_reactiveplusplus"].bindirs = []
-        self.cpp_info.components["_reactiveplusplus"].libdirs = []

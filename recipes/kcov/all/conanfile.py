@@ -95,7 +95,3 @@ class KcovConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: to remove in conan v2
-        bindir = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bindir)

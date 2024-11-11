@@ -100,8 +100,3 @@ class LibopingConan(ConanFile):
             self.cpp_info.system_libs.append("m")
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.append("ws2_32")
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)

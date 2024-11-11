@@ -49,7 +49,7 @@ class MortonndConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
-    
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -69,12 +69,3 @@ class MortonndConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "morton-nd::MortonND")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "morton-nd"
-        self.cpp_info.names["cmake_find_package_multi"] = "morton-nd"
-        self.cpp_info.components["mortonnd"].names["cmake_find_package"] = "MortonND"
-        self.cpp_info.components["mortonnd"].names["cmake_find_package_multi"] = "MortonND"
-        self.cpp_info.components["mortonnd"].set_property("cmake_target_name", "morton-nd::MortonND")
-        self.cpp_info.components["mortonnd"].bindirs = []
-        self.cpp_info.components["mortonnd"].libdirs = []

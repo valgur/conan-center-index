@@ -83,8 +83,3 @@ class OctoEncryptionCPPConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "octo::octo-encryption-cpp")
         self.cpp_info.set_property("pkg_config_name", "octo-encryption-cpp")
         self.cpp_info.requires = ["openssl::openssl"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "octo-encryption-cpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "octo-encryption-cpp"
-        self.cpp_info.names["pkg_config"] = "octo-encryption-cpp"

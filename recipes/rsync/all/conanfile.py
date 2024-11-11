@@ -34,7 +34,7 @@ class RsyncConan(ConanFile):
         "with_lz4": True,
         "enable_acl": False
     }
-    
+
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
@@ -47,7 +47,7 @@ class RsyncConan(ConanFile):
 
     def package_id(self):
         del self.info.settings.compiler
-    
+
     def requirements(self):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
@@ -66,10 +66,10 @@ class RsyncConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported on Windows.")        
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported on Windows.")
 
         if is_apple_os(self):
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported on Apple systems.")        
+            raise ConanInvalidConfiguration(f"{self.ref} is not supported on Apple systems.")
 
     def generate(self):
         ad = AutotoolsDeps(self)
@@ -79,14 +79,14 @@ class RsyncConan(ConanFile):
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
             f"--enable-acl-support={yes_no(self.options.enable_acl)}",
-            f"--with-included-zlib={yes_no(not self.options.with_zlib)}",            
+            f"--with-included-zlib={yes_no(not self.options.with_zlib)}",
             "--disable-openssl" if not self.options.with_openssl else "--enable-openssl",
             f"--with-zstd={yes_no(self.options.with_zstd)}",
             f"--with-lz4={yes_no(self.options.with_lz4)}",
             f"--with-xxhash={yes_no(self.options.with_xxhash)}",
 
             "--enable-manpages=no",
-        ])        
+        ])
 
         if self.settings.os == "Neutrino":
             tc.extra_defines.append("MAKEDEV_TAKES_3_ARGS")
@@ -94,12 +94,12 @@ class RsyncConan(ConanFile):
         tc.generate()
 
     def build(self):
-        autotools = Autotools(self)  
+        autotools = Autotools(self)
         autotools.configure()
         autotools.make()
 
     def package(self):
-        autotools = Autotools(self)  
+        autotools = Autotools(self)
         autotools.install()
 
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -108,7 +108,3 @@ class RsyncConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: Remove after dropping Conan 1.x from ConanCenterIndex
-        bindir = os.path.join(self.package_folder, "bin")
-        self.runenv_info.prepend_path("PATH", bindir)

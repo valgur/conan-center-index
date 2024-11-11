@@ -147,6 +147,3 @@ class AeronConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["winmm", "wsock32", "ws2_32", "iphlpapi"]
             self.cpp_info.defines.append("HAVE_WSAPOLL")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

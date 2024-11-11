@@ -147,13 +147,3 @@ class H5ppConan(ConanFile):
         if is_msvc(self):
             self.cpp_info.components["h5pp_flags"].defines.append("NOMINMAX")
             self.cpp_info.components["h5pp_flags"].cxxflags = ["/permissive-"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "h5pp"
-        self.cpp_info.names["cmake_find_package_multi"] = "h5pp"
-        self.cpp_info.components["h5pp_headers"].names["cmake_find_package"] = "headers"
-        self.cpp_info.components["h5pp_headers"].names["cmake_find_package_multi"] = "headers"
-        self.cpp_info.components["h5pp_deps"].names["cmake_find_package"] = "deps"
-        self.cpp_info.components["h5pp_deps"].names["cmake_find_package_multi"] = "deps"
-        self.cpp_info.components["h5pp_flags"].names["cmake_find_package"] = "flags"
-        self.cpp_info.components["h5pp_flags"].names["cmake_find_package_multi"] = "flags"

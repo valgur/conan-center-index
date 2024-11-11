@@ -116,8 +116,3 @@ class ZXingCppConan(ConanFile):
         self.cpp_info.libs = ["ZXingCore" if Version(self.version) < "1.1" else "ZXing"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "ZXing"
-        self.cpp_info.names["cmake_find_package_multi"] = "ZXing"
-        self.cpp_info.names["pkg_config"] = "zxing"

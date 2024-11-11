@@ -111,9 +111,5 @@ class SevenZipConan(ConanFile):
         # TODO: Package the libraries: binaries and headers (add the rest of settings)
 
     def package_info(self):
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-        self.env_info.path.append(bin_path)
-
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []

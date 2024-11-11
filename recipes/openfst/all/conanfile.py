@@ -179,8 +179,6 @@ class OpenFstConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenFst")
         self.cpp_info.set_property("cmake_target_name", "OpenFst::OpenFst")
         self.cpp_info.set_property("cmake_find_mode", "both")
-        self.cpp_info.names["cmake_find_package"] = "OpenFst"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenFst"
 
         self.cpp_info.libs = ["fst"]
 
@@ -215,8 +213,3 @@ class OpenFstConan(ConanFile):
                 self.cpp_info.libs.append("fstpdtscript")
 
         self.cpp_info.system_libs = ["pthread", "dl", "m"]
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment var: {bindir}")
-        self.env_info.PATH.append(bindir)

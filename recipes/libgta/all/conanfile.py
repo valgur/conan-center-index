@@ -81,7 +81,3 @@ class LibgtaConan(ConanFile):
         self.cpp_info.libs = collect_libs(self)
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("GTA_STATIC")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GTA"
-        self.cpp_info.names["cmake_find_package_multi"] = "GTA"

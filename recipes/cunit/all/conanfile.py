@@ -141,8 +141,6 @@ class CunitConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "CUnit"
-        self.cpp_info.names["cmake_find_package_multi"] = "CUnit"
         self.cpp_info.libs = ["cunit"]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("CU_DLL")

@@ -87,19 +87,7 @@ class MicrosoftGslConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Microsoft.GSL::GSL")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: back to global scope once support for legacy generators dropped
         if Version(self.version) < "3.0.0":
-            self.cpp_info.components["_ms-gsl"].defines = [
+            self.cpp_info.defines = [
                 self._contract_map[str(self.options.on_contract_violation)]
             ]
-
-        # TODO: to remove once support for legacy generators dropped
-        self.cpp_info.names["cmake_find_package"] = "Microsoft.GSL"
-        self.cpp_info.names["cmake_find_package_multi"] = "Microsoft.GSL"
-
-        self.cpp_info.components["_ms-gsl"].names["cmake_find_package"] = "GSL"
-        self.cpp_info.components["_ms-gsl"].names["cmake_find_package_multi"] = "GSL"
-        self.cpp_info.components["_ms-gsl"].set_property("cmake_target_name", "Microsoft.GSL::GSL")
-        self.cpp_info.components["_ms-gsl"].bindirs = []
-        self.cpp_info.components["_ms-gsl"].libdirs = []

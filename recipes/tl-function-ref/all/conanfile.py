@@ -47,18 +47,3 @@ class TlfunctionrefConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators
-        # removed.
-        self.cpp_info.filenames["cmake_find_package"] = "tl-function-ref"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tl-function-ref"
-        self.cpp_info.names["cmake_find_package"] = "tl"
-        self.cpp_info.names["cmake_find_package_multi"] = "tl"
-        self.cpp_info.components["function-ref"].names["cmake_find_package"] = "function-ref"
-        self.cpp_info.components["function-ref"].names["cmake_find_package_multi"] = "function-ref"
-        self.cpp_info.components["function-ref"].set_property(
-            "cmake_target_name", "tl::function-ref")
-        self.cpp_info.components["function-ref"].bindirs = []
-        self.cpp_info.components["function-ref"].frameworkdirs = []
-        self.cpp_info.components["function-ref"].libdirs = []
-        self.cpp_info.components["function-ref"].resdirs = []

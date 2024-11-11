@@ -148,7 +148,3 @@ class LibrealsenseConan(ConanFile):
                 "winusb",
                 "shlwapi", "mf", "mfplat", "mfreadwrite", "mfuuid"
             ])
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "realsense2"
-        self.cpp_info.names["cmake_find_package_multi"] = "realsense2"

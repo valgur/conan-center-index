@@ -101,9 +101,5 @@ class LibdwarfConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["dwarf"]
-
         if self.options.with_dwarfgen:
-            bindir = os.path.join(self.package_folder, "bin")
-            self.output.info(f'Appending PATH environment variable: {bindir}')
-            self.env_info.PATH.append(bindir)
             self.cpp_info.libs.append("dwarfp")

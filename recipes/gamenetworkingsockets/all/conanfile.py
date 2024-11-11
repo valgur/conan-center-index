@@ -138,7 +138,3 @@ class GameNetworkingSocketsConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32", "crypt32", "winmm", "iphlpapi"]
             if self.options.encryption == "bcrypt":
                 self.cpp_info.system_libs += ["bcrypt"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GameNetworkingSockets"
-        self.cpp_info.names["cmake_find_package_multi"] = "GameNetworkingSockets"

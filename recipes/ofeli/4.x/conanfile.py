@@ -82,6 +82,3 @@ class OfeliConan(ConanFile):
         self.cpp_info.libs = ["ofeli"]
         res_path = os.path.join(self.package_folder, "res")
         self.runenv_info.define("OFELI_PATH_MATERIAL", res_path)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.OFELI_PATH_MATERIAL.append(res_path)

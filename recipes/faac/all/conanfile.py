@@ -182,6 +182,3 @@ class FaacConan(ConanFile):
         self.cpp_info.libs = [f"faac{suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

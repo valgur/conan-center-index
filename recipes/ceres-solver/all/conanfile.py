@@ -323,9 +323,3 @@ class CeresSolverConan(ConanFile):
         if self.options.get_safe("use_cuda"):
             cmake_modules.append(os.path.join("lib", "cmake", "ceres-conan-cuda-support.cmake"))
         self.cpp_info.set_property("cmake_build_modules", cmake_modules)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Ceres"
-        self.cpp_info.names["cmake_find_package_multi"] = "Ceres"
-        self.cpp_info.components["ceres"].build_modules["cmake_find_package"] = cmake_modules
-        self.cpp_info.components["ceres"].build_modules["cmake_find_package_multi"] = cmake_modules

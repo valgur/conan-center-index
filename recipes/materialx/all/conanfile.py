@@ -93,9 +93,6 @@ class MaterialXConan(ConanFile):
         tc.variables["MATERIALX_TEST_RENDER"] = False
         tc.variables["MATERIALX_BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["MATERIALX_BUILD_GEN_MSL"] = self.options.build_gen_msl and is_apple_os
-        # TODO: Remove when Conan 1 support is dropped
-        if not self.settings.compiler.cppstd:
-            tc.variables["MATERIALX_BUILD_USE_CCACHE"] = self._min_cppstd
         tc.variables["MATERIALX_BUILD_USE_CCACHE"] = False
         tc.generate()
 

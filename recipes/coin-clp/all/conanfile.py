@@ -168,6 +168,3 @@ class CoinClpConan(ConanFile):
         self.cpp_info.components["osi-clp"].set_property("pkg_config_name", "osi-clp")
         self.cpp_info.components["osi-clp"].libs = ["OsiClp"]
         self.cpp_info.components["osi-clp"].requires = ["clp", "coin-osi::coin-osi"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

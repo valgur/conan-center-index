@@ -105,4 +105,3 @@ class AtSpi2CoreConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ['atspi']
         self.cpp_info.includedirs = ["include/at-spi-2.0"]
-        self.cpp_info.names["pkg_config"] = "atspi-2"

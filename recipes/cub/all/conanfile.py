@@ -78,9 +78,3 @@ class CubConan(ConanFile):
         # https://github.com/NVIDIA/cub/blob/main/cub/cmake/cub-config.cmake
         self.cpp_info.set_property("cmake_file_name", "cub")
         self.cpp_info.set_property("cmake_target_name", "CUB::CUB")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "cub"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "cub"
-        self.cpp_info.names["cmake_find_package"] = "CUB"
-        self.cpp_info.names["cmake_find_package_multi"] = "CUB"

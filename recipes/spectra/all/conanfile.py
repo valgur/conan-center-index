@@ -50,9 +50,3 @@ class SpectraConan(ConanFile):
         self.cpp_info.libdirs = []
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "spectra"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "spectra"
-        self.cpp_info.names["cmake_find_package"] = "Spectra"
-        self.cpp_info.names["cmake_find_package_multi"] = "Spectra"

@@ -91,7 +91,6 @@ class XorgProtoConan(ConanFile):
 
     def package_info(self):
         for filename, name_version in yaml.safe_load(open(self._pc_data_path)).items():
-            self.cpp_info.components[filename].filenames["pkg_config"] = filename
             self.cpp_info.components[filename].libdirs = []
             if hasattr(self, "settings_build"):
                 self.cpp_info.components[filename].requires = ["xorg-macros::xorg-macros"]

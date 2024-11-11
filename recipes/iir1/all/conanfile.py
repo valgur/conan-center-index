@@ -95,16 +95,8 @@ class Iir1Conan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "iir")
         self.cpp_info.set_property("cmake_target_name", f"iir::{name}")
         self.cpp_info.set_property("pkg_config_name", "iir")
-        # TODO: back to global scope in conan v2
-        self.cpp_info.components["iir"].libs = [name]
+        self.cpp_info.libs = [name]
         if self.options.get_safe("noexceptions"):
-            self.cpp_info.components["iir"].defines.append("IIR1_NO_EXCEPTIONS")
+            self.cpp_info.defines.append("IIR1_NO_EXCEPTIONS")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["iir"].system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "iir"
-        self.cpp_info.names["cmake_find_package_multi"] = "iir"
-        self.cpp_info.components["iir"].names["cmake_find_package"] = name
-        self.cpp_info.components["iir"].names["cmake_find_package_multi"] = name
-        self.cpp_info.components["iir"].set_property("cmake_target_name", f"iir::{name}")
+            self.cpp_info.system_libs.append("m")

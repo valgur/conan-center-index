@@ -128,10 +128,6 @@ class BdwGcConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "BDWgc")
         self.cpp_info.set_property("cmake_target_name", "BDWgc::BDWgc")
 
-        # TODO: Remove on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "BDWgc"
-        self.cpp_info.names["cmake_find_package_multi"] = "BDWgc"
-
         self.cpp_info.components["gc"].set_property("cmake_target_name", "BDWgc::gc")
         self.cpp_info.components["gc"].set_property("pkg_config_name", "bdw-gc")
         self.cpp_info.components["gc"].libs = ["gc"]

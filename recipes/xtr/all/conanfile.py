@@ -155,7 +155,3 @@ class XtrConan(ConanFile):
         self.cpp_info.libs = ["xtr"]
         self.cpp_info.system_libs = ["pthread"]
         self.cpp_info.defines = self._get_defines()
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

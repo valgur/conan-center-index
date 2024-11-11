@@ -88,9 +88,3 @@ class OsqpConan(ConanFile):
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("rt")
             self.cpp_info.system_libs.append("dl")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "osqp"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "osqp"
-        self.cpp_info.names["cmake_find_package"] = "osqp"
-        self.cpp_info.names["cmake_find_package_multi"] = "osqp"

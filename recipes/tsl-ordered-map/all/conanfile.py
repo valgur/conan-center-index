@@ -43,14 +43,3 @@ class TslOrderedMapConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "tsl::ordered_map")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "tsl-ordered-map"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tsl-ordered-map"
-        self.cpp_info.names["cmake_find_package"] = "tsl"
-        self.cpp_info.names["cmake_find_package_multi"] = "tsl"
-        self.cpp_info.components["ordered_map"].names["cmake_find_package"] = "ordered_map"
-        self.cpp_info.components["ordered_map"].names["cmake_find_package_multi"] = "ordered_map"
-        self.cpp_info.components["ordered_map"].set_property("cmake_target_name", "tsl::ordered_map")
-        self.cpp_info.components["ordered_map"].bindirs = []
-        self.cpp_info.components["ordered_map"].libdirs = []

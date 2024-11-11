@@ -60,7 +60,3 @@ class NodejsConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_dir = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_dir)

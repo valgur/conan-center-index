@@ -70,9 +70,3 @@ class PackageConan(ConanFile):
         # The library uses __cplusplus for feature detection, ensure vs returns the proper one
         if is_msvc(self):
             self.cpp_info.cxxflags.append("/Zc:__cplusplus")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "vtu11"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "vtu11"
-        self.cpp_info.names["cmake_find_package"] = "vtu11"
-        self.cpp_info.names["cmake_find_package_multi"] = "vtu11"

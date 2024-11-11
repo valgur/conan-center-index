@@ -87,37 +87,3 @@ class MgsConan(ConanFile):
 
         self.cpp_info.components["mgs-base32hex"].set_property("cmake_target_name", "mgs::base32hex")
         self.cpp_info.components["mgs-base32hex"].requires = ["mgs-config", "mgs-meta", "mgs-exceptions", "mgs-codecs", "mgs-base_n"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "mgs"
-        self.cpp_info.names["cmake_find_package_multi"] = "mgs"
-
-        self.cpp_info.components["mgs-config"].names["cmake_find_package"] = "config"
-        self.cpp_info.components["mgs-config"].names["cmake_find_package_multi"] = "config"
-
-        self.cpp_info.components["mgs-meta"].names["cmake_find_package"] = "meta"
-        self.cpp_info.components["mgs-meta"].names["cmake_find_package"] = "meta"
-
-        self.cpp_info.components["mgs-exceptions"].names["cmake_find_package"] = "exceptions"
-        self.cpp_info.components["mgs-exceptions"].names["cmake_find_package_multi"] = "exceptions"
-
-        self.cpp_info.components["mgs-codecs"].names["cmake_find_package"] = "codecs"
-        self.cpp_info.components["mgs-codecs"].names["cmake_find_package_multi"] = "codecs"
-
-        self.cpp_info.components["mgs-base_n"].names["cmake_find_package"] = "base_n"
-        self.cpp_info.components["mgs-base_n"].names["cmake_find_package_multi"] = "base_n"
-
-        self.cpp_info.components["mgs-base16"].names["cmake_find_package"] = "base16"
-        self.cpp_info.components["mgs-base16"].names["cmake_find_package_multi"] = "base16"
-
-        self.cpp_info.components["mgs-base32"].names["cmake_find_package"] = "base32"
-        self.cpp_info.components["mgs-base32"].names["cmake_find_package_multi"] = "base32"
-
-        self.cpp_info.components["mgs-base64"].names["cmake_find_package"] = "base64"
-        self.cpp_info.components["mgs-base64"].names["cmake_find_package_multi"] = "base64"
-
-        self.cpp_info.components["mgs-base64url"].names["cmake_find_package"] = "base64url"
-        self.cpp_info.components["mgs-base64url"].names["cmake_find_package_multi"] = "base64url"
-
-        self.cpp_info.components["mgs-base32hex"].names["cmake_find_package"] = "base32hex"
-        self.cpp_info.components["mgs-base32hex"].names["cmake_find_package_multi"] = "base32hex"

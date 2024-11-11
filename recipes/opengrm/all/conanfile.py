@@ -112,7 +112,3 @@ class OpenGrmConan(ConanFile):
         self.cpp_info.libs = ["thrax"]
         self.cpp_info.resdirs = ["res"]
         self.cpp_info.system_libs = ["pthread", "dl", "m"]
-
-        # TODO: to remove in conan v2
-        if self.options.enable_bin:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

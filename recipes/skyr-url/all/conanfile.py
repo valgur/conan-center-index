@@ -126,9 +126,3 @@ class SkyrUrlConan(ConanFile):
             self.cpp_info.components["url"].requires.append("nlohmann_json::nlohmann_json")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["url"].system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "skyr-url"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "skyr-url"
-        self.cpp_info.names["cmake_find_package"] = "skyr"
-        self.cpp_info.names["cmake_find_package_multi"] = "skyr"

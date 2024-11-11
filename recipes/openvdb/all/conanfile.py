@@ -265,33 +265,24 @@ class OpenVDBConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenVDB")
         self.cpp_info.set_property("cmake_target_name", "OpenVDB::openvdb")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        main_component = self.cpp_info.components["openvdb-core"]
         lib_prefix = "lib" if is_msvc(self) and not self.options.shared else ""
-        main_component.libs = [lib_prefix + "openvdb"]
-        main_component.defines = self._public_defines
+        self.cpp_info.libs = [lib_prefix + "openvdb"]
+        self.cpp_info.defines = self._public_defines
         if self.settings.os in ("Linux", "FreeBSD"):
-            main_component.system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
 
-        main_component.requires = [
+        self.cpp_info.requires = [
             "boost::iostreams",
             "boost::system",
             "onetbb::onetbb",
         ]
         if self.settings.os == "Windows":
-            main_component.requires.append("boost::disable_autolinking")
+            self.cpp_info.requires.append("boost::disable_autolinking")
         if self.options.with_zlib:
-            main_component.requires.append("zlib::zlib")
+            self.cpp_info.requires.append("zlib::zlib")
         if self.options.with_blosc:
-            main_component.requires.append("c-blosc::c-blosc")
+            self.cpp_info.requires.append("c-blosc::c-blosc")
         if self.options.with_log4cplus:
-            main_component.requires.append("log4cplus::log4cplus")
+            self.cpp_info.requires.append("log4cplus::log4cplus")
         if self.options.use_imath_half:
-            main_component.requires.append("imath::imath")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenVDB"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenVDB"
-        main_component.names["cmake_find_package"] = "openvdb"
-        main_component.names["cmake_find_package_multi"] = "openvdb"
-        main_component.set_property("cmake_target_name", "OpenVDB::openvdb")
+            self.cpp_info.requires.append("imath::imath")

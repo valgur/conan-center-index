@@ -87,25 +87,12 @@ class OatppPostgresqlConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "oatpp-postgresql")
         self.cpp_info.set_property("cmake_target_name", "oatpp::oatpp-postgresql")
-        # TODO: back to global scope in conan v2 once legacy generators removed
-        self.cpp_info.components["_oatpp-postgresql"].includedirs = [
-            os.path.join("include", f"oatpp-{self.version}", "oatpp-postgresql")
-        ]
-        self.cpp_info.components["_oatpp-postgresql"].libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
+        self.cpp_info.includedirs = [os.path.join("include", f"oatpp-{self.version}", "oatpp-postgresql")]
+        self.cpp_info.libdirs = [os.path.join("lib", f"oatpp-{self.version}")]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["_oatpp-postgresql"].bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
+            self.cpp_info.bindirs = [os.path.join("bin", f"oatpp-{self.version}")]
         else:
-            self.cpp_info.components["_oatpp-postgresql"].bindirs = []
-        self.cpp_info.components["_oatpp-postgresql"].libs = ["oatpp-postgresql"]
+            self.cpp_info.bindirs = []
+        self.cpp_info.libs = ["oatpp-postgresql"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_oatpp-postgresql"].system_libs = ["pthread"]
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "oatpp-postgresql"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "oatpp-postgresql"
-        self.cpp_info.names["cmake_find_package"] = "oatpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "oatpp"
-        self.cpp_info.components["_oatpp-postgresql"].names["cmake_find_package"] = "oatpp-postgresql"
-        self.cpp_info.components["_oatpp-postgresql"].names["cmake_find_package_multi"] = "oatpp-postgresql"
-        self.cpp_info.components["_oatpp-postgresql"].set_property("cmake_target_name", "oatpp::oatpp-postgresql")
-        self.cpp_info.components["_oatpp-postgresql"].requires = ["oatpp::oatpp", "libpq::libpq"]
+            self.cpp_info.system_libs = ["pthread"]

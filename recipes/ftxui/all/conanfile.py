@@ -118,11 +118,3 @@ class FTXUIConan(ConanFile):
         self.cpp_info.components["ftxui-component"].requires = ["ftxui-dom"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ftxui-component"].system_libs.append("pthread")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["ftxui-dom"].names["cmake_find_package"] = "dom"
-        self.cpp_info.components["ftxui-dom"].names["cmake_find_package_multi"] = "dom"
-        self.cpp_info.components["ftxui-screen"].names["cmake_find_package"] = "screen"
-        self.cpp_info.components["ftxui-screen"].names["cmake_find_package_multi"] = "screen"
-        self.cpp_info.components["ftxui-component"].names["cmake_find_package"] = "component"
-        self.cpp_info.components["ftxui-component"].names["cmake_find_package_multi"] = "component"

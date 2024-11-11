@@ -192,10 +192,3 @@ class GnuTLSConan(ConanFile):
             self.cpp_info.frameworks = ["Security", "CoreFoundation"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GnuTLS"
-        self.cpp_info.names["cmake_find_package_multi"] = "GnuTLS"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        if self.options.enable_tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

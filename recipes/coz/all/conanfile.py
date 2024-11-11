@@ -69,9 +69,3 @@ class CozConan(ConanFile):
         self.cpp_info.libs = ["coz"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "dl", "pthread", "rt"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "coz-profiler"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "coz-profiler"
-        self.cpp_info.names["cmake_find_package"] = "coz"
-        self.cpp_info.names["cmake_find_package_multi"] = "coz"

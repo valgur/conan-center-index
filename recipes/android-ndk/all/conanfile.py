@@ -320,52 +320,6 @@ class AndroidNDKConan(ConanFile):
         libcxx_str = str(self.settings_target.compiler.libcxx)
         self.buildenv_info.define("ANDROID_STL", libcxx_str if libcxx_str.startswith("c++_") else "c++_shared")
 
-        # TODO: conan v1 stuff to remove later
-        if conan_version.major < 2:
-            self.env_info.PATH.extend([os.path.join(self.package_folder, "bin"), os.path.join(self._ndk_root, "bin")])
-            self.env_info.ANDROID_NDK_ROOT = os.path.join(self.package_folder, "bin")
-            self.env_info.ANDROID_NDK_HOME = os.path.join(self.package_folder, "bin")
-            cmake_system_processor = self._cmake_system_processor
-            if cmake_system_processor:
-                self.env_info.CONAN_CMAKE_SYSTEM_PROCESSOR = cmake_system_processor
-            else:
-                self.output.warning("Could not find a valid CMAKE_SYSTEM_PROCESSOR variable, supported by CMake")
-            self.env_info.NDK_ROOT = self._ndk_root
-            self.env_info.CHOST = self._llvm_triplet
-            self.env_info.CONAN_CMAKE_FIND_ROOT_PATH = ndk_sysroot
-            self.env_info.SYSROOT = ndk_sysroot
-            self.env_info.ANDROID_NATIVE_API_LEVEL = str(self.settings_target.os.api_level)
-            self._chmod_plus_x(os.path.join(self.package_folder, "bin", "cmake-wrapper"))
-            cmake_wrapper = "cmake-wrapper.cmd" if self.settings.os == "Windows" else "cmake-wrapper"
-            cmake_wrapper = os.path.join(self.package_folder, "bin", cmake_wrapper)
-            self.env_info.CONAN_CMAKE_PROGRAM = cmake_wrapper
-            self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = os.path.join(self.package_folder, "bin", "build", "cmake", "android.toolchain.cmake")
-            self.env_info.CC = compiler_executables["c"]
-            self.env_info.CXX = compiler_executables["cpp"]
-            self.env_info.AR = self._define_tool_var("AR", "ar", bare)
-            self.env_info.AS = self._define_tool_var("AS", "as", bare)
-            self.env_info.RANLIB = self._define_tool_var("RANLIB", "ranlib", bare)
-            self.env_info.STRIP = self._define_tool_var("STRIP", "strip", bare)
-            self.env_info.ADDR2LINE = self._define_tool_var("ADDR2LINE", "addr2line", bare)
-            self.env_info.NM = self._define_tool_var("NM", "nm", bare)
-            self.env_info.OBJCOPY = self._define_tool_var("OBJCOPY", "objcopy", bare)
-            self.env_info.OBJDUMP = self._define_tool_var("OBJDUMP", "objdump", bare)
-            self.env_info.READELF = self._define_tool_var("READELF", "readelf", bare)
-            if self._ndk_version_major < 23:
-                self.env_info.ELFEDIT = self._define_tool_var("ELFEDIT", "elfedit")
-            if self._ndk_version_major >= 22:
-                self.env_info.LD = self._define_tool_var_naked("LD", "ld")
-            else:
-                self.env_info.LD = self._define_tool_var("LD", "ld")
-            self.env_info.ANDROID_PLATFORM = f"android-{self.settings_target.os.api_level}"
-            self.env_info.ANDROID_TOOLCHAIN = "clang"
-            self.env_info.ANDROID_ABI = self._android_abi
-            self.env_info.ANDROID_STL = libcxx_str if libcxx_str.startswith("c++_") else "c++_shared"
-            self.env_info.CMAKE_FIND_ROOT_PATH_MODE_PROGRAM = "BOTH"
-            self.env_info.CMAKE_FIND_ROOT_PATH_MODE_LIBRARY = "BOTH"
-            self.env_info.CMAKE_FIND_ROOT_PATH_MODE_INCLUDE = "BOTH"
-            self.env_info.CMAKE_FIND_ROOT_PATH_MODE_PACKAGE = "BOTH"
-
     def _unzip_fix_symlinks(self, url, target_folder, sha256):
         # Python's built-in module 'zipfile' won't handle symlinks (https://bugs.python.org/issue37921)
         # Most of the logic borrowed from this PR https://github.com/conan-io/conan/pull/8100

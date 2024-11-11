@@ -83,8 +83,5 @@ class RagelConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        self.env_info.RAGEL_ROOT = self.package_folder
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
+        self.runenv_info.define_path("RAGEL_ROOT", self.package_folder)
+        self.buildenv_info.define_path("RAGEL_ROOT", self.package_folder)

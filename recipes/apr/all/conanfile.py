@@ -206,7 +206,3 @@ class AprConan(ConanFile):
                 self.cpp_info.system_libs = ["dl", "pthread", "rt"]
             if self.settings.os == "Windows":
                 self.cpp_info.system_libs = ["mswsock", "rpcrt4", "ws2_32"]
-
-        # TODO: to remove in conan v2
-        self.env_info.APR_ROOT = self.package_folder
-        self.env_info._APR_BUILDDIR = os.path.join(self.package_folder, "res", "build-1")

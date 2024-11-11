@@ -154,10 +154,3 @@ class AcadoConan(ConanFile):
         acado_template_paths = os.path.join(self.package_folder, "include", "acado", "code_generation", "templates")
         self.conf_info.define("user.acado:template_paths", acado_template_paths)
         self.buildenv_info.define_path("ACADO_TEMPLATE_PATHS", acado_template_paths)
-
-        # TODO: to remove in conan v2
-        self.env_info.ACADO_TEMPLATE_PATHS = acado_template_paths
-        self.cpp_info.names["cmake_find_package"] = "ACADO"
-        self.cpp_info.names["cmake_find_package_multi"] = "ACADO"
-        self.cpp_info.build_modules["cmake_find_package"].append(os.path.join("lib", "cmake", "qpoases.cmake"))
-        self.cpp_info.build_modules["cmake_find_package_multi"].append(os.path.join("lib", "cmake", "qpoases.cmake"))

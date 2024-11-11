@@ -68,7 +68,3 @@ class JBigConan(ConanFile):
         self.cpp_info.libs = ["jbig"]
         if self.options.shared and is_msvc(self):
             self.cpp_info.defines = ["_JBIGDLL_"]
-
-        # TODO: to remove in conan v2
-        if self.options.build_executables:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

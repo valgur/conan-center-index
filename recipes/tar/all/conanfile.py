@@ -112,8 +112,3 @@ class TarConan(ConanFile):
         tar_bin = os.path.join(self.package_folder, "bin", "tar")
         self.conf_info.define("user.tar:path", tar_bin)
         self.env_info.TAR = tar_bin
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)
-        self.user_info.tar = tar_bin

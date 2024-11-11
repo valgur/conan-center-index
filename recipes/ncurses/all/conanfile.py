@@ -317,11 +317,3 @@ class NCursesConan(ConanFile):
         self.buildenv_info.define_path("TERMINFO", terminfo)
         self.runenv_info.define_path("TERMINFO", terminfo)
         self.conf_info.define("user.ncurses:lib_suffix", self._lib_suffix)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "Curses"
-        self.cpp_info.names["cmake_find_package_multi"] = "Curses"
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package"] = [module_rel_path]
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package_multi"] = [module_rel_path]
-        self.env_info.TERMINFO = terminfo
-        self.user_info.lib_suffix = self._lib_suffix

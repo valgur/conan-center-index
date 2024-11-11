@@ -96,7 +96,3 @@ class CubicInterpolationConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "CubicInterpolation::CubicInterpolation")
         self.cpp_info.libs = ["CubicInterpolation"]
         self.cpp_info.requires = ["boost::headers", "boost::filesystem", "boost::math", "boost::serialization", "eigen::eigen"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CubicInterpolation"
-        self.cpp_info.names["cmake_find_package_multi"] = "CubicInterpolation"

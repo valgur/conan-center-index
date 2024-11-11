@@ -76,25 +76,12 @@ class TaoCPPPEGTLConan(ConanFile):
         copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("cmake_file_name", "pegtl")
         self.cpp_info.set_property("cmake_target_name", "taocpp::pegtl")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
         if self.options.boost_filesystem:
-            self.cpp_info.components["_taocpp-pegtl"].requires.append("boost::filesystem")
-            self.cpp_info.components["_taocpp-pegtl"].defines.append("TAO_PEGTL_BOOST_FILESYSTEM")
-        else:
-            compiler_version = Version(self.settings.compiler.version)
-            if self.settings.compiler == "clang" and compiler_version >= "10" and compiler_version < "12":
-                self.cpp_info.components["_taocpp-pegtl"].defines.append("TAO_PEGTL_STD_EXPERIMENTAL_FILESYSTEM")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "pegtl"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "pegtl"
-        self.cpp_info.names["cmake_find_package"] = "taocpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
-        self.cpp_info.components["_taocpp-pegtl"].names["cmake_find_package"] = "pegtl"
-        self.cpp_info.components["_taocpp-pegtl"].names["cmake_find_package_multi"] = "pegtl"
-        self.cpp_info.components["_taocpp-pegtl"].set_property("cmake_target_name", "taocpp::pegtl")
+            self.cpp_info.requires.append("boost::filesystem")
+            self.cpp_info.defines.append("TAO_PEGTL_BOOST_FILESYSTEM")
+        elif self.settings.compiler == "clang" and "10" <= Version(self.settings.compiler.version) < "12":
+            self.cpp_info.defines.append("TAO_PEGTL_STD_EXPERIMENTAL_FILESYSTEM")

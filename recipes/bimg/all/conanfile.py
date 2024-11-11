@@ -234,9 +234,3 @@ class bimgConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "bimg")
         self.cpp_info.set_property("cmake_target_name", "bimg::bimg")
         self.cpp_info.set_property("pkg_config_name", "bimg")
-
-        #  TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "bimg"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "bimg"
-        self.cpp_info.names["cmake_find_package"] = "bimg"
-        self.cpp_info.names["cmake_find_package_multi"] = "bimg"

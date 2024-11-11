@@ -149,8 +149,3 @@ class GetTextConan(ConanFile):
         autopoint = os.path.join(self.package_folder, "bin", "autopoint")
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal)
         self.buildenv_info.define_path("AUTOPOINT", autopoint)
-
-        # TODO: the following can be removed when the recipe supports Conan >= 2.0 only
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, aclocal))
-        self.env_info.AUTOPOINT = unix_path_package_info_legacy(self, autopoint)

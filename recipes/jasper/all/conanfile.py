@@ -137,8 +137,3 @@ class JasperConan(ConanFile):
             self.cpp_info.requires.append("libjpeg-turbo::jpeg")
         elif self.options.with_libjpeg == "mozjpeg":
             self.cpp_info.requires.append("mozjpeg::libjpeg")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "Jasper"
-        self.cpp_info.names["cmake_find_package_multi"] = "Jasper"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]

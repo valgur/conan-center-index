@@ -344,10 +344,6 @@ class DCMTKConan(ConanFile):
             self.cpp_info.components[target_lib].includedirs.append(os.path.join("include", "dcmtk"))
             self.cpp_info.components[target_lib].requires = requires
 
-            # TODO: to remove in conan v2 once cmake_find_package* generators removed
-            self.cpp_info.components[target_lib].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components[target_lib].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-
             if is_msvc(self):
                 # Required for the __cplusplus check at
                 # https://github.com/DCMTK/dcmtk/blob/DCMTK-3.6.8/config/include/dcmtk/config/osconfig.h.in#L1489

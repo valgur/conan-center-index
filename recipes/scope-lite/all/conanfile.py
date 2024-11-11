@@ -41,16 +41,3 @@ class ScopeLiteConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "scope-lite"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "scope-lite"
-        self.cpp_info.names["cmake_find_package"] = "nonstd"
-        self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
-        self.cpp_info.components["scopelite"].names["cmake_find_package"] = "scope-lite"
-        self.cpp_info.components["scopelite"].names["cmake_find_package_multi"] = "scope-lite"
-        self.cpp_info.components["scopelite"].set_property("cmake_target_name", "nonstd::scope-lite")
-        self.cpp_info.components["scopelite"].bindirs = []
-        self.cpp_info.components["scopelite"].frameworkdirs = []
-        self.cpp_info.components["scopelite"].libdirs = []
-        self.cpp_info.components["scopelite"].resdirs = []

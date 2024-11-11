@@ -135,9 +135,3 @@ class LibunifexConan(ConanFile):
             self.cpp_info.components["unifex"].system_libs = ["pthread"]
         if self.options.get_safe("with_liburing"):
             self.cpp_info.components["unifex"].requires.append("liburing::liburing")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "unifex"
-        self.cpp_info.names["cmake_find_package_multi"] = "unifex"
-        self.cpp_info.components["unifex"].names["cmake_find_package"] = "unifex"
-        self.cpp_info.components["unifex"].names["cmake_find_package_multi"] = "unifex"

@@ -47,15 +47,3 @@ class TslHatTrieConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "tsl::hat_trie")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "tsl-hat-trie"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tsl-hat-trie"
-        self.cpp_info.names["cmake_find_package"] = "tsl"
-        self.cpp_info.names["cmake_find_package_multi"] = "tsl"
-        self.cpp_info.components["hat_trie"].names["cmake_find_package"] = "hat_trie"
-        self.cpp_info.components["hat_trie"].names["cmake_find_package_multi"] = "hat_trie"
-        self.cpp_info.components["hat_trie"].requires = ["tsl-array-hash::array_hash"]
-        self.cpp_info.components["hat_trie"].set_property("cmake_target_name", "tsl::hat_trie")
-        self.cpp_info.components["hat_trie"].bindirs = []
-        self.cpp_info.components["hat_trie"].libdirs = []

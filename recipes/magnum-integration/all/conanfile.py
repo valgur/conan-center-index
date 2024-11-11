@@ -132,15 +132,11 @@ class MagnumIntegrationConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "MagnumIntegration")
-        self.cpp_info.names["cmake_find_package"] = "MagnumIntegration"
-        self.cpp_info.names["cmake_find_package_multi"] = "MagnumIntegration"
 
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
 
         if self.options.with_bullet:
             self.cpp_info.components["bullet"].set_property("cmake_target_name", "MagnumIntegration::Bullet")
-            self.cpp_info.components["bullet"].names["cmake_find_package"] = "Bullet"
-            self.cpp_info.components["bullet"].names["cmake_find_package_multi"] = "Bullet"
             self.cpp_info.components["bullet"].libs = ["MagnumBulletIntegration{}".format(lib_suffix)]
             self.cpp_info.components["bullet"].requires = ["magnum::magnum_main", "magnum::gl", "magnum::shaders", "bullet3::bullet3"]
 
@@ -149,21 +145,15 @@ class MagnumIntegrationConan(ConanFile):
 
         if self.options.with_eigen:
             self.cpp_info.components["eigen"].set_property("cmake_target_name", "MagnumIntegration::Eigen")
-            self.cpp_info.components["eigen"].names["cmake_find_package"] = "Eigen"
-            self.cpp_info.components["eigen"].names["cmake_find_package_multi"] = "Eigen"
             self.cpp_info.components["eigen"].requires = ["magnum::magnum_main", "eigen::eigen"]
 
         if self.options.with_glm:
             self.cpp_info.components["glm"].set_property("cmake_target_name", "MagnumIntegration::Glm")
-            self.cpp_info.components["glm"].names["cmake_find_package"] = "Glm"
-            self.cpp_info.components["glm"].names["cmake_find_package_multi"] = "Glm"
             self.cpp_info.components["glm"].libs = ["MagnumGlmIntegration{}".format(lib_suffix)]
             self.cpp_info.components["glm"].requires = ["magnum::magnum_main", "glm::glm"]
 
         if self.options.with_imgui:
             self.cpp_info.components["imgui"].set_property("cmake_target_name", "MagnumIntegration::ImGui")
-            self.cpp_info.components["imgui"].names["cmake_find_package"] = "ImGui"
-            self.cpp_info.components["imgui"].names["cmake_find_package_multi"] = "ImGui"
             self.cpp_info.components["imgui"].libs = ["MagnumImGuiIntegration{}".format(lib_suffix)]
             self.cpp_info.components["imgui"].requires = ["magnum::magnum_main", "magnum::gl", "magnum::shaders", "imgui::imgui"]
 

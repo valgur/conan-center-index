@@ -129,7 +129,3 @@ class PackageConan(ConanFile):
             self.cpp_info.components["openassetio-python-bridge"].set_property("cmake_target_name", "OpenAssetIO::openassetio-python-bridge")
             self.cpp_info.components["openassetio-python-bridge"].requires = ["openassetio-core"]
             self.cpp_info.components["openassetio-python-bridge"].libs = ["openassetio-python"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenAssetIO"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenAssetIO"

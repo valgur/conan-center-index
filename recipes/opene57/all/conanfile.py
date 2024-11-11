@@ -141,8 +141,3 @@ class Opene57Conan(ConanFile):
         self.cpp_info.defines.append("XERCES_STATIC_LIBRARY")
         self.cpp_info.defines.append("CRCPP_INCLUDE_ESOTERIC_CRC_DEFINITIONS")
         self.cpp_info.defines.append("CRCPP_USE_CPP11")
-
-        # TODO: to remove in conan v2
-        if self.options.with_tools:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.env_info.PATH.append(bin_path)

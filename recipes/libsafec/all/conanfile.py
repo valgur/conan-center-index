@@ -122,6 +122,3 @@ class LibSafeCConan(ConanFile):
         else:
             self.cpp_info.includedirs.append(os.path.join("include", "libsafec"))
             self.cpp_info.libs = [f"safec-{self.version}"]
-
-        bin_dir = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_dir)

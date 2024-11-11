@@ -212,8 +212,6 @@ class PangoConan(ConanFile):
             self.cpp_info.components["pango_"].resdirs = ["res"]
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
-            self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.env_info.GI_TYPELIB_PATH.append(os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         # From meson.build: "To build pangoft2, we need HarfBuzz, FontConfig and FreeType"
         if self.options.with_freetype and self.options.with_fontconfig:
@@ -281,13 +279,3 @@ class PangoConan(ConanFile):
             ]
 
         self.runenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
-
-        # TODO: remove the following when only Conan 2.0 is supported
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.cpp_info.components["pango_"].names["pkg_config"] = "pango"
-        self.cpp_info.components["pangoft2"].names["pkg_config"] = "pangoft2"
-        self.cpp_info.components["pangofc"].names["pkg_config"] = "pangofc"
-        self.cpp_info.components["pangoroot"].names["pkg_config"] = "pangoroot"
-        self.cpp_info.components["pangoxft"].names["pkg_config"] = "pangoxft"
-        self.cpp_info.components["pangowin32"].names["pkg_config"] = "pangowin32"
-        self.cpp_info.components["pangocairo"].names["pkg_config"] = "pangocairo"

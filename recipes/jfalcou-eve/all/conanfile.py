@@ -82,7 +82,3 @@ class JfalcouEveConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "eve")
         self.cpp_info.set_property("cmake_target_name", "eve::eve")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "eve"
-        self.cpp_info.names["cmake_find_package_multi"] = "eve"

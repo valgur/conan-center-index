@@ -490,9 +490,6 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libacero"].set_property("pkg_config_name", "acero")
             self.cpp_info.components["libacero"].set_property("cmake_target_name", f"Acero::arrow_acero_{cmake_suffix}")
             self.cpp_info.components["libacero"].libs = [f"arrow_acero{suffix}"]
-            self.cpp_info.components["libacero"].names["cmake_find_package"] = "acero"
-            self.cpp_info.components["libacero"].names["cmake_find_package_multi"] = "acero"
-            self.cpp_info.components["libacero"].names["pkg_config"] = "acero"
             self.cpp_info.components["libacero"].requires = ["libarrow"]
 
         if self.options.gandiva:
@@ -519,11 +516,6 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["dataset"].libs = ["arrow_dataset"]
             if self.options.parquet:
                 self.cpp_info.components["dataset"].requires = ["libparquet"]
-
-        if self.options.cli and (self.options.with_cuda or self.options.with_flight_rpc or self.options.parquet):
-            binpath = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH env var: {binpath}")
-            self.env_info.PATH.append(binpath)
 
         if self.options.with_boost:
             if self.options.gandiva:

@@ -128,7 +128,3 @@ class M4Conan(ConanFile):
         m4_bin = os.path.join(self.package_folder, "bin", f"m4{bin_ext}").replace("\\", "/")
         self.runenv_info.define_path("M4", m4_bin)
         self.buildenv_info.define_path("M4", m4_bin)
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.M4 = m4_bin

@@ -42,6 +42,3 @@ class UaNodeSetConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.includedirs = []
-
-        # TODO: to remove in conan v2
-        self.user_info.nodeset_dir = os.path.join(self.package_folder, "res")

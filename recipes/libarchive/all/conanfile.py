@@ -188,8 +188,6 @@ class LibarchiveConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "LibArchive::LibArchive")
         self.cpp_info.set_property("pkg_config_name", "libarchive")
 
-        self.cpp_info.names["cmake_find_package"] = "LibArchive"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibArchive"
 
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows" and self.options.with_cng:

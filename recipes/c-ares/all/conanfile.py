@@ -76,26 +76,15 @@ class CAresConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "c-ares::cares")
         self.cpp_info.set_property("pkg_config_name", "libcares")
 
-        # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["cares"].libs = collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if not self.options.shared:
-            self.cpp_info.components["cares"].defines.append("CARES_STATICLIB")
+            self.cpp_info.defines.append("CARES_STATICLIB")
         if self.settings.os == "Linux":
-            self.cpp_info.components["cares"].system_libs.append("rt")
+            self.cpp_info.system_libs.append("rt")
             if Version(self.version) >= "1.23.0":
-                self.cpp_info.components["cares"].system_libs.append("pthread")
+                self.cpp_info.system_libs.append("pthread")
         elif self.settings.os == "Windows":
-            self.cpp_info.components["cares"].system_libs.extend(["ws2_32", "advapi32"])
-            self.cpp_info.components["cares"].system_libs.append("iphlpapi")
+            self.cpp_info.system_libs.extend(["ws2_32", "advapi32"])
+            self.cpp_info.system_libs.append("iphlpapi")
         elif is_apple_os(self):
-            self.cpp_info.components["cares"].system_libs.append("resolv")
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["pkg_config"] = "libcares"
-        self.cpp_info.components["cares"].names["cmake_find_package"] = "cares"
-        self.cpp_info.components["cares"].names["cmake_find_package_multi"] = "cares"
-        self.cpp_info.components["cares"].names["pkg_config"] = "libcares"
-        self.cpp_info.components["cares"].set_property("cmake_target_name", "c-ares::cares")
-        self.cpp_info.components["cares"].set_property("pkg_config_name", "libcares")
-        if self.options.tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+            self.cpp_info.system_libs.append("resolv")

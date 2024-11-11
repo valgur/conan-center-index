@@ -46,7 +46,3 @@ class RobinHoodHashingConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "robin_hood::robin_hood")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "robin_hood"
-        self.cpp_info.names["cmake_find_package_multi"] = "robin_hood"

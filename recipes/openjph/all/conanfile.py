@@ -113,8 +113,3 @@ class OpenJPH(ConanFile):
             v = Version(self.version)
             version_suffix = f".{v.major}.{v.minor}"
         self.cpp_info.libs = ["openjph" + version_suffix]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "openjph"
-        self.cpp_info.names["cmake_find_package_multi"] = "openjph"
-        self.cpp_info.names["pkg_config"] = "openjph"

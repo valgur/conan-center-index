@@ -100,19 +100,3 @@ class RecastNavigationConan(ConanFile):
         if self.version == "cci.20200511":
             for component in self.cpp_info.components.values():
                 component.includedirs.append(os.path.join("include", "recastnavigation"))
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "recastnavigation"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "recastnavigation"
-        self.cpp_info.names["cmake_find_package"] = "RecastNavigation"
-        self.cpp_info.names["cmake_find_package_multi"] = "RecastNavigation"
-        self.cpp_info.components["Recast"].names["cmake_find_package"] = "Recast"
-        self.cpp_info.components["Recast"].names["cmake_find_package_multi"] = "Recast"
-        self.cpp_info.components["Detour"].names["cmake_find_package"] = "Detour"
-        self.cpp_info.components["Detour"].names["cmake_find_package_multi"] = "Detour"
-        self.cpp_info.components["DetourCrowd"].names["cmake_find_package"] = "DetourCrowd"
-        self.cpp_info.components["DetourCrowd"].names["cmake_find_package_multi"] = "DetourCrowd"
-        self.cpp_info.components["DetourTileCache"].names["cmake_find_package"] = "DetourTileCache"
-        self.cpp_info.components["DetourTileCache"].names["cmake_find_package_multi"] = "DetourTileCache"
-        self.cpp_info.components["DebugUtils"].names["cmake_find_package"] = "DebugUtils"
-        self.cpp_info.components["DebugUtils"].names["cmake_find_package_multi"] = "DebugUtils"

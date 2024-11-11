@@ -89,18 +89,10 @@ class SnappyConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Snappy")
         self.cpp_info.set_property("cmake_target_name", "Snappy::snappy")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["snappylib"].libs = ["snappy"]
+        self.cpp_info.libs = ["snappy"]
         if not self.options.shared:
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components["snappylib"].system_libs.append("m")
+                self.cpp_info.system_libs.append("m")
             libcxx = stdcpp_library(self)
             if libcxx:
-                self.cpp_info.components["snappylib"].system_libs.append(libcxx)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Snappy"
-        self.cpp_info.names["cmake_find_package_multi"] = "Snappy"
-        self.cpp_info.components["snappylib"].names["cmake_find_package"] = "snappy"
-        self.cpp_info.components["snappylib"].names["cmake_find_package_multi"] = "snappy"
-        self.cpp_info.components["snappylib"].set_property("cmake_target_name", "Snappy::snappy")
+                self.cpp_info.system_libs.append(libcxx)

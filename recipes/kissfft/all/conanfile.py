@@ -91,35 +91,23 @@ class KissfftConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "kissfft::kissfft")
         self.cpp_info.set_property("cmake_target_aliases", [f"kissfft::{lib_name}"])
         self.cpp_info.set_property("pkg_config_name", lib_name)
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libkissfft"].includedirs.append(os.path.join("include", "kissfft"))
-        self.cpp_info.components["libkissfft"].libs = [lib_name]
+        self.cpp_info.includedirs.append(os.path.join("include", "kissfft"))
+        self.cpp_info.libs = [lib_name]
 
         # got to duplicate the logic from kissfft/CMakeLists.txt
         if self.options.datatype in ["float", "double"]:
-            self.cpp_info.components["libkissfft"].defines.append(f"kiss_fft_scalar={self.options.datatype}")
+            self.cpp_info.defines.append(f"kiss_fft_scalar={self.options.datatype}")
         elif self.options.datatype == "int16_t":
-            self.cpp_info.components["libkissfft"].defines.append("FIXED_POINT=16")
+            self.cpp_info.defines.append("FIXED_POINT=16")
         elif self.options.datatype == "int32_t":
-            self.cpp_info.components["libkissfft"].defines.append("FIXED_POINT=32")
+            self.cpp_info.defines.append("FIXED_POINT=32")
         elif self.options.datatype == "simd":
-            self.cpp_info.components["libkissfft"].defines.append("USE_SIMD")
-
+            self.cpp_info.defines.append("USE_SIMD")
         if self.options.use_alloca:
-            self.cpp_info.components["libkissfft"].defines.append("KISS_FFT_USE_ALLOCA")
-
+            self.cpp_info.defines.append("KISS_FFT_USE_ALLOCA")
         if self.options.shared:
-            self.cpp_info.components["libkissfft"].defines.append("KISS_FFT_SHARED")
-
+            self.cpp_info.defines.append("KISS_FFT_SHARED")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libkissfft"].system_libs = ["m"]
-
+            self.cpp_info.system_libs = ["m"]
         if self.options.openmp:
-            self.cpp_info.components["libkissfft"].requires = ["openmp::openmp"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["pkg_config"] = lib_name
-        self.cpp_info.components["libkissfft"].names["cmake_find_package"] = lib_name
-        self.cpp_info.components["libkissfft"].names["cmake_find_package_multi"] = lib_name
-        self.cpp_info.components["libkissfft"].set_property("cmake_target_name", "kissfft::kissfft")
-        self.cpp_info.components["libkissfft"].set_property("pkg_config_name", lib_name)
+            self.cpp_info.requires = ["openmp::openmp"]

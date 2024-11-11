@@ -44,15 +44,3 @@ class TayweeArgsConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "args")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "args"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "args"
-        self.cpp_info.names["cmake_find_package"] = "taywee"
-        self.cpp_info.names["cmake_find_package_multi"] = "taywee"
-        self.cpp_info.components["libargs"].names["cmake_find_package"] = "args"
-        self.cpp_info.components["libargs"].names["cmake_find_package_multi"] = "args"
-        self.cpp_info.components["libargs"].set_property("cmake_target_name", "taywee::args")
-        self.cpp_info.components["libargs"].set_property("pkg_config_name", "args")
-        self.cpp_info.components["libargs"].bindirs = []
-        self.cpp_info.components["libargs"].libdirs = []

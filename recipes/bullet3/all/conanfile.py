@@ -189,10 +189,3 @@ class Bullet3Conan(ConanFile):
         self.cpp_info.defines = self._bullet_definitions
         if self.options.bt2_thread_locks and self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Bullet"
-        self.cpp_info.names["cmake_find_package_multi"] = "Bullet"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "bullet"

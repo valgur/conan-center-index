@@ -123,9 +123,3 @@ class MpppConan(ConanFile):
 
         if self.options.get_safe("with_fmt"):
             self.cpp_info.defines.append("MPPP_WITH_FMT")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "mp++"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mp++"
-        self.cpp_info.names["cmake_find_package"] = "mp++"
-        self.cpp_info.names["cmake_find_package_multi"] = "mp++"

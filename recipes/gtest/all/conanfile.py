@@ -190,9 +190,3 @@ class GTestConan(ConanFile):
                 self.cpp_info.components["gmock_main"].set_property("pkg_config_name", "gmock_main")
                 self.cpp_info.components["gmock_main"].libs = [f"gmock_main{self._postfix}"]
                 self.cpp_info.components["gmock_main"].requires = ["gmock"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GTest"
-        self.cpp_info.names["cmake_find_package_multi"] = "GTest"
-        self.cpp_info.components["libgtest"].names["cmake_find_package"] = "gtest"
-        self.cpp_info.components["libgtest"].names["cmake_find_package_multi"] = "gtest"

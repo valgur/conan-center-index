@@ -45,7 +45,3 @@ class MPCGeneratorConan(ConanFile):
         bin_path = os.path.join(self.package_folder, "bin")
         # MPC_ROOT: https://github.com/objectcomputing/MPC/blob/5b4c2443871e5e9b6267edef17fed66afc125fa4/docs/USAGE#L243
         self.buildenv_info.define("MPC_ROOT", bin_path)
-
-        # TODO: Remove after dropping Conan 1.x
-        self.env_info.PATH.append(bin_path)
-        self.env_info.MPC_ROOT = bin_path

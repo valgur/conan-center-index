@@ -82,9 +82,3 @@ class PackageConan(ConanFile):
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("pthread")
             self.cpp_info.system_libs.append("dl")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Au"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Au"
-        self.cpp_info.names["cmake_find_package"] = "Au::au"
-        self.cpp_info.names["cmake_find_package_multi"] = "Au::au"

@@ -179,7 +179,3 @@ class CCTagConan(ConanFile):
 
         # CCTag links against shared CUDA runtime by default and does not use it in headers,
         # so we don't need to explicitly link against it.
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CCTag"
-        self.cpp_info.names["cmake_find_package_multi"] = "CCTag"

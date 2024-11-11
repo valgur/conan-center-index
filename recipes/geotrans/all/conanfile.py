@@ -84,5 +84,3 @@ class GeotransConan(ConanFile):
 
         mspccs_data_path = os.path.join(self.package_folder, "res")
         self.runenv_info.define_path("MSPCCS_DATA", mspccs_data_path)
-        # TODO: to remove after conan v2, it allows to not break consumers still relying on virtualenv generator
-        self.env_info.MSPCCS_DATA = mspccs_data_path

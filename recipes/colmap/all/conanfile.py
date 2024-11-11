@@ -171,8 +171,6 @@ class ColmapConan(ConanFile):
         module_rel_path = os.path.join("lib", "cmake", "colmap-conan-vars.cmake")
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
         self.cpp_info.set_property("cmake_build_modules", [module_rel_path])
-        self.cpp_info.build_modules["cmake_find_package"] = [module_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [module_rel_path]
 
         def _add_component(name, requires):
             component = self.cpp_info.components[name]

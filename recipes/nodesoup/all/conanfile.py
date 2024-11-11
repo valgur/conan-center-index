@@ -76,5 +76,3 @@ class NodesoupConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs.append(os.path.join("include", "nodesoup"))
         self.cpp_info.libs = ["nodesoup"]
-        self.cpp_info.names["cmake_find_package"] = "nodesoup"
-        self.cpp_info.names["cmake_find_package_multi"] = "nodesoup"

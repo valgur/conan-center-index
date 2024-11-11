@@ -157,8 +157,3 @@ class MoldConan(ConanFile):
         self.conf_info.define("user.mold:path", mold_executable)
         self.buildenv_info.define_path("MOLD_ROOT", bindir)
         self.buildenv_info.define("LD", mold_executable)
-
-        # For legacy Conan 1.x consumers only:
-        self.env_info.PATH.append(bindir)
-        self.env_info.MOLD_ROOT = bindir
-        self.env_info.LD = mold_executable

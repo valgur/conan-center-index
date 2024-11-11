@@ -71,8 +71,3 @@ class MakeConan(ConanFile):
 
         make = os.path.join(self.package_folder, "bin", "gnumake.exe" if self.settings.os == "Windows" else "make")
         self.conf_info.define("tools.gnu:make_program", make)
-
-        # TODO: to remove in conan v2
-        self.user_info.make = make
-        self.env_info.CONAN_MAKE_PROGRAM = make
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

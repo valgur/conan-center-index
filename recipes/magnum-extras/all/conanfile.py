@@ -127,18 +127,9 @@ class MagnumExtrasConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "MagnumExtras")
-        self.cpp_info.names["cmake_find_package"] = "MagnumExtras"
-        self.cpp_info.names["cmake_find_package_multi"] = "MagnumExtras"
 
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
         if self.options.ui:
             self.cpp_info.components["ui"].set_property("cmake_target_name", "MagnumExtras::Ui")
-            self.cpp_info.components["ui"].names["cmake_find_package"] = "Ui"
-            self.cpp_info.components["ui"].names["cmake_find_package_multi"] = "Ui"
             self.cpp_info.components["ui"].libs = ["MagnumUi{}".format(lib_suffix)]
             self.cpp_info.components["ui"].requires = ["corrade::interconnect", "magnum::magnum_main", "magnum::gl", "magnum::text"]
-
-        if self.options.player or self.options.ui_gallery:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info('Appending PATH environment variable: %s' % bin_path)
-            self.env_info.path.append(bin_path)

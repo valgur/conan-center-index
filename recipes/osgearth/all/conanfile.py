@@ -346,9 +346,5 @@ class OsgearthConan(ConanFile):
         setup_plugin("fastdxt")
 
         if self.settings.os == "Windows":
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
             osg_version = self.dependencies["openscenegraph"].ref.version
-            self.env_info.PATH.append(os.path.join(self.package_folder, os.path.join("bin", f"osgPlugins-{osg_version}")))
             self.runenv_info.append_path("PATH", os.path.join(self.package_folder, os.path.join("bin", f"osgPlugins-{osg_version}")))
-        elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))

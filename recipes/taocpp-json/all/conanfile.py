@@ -73,17 +73,5 @@ class TaoCPPJSONConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "taocpp-json")
         self.cpp_info.set_property("cmake_target_name", "taocpp::json")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["json"].bindirs = []
-        self.cpp_info.components["json"].libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "taocpp-json"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "taocpp-json"
-        self.cpp_info.names["cmake_find_package"] = "taocpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
-        self.cpp_info.components["json"].names["cmake_find_package"] = "json"
-        self.cpp_info.components["json"].names["cmake_find_package_multi"] = "json"
-        self.cpp_info.components["json"].set_property("cmake_target_name", "taocpp::json")
-        if self._requires_pegtl:
-            self.cpp_info.components["json"].requires = ["taocpp-pegtl::taocpp-pegtl"]
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

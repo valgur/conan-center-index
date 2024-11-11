@@ -46,16 +46,3 @@ class TlExpectedConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "tl-expected"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tl-expected"
-        self.cpp_info.names["cmake_find_package"] = "tl"
-        self.cpp_info.names["cmake_find_package_multi"] = "tl"
-        self.cpp_info.components["expected"].names["cmake_find_package"] = "expected"
-        self.cpp_info.components["expected"].names["cmake_find_package_multi"] = "expected"
-        self.cpp_info.components["expected"].set_property("cmake_target_name", "tl::expected")
-        self.cpp_info.components["expected"].bindirs = []
-        self.cpp_info.components["expected"].frameworkdirs = []
-        self.cpp_info.components["expected"].libdirs = []
-        self.cpp_info.components["expected"].resdirs = []

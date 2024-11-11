@@ -122,7 +122,3 @@ class CgnsConan(ConanFile):
             self.cpp_info.components["cgns_static"].libdirs = ["lib"]
             if self.options.with_hdf5:
                 self.cpp_info.components["cgns_static"].requires = ["hdf5::hdf5"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CGNS"
-        self.cpp_info.names["cmake_find_package_multi"] = "CGNS"

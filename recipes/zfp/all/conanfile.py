@@ -122,7 +122,3 @@ class ZfpConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_zfp"].system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["_zfp"].names["cmake_find_package"] = "zfp"
-        self.cpp_info.components["_zfp"].names["cmake_find_package_multi"] = "zfp"

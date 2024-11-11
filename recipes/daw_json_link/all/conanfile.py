@@ -86,11 +86,3 @@ class DawJsonLinkConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "daw::daw-json-link")
         self.cpp_info.components["daw"].set_property("cmake_target_name", "daw::daw-json-link")
         self.cpp_info.components["daw"].requires = ["daw_header_libraries::daw", "daw_utf_range::daw"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "daw-json-link"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "daw-json-link"
-        self.cpp_info.names["cmake_find_package"] = "daw"
-        self.cpp_info.names["cmake_find_package_multi"] = "daw"
-        self.cpp_info.components["daw"].names["cmake_find_package"] = "daw-json-link"
-        self.cpp_info.components["daw"].names["cmake_find_package_multi"] = "daw-json-link"

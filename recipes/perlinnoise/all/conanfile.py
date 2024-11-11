@@ -68,12 +68,3 @@ class PerlinnoiseConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "siv::PerlinNoise")
 
         self.cpp_info.components["siv"].set_property("cmake_target_name", "siv::PerlinNoise")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "PerlinNoise"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "PerlinNoise"
-        self.cpp_info.names["cmake_find_package"] = "siv"
-        self.cpp_info.names["cmake_find_package_multi"] = "siv"
-
-        self.cpp_info.components["siv"].names["cmake_find_package"] = "PerlinNoise"
-        self.cpp_info.components["siv"].names["cmake_find_package_multi"] = "PerlinNoise"

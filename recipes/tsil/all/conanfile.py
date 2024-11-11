@@ -77,7 +77,3 @@ class TsilConan(ConanFile):
         self.cpp_info.defines.append(self._tsil_size)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

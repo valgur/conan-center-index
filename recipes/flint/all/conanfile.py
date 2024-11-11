@@ -102,7 +102,3 @@ class FlintConan(ConanFile):
 
         self.cpp_info.includedirs.append(os.path.join("include", "flint"))
         self.cpp_info.libs = ["flint"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "libflint"
-        self.cpp_info.names["cmake_find_package_multi"] = "libflint"

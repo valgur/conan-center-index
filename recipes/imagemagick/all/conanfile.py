@@ -390,7 +390,3 @@ class ImageMagicConan(ConanFile):
 
         self.cpp_info.components[self._libname("Magick++")].requires = ["Magick++"]
         self.cpp_info.components[self._libname("Magick++")].set_property("pkg_config_name", self._libname("Magick++"))
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

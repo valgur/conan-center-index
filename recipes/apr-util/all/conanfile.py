@@ -217,9 +217,3 @@ class AprUtilConan(ConanFile):
         libdirs = [p for dep in deps for p in dep.cpp_info.aggregated_components().libdirs]
         aprutil_ldflags = " ".join([f"-L{p}" for p in libdirs])
         self.runenv_info.define("APRUTIL_LDFLAGS", aprutil_ldflags)
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.APR_UTIL_ROOT = self.package_folder
-        if not is_msvc(self):
-            self.env_info.APRUTIL_LDFLAGS = aprutil_ldflags

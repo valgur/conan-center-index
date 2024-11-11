@@ -268,8 +268,3 @@ class CImgConan(ConanFile):
 
         if self.settings.os == "Windows" and self.options.enable_display:
             self.cpp_info.system_libs.append("gdi32")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        #       do not use this name in CMakeDeps, it was a mistake, there is no official CMake config file
-        self.cpp_info.names["cmake_find_package"] = "CImg"
-        self.cpp_info.names["cmake_find_package_multi"] = "CImg"

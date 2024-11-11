@@ -52,8 +52,3 @@ class NinjaConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2
-        if Version(conan_version).major < 2:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-            self.env_info.CONAN_CMAKE_GENERATOR = "Ninja"

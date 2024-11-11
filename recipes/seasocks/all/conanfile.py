@@ -108,17 +108,6 @@ class SeasocksConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Seasocks")
         self.cpp_info.set_property("cmake_target_name", "Seasocks::seasocks")
-
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["libseasocks"].libs = ["seasocks"]
+        self.cpp_info.libs = ["seasocks"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libseasocks"].system_libs.extend(["pthread", "m"])
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Seasocks"
-        self.cpp_info.names["cmake_find_package_multi"] = "Seasocks"
-        self.cpp_info.components["libseasocks"].names["cmake_find_package"] = "seasocks"
-        self.cpp_info.components["libseasocks"].names["cmake_find_package_multi"] = "seasocks"
-        self.cpp_info.components["libseasocks"].set_property("cmake_target_name", "Seasocks::seasocks")
-        if self.options.with_zlib:
-            self.cpp_info.components["libseasocks"].requires = ["zlib::zlib"]
+            self.cpp_info.system_libs.extend(["pthread", "m"])

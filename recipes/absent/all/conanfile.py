@@ -78,16 +78,7 @@ class AbsentConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "rvarago::absent")
         self.cpp_info.components["absentlib"].set_property("cmake_target_name", "rvarago::absent")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["absentlib"].bindirs = []
-        self.cpp_info.components["absentlib"].frameworkdirs = []
-        self.cpp_info.components["absentlib"].libdirs = []
-        self.cpp_info.components["absentlib"].resdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "absent"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "absent"
-        self.cpp_info.names["cmake_find_package"] = "rvarago"
-        self.cpp_info.names["cmake_find_package_multi"] = "rvarago"
-        self.cpp_info.components["absentlib"].names["cmake_find_package"] = "absent"
-        self.cpp_info.components["absentlib"].names["cmake_find_package_multi"] = "absent"
+        self.cpp_info.bindirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.resdirs = []

@@ -58,16 +58,4 @@ class GslLiteConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "gsl::gsl-lite")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["gsllite"].defines = [self._contract_map[str(self.options.on_contract_violation)]]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "gsl-lite"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "gsl-lite"
-        self.cpp_info.names["cmake_find_package"] = "gsl"
-        self.cpp_info.names["cmake_find_package_multi"] = "gsl"
-        self.cpp_info.components["gsllite"].names["cmake_find_package"] = "gsl-lite"
-        self.cpp_info.components["gsllite"].names["cmake_find_package_multi"] = "gsl-lite"
-        self.cpp_info.components["gsllite"].set_property("cmake_target_name", "gsl::gsl-lite")
-        self.cpp_info.components["gsllite"].bindirs = []
-        self.cpp_info.components["gsllite"].libdirs = []
+        self.cpp_info.defines = [self._contract_map[str(self.options.on_contract_violation)]]

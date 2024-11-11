@@ -68,9 +68,3 @@ class BtyaccConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_build_modules", [self._cmake_variables])
-
-        # TODO: to remove after conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.cpp_info.build_modules["cmake"] = [self._cmake_variables]
-        self.cpp_info.build_modules["cmake_find_package"] = [self._cmake_variables]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._cmake_variables]

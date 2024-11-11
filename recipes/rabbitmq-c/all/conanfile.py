@@ -96,31 +96,17 @@ class RabbitmqcConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", f"rabbitmq::{rabbitmq_target}")
         self.cpp_info.set_property("pkg_config_name", "librabbitmq")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         if self.settings.os == "Windows":
-            self.cpp_info.components["rabbitmq"].libs = [
+            self.cpp_info.libs = [
                 "rabbitmq.4" if self.options.shared else "librabbitmq.4"
             ]
-            self.cpp_info.components["rabbitmq"].system_libs.extend(["crypt32", "ws2_32"])
+            self.cpp_info.system_libs.extend(["crypt32", "ws2_32"])
         else:
-            self.cpp_info.components["rabbitmq"].libs = ["rabbitmq"]
+            self.cpp_info.libs = ["rabbitmq"]
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components["rabbitmq"].system_libs.append("pthread")
+                self.cpp_info.system_libs.append("pthread")
         if not self.options.shared:
-            self.cpp_info.components["rabbitmq"].defines.append("AMQP_STATIC")
+            self.cpp_info.defines.append("AMQP_STATIC")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("rt")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "rabbitmq-c"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "rabbitmq-c"
-        self.cpp_info.names["cmake_find_package"] = "rabbitmq"
-        self.cpp_info.names["cmake_find_package_multi"] = "rabbitmq"
-        self.cpp_info.names["pkg_config"] = "librabbitmq"
-        self.cpp_info.components["rabbitmq"].names["cmake_find_package"] = rabbitmq_target
-        self.cpp_info.components["rabbitmq"].names["cmake_find_package_multi"] = rabbitmq_target
-        self.cpp_info.components["rabbitmq"].set_property("cmake_target_name", f"rabbitmq::{rabbitmq_target}")
-        self.cpp_info.components["rabbitmq"].set_property("pkg_config_name", "librabbitmq")
-        if self.options.ssl:
-            self.cpp_info.components["rabbitmq"].requires.append("openssl::openssl")

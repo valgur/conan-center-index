@@ -146,17 +146,6 @@ class LibFDKAACConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "fdk-aac")
         self.cpp_info.set_property("cmake_target_name", "FDK-AAC::fdk-aac")
         self.cpp_info.set_property("pkg_config_name", "fdk-aac")
-
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["fdk-aac"].libs = ["fdk-aac"]
+        self.cpp_info.libs = ["fdk-aac"]
         if self.settings.os in ["Linux", "FreeBSD", "Android"]:
-            self.cpp_info.components["fdk-aac"].system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "fdk-aac"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "fdk-aac"
-        self.cpp_info.names["cmake_find_package"] = "FDK-AAC"
-        self.cpp_info.names["cmake_find_package_multi"] = "FDK-AAC"
-        self.cpp_info.components["fdk-aac"].names["cmake_find_package"] = "fdk-aac"
-        self.cpp_info.components["fdk-aac"].names["cmake_find_package_multi"] = "fdk-aac"
-        self.cpp_info.components["fdk-aac"].set_property("cmake_target_name", "FDK-AAC::fdk-aac")
+            self.cpp_info.system_libs.append("m")

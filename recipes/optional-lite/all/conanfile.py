@@ -35,14 +35,3 @@ class OptionalLiteConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "nonstd::optional-lite")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "optional-lite"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "optional-lite"
-        self.cpp_info.names["cmake_find_package"] = "nonstd"
-        self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
-        self.cpp_info.components["optionallite"].names["cmake_find_package"] = "optional-lite"
-        self.cpp_info.components["optionallite"].names["cmake_find_package_multi"] = "optional-lite"
-        self.cpp_info.components["optionallite"].set_property("cmake_target_name", "nonstd::optional-lite")
-        self.cpp_info.components["optionallite"].bindirs = []
-        self.cpp_info.components["optionallite"].libdirs = []

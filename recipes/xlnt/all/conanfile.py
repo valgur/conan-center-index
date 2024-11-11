@@ -107,9 +107,3 @@ class XlntConan(ConanFile):
         self.cpp_info.libs = [f"xlnt{suffix}"]
         if not self.options.shared:
             self.cpp_info.defines.append("XLNT_STATIC")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "Xlnt"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Xlnt"
-        self.cpp_info.names["cmake_find_package"] = "xlnt"
-        self.cpp_info.names["cmake_find_package_multi"] = "xlnt"

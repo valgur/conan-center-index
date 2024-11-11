@@ -200,12 +200,3 @@ class OpenColorIOConan(ConanFile):
 
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("OpenColorIO_SKIP_IMPORTS")
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH env var with: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenColorIO"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenColorIO"
-        self.cpp_info.names["pkg_config"] = "OpenColorIO"

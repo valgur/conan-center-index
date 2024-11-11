@@ -104,8 +104,3 @@ class Re2CConan(ConanFile):
 
         include_dir = os.path.join(self.package_folder, "include")
         self.buildenv_info.define("RE2C_STDLIB_DIR", include_dir)
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)
-        self.env_info.RE2C_STDLIB_DIR = include_dir

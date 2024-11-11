@@ -167,13 +167,3 @@ class PistacheConan(ConanFile):
             self.cpp_info.components["libpistache"].system_libs = ["pthread"]
             if self.version != "cci.20201127":
                 self.cpp_info.components["libpistache"].system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Pistache"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Pistache"
-        self.cpp_info.names["cmake_find_package"] = "Pistache"
-        self.cpp_info.names["cmake_find_package_multi"] = "Pistache"
-        self.cpp_info.names["pkg_config"] = "libpistache"
-        suffix = "_{}".format("shared" if self.options.shared else "static")
-        self.cpp_info.components["libpistache"].names["cmake_find_package"] = "pistache" + suffix
-        self.cpp_info.components["libpistache"].names["cmake_find_package_multi"] = "pistache" + suffix

@@ -67,9 +67,6 @@ class ZipConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "zip")
         self.cpp_info.set_property("cmake_target_name", "zip::zip")
 
-        self.cpp_info.names["cmake_find_package"] = "zip"
-        self.cpp_info.names["cmake_find_package_multi"] = "zip"
-
         self.cpp_info.libs = ["zip"]
         if self.options.shared:
             self.cpp_info.defines.append("ZIP_SHARED")

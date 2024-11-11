@@ -87,9 +87,6 @@ class AsmjitConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "asmjit")
         self.cpp_info.set_property("cmake_target_name", "asmjit::asmjit")
 
-        self.cpp_info.names["cmake_find_package"] = "asmjit"
-        self.cpp_info.names["cmake_find_package_multi"] = "asmjit"
-
         self.cpp_info.libs = ["asmjit"]
         if not self.options.shared:
             self.cpp_info.defines = ["ASMJIT_STATIC"]

@@ -206,17 +206,10 @@ class MongoCDriverConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mongoc-1.0")
         self.cpp_info.set_property("cmake_target_name", f"mongo::{mongoc_target}")
 
-        self.cpp_info.filenames["cmake_find_package"] = "mongoc-1.0"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mongoc-1.0"
-        self.cpp_info.names["cmake_find_package"] = "mongo"
-        self.cpp_info.names["cmake_find_package_multi"] = "mongo"
-
         # mongoc
         self.cpp_info.components["mongoc"].set_property("cmake_target_name", f"mongo::{mongoc_target}")
         self.cpp_info.components["mongoc"].set_property("pkg_config_name", "libmongoc-1.0" if self.options.shared else "libmongoc-static-1.0")
 
-        self.cpp_info.components["mongoc"].names["cmake_find_package"] = mongoc_target
-        self.cpp_info.components["mongoc"].names["cmake_find_package_multi"] = mongoc_target
 
         self.cpp_info.components["mongoc"].includedirs = [os.path.join("include", "libmongoc-1.0")]
         self.cpp_info.components["mongoc"].libs = ["mongoc-1.0" if self.options.shared else "mongoc-static-1.0"]
@@ -253,8 +246,6 @@ class MongoCDriverConan(ConanFile):
         self.cpp_info.components["bson"].set_property("cmake_target_name", f"mongo::{bson_target}")
         self.cpp_info.components["bson"].set_property("pkg_config_name", "libbson-1.0" if self.options.shared else "libbson-static-1.0")
 
-        self.cpp_info.components["bson"].names["cmake_find_package"] = bson_target
-        self.cpp_info.components["bson"].names["cmake_find_package_multi"] = bson_target
 
         self.cpp_info.components["bson"].includedirs = [os.path.join("include", "libbson-1.0")]
         self.cpp_info.components["bson"].libs = ["bson-1.0" if self.options.shared else "bson-static-1.0"]

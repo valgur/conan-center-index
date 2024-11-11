@@ -147,8 +147,6 @@ class GlslangConan(ConanFile):
 
         # glslang
         self.cpp_info.components["glslang-core"].set_property("cmake_target_name", "glslang::glslang")
-        self.cpp_info.components["glslang-core"].names["cmake_find_package"] = "glslang"
-        self.cpp_info.components["glslang-core"].names["cmake_find_package_multi"] = "glslang"
         self.cpp_info.components["glslang-core"].libs = [f"glslang{lib_suffix}"]
         if self.options.shared:
             self.cpp_info.components["glslang-core"].defines.append("GLSLANG_IS_SHARED_LIBRARY")
@@ -168,8 +166,6 @@ class GlslangConan(ConanFile):
         if has_machineindependent:
             # MachineIndependent
             self.cpp_info.components["machineindependent"].set_property("cmake_target_name", "glslang::MachineIndependent")
-            self.cpp_info.components["machineindependent"].names["cmake_find_package"] = "MachineIndependent"
-            self.cpp_info.components["machineindependent"].names["cmake_find_package_multi"] = "MachineIndependent"
             self.cpp_info.components["machineindependent"].libs = [f"MachineIndependent{lib_suffix}"]
             if has_genericcodegen:
                 self.cpp_info.components["machineindependent"].requires.append("genericcodegen")
@@ -181,15 +177,11 @@ class GlslangConan(ConanFile):
         if has_genericcodegen:
             # GenericCodeGen
             self.cpp_info.components["genericcodegen"].set_property("cmake_target_name", "glslang::GenericCodeGen")
-            self.cpp_info.components["genericcodegen"].names["cmake_find_package"] = "GenericCodeGen"
-            self.cpp_info.components["genericcodegen"].names["cmake_find_package_multi"] = "GenericCodeGen"
             self.cpp_info.components["genericcodegen"].libs = [f"GenericCodeGen{lib_suffix}"]
 
         if has_osdependent:
             # OSDependent
             self.cpp_info.components["osdependent"].set_property("cmake_target_name", "glslang::OSDependent")
-            self.cpp_info.components["osdependent"].names["cmake_find_package"] = "OSDependent"
-            self.cpp_info.components["osdependent"].names["cmake_find_package_multi"] = "OSDependent"
             self.cpp_info.components["osdependent"].libs = [f"OSDependent{lib_suffix}"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["osdependent"].system_libs.append("pthread")
@@ -197,14 +189,10 @@ class GlslangConan(ConanFile):
         if has_oglcompiler:
             # OGLCompiler
             self.cpp_info.components["oglcompiler"].set_property("cmake_target_name", "glslang::OGLCompiler")
-            self.cpp_info.components["oglcompiler"].names["cmake_find_package"] = "OGLCompiler"
-            self.cpp_info.components["oglcompiler"].names["cmake_find_package_multi"] = "OGLCompiler"
             self.cpp_info.components["oglcompiler"].libs = [f"OGLCompiler{lib_suffix}"]
 
         # SPIRV
         self.cpp_info.components["spirv"].set_property("cmake_target_name", "glslang::SPIRV")
-        self.cpp_info.components["spirv"].names["cmake_find_package"] = "SPIRV"
-        self.cpp_info.components["spirv"].names["cmake_find_package_multi"] = "SPIRV"
         self.cpp_info.components["spirv"].libs = [f"SPIRV{lib_suffix}"]
         self.cpp_info.components["spirv"].requires = ["glslang-core"]
         if self.options.enable_optimizer:
@@ -214,23 +202,14 @@ class GlslangConan(ConanFile):
         # HLSL
         if self.options.hlsl and Version(self.version) <= "1.3.268.0":
             self.cpp_info.components["hlsl"].set_property("cmake_target_name", "glslang::HLSL")
-            self.cpp_info.components["hlsl"].names["cmake_find_package"] = "HLSL"
-            self.cpp_info.components["hlsl"].names["cmake_find_package_multi"] = "HLSL"
             self.cpp_info.components["hlsl"].libs = [f"HLSL{lib_suffix}"]
             self.cpp_info.components["glslang-core"].requires.append("hlsl")
 
         # SPVRemapper
         if self.options.spv_remapper:
             self.cpp_info.components["spvremapper"].set_property("cmake_target_name", "glslang::SPVRemapper")
-            self.cpp_info.components["spvremapper"].names["cmake_find_package"] = "SPVRemapper"
-            self.cpp_info.components["spvremapper"].names["cmake_find_package_multi"] = "SPVRemapper"
             self.cpp_info.components["spvremapper"].libs = [f"SPVRemapper{lib_suffix}"]
-
-        if self.options.build_executables:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
         if Version(self.version) >= "1.3.243":
             self.cpp_info.components["glslang-default-resource-limits"].set_property("cmake_target_name", "glslang::glslang-default-resource-limits")
-            self.cpp_info.components["glslang-default-resource-limits"].names["cmake_find_package"] = "glslang-default-resource-limits"
-            self.cpp_info.components["glslang-default-resource-limits"].names["cmake_find_package_multi"] = "glslang-default-resource-limits"
             self.cpp_info.components["glslang-default-resource-limits"].libs = [f"glslang-default-resource-limits{lib_suffix}"]
