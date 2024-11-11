@@ -1,9 +1,8 @@
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd, valid_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rename, replace_in_file, rmdir, save
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import msvc_runtime_flag
@@ -221,10 +220,6 @@ class OpenCVConan(ConanFile):
     @property
     def _is_mingw(self):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
-
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
 
     @property
     def _contrib_folder(self):
@@ -1069,7 +1064,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/[~3.24]")
         if self.options.get_safe("with_qt"):
-            self.requires("qt/[>=6.7 <7]")
+            self.requires("qt/[>=6.7 <7]", run=can_run(self))
         if self.options.get_safe("with_wayland"):
             self.requires("xkbcommon/1.6.0")
             self.requires("wayland/1.22.0")
@@ -1170,14 +1165,14 @@ class OpenCVConan(ConanFile):
 
     def build_requirements(self):
         if self.options.get_safe("with_protobuf"):
-            if not self._is_legacy_one_profile:
-                self.tool_requires("protobuf/<host_version>")
+            self.tool_requires("protobuf/<host_version>")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland-protocols/1.33")
-            if not self._is_legacy_one_profile:
-                self.tool_requires("wayland/<host_version>")
+            self.tool_requires("wayland/<host_version>")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.get_safe("with_qt") and not can_run(self):
+            self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
@@ -1281,12 +1276,13 @@ class OpenCVConan(ConanFile):
             replace_in_file(self, freetype_cmake, "ocv_check_modules(HARFBUZZ harfbuzz)", "find_package(harfbuzz REQUIRED CONFIG)")
             replace_in_file(self, freetype_cmake, "HARFBUZZ_", "harfbuzz_")
 
-    def generate(self):
-        VirtualBuildEnv(self).generate()
-        if self._is_legacy_one_profile:
-            if self.options.get_safe("with_protobuf") or self.options.get_safe("with_wayland"):
-                VirtualRunEnv(self).generate(scope="build")
+        if self.options.get_safe("with_qt"):
+            # Use proper CMake targets for Qt. Fails due to headers not being found otherwise.
+            replace_in_file(self, os.path.join(self.source_folder, "modules", "highgui", "CMakeLists.txt"),
+                            "${Qt${QT_VERSION_MAJOR}${dt_dep}_LIBRARIES}",
+                            "Qt${QT_VERSION_MAJOR}::${dt_dep}")
 
+    def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["OPENCV_CONFIG_INSTALL_PATH"] = "cmake"
         tc.variables["OPENCV_BIN_INSTALL_PATH"] = "bin"
@@ -1463,7 +1459,7 @@ class OpenCVConan(ConanFile):
         tc.variables["WITH_ADE"] = self.options.gapi
 
         # Extra modules
-        if any([self.options.get_safe(module) for module in OPENCV_EXTRA_MODULES_OPTIONS]) or self.options.with_cuda:
+        if any(self.options.get_safe(module) for module in OPENCV_EXTRA_MODULES_OPTIONS) or self.options.with_cuda:
             tc.variables["OPENCV_EXTRA_MODULES_PATH"] = self._extra_modules_folder.replace("\\", "/")
         tc.variables["BUILD_opencv_cudev"] = self.options.with_cuda
         for module in OPENCV_EXTRA_MODULES_OPTIONS:
@@ -1506,22 +1502,7 @@ class OpenCVConan(ConanFile):
 
         if self.options.get_safe("with_wayland"):
             deps = PkgConfigDeps(self)
-            if self._is_legacy_one_profile:
-                # Manually generate pkgconfig file of wayland-protocols since
-                # PkgConfigDeps.build_context_activated can't work with legacy 1 profile
-                wp_prefix = self.dependencies.build["wayland-protocols"].package_folder
-                wp_version = self.dependencies.build["wayland-protocols"].ref.version
-                wp_pkg_content = textwrap.dedent(f"""\
-                    prefix={wp_prefix}
-                    datarootdir=${{prefix}}/res
-                    pkgdatadir=${{datarootdir}}/wayland-protocols
-                    Name: Wayland Protocols
-                    Description: Wayland protocol files
-                    Version: {wp_version}
-                """)
-                save(self, os.path.join(self.generators_folder, "wayland-protocols.pc"), wp_pkg_content)
-            else:
-                deps.build_context_activated = ["wayland-protocols"]
+            deps.build_context_activated = ["wayland-protocols"]
             deps.generate()
 
     def build(self):
