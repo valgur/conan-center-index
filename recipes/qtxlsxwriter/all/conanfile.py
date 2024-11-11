@@ -1,13 +1,13 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, download, export_conandata_patches, get
-from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.63.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import can_run
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, download, export_conandata_patches, get
+from conan.tools.scm import Version
+
+required_conan_version = ">=2.0.9"
 
 
 class QtXlsxWriterConan(ConanFile):
@@ -28,49 +28,31 @@ class QtXlsxWriterConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
+        self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True, run=can_run(self))
 
     def validate(self):
         if not self.dependencies["qt"].options.gui:
-            raise ConanInvalidConfiguration(f"{self.ref} requires qt gui")
-        # FIXME: to remove once https://github.com/conan-io/conan/issues/11385 fixed
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration(f"{self.ref} recipe does not support cross-compilation yet")
+            raise ConanInvalidConfiguration(f"{self.ref} requires -o qt/*:gui=True")
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and cross_building(self):
+        if not can_run(self):
             self.tool_requires("qt/<host_version>")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version]["source"],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
         download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
 
     def generate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
-            env = VirtualBuildEnv(self)
-            env.generate()
-        else:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-
         tc = CMakeToolchain(self)
         tc.variables["QTXLSXWRITER_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["QT_VERSION_MAJOR"] = str(Version(self.dependencies["qt"].ref.version).major)
