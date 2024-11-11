@@ -164,7 +164,6 @@ class BotanConan(ConanFile):
             return {
                 "gcc": "4.8",
                 "clang": "3.5",
-                "Visual Studio": "14",
                 "msvc": "190",
             }
         else:
@@ -173,7 +172,6 @@ class BotanConan(ConanFile):
                 "gcc":  "11.2",
                 "clang": "14",
                 "apple-clang": "14",
-                "Visual Studio": "17",
                 "msvc": "193",
             }
 

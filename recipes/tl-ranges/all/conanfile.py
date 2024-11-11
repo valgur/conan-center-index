@@ -29,7 +29,6 @@ class TLRangesConan(ConanFile):
             "gcc": "11",
             "clang": "15",
             "apple-clang": "14",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

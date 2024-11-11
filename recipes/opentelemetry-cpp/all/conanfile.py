@@ -79,12 +79,10 @@ class OpenTelemetryCppConan(ConanFile):
                 "gcc": "6",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "16",
                 "msvc": "192",
             }
         else:
             return {
-                "Visual Studio": "16",
                 "msvc": "192",
             }
 

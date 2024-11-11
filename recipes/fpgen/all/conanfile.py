@@ -31,7 +31,6 @@ class FpgenConan(ConanFile):
             "gcc": "11",
             "clang": "13",
             "apple-clang": "13.1",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

@@ -66,7 +66,6 @@ class CernRootConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16.1",
             "gcc": "4.8",
             "clang": "3.4",
             "apple-clang": "5.1",

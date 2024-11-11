@@ -27,7 +27,6 @@ class CsLibguardedConan(ConanFile):
     def _compilers_minimum_version(self):
         if Version(self.version) < "1.3":
             return {
-                "Visual Studio": "15.2",
                 "msvc": "191",
                 "gcc": "5",
                 "clang": "5",
@@ -35,7 +34,6 @@ class CsLibguardedConan(ConanFile):
             }
         else:
             return {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "8",
                 "clang": "7",

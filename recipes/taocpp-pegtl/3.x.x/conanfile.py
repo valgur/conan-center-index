@@ -35,7 +35,6 @@ class TaoCPPPEGTLConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7" if self.options.boost_filesystem else "8",
-            "Visual Studio": "15.7",
             "clang": "6.0",
             "apple-clang": "10",
         }

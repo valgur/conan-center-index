@@ -30,7 +30,6 @@ class OctoKeygenCPPConan(ConanFile):
             "gcc": "8",
             "clang": "9",
             "apple-clang": "11",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

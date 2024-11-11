@@ -29,7 +29,6 @@ class SourceLocationConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16.6",
             "gcc": "7.1",
             "clang": "9",
             "apple-clang": "12",

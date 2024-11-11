@@ -47,7 +47,6 @@ class CycloneDDSConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "7",
             "apple-clang": "10",

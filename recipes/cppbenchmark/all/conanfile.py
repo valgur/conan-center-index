@@ -36,7 +36,6 @@ class CppBenchmark(ConanFile):
             "apple-clang": 10,
             "clang": 6,
             "gcc": 7,
-            "Visual Studio": 16,
             "msvc": 192,
         }
 

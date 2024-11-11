@@ -39,7 +39,6 @@ class PackageConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15.7",
             "msvc": "191",
             "clang": "7",
             "apple-clang": "10",

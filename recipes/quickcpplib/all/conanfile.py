@@ -24,7 +24,6 @@ class QuickcpplibCodeConan(ConanFile):
         return {
             "gcc": "9",
             "clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

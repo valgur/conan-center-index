@@ -50,10 +50,6 @@ class LibStudXmlConan(ConanFile):
     def requirements(self):
         self.requires("expat/2.5.0", transitive_headers=True, transitive_libs=True)
 
-    def validate(self):
-        if self.info.settings.compiler == "Visual Studio" and Version(self.info.settings.compiler.version) < "9":
-            raise ConanInvalidConfiguration(f"Visual Studio {self.info.settings.compiler.version} is not supported.")
-
     def build_requirements(self):
         if not is_msvc(self):
             self.tool_requires("gnu-config/cci.20210814")
@@ -79,9 +75,7 @@ class LibStudXmlConan(ConanFile):
 
     @property
     def _vc_ver(self):
-        if self.settings.compiler == "Visual Studio":
-            return str(Version(self.settings.compiler.version).major)
-        elif self.settings.compiler == "msvc":
+        if self.settings.compiler == "msvc":
             return {
                 "170": "11",
                 "180": "12",

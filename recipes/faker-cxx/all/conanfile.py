@@ -38,7 +38,6 @@ class FakerCXXConan(ConanFile):
             "gcc": "12",
             "clang": "16",
             "apple-clang": "16",
-            "Visual Studio": "17",
             "msvc": "193",
         }
 

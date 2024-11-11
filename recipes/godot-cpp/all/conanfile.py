@@ -54,7 +54,6 @@ class GodotCppConan(ConanFile):
             "clang": "4",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
         compiler = str(self.settings.compiler)

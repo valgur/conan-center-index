@@ -61,21 +61,18 @@ class DataFrameConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "17": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "7",
                 "clang": "6",
                 "apple-clang": "10.0",
             },
             "20": {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "11",
                 "clang": "12",
                 "apple-clang": "13",
             },
             "23": {
-                "Visual Studio": "17",
                 "msvc": "192",
                 "gcc": "13",
                 "clang": "15",

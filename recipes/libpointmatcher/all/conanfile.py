@@ -46,7 +46,6 @@ class LibpointmatcherConan(ConanFile):
             "clang": "5",
             "apple-clang": "7",
             "msvc": "190",
-            "Visual Studio": "14",
         }
 
     def export_sources(self):

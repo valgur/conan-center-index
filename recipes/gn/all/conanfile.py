@@ -45,7 +45,6 @@ class GnConan(ConanFile):
     def _minimum_compiler_version(self):
         if self._min_cppstd == 17:
             return {
-                "Visual Studio": 15,
                 "msvc": 191,
                 "gcc": 7,
                 "clang": 4,
@@ -57,7 +56,6 @@ class GnConan(ConanFile):
                 "clang": "12",
                 "apple-clang": "15",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
 
     def validate_build(self):

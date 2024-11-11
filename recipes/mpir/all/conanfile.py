@@ -118,8 +118,6 @@ class MpirConan(ConanFile):
 
     @property
     def _vs_ide_version(self):
-        if str(self.settings.compiler) == "Visual Studio":
-            return self.settings.compiler.version
         msvc_to_ide = {"170": "11", "180": "12", "190": "14", "191": "15", "192": "16", "193": "17"}
         return msvc_to_ide.get(str(self.settings.compiler.version), "17")
 

@@ -37,7 +37,6 @@ class FTXUIConan(ConanFile):
 			"gcc": "8",
 			"clang": "7",
 			"apple-clang": "12",
-			"Visual Studio": "16",
 			"msvc": "192",
 		}
 

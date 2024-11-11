@@ -53,7 +53,6 @@ class LibCVDConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def config_options(self):

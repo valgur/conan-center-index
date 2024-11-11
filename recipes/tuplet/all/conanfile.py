@@ -29,14 +29,12 @@ class TupletConan(ConanFile):
         if self._min_cppstd == "20":
             return {
                 "gcc": "11",
-                "Visual Studio": "17",
                 "msvc": "193",
                 "clang": "13",
                 "apple-clang": "13"
             }
         return {
             "gcc": "8",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "7",
             "apple-clang": "12"

@@ -30,7 +30,6 @@ class JsonifierConan(ConanFile):
             "gcc": "12",
             "clang": "17",
             "apple-clang": "14",
-            "Visual Studio": "17",
             "msvc": "193",
         }
 

@@ -38,7 +38,6 @@ class SeadexEssentialsConan(ConanFile):
         return {
             "gcc": "8.3",
             "clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "10"
         }

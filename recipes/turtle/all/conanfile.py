@@ -30,7 +30,6 @@ class TurtleConan(ConanFile):
             "clang": "7",
             "gcc": "7",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def layout(self):

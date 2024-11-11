@@ -90,7 +90,6 @@ class OpenVDBConan(ConanFile):
             # https://github.com/AcademySoftwareFoundation/openvdb/blob/v10.0.1/doc/dependencies.txt#L56-L84
             return {
                 "msvc": "192.8",
-                "Visual Studio": "16",
                 "gcc": "9.3.1",
                 "clang": "5.0",
                 "apple-clang": "12.0",
@@ -100,7 +99,6 @@ class OpenVDBConan(ConanFile):
             # https://github.com/AcademySoftwareFoundation/openvdb/blob/v9.1.0/doc/dependencies.txt#L56-L84
             return {
                 "msvc": "191.0",
-                "Visual Studio": "15",
                 "gcc": "6.3.1",
                 "clang": "3.8",
                 "apple-clang": "10.0",

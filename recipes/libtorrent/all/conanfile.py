@@ -59,7 +59,6 @@ class LibtorrentConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "5" if Version(self.version) < "2.0.8" else "6",
                 "clang": "5",

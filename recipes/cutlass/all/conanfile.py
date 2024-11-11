@@ -35,7 +35,6 @@ class CutlassConan(ConanFile):
             "clang": "7",
             "apple-clang": "7",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def layout(self):

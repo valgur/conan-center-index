@@ -51,10 +51,6 @@ class OneTBBConan(ConanFile):
         return self.settings.compiler
 
     @property
-    def _is_msvc(self):
-        return str(self._base_compiler) in ["Visual Studio", "msvc"]
-
-    @property
     def _is_clang_cl(self):
         return self.settings.os == "Windows" and self.settings.compiler == "clang"
 
@@ -94,7 +90,7 @@ class OneTBBConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        if self._is_msvc:
+        if is_msvc(self):
             link_cmd = "xilib" if self.settings.compiler == "intel-cc" else "lib"
             save(
                 self,

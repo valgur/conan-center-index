@@ -95,8 +95,7 @@ class XZUtilsConan(ConanFile):
 
     @property
     def _msvc_sln_folder(self):
-        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or \
-           (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
+        if (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
             return "vs2017"
         return "vs2013"
 
@@ -109,8 +108,7 @@ class XZUtilsConan(ConanFile):
             os.path.join(build_script_folder, "liblzma.vcxproj"),
             os.path.join(build_script_folder, "liblzma_dll.vcxproj"),
         ]
-        if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler) >= "15") or \
-           (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
+        if is_msvc(self) and Version(self.settings.compiler) >= "191":
             old_toolset = "v141"
         else:
             old_toolset = "v120"

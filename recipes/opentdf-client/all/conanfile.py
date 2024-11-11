@@ -42,7 +42,6 @@ class OpenTDFConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "7.5",
             "clang": "12",

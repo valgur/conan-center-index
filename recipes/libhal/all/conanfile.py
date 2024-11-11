@@ -30,7 +30,6 @@ class LibHALConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "11",
-            "Visual Studio": "17",
             "msvc": "193",
             "clang": "13",
             "apple-clang": "14"

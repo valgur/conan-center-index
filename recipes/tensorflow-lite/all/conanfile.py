@@ -48,7 +48,6 @@ class TensorflowLiteConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "8",
-            "Visual Studio": "15.8",
             "msvc": "191",
             "clang": "5",
             "apple-clang": "5.1",

@@ -96,8 +96,7 @@ class LibiconvConan(ConanFile):
                     "RC": "windres --target=pe-x86-64",
                     "WINDRES": "windres --target=pe-x86-64",
                 })
-        msvc_version = {"Visual Studio": "12", "msvc": "180"}
-        if is_msvc(self) and Version(self.settings.compiler.version) >= msvc_version[str(self.settings.compiler)]:
+        if is_msvc(self) and Version(self.settings.compiler.version) >= "180":
             # https://github.com/conan-io/conan/issues/6514
             tc.extra_cflags.append("-FS")
         if cross_building(self) and is_msvc(self):

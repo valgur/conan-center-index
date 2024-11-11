@@ -35,7 +35,6 @@ class CeleroConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "6",
-            "Visual Studio": "14",
             "msvc": "190",
             "clang": "3.4",
             "apple-clang": "5.1",

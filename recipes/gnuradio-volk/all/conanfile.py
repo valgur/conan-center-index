@@ -40,7 +40,6 @@ class GnuradioVolkConan(ConanFile):
             "gcc": "7",
             "clang": "6",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

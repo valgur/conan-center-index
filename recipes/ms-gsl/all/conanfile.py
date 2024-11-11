@@ -46,7 +46,6 @@ class MicrosoftGslConan(ConanFile):
             "clang": "3.4",
             "apple-clang": "3.4",
             "msvc": "190",
-            "Visual Studio": "14",
         }
 
     def config_options(self):

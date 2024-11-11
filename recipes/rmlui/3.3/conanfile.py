@@ -40,7 +40,6 @@ class RmluiConan(ConanFile):
             "gcc": "5",
             "intel": "17",
             "sun-cc": "5.15",
-            "Visual Studio": "15"
         }
 
     @property

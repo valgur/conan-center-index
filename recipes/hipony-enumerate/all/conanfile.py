@@ -33,7 +33,6 @@ class HiponyEnumerateConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "8" if self.options.aggregates else "6",
-            "Visual Studio": "16" if self.options.aggregates else "14",
             "msvc": "192"  if self.options.aggregates else "190",
             "clang": "5.0" if self.options.aggregates else "3.9",
             "apple-clang": "10",

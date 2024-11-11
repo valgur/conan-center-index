@@ -33,7 +33,6 @@ class CotilaConan(ConanFile):
             "gcc": "7",
             "clang": "6.0",
             "apple-clang": "10",
-            "Visual Studio": "15.7",
             "msvc": "193",
         }
 

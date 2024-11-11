@@ -45,7 +45,6 @@ class CrashpadConan(ConanFile):
             "gcc": 5,
             "clang": "3.9",
             "msvc": "190",
-            "Visual Studio": 14,
         }.get(str(self.settings.compiler))
 
     def config_options(self):

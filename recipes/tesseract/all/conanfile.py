@@ -47,14 +47,12 @@ class TesseractConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "11": {
-                "Visual Studio": "14",
                 "msvc": "190",
                 "gcc": "5",
                 "clang": "5",
                 "apple-clang": "6",
             },
             "17": {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "7",
                 "clang": "7",

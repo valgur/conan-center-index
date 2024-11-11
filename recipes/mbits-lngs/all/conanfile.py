@@ -37,7 +37,6 @@ class MBitsLngsConan(ConanFile):
         return {
             "gcc": "11",
             "clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "11.0.3",
         }

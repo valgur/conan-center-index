@@ -30,7 +30,6 @@ class ZugConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15",
             "gcc": "5",
             "clang": "3.5",
             "apple-clang": "10",

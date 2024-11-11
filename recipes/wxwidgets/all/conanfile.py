@@ -413,8 +413,7 @@ class wxWidgetsConan(ConanFile):
                 self.cpp_info.frameworks.append(framework)
         elif self.settings.os == "Windows":
             # see cmake/init.cmake
-            compiler_prefix = {"Visual Studio": "vc",
-                               "msvc": "vc",
+            compiler_prefix = {"msvc": "vc",
                                "gcc": "gcc",
                                "clang": "clang"}.get(str(self.settings.compiler))
 

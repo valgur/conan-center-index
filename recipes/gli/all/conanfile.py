@@ -30,7 +30,6 @@ class GliConan(ConanFile):
             "gcc": "4.7",
             "clang": "3.4",
             "apple-clang": "6",
-            "Visual Studio": "12",
             "msvc": "180",
         }
 

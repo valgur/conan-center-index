@@ -29,7 +29,6 @@ class CistaConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15.7" if Version(self.version) < "0.11" else "16",
             "msvc": "191" if Version(self.version) < "0.11" else "192",
             "gcc": "8",
             "clang": "6",

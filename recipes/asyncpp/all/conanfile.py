@@ -40,7 +40,6 @@ class AsyncppRecipe(ConanFile):
             "gcc": "13",
             "clang": "17",
             "msvc": "193",
-            "Visual Studio": "17",
         }
 
     def config_options(self):

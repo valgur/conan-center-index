@@ -27,7 +27,6 @@ class QuillConan(ConanFile):
     def _compilers_minimum_versions(self):
         return {
             "gcc": "8",
-            "Visual Studio": "16",
             "clang": "7",
             "apple-clang": "12",
         }

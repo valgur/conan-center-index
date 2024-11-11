@@ -35,7 +35,6 @@ class NameofConan(ConanFile):
             "gcc": "9",
             "clang": "5",
             "apple-clang": "9",
-            "Visual Studio": "15.3",
             "msvc": "191",
         }
 

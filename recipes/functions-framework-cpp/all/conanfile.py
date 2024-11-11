@@ -37,7 +37,6 @@ class FunctionsFrameworkCppConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15.7",
             "msvc": "190",
             "clang": "7",
             "apple-clang": "11",

@@ -33,7 +33,6 @@ class ArgparseConan(ConanFile):
             # trantor/2.5 uses [[maybe_unused]] in range-based for loop
             # Visual Studio 15 doesn't support it:
             # https://developercommunity.visualstudio.com/t/compiler-bug-on-parsing-maybe-unused-in-range-base/209488
-            "Visual Studio": "15" if Version(self.version) < "2.5" else "16",
             "msvc": "191" if Version(self.version) < "2.5" else "192",
             "apple-clang": "10",
         }

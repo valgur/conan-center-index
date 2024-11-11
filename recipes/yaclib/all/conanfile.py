@@ -46,14 +46,12 @@ class YACLibConan(ConanFile):
         if self._min_cppstd == 17:
             return {
                 "gcc": "7",
-                "Visual Studio": "14.20",
                 "msvc": "192",
                 "clang": "8",
                 "apple-clang": "12",
             }
         return {
             "gcc": "12",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "13",
             "apple-clang": "13",

@@ -37,7 +37,6 @@ class DoxygenConan(ConanFile):
             }
         return {
             "gcc": "7",  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66297
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

@@ -27,7 +27,6 @@ class SqliteOrmConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "5" if Version(self.version) < "1.9" else "8",
-            "Visual Studio": "14",
             "msvc": "190",
             "clang": "3.4",
             "apple-clang": "5.1",

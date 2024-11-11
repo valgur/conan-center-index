@@ -75,7 +75,6 @@ class SnitchConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "10",
-            "Visual Studio": "17",
             "msvc": "193",
             "clang": "10",
             "apple-clang": "10",

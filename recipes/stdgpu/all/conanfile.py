@@ -55,7 +55,6 @@ class StdgpuConan(ConanFile):
                 "clang": "6",
                 "apple-clang": "6",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
         else:
             # > 1.3.0
@@ -65,7 +64,6 @@ class StdgpuConan(ConanFile):
                 "clang": "10",
                 "apple-clang": "12",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
 
     def export_sources(self):

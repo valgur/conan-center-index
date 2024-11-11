@@ -60,7 +60,6 @@ class JemallocConan(ConanFile):
             # The upstream repository provides solution files for Visual Studio 2015, 2017, 2019 and 2022,
             # but the 2015 solution does not work properly due to unresolved external symbols:
             # `test_hooks_libc_hook` and `test_hooks_arena_new_hook`
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

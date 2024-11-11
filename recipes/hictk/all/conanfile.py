@@ -38,7 +38,6 @@ class HictkConan(ConanFile):
             "apple-clang": "11",
             "clang": "7",
             "gcc": "8",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

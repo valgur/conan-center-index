@@ -47,14 +47,12 @@ class OnnxRuntimeConan(ConanFile):
     def _compilers_minimum_version(self):
         if Version(self.version) < "1.16.0":
             return {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "7",
                 "clang": "5",
                 "apple-clang": "10",
             }
         return {
-            "Visual Studio": "17",
             "msvc": "193",
             "gcc": "9",
             "clang": "5",

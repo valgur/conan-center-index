@@ -132,7 +132,6 @@ class ArrowConan(ConanFile):
                 "gcc": "8",
                 "clang": "7",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
         }.get(self._min_cppstd, {})

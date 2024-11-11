@@ -37,7 +37,6 @@ class MlpackConan(ConanFile):
             "clang": "5",
             "apple-clang": "5",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def layout(self):

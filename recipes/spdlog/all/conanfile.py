@@ -84,7 +84,6 @@ class SpdlogConan(ConanFile):
             "gcc": "13",
             "clang": "14",
             "apple-clang": "15",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

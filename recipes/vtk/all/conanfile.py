@@ -195,7 +195,6 @@ class VtkConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15",
             "msvc": "191",
             "clang": "7",
             "apple-clang": "11",

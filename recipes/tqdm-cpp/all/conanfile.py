@@ -33,7 +33,6 @@ class TqdmCppConan(ConanFile):
             "clang": "6",
             "apple-clang": "11",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def layout(self):

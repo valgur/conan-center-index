@@ -27,7 +27,6 @@ class KDBindingsConan(ConanFile):
             "gcc": "9",
             "clang": "7",
             "apple-clang": "11",
-            "Visual Studio": "15.7",
             "msvc": "191",
         }
 

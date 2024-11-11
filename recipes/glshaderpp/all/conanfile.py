@@ -33,7 +33,6 @@ class GLShaderPPConan(ConanFile):
             "clang": "6",
             "apple-clang": "10",
             "msvc": "193",
-            "Visual Studio": "17",
         }
 
     def layout(self):

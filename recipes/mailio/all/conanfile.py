@@ -37,7 +37,6 @@ class MailioConan(ConanFile):
         return {
             "gcc": "8.3",
             "clang": "6",
-            "Visual Studio": "15",
             "msvc": "191",
             "apple-clang": "10",
         }

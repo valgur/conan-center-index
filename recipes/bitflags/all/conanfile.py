@@ -31,7 +31,6 @@ class BitFlags(ConanFile):
             "apple-clang": "5",
             "clang": "5",
             "gcc": "7",
-            "Visual Studio": "14",
             "msvc": "190",
         }
 

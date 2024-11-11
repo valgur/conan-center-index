@@ -44,7 +44,6 @@ class FollyConan(ConanFile):
             "clang": "10",
             "apple-clang": "14",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def export_sources(self):

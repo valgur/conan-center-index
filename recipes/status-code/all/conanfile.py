@@ -23,7 +23,6 @@ class StatusCodeConan(ConanFile):
             # Their README says gcc 5, but in testing only >=7 worked
             "gcc": "7",
             "clang": "3.3",
-            "Visual Studio": "14",
             "apple-clang": "5",
         }
 

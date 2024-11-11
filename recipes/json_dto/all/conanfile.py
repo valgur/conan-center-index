@@ -31,7 +31,6 @@ class JsonDtoConan(ConanFile):
             "gcc": "5",
             "clang": "4",
             "apple-clang": "8",
-            "Visual Studio": "14",
             "msvc": "190",
         }
 

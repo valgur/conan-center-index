@@ -83,7 +83,6 @@ class G2oConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",

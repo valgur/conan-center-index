@@ -37,7 +37,6 @@ class EdlibConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "5",
                 "clang": "5",

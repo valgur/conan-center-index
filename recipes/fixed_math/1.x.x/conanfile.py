@@ -41,7 +41,6 @@ class FixedMathConan(ConanFile):
             "gcc": "10", # fixed_math requires __has_builtin
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

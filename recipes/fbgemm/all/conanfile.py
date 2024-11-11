@@ -43,7 +43,6 @@ class FbgemmConan(ConanFile):
             "clang": "7",
             "gcc": "6",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):

@@ -34,7 +34,6 @@ class ZserioConanFile(ConanFile):
             "clang": "11",
             "gcc": "5",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     @property

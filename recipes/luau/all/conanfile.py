@@ -39,7 +39,6 @@ class LuauConan(ConanFile):
             "gcc": "9",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

@@ -40,7 +40,6 @@ class SamariumConan(ConanFile):
             "clang": "13",
             "apple-clang": "13",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def config_options(self):

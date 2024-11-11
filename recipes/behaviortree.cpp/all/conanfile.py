@@ -63,7 +63,6 @@ class BehaviorTreeCPPConan(ConanFile):
                 "clang": "7",
                 "apple-clang": "12",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
         else:
             return {
@@ -71,7 +70,6 @@ class BehaviorTreeCPPConan(ConanFile):
                 "clang": "5",
                 "apple-clang": "12",
                 "msvc": "191",
-                "Visual Studio": "15",
             }
 
     def export_sources(self):

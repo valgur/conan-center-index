@@ -332,12 +332,7 @@ class QtConan(ConanFile):
     def package_id(self):
         del self.info.options.sysroot
         if self.info.options.multiconfiguration:
-            if self.info.settings.compiler == "Visual Studio":
-                if "MD" in self.info.settings.compiler.runtime:
-                    self.info.settings.compiler.runtime = "MD/MDd"
-                else:
-                    self.info.settings.compiler.runtime = "MT/MTd"
-            elif self.info.settings.compiler == "msvc":
+            if self.info.settings.compiler == "msvc":
                 self.info.settings.compiler.runtime_type = "Release/Debug"
         if self.info.settings.os == "Android":
             del self.info.options.android_sdk

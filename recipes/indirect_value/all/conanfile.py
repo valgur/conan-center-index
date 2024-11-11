@@ -29,7 +29,6 @@ class IndirectValueConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "gcc": "8",
             "clang": "8",
             "apple-clang": "11",

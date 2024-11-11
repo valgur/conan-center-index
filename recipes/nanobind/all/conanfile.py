@@ -32,7 +32,6 @@ class PackageConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
             "msvc": "192",
-            "Visual Studio": "15",
         }
 
     def layout(self):

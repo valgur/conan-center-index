@@ -34,7 +34,6 @@ class UnleashConan(ConanFile):
     @property
     def _compilers_min_version(self):
         return {
-            "Visual Studio": "15",  # Should we check toolset?
             "msvc": "191",
             "gcc": "7",
             "clang": "4.0",

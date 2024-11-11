@@ -29,7 +29,6 @@ class InjaConan(ConanFile):
         if self._min_cppstd == 11:
             return {}
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "7",
             "clang": "7",

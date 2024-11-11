@@ -25,7 +25,6 @@ class PranavCSV2Conan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12.0",

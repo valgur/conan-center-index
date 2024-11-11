@@ -27,7 +27,6 @@ class FixedMathConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "17",
             "msvc": "193",
             "gcc": "12",
             "clang": "15",

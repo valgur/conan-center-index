@@ -42,7 +42,6 @@ class OpenALConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "13" if Version(self.version) < "1.21" else "15",
             "msvc": "180" if Version(self.version) < "1.21" else "191",
             "gcc": "5",
             "clang": "5",

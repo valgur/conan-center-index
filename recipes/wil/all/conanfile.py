@@ -35,7 +35,6 @@ class WilConan(ConanFile):
     def _compilers_minimum_version(self):
         # About compiler version: https://github.com/microsoft/wil/issues/207#issuecomment-991722592
         return {
-            "Visual Studio": "15",
             "msvc": "191"
         }
 

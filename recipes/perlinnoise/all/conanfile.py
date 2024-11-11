@@ -25,7 +25,6 @@ class PerlinnoiseConan(ConanFile):
     @property
     def _compiler_required_cpp(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",

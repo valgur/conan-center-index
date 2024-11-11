@@ -34,7 +34,6 @@ class TinyDnnConan(ConanFile):
             "clang": "3.4",
             "apple-clang": "10",
             "msvc": "190",
-            "Visual Studio": "14",
         }
 
     def layout(self):

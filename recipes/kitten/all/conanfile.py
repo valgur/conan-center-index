@@ -31,7 +31,6 @@ class KittenConan(ConanFile):
         return {
             "gcc": "7",
             "clang": "5",
-            "Visual Studio": "15.7",
             "apple-clang": "10",
         }
 

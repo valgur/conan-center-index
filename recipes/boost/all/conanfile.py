@@ -231,7 +231,6 @@ class BoostConan(ConanFile):
             "gcc": 6,
             "clang": 6,
             "apple-clang": 99,  # still uses C++98 by default. XCode does not reflect apple-clang
-            "Visual Studio": 14,  # guess
             "msvc": 190,  # guess
         }.get(str(self.settings.compiler))
 
@@ -246,7 +245,6 @@ class BoostConan(ConanFile):
             "gcc": 6,
             "clang": 6,
             "apple-clang": 99,  # still uses C++98 by default. XCode does not reflect apple-clang
-            "Visual Studio": 15,  # guess
             "msvc": 191,  # guess
         }.get(str(self.settings.compiler))
 
@@ -256,7 +254,6 @@ class BoostConan(ConanFile):
             "gcc": 99,
             "clang": 99,
             "apple-clang": 99,
-            "Visual Studio": 99,
             "msvc": 999,
         }.get(str(self.settings.compiler))
 
@@ -276,11 +273,9 @@ class BoostConan(ConanFile):
             return valid_min_cppstd(self, 14)
         required_compiler_version = self._min_compiler_version_default_cxx14
         if required_compiler_version:
-            msvc_versions = {14: 190, 15: 191, 16: 192, 17: 193}
             compiler_version = Version(self.settings.compiler.version)
-            is_visual_studio = str(self.settings.compiler) == "Visual Studio"
             # supported_cppstd only supports msvc, but not Visual Studio as compiler
-            supported_cxx14 = "14" in supported_cppstd(self, "msvc", msvc_versions.get(compiler_version)) if is_visual_studio else "14" in supported_cppstd(self)
+            supported_cxx14 = "14" in supported_cppstd(self)
             # supported_cppstd: lists GCC 5 due partial support for C++14, but not enough for Boost
             return (compiler_version >= required_compiler_version) and supported_cxx14
 
@@ -293,10 +288,9 @@ class BoostConan(ConanFile):
         if required_compiler_version:
             msvc_versions = {14: 190, 15: 191, 16: 192, 17: 193}
             compiler_version = Version(self.settings.compiler.version)
-            is_visual_studio = str(self.settings.compiler) == "Visual Studio"
             # supported_cppstd only supports msvc, but not Visual Studio as compiler
-            supported_cxx20 = "20" in supported_cppstd(self, "msvc", msvc_versions.get(compiler_version)) if is_visual_studio else "20" in supported_cppstd(self)
-            # We still dont have a compiler using C++20 by default
+            supported_cxx20 = "20" in supported_cppstd(self)
+            # We still don't have a compiler using C++20 by default
             return (compiler_version >= required_compiler_version) or supported_cxx20
 
     @property
@@ -309,11 +303,11 @@ class BoostConan(ConanFile):
         # https://releases.llvm.org/14.0.0/tools/clang/docs/ReleaseNotes.html#clang-format: before is experimental header
         # https://gcc.gnu.org/gcc-10/changes.html: requires -fcoroutines
         min_compiler_versions = {
-                "apple-clang": "12",
-                "clang": "14",
-                "gcc": "10",
-                "msvc": "192",
-                "Visual Studio": "16",}
+            "apple-clang": "12",
+            "clang": "14",
+            "gcc": "10",
+            "msvc": "192",
+        }
         required_compiler_version = min_compiler_versions.get(str(self.settings.compiler))
         if not required_compiler_version:
             return cppstd_20_supported
@@ -325,7 +319,6 @@ class BoostConan(ConanFile):
         return {
             "gcc": 4.8,
             "clang": 5,
-            "Visual Studio": 14,  # guess
             "msvc": 190,  # guess
         }.get(str(self.settings.compiler))
 
@@ -1646,7 +1639,6 @@ class BoostConan(ConanFile):
         # Visual Studio  | 17               | Windows     | vc142          | depends on compiler.toolset
         compiler = {
             "apple-clang": "",
-            "Visual Studio": "vc",
             "msvc": "vc",
         }.get(str(self.settings.compiler), str(self.settings.compiler))
         if (self.settings.compiler, self.settings.os) == ("gcc", "Windows"):

@@ -16,13 +16,13 @@ class DiligentToolsConan(ConanFile):
     license = ("Apache-2.0")
     topics = ("graphics", "texture", "gltf", "draco", "imgui")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], 
+    options = {"shared": [True, False],
                "fPIC": [True, False],
                "jpeg": [False, "libjpeg-turbo", "libjpeg"],
                "with_render_state_packager": [True, False],
                "with_archiver": [True, False],
               }
-    default_options = {"shared": False, 
+    default_options = {"shared": False,
                        "fPIC": True,
                        "jpeg": "libjpeg",
                        "with_render_state_packager": False,
@@ -48,13 +48,6 @@ class DiligentToolsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
-
-    def package_id(self):
-        if self.settings.compiler == "Visual Studio":
-            if "MD" in self.settings.compiler.runtime:
-                self.info.settings.compiler.runtime = "MD/MDd"
-            else:
-                self.info.settings.compiler.runtime = "MT/MTd"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -142,7 +135,7 @@ class DiligentToolsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy("*.hpp", src=self._source_subfolder, dst="include/DiligentTools", keep_path=True)        
+        self.copy("*.hpp", src=self._source_subfolder, dst="include/DiligentTools", keep_path=True)
         self.copy(pattern="*.dll", src=self._build_subfolder, dst="bin", keep_path=False)
         self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
         self.copy(pattern="*.lib", src=self._build_subfolder, dst="lib", keep_path=False)

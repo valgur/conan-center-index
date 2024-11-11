@@ -39,7 +39,6 @@ class S2GeometryConan(ConanFile):
             "gcc": "6",
             "clang": "7",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

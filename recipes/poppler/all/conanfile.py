@@ -74,7 +74,6 @@ class PopplerConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "9",

@@ -40,7 +40,6 @@ class TrantorConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "5",
-            "Visual Studio": "15",
             "msvc": "191",
             "clang": "5",
             "apple-clang": "10",

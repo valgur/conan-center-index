@@ -56,7 +56,6 @@ class NanodbcConan(ConanFile):
         return {
             "gcc": "5",
             "clang": "3.4",
-            "Visual Studio": "14",
             "msvc": "190",
             "apple-clang": "9.1",  # FIXME: this is a guess
         }

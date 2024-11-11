@@ -55,7 +55,6 @@ class VulkanValidationLayersConan(ConanFile):
             "clang": "6",
             "gcc": "7",
             "msvc": "191",
-            "Visual Studio": "15.7",
         }
 
     def config_options(self):

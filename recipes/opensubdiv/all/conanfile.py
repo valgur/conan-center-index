@@ -54,7 +54,6 @@ class OpenSubdivConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "11",

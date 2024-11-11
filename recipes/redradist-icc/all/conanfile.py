@@ -38,7 +38,6 @@ class ICCConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "apple-clang": "9.4",
             "clang": "3.3",

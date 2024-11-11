@@ -45,7 +45,6 @@ class JsonSchemaValidatorConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15" if Version(self.version) < "2.1.0" else "14",
             "msvc": "191" if Version(self.version) < "2.1.0" else "190",
             "gcc": "5" if Version(self.version) < "2.1.0" else "4.9",
             "clang": "4",

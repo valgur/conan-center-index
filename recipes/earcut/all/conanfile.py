@@ -33,7 +33,6 @@ class EarcutPackage(ConanFile):
             "gcc": "4.9",
             "intel": "15",
             "sun-cc": "5.14",
-            "Visual Studio": "12",
             "msvc": "180",
         }
 

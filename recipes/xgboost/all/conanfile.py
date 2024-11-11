@@ -68,7 +68,6 @@ class XgboostConan(ConanFile):
             "clang": "9",
             "gcc": "8",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def config_options(self):

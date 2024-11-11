@@ -36,7 +36,6 @@ class LielabConan(ConanFile):
             "gcc": "11",
             "clang": "12",
             "apple-clang": "13.1",
-            "Visual Studio": "17",
             "msvc": "193",
         }
 

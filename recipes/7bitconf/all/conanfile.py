@@ -32,11 +32,10 @@ class SevenBitConfConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 17
-    
+
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "14",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",

@@ -43,7 +43,6 @@ class SoPlexConan(ConanFile):
             "clang": "4",
             "apple-clang": "7",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def _determine_lib_name(self):

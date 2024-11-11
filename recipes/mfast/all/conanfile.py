@@ -48,7 +48,6 @@ class mFASTConan(ConanFile):
         if Version(self.version) >= "1.2.2":
             return {
                 "gcc": "6",
-                "Visual Studio": "14",
                 "msvc": "190",
                 "clang": "3.4",
                 "apple-clang": "5.1",

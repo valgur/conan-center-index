@@ -31,7 +31,6 @@ class TaskflowConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7.3" if Version(self.version) < "3.7.0" else "8.4",
             "clang": "6.0",

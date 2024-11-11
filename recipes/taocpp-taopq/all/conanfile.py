@@ -37,7 +37,6 @@ class TaoCPPTaopqConan(ConanFile):
             "gcc": "7" if self.version < "cci.20231219" else "8",
             "clang": "6" if self.version < "cci.20231219" else "7",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

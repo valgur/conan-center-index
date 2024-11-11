@@ -30,7 +30,6 @@ class PlflistConan(ConanFile):
             "clang": "5",
             "apple-clang": "9",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):

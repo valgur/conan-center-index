@@ -104,14 +104,12 @@ class PocoConan(ConanFile):
                 "gcc": "6",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
             "17": {
                 "gcc": "8",
                 "clang": "7",
                 "apple-clang": "12",
-                "Visual Studio": "16",
                 "msvc": "192",
             },
         }.get(self._min_cppstd, {})

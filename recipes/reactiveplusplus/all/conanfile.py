@@ -32,7 +32,6 @@ class ReactivePlusPlusConan(ConanFile):
         if Version(self.version) >= "2.0.0":
             # For 'consteval' support
             return {
-                "Visual Studio": "17",
                 "msvc": "193",
                 "gcc": "12",
                 "clang": "14",
@@ -40,7 +39,6 @@ class ReactivePlusPlusConan(ConanFile):
             }
         else:
             return {
-                "Visual Studio": "16.10",
                 "msvc": "192",
                 "gcc": "10",
                 "clang": "12",

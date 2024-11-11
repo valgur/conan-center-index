@@ -30,7 +30,6 @@ class OutcomeConan(ConanFile):
         return {
             "clang": "3.9",
             "gcc": "6",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

@@ -30,7 +30,6 @@ class MqttCPPConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "6",
-            "Visual Studio": "15",
             "msvc": "191",
             "clang": "5",
             "apple-clang": "10",

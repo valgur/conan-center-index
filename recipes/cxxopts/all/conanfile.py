@@ -32,7 +32,6 @@ class CxxOptsConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "14",
             "msvc": "190",
             "gcc": "4.9",
             "clang": "3.9",

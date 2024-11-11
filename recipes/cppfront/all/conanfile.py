@@ -27,7 +27,6 @@ class CppfrontConan(ConanFile):
         return {
             "gcc": "11",
             # cppfront requires constexpr source_location
-            "Visual Studio": "17",
             "msvc": "193",
             "clang": "12",
             # cppfront requires <ranges> which is available on apple-clang 14.3 or later..

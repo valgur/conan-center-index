@@ -54,7 +54,6 @@ class Stlab(ConanFile):
             "clang": "8",
             "apple-clang": "13",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def layout(self):
@@ -136,7 +135,6 @@ class Stlab(ConanFile):
             "clang": "13",
             "apple-clang": "13",
             "msvc": "192",
-            "Visual Studio": "16",
         }.get(str(self.settings.compiler))
         return min_ver and Version(self.settings.compiler.version) >= min_ver
 

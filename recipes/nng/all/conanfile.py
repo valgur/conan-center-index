@@ -83,7 +83,6 @@ class NngConan(ConanFile):
 
     def validate(self):
         compiler_minimum_version = {
-            "Visual Studio": "14",
             "msvc": "190",
         }
         minimum_version = compiler_minimum_version.get(str(self.settings.compiler), False)

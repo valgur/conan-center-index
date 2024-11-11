@@ -48,7 +48,6 @@ class EthashConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "190",
             "gcc": "5",
             "clang": "5",

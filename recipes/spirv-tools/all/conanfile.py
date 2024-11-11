@@ -45,7 +45,6 @@ class SpirvtoolsConan(ConanFile):
                 "clang": "7" if Version(self.version) >= "1.3.250" else "5",
                 "gcc": "8" if Version(self.version) >= "1.3.250" else "7",
                 "msvc": "191",
-                "Visual Studio": "15",
             }
         }.get(self._min_cppstd, {})
 

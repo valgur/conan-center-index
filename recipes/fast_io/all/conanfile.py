@@ -32,7 +32,6 @@ class FastIoConan(ConanFile):
             # Apple-Clang 13 is not enough in this case,
             # partial support for concepts
             "apple-clang": "14",
-            "Visual Studio": "17",
             "msvc": "193",
         }
 

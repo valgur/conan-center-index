@@ -27,11 +27,10 @@ class BitmagicConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 17
-    
+
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7",
             "clang": "6",

@@ -39,7 +39,6 @@ class EtcdCppApiv3Conan(ConanFile):
             "clang": "7",
             "gcc": "6",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def config_options(self):

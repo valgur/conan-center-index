@@ -47,7 +47,6 @@ class Z3Conan(ConanFile):
             "clang": "5",
             "apple-clang": "9",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def config_options(self):

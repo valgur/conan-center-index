@@ -34,7 +34,6 @@ class PlatformExceptionsConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "10",
-            "Visual Studio": "16",
             "clang": "11",
             "apple-clang": "11",
         }

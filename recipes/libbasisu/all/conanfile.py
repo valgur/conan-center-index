@@ -47,7 +47,6 @@ class LibBasisUniversalConan(ConanFile):
     @property
     def _minimum_compiler_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5.4",
             "clang": "3.9",

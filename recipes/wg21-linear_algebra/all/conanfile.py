@@ -29,7 +29,6 @@ class LAConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "10",
             "clang": "12", # Should be 11 but https://github.com/conan-io/conan-docker-tools/issues/251

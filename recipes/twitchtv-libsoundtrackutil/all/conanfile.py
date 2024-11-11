@@ -38,7 +38,6 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
             "clang": "8",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):

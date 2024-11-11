@@ -44,7 +44,6 @@ class LibcoroConan(ConanFile):
                 "gcc": "10.2.1",
                 "clang": "16.0.0",
                 "apple-clang": "16",
-                "Visual Studio": "16",
                 "msvc": "192",
             }
 

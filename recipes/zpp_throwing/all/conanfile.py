@@ -28,7 +28,6 @@ class ZppThrowingConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "17",
             "msvc": "193",
             "gcc": "11",
             "clang": "12",

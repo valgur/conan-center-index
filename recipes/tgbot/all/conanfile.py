@@ -43,14 +43,12 @@ class TgbotConan(ConanFile):
                 "gcc": "9",
                 "clang": "9",
                 "apple-clang": "13",
-                "Visual Studio": "16",
                 "msvc": "192",
             },
             "14": {
                 "gcc": "5",
                 "clang": "3",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             }
         }.get(self._min_cppstd, {})

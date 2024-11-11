@@ -40,14 +40,12 @@ class NumCppConan(ConanFile):
                 "gcc": "5",
                 "clang": "3.4",
                 "apple-clang": "10",
-                "Visual Studio": "14",
                 "msvc": "190",
             }
         return {
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

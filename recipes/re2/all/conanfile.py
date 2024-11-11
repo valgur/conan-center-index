@@ -40,7 +40,6 @@ class Re2Conan(ConanFile):
                 "gcc": "6",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
         }.get(self._min_cppstd, {})

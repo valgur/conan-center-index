@@ -81,14 +81,12 @@ class DrogonConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "6",
                 "clang": "5",
                 "apple-clang": "10",
             },
             "17": {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "8",
                 "clang": "7",

@@ -44,14 +44,12 @@ class LunaSVGConan(ConanFile):
                 "gcc": "5",
                 "clang": "3.5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
             "17": {
                 "gcc": "7.1",
                 "clang": "7",
                 "apple-clang": "12.0",
-                "Visual Studio": "16",
                 "msvc": "192",
             },
         }.get(self._min_cppstd, {})

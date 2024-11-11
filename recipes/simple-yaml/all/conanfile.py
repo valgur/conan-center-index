@@ -39,7 +39,6 @@ class SimpleYamlConan(ConanFile):
             "clang": "11",
             "apple-clang": "13.3",
             "msvc": "193",
-            "Visual Studio": "16.3",
         }
 
     def layout(self):

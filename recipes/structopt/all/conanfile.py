@@ -32,7 +32,6 @@ class StructoptConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15.0",
             "clang": "5",
             "apple-clang": "10",
             "msvc": "191",

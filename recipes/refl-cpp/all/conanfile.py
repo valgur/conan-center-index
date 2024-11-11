@@ -25,7 +25,6 @@ class ReflCppConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "8",
             "clang": "7",

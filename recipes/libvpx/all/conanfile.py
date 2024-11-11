@@ -64,7 +64,7 @@ class LibVPXConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if str(self.settings.compiler) not in ["Visual Studio", "msvc", "gcc", "clang", "apple-clang"]:
+        if str(self.settings.compiler) not in ["msvc", "gcc", "clang", "apple-clang"]:
             raise ConanInvalidConfiguration(f"Unsupported compiler {self.settings.compiler}")
         if self.settings.os == "Macos" and self.settings.arch == "armv8" and Version(self.version) < "1.10.0":
             raise ConanInvalidConfiguration("M1 only supported since 1.10, please upgrade")
@@ -97,10 +97,7 @@ class LibVPXConan(ConanFile):
                 'sparc': 'sparc'}.get(str(self.settings.arch))
         compiler = str(self.settings.compiler)
         os_name = str(self.settings.os)
-        if str(self.settings.compiler) == "Visual Studio":
-            vc_version = self.settings.compiler.version
-            compiler = f"vs{vc_version}"
-        elif is_msvc(self):
+        if is_msvc(self):
             vc_version = str(self.settings.compiler.version)
             vc_version = {"170": "11", "180": "12", "190": "14", "191": "15", "192": "16", "193": "17", "194": "17"}[vc_version]
             compiler = f"vs{vc_version}"

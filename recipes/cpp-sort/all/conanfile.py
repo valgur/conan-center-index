@@ -28,7 +28,6 @@ class CppSortConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "9.4",
             "clang": "3.8",

@@ -40,7 +40,6 @@ class RedisPlusPlusConan(ConanFile):
         if Version(self.version) < "1.3.0":
             return {}
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",

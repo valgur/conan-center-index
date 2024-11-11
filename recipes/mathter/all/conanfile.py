@@ -39,7 +39,6 @@ class MathterConan(ConanFile):
             "apple-clang": 10,
             "clang": 6,
             "gcc": 9,
-            "Visual Studio": 16,
         }
 
     def layout(self):

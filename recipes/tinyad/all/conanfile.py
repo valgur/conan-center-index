@@ -28,7 +28,6 @@ class TinyADConan(ConanFile):
             "gcc": "7",
             "clang": "7",
             "apple-clang": "12.0",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

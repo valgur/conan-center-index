@@ -47,14 +47,12 @@ class UsocketsConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "5",
                 "clang": "3.4",
                 "apple-clang": "10",
             },
             "17": {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "7",
                 "clang": "6",

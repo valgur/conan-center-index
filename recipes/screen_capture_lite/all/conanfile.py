@@ -38,7 +38,6 @@ class ScreenCaptureLiteConan(ConanFile):
             "gcc": "11",
             "clang": "10",
             "apple-clang": "10",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

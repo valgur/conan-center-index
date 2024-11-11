@@ -33,7 +33,6 @@ class SiConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15",
             "clang": "5",
             "apple-clang": "10",
         }

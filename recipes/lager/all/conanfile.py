@@ -32,7 +32,6 @@ class LagerConan(ConanFile):
             "clang": "10",
             "apple-clang": "11",
             "msvc": "192",
-            "Visual Studio": "16.2",
         }
 
     def layout(self):

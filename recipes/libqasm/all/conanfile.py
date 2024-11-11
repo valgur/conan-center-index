@@ -47,7 +47,6 @@ class LibqasmConan(ConanFile):
             "gcc": "10",
             "clang": "13",
             "apple-clang": "14",
-            "Visual Studio": "16",
             "msvc": "192"
         }
 

@@ -66,7 +66,6 @@ class MongoCxxConan(ConanFile):
         if self.info.options.polyfill == "std":
             # C++17
             return {
-                "Visual Studio": "15",
                 "gcc": "7",
                 "clang": "5",
                 "apple-clang": "10"
@@ -74,7 +73,6 @@ class MongoCxxConan(ConanFile):
         elif self.info.options.polyfill == "experimental":
             # C++14
             return {
-                "Visual Studio": "15",
                 "gcc": "5",
                 "clang": "3.5",
                 "apple-clang": "10"
@@ -82,7 +80,6 @@ class MongoCxxConan(ConanFile):
         elif self.info.options.polyfill == "boost":
             # C++11
             return {
-                "Visual Studio": "14",
                 "gcc": "5",
                 "clang": "3.3",
                 "apple-clang": "9"

@@ -58,7 +58,6 @@ class DlibConan(ConanFile):
         if Version(self.version) < "19.24.2":
             return {}
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "6",
             "clang": "5",

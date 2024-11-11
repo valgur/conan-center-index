@@ -40,7 +40,6 @@ class SkyrUrlConan(ConanFile):
     def _minimum_compilers_version(self):
         # https://github.com/cpp-netlib/url/tree/v1.12.0#requirements
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7",
             "clang": "6" if Version(self.version) <= "1.12.0" else "8",

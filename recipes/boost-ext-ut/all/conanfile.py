@@ -36,7 +36,6 @@ class UTConan(ConanFile):
             "clang": "9" if Version(self.version) < "2.0.0" else "10",
             "gcc": "9" if Version(self.version) < "2.0.0" else "10",
             "msvc": "192",
-            "Visual Studio": "14",
         }
 
     def export_sources(self):

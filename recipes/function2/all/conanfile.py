@@ -30,7 +30,6 @@ class Function2Conan(ConanFile):
             "gcc": "5",
             "clang": "3.4",
             "apple-clang": "10",
-            "Visual Studio": "14",
             "msvc": "190",
         }
 

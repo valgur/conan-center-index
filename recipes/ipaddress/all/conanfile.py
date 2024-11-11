@@ -45,7 +45,6 @@ class IpAddressConan(ConanFile):
             "clang": "6.0",
             "gcc": "7.5",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def layout(self):

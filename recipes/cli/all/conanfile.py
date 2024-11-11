@@ -26,7 +26,6 @@ class CLIConan(ConanFile):
         return {
             "gcc": "7",
             "clang": "6",
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "14",
         }

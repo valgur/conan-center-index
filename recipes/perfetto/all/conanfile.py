@@ -38,7 +38,6 @@ class PerfettoConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16" if Version(self.version) < "48.0" else "17",
             "msvc": "190",
             "gcc": "7",
             "clang": "5",

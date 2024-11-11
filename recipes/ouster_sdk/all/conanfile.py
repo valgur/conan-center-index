@@ -54,7 +54,6 @@ class OusterSdkConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):

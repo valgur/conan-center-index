@@ -51,7 +51,6 @@ class BenchmarkConan(ConanFile):
                 "clang": "7",
                 "gcc": "7",
                 "msvc": "191",
-                "Visual Studio": "15",
             }
         }.get(self._min_cppstd, {})
 
@@ -113,7 +112,7 @@ class BenchmarkConan(ConanFile):
         else:
             tc.variables["BENCHMARK_USE_LIBCXX"] = False
         tc.generate()
-    
+
     def _patch_sources(self):
         if Version(self.version) > "1.7.0":
             replace_in_file(self,

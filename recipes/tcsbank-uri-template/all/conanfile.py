@@ -54,7 +54,6 @@ class TCSBankUriTemplateConan(ConanFile):
 
         # Exclude unsupported compilers
         compilers_required = {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7.3",
             "clang": "6.0",

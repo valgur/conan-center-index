@@ -47,7 +47,6 @@ class BitserializerConan(ConanFile):
         return {
             "gcc": "8",
             "clang": "7" if Version(self.version) < "0.44" else "8",
-            "Visual Studio": "15",
             "msvc": "191",
             "apple-clang": "12",
         }

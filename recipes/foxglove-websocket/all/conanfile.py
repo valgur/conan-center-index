@@ -38,7 +38,6 @@ class FoxgloveWebSocketConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16.9",
             "msvc": "191",
             "gcc": "9",
             "clang": "9",

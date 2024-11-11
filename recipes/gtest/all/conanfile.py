@@ -50,7 +50,6 @@ class GTestConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "11": {
-                "Visual Studio": "14",
                 "msvc": "190",
                 "gcc": "4.8.1" if Version(self.version) < "1.11.0" else "5",
                 "clang": "3.3" if Version(self.version) < "1.11.0" else "5",
@@ -59,7 +58,6 @@ class GTestConan(ConanFile):
             # Sinse 1.13.0, gtest requires C++14 and Google's Foundational C++ Support Policy
             # https://github.com/google/oss-policies-info/blob/603a042ce2ee8f165fac46721a651d796ce59cb6/foundational-cxx-support-matrix.md
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "7.3.1",
                 "clang": "6",

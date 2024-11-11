@@ -38,9 +38,8 @@ class MathterConan(ConanFile):
             "apple-clang": 10,
             "clang": 6,
             "gcc": 7,
-            "Visual Studio": 16,
         }
-    
+
     def config_options(self):
         if Version(self.version) < "1.1":
             del self.options.with_xsimd

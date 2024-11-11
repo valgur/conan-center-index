@@ -34,7 +34,6 @@ class UnitsConan(ConanFile):
         return {
             "clang": "3.4",
             "gcc": "4.9.3",
-            "Visual Studio": "14",
             "msvc": "190",
         }
 

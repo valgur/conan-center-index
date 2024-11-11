@@ -40,7 +40,6 @@ class CppIPCConan(ConanFile):
             "gcc": "8",
             "clang": "4",
             "msvc": "193",
-            "Visual Studio": "17",
         }
 
     def config_options(self):

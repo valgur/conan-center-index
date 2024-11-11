@@ -33,7 +33,6 @@ class PlatformConvertersConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "10",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "14",
             "apple-clang": "14",

@@ -40,7 +40,6 @@ class WaveletBufferConan(ConanFile):
             "gcc": "8",
             "clang": "12",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

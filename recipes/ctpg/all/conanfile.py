@@ -37,7 +37,6 @@ class CTPGConan(ConanFile):
             "clang": "12",
             "apple-clang": "12.0",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def layout(self):

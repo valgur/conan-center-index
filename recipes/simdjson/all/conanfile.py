@@ -39,7 +39,6 @@ class SimdjsonConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "8",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "6",
             "apple-clang": "9.4",

@@ -31,7 +31,6 @@ class SigslotConan(ConanFile):
             "gcc": "5",
             "clang": "3.4",
             "apple-clang": "10",
-            "Visual Studio": "15",  # 14 is not supported by the library
             "msvc": "191",
         }
 

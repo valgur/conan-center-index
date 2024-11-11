@@ -52,14 +52,12 @@ class GeographiclibConan(ConanFile):
                 "apple-clang": "3.3",
                 "gcc": "4.9",
                 "clang": "6",
-                "Visual Studio": "14", # guess
                 "msvc": "190",
             }
         elif self._min_cppstd == 14:
             return {
                 "gcc": "7",
                 "clang": "6",
-                "Visual Studio": "16",
                 "msvc": "192",
                 "apple-clang": "14",
             }

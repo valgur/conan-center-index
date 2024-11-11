@@ -75,7 +75,6 @@ class SociConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "14",
             "gcc": "4.8",
             "clang": "3.8",
             "apple-clang": "8.0"

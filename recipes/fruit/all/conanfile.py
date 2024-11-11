@@ -61,7 +61,6 @@ class FruitConan(ConanFile):
             "gcc": "5",
             "clang": "3.5",
             "apple-clang": "7.3",
-            "Visual Studio": "14"
         }
 
         if compiler in minimal_version and \

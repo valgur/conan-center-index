@@ -20,7 +20,6 @@ class TestPackageConan(ConanFile):
     _default_cc = {
         "gcc": "gcc",
         "clang": "clang",
-        "Visual Studio": "cl -nologo",
         "msvc": "cl -nologo",
         "apple-clang": "clang",
     }

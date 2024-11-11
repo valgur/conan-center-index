@@ -39,7 +39,6 @@ class EdynConan(ConanFile):
             "gcc": "9.3", # GCC 9.3 started supporting attributes in constructor arguments
             "clang": "8",
             "apple-clang": "10",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

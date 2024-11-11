@@ -37,7 +37,6 @@ class AsioGrpcConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15.7",
             "msvc": "191",
             "clang": "6",
             "apple-clang": "11",

@@ -34,7 +34,6 @@ class ProxyConan(ConanFile):
             "clang": "15",
             "apple-clang": "14",
             "msvc": "193",
-            "Visual Studio": "17",
         }
 
     def layout(self):

@@ -38,7 +38,6 @@ class LibforkConan(ConanFile):
             "clang": "15",
             "gcc": "11",
             "msvc": "192.10",
-            "Visual Studio": "16.10",
         }
 
     def layout(self):

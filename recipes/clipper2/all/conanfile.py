@@ -42,7 +42,6 @@ class Clipper2Conan(ConanFile):
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -88,7 +87,7 @@ class Clipper2Conan(ConanFile):
         if "with_max_precision" in self.options:
             tc.variables["CLIPPER2_MAX_PRECISION"] = self.options.with_max_precision
         tc.generate()
-    
+
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "CPP", "CMakeLists.txt"), "-Werror", "")

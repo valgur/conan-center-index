@@ -31,7 +31,6 @@ class LibcudacxxConan(ConanFile):
     def _compilers_minimum_version(self):
         # https://nvidia.github.io/libcudacxx/setup/requirements.html#nvcc-host-compilers
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "7",

@@ -96,29 +96,18 @@ class LibsodiumConan(ConanFile):
     @property
     def _msvc_sln_folder(self):
         sln_folders = {
-            "Visual Studio": {
-                "10": "vs2010",
-                "11": "vs2012",
-                "12": "vs2013",
-                "14": "vs2015",
-                "15": "vs2017",
-                "16": "vs2019",
-            },
-            "msvc": {
-                "170": "vs2012",
-                "180": "vs2013",
-                "190": "vs2015",
-                "191": "vs2017",
-                "192": "vs2019",
-            },
+            "170": "vs2012",
+            "180": "vs2013",
+            "190": "vs2015",
+            "191": "vs2017",
+            "192": "vs2019",
         }
         default_folder = "vs2019"
         if self.version != "1.0.18":
-            sln_folders["Visual Studio"]["17"] = "vs2022"
-            sln_folders["msvc"]["193"] = "vs2022"
+            sln_folders["193"] = "vs2022"
             default_folder = "vs2022"
 
-        return sln_folders.get(str(self.settings.compiler), {}).get(str(self.settings.compiler.version), default_folder)
+        return sln_folders.get(str(self.settings.compiler.version), default_folder)
 
     def _build_msvc(self):
         msvc_sln_folder = os.path.join(self.source_folder, "builds", "msvc", self._msvc_sln_folder)

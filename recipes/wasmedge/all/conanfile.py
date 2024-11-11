@@ -22,7 +22,6 @@ class WasmedgeConan(ConanFile):
     @property
     def _compiler_alias(self):
         return {
-            "Visual Studio": "msvc",
             "msvc": "msvc",
         }.get(str(self.info.settings.compiler), "gcc")
 

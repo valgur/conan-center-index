@@ -26,7 +26,6 @@ class Rectpack2dConan(ConanFile):
     @property
     def _min_compilers_version(self):
         return {
-            "Visual Studio": "15.7",
             "msvc": "191",
             "gcc": "7",
             "clang": "5",

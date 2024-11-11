@@ -27,7 +27,6 @@ class BShoshanyThreadPoolConan(ConanFile):
             "apple-clang": "10",
             "clang": "5",
             "gcc": "8",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

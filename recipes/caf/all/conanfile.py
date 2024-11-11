@@ -38,7 +38,6 @@ class CAFConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7" if Version(self.version) < "1.0.0" else "8",
             "clang": "6",   # Should be 5 but clang 5 has a bug that breaks compiling CAF

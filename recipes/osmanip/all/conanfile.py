@@ -59,7 +59,6 @@ class OsmanipConan(ConanFile):
     @property
     def _compiler_required_cpp17(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "8",
             "clang": "7",

@@ -40,7 +40,6 @@ class ITKConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "14",
             "gcc": "4.8.1",
             "clang": "3.3",
             "apple-clang": "9",

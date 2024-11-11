@@ -48,7 +48,6 @@ class GinkgoConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "193",
             "gcc": "5.4",
             "clang": "3.9",

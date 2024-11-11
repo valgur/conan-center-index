@@ -43,14 +43,12 @@ class Sol2Conan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "14": {
-                "Visual Studio": "14",
                 "msvc": "190",
                 "gcc": "5",
                 "clang": "3.2",
                 "apple-clang": "4.3",
             },
             "17": {
-                "Visual Studio": "15" if Version(self.version) < "3.3.0" else "16",
                 "msvc": "191" if Version(self.version) < "3.3.0" else "192",
                 "gcc": "7",
                 "clang": "6",

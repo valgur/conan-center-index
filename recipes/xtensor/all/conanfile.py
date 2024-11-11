@@ -37,7 +37,6 @@ class XtensorConan(ConanFile):
     def _compilers_minimum_version(self):
         # https://github.com/xtensor-stack/xtensor/blob/master/README.md
         return {
-            "Visual Studio": "14",
             "msvc": "190",
             "gcc": "4.9",
             "clang": "4",

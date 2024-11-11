@@ -42,7 +42,6 @@ class GiciConan(ConanFile):
             "gcc": "6",
             "clang": "5",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 

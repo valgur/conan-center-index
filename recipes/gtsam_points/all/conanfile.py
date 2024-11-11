@@ -40,7 +40,6 @@ class GtsamPointsPackage(ConanFile):
             "gcc": "9",
             "clang": "10",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 

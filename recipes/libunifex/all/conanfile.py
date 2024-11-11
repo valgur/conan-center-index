@@ -44,7 +44,6 @@ class LibunifexConan(ConanFile):
             "gcc": "9",
             "clang": "10",
             "apple-clang": "11",
-            "Visual Studio": "17",
             "msvc": "193",
         }
 

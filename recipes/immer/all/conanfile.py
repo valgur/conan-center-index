@@ -36,7 +36,6 @@ class ImmerConan(ConanFile):
             "gcc": "6",
             "intel": "17",
             "sun-cc": "5.15",
-            "Visual Studio": "15",
         }
 
     def layout(self):

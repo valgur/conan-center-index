@@ -40,7 +40,6 @@ class LibProtobufMutatorConan(ConanFile):
             "clang": "7",
             "gcc": "5",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):

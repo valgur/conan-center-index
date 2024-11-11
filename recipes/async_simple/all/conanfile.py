@@ -38,7 +38,6 @@ class AsyncSimpleConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "17",
             "msvc": "193",
             "gcc": "10.3",
             "clang": "13",

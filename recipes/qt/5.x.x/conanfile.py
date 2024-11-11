@@ -465,12 +465,7 @@ class QtConan(ConanFile):
         del self.info.options.cross_compile
         del self.info.options.sysroot
         if self.info.options.multiconfiguration:
-            if self.info.settings.compiler == "Visual Studio":
-                if "MD" in self.info.settings.compiler.runtime:
-                    self.info.settings.compiler.runtime = "MD/MDd"
-                else:
-                    self.info.settings.compiler.runtime = "MT/MTd"
-            elif self.info.settings.compiler == "msvc":
+            if self.info.settings.compiler == "msvc":
                 self.info.settings.compiler.runtime_type = "Release/Debug"
         if self.info.settings.os == "Android":
             del self.info.options.android_sdk
@@ -578,7 +573,6 @@ class QtConan(ConanFile):
 
         elif self.settings.os == "Windows":
             return {
-                "Visual Studio": "win32-msvc",
                 "msvc": "win32-msvc",
                 "gcc": "win32-g++",
                 "clang": "win32-clang-g++",
@@ -586,14 +580,11 @@ class QtConan(ConanFile):
 
         elif self.settings.os == "WindowsStore":
             if is_msvc(self):
-                if str(self.settings.compiler) == "Visual Studio":
-                    msvc_version = str(self.settings.compiler.version)
-                else:
-                    msvc_version = {
-                        "190": "14",
-                        "191": "15",
-                        "192": "16",
-                    }.get(str(self.settings.compiler.version))
+                msvc_version = {
+                    "190": "14",
+                    "191": "15",
+                    "192": "16",
+                }.get(str(self.settings.compiler.version))
                 return {
                     "14": {
                         "armv7": "winrt-arm-msvc2015",

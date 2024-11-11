@@ -34,14 +34,12 @@ class So5extraConan(ConanFile):
                 "gcc": "10",
                 "clang": "11",
                 "apple-clang": "13",
-                "Visual Studio": "17",
                 "msvc": "192"
             }
         return {
             "gcc": "7",
             "clang": "6",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191"
         }
 

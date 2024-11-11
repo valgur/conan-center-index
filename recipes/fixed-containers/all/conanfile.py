@@ -28,7 +28,6 @@ class FixedContainersConan(ConanFile):
         return {
             "gcc": "11",
             "clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
             # apple-clang has support std::lexicographical_compare_three_way since 15.
             "apple-clang": "15",

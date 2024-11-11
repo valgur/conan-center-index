@@ -62,7 +62,6 @@ class PdfiumConan(ConanFile):
         minimum_compiler_versions = {
             "gcc": "8",
             "msvc": "191",
-            "Visual Studio": "15",
         }
         min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
         if min_compiler_version and Version(self.settings.compiler.version) < min_compiler_version:

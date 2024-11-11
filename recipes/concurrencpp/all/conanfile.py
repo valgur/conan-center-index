@@ -35,7 +35,6 @@ class ConcurrencppConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "11",
             "gcc": "13",

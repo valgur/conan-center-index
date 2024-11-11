@@ -41,7 +41,6 @@ class PlayrhoConan(ConanFile):
             "clang": "7",
             "apple-clang": "12",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def export_sources(self):

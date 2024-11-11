@@ -29,7 +29,6 @@ class CertifyConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15.7",
             "clang": "7",
             "apple-clang": "11",
         }

@@ -45,7 +45,6 @@ class KtxConan(ConanFile):
                 "clang": "7",
                 "apple-clang": "10",
                 "msvc": "191",
-                "Visual Studio": "15",
             }
         return {}
 

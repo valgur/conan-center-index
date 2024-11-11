@@ -32,7 +32,6 @@ class PlatformInterfacesConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "11",
-            "Visual Studio": "16",
             "msvc": "193",
             "clang": "13",
         }

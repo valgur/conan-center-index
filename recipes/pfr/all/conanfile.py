@@ -30,7 +30,6 @@ class PfrConan(ConanFile):
             "apple-clang": "9.4",
             "clang": "3.8",
             "gcc": "5.5",
-            "Visual Studio": "14",
             "msvc": "190",
         }
 

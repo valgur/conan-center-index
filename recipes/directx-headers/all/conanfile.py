@@ -33,7 +33,6 @@ class DirectXHeadersConan(ConanFile):
             "clang": "5",
             "gcc": "6",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def layout(self):

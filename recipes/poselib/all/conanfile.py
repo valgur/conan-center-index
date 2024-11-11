@@ -40,7 +40,6 @@ class PoselibConan(ConanFile):
             "clang": "6",
             "apple-clang": "10",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def config_options(self):

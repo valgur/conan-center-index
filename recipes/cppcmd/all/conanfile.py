@@ -28,7 +28,6 @@ class CppCmdConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15.7",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
