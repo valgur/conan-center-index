@@ -1,13 +1,13 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
-from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import can_run
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
+from conan.tools.scm import Version
+
+required_conan_version = ">=2.0.9"
 
 
 class QwtConan(ConanFile):
@@ -43,31 +43,28 @@ class QwtConan(ConanFile):
         "designer": False,
         "polar": True,
     }
-
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+        if self.options.widgets:
+            self.options["qt"].widgets = True
+        if self.options.svg:
+            self.options["qt"].qtsvg = True
+        if self.options.designer:
+            self.options["qt"].gui = True
+            self.options["qt"].widgets = True
+            self.options["qt"].qttools = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
+        self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
 
     def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
-            raise ConanInvalidConfiguration("Qwt recipe does not support cross-compilation yet")
         qt_options = self.dependencies["qt"].options
         if self.options.widgets and not qt_options.widgets:
             raise ConanInvalidConfiguration("qwt:widgets=True requires qt:widgets=True")
@@ -79,20 +76,15 @@ class QwtConan(ConanFile):
             raise ConanInvalidConfiguration("qwt:designer=True requires qt:qttools=True, qt::gui=True and qt::widgets=True")
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
+        if not can_run(self):
             self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 11)", "")
 
     def generate(self):
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-        else:
-            env = VirtualBuildEnv(self)
-            env.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["QWT_DLL"] = self.options.shared
         tc.variables["QWT_STATIC"] = not self.options.shared
@@ -113,13 +105,12 @@ class QwtConan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -155,6 +146,3 @@ class QwtConan(ConanFile):
                 f"qt{Version(self.dependencies['qt'].ref.version).major}", "plugins",
             )
             self.runenv_info.prepend_path("QT_PLUGIN_PATH", qt_plugin_path)
-
-            # TODO: to remove in conan v2
-            self.env_info.QT_PLUGIN_PATH.append(qt_plugin_path)
