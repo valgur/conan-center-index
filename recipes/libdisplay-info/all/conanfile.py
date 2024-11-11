@@ -30,10 +30,6 @@ class LibdisplayInfoConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _has_build_profile(self):
-        return getattr(self, "settings_build", None)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -56,8 +52,7 @@ class LibdisplayInfoConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}")
 
     def build_requirements(self):
-        if self._has_build_profile:
-            self.tool_requires("hwdata/0.374")
+        self.tool_requires("hwdata/0.374")
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")

@@ -38,10 +38,6 @@ class PackageConan(ConanFile):
         "with_win32": True,
     }
 
-    @property
-    def _has_build_profile(self):
-        return hasattr(self, "settings_build")
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -98,9 +94,8 @@ class PackageConan(ConanFile):
         tc.project_options["build.pkg_config_path"] = self.generators_folder
         tc.generate()
         pkg_config_deps = PkgConfigDeps(self)
-        if self.options.get_safe("with_wayland") and self._has_build_profile:
-            pkg_config_deps.build_context_activated = ["wayland"]
-            pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
+        pkg_config_deps.build_context_activated = ["wayland"]
+        pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
         pkg_config_deps.generate()
         tc = VirtualBuildEnv(self)
         tc.generate()
