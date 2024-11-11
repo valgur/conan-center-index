@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 
 class SpixConan(ConanFile):
@@ -16,7 +16,7 @@ class SpixConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/faaxm/spix"
-    topics = ("automation", "qt", "qml", "qt-quick", "qt5", "qtquick", "automated-testing", "qt-qml", "qml-applications")
+    topics = ("automation", "qt", "qml", "qt-quick", "qtquick", "automated-testing", "qt-qml", "qml-applications")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -26,37 +26,15 @@ class SpixConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _minimum_cpp_standard(self):
         return 14 if self.version == "0.4" else 17
 
-    @property
-    def _compilers_minimum_version(self):
-        if self.version == "0.4":
-            return {
-                "Visual Studio": "14",
-                "msvc": "190",
-                "gcc": "5",
-                "clang": "3.4",
-                "apple-clang": "10"
-            }
-        else:
-            return {
-                "Visual Studio": "15.7",
-                "msvc": "192", # FIXME: 15.7 is actually 1914 but needs to be tested
-                "gcc": "7",
-                "clang": "5",
-                "apple-clang": "10",
-            }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+        self.options["qt"].qtdeclarative = True
+        self.options["qt"].qtshadertools = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -66,33 +44,12 @@ class SpixConan(ConanFile):
         self.requires("qt/[>=6.6 <7]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
-            )
-
-        if Version(self.dependencies["qt"].ref.version).major == 6 and not self.dependencies["qt"].options.qtshadertools:
+        check_min_cppstd(self, self._minimum_cpp_standard)
+        qt = self.dependencies["qt"]
+        if qt.ref.version.major == 6 and not qt.options.qtshadertools:
             raise ConanInvalidConfiguration(f"{self.ref} requires qt:qtshadertools to get the Quick module")
-        if not (self.dependencies["qt"].options.gui and self.dependencies["qt"].options.qtdeclarative):
+        if not (qt.options.gui and qt.options.qtdeclarative):
             raise ConanInvalidConfiguration(f"{self.ref} requires qt:gui and qt:qtdeclarative to get the Quick module")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["SPIX_BUILD_EXAMPLES"] = False
-        tc.variables["SPIX_BUILD_TESTS"] = False
-        tc.variables["SPIX_QT_MAJOR"] = Version(self.dependencies["qt"].ref.version).major
-        tc.generate()
-
-        deps = CMakeDeps(self)
-        deps.set_property("anyrpc", "cmake_file_name", "AnyRPC")
-        deps.set_property("anyrpc", "cmake_target_name", "AnyRPC::anyrpc")
-        deps.generate()
 
     def _patch_sources(self):
         rmdir(self, os.path.join(self.source_folder, "cmake", "modules"))
@@ -100,8 +57,23 @@ class SpixConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                             "set(CMAKE_CXX_STANDARD 14)", "set(CMAKE_CXX_STANDARD 17)")
 
-    def build(self):
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         self._patch_sources()
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.cache_variables["SPIX_BUILD_EXAMPLES"] = False
+        tc.cache_variables["SPIX_BUILD_TESTS"] = False
+        tc.cache_variables["SPIX_QT_MAJOR"] = str(self.dependencies["qt"].ref.version.major)
+        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.set_property("anyrpc", "cmake_file_name", "AnyRPC")
+        deps.set_property("anyrpc", "cmake_target_name", "AnyRPC::anyrpc")
+        deps.generate()
+
+    def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -122,7 +94,3 @@ class SpixConan(ConanFile):
         self.cpp_info.libs = ["Spix"]
         self.cpp_info.set_property("cmake_file_name", "Spix")
         self.cpp_info.set_property("cmake_target_name", "Spix::Spix")
-
-        # TODO remove once conan v2 removed cmake_find_package_*
-        self.cpp_info.names["cmake_find_package"] = "Spix"
-        self.cpp_info.names["cmake_find_package_multi"] = "Spix"
