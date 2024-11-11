@@ -2,14 +2,12 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.scm import Version
 import os
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 #
 # INFO: Please, remove all comments before pushing your PR!
@@ -37,33 +35,13 @@ class PackageConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    # in case the project requires C++14/17/20/... the minimum compiler version should be listed
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "7",
-            "gcc": "7",
-            "msvc": "191",
-            "Visual Studio": "15",
-        }
+    implements = ["auto_shared_fpic"]
 
     # no exports_sources attribute, but export_sources(self) method instead
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
         # for plain C projects only
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
@@ -72,27 +50,20 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # Prefer self.requires method instead of requires attribute.
-        # Set transitive_headers=True (which usually also requires transitive_libs=True)
-        # if the dependency is used in any of the packaged header files.
+        # Always prefer self.requirements() method instead of self.requires attribute.
         self.requires("dependency/0.8.1")
         if self.options.with_foobar:
-            # used in foo/baz.hpp:34
+            # INFO: used in foo/baz.hpp:34
             self.requires("foobar/0.1.0", transitive_headers=True, transitive_libs=True)
-        # A small number of dependencies on CCI are allowed to use version ranges.
+        # Some dependencies on CCI are allowed to use version ranges.
         # See https://github.com/conan-io/conan-center-index/blob/master/docs/adding_packages/dependencies.md#version-ranges
         self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        # validate the minimum cpp standard supported. For C++ projects only
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-        # in case it does not work in another configuration, it should be validated here too
+        # validate the minimum cpp standard supported. For C++ projects only.
+        check_min_cppstd(self, 14)
+        # in case it does not work in another configuration, it should be validated here. Always comment the reason including the upstream issue.
+        # INFO: Upstream does not support DLL: See <URL>
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
 
@@ -102,19 +73,16 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Using patches is always the last resort to fix issues. If possible, try to fix the issue in the upstream project.
+        apply_conandata_patches(self)
 
     def generate(self):
         # BUILD_SHARED_LIBS and POSITION_INDEPENDENT_CODE are set automatically as tc.variables when self.options.shared or self.options.fPIC exist
-        # Note that tc.variables require either cmake_minimum_required() >= 3.13 or the CMP0077 policy set to NEW to work correctly.
         tc = CMakeToolchain(self)
         # Boolean values are preferred instead of "ON"/"OFF"
-        tc.variables["PACKAGE_BUILD_TESTS"] = False
+        tc.cache_variables["PACKAGE_BUILD_TESTS"] = False
         if is_msvc(self):
-            tc.variables["USE_MSVC_RUNTIME_LIBRARY_DLL"] = not is_msvc_static_runtime(self)
-        if self.dependencies["dependency"].options.foobar:
-            tc.variables["DEPENDENCY_LIBPATH"] = self.dependencies["dependency"].cpp_info.libdir.replace("\\", "/")
-        # cache_variables should be used sparingly, for example to set CMake policies
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+            tc.cache_variables["USE_MSVC_RUNTIME_LIBRARY_DLL"] = not is_msvc_static_runtime(self)
         tc.generate()
 
         # In case there are dependencies listed under requirements, CMakeDeps should be used
@@ -124,19 +92,7 @@ class PackageConan(ConanFile):
         deps.set_property("fontconfig", "cmake_target_name", "Fontconfig::Fontconfig")
         deps.generate()
 
-        # In case there are dependencies listed under build_requirements, VirtualBuildEnv should be used
-        VirtualBuildEnv(self).generate()
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # remove bundled xxhash
-        rm(self, "whatever.*", os.path.join(self.source_folder, "lib"))
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "...", "")
-        # disable subdirectories by truncating their CMakeLists.txt
-        save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
-
     def build(self):
-        self._patch_sources()  # It can be just apply_conandata_patches(self) if no more patches are needed
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
