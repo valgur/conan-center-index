@@ -49,7 +49,7 @@ class FoonathanMemoryConan(ConanFile):
         # Versions older than 0.7.2 require to compile and run an executable
         # during the build, newer versions do it differently.
         is_older = Version(self.version) < "0.7.2"
-        if hasattr(self, "settings_build") and cross_building(self) and is_older:
+        if cross_building(self) and is_older:
             raise ConanInvalidConfiguration(
                 "Cross building is not supported on versions older than 0.7.2")
 

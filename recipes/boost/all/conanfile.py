@@ -374,10 +374,6 @@ class BoostConan(ConanFile):
         return "custom-boost"
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _is_clang_cl(self):
         return self.settings.os == "Windows" and self.settings.compiler == "clang"
 
@@ -1094,7 +1090,7 @@ class BoostConan(ConanFile):
 
     def build(self):
         stacktrace_jamfile = os.path.join(self.source_folder, "libs", "stacktrace", "build", "Jamfile.v2")
-        if cross_building(self, skip_x64_x86=True):
+        if not can_run(self):
             # When cross building, do not attempt to run the test-executable (assume they work)
             replace_in_file(self, stacktrace_jamfile, "$(>) > $(<)", "echo \"\" > $(<)", strict=False)
         if self._with_stacktrace_backtrace and self.settings.os != "Windows" and not cross_building(self):

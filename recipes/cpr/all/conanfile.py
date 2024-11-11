@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import cross_building, check_min_cppstd
+from conan.tools.build import check_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -136,7 +136,7 @@ class CprConan(ConanFile):
 
         if self.options.get_safe("verbose_logging", False):
             tc.variables["CURL_VERBOSE_LOGGING"] = True
-        if cross_building(self, skip_x64_x86=True):
+        if not can_run(self):
             tc.variables["THREAD_SANITIZER_AVAILABLE_EXITCODE"] = 1
             tc.variables["THREAD_SANITIZER_AVAILABLE_EXITCODE__TRYRUN_OUTPUT"] = 1
             tc.variables["ADDRESS_SANITIZER_AVAILABLE_EXITCODE"] = 1

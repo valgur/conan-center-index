@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import copy, get, rmdir, replace_in_file, mkdir
 from conan.tools.scm import Version
 
@@ -48,10 +47,6 @@ class OrcRecipe(ConanFile):
         }
 
     @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
-    @property
     def _should_patch_thirdparty_toolchain(self):
         return self.version < "2.0.0"
 
@@ -91,16 +86,12 @@ class OrcRecipe(ConanFile):
             )
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
-            self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-        VirtualRunEnv(self).generate(scope="build")
-
         tc = CMakeToolchain(self)
         tc.variables["ORC_PACKAGE_KIND"] = "conan"
         tc.variables["BUILD_JAVA"] = False

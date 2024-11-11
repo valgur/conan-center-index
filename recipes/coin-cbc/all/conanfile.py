@@ -32,10 +32,6 @@ class CoinCbcConan(ConanFile):
         "parallel": False,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -70,7 +66,7 @@ class CoinCbcConan(ConanFile):
         self.tool_requires("gnu-config/cci.20210814")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -131,7 +127,7 @@ class CoinCbcConan(ConanFile):
             env.define("AR", f"{ar_wrapper} lib")
             env.define("NM", "dumpbin -symbols")
             env.vars(self).save_script("conanbuild_msvc")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             env.define("PKG_CONFIG_PATH", self.generators_folder)
         tc.generate(env)
 

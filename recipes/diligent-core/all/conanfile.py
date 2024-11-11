@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building, check_min_cppstd
+from conan.tools.build import check_min_cppstd, can_run
 from conan.tools.scm import Version
 from conan.tools.files import rm, get, rmdir, rename, collect_libs, export_conandata_patches, copy, apply_conandata_patches, replace_in_file
 from conan.tools.microsoft import visual
@@ -126,8 +126,8 @@ class DiligentCoreConan(ConanFile):
         self.requires("xxhash/0.8.1")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("xorg/system")
-            if not cross_building(self, skip_x64_x86=True):
+            self.requires("xorg/1.8.10")
+            if can_run(self):
                 self.requires("xkbcommon/1.6.0")
 
     def _diligent_platform(self):

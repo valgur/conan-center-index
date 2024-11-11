@@ -27,10 +27,6 @@ class MingwConan(ConanFile):
     }
     provides = "mingw-w64"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         # Before version 12 (included) the only possible runtime was msvcrt
         if Version(self.version) <= Version("12.2.0"):

@@ -53,10 +53,6 @@ class Mpg123Conan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _audio_module(self):
         return {
             "libalsa": "alsa",
@@ -99,7 +95,7 @@ class Mpg123Conan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings.arch in ["x86", "x86_64"]:
             self.tool_requires("yasm/1.3.0")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")

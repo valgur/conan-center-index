@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         VirtualRunEnv(self).generate()
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             VirtualBuildEnv(self).generate()
         else:
             VirtualRunEnv(self).generate(scope="build")

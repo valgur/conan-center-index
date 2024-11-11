@@ -30,10 +30,6 @@ class LibisalConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -50,14 +46,14 @@ class LibisalConan(ConanFile):
     def validate(self):
         if self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration(f"{self.settings.arch} architecture is not supported")
-        if self.version == "2.30.0" and self._settings_build.arch == "armv8":
+        if self.version == "2.30.0" and self.settings_build.arch == "armv8":
             raise ConanInvalidConfiguration(f"Version {self.version} does not support armv8")
 
     def build_requirements(self):
         self.tool_requires("nasm/2.15.05")
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")

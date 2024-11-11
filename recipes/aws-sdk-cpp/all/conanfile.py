@@ -546,12 +546,8 @@ class AwsSdkCppConan(ConanFile):
         # zlib is used if ENABLE_ZLIB_REQUEST_COMPRESSION is enabled, set ot ON by default
         self.requires("zlib/[>=1.2.11 <2]")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def validate_build(self):
-        if self._settings_build.os == "Windows" and self.settings.os == "Android":
+        if self.settings_build.os == "Windows" and self.settings.os == "Android":
             raise ConanInvalidConfiguration("Cross-building from Windows to Android is not supported")
 
     def validate_build(self):

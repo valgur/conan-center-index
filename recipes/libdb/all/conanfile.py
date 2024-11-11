@@ -44,10 +44,6 @@ class LibdbConan(ConanFile):
     def _mingw_build(self):
         return self.settings.compiler == "gcc" and self.settings.os == "Windows"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -84,7 +80,7 @@ class LibdbConan(ConanFile):
                 raise ConanInvalidConfiguration(f"{self.ref} does not support apple-clang<10 with_cxx=True")
 
     def build_requirements(self):
-        if not self._settings_build.os == "Windows":
+        if not self.settings_build.os == "Windows":
             self.tool_requires("gnu-config/cci.20201022")
 
     def layout(self):

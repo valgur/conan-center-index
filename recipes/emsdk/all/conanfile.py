@@ -21,10 +21,6 @@ class EmSDKConan(ConanFile):
 
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -98,7 +94,7 @@ class EmSDKConan(ConanFile):
 
     def build(self):
         with chdir(self, self.source_folder):
-            emsdk = "emsdk.bat" if self._settings_build.os == "Windows" else "./emsdk"
+            emsdk = "emsdk.bat" if self.settings_build.os == "Windows" else "./emsdk"
             self._chmod_plus_x("emsdk")
 
             # Install required tools
@@ -144,7 +140,7 @@ class EmSDKConan(ConanFile):
 
         # If we are not building for Emscripten, probably we don't want to inject following environment variables,
         #   but it might be legit use cases... until we find them, let's be conservative.
-        if not hasattr(self, "settings_target") or self.settings_target is None:
+        if self.settings_target is None:
             return
 
         if self.settings_target.os != "Emscripten":

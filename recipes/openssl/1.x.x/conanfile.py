@@ -107,10 +107,6 @@ class OpenSSLConan(ConanFile):
     def _use_nmake(self):
         return self._is_clang_cl or is_msvc(self)
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -142,7 +138,7 @@ class OpenSSLConan(ConanFile):
                 raise ConanInvalidConfiguration("os=Emscripten requires openssl:{no_asm,no_threads,no_stdio,no_tests}=True")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             if not self.options.no_asm:
                 self.tool_requires("nasm/2.16.01")
             if self._use_nmake:

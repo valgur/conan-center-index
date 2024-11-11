@@ -1,15 +1,15 @@
+import os
+import sys
+import textwrap
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
-import sys
-import textwrap
 
 required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
@@ -34,10 +34,6 @@ class OnnxConan(ConanFile):
         "fPIC": True,
         "disable_static_registration": True,
     }
-
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
 
     @property
     def _min_cppstd(self):
@@ -97,18 +93,12 @@ class OnnxConan(ConanFile):
                 )
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
-            self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
         tc = CMakeToolchain(self)
         # https://cmake.org/cmake/help/v3.28/module/FindPythonInterp.html
         # https://github.com/onnx/onnx/blob/1014f41f17ecc778d63e760a994579d96ba471ff/CMakeLists.txt#L119C1-L119C50

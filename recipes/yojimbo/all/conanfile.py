@@ -46,15 +46,11 @@ class YojimboConan(ConanFile):
         self.requires("libsodium/1.0.19")
         self.requires("mbedtls/2.28.4")  # v3+ is not supported
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def validate_build(self):
-        if self._settings_build.build_type == "Debug":
+        if self.settings_build.build_type == "Debug":
             if conan_version.major == 1:
                 raise ConanInvalidConfiguration("Premake does not support debug builds with Conan < 2.0")
-            if self._settings_build.os != "Windows" and self._settings_build.compiler == "gcc" and Version(self._settings_build.compiler.version) < 8:
+            if self.settings_build.os != "Windows" and self.settings_build.compiler == "gcc" and Version(self.settings_build.compiler.version) < 8:
                 raise ConanInvalidConfiguration("Debug build requires GCC >= 8 due to util-linux-libuuid")
 
     def build_requirements(self):

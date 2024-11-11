@@ -263,10 +263,6 @@ class AndroidNDKConan(ConanFile):
 
         self.buildenv_info.define_path("ANDROID_NDK_HOME", os.path.join(self.package_folder, "bin"))
 
-        #  this is not enough, I can kill that .....
-        if not hasattr(self, "settings_target"):
-            return
-
         # interestingly I can reach that with
         # conan test --profile:build nsdk-default --profile:host default /Users/a4z/elux/conan/myrecipes/android-ndk/all/test_package android-ndk/r21d@
         if self.settings_target is None:

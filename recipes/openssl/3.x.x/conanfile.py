@@ -109,10 +109,6 @@ class OpenSSLConan(ConanFile):
     def _use_nmake(self):
         return self._is_clang_cl or is_msvc(self)
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os != "Windows":
             self.options.rm_safe("capieng_dialog")
@@ -147,7 +143,7 @@ class OpenSSLConan(ConanFile):
             raise ConanInvalidConfiguration("OpenSSL 3 does not support building shared libraries for iOS")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             if not self.options.no_asm:
                 self.tool_requires("nasm/2.16.01")
             if self._use_nmake:

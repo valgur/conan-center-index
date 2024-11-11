@@ -40,10 +40,6 @@ class LibVPXConan(ConanFile):
     options.update({name: [True, False] for name in _arch_options})
     default_options.update({name: 'avx' not in name for name in _arch_options})
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -77,7 +73,7 @@ class LibVPXConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("yasm/1.3.0")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

@@ -61,17 +61,13 @@ class LibtoolConan(ConanFile):
         # https://github.com/conan-io/conan-center-index/pull/16248#discussion_r1116332095
         #self.requires("m4/1.4.19")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         if self._has_dual_profiles:
             self.tool_requires("automake/<host_version>")
             self.tool_requires("m4/1.4.19")               # Needed by configure
 
         self.tool_requires("gnu-config/cci.20210814")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

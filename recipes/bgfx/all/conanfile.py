@@ -104,10 +104,6 @@ class bgfxConan(ConanFile):
     def _bimg_version(self): #mapping of bgfx version to required/used bimg version
         return {"cci.20230216": "cci.20230114"}
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -131,7 +127,7 @@ class bgfxConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("genie/1170")
-        if not is_msvc(self) and self._settings_build.os == "Windows":
+        if not is_msvc(self) and self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

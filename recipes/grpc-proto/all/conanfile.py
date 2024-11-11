@@ -33,10 +33,6 @@ class GRPCProto(ConanFile):
     }
     exports = "helpers.py"
 
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
@@ -75,18 +71,12 @@ class GRPCProto(ConanFile):
             )
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
-            self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
         tc = CMakeToolchain(self)
         googleapis_resdirs = self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs
         tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join([p.replace("\\", "/") for p in googleapis_resdirs])

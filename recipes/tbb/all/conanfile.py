@@ -41,10 +41,6 @@ class TBBConan(ConanFile):
         return "source_subfolder"
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _is_msvc(self):
         return str(self.settings.compiler) in ["Visual Studio", "msvc"]
 
@@ -86,7 +82,7 @@ class TBBConan(ConanFile):
         del self.info.options.tbbproxy
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             if "CONAN_MAKE_PROGRAM" not in os.environ and not tools.which("make"):
                 self.build_requires("make/4.2.1")
 

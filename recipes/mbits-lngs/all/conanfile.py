@@ -68,10 +68,6 @@ class MBitsLngsConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def _settings_build(self):
-        return self.settings_build if hasattr(self, "settings_build") else self.settings
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LNGS_TESTING"] = False

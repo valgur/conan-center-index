@@ -55,10 +55,6 @@ class bxConan(ConanFile):
             "apple-clang": "5",
         }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -82,7 +78,7 @@ class bxConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("genie/1170")
-        if not is_msvc(self) and self._settings_build.os == "Windows":
+        if not is_msvc(self) and self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -121,7 +117,7 @@ class bxConan(ConanFile):
         else:
             # Not sure if XCode can be spefically handled by conan for building through, so assume everything not VS is make
             # gcc-multilib and g++-multilib required for 32bit cross-compilation, should see if we can check and install through conan
-            
+
             # Conan to Genie translation maps
             compiler_str = str(self.settings.compiler)
             compiler_and_os_to_genie = {"Windows": f"--gcc=mingw-{compiler_str}", "Linux": f"--gcc=linux-{compiler_str}",
@@ -165,7 +161,7 @@ class bxConan(ConanFile):
                 autotools.make(target=proj, args=["-R", f"-C {proj_path}", mingw, conf])
 
     def package(self):
-        # Set platform suffixes and prefixes 
+        # Set platform suffixes and prefixes
         if self.settings.os == "Windows":
             lib_ext = "*.lib"
             package_lib_prefix = ""
@@ -193,17 +189,17 @@ class bxConan(ConanFile):
         if self.options.tools:
             copy(self, pattern="bin2c*", dst=os.path.join(self.package_folder, "bin"), src=build_bin, keep_path=False)
             copy(self, pattern="lemon*", dst=os.path.join(self.package_folder, "bin"), src=build_bin, keep_path=False)
-        
+
         # Rename for consistency across platforms and configs
         for bx_file in Path(os.path.join(self.package_folder, "lib")).glob("*bx*"):
-            rename(self, os.path.join(self.package_folder, "lib", bx_file.name), 
+            rename(self, os.path.join(self.package_folder, "lib", bx_file.name),
                     os.path.join(self.package_folder, "lib", f"{package_lib_prefix}bx{bx_file.suffix}"))
         if self.options.tools:
             for bx_file in Path(os.path.join(self.package_folder, "bin")).glob("*bin2c*"):
-                rename(self, os.path.join(self.package_folder, "bin", bx_file.name), 
+                rename(self, os.path.join(self.package_folder, "bin", bx_file.name),
                         os.path.join(self.package_folder, "bin", f"bin2c{bx_file.suffix}"))
             for bx_file in Path(os.path.join(self.package_folder, "bin")).glob("*lemon*"):
-                rename(self, os.path.join(self.package_folder, "bin", bx_file.name), 
+                rename(self, os.path.join(self.package_folder, "bin", bx_file.name),
                         os.path.join(self.package_folder, "bin", f"lemon{bx_file.suffix}"))
 
     def package_info(self):
@@ -218,7 +214,7 @@ class bxConan(ConanFile):
             self.cpp_info.defines.extend(["BX_CONFIG_DEBUG=1"])
         else:
             self.cpp_info.defines.extend(["BX_CONFIG_DEBUG=0"])
-        
+
         if self.settings.os == "Windows":
             if self.settings.arch == "x86":
                 self.cpp_info.system_libs.extend(["psapi"])

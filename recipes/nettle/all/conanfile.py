@@ -67,13 +67,9 @@ class NettleConan(ConanFile):
         if Version(self.version) < "3.6" and self.options.get_safe("fat") and self.settings.arch == "x86_64":
             raise ConanInvalidConfiguration("fat support is broken on this nettle release (due to a missing x86_64/sha_ni/sha1-compress.asm source)")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -115,7 +111,7 @@ class NettleConan(ConanFile):
         autotools.autoreconf()
         autotools.configure()
         # srcdir in unix path causes some troubles in asm files on Windows
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             replace_in_file(
                 self,
                 os.path.join(self.build_folder, "config.m4"),

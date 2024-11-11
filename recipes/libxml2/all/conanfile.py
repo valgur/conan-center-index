@@ -69,12 +69,8 @@ class Libxml2Conan(ConanFile):
                 and (name not in ["shared", "fPIC", "include_utils"])]
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _is_mingw_windows(self):
-        return self.settings.compiler == "gcc" and self.settings.os == "Windows" and self._settings_build.os == "Windows"
+        return self.settings.compiler == "gcc" and self.settings.os == "Windows" and self.settings_build.os == "Windows"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -110,7 +106,7 @@ class Libxml2Conan(ConanFile):
             if self.options.zlib or self.options.lzma or self.options.icu:
                 if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                     self.tool_requires("pkgconf/[>=2.2 <3]")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")

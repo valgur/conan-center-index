@@ -202,10 +202,6 @@ class FFMpegConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _dependencies(self):
         return {
             "avformat": ["avcodec"],
@@ -380,7 +376,7 @@ class FFMpegConan(ConanFile):
                 self.tool_requires("yasm/1.3.0")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -650,7 +646,7 @@ class FFMpegConan(ConanFile):
         if ranlib:
             args.append(f"--ranlib={unix_path(self, ranlib)}")
         # for some reason pkgconf from conan can't find .pc files on Linux in the context of ffmpeg configure...
-        if self._settings_build.os != "Linux":
+        if self.settings_build.os != "Linux":
             pkg_config = self.conf.get("tools.gnu:pkg_config", default=buildenv_vars.get("PKG_CONFIG"), check_type=str)
             if pkg_config:
                 args.append(f"--pkg-config={unix_path(self, pkg_config)}")

@@ -38,10 +38,6 @@ class NsprConan(ConanFile):
         "win32_target": "winnt",
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -64,7 +60,7 @@ class NsprConan(ConanFile):
                 raise ConanInvalidConfiguration("NSPR does not support mac M1 before 4.29")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("mozilla-build/3.3")
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

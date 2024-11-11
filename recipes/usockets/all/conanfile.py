@@ -63,10 +63,6 @@ class UsocketsConan(ConanFile):
         }.get(self._min_cppstd, {})
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _uses_msbuild(self):
         return Version(self.version) < "0.8.3" and is_msvc(self)
 
@@ -129,7 +125,7 @@ class UsocketsConan(ConanFile):
                 )
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not self._uses_msbuild:
+        if self.settings_build.os == "Windows" and not self._uses_msbuild:
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

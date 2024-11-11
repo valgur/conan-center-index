@@ -20,11 +20,6 @@ class GenieConan(ConanFile):
     topics = ("genie", "project", "generator", "build", "build-systems")
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        # TODO: Remove for Conan v2
-        return getattr(self, "settings_build", self.settings)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -36,7 +31,7 @@ class GenieConan(ConanFile):
             raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -58,7 +53,7 @@ class GenieConan(ConanFile):
 
     def _patch_compiler(self, cc, cxx):
         makefile = os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make")
-        
+
         replace_in_file(self, makefile, "CC  = gcc", f"CC = {cc}" if cc else "")
         replace_in_file(self, makefile, "CXX = g++", f"CXX = {cxx}" if cxx else "")
 
@@ -96,11 +91,6 @@ class GenieConan(ConanFile):
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
-        
-        #TODO remove for conan v2
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bindir}")
-        self.env_info.PATH.append(bindir)
 
         if self.settings.build_type == "Debug":
             resdir = os.path.join(self.package_folder, "res")

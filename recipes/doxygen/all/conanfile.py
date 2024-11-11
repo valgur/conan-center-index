@@ -30,10 +30,6 @@ class DoxygenConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _minimum_compiler_version(self):
         if Version(self.version) <= "1.9.1":
             return {
@@ -70,7 +66,7 @@ class DoxygenConan(ConanFile):
             check_min_vs(self, "191")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.24")
         else:
             self.tool_requires("flex/2.6.4")

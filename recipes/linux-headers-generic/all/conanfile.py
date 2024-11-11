@@ -29,12 +29,8 @@ class LinuxHeadersGenericConan(ConanFile):
         del self.info.settings.build_type
         del self.info.settings.compiler
 
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
     def validate(self):
-        if self.settings.os != "Linux" or (not self._is_legacy_one_profile and self.settings_build.os != "Linux"):
+        if self.settings.os != "Linux" or self.settings_build.os != "Linux":
             raise ConanInvalidConfiguration("linux-headers-generic supports only Linux")
 
     def source(self):

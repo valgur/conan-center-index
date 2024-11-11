@@ -16,10 +16,6 @@ class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     test_type = "explicit"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def requirements(self):
         self.requires(self.tested_reference_str, run=True)
 
@@ -56,7 +52,7 @@ class TestPackageConan(ConanFile):
         # self.dependencies[self.tested_reference_str].options.enable_lib
         has_toolchain = sorted(Path(self.build_folder).rglob('conan_toolchain.cmake'))
         return has_toolchain
-        
+
     def build(self):
         if self._testing_library:
             cmake = CMake(self)
@@ -73,10 +69,10 @@ class TestPackageConan(ConanFile):
             # to: self.dependencies['pkgconf'].ref.version
             tokens = re.split('[@#]', self.tested_reference_str)
             pkgconf_expected_version = tokens[0].split("/", 1)[1]
-            assert f"pkgconf {pkgconf_expected_version}" in output.getvalue() 
+            assert f"pkgconf {pkgconf_expected_version}" in output.getvalue()
 
             self.run("pkgconf libexample1 -cflags", env="conanrun")
-            
+
         # Test that executable linked against library runs as expected
         if can_run(self) and self._testing_library:
             test_executable = unix_path(self, os.path.join(self.cpp.build.bindirs[0], "test_package"))

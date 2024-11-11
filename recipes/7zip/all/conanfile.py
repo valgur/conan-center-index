@@ -21,10 +21,6 @@ class SevenZipConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def validate(self):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("Only Windows supported")
@@ -38,7 +34,7 @@ class SevenZipConan(ConanFile):
         if Version(self.version) < "22":
             self.build_requires("lzma_sdk/9.20")
 
-        if not is_msvc(self) and self._settings_build.os == "Windows" and "make" not in os.environ.get("CONAN_MAKE_PROGRAM", ""):
+        if not is_msvc(self) and self.settings_build.os == "Windows" and "make" not in os.environ.get("CONAN_MAKE_PROGRAM", ""):
             self.build_requires("make/4.3")
 
     def package_id(self):

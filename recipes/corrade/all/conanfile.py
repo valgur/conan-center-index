@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc, check_min_vs
@@ -66,7 +66,7 @@ class CorradeConan(ConanFile):
             )
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+        if not can_run(self):
             self.tool_requires(f"corrade/{self.version}")
 
     def source(self):

@@ -125,12 +125,8 @@ class LibcurlConan(ConanFile):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _is_win_x_android(self):
-        return self.settings.os == "Android" and self._settings_build.os == "Windows"
+        return self.settings.os == "Android" and self.settings_build.os == "Windows"
 
     @property
     def _is_using_cmake_build(self):
@@ -208,7 +204,7 @@ class LibcurlConan(ConanFile):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
             if self.settings.os in [ "tvOS", "watchOS" ]:
                 self.tool_requires("gnu-config/cci.20210814")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")

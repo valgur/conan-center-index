@@ -35,10 +35,6 @@ class LibX264Conan(ConanFile):
     # otherwise build fails with: ln: failed to create symbolic link './Makefile' -> '../../../../../../../../../../../../../j/w/prod/buildsinglereference@2/.conan/data/libx264/cci.20220602/_/_/build/622692a7dbc145becf87f01b017e2a0d93cc644e/src/Makefile': File name too long
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -59,7 +55,7 @@ class LibX264Conan(ConanFile):
     def build_requirements(self):
         if self._with_nasm:
             self.tool_requires("nasm/2.15.05")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -119,8 +115,8 @@ class LibX264Conan(ConanFile):
                 ndk_root = self.conf.get("tools.android:ndk_path", buildenv_vars.get("NDK_ROOT"))
 
                 # INFO: Conan package android-ndk does not expose toolchain path. Looks fragile but follows always same for Android NDK
-                build_os = {"Linux": "linux", "Macos": "darwin", "Windows": "windows"}.get(str(self._settings_build.os))
-                toolchain = os.path.join(ndk_root, "toolchains", "llvm", "prebuilt", f"{build_os}-{self._settings_build.arch}")
+                build_os = {"Linux": "linux", "Macos": "darwin", "Windows": "windows"}.get(str(self.settings_build.os))
+                toolchain = os.path.join(ndk_root, "toolchains", "llvm", "prebuilt", f"{build_os}-{self.settings_build.arch}")
 
                 sysroot = self.conf.get("tools.build:sysroot", buildenv_vars.get("SYSROOT", f"{toolchain}/sysroot"))
                 # INFO: x264 will look for strings appended to the cross prefix

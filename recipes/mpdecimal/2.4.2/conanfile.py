@@ -34,10 +34,6 @@ class MpdecimalConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "setings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -63,7 +59,7 @@ class MpdecimalConan(ConanFile):
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
         else:
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")

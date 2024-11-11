@@ -51,10 +51,6 @@ class HarfbuzzConan(ConanFile):
 
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -137,7 +133,7 @@ class HarfbuzzConan(ConanFile):
 
         # Avoid conflicts with libiconv
         # see: https://github.com/conan-io/conan-center-index/pull/17046#issuecomment-1554629094
-        if self._settings_build.os == "Macos":
+        if self.settings_build.os == "Macos":
             env = Environment()
             env.define_path("DYLD_FALLBACK_LIBRARY_PATH", "$DYLD_LIBRARY_PATH")
             env.define_path("DYLD_LIBRARY_PATH", "")

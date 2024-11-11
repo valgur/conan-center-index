@@ -69,7 +69,7 @@ class JsonnetConan(ConanFile):
         if Version(self.version) == "0.17.0" and Version(self.settings.compiler.get_safe("cppstd")) > "17":
             raise ConanInvalidConfiguration(f"{self.ref} does not support C++{self.settings.compiler.cppstd}")
 
-        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+        if hasattr(self, "settings_build") and not can_run(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support cross building")
 
         if self.options.shared and is_msvc(self) and "d" in msvc_runtime_flag(self):

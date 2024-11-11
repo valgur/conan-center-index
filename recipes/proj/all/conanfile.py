@@ -1,12 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file, collect_libs, rm, rename
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.60.0 <2 || >=2.0.5"
 
@@ -37,10 +37,6 @@ class ProjConan(ConanFile):
         "build_executables": True,
     }
 
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -69,18 +65,12 @@ class ProjConan(ConanFile):
     def build_requirements(self):
         if Version(self.version) >= "9.4.0":
             self.tool_requires("cmake/[>=3.16 <4]")
-        if not self._is_legacy_one_profile:
-            self.tool_requires("sqlite3/[>=3.45.0 <4]")
+        self.tool_requires("sqlite3/[>=3.45.0 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
 
         tc = CMakeToolchain(self)
         tc.variables["USE_THREAD"] = self.options.threadsafe
@@ -143,10 +133,7 @@ class ProjConan(ConanFile):
             else:
                 cmake_sqlite_call = "generate_proj_db.cmake"
                 pattern = "\"${EXE_SQLITE3}\""
-            if self._is_legacy_one_profile:
-                lib_paths = self.dependencies["sqlite3"].cpp_info.libdirs
-            else:
-                lib_paths = self.dependencies.build["sqlite3"].cpp_info.libdirs
+            lib_paths = self.dependencies.build["sqlite3"].cpp_info.libdirs
             replace_in_file(self,
                 os.path.join(self.source_folder, "data", cmake_sqlite_call),
                 f"COMMAND {pattern}",

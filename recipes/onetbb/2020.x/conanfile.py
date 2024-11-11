@@ -44,10 +44,6 @@ class OneTBBConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _base_compiler(self):
         base = self.settings.get_safe("compiler.base")
         if base:
@@ -89,7 +85,7 @@ class OneTBBConan(ConanFile):
             raise ConanInvalidConfiguration("tbbproxy needs tbbmaloc and shared options")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             if not self.conf_info.get("tools.gnu:make_program", check_type=str):
                 self.tool_requires("make/4.3")
 

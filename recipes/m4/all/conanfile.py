@@ -22,10 +22,6 @@ class M4Conan(ConanFile):
     license = "GPL-3.0-only"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -36,7 +32,7 @@ class M4Conan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -72,7 +68,7 @@ class M4Conan(ConanFile):
             triplet_arch_windows = {"x86_64": "x86_64", "x86": "i686", "armv8": "aarch64"}
 
             host_arch = triplet_arch_windows.get(str(self.settings.arch))
-            build_arch = triplet_arch_windows.get(str(self._settings_build.arch))
+            build_arch = triplet_arch_windows.get(str(self.settings_build.arch))
 
             if host_arch and build_arch:
                 host = f"{host_arch}-w64-mingw32"

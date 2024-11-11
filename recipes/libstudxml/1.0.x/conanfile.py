@@ -33,10 +33,6 @@ class LibStudXmlConan(ConanFile):
     def _source_subfolder(self):
         return "source_subfolder"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -62,7 +58,7 @@ class LibStudXmlConan(ConanFile):
         if not is_msvc(self):
             self.tool_requires("gnu-config/cci.20210814")
             self.tool_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+            if self.settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):

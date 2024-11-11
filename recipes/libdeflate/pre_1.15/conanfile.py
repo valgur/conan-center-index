@@ -31,10 +31,6 @@ class LibdeflateConan(ConanFile):
     def _is_clangcl(self):
         return self.settings.compiler == "clang" and self.settings.os == "Windows"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -52,7 +48,7 @@ class LibdeflateConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not (is_msvc(self) or self._is_clangcl):
+        if self.settings_build.os == "Windows" and not (is_msvc(self) or self._is_clangcl):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

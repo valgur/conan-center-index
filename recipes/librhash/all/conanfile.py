@@ -30,10 +30,6 @@ class LibRHashConan(ConanFile):
         "with_openssl": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src", "librhash"))
 

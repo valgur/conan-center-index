@@ -40,10 +40,6 @@ class MpfrConan(ConanFile):
         "exact_int": "gmp",
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         copy(self, "CMakeLists.txt.in", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
@@ -71,7 +67,7 @@ class MpfrConan(ConanFile):
             self.requires("mpir/3.0.0")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

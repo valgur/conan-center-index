@@ -65,7 +65,7 @@ class AtkConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             self.tool_requires("glib/2.76.3")
 
     def source(self):

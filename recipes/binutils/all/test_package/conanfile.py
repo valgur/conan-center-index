@@ -11,16 +11,12 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _has_as(self):
-        return self._settings_build.os not in ("Macos",)
+        return self.settings_build.os not in ("Macos",)
 
     @property
     def _has_ld(self):
-        return self._settings_build.os not in ("Macos",)
+        return self.settings_build.os not in ("Macos",)
 
     def layout(self):
         basic_layout(self)

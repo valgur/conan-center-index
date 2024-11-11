@@ -74,7 +74,7 @@ class ThriftConan(ConanFile):
             self.requires("qt/[~5.15]", run=can_run(self))
 
     def build_requirements(self):
-        if self.settings.build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.25")
         else:
             self.tool_requires("flex/2.6.4")

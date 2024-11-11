@@ -1,11 +1,11 @@
+import os
+
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import get, copy, rmdir
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-import os
 
 required_conan_version = ">=1.53.0"
 
@@ -27,10 +27,6 @@ class EtcdCppApiv3Conan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
 
     @property
     def _min_cppstd(self):
@@ -58,9 +54,8 @@ class EtcdCppApiv3Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
-            self.tool_requires("protobuf/<host_version>")
-            self.tool_requires("grpc/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("grpc/<host_version>")
 
     def requirements(self):
         self.requires("protobuf/3.21.12")
@@ -76,16 +71,9 @@ class EtcdCppApiv3Conan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-
         tc = CMakeToolchain(self)
         tc.variables["gRPC_VERSION"] = self.dependencies["grpc"].ref.version
         tc.variables["ETCD_CMAKE_CXX_STANDARD"] = self.settings.compiler.get_safe("cppstd", self._min_cppstd)

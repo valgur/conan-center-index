@@ -121,10 +121,6 @@ class OpenvinoConan(ConanFile):
             "msvc": "192",
         }
 
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["openvino"], strip_root=True)
         get(self, **self.conan_data["sources"][self.version]["onednn_cpu"], strip_root=True,
@@ -160,11 +156,10 @@ class OpenvinoConan(ConanFile):
     def build_requirements(self):
         if self._target_arm:
             self.tool_requires("scons/4.3.0")
-        if not self._is_legacy_one_profile:
-            if self._protobuf_required:
-                self.tool_requires("protobuf/<host_version>")
-            if self.options.enable_tf_lite_frontend:
-                self.tool_requires("flatbuffers/<host_version>")
+        if self._protobuf_required:
+            self.tool_requires("protobuf/<host_version>")
+        if self.options.enable_tf_lite_frontend:
+            self.tool_requires("flatbuffers/<host_version>")
         if not self.options.shared:
             self.tool_requires("cmake/[>=3.18 <4]")
 
@@ -191,11 +186,6 @@ class OpenvinoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
 
         deps = CMakeDeps(self)
         deps.generate()

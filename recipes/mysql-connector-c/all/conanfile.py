@@ -1,3 +1,4 @@
+from conan.tools.build import can_run
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
 import os
@@ -15,7 +16,7 @@ class MysqlConnectorCConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "with_ssl": [True, False], "with_zlib": [True, False]}
     default_options = {'shared': False, 'with_ssl': True, 'with_zlib': True}
-    
+
     deprecated = "libmysqlclient"
 
     _cmake = None
@@ -32,7 +33,7 @@ class MysqlConnectorCConan(ConanFile):
             self.requires("zlib/1.2.11")
 
     def validate(self):
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if not can_run(self):
             raise ConanInvalidConfiguration("Cross compilation not yet supported by the recipe. contributions are welcome.")
 
     def source(self):

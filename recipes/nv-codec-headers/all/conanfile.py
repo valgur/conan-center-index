@@ -20,10 +20,6 @@ class FFNvEncHeaders(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -31,7 +27,7 @@ class FFNvEncHeaders(ConanFile):
         self.info.clear()
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             if "CONAN_MAKE_PROGRAM" not in os.environ:
                 self.build_requires("make/4.4")
 

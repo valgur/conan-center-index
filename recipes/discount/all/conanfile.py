@@ -44,7 +44,7 @@ class DiscountConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             raise ConanInvalidConfiguration("discount doesn't support cross-build yet")
 
     def source(self):

@@ -16,12 +16,8 @@ class ZuluOpenJDK(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _jni_folder(self):
-        folder = {"Linux": "linux", "Macos": "darwin", "Windows": "win32"}.get(str(self._settings_build.os))
+        folder = {"Linux": "linux", "Macos": "darwin", "Windows": "win32"}.get(str(self.settings_build.os))
         return os.path.join("include", folder)
 
     def package_id(self):
@@ -30,16 +26,16 @@ class ZuluOpenJDK(ConanFile):
 
     def validate(self):
         supported_archs = ["x86_64", "armv8"]
-        if self._settings_build.arch not in supported_archs:
-            raise ConanInvalidConfiguration(f"Unsupported Architecture ({self._settings_build.arch}). "
+        if self.settings_build.arch not in supported_archs:
+            raise ConanInvalidConfiguration(f"Unsupported Architecture ({self.settings_build.arch}). "
                                             f"This version {self.version} currently only supports {supported_archs}.")
         supported_os = ["Windows", "Macos", "Linux"]
-        if self._settings_build.os not in supported_os:
-            raise ConanInvalidConfiguration(f"Unsupported os ({self._settings_build.os}). "
+        if self.settings_build.os not in supported_os:
+            raise ConanInvalidConfiguration(f"Unsupported os ({self.settings_build.os}). "
                                             f"This package currently only support {supported_os}.")
 
     def build(self):
-        get(self, **self.conan_data["sources"][self.version][str(self._settings_build.os)][str(self._settings_build.arch)], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][str(self.settings_build.os)][str(self.settings_build.arch)], strip_root=True)
 
     def package(self):
         copy(self, pattern="*", dst=os.path.join(self.package_folder, "bin"),

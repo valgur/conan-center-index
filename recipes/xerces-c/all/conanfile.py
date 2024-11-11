@@ -1,10 +1,10 @@
+import os
+
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.60.0 <2 || >=2.0.5"
 
@@ -42,10 +42,6 @@ class XercesCConan(ConanFile):
         "message_loader": "inmemory",
         "mutex_manager": "standard",
     }
-
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -105,25 +101,20 @@ class XercesCConan(ConanFile):
         self._validate("mutex_manager", "windows", ("Windows", ))
 
     def build_requirements(self):
-        if self.options.message_loader == "icu" and not self._is_legacy_one_profile:
+        if self.options.message_loader == "icu":
             self.tool_requires("icu/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self.options.message_loader == "icu" and self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
         tc = CMakeToolchain(self)
         # Because upstream overrides BUILD_SHARED_LIBS as a CACHE variable
         tc.cache_variables["BUILD_SHARED_LIBS"] = "ON" if self.options.shared else "OFF"
 
         # Prevent linking against unused found library
         tc.cache_variables["NSL_LIBRARY"] = "NSL_LIBRARY-NOTFOUND"
-        
+
         # https://xerces.apache.org/xerces-c/build-3.html
         tc.variables["network"] =  self.options.network
         if self.options.network:

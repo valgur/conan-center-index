@@ -61,10 +61,6 @@ class ICUConan(ConanFile):
         }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _enable_icu_tools(self):
         return self.settings.os not in ["iOS", "tvOS", "watchOS", "Emscripten"]
 
@@ -115,7 +111,7 @@ class ICUConan(ConanFile):
             self.info.options.dat_package_file = self._sha256sum(str(self.info.options.dat_package_file))
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -163,7 +159,7 @@ class ICUConan(ConanFile):
                 # the build triple to avoid the collision and ensure the scripts
                 # know we are cross-building.
                 host_triplet = f"{str(self.settings.arch)}-apple-darwin"
-                build_triplet = f"{str(self._settings_build.arch)}-apple"
+                build_triplet = f"{str(self.settings_build.arch)}-apple"
                 tc.update_configure_args({"--host": host_triplet,
                                           "--build": build_triplet})
         else:
@@ -196,7 +192,7 @@ class ICUConan(ConanFile):
                 "if true",
             )
 
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             # https://unicode-org.atlassian.net/projects/ICU/issues/ICU-20545
             makeconv_cpp = os.path.join(self.source_folder, "source", "tools", "makeconv", "makeconv.cpp")
             replace_in_file(self, makeconv_cpp,

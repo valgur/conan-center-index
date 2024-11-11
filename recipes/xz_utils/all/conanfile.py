@@ -35,10 +35,6 @@ class XZUtilsConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _effective_msbuild_type(self):
         # treat "RelWithDebInfo" and "MinSizeRel" as "Release"
         # there is no DebugMT configuration in upstream vcxproj, we patch Debug configuration afterwards
@@ -50,7 +46,7 @@ class XZUtilsConan(ConanFile):
     @property
     def _msbuild_target(self):
         return "liblzma_dll" if self.options.shared else "liblzma"
-    
+
     @property
     def _use_msbuild(self):
         assume_clang_cl = (self.settings.os == "Windows"
@@ -75,7 +71,7 @@ class XZUtilsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not self._use_msbuild:
+        if self.settings_build.os == "Windows" and not self._use_msbuild:
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -131,10 +127,10 @@ class XZUtilsConan(ConanFile):
                 "<Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
                 f"<Import Project=\"{conantoolchain_props}\" /><Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />",
             )
-            
+
             if self.settings.arch == "armv8":
                 replace_in_file(self, vcxproj_file, "x64", "ARM64")
-            
+
         solution_file = os.path.join(build_script_folder, "xz_win.sln")
         if self.settings.arch == "armv8":
             replace_in_file(self, solution_file, "x64", "ARM64")

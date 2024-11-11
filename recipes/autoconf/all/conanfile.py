@@ -23,11 +23,6 @@ class AutoconfConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        # TODO: Remove for Conan v2
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -42,7 +37,7 @@ class AutoconfConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -62,8 +57,8 @@ class AutoconfConan(ConanFile):
         if self.settings.os == "Windows":
             if is_msvc(self):
                 build = "{}-{}-{}".format(
-                    "x86_64" if self._settings_build.arch == "x86_64" else "i686",
-                    "pc" if self._settings_build.arch == "x86" else "win64",
+                    "x86_64" if self.settings_build.arch == "x86_64" else "i686",
+                    "pc" if self.settings_build.arch == "x86" else "win64",
                     "mingw32")
                 host = "{}-{}-{}".format(
                     "x86_64" if self.settings.arch == "x86_64" else "i686",
@@ -80,7 +75,7 @@ class AutoconfConan(ConanFile):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"),
                         "M4 = /usr/bin/env m4", "#M4 = /usr/bin/env m4")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             # Handle vagaries of Windows line endings
             replace_in_file(self, os.path.join(self.source_folder, "bin", "autom4te.in"),
                             "$result =~ s/^\\n//mg;", "$result =~ s/^\\R//mg;")

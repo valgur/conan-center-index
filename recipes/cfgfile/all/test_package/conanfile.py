@@ -19,7 +19,7 @@ class TestPackageConan(ConanFile):
         self.tool_requires(self.tested_reference_str)
 
     def build(self):
-        if not cross_building(self, skip_x64_x86=True):
+        if can_run(self):
             cmake = CMake(self)
             cmake.configure()
             cmake.build()

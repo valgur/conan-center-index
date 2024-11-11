@@ -32,10 +32,6 @@ class LibTomCryptConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, f"tomcrypt-{self.version}.def",
@@ -62,7 +58,7 @@ class LibTomCryptConan(ConanFile):
         if not is_msvc(self):
             if self.options.shared:
                 self.build_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.build_requires("make/4.4")
 
     def source(self):

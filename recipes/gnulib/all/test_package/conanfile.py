@@ -14,13 +14,9 @@ class TestPackageConan(ConanFile):
     test_type = "explicit"
     win_bash = True  # Needed in Conan v1 to avoid "Cannot wrap command with different envs."
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -54,7 +50,7 @@ class TestPackageConan(ConanFile):
         self.run("gnulib-tool --import getopt-posix", env="conanbuild")
         with chdir(self, self.build_folder):
             autotools = Autotools(self)
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 # Disable m4 from Conan, which is not able to run shell commands with syscmd()
                 os.environ["M4"] = ""
             # autotools.autoreconf() does not have build_script_folder param in Conan v1, so using .run()

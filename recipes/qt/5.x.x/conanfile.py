@@ -131,10 +131,6 @@ class QtConan(ConanFile):
     no_copy_source = True
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export(self):
         copy(self, f"qtmodules{self.version}.conf", self.recipe_folder, self.export_folder)
 
@@ -337,7 +333,7 @@ class QtConan(ConanFile):
             if not (self.options.gui and self.options.qtdeclarative and self.options.qtlocation and self.options.qtwebchannel):
                 raise ConanInvalidConfiguration("option qt:qtwebengine requires also qt:gui, qt:qtdeclarative, qt:qtlocation and qt:qtwebchannel")
 
-            if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+            if hasattr(self, "settings_build") and not can_run(self):
                 raise ConanInvalidConfiguration("Cross compiling Qt WebEngine is not supported")
 
             if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
@@ -480,14 +476,14 @@ class QtConan(ConanFile):
             del self.info.options.android_sdk
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and is_msvc(self):
+        if self.settings_build.os == "Windows" and is_msvc(self):
             self.tool_requires("jom/[>=1.1 <2]")
         if self.options.qtwebengine:
             self.tool_requires("ninja/[>=1.12 <2]")
             self.tool_requires("nodejs/18.15.0")
             self.tool_requires("gperf/3.1")
             # gperf, bison, flex, python >= 2.7.5 & < 3
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.tool_requires("winflexbison/2.5.25")
             else:
                 self.tool_requires("bison/3.8.2")
@@ -540,7 +536,7 @@ class QtConan(ConanFile):
     def _make_program(self):
         if is_msvc(self):
             return "jom"
-        elif self._settings_build.os == "Windows":
+        elif self.settings_build.os == "Windows":
             return "mingw32-make"
         else:
             return "make"
@@ -812,7 +808,7 @@ class QtConan(ConanFile):
         else:
             xplatform_val = self._xplatform()
             if xplatform_val:
-                if not cross_building(self, skip_x64_x86=True):
+                if can_run(self):
                     args += [f"-platform {xplatform_val}"]
                 else:
                     args += [f"-xplatform {xplatform_val}"]
@@ -825,7 +821,7 @@ class QtConan(ConanFile):
 
         def _getenvpath(var):
             val = os.getenv(var)
-            if val and self._settings_build.os == "Windows":
+            if val and self.settings_build.os == "Windows":
                 val = val.replace("\\", "/")
                 os.environ[var] = val
             return val
@@ -843,10 +839,10 @@ class QtConan(ConanFile):
                          'QMAKE_LINK="' + value + '"',
                          'QMAKE_LINK_SHLIB="' + value + '"']
 
-        if self._settings_build.os == "Linux" and self.settings.compiler == "clang":
+        if self.settings_build.os == "Linux" and self.settings.compiler == "clang":
             args += ['QMAKE_CXXFLAGS+="-ftemplate-depth=1024"']
 
-        if self._settings_build.os == "Macos":
+        if self.settings_build.os == "Macos":
             # On macOS, SIP resets DYLD_LIBRARY_PATH injected by VirtualBuildEnv & VirtualRunEnv.
             # Qt builds several executables (moc etc) which are called later on during build of
             # libraries, and these executables link to several external dependencies in requirements().
@@ -876,7 +872,7 @@ class QtConan(ConanFile):
 
         os.mkdir("build_folder")
         with chdir(self, "build_folder"):
-            if self._settings_build.os == "Macos":
+            if self.settings_build.os == "Macos":
                 save(self, ".qmake.stash" , "")
                 save(self, ".qmake.super" , "")
 
@@ -918,7 +914,7 @@ Prefix = ..""")
                 rmdir(self, os.path.join(self.package_folder, "lib", "cmake", m))
 
         extension = ""
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             extension = ".exe"
         v = Version(self.version)
         filecontents = textwrap.dedent(f"""\

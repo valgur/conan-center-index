@@ -33,10 +33,6 @@ class LibFDKAACConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _use_cmake(self):
         return Version(self.version) >= "2.0.2"
 
@@ -63,7 +59,7 @@ class LibFDKAACConan(ConanFile):
     def build_requirements(self):
         if not self._use_cmake and not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")
@@ -119,7 +115,7 @@ class LibFDKAACConan(ConanFile):
         else:
             autotools = Autotools(self)
             autotools.autoreconf()
-            if self.settings.os == "Android" and self._settings_build.os == "Windows":
+            if self.settings.os == "Android" and self.settings_build.os == "Windows":
                 # remove escape for quotation marks, to make ndk on windows happy
                 replace_in_file(
                     self, os.path.join(self.source_folder, "configure"),

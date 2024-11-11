@@ -121,7 +121,7 @@ class DCMTKConan(ConanFile):
             raise ConanInvalidConfiguration("Cross building is not supported")
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 11)
-        if hasattr(self, "settings_build") and cross_building(self) and self.settings.os == "Macos":
+        if cross_building(self) and self.settings.os == "Macos":
             # FIXME: Probable issue with flags, build includes header 'mmintrin.h'
             raise ConanInvalidConfiguration("Cross building on Macos is not supported (yet)")
 

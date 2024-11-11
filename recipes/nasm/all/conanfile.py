@@ -22,10 +22,6 @@ class NASMConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _nasm(self):
         suffix = "w.exe" if is_msvc(self) else ""
         return os.path.join(self.package_folder, "bin", f"nasm{suffix}")
@@ -53,7 +49,7 @@ class NASMConan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("strawberryperl/5.32.1.1")
             if not is_msvc(self):
                 self.win_bash = True

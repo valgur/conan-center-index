@@ -34,13 +34,9 @@ class TestPackageConan(ConanFile):
                 system_cc = "clang++"
         return system_cc
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         self.build_requires(self.tested_reference_str)
-        if self._settings_build.os == "Windows" and not self.conf.get(
+        if self.settings_build.os == "Windows" and not self.conf.get(
             "tools.microsoft.bash:path", check_type=str
         ):
             self.build_requires("msys2/cci.latest")
