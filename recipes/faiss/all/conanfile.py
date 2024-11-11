@@ -74,7 +74,7 @@ class FaissRecipe(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openblas/0.3.27")
+        self.requires("openblas/0.3.28")
         self.requires("openmp/system")
 
     def validate(self):

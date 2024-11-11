@@ -119,7 +119,7 @@ class WhisperCppConan(ConanFile):
     def requirements(self):
         if not is_apple_os(self):
             if self.options.with_blas:
-                self.requires("openblas/0.3.27")
+                self.requires("openblas/0.3.28")
         if self.options.get_safe("with_openvino"):
             self.requires("openvino/2023.2.0")
 

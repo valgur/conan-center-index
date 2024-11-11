@@ -51,7 +51,7 @@ class ToonConan(ConanFile):
 
     def requirements(self):
         if self.options.with_lapack:
-            self.requires("openblas/0.3.27", options={"build_lapack": True})
+            self.requires("openblas/0.3.28", options={"build_lapack": True})
 
     def package_id(self):
         self.info.clear()

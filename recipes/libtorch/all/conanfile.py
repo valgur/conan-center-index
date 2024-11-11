@@ -272,7 +272,7 @@ class LibtorchConan(ConanFile):
             self.requires("flatbuffers/24.3.25", libs=False)
         if self.options.blas == "openblas":
             # Also provides LAPACK, currently
-            self.requires("openblas/0.3.27")
+            self.requires("openblas/0.3.28")
         if self.options.with_openmp:
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_fbgemm:
