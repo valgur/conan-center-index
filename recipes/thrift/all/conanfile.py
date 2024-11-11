@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -70,7 +71,7 @@ class ThriftConan(ConanFile):
         if self.options.with_libevent:
             self.requires("libevent/2.1.12")
         if self.options.with_qt5:
-            self.requires("qt/[~5.15]")
+            self.requires("qt/[~5.15]", run=can_run(self))
 
     def build_requirements(self):
         if self.settings.build.os == "Windows":
@@ -78,6 +79,8 @@ class ThriftConan(ConanFile):
         else:
             self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
+        if self.options.with_qt5 and not can_run(self):
+            self.tool_requires("qt/<host_version>")
 
     def _patch_sources(self):
         apply_conandata_patches(self)
@@ -97,6 +100,7 @@ class ThriftConan(ConanFile):
         tc.variables["BUILD_COMPILER"] = True
         tc.variables["BUILD_LIBRARIES"] = True
         tc.variables["BUILD_TUTORIALS"] = False
+        tc.variables["WITH_QT5"] = self.options.with_qt5
         if is_msvc(self):
             tc.variables["WITH_MT"] = is_msvc_static_runtime(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0074"] = "NEW"
