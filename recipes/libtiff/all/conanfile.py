@@ -1,10 +1,9 @@
 import os
-import textwrap
 
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -169,31 +168,6 @@ class LibtiffConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        if conan_version.major == 1:
-            self._create_cmake_module_alias_targets(
-                os.path.join(self.package_folder, self._module_file_rel_path),
-                {
-                    "TIFF::TIFF": "libtiff::tiff",
-                    "TIFF::CXX": "libtiff::tiffxx",
-                }
-            )
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "TIFF")
@@ -235,11 +209,3 @@ class LibtiffConan(ConanFile):
             # Note: the project does not export tiffxx as a pkg-config component, this is unofficial
             self.cpp_info.components["tiffxx"].set_property("pkg_config_name", f"libtiffxx-{Version(self.version).major}")
             self.cpp_info.components["tiffxx"].requires = ["tiff"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        if conan_version.major == 1:
-            self.cpp_info.filenames["cmake_find_package"] = "TIFF"
-            self.cpp_info.filenames["cmake_find_package_multi"] = "TIFF"
-            self.cpp_info.components["tiff"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["tiff"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-            self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))

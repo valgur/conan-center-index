@@ -50,7 +50,7 @@ class _ProtoLibrary:
     def cmake_content(self):
         content = f"\n\n# {self.cmake_target}\n"
         content += "\n".join([f"#{it}" for it in self.dumps().split('\n')])
-        content += "\n"        
+        content += "\n"
         if not self.srcs:
             content += textwrap.dedent(f"""\
                 add_library({self.cmake_target} INTERFACE)
@@ -61,8 +61,8 @@ class _ProtoLibrary:
                 add_library({self.cmake_target} ${{{self.cmake_target}_PROTOS}})
                 target_include_directories({self.cmake_target} PUBLIC ${{CMAKE_BINARY_DIR}})
                 target_compile_features({self.cmake_target} PUBLIC cxx_std_11)
-                protobuf_generate(LANGUAGE cpp 
-                                TARGET {self.cmake_target} 
+                protobuf_generate(LANGUAGE cpp
+                                TARGET {self.cmake_target}
                                 PROTOS ${{{self.cmake_target}_PROTOS}}
                                 IMPORT_DIRS ${{IMPORT_DIRS}}
                                 )
@@ -140,11 +140,11 @@ def parse_proto_libraries(filename, source_folder, error):
                     proto_library = None
                     action = None
                 elif line == "],":
-                    action = None 
+                    action = None
                 elif line.startswith("] + "):
                     varname = re_add_varname.search(line).group(1)
                     for it in variables[varname]:
-                        action(it) 
+                        action(it)
                 elif action:
                     action(line)
 

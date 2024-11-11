@@ -1,6 +1,4 @@
 import os
-import textwrap
-from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration

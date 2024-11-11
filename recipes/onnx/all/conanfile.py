@@ -1,13 +1,12 @@
 import os
 import sys
-import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -132,27 +131,6 @@ class OnnxConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         fix_apple_shared_install_name(self)
 
-        # TODO: to remove in conan v2 once legacy generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {component["target"]:f"ONNX::{component['target']}" for component in self._onnx_components.values()}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     @property
     def _onnx_components(self):
         components = {
@@ -188,14 +166,4 @@ class OnnxConan(ConanFile):
                 self.cpp_info.components[comp_name].requires = requires
                 self.cpp_info.components[comp_name].system_libs = system_libs
 
-                # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-                self.cpp_info.components[comp_name].names["cmake_find_package"] = target
-                self.cpp_info.components[comp_name].names["cmake_find_package_multi"] = target
-                self.cpp_info.components[comp_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-                self.cpp_info.components[comp_name].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-
         _register_components(self._onnx_components)
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "ONNX"
-        self.cpp_info.names["cmake_find_package_multi"] = "ONNX"

@@ -1,14 +1,14 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
-import os
-import textwrap
 
 required_conan_version = ">=1.64.0 <2 || >=2.2.0"
 
@@ -167,27 +167,6 @@ class DbusConan(ConanFile):
         if self.settings.os == "Windows" and not self.options.shared:
             rename(self, os.path.join(self.package_folder, "lib", "libdbus-1.a"), os.path.join(self.package_folder, "lib", "dbus-1.lib"))
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"dbus-1": "dbus-1::dbus-1"}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "DBus1")
         self.cpp_info.set_property("cmake_target_name", "dbus-1")
@@ -213,12 +192,3 @@ class DbusConan(ConanFile):
             self.cpp_info.requires.append("libsystemd::libsystemd")
         if self.options.get_safe("with_selinux"):
             self.cpp_info.requires.append("libselinux::selinux")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "DBus1"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "DBus1"
-        self.cpp_info.names["cmake_find_package"] = "dbus-1"
-        self.cpp_info.names["cmake_find_package_multi"] = "dbus-1"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "dbus-1"

@@ -3,9 +3,8 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, rmdir, save
+from conan.tools.files import copy, get, replace_in_file, rmdir
 import os
-import textwrap
 
 required_conan_version = ">=1.51.3"
 
@@ -115,36 +114,9 @@ class TensorpipeConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"tensorpipe": "Tensorpipe::Tensorpipe"},
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Tensorpipe")
         self.cpp_info.set_property("cmake_target_name", "tensorpipe")
         self.cpp_info.libs = ["tensorpipe"]
         if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation", "IOKit"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Tensorpipe"
-        self.cpp_info.names["cmake_find_package_multi"] = "Tensorpipe"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

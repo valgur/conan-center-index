@@ -5,7 +5,6 @@ from conan.tools.files import get, replace_in_file, rmdir, copy, save, collect_l
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.56.0"
 
@@ -461,27 +460,6 @@ class LibwebsocketsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._cmake_target: "Libwebsockets::{}".format(self._cmake_target)}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", "conan-official-{}-targets.cmake".format(self.name))
-
     @property
     def _cmake_target(self):
         return "websockets_shared" if self.options.shared else "websockets"
@@ -491,44 +469,9 @@ class LibwebsocketsConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", self._cmake_target)
         pkgconfig_name = "libwebsockets" if self.options.shared else "libwebsockets_static"
         self.cpp_info.set_property("pkg_config_name", pkgconfig_name)
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_libwebsockets"].libs = collect_libs(self)
-        if self.settings.os == "Windows":
-            self.cpp_info.components["_libwebsockets"].system_libs.extend(["ws2_32", "crypt32"])
-        elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_libwebsockets"].system_libs.extend(["dl", "m"])
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Libwebsockets"
-        self.cpp_info.names["cmake_find_package_multi"] = "Libwebsockets"
-        self.cpp_info.names["pkg_config"] = pkgconfig_name
-        self.cpp_info.components["_libwebsockets"].names["cmake_find_package"] = self._cmake_target
-        self.cpp_info.components["_libwebsockets"].names["cmake_find_package_multi"] = self._cmake_target
-        self.cpp_info.components["_libwebsockets"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["_libwebsockets"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["_libwebsockets"].builddirs.append(os.path.join("lib", "cmake"))
-        self.cpp_info.components["_libwebsockets"].set_property("cmake_target_name", self._cmake_target)
-        self.cpp_info.components["_libwebsockets"].set_property("pkg_config_name", pkgconfig_name)
-        if self.options.with_libuv:
-            self.cpp_info.components["_libwebsockets"].requires.append("libuv::libuv")
-        if self.options.with_libevent == "libevent":
-            self.cpp_info.components["_libwebsockets"].requires.append("libevent::libevent")
-        elif self.options.with_libevent == "libev":
-            self.cpp_info.components["_libwebsockets"].requires.append("libev::libev")
-        if self.options.with_zlib == "zlib":
-            self.cpp_info.components["_libwebsockets"].requires.append("zlib::zlib")
-        elif self.options.with_zlib == "miniz":
-            self.cpp_info.components["_libwebsockets"].requires.append("miniz::miniz")
-        if self.options.with_libmount:
-            self.cpp_info.components["_libwebsockets"].requires.append("libmount::libmount")
-        if self.options.with_sqlite3:
-            self.cpp_info.components["_libwebsockets"].requires.append("sqlite3::sqlite3")
-        if self.options.with_ssl == "openssl":
-            self.cpp_info.components["_libwebsockets"].requires.append("openssl::openssl")
-        elif self.options.with_ssl == "mbedtls":
-            self.cpp_info.components["_libwebsockets"].requires.append("mbedtls::mbedtls")
-        elif self.options.with_ssl == "wolfssl":
-            self.cpp_info.components["_libwebsockets"].requires.append("wolfssl::wolfssl")
-        if self.options.with_hubbub:
-            # TODO - Add hubbub package when available.
-            pass
+        self.cpp_info.libs = collect_libs(self)
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs.extend(["ws2_32", "crypt32"])
+        elif self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs.extend(["dl", "m"])

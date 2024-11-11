@@ -1,10 +1,8 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, rmdir, save
-from conan.tools.scm import Version
+from conan.tools.files import copy, get, replace_in_file, rmdir
 import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -103,27 +101,6 @@ class HighFiveConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        # TODO: to remove in conan v2 once legacy generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"HighFive": "HighFive::HighFive"},
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "HighFive")
         self.cpp_info.set_property("cmake_target_name", "HighFive")
@@ -142,9 +119,3 @@ class HighFiveConan(ConanFile):
         if self.options.with_opencv:
             self.cpp_info.requires.append("opencv::opencv")
             self.cpp_info.defines.append("H5_USE_OPENCV")
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "HighFive"
-        self.cpp_info.names["cmake_find_package_multi"] = "HighFive"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

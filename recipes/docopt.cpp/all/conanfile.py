@@ -1,10 +1,10 @@
+import os
+
 from conan import ConanFile
-from conan.tools.microsoft import is_msvc
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, save
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-import os
-import textwrap
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -78,50 +78,18 @@ class DocoptCppConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {self._cmake_target: "docopt::{}".format(self._cmake_target)}
-        )
-
     @property
     def _cmake_target(self):
         return "docopt" if self.options.shared else "docopt_s"
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", "conan-official-{}-targets.cmake".format(self.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "docopt")
         self.cpp_info.set_property("cmake_target_name", self._cmake_target)
         self.cpp_info.set_property("pkg_config_name", "docopt")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["docopt"].libs = ["docopt"]
+        self.cpp_info.libs = ["docopt"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["docopt"].system_libs = ["m"]
+            self.cpp_info.system_libs = ["m"]
         if is_msvc(self) and self.options.shared:
-            self.cpp_info.components["docopt"].defines = ["DOCOPT_DLL"]
+            self.cpp_info.defines = ["DOCOPT_DLL"]
         if self.options.boost_regex:
-            self.cpp_info.components["docopt"].requires.append("boost::boost")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "docopt"
-        self.cpp_info.names["cmake_find_package_multi"] = "docopt"
-        self.cpp_info.names["pkg_config"] = "docopt"
-        self.cpp_info.components["docopt"].names["cmake_find_package"] = self._cmake_target
-        self.cpp_info.components["docopt"].names["cmake_find_package_multi"] = self._cmake_target
-        self.cpp_info.components["docopt"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["docopt"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["docopt"].set_property("cmake_target_name", self._cmake_target)
+            self.cpp_info.requires.append("boost::boost")

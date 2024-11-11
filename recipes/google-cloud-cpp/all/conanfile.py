@@ -17,11 +17,11 @@ class GoogleCloudCppConan(ConanFile):
     generators = "cmake", "cmake_find_package_multi", "cmake_find_package"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "shared": [True, False], 
+        "shared": [True, False],
         "fPIC": [True, False]
         }
     default_options = {
-        "shared": False, 
+        "shared": False,
         "fPIC": True
         }
 
@@ -44,7 +44,7 @@ class GoogleCloudCppConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-    
+
     def validate(self):
         if self.settings.os == 'Windows' and self.options.shared:
             raise ConanInvalidConfiguration("Fails to compile for Windows as a DLL")
@@ -147,7 +147,7 @@ class GoogleCloudCppConan(ConanFile):
             self.cpp_info.components["experimental-firestore"].requires = ["common"]
             self.cpp_info.components["experimental-firestore"].libs = ["google_cloud_cpp_firestore"]
             self.cpp_info.components["experimental-firestore"].names["pkg_config"] = "google_cloud_cpp_firestore"
-            
+
         self.cpp_info.components["bigtable_protos"].requires = ["grpc::grpc++", "grpc::grpc", "protobuf::libprotobuf", "api_annotations_protos", "api_client_protos", "api_field_behavior_protos", "api_resource_protos", "iam_v1_iam_policy_protos", "iam_v1_policy_protos", "longrunning_operations_protos", "rpc_status_protos", "api_auth_protos"]
         self.cpp_info.components["bigtable_protos"].libs = ["google_cloud_cpp_bigtable_protos"]
         self.cpp_info.components["bigtable_protos"].names["pkg_config"] = "google_cloud_cpp_bigtable_protos"

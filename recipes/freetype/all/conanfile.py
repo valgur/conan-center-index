@@ -1,3 +1,7 @@
+import os
+import re
+import textwrap
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import (
@@ -5,9 +9,6 @@ from conan.tools.files import (
     get, rename, replace_in_file, rmdir, save
 )
 from conan.tools.scm import Version
-import os
-import re
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -187,10 +188,6 @@ class FreetypeConan(ConanFile):
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_vars_rel_path)
         )
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_target_rel_path),
-            {"freetype": "Freetype::Freetype"}
-        )
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(f"""\
@@ -203,17 +200,6 @@ class FreetypeConan(ConanFile):
             endif()
             set(FREETYPE_VERSION_STRING "{self.version}")
         """)
-        save(self, module_file, content)
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
         save(self, module_file, content)
 
     @property
@@ -245,18 +231,3 @@ class FreetypeConan(ConanFile):
         libtool_version = load(self, self._libtool_version_txt).strip()
         self.conf_info.define("user.freetype:libtool_version", libtool_version)
         self.cpp_info.set_property("system_package_version", libtool_version)
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.set_property("component_version", libtool_version)
-        self.cpp_info.filenames["cmake_find_package"] = "Freetype"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "freetype"
-        self.cpp_info.names["cmake_find_package"] = "Freetype"
-        self.cpp_info.names["cmake_find_package_multi"] = "Freetype"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_vars_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_target_rel_path]
-        self.cpp_info.names["pkg_config"] = "freetype2"
-        freetype_config = os.path.join(self.package_folder, "bin", "freetype-config")
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.FT2_CONFIG = freetype_config
-        self._chmod_plus_x(freetype_config)
-        self.user_info.LIBTOOL_VERSION = libtool_version

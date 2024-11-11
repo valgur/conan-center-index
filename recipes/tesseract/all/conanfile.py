@@ -1,12 +1,11 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, rm, save
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, rm
 from conan.tools.scm import Version
-
-import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -153,33 +152,11 @@ class TesseractConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
-
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"libtesseract": "Tesseract::libtesseract"}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         # Official CMake imported target is:
@@ -191,31 +168,20 @@ class TesseractConan(ConanFile):
         self.cpp_info.set_property("cmake_target_aliases", ["libtesseract"])
         self.cpp_info.set_property("pkg_config_name", "tesseract")
 
-        # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["libtesseract"].libs = [self._libname]
-        self.cpp_info.components["libtesseract"].requires = ["leptonica::leptonica"]
+        self.cpp_info.libs = [self._libname]
+        self.cpp_info.requires = ["leptonica::leptonica"]
         if self.settings.os == "Windows" and Version(self.version) >= "5.0.0":
-            self.cpp_info.components["libtesseract"].requires.append("libtiff::tiff")
+            self.cpp_info.requires.append("libtiff::tiff")
         if self.options.get_safe("with_libcurl", default=False):
-            self.cpp_info.components["libtesseract"].requires.append("libcurl::libcurl")
+            self.cpp_info.requires.append("libcurl::libcurl")
         if self.options.get_safe("with_libarchive", default=True):
-            self.cpp_info.components["libtesseract"].requires.append("libarchive::libarchive")
+            self.cpp_info.requires.append("libarchive::libarchive")
         if self.options.shared:
-            self.cpp_info.components["libtesseract"].defines = ["TESS_IMPORTS"]
+            self.cpp_info.defines = ["TESS_IMPORTS"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libtesseract"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["libtesseract"].system_libs = ["ws2_32"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "Tesseract"
-        self.cpp_info.names["cmake_find_package_multi"] = "Tesseract"
-        self.cpp_info.components["libtesseract"].names["cmake_find_package"] = "libtesseract"
-        self.cpp_info.components["libtesseract"].names["cmake_find_package_multi"] = "libtesseract"
-        self.cpp_info.components["libtesseract"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["libtesseract"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["libtesseract"].set_property("pkg_config_name", "tesseract")
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+            self.cpp_info.system_libs = ["ws2_32"]
 
     @property
     def _libname(self):

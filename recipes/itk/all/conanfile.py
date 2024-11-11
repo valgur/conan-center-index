@@ -9,7 +9,6 @@ from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 import glob
 import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -302,10 +301,6 @@ class ITKConan(ConanFile):
         return os.path.join(self._cmake_module_dir, f"conan-official-{self.name}-variables.cmake")
 
     @property
-    def _module_file_rel_path(self):
-        return os.path.join(self._cmake_module_dir, f"conan-official-{self.name}-targets.cmake")
-
-    @property
     def _itk_components(self):
         def libm():
             return ["m"] if self.settings.os in ["Linux", "FreeBSD"] else []
@@ -499,18 +494,6 @@ class ITKConan(ConanFile):
         content = 'set(ITK_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}")'
         save(self, os.path.join(self.package_folder, self._module_variables_file_rel_path), content)
 
-    def _create_cmake_module_alias_targets(self):
-        targets = {target:f"ITK::{target}" for target in self._itk_components.keys()}
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, os.path.join(self.package_folder, self._module_file_rel_path), content)
-
     @property
     def _itk_modules_files(self):
         cmake_files = []
@@ -535,7 +518,6 @@ class ITKConan(ConanFile):
                 os.remove(cmake_file)
 
         self._create_cmake_module_variables()
-        self._create_cmake_module_alias_targets()
 
     def package_info(self):
         itk_version = Version(self.version)
@@ -557,14 +539,3 @@ class ITKConan(ConanFile):
                 self.cpp_info.components[name].libs = [f"{name}{lib_suffix}"]
             self.cpp_info.components[name].system_libs = system_libs
             self.cpp_info.components[name].requires = requires
-
-            # TODO: to remove in conan v2 once cmake_find_package* generators removed
-            for generator in ["cmake_find_package", "cmake_find_package_multi"]:
-                self.cpp_info.components[name].names[generator] = name
-                self.cpp_info.components[name].build_modules[generator].extend([self._module_file_rel_path, self._module_variables_file_rel_path])
-                self.cpp_info.components[name].build_modules[generator].extend(
-                    [os.path.join(self._cmake_module_dir, f) for f in self._itk_modules_files])
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        for generator in ["cmake_find_package", "cmake_find_package_multi"]:
-            self.cpp_info.names[generator] = "ITK"

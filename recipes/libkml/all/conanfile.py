@@ -4,7 +4,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -97,32 +96,6 @@ class LibkmlConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "cmake"))
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "kmlbase": "LibKML::kmlbase",
-                "kmlxsd": "LibKML::kmlxsd",
-                "kmldom": "LibKML::kmldom",
-                "kmlengine": "LibKML::kmlengine",
-                "kmlconvenience": "LibKML::kmlconvenience",
-                "kmlregionator": "LibKML::kmlregionator",
-            }
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LibKML")
@@ -162,10 +135,6 @@ class LibkmlConan(ConanFile):
             system_libs = values.get("system_libs", [])
             requires = values.get("requires", [])
             self.cpp_info.components[comp_cmake_lib_name].set_property("cmake_target_name", comp_cmake_lib_name)
-            self.cpp_info.components[comp_cmake_lib_name].names["cmake_find_package"] = comp_cmake_lib_name
-            self.cpp_info.components[comp_cmake_lib_name].names["cmake_find_package_multi"] = comp_cmake_lib_name
-            self.cpp_info.components[comp_cmake_lib_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components[comp_cmake_lib_name].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
             self.cpp_info.components[comp_cmake_lib_name].libs = [comp_cmake_lib_name]
             self.cpp_info.components[comp_cmake_lib_name].defines = defines
             self.cpp_info.components[comp_cmake_lib_name].system_libs = system_libs

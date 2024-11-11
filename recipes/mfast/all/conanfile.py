@@ -1,3 +1,6 @@
+import os
+import textwrap
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
@@ -7,8 +10,6 @@ from conan.tools.files import (
     rename, rm, rmdir, save
 )
 from conan.tools.scm import Version
-import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -135,12 +136,6 @@ class mFASTConan(ConanFile):
         #       [x] MFAST_EXECUTABLE          - the fast_type_gen executable => done in _prepend_exec_target_in_fasttypegentarget()
         self._prepend_exec_target_in_fasttypegentarget()
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._lib_targets_module_file),
-            {values["target"]:"mFAST::{}".format(values["target"]) for values in self._mfast_lib_components.values()}
-        )
-
     @property
     def _new_mfast_config_dir(self):
         return os.path.join("lib", "cmake")
@@ -195,21 +190,6 @@ class mFASTConan(ConanFile):
         old_content = load(self, module_abs_path)
         new_content = exec_target_content + old_content
         save(self, module_abs_path, new_content)
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _lib_targets_module_file(self):
-        return os.path.join(self._new_mfast_config_dir, f"conan-official-{self.name}-targets.cmake")
 
     @property
     def _mfast_lib_components(self):
@@ -271,23 +251,3 @@ class mFASTConan(ConanFile):
             self.cpp_info.components[conan_comp].requires = requires
             if self.options.shared:
                 self.cpp_info.components[conan_comp].defines = ["MFAST_DYN_LINK"]
-
-            # TODO: to remove in conan v2 once cmake_find_package* generators removed
-            self.cpp_info.components[conan_comp].names["cmake_find_package"] = target
-            self.cpp_info.components[conan_comp].names["cmake_find_package_multi"] = target
-            self.cpp_info.components[conan_comp].build_modules["cmake"] = [self._fast_type_gen_target_file]
-            build_modules = [self._lib_targets_module_file, self._fast_type_gen_target_file]
-            self.cpp_info.components[conan_comp].build_modules["cmake_find_package"] = build_modules
-            self.cpp_info.components[conan_comp].build_modules["cmake_find_package_multi"] = build_modules
-            if comp != target:
-                conan_comp_alias = conan_comp + "_alias"
-                self.cpp_info.components[conan_comp_alias].names["cmake_find_package"] = comp
-                self.cpp_info.components[conan_comp_alias].names["cmake_find_package_multi"] = comp
-                self.cpp_info.components[conan_comp_alias].requires = [conan_comp]
-                self.cpp_info.components[conan_comp_alias].includedirs = []
-                self.cpp_info.components[conan_comp_alias].libdirs = []
-                self.cpp_info.components[conan_comp_alias].bindirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "mFAST"
-        self.cpp_info.names["cmake_find_package_multi"] = "mFAST"

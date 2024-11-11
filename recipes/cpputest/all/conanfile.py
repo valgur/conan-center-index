@@ -1,8 +1,8 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
-import os
-import textwrap
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 
 required_conan_version = ">=1.52.0"
 
@@ -71,30 +71,6 @@ class CppUTestConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "CppUTest"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "CppUTest": "CppUTest::CppUTest",
-                "CppUTestExt": "CppUTest::CppUTestExt",
-            }
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CppUTest")
         self.cpp_info.set_property("pkg_config_name", "cpputest")
@@ -110,17 +86,3 @@ class CppUTestConan(ConanFile):
             self.cpp_info.components["CppUTestExt"].set_property("cmake_target_name", "CppUTestExt")
             self.cpp_info.components["CppUTestExt"].libs = ["CppUTestExt"]
             self.cpp_info.components["CppUTestExt"].requires = ["CppUTest"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "CppUTest"
-        self.cpp_info.names["cmake_find_package_multi"] = "CppUTest"
-        self.cpp_info.names["pkg_config"] = "cpputest"
-        self.cpp_info.components["CppUTest"].names["cmake_find_package"] = "CppUTest"
-        self.cpp_info.components["CppUTest"].names["cmake_find_package_multi"] = "CppUTest"
-        self.cpp_info.components["CppUTest"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["CppUTest"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        if self.options.with_extensions:
-            self.cpp_info.components["CppUTestExt"].names["cmake_find_package"] = "CppUTestExt"
-            self.cpp_info.components["CppUTestExt"].names["cmake_find_package_multi"] = "CppUTestExt"
-            self.cpp_info.components["CppUTestExt"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["CppUTestExt"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

@@ -1,11 +1,10 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rmdir, save
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -107,28 +106,6 @@ class TinysplineConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        if self.options.cxx:
-            self._create_cmake_module_alias_targets(
-                os.path.join(self.package_folder, self._module_file_rel_path),
-                {"tinysplinecxx::tinysplinecxx": "tinyspline::libtinysplinecxx"}
-            )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", "conan-official-{}-targets.cmake".format(self.name))
-
     def package_info(self):
         if Version(self.version) < "0.3.0":
             lib_prefix = "lib" if is_msvc(self) and not self.options.shared else ""
@@ -143,7 +120,7 @@ class TinysplineConan(ConanFile):
 
         self.cpp_info.components["libtinyspline"].set_property("cmake_target_name", "tinyspline::tinyspline")
         self.cpp_info.components["libtinyspline"].set_property("pkg_config_name", "tinyspline")
-        self.cpp_info.components["libtinyspline"].libs = ["{}tinyspline{}".format(lib_prefix, lib_suffix)]
+        self.cpp_info.components["libtinyspline"].libs = [f"{lib_prefix}tinyspline{lib_suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libtinyspline"].system_libs = ["m"]
         if Version(self.version) >= "0.3.0" and self.options.shared and self.settings.os == "Windows":
@@ -153,7 +130,7 @@ class TinysplineConan(ConanFile):
             # FIXME: should live in tinysplinecxx-config.cmake (see https://github.com/conan-io/conan/issues/9000)
             self.cpp_info.components["libtinysplinecxx"].set_property("cmake_target_name", "tinysplinecxx::tinysplinecxx")
             self.cpp_info.components["libtinysplinecxx"].set_property("pkg_config_name", "tinysplinecxx")
-            self.cpp_info.components["libtinysplinecxx"].libs = ["{}tinyspline{}{}".format(lib_prefix, cpp_prefix, lib_suffix)]
+            self.cpp_info.components["libtinysplinecxx"].libs = [f"{lib_prefix}tinyspline{cpp_prefix}{lib_suffix}"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libtinysplinecxx"].system_libs = ["m"]
             if Version(self.version) >= "0.3.0" and self.options.shared and self.settings.os == "Windows":
@@ -162,9 +139,3 @@ class TinysplineConan(ConanFile):
             # Workaround to always provide a global target or pkg-config file with all components
             self.cpp_info.set_property("cmake_target_name", "tinyspline-do-not-use")
             self.cpp_info.set_property("pkg_config_name", "tinyspline-do-not-use")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libtinyspline"].names["cmake_find_package"] = "tinyspline"
-        if self.options.cxx:
-            self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["libtinysplinecxx"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

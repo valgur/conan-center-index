@@ -2,11 +2,10 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, save
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from os.path import join
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -95,34 +94,7 @@ class RapidcheckConan(ConanFile):
         copy(self, pattern="LICENSE*", dst=join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, join(self.package_folder, "share"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            join(self.package_folder, self._module_file_rel_path),
-            {
-                "rapidcheck": "rapidcheck::rapidcheck_rapidcheck",
-                "rapidcheck_catch":"rapidcheck::rapidcheck_catch",
-                "rapidcheck_gmock": "rapidcheck::rapidcheck_gmock",
-                "rapidcheck_gtest": "rapidcheck::rapidcheck_gtest",
-            }
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent("""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rapidcheck")
@@ -149,16 +121,3 @@ class RapidcheckConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["rapidcheck_rapidcheck"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        if self.options.enable_catch:
-            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_catch"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        if self.options.enable_gmock:
-            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_gmock"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        if self.options.enable_gtest:
-            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components["rapidcheck_gtest"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

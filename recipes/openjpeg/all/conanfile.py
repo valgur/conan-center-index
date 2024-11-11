@@ -1,9 +1,10 @@
+import textwrap
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save, replace_in_file
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -93,11 +94,6 @@ class OpenjpegConan(ConanFile):
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_vars_rel_path)
         )
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_target_rel_path),
-            {"openjp2": "OpenJPEG::OpenJPEG"}
-        )
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(f"""\
@@ -115,24 +111,9 @@ class OpenjpegConan(ConanFile):
         """)
         save(self, module_file, content)
 
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
     @property
     def _module_vars_rel_path(self):
         return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
-
-    @property
-    def _module_target_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     @property
     def _openjpeg_subdir(self):
@@ -153,10 +134,3 @@ class OpenjpegConan(ConanFile):
             self.cpp_info.system_libs = ["pthread", "m"]
         elif self.settings.os == "Android":
             self.cpp_info.system_libs = ["m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenJPEG"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenJPEG"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_target_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_target_rel_path]
-        self.cpp_info.names["pkg_config"] = "libopenjp2"
