@@ -67,7 +67,6 @@ class QtConan(ConanFile):
         "sysroot": [None, "ANY"],
         "multiconfiguration": [True, False],
         "disabled_features": [None, "ANY"],
-        "cross_compile": [None, "ANY"],
         "force_build_tools": [True, False],
     }
     default_options = {
@@ -108,7 +107,6 @@ class QtConan(ConanFile):
         "sysroot": None,
         "multiconfiguration": False,
         "disabled_features": "",
-        "cross_compile": None,
         "force_build_tools": False,
     }
     # All submodules are exposed as options as well
@@ -215,7 +213,6 @@ class QtConan(ConanFile):
         if self.settings.os != "Linux":
             self.options.qtwayland = False
         if not cross_building(self):
-            del self.options.cross_compile
             del self.options.force_build_tools
 
     def configure(self):
@@ -328,16 +325,10 @@ class QtConan(ConanFile):
         if self.options.with_sqlite3 and not self.dependencies["sqlite3"].options.enable_column_metadata:
             raise ConanInvalidConfiguration("sqlite3 option enable_column_metadata must be enabled for qt")
 
-    def validate_build(self):
-        if cross_building(self):
-            if self.options.cross_compile.value is not None and not os.path.isdir(str(self.options.cross_compile)):
-                raise ConanInvalidConfiguration(f"Qt host path {self.options.cross_compile} provided via cross_compile option does not exist")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        self.info.options.rm_safe("cross_compile")
         del self.info.options.sysroot
         if self.info.options.multiconfiguration:
             if self.info.settings.compiler == "Visual Studio":
@@ -452,7 +443,7 @@ class QtConan(ConanFile):
                 self.tool_requires("flex/2.6.4")
         if self._is_enabled("qtwayland"):
             self.tool_requires("wayland/1.22.0")
-        if cross_building(self) and self.options.cross_compile.value is None:
+        if cross_building(self):
             self.tool_requires(f"qt/{self.version}", options={
                 # Make sure all required tools are built
                 "qttools": self._is_enabled("qttools"),
@@ -666,11 +657,7 @@ class QtConan(ConanFile):
         tc.cache_variables["QT_USE_VCPKG"] = False
 
         if cross_building(self):
-            if self.options.cross_compile.value is not None:
-                host_path = str(self.options.cross_compile)
-            else:
-                host_path = self.dependencies.build["qt"].package_folder
-            host_path = host_path.replace("\\", "/")
+            host_path = self.dependencies.build["qt"].package_folder.replace("\\", "/")
             tc.variables["QT_QMAKE_DEVICE_OPTIONS"] = f"CROSS_COMPILE={host_path}"
             tc.variables["QT_HOST_PATH"] = host_path
             tc.variables["QT_HOST_PATH_CMAKE_DIR"] = f"{host_path}/lib/cmake"
@@ -955,9 +942,6 @@ class QtConan(ConanFile):
         if not cross_building(self):
             self.buildenv_info.define_path("QT_HOST_PATH", self.package_folder)
             self.buildenv_info.define_path("QT_HOST_PATH_CMAKE_DIR", os.path.join(self.package_folder, "lib", "cmake"))
-        elif self.options.cross_compile.value is not None:
-            self.buildenv_info.define_path("QT_HOST_PATH", str(self.options.cross_compile))
-            self.buildenv_info.define_path("QT_HOST_PATH_CMAKE_DIR", os.path.join(str(self.options.cross_compile), "lib", "cmake"))
 
         build_modules = {}
         def _add_build_module(component, module):
