@@ -49,8 +49,8 @@ class JxrlibConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,7 +58,6 @@ class JxrlibConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
@@ -75,7 +74,3 @@ class JxrlibConan(ConanFile):
             self.cpp_info.system_libs.append("m")
         if not is_msvc(self):
             self.cpp_info.defines.append("__ANSI__")
-
-        # TODO: to remove in conan v2, and do not port this to CMakeDeps, it was a mistake
-        self.cpp_info.names["cmake_find_package"] = "JXR"
-        self.cpp_info.names["cmake_find_package_multi"] = "JXR"
