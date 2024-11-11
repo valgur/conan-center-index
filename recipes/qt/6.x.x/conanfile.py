@@ -198,6 +198,7 @@ class QtConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "cmake/*", self.recipe_folder, self.export_sources_folder, keep_path=True)
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -780,6 +781,10 @@ class QtConan(ConanFile):
         return os.path.join("lib", "cmake", "Qt6Core", "conan_qt_executables_variables.cmake")
 
     @property
+    def _cmake_cross_compile_targets(self):
+        return os.path.join("lib", "cmake", "Qt6Core", "conan_cross_compile_targets.cmake")
+
+    @property
     def _cmake_entry_point_file(self):
         return os.path.join("lib", "cmake", "Qt6Core", "conan_qt_entry_point.cmake")
 
@@ -851,6 +856,11 @@ class QtConan(ConanFile):
         rm(self, "qt-cmake-private-install.cmake", self.package_folder, recursive=True)
         rmdir(self, package_path.joinpath("lib", "pkgconfig"))
 
+        # Copy
+        # - conan_cross_compile_targets.cmake
+        # - conan_qt_entry_point.cmake
+        copy(self, "cmake/*", self.export_sources_folder, self.package_path.joinpath("lib", "cmake", "Qt6Core"), keep_path=False)
+
         # Generate lib/cmake/Qt6Core/conan_qt_executables_variables.cmake
         filecontents = 'get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)\n'
         filecontents += "set(QT_CMAKE_EXPORT_NAMESPACE Qt6)\n"
@@ -915,21 +925,6 @@ class QtConan(ConanFile):
             save(self, module, "set(QT_KNOWN_POLICY_QTP0001 TRUE)\n")
             if self.options.gui and self._is_enabled("qtshadertools"):
                 _create_private_module("Quick", ["CorePrivate", "GuiPrivate", "QmlPrivate", "Quick"])
-
-        if self.settings.os in ["Windows", "iOS"]:
-            # Write lib/cmake/Qt6Core/conan_qt_entry_point.cmake
-            save(self, package_path.joinpath(self._cmake_entry_point_file), textwrap.dedent("""\
-                set(entrypoint_conditions "$<NOT:$<BOOL:$<TARGET_PROPERTY:qt_no_entrypoint>>>")
-                list(APPEND entrypoint_conditions "$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>")
-                if(WIN32)
-                    list(APPEND entrypoint_conditions "$<BOOL:$<TARGET_PROPERTY:WIN32_EXECUTABLE>>")
-                endif()
-                list(JOIN entrypoint_conditions "," entrypoint_conditions)
-                set(entrypoint_conditions "$<AND:${entrypoint_conditions}>")
-                set_property(
-                    TARGET ${QT_CMAKE_EXPORT_NAMESPACE}::Core
-                    APPEND PROPERTY INTERFACE_LINK_LIBRARIES "$<${entrypoint_conditions}:${QT_CMAKE_EXPORT_NAMESPACE}::EntryPointPrivate>"
-            )"""))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Qt6")
@@ -1010,6 +1005,7 @@ class QtConan(ConanFile):
         ]))
         qtCore.builddirs.append(os.path.join("bin"))
         _add_build_module("qtCore", self._cmake_executables_file)
+        _add_build_module("qtCore", self._cmake_cross_compile_targets)
         _add_build_module("qtCore", self._cmake_qt6_private_file("Core"))
         if self.settings.os in ["Windows", "iOS"]:
             _add_build_module("qtCore", self._cmake_entry_point_file)
