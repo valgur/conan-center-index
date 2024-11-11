@@ -150,11 +150,6 @@ class OpenCVConan(ConanFile):
         "with_v4l": [True, False],
         # text module options
         "with_tesseract": [True, False],
-        # TODO: deprecated options to remove in few months
-        "contrib": [True, False, "deprecated"],
-        "contrib_freetype": [True, False, "deprecated"],
-        "contrib_sfm": [True, False, "deprecated"],
-        "with_ade": [True, False, "deprecated"],
     }
     options.update({_name: [True, False] for _name in OPENCV_MAIN_MODULES_OPTIONS})
     options.update({_name: [True, False] for _name in OPENCV_EXTRA_MODULES_OPTIONS})
@@ -209,11 +204,6 @@ class OpenCVConan(ConanFile):
         "with_v4l": False,
         # text module options
         "with_tesseract": True,
-        # TODO: deprecated options to remove in few months
-        "contrib": "deprecated",
-        "contrib_freetype": "deprecated",
-        "contrib_sfm": "deprecated",
-        "with_ade": "deprecated",
     }
     default_options.update({_name: True for _name in OPENCV_MAIN_MODULES_OPTIONS})
     default_options.update({_name: False for _name in OPENCV_EXTRA_MODULES_OPTIONS})
@@ -1001,47 +991,6 @@ class OpenCVConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-        # TODO: remove contrib option in few months
-        if self.options.contrib != "deprecated":
-            self.output.warning("contrib option is deprecated")
-            if self.options.contrib:
-                # During deprecation period, keep old behavior of contrib=True, which was to enable
-                # all available contribs.
-                ## Filter main module options
-                filtered_options = list(OPENCV_MAIN_MODULES_OPTIONS)
-                ## Filter extra modules not built previously with contrib=True
-                filtered_options.extend(["cvv", "freetype", "hdf", "ovis", "sfm", "viz"])
-                ## Filter extra modules not built previously when some option was disabled
-                if not self.options.with_eigen:
-                    filtered_options.append("alphamat")
-                if not self.options.with_cuda:
-                    filtered_options.extend([
-                        "cudaarithm", "cudabgsegm", "cudacodec", "cudafeatures2d", "cudafilters", "cudaimgproc",
-                        "cudalegacy", "cudaobjdetect", "cudaoptflow", "cudastereo", "cudawarping",
-                    ])
-                for option, values in self._opencv_modules.items():
-                    if option not in filtered_options and not values.get("no_option"):
-                        try:
-                            if hasattr(self.options, option):
-                                setattr(self.options, option, True)
-                        except ConanException:
-                            continue
-
-        # TODO: remove contrib_freetype option in few months
-        if self.options.contrib_freetype != "deprecated":
-            self.output.warning("contrib_freetype option is deprecated, use freetype option instead")
-            self.options.freetype = self.options.contrib_freetype
-
-        # TODO: remove contrib_sfm option in few months
-        if self.options.contrib_sfm != "deprecated":
-            self.output.warning("contrib_sfm option is deprecated, use sfm option instead")
-            self.options.sfm = self.options.contrib_sfm
-
-        # TODO: remove with_ade option in few months
-        if self.options.with_ade != "deprecated":
-            self.output.warning("with_ade option is deprecated, use gapi option instead")
-            self.options.gapi = self.options.with_ade
-
         # Call this first before any further manipulation of options based on other options
         self._solve_internal_dependency_graph(self._opencv_modules)
 
@@ -1172,13 +1121,6 @@ class OpenCVConan(ConanFile):
         # text module dependencies
         if self.options.get_safe("with_tesseract"):
             self.requires("tesseract/5.3.3")
-
-    def package_id(self):
-        # deprecated options
-        del self.info.options.contrib
-        del self.info.options.contrib_freetype
-        del self.info.options.contrib_sfm
-        del self.info.options.with_ade
 
     def _check_mandatory_options(self, opencv_modules):
         disabled_options = self._get_mandatory_disabled_options(opencv_modules)
