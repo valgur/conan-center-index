@@ -59,7 +59,7 @@ class LibdivideConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if Version(self.version) < "4.0.0" and self.settings.compiler.get_safe("cppstd"):
+        if Version(self.version) < "4.0.0":
             check_min_cppstd(self, 11)
 
     def source(self):

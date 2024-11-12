@@ -131,8 +131,7 @@ class OpenImageIOConan(ConanFile):
         # TODO: Nuke dependency
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
         if is_msvc(self) and is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration(
                 "Building shared library with static runtime is not supported!"

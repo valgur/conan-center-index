@@ -48,8 +48,7 @@ class PrimesieveConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) <= "5":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support GCC<=5 currently. Contributions with fixes are welcome.")

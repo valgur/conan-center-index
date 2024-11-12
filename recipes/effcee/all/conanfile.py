@@ -46,8 +46,7 @@ class EffceeConan(ConanFile):
         self.requires("re2/20230301", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(f"{self.ref} shared with MT runtime not supported by msvc")
 

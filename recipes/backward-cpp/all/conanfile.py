@@ -91,8 +91,7 @@ class BackwardCppConan(ConanFile):
     def validate(self):
         if self.settings.os not in self._supported_os:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}.")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self._has_stack_walking("libunwind"):
             if Version(self.version) < "1.6":
                 raise ConanInvalidConfiguration("Support for libunwind is only available as of 1.6.")

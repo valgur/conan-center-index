@@ -61,8 +61,7 @@ class DiligentToolsConan(ConanFile):
         patches.apply_conandata_patches(self)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.shared:
             raise ConanInvalidConfiguration("Can't build diligent tools as shared lib")
 

@@ -60,8 +60,7 @@ class RestinioConan(ConanFile):
 
     def validate(self):
         minimal_cpp_standard = "17"
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, minimal_cpp_standard)
+        check_min_cppstd(self, minimal_cpp_standard)
 
         minimal_version = {
             "gcc": "9",

@@ -27,8 +27,7 @@ class StatusCodeConan(ConanFile):
         }
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
         min_version = self._compiler_required_version.get(str(self.settings.compiler))
         if min_version:

@@ -183,8 +183,8 @@ class BotanConan(ConanFile):
                 raise ConanInvalidConfiguration(
                     f"{self.name} requires non-header-only static boost, "
                     f"without magic_autolink, and with these components: {', '.join(self._required_boost_components)}")
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+
+        check_min_cppstd(self, self._min_cppstd)
 
         compiler = self.settings.compiler
         compiler_name = str(compiler)

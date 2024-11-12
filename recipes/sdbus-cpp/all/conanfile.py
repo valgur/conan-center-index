@@ -87,8 +87,7 @@ class SdbusCppConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} does not support {self.settings.os}")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration("{} requires C++{} support. The current compiler {} {} does not support it.".format(

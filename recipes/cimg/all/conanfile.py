@@ -182,8 +182,7 @@ class CImgConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
         if not self.options.get_safe("enable_display"):
             if self.options.get_safe("enable_xrandr") or self.options.get_safe("enable_xshm"):

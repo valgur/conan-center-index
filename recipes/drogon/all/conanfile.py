@@ -95,8 +95,7 @@ class DrogonConan(ConanFile):
         }.get(str(self._min_cppstd), {})
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version:
             if Version(self.info.settings.compiler.version) < minimum_version:
@@ -104,7 +103,7 @@ class DrogonConan(ConanFile):
         else:
             self.output.warn(f"{self.ref} requires C++{self._min_cppstd}. Your compiler is unknown. Assuming it supports C++{self._min_cppstd}.")
 
-        if self.settings.compiler.get_safe("cppstd") == "14" and not self.options.with_boost:
+        if self.settings.compiler.cppstd in ["14", "gnu14"] and not self.options.with_boost:
             raise ConanInvalidConfiguration(f"{self.ref} requires boost on C++14")
 
     def requirements(self):

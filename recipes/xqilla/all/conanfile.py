@@ -56,8 +56,7 @@ class XqillaConan(ConanFile):
         self.requires("xerces-c/3.2.5", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self):
             raise ConanInvalidConfiguration("xqilla recipe doesn't support msvc build yet")
 

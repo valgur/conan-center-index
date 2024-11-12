@@ -1,6 +1,6 @@
 import os
 
-from conan.tools.build import can_run
+from conan.tools.build import can_run, check_min_cppstd
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
 
@@ -85,8 +85,7 @@ class NcbiCxxToolkit(ConanFile):
 
 #----------------------------------------------------------------------------
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
         if self.settings.os not in ["Linux", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("This operating system is not supported")
         if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":

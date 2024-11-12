@@ -50,8 +50,7 @@ class XlntConan(ConanFile):
         self.requires("utfcpp/3.2.3")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         libstudxml_version = Version(self.dependencies["libstudxml"].ref.version)
         libstudxml_major_minor = f"{libstudxml_version.major}.{libstudxml_version.minor}"
         if Version(libstudxml_major_minor) < "1.1":

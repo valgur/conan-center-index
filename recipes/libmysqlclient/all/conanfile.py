@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, can_run
+from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, can_run, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
 from conan.tools.files import rename, get, apply_conandata_patches, replace_in_file, rmdir, rm, export_conandata_patches, mkdir
@@ -77,8 +77,7 @@ class LibMysqlClientCConan(ConanFile):
             self.requires("libunwind/1.7.2")
 
     def validate_build(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def validate(self):
         def loose_lt_semver(v1, v2):
@@ -93,8 +92,8 @@ class LibMysqlClientCConan(ConanFile):
 
         # mysql < 8.0.29 uses `requires` in source code. It is the reserved keyword in C++20.
         # https://github.com/mysql/mysql-server/blob/mysql-8.0.0/include/mysql/components/services/dynamic_loader.h#L270
-        if self.settings.compiler.get_safe("cppstd") == "20" and Version(self.version) < "8.0.29":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support C++20")
+        if Version(self.version) < "8.0.29":
+            check_max_cppstd(self, 17)
 
     def build_requirements(self):
         if is_apple_os(self):

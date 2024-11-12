@@ -72,8 +72,7 @@ class Jinja2cppConan(ConanFile):
             self.requires("fmt/10.2.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -97,9 +96,7 @@ class Jinja2cppConan(ConanFile):
         tc.variables["JINJA2CPP_STRICT_WARNINGS"] = False
         tc.variables["JINJA2CPP_BUILD_SHARED"] = self.options.shared
         tc.variables["JINJA2CPP_DEPS_MODE"] = "conan-build"
-        cppstd = self.settings.compiler.get_safe("cppstd")
-        if cppstd:
-            tc.cache_variables["JINJA2CPP_CXX_STANDARD"] = str(cppstd).replace("gnu", "")
+        tc.cache_variables["JINJA2CPP_CXX_STANDARD"] = str(self.settings.compiler.cppstd).replace("gnu", "")
         if is_msvc(self):
             # Runtime type configuration for Jinja2C++ should be strictly '/MT' or '/MD'
             runtime = "/MD" if "MD" in msvc_runtime_flag(self) else "/MT"

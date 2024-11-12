@@ -61,8 +61,7 @@ class GtsamPointsPackage(ConanFile):
             self.requires("thrust/1.17.2", transitive_headers=True, transitive_libs=True, options={"device_system": "cuda"})
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

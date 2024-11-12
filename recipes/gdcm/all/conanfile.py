@@ -73,8 +73,7 @@ class GDCMConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} does not support shared and static runtime together.")
         if self.info.options.with_zlibng:

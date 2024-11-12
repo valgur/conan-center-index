@@ -68,8 +68,7 @@ class BenchmarkConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -98,8 +97,6 @@ class BenchmarkConan(ConanFile):
         tc.variables["BENCHMARK_ENABLE_LTO"] = self.options.enable_lto
         tc.variables["BENCHMARK_ENABLE_EXCEPTIONS"] = self.options.enable_exceptions
         tc.variables["BENCHMARK_ENABLE_LIBPFM"] = self.options.get_safe("enable_libpfm", False)
-        if not self.settings.compiler.cppstd:
-            tc.cache_variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         if Version(self.version) >= "1.6.1":
             tc.variables["BENCHMARK_ENABLE_WERROR"] = False
             tc.variables["BENCHMARK_FORCE_WERROR"] = False

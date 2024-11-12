@@ -1,7 +1,7 @@
 import os
 import sys
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 # FIXME: linter complains, but function is there
 # https://docs.conan.io/2.0/reference/tools/build.html?highlight=check_min_cppstd#conan-tools-build-check-max-cppstd
 # from conan.tools.build import stdcpp_library, check_min_cppstd, check_max_cppstd
@@ -32,27 +32,6 @@ class vvencRecipe(ConanFile):
     }
 
     def validate_build(self):
-        if conan_version.major == 2:
-            self._validate_build2()
-        elif conan_version.major == 1:
-            self._validate_build1()
-
-    def _validate_build1(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, 14)
-        # compiler.cppstd isn't set! but we still continue here in V1,
-        # imagining just like compiler.cppstd was set to 14
-        # while package_id doesn't reflect that at all, and cppstd_default also
-        # might be different from 14, we silently force -std=c++14 to be
-        # specified during the build. it may produce more incompatibilities,
-        # and break user's expectation
-        # (like, output binary depends really on C++14 symbols libstdc++.so)
-        # it's V1 design flaw which isn't going to be addressed here
-        # (and probably nowhere, because conan V1 is going to be discontinued in CCI)
-        # once V1 is retired, that code will be removed altogether
-        self.output.warning("compiler.cppstd is not set, but we assume C++14")
-
-    def _validate_build2(self):
         # validates the minimum and maximum C++ standard supported
         # currently, the project can only be built with C++14 standard
         # it cannot be built with older standard because

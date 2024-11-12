@@ -48,8 +48,7 @@ class DuckxConan(ConanFile):
         self.requires("kuba-zip/0.3.1", transitive_headers=True)
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if not self.dependencies["pugixml"].options.header_only:
             raise ConanInvalidConfiguration(f"{self.ref} requires header_only pugixml.")
 

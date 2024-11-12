@@ -44,8 +44,7 @@ class FpgenConan(ConanFile):
         if self.settings.compiler == "clang" and not self.settings.compiler.libcxx == "libc++":
             raise ConanInvalidConfiguration(f"Use 'compiler.libcxx=libc++' with Clang for {self.name}.")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def lazy_lt_semver(v1, v2):
             # Needed to allow version "13" >= "13.1" for apple-clang

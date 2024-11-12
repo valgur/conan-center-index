@@ -50,7 +50,7 @@ class TinyExrConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.options.with_thread and self.settings.compiler.get_safe("cppstd"):
+        if self.options.with_thread:
             check_min_cppstd(self, "11")
 
     def source(self):

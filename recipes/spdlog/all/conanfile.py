@@ -88,11 +88,10 @@ class SpdlogConan(ConanFile):
         }
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            if self.options.get_safe("use_std_fmt"):
-                check_min_cppstd(self, 20)
-            else:
-                check_min_cppstd(self, 11)
+        if self.options.get_safe("use_std_fmt"):
+            check_min_cppstd(self, 20)
+        else:
+            check_min_cppstd(self, 11)
         if self.settings.os != "Windows" and (self.options.wchar_support or self.options.wchar_filenames):
             raise ConanInvalidConfiguration("wchar is only supported under windows")
         if self.options.get_safe("shared") and is_msvc_static_runtime(self):

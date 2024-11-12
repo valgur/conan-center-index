@@ -69,8 +69,7 @@ class LibjxlConan(ConanFile):
             self.requires("gperftools/2.15")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         # Require newer CMake, which allows INCLUDE_DIRECTORIES to be set on INTERFACE targets

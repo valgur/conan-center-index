@@ -63,9 +63,8 @@ class ResiprocateConan(ConanFile):
         if self.settings.os == "Windows" or is_apple_os(self):
             # FIXME: unreleased versions of resiprocate use CMake and should support Windows and macOS
             raise ConanInvalidConfiguration(f"reSIProcate recipe does not currently support {self.settings.os}.")
-        if self.settings.compiler.cppstd:
-            # Uses deprecated std::allocator<void>::const_pointer, which has been removed in C++20
-            check_max_cppstd(self, 17)
+        # Uses deprecated std::allocator<void>::const_pointer, which has been removed in C++20
+        check_max_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

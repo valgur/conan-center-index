@@ -55,8 +55,7 @@ class BmxConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         # Symbol export is currently not working properly on Windows so shared
         # libraries are currently deactivated. This can later be revisited based

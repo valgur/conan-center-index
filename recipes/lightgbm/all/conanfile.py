@@ -63,8 +63,7 @@ class LightGBMConan(ConanFile):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         if Version(self.version) >= "4.3.0":

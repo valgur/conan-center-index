@@ -88,8 +88,7 @@ class ITKConan(ConanFile):
         if Version(self.version) < "5.2" and is_apple_os(self) and self.settings.arch == "armv8":
             # https://discourse.itk.org/t/error-building-v5-1-1-for-mac-big-sur-11-2-3/3959
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on on Apple armv8 architecture.")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 190)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)

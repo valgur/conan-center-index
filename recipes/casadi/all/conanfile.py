@@ -164,8 +164,7 @@ class PackageConan(ConanFile):
         #     self.requires("simde/0.8.2")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):

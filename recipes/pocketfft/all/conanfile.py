@@ -48,8 +48,7 @@ class PocketfftConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         if not str(self.options.cache_size).isdigit() or int(str(self.options.cache_size)) < 0:
             raise ConanInvalidConfiguration("cache_size option must be greater or equal to 0")

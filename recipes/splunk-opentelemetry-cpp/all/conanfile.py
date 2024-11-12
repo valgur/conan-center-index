@@ -70,8 +70,7 @@ class SplunkOpentelemetryConan(ConanFile):
         if self.options.build_jaeger_exporter and not self.dependencies["opentelemetry-cpp"].options.get_safe("with_jaeger"):
             raise ConanInvalidConfiguration("Cannot build Jaeger exporter without with_jaeger=True in opentelemetry-cpp")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

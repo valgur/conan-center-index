@@ -122,8 +122,7 @@ class OpenCascadeConan(ConanFile):
             self.requires("onetbb/2021.12.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.compiler == "clang" and self.settings.compiler.version == "6.0" and \
            self.settings.build_type == "Release":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Clang 6.0 if Release build type")

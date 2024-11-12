@@ -44,8 +44,7 @@ class LibE57FormatConan(ConanFile):
         self.requires("xerces-c/3.2.5")
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16.3 <4]")

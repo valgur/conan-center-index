@@ -21,8 +21,7 @@ class TlfunctionrefConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def layout(self):
         basic_layout(self, src_folder="src")

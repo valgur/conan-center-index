@@ -76,8 +76,7 @@ class OpenTDFConan(ConanFile):
         self.requires("libxml2/2.11.6")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         # check minimum version of compiler
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
@@ -102,8 +101,6 @@ class OpenTDFConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not self.settings.get_safe("compiler.cppstd"):
-            tc.variables["CMAKE_CXX_STANDARD"] = 17
         tc.cache_variables["CMAKE_PROJECT_opentdf_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
         tc.generate()
         tc = CMakeDeps(self)

@@ -324,9 +324,8 @@ class GdalConan(ConanFile):
             self.requires("libheif/1.13.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            min_cppstd = 14 if self.options.with_charls else 11
-            check_min_cppstd(self, min_cppstd)
+        min_cppstd = 14 if self.options.with_charls else 11
+        check_min_cppstd(self, min_cppstd)
         if self.options.get_safe("with_pcre") and self.options.get_safe("with_pcre2"):
             raise ConanInvalidConfiguration("Enable either pcre or pcre2, not both")
         if self.options.get_safe("with_pcre2") and not self.dependencies["pcre2"].options.build_pcre2_8:
@@ -643,7 +642,7 @@ class GdalConan(ConanFile):
             ])
 
             # Enable C++14 if requested in conan profile or if with_charls enabled
-            if (self.settings.compiler.get_safe("cppstd") and valid_min_cppstd(self, 14)) or self.options.with_charls:
+            if valid_min_cppstd(self, 14) or self.options.with_charls:
                 tc.configure_args.append("--with-cpp14")
             # Debug
             if self.settings.build_type == "Debug":

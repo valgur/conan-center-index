@@ -69,8 +69,7 @@ class LibpqxxConan(ConanFile):
         self.requires("libpq/15.4")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if Version(self.version) < "7.0":
             check_min_vs(self, 190)

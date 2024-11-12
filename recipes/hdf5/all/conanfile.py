@@ -101,8 +101,7 @@ class Hdf5Conan(ConanFile):
             raise ConanInvalidConfiguration("with_zlib and with_zlibng cannot be enabled at the same time")
         if self.options.get_safe("with_zlibng") and Version(self.version) < "1.14.5":
             raise ConanInvalidConfiguration("with_zlibng=True is incompatible with versions prior to v1.14.5")
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def validate_build(self):
         if cross_building(self) and Version(self.version) < "1.14.4.3":

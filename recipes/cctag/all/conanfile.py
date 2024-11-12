@@ -90,8 +90,7 @@ class CCTagConan(ConanFile):
         if is_msvc_static_runtime(self) and not self.options.shared and self.dependencies["onetbb"].options.shared:
             raise ConanInvalidConfiguration("this specific configuration is prevented due to internal c3i limitations")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -47,8 +47,7 @@ class TinysplineConan(ConanFile):
 
     def validate(self):
         if Version(self.version) >= "0.4.0" and self.options.cxx:
-            if self.settings.compiler.cppstd:
-                check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

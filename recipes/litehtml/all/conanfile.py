@@ -58,8 +58,7 @@ class LitehtmlConan(ConanFile):
             self.requires("icu/73.2")
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.info.options.shared and is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported with Visual Studio")
 

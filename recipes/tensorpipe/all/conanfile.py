@@ -61,8 +61,7 @@ class TensorpipeConan(ConanFile):
         self.requires("libuv/1.44.2")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Windows")
         if self.options.cuda:

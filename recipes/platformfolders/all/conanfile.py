@@ -32,8 +32,7 @@ class PlatformFoldersConan(ConanFile):
         return 11
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
     def config_options(self):
         if self.settings.os == "Windows":

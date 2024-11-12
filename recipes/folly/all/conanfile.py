@@ -105,8 +105,7 @@ class FollyConan(ConanFile):
         return [f"Boost::{comp}" for comp in self._required_boost_components]
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
@@ -165,7 +164,7 @@ class FollyConan(ConanFile):
 
         # 2019.10.21.00 -> either MSVC_ flags or CXX_STD
         if is_msvc(self):
-            cxx_std_value = self._cppstd_flag_value(self.settings.get_safe("compiler.cppstd", self._min_cppstd))
+            cxx_std_value = self._cppstd_flag_value(self.settings.compiler.cppstd)
             tc.cache_variables["MSVC_LANGUAGE_VERSION"] = cxx_std_value
             tc.cache_variables["MSVC_ENABLE_ALL_WARNINGS"] = False
             tc.cache_variables["MSVC_USE_STATIC_RUNTIME"] = is_msvc_static_runtime(self)

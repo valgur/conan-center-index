@@ -69,8 +69,7 @@ class Libfreenect2Conan(ConanFile):
             self.requires("cuda-samples/12.2")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.with_cuda:
             self.output.warning("Conan package for CUDA is not available, will use system CUDA")
 

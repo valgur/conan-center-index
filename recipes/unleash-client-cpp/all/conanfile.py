@@ -57,8 +57,7 @@ class UnleashConan(ConanFile):
         self.requires("nlohmann_json/3.11.3")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version and Version(self.settings.compiler.version) < min_version:

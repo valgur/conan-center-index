@@ -48,8 +48,7 @@ class TroldalZippyConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         if is_msvc(self):
             check_min_vs(self, "192")
         else:

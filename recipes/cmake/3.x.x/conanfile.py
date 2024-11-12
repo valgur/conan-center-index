@@ -45,8 +45,7 @@ class CMakeConan(ConanFile):
             raise ConanInvalidConfiguration("CMake does not support bootstrapping on Windows")
 
         minimal_cpp_standard = "11"
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, minimal_cpp_standard)
+        check_min_cppstd(self, minimal_cpp_standard)
 
         minimal_version = {
             "gcc": "4.8",
@@ -104,8 +103,6 @@ class CMakeConan(ConanFile):
             tc = CMakeToolchain(self)
             # Disabling testing because CMake tests build can fail in Windows in some cases
             tc.variables["BUILD_TESTING"] = False
-            if not self.settings.compiler.cppstd:
-                tc.variables["CMAKE_CXX_STANDARD"] = 11
             tc.variables["CMAKE_BOOTSTRAP"] = False
             if self.settings.os == "Linux":
                 tc.variables["CMAKE_USE_OPENSSL"] = self.options.with_openssl

@@ -19,8 +19,7 @@ class TaoCPPPEGTLConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def package_id(self):
         self.info.clear()

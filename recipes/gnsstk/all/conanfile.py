@@ -56,9 +56,8 @@ class GNSSTkConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            # https://github.com/SGL-UT/gnsstk/blob/v14.0.0/BuildSetup.cmake#L54
-            check_min_cppstd(self, self._min_cppstd)
+        # https://github.com/SGL-UT/gnsstk/blob/v14.0.0/BuildSetup.cmake#L54
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

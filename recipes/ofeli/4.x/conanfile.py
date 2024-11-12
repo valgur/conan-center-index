@@ -39,8 +39,7 @@ class OfeliConan(ConanFile):
             raise ConanInvalidConfiguration("Ofeli only supports Linux")
         if self.settings.compiler != "gcc":
             raise ConanInvalidConfiguration("Ofeli only supports GCC")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration("Ofeli only supports libstdc++'s new ABI")
 

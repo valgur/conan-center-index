@@ -31,8 +31,7 @@ class ArduinojsonConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         has_arduinojson_root = not ("6.18.2" <= Version(self.version) < "7.0")

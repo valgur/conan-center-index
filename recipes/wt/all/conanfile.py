@@ -1,5 +1,6 @@
 from conan import ConanFile, conan_version
 from conan.errors import ConanException, ConanInvalidConfiguration
+from conan.tools.build import check_max_cppstd
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -131,13 +132,7 @@ class WtConan(ConanFile):
             raise ConanInvalidConfiguration("Direct2D is supported only on Windows.")
 
         # FIXME: https://redmine.emweb.be/issues/12073w
-        if conan_version.major == 2 and Version(self.version) == "4.10.1" and is_msvc(self):
-
-            # FIXME: check_max_cppstd is only available for Conan 2.x. Remove it after dropping support for Conan 1.x
-            # FIXME: linter complains, but function is there
-            # https://docs.conan.io/2.0/reference/tools/build.html?highlight=check_min_cppstd#conan-tools-build-check-max-cppstd
-            check_max_cppstd = getattr(sys.modules['conan.tools.build'], 'check_max_cppstd')
-            # INFO: error C2661: 'std::to_chars': no overloaded function takes 2 arguments. Removed in C++17.
+        if Version(self.version) == "4.10.1" and is_msvc(self):
             check_max_cppstd(self, 14)
 
     def source(self):

@@ -57,8 +57,7 @@ class CubicInterpolationConan(ConanFile):
                 f"{', '.join(self._required_boost_components)}",
             )
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "14")
+        check_min_cppstd(self, "14")
 
         if not check_min_vs(self, 192, raise_invalid=False):
             raise ConanInvalidConfiguration(f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions are welcome")

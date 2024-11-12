@@ -76,8 +76,7 @@ class AzureStorageCppConan(ConanFile):
             self.requires("libgettext/0.22")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compiler_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warning(

@@ -48,8 +48,7 @@ class VilibConan(ConanFile):
         self.requires("opencv/4.9.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Shared builds on Windows are not supported")
 

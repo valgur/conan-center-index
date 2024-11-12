@@ -153,8 +153,7 @@ class BehaviorTreeCPPConan(ConanFile):
     def validate(self):
         if self.info.settings.os == "Windows" and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Windows.")
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cppstd_required)
+        check_min_cppstd(self, self._minimum_cppstd_required)
         minimum_version = self._minimum_compilers_version.get(str(self.info.settings.compiler), False)
         if not minimum_version:
             self.output.warn(f"{self.ref} requires C++{self._minimum_cppstd_required}. "

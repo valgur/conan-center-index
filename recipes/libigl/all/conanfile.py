@@ -93,8 +93,7 @@ class LibiglConan(ConanFile):
         def loose_lt_semver(v1, v2):
             return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if min_version and loose_lt_semver(self.settings.compiler.version, min_version):
             raise ConanInvalidConfiguration(

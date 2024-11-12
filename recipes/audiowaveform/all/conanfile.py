@@ -47,8 +47,7 @@ class AudiowaveformConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
 

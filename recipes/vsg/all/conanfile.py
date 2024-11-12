@@ -52,8 +52,7 @@ class VsgConan(ConanFile):
         self.requires("vulkan-loader/1.3.290.0", transitive_headers=True)
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
 
         if is_msvc_static_runtime(self):

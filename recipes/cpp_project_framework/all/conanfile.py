@@ -47,8 +47,7 @@ class CppProjectFrameworkConan(ConanFile):
 
         compiler = self.settings.compiler
 
-        if compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
         if compiler in ("gcc", "clang"):
             if not compiler.get_safe("libcxx", "").startswith("libstdc++"):

@@ -64,8 +64,7 @@ class EasyhttpcppConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires the following poco options enabled: {', '.join(self._required_poco_components)}"
             )
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

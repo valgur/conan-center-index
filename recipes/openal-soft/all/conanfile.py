@@ -63,8 +63,7 @@ class OpenALSoftConan(ConanFile):
             self.requires("libalsa/1.2.10")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         compiler = self.settings.compiler
 

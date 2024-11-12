@@ -45,7 +45,7 @@ class SQLiteCppConan(ConanFile):
         self.requires("sqlite3/[>=3.45.0 <4]")
 
     def validate(self):
-        if Version(self.version) >= "3.0.0" and self.info.settings.compiler.get_safe("cppstd"):
+        if Version(self.version) >= "3.0.0":
             check_min_cppstd(self, 11)
         if self.info.settings.os == "Windows" and self.info.options.shared:
             raise ConanInvalidConfiguration("SQLiteCpp can not be built as shared lib on Windows")

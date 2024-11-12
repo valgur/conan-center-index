@@ -61,8 +61,7 @@ class GlslangConan(ConanFile):
             self.requires(f"spirv-tools/{self.version}")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         # see https://github.com/KhronosGroup/glslang/issues/2283
         if self.options.shared:

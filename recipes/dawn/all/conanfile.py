@@ -41,8 +41,7 @@ class DawnConan(ConanFile):
         self.requires("spirv-tools/1.3.290.0", headers=False, libs=False, visible=False)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])

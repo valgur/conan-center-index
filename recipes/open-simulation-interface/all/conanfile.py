@@ -46,8 +46,7 @@ class OpenSimulationInterfaceConan(ConanFile):
         self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration(
                 "Shared Libraries are not supported on windows because of the missing symbol export in the library."

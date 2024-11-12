@@ -77,8 +77,7 @@ class LunaSVGConan(ConanFile):
             self.requires("plutovg/0.0.7")
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

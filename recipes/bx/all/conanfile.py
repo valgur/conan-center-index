@@ -65,8 +65,7 @@ class bxConan(ConanFile):
     def validate(self):
         if not self.options.get_safe("fPIC", True):
             raise ConanInvalidConfiguration("This package does not support builds without fPIC.")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
         check_min_vs(self, 191)
         if not is_msvc(self):
             try:

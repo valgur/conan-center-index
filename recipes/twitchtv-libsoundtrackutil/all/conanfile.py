@@ -59,8 +59,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         self.requires("ms-gsl/4.0.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version:

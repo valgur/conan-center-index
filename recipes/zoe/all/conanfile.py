@@ -50,8 +50,7 @@ class ZoeConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.info.settings.compiler == "apple-clang" and Version(self.info.settings.compiler.version) < "12.0":
             raise ConanInvalidConfiguration(f"{self.ref} can not build on apple-clang < 12.0.")
 

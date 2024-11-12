@@ -1,11 +1,13 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools import build, files
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.scm import Version
 import json
 import os
 import re
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools import files
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
@@ -75,8 +77,7 @@ class NmosCppConan(ConanFile):
     def validate(self):
         if self.info.settings.os in ["Macos"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not currently supported on {self.info.settings.os}. Contributions welcomed.")
-        if self.info.settings.compiler.get_safe("cppstd"):
-            build.check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

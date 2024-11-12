@@ -47,10 +47,7 @@ class TCSBankUriTemplateConan(ConanFile):
         compiler_name = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version)
 
-        # Exclude compiler.cppstd < 17
-        min_req_cppstd = "17"
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, min_req_cppstd)
+        check_min_cppstd(self, 17)
 
         # Exclude unsupported compilers
         compilers_required = {

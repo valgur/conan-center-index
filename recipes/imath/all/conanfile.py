@@ -45,15 +45,14 @@ class ImathConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if is_msvc(self) and self.settings.compiler.get_safe("cppstd"):
+        if is_msvc(self):
             # when msvc is working with a C++ standard level higher
             # than the default, we need the __cplusplus macro to be correct
             tc.variables["CMAKE_CXX_FLAGS"] = "/Zc:__cplusplus"

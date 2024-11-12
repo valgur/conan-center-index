@@ -44,8 +44,7 @@ class UvmSystemC(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" or is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.settings.os} build not supported")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 

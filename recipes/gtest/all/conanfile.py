@@ -88,8 +88,7 @@ class GTestConan(ConanFile):
         if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("gtest shared is not compatible with static vc runtime")
 
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

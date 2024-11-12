@@ -65,8 +65,7 @@ class ZXingCppConan(ConanFile):
     def validate(self):
         cpp_version = 17 if Version(self.version) >= "1.2.0" else 14
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, cpp_version)
+        check_min_cppstd(self, cpp_version)
         min_version = self._compiler_cpp_support.get(str(cpp_version)).get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(f"This compiler is too old. {self.ref} needs a compiler with c++{cpp_version} support")

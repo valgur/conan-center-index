@@ -44,8 +44,7 @@ class CharlsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
         # brace initialization issue for gcc < 5
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":

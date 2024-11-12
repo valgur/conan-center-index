@@ -242,8 +242,7 @@ class ArrowConan(ConanFile):
         if self.options.with_flight_rpc and not self.options.with_protobuf:
             raise ConanException("'with_protobuf' option should be True when 'with_flight_rpc=True'")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

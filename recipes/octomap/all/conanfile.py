@@ -57,7 +57,7 @@ class OctomapConan(ConanFile):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("shared octomap doesn't support MT runtime")
 
-        if Version(self.version) >= "1.10.0" and self.settings.compiler.cppstd:
+        if Version(self.version) >= "1.10.0":
             check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
@@ -70,7 +70,7 @@ class OctomapConan(ConanFile):
         if is_msvc(self) and self.options.shared:
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         if Version(self.version) >= "1.10.0":
-            tc.variables["CMAKE_CXX_STANDARD"] = self.settings.compiler.get_safe("cppstd", "11").replace("gnu", "")
+            tc.variables["CMAKE_CXX_STANDARD"] = str(self.settings.compiler.cppstd).replace("gnu", "")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

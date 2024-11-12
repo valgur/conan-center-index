@@ -68,8 +68,7 @@ class YACLibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -89,9 +88,7 @@ class YACLibConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["YACLIB_INSTALL"] = True
-        cppstd = self.settings.compiler.get_safe("cppstd")
-        if cppstd:
-            tc.variables["YACLIB_CXX_STANDARD"] = str(cppstd).replace("gnu", "")
+        tc.variables["YACLIB_CXX_STANDARD"] = str(self.settings.compiler.cppstd).replace("gnu", "")
 
         flags = []
         for flag in self._yaclib_flags:

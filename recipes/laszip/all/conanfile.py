@@ -43,10 +43,9 @@ class LaszipConan(ConanFile):
             self.license = "Apache-2.0"
         if self.options.shared:
             self.options.rm_safe("fPIC")
-    
+
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

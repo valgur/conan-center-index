@@ -53,8 +53,7 @@ class VectorclassConan(ConanFile):
         if self.settings.os not in ["Linux", "Windows", "Macos"] or self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("vectorclass supports Linux/Windows/macOS and x86/x86_64 only.")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

@@ -45,13 +45,9 @@ class ResourcePool(ConanFile):
         self.info.clear()
 
     def validate(self):
-        compiler = self.settings.compiler
-        if compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if not minimum_version:
-            self.output.warning("resource_pool requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif Version(self.settings.compiler.version) < minimum_version:
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("resource_pool requires a compiler that supports at least C++17")
 
     def source(self):

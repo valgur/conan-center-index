@@ -55,8 +55,7 @@ class InihConan(ConanFile):
 
     def validate(self):
         # since 57, INIReader requires C++11
-        if Version(self.version) >= "57" and self.options.with_inireader and \
-            self.settings.compiler.get_safe("cppstd"):
+        if Version(self.version) >= "57" and self.options.with_inireader:
             check_min_cppstd(self, self._min_cppstd)
         if self.options.shared and is_msvc(self):
             raise ConanInvalidConfiguration("Shared inih is not supported with msvc")

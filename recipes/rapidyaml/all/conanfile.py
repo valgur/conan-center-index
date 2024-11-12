@@ -66,8 +66,7 @@ class RapidYAMLConan(ConanFile):
             self.requires("c4core/0.2.0", transitive_headers=True)
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         check_min_vs(self, 190)
 
     def source(self):

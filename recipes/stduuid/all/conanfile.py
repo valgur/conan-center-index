@@ -48,9 +48,8 @@ class StduuidConan(ConanFile):
             del self.options.with_cxx20_span
         else:
             # Conditionally set the default value of with_cxx20_span
-            # if cppstd is set and is 20 or greater
-            self.options.with_cxx20_span = (self.settings.compiler.get_safe("cppstd", False)
-                                            and valid_min_cppstd(self, 20))
+            # if cppstd is 20 or greater
+            self.options.with_cxx20_span = valid_min_cppstd(self, 20)
 
     def requirements(self):
         if not self.options.get_safe("with_cxx20_span") or Version(self.version) == "1.0":
@@ -62,8 +61,7 @@ class StduuidConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

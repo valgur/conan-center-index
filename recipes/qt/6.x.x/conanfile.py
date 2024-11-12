@@ -637,8 +637,7 @@ class QtConan(ConanFile):
         if self.settings.os == "Windows":
             tc.variables["HOST_PERL"] = self.dependencies.build["strawberryperl"].conf_info.get("user.strawberryperl:perl", check_type=str)
 
-        current_cpp_std = self.settings.get_safe("compiler.cppstd", default_cppstd(self))
-        current_cpp_std = int(str(current_cpp_std).replace("gnu", ""))
+        current_cpp_std = int(str(self.settings.compiler.cppstd).replace("gnu", ""))
         cpp_std_map = {
             11: "FEATURE_cxx11",
             14: "FEATURE_cxx14",

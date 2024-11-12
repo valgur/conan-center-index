@@ -67,8 +67,7 @@ class NanodbcConan(ConanFile):
             self.requires("odbc/2.3.11")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

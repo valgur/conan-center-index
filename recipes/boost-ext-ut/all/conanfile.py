@@ -56,8 +56,7 @@ class UTConan(ConanFile):
             # https://github.com/boost-ext/ut/issues/637
             raise ConanInvalidConfiguration(f"{self.ref} does support Clang + libstdc++. Use -s compiler.libcxx=libc++ or Clang >16.")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         if Version(self.version) <= "1.1.8" and is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} may not be built with MSVC. "
                                             "Please use at least version 1.1.9 with MSVC.")

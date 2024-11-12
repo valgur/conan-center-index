@@ -72,8 +72,7 @@ class OpenALConan(ConanFile):
 
     def validate(self):
         if self._openal_cxx_backend:
-            if self.settings.compiler.get_safe("cppstd"):
-                check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
 
             compiler = self.settings.compiler
 

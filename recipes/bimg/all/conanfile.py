@@ -86,8 +86,7 @@ class bimgConan(ConanFile):
         self.requires(f"bx/{self._bx_version[self.version]}")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
         check_min_vs(self, 191)
         if not is_msvc(self):
             try:

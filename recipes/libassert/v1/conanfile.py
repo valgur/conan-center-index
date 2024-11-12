@@ -62,8 +62,7 @@ class LibassertConan(ConanFile):
         if is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on Mac. Please, update to version >=2.0.0")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         check_min_vs(self, 192)
         if not is_msvc(self):

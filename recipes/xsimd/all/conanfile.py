@@ -54,8 +54,7 @@ class XsimdConan(ConanFile):
         if Version(self.version) < "8.0.0" and is_apple_os(self) and self.settings.arch in ["armv8", "armv8_32", "armv8.3"]:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support macOS M1")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

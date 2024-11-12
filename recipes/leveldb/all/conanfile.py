@@ -57,8 +57,7 @@ class LevelDBCppConan(ConanFile):
             self.requires("crc32c/1.1.2")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

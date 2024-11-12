@@ -49,8 +49,7 @@ class VcglibConan(ConanFile):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

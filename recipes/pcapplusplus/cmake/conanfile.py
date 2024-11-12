@@ -43,7 +43,7 @@ class PcapplusplusConan(ConanFile):
             self.requires("npcap/1.70")
         else:
             self.requires("libpcap/1.10.1")
-    
+
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
@@ -52,9 +52,8 @@ class PcapplusplusConan(ConanFile):
         if Version(self.version) <= "24.09" and self.options.shared and self.settings.os == "Windows":
             # https://github.com/seladb/PcapPlusPlus/issues/1396
             raise ConanInvalidConfiguration(f"{self.ref} does not support Windows shared builds for now")
-        if self.settings.compiler.cppstd:
-            # popen()/pclose() usage
-            check_min_cppstd(self, self._min_cppstd)
+        # popen()/pclose() usage
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.os not in ("FreeBSD", "Linux", "Macos", "Windows"):
             raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
 
@@ -71,8 +70,6 @@ class PcapplusplusConan(ConanFile):
         tc.variables["PCAPPP_BUILD_TESTS"] = False
         tc.variables["PCAPPP_BUILD_EXAMPLES"] = False
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
-        if not self.settings.compiler.cppstd:
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.generate()
 
     def layout(self):

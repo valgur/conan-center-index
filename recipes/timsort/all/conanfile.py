@@ -26,9 +26,8 @@ class TimsortConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            if Version(self.version) >= "2.0.0":
-                check_min_cppstd(self, 11)
+        if Version(self.version) >= "2.0.0":
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -99,15 +99,7 @@ class ProtobufConan(ConanFile):
                                             "abseil needs to be a shared library too")
 
         if self._protobuf_release >= "22.0":
-            if self.settings.compiler.get_safe("cppstd"):
-                check_min_cppstd(self, 14)
-            else:
-                minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), None)
-                compiler_version = Version(self.settings.compiler.version)
-                if minimum_version and compiler_version < minimum_version:
-                    raise ConanInvalidConfiguration(
-                        f"{self.ref} requires C++14, which your compiler does not support.",
-                    )
+            check_min_cppstd(self, 14)
 
         check_min_vs(self, "190")
 
@@ -135,8 +127,6 @@ class ProtobufConan(ConanFile):
         tc.cache_variables["protobuf_BUILD_LIBUPB"] = self.options.get_safe("upb")
         if self._protobuf_release >= "22.0":
             tc.cache_variables["protobuf_ABSL_PROVIDER"] = "package"
-            if not self.settings.compiler.get_safe("cppstd") and self._protobuf_release >= "22.0":
-                tc.variables["CMAKE_CXX_STANDARD"] = 14
         if is_msvc(self) or self._is_clang_cl:
             runtime = msvc_runtime_flag(self)
             if not runtime:

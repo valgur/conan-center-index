@@ -47,8 +47,7 @@ class AGSConan(ConanFile):
             raise ConanInvalidConfiguration(f"Visual Studio 2019 or older is required for v{self.version}")
         if self.settings.arch not in self._supported_archs:
             raise ConanInvalidConfiguration(f"AGS SDK doesn't support arch: {self.settings.arch}")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

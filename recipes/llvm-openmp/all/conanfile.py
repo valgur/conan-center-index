@@ -97,8 +97,7 @@ class LLVMOpenMpConan(ConanFile):
             )
 
         if self._version_major >= 17:
-            if self.settings.compiler.cppstd:
-                check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(f"{self.ref} requires C++17, which your compiler does not support.")

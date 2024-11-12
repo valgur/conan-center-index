@@ -1145,8 +1145,7 @@ class OpenCVConan(ConanFile):
 
     def validate(self):
         self._check_mandatory_options(self._opencv_modules)
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.shared and self._is_cl_like and self._is_cl_like_static_runtime:
             raise ConanInvalidConfiguration("MSVC or clang-cl with static runtime are not supported for shared library.")
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "4":

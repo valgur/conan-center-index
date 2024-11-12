@@ -51,8 +51,7 @@ class TmxliteConan(ConanFile):
         self.requires("pugixml/1.14")
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
         if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 not supported")
 

@@ -111,8 +111,7 @@ class Stlab(ConanFile):
                 f"in an infinite build loop (smells like a compiler bug). Contributions are welcomed!")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
         self._validate_min_compiler_version()
         self._validate_task_system()
@@ -128,7 +127,7 @@ class Stlab(ConanFile):
 
     @property
     def _has_coroutines_support(self):
-        if self.settings.compiler.cppstd and not valid_min_cppstd(self, 20):
+        if not valid_min_cppstd(self, 20):
             return False
         min_ver = {
             "gcc": "10",

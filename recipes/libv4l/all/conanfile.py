@@ -63,8 +63,7 @@ class Libv4lConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("libv4l is only supported on Linux")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")

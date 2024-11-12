@@ -101,8 +101,7 @@ class OusterSdkConan(ConanFile):
     def validate(self):
         if conan_version.major < 2 and self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Windows builds require Conan >= 2.0")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

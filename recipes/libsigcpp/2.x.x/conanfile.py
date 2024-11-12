@@ -41,8 +41,7 @@ class LibSigCppConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")

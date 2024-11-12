@@ -80,8 +80,7 @@ class VigraConan(ConanFile):
             self.requires("coin-lemon/1.3.1")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def generate(self):
         tc = CMakeToolchain(self)

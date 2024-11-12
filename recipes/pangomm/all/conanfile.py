@@ -69,11 +69,10 @@ class PangommConan(ConanFile):
             self.requires("cairomm/1.14.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            if self._is_2_48_api:
-                check_min_cppstd(self, 17)
-            elif self._is_1_4_api:
-                check_min_cppstd(self, 11)
+        if self._is_2_48_api:
+            check_min_cppstd(self, 17)
+        elif self._is_1_4_api:
+            check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")

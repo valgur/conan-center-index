@@ -40,8 +40,7 @@ class RangesnextConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if "clang" in str(self.settings.compiler):
             raise ConanInvalidConfiguration("rangesnext is not compatible with Clang")

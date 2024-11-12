@@ -79,8 +79,7 @@ class Antlr4CppRuntimeConan(ConanFile):
         # Guard: The minimum MSVC version is 16 or 1920 (which already supports C++17)
         check_min_vs(self, "192")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

@@ -192,7 +192,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_cgif and not (self.options.with_imagequant or self.options.with_quantizr):
             raise ConanInvalidConfiguration("with_cgif requires either with_imagequant or with_quantizr")
 
-        if Version(self.version) >= "8.15" and self.settings.compiler.cppstd:
+        if Version(self.version) >= "8.15":
             check_min_cppstd(self, 11)
 
         # Visual Studio < 2019 doesn't seem to like pointer restrict of pointer restrict in libnsgif

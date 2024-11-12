@@ -50,8 +50,7 @@ class CurlppConan(ConanFile):
         self.requires("libcurl/8.9.1", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         else:
             if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration("${self.ref} requires C++11. Please set 'compiler.cppstd=11'.")

@@ -30,8 +30,7 @@ class SpectraConan(ConanFile):
 
     def validate(self):
         if Version(self.version) >= "1.0.0":
-            if self.settings.compiler.get_safe("cppstd"):
-                check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

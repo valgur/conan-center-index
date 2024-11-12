@@ -59,8 +59,7 @@ class ZserioConanFile(ConanFile):
         if self.settings.os == "Macos":
             self.output.warning("Macos is support is experimental! It's not (yet) supported by the upstream!")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_compiler_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_compiler_version and Version(self.settings.compiler.version) < minimum_compiler_version:
@@ -76,8 +75,6 @@ class ZserioConanFile(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not self.settings.get_safe("compiler.cppstd"):
-            tc.variables["CMAKE_CXX_STANDARD"] = str(self._min_cppstd)
         tc.generate()
 
     def build(self):

@@ -86,8 +86,7 @@ class ICUConan(ConanFile):
             if not os.path.exists(str(self.options.dat_package_file)):
                 raise ConanInvalidConfiguration("Non-existent dat_package_file specified")
         if Version(self.version) >= "75.1":
-            if self.settings.compiler.cppstd:
-                check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
@@ -129,8 +128,6 @@ class ICUConan(ConanFile):
         if check_min_vs(self, "180", raise_invalid=False):
             tc.extra_cflags.append("-FS")
             tc.extra_cxxflags.append("-FS")
-        if Version(self.version) >= "75.1" and not self.settings.compiler.cppstd and is_msvc(self):
-            tc.extra_cxxflags.append(f"-std:c++{self._min_cppstd}")
         if not self.options.shared:
             tc.extra_defines.append("U_STATIC_IMPLEMENTATION")
         if is_apple_os(self):

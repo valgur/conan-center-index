@@ -59,8 +59,7 @@ class LibrealsenseConan(ConanFile):
         self.requires("openmp/system")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def source(self):
         sources = self.conan_data["sources"][self.version]

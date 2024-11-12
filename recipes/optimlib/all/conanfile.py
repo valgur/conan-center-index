@@ -76,8 +76,7 @@ class OptimLibConan(ConanFile):
             # "Use of this library with Windows-based systems, with or without MSVC, is not supported."
             raise ConanInvalidConfiguration("Windows is not supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)

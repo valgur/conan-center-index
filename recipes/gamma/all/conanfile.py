@@ -52,8 +52,7 @@ class Gammaconan(ConanFile):
             self.requires("libsndfile/1.2.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
         if self.options.audio_io:
             # TODO: add audio_io support once portaudio added to CCI

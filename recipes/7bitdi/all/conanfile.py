@@ -62,8 +62,7 @@ class SevenBitDIConan(ConanFile):
         compiler = self.settings.compiler
         compiler_name = str(compiler)
 
-        if compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._minimum_compilers_version.get(compiler_name, False)
         if minimum_version and Version(compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

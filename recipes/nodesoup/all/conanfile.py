@@ -41,8 +41,7 @@ class NodesoupConan(ConanFile):
         return 14
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.compiler == "clang":
             if Version(self.settings.compiler.version) < "5.0" and self.settings.compiler.libcxx in ("libstdc++", "libstdc++11"):
                 raise ConanInvalidConfiguration("The version of libstdc++(11) of the current compiler does not support building nodesoup")

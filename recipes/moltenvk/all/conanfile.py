@@ -95,8 +95,7 @@ class MoltenVKConan(ConanFile):
         return f"{recipe_name}/{self._dependencies_versions[recipe_name]}"
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.os not in ["Macos", "iOS", "tvOS"]:
             raise ConanInvalidConfiguration(f"{self.ref} only supported on MacOS, iOS and tvOS")
         if self.settings.compiler != "apple-clang":

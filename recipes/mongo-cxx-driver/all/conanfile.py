@@ -98,8 +98,7 @@ class MongoCxxConan(ConanFile):
             # Cannot model mnmlstc (not packaged, is pulled dynamically) polyfill dependencies
             raise ConanInvalidConfiguration("mnmlstc polyfill is not yet supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimal_std_version)
+        check_min_cppstd(self, self._minimal_std_version)
 
         compiler = str(self.settings.compiler)
         if self.options.polyfill == "experimental" and compiler == "apple-clang":

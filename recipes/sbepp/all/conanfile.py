@@ -73,8 +73,7 @@ class PackageConan(ConanFile):
                 self.requires("pugixml/1.14")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         check_min_vs(self, 191)
         if not is_msvc(self):

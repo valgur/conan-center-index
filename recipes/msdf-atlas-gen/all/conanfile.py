@@ -27,8 +27,7 @@ class MsdfAtlasGenConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate_build(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def requirements(self):
         if Version(self.version) < "1.3":

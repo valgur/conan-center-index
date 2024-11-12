@@ -46,8 +46,7 @@ class ZppThrowingConan(ConanFile):
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support MSVC (yet). See https://github.com/eyalz800/zpp_throwing/issues/7")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

@@ -63,8 +63,7 @@ class EtcdCppApiv3Conan(ConanFile):
         self.requires("cpprestsdk/2.10.19", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
@@ -75,7 +74,7 @@ class EtcdCppApiv3Conan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["gRPC_VERSION"] = self.dependencies["grpc"].ref.version
-        tc.variables["ETCD_CMAKE_CXX_STANDARD"] = self.settings.compiler.get_safe("cppstd", self._min_cppstd)
+        tc.variables["ETCD_CMAKE_CXX_STANDARD"] = self.settings.compiler.cppstd
         tc.variables["OpenSSL_DIR"] = self.dependencies["openssl"].package_folder.replace('\\', '/')
         tc.generate()
 

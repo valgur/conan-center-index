@@ -60,8 +60,7 @@ class GRPCProto(ConanFile):
         self.requires("googleapis/cci.20230501")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         if self.options.shared and \
            not (self.dependencies["protobuf"].options.shared and self.dependencies["googleapis"].options.shared):

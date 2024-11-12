@@ -54,8 +54,7 @@ class PahoMqttCppConan(ConanFile):
         self.requires("paho-mqtt-c/1.3.13", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if self.dependencies["paho-mqtt-c"].options.shared != self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} requires paho-mqtt-c to have a matching 'shared' option.")

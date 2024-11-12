@@ -55,8 +55,7 @@ class LibCoapConan(ConanFile):
         if self.settings.os == "Windows" or is_apple_os(self):
             raise ConanInvalidConfiguration("Platform is currently not supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.dtls_backend in ["gnutls", "tinydtls"]:
             raise ConanInvalidConfiguration(f"{self.options.dtls_backend} not available yet")
 

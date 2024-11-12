@@ -30,10 +30,6 @@ class SeadexEssentialsConan(ConanFile):
     }
 
     @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
     def _compilers_minimum_version(self):
         return {
             "gcc": "8.3",
@@ -63,12 +59,11 @@ class SeadexEssentialsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
-            # C++20 fails with
-            # essentials/log/log_sink_type.hpp:17:1: error: ‘_what’ is not a constant expression
-            #    17 | SXE_ENHANCED_ENUM( log_sink_type, STD_SINK, SYSLOG_SINK, FILE_SINK, ANDROID_SINK )
-            check_max_cppstd(self, 17)
+        # C++20 fails with
+        # essentials/log/log_sink_type.hpp:17:1: error: ‘_what’ is not a constant expression
+        #    17 | SXE_ENHANCED_ENUM( log_sink_type, STD_SINK, SYSLOG_SINK, FILE_SINK, ANDROID_SINK )
+        check_min_cppstd(self, 17)
+        check_max_cppstd(self, 17)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

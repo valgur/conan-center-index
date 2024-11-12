@@ -50,8 +50,7 @@ class JfalcouEveConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if is_msvc(self) and Version(self.version.strip("v")) < "2023.02.15":
             raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC. See https://github.com/jfalcou/eve/issues/1022")

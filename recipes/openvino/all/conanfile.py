@@ -243,8 +243,7 @@ class OpenvinoConan(ConanFile):
         toolchain.generate()
 
     def validate_build(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         compiler_version = Version(self.settings.compiler.version)

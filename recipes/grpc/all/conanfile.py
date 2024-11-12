@@ -132,8 +132,7 @@ class GrpcConan(ConanFile):
         if Version(self.version) >= "1.47" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
             raise ConanInvalidConfiguration("GCC older than 6 is not supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._cxxstd_required)
+        check_min_cppstd(self, self._cxxstd_required)
 
         if self.options.shared and not self.dependencies.host["protobuf"].options.shared:
             raise ConanInvalidConfiguration(

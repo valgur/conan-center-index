@@ -23,8 +23,7 @@ class NanoRTConan(ConanFile):
         return 11
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def layout(self):
         basic_layout(self, src_folder="src")

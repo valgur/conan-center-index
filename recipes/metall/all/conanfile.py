@@ -43,8 +43,7 @@ class MetallConan(ConanFile):
         return self.settings.os == 'Linux' and libver[0] == 'glibc' and Version(libver[1]) < "2.27"
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
 
         if self.settings.os not in ["Linux", "Macos"]:
             raise ConanInvalidConfiguration(

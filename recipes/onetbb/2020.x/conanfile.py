@@ -70,8 +70,7 @@ class OneTBBConan(ConanFile):
         del self.info.options.tbbproxy
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if is_apple_os(self):
             if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "8.0":
                 raise ConanInvalidConfiguration(f"{self.name} {self.version} couldn't be built by apple-clang < 8.0")

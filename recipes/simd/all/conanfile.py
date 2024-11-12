@@ -45,8 +45,7 @@ class SimdConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.os == "Windows" and self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("Windows only supports x86/x64 architectures.")
         if is_msvc(self) and self.settings.arch == "armv8":

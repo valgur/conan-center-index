@@ -72,8 +72,7 @@ class MpppConan(ConanFile):
             self.requires("fmt/10.2.1", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.options.with_arb:
             raise ConanInvalidConfiguration(f"{self.ref}:with_arb=True is not supported because `fredrik-johansson/arb` is not packaged in CCI. (yet)")
         if self.options.with_quadmath:

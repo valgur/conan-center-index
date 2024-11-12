@@ -81,8 +81,7 @@ class SociConan(ConanFile):
         }
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         compiler = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version.value)

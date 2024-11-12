@@ -89,8 +89,7 @@ class LibphonenumberConan(ConanFile):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.name} not supported in Windows yet, contributions welcome\n"
                                             "https://github.com/google/libphonenumber/blob/master/FAQ.md#what-about-windows")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if not self.options.use_std_mutex and not self.options.use_boost and not self.options.get_safe("use_posix_thread"):
             raise ConanInvalidConfiguration("At least one of use_std_mutex, use_boost or use_posix_thread must be enabled")

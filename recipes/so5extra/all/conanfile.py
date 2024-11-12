@@ -56,8 +56,7 @@ class So5extraConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         compiler = str(self.settings.compiler)
         if compiler not in self._compilers_minimum_version:
             self.output.warning(f"{self.name} recipe lacks information about the {compiler} compiler standard version support")

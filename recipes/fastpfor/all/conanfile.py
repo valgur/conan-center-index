@@ -41,8 +41,7 @@ class FastPFORConan(ConanFile):
         if self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration(f"{self.settings.arch} architecture is not supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -46,13 +46,8 @@ class OatppLibresslConan(ConanFile):
         self.requires(f"oatpp/{self.version}", transitive_headers=True)
         self.requires("libressl/3.5.3", transitive_headers=True)
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
         if is_msvc(self) and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared library with msvc")

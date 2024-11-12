@@ -119,8 +119,7 @@ class DCMTKConan(ConanFile):
             # Need to supply an architecture-specific arith.h header to cross-compile.
             # TODO: add support when https://github.com/DCMTK/dcmtk/commit/eeb7f7e4b913ccf661481da2099736c358c581b9 is released
             raise ConanInvalidConfiguration("Cross building is not supported")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if cross_building(self) and self.settings.os == "Macos":
             # FIXME: Probable issue with flags, build includes header 'mmintrin.h'
             raise ConanInvalidConfiguration("Cross building on Macos is not supported (yet)")

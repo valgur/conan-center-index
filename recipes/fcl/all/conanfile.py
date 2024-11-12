@@ -55,8 +55,7 @@ class FclConan(ConanFile):
             self.requires("octomap/1.9.7", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't properly support shared lib on Windows")
 

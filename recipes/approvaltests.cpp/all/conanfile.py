@@ -67,8 +67,7 @@ class ApprovalTestsCppConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if Version(self.version) >= "10.2.0":
             if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":

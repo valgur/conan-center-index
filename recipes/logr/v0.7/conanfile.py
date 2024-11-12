@@ -69,8 +69,7 @@ class LogrConan(ConanFile):
         self.info.settings.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         check_min_vs(self, 192)
 

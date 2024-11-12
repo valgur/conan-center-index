@@ -53,8 +53,7 @@ class CpptraceConan(ConanFile):
             self.requires("libunwind/1.8.0", transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
 
     def source(self):

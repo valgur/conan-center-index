@@ -34,8 +34,7 @@ class CozConan(ConanFile):
         self.requires("libelfin/0.3")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         compiler_version = Version(self.settings.compiler.version)
         if self.settings.compiler == "gcc" and compiler_version < "5.0":
             raise ConanInvalidConfiguration("coz requires GCC >= 5.0")

@@ -49,8 +49,7 @@ class FuseppConan(ConanFile):
         self.requires("libfuse/3.10.5", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc":
             if Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration("gcc < 6 is unsupported")

@@ -80,8 +80,7 @@ class XtrConan(ConanFile):
         if self.settings.arch not in ["x86_64"]:
             raise ConanInvalidConfiguration(f"Unsupported arch={self.settings.arch}")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")

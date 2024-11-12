@@ -30,8 +30,7 @@ class XtlConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "14")
+        check_min_cppstd(self, "14")
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

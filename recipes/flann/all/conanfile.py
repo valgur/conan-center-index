@@ -49,7 +49,7 @@ class FlannConan(ConanFile):
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if Version(self.version) >= "1.9.2" and self.settings.compiler.get_safe("cppstd"):
+        if Version(self.version) >= "1.9.2":
             check_min_cppstd(self, 11)
 
     def source(self):

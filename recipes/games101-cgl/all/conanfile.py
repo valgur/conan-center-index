@@ -45,8 +45,7 @@ class Games101CglConan(ConanFile):
         self.requires("glfw/3.4", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25 <4.0.0]")

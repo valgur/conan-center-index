@@ -142,8 +142,7 @@ class G2oConan(ConanFile):
         # self.requires("libqglviewer/x.y.z")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
             # C++20 fails with
             # error: call to non-‘constexpr’ function ‘void fmt::v10::detail::throw_format_error(const char*)’
             check_max_cppstd(self, self._max_cppstd)

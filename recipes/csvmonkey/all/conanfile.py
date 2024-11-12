@@ -40,8 +40,7 @@ class CSVMONEKYConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if self.settings.arch not in ("x86", "x86_64",):
             raise ConanInvalidConfiguration(f"{self.ref} requires x86 architecture.")

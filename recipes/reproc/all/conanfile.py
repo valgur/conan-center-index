@@ -48,7 +48,7 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.options.cxx and self.settings.compiler.cppstd:
+        if self.options.cxx:
             check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             # test_package fails with:

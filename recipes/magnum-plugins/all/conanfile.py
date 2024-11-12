@@ -160,8 +160,7 @@ class MagnumConan(ConanFile):
         self.build_requires("corrade/{}".format(self.version))
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+        tools.check_min_cppstd(self, 11)
 
         if not self.options["magnum"].trade:
             raise ConanInvalidConfiguration("Magnum Trade is required")

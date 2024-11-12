@@ -48,9 +48,8 @@ class WilConan(ConanFile):
         self.info.clear() # same package ID for any package
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            # Validate the minimum cpp standard supported when installing the package. For C++ projects only
-            check_min_cppstd(self, self._min_cppstd)
+        # Validate the minimum cpp standard supported when installing the package. For C++ projects only
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

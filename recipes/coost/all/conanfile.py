@@ -52,8 +52,7 @@ class CoostConan(ConanFile):
             self.requires("libbacktrace/cci.20210118")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if Version(self.version) >= "3.0.2" and is_msvc(self) and self.options.shared:
             # INFO: src\include\co\thread.h: error C2492: 'g_tid': data with thread storage duration may not have dll interface
             raise ConanInvalidConfiguration(f"{self.ref} Conan recipe does not support -o shared=True with Visual Studio. Contributions are welcome.")

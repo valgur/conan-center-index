@@ -49,8 +49,7 @@ class FastCDRConan(ConanFile):
             self.tool_requires("cmake/[>=3.16.3 <4]")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             # This combination leads to an fast-cdr error when linking
             # linking dynamic '*.dll' and static MT runtime

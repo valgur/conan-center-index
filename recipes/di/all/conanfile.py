@@ -44,8 +44,7 @@ class DiConan(ConanFile):
         }
 
     def configure(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         compiler = str(self.settings.compiler)
         if compiler not in self._compilers_minimum_version:
             self.output.warning(

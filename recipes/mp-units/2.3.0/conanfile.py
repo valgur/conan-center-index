@@ -139,13 +139,12 @@ class MPUnitsConan(ConanFile):
 
     def _check_feature_supported(self, name, feature_name=name):
         compiler = self.settings.compiler
-        cppstd = compiler.get_safe("cppstd")
         feature = self._feature_compatibility[feature_name]
 
         # check C++ version
-        if cppstd and not valid_min_cppstd(self, feature["min_cppstd"]):
+        if not valid_min_cppstd(self, feature["min_cppstd"]):
             raise ConanInvalidConfiguration(
-                f"'{name}' requires at least cppstd={feature['min_cppstd']} ({cppstd} in use)",
+                f"'{name}' requires at least cppstd={feature['min_cppstd']} ({compiler.cppstd} in use)",
             )
 
         # check compiler version
