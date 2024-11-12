@@ -215,12 +215,11 @@ class GrpcConan(ConanFile):
         # Make will run commands via `/bin/sh` which will strip all env vars that start with `DYLD*`
         # This workaround wraps the protoc command to be invoked by CMake with a modified environment
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        settings_build = getattr(self, "settings_build", self.settings)
-        if settings_build.os == "Macos":
+        if self.settings_build.os == "Macos":
             replace_in_file(self, cmakelists,
                             "COMMAND ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}",
                             'COMMAND ${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}')
-        elif not cross_building(self) and settings_build.os == "Linux":
+        elif not cross_building(self) and self.settings_build.os == "Linux":
             # we are not cross-building, but protobuf or abseil may be shared
             # so we need to set LD_LIBRARY_PATH to find them
             # Note: if protobuf used RPATH instead of RUNPATH this is not needed

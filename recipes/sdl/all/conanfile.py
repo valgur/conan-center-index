@@ -182,7 +182,7 @@ class SDLConan(ConanFile):
         self.tool_requires("cmake/[>3.27 <4]")
         if self.settings.os == "Linux" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if hasattr(self, "settings_build") and self.options.get_safe("wayland"):
+        if self.options.get_safe("wayland"):
             self.build_requires("wayland/1.22.0")  # Provides wayland-scanner
 
     def source(self):
@@ -304,7 +304,7 @@ class SDLConan(ConanFile):
                 cmake_extra_ldflags += ["-L{}".format(it) for it in self.dependencies["wayland"].cpp_info.libdirs]
                 tc.variables["SDL_WAYLAND_SHARED"] = self.dependencies["wayland"].options.shared
 
-                wayland = self.dependencies["wayland"] if not hasattr(self, "settings_build") else self.dependencies.build["wayland"]
+                wayland = self.dependencies.build["wayland"]
                 wayland_bin_dir = wayland.cpp_info.bindirs[0] # for wayland scanner
                 tc.variables["WAYLAND_BIN_DIR"] = wayland_bin_dir
 

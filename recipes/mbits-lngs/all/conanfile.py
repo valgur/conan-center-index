@@ -72,7 +72,7 @@ class MBitsLngsConan(ConanFile):
         tc.variables["LNGS_LITE"] = False
         tc.variables["LNGS_LINKED_RESOURCES"] = True
         tc.variables["LNGS_NO_PKG_CONFIG"] = True
-        if cross_building(self) and hasattr(self, "settings_build"):
+        if cross_building(self):
             tc.variables["LNGS_REBUILD_RESOURCES"] = False
         tc.generate()
         tc = CMakeDeps(self)

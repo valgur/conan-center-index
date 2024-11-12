@@ -88,7 +88,7 @@ class LlamaCppConan(ConanFile):
         tc.variables["LLAMA_CURL"] = self.options.get_safe("with_curl")
         tc.variables["BUILD_SHARED_LIBS"] = bool(self.options.shared)
         tc.variables["GGML_CUDA"] = self.options.get_safe("with_cuda")
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             tc.variables["LLAMA_NATIVE"] = False
         tc.generate()
 

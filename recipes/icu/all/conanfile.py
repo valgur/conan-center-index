@@ -114,7 +114,7 @@ class ICUConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
 
-        if cross_building(self) and hasattr(self, "settings_build"):
+        if cross_building(self):
             self.tool_requires(str(self.ref))
 
     def source(self):

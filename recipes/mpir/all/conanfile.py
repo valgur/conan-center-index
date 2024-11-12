@@ -90,14 +90,13 @@ class MpirConan(ConanFile):
         tc.extra_cxxflags.append("-Wno-implicit-function-declaration")
 
         if self.settings.compiler == "apple-clang":
-            if hasattr(self, "settings_build"):
-                # there is no CFLAGS_FOR_BUILD/CXXFLAGS_FOR_BUILD
-                sdk_path = XCRun(self).sdk_path
-                tc.extra_cxxflags += [
-                    "-Wno-implicit-function-declaration",
-                    "-isysroot", sdk_path,
-                    "-arch", to_apple_arch(self),
-                ]
+            # there is no CFLAGS_FOR_BUILD/CXXFLAGS_FOR_BUILD
+            sdk_path = XCRun(self).sdk_path
+            tc.extra_cxxflags += [
+                "-Wno-implicit-function-declaration",
+                "-isysroot", sdk_path,
+                "-arch", to_apple_arch(self),
+            ]
         # Disable docs
         tc.make_args.append("MAKEINFO=true")
         tc.generate()

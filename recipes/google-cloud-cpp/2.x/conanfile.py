@@ -172,8 +172,7 @@ class GoogleCloudCppConan(ConanFile):
         # Protections.  In particular, the system will purge the DYLD_LIBRARY_PATH
         # enviroment variables:
         #     https://developer.apple.com/library/archive/documentation/Security/Conceptual/System_Integrity_Protection_Guide/RuntimeProtections/RuntimeProtections.html
-        settings_build = getattr(self, "settings_build", self.settings)
-        if settings_build.os == "Macos":
+        if self.settings_build.os == "Macos":
             replace_in_file(self, os.path.join(self.source_folder, "cmake/CompileProtos.cmake"),
                             "${Protobuf_PROTOC_EXECUTABLE} ARGS",
                             '${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" ${Protobuf_PROTOC_EXECUTABLE} ARGS')

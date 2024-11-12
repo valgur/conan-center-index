@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, stdcpp_library, valid_min_cppstd
+from conan.tools.build import check_min_cppstd, stdcpp_library, valid_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
@@ -68,7 +68,7 @@ class JsonnetConan(ConanFile):
         if Version(self.version) == "0.17.0" and valid_min_cppstd(self, 17):
             raise ConanInvalidConfiguration(f"{self.ref} does not support C++{self.settings.compiler.cppstd}")
 
-        if hasattr(self, "settings_build") and not can_run(self):
+        if not can_run(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support cross building")
 
         if self.options.shared and is_msvc(self) and "d" in msvc_runtime_flag(self):

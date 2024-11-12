@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.android import android_abi
 from conan.tools.apple import is_apple_os
-from conan.tools.build import build_jobs, check_min_cppstd, cross_building
+from conan.tools.build import build_jobs, check_min_cppstd, cross_building, can_run
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import chdir, copy, get, load, replace_in_file, rm, rmdir, save, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
@@ -328,7 +328,7 @@ class QtConan(ConanFile):
             if not (self.options.gui and self.options.qtdeclarative and self.options.qtlocation and self.options.qtwebchannel):
                 raise ConanInvalidConfiguration("option qt:qtwebengine requires also qt:gui, qt:qtdeclarative, qt:qtlocation and qt:qtwebchannel")
 
-            if hasattr(self, "settings_build") and not can_run(self):
+            if not can_run(self):
                 raise ConanInvalidConfiguration("Cross compiling Qt WebEngine is not supported")
 
             if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":

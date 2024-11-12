@@ -1,15 +1,15 @@
-from conan import ConanFile
-from conan.errors import ConanException
-from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rename, replace_in_file, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path_package_info_legacy
-
 import os
 import re
 import shutil
+
+from conan import ConanFile
+from conan.errors import ConanException
+from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rename, replace_in_file, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import check_min_vs, is_msvc
 
 required_conan_version = ">=1.60.0 <2 || >=2.0.5"
 
@@ -33,10 +33,6 @@ class LibtoolConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _has_dual_profiles(self):
-        return hasattr(self, "settings_build")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -62,9 +58,8 @@ class LibtoolConan(ConanFile):
         #self.requires("m4/1.4.19")
 
     def build_requirements(self):
-        if self._has_dual_profiles:
-            self.tool_requires("automake/<host_version>")
-            self.tool_requires("m4/1.4.19")               # Needed by configure
+        self.tool_requires("automake/<host_version>")
+        self.tool_requires("m4/1.4.19")               # Needed by configure
 
         self.tool_requires("gnu-config/cci.20210814")
         if self.settings_build.os == "Windows":
@@ -80,10 +75,6 @@ class LibtoolConan(ConanFile):
         return os.path.join(self.package_folder, "res")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-        if not self._has_dual_profiles:
-            VirtualRunEnv(self).generate(scope="build")
-
         if is_msvc(self):
             # __VSCMD_ARG_NO_LOGO: this test_package has too many invocations,
             #                      this avoids printing the logo everywhere

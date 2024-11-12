@@ -61,10 +61,6 @@ class TkConan(ConanFile):
             self.requires("fontconfig/2.13.93")
             self.requires("xorg/system")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         if not is_msvc(self):
             if (

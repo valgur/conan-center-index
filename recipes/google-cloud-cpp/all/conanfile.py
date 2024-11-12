@@ -1,7 +1,8 @@
+import functools
 import os
 import textwrap
-import functools
 
+from conan.tools.build import cross_building
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
 
@@ -49,7 +50,7 @@ class GoogleCloudCppConan(ConanFile):
         if self.settings.os == 'Windows' and self.options.shared:
             raise ConanInvalidConfiguration("Fails to compile for Windows as a DLL")
 
-        if hasattr(self, "settings_build") and tools.cross_building(self):
+        if cross_building(self):
             raise ConanInvalidConfiguration("Recipe not prepared for cross-building (yet)")
 
         if tools.Version(self.version) >= "1.30.0":

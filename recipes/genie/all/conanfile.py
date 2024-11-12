@@ -27,7 +27,7 @@ class GenieConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
 
     def build_requirements(self):

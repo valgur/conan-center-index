@@ -14,7 +14,7 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        if cross_building(self) and hasattr(self, "settings_build"):
+        if cross_building(self):
             self.tool_requires(self.tested_reference_str)
 
     def layout(self):
@@ -22,7 +22,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         VirtualRunEnv(self).generate()
-        if cross_building(self) and hasattr(self, "settings_build"):
+        if cross_building(self):
             VirtualBuildEnv(self).generate()
         else:
             VirtualRunEnv(self).generate(scope="build")

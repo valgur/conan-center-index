@@ -37,8 +37,7 @@ class XorgProtoConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def requirements(self):
-        if hasattr(self, "settings_build"):
-            self.requires("xorg-macros/1.20.0")
+        self.requires("xorg-macros/1.20.0")
 
     def package_id(self):
         self.info.clear()
@@ -92,8 +91,7 @@ class XorgProtoConan(ConanFile):
     def package_info(self):
         for filename, name_version in yaml.safe_load(open(self._pc_data_path)).items():
             self.cpp_info.components[filename].libdirs = []
-            if hasattr(self, "settings_build"):
-                self.cpp_info.components[filename].requires = ["xorg-macros::xorg-macros"]
+            self.cpp_info.components[filename].requires = ["xorg-macros::xorg-macros"]
             self.cpp_info.components[filename].version = name_version["version"]
             self.cpp_info.components[filename].set_property("pkg_config_name", filename)
 

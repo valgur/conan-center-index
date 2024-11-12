@@ -78,7 +78,7 @@ class LibPcapConan(ConanFile):
     def validate(self):
         if Version(self.version) < "1.10.0" and self.settings.os == "Macos" and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on OSX.")
-        if hasattr(self, "settings_build") and cross_building(self) and \
+        if cross_building(self) and \
            self.options.shared and is_apple_os(self):
             raise ConanInvalidConfiguration("cross-build of libpcap shared is broken on Apple")
         if Version(self.version) < "1.10.1" and self.settings.os == "Windows" and not self.options.shared:

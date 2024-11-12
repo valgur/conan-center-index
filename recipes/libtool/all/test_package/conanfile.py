@@ -26,7 +26,7 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str) # Since we are testing libltdl as well
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and not cross_building(self):
+        if not cross_building(self):
             self.tool_requires(self.tested_reference_str) # We are testing libtool/libtoolize
 
         self.tool_requires("autoconf/2.72")
