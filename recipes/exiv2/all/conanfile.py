@@ -1,12 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.files import get, copy, rmdir, save, export_conandata_patches, apply_conandata_patches, replace_in_file
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, check_min_vs
+from conan.tools.files import get, copy, rmdir, export_conandata_patches, apply_conandata_patches, replace_in_file
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
-import sys
 
 required_conan_version = ">=1.53.0"
 
@@ -16,9 +16,9 @@ class Exiv2Conan(ConanFile):
     description = "Exiv2 is a C++ library and a command-line utility " \
                   "to read, write, delete and modify Exif, IPTC, XMP and ICC image metadata."
     license = "GPL-2.0"
-    topics = ("image", "exif", "xmp")
-    homepage = "https://www.exiv2.org"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://www.exiv2.org"
+    topics = ("image", "exif", "xmp")
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -87,19 +87,19 @@ class Exiv2Conan(ConanFile):
         if Version(self.version) >= "0.28.0":
             min_cppstd = 17
             check_min_cppstd(self, min_cppstd)
-            check_min_vs(self, 191)
             compilers_minimum_version = {
                 "gcc": "8",
                 "clang": "5",
                 "apple-clang": "10",
+                "msvc": "191",
             }
-            if not is_msvc(self):
-                minimum_version = compilers_minimum_version.get(str(self.settings.compiler), False)
-                if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
-                    raise ConanInvalidConfiguration(
-                        f"{self.ref} requires C++{min_cppstd}, which your compiler does not fully support."
-                    )
+            minimum_version = compilers_minimum_version.get(str(self.settings.compiler), False)
+            if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires C++{min_cppstd}, which your compiler does not fully support."
+                )
         else:
+            # https://github.com/Exiv2/exiv2/tree/v0.27.7#217-building-with-c11-and-other-compilers
             check_max_cppstd(self, 14)
 
         if self.options.with_xmp == "external":

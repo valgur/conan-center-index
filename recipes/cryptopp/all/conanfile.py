@@ -1,9 +1,11 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import (
     apply_conandata_patches, collect_libs, copy, export_conandata_patches, get,
-    rename, replace_in_file, rmdir, save
+    rename, replace_in_file, rmdir
 )
 from conan.tools.scm import Version
 
@@ -25,10 +27,12 @@ class CryptoPPConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "use_openmp": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "use_openmp": False,
     }
 
     def export_sources(self):
@@ -44,6 +48,11 @@ class CryptoPPConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def validate_build(self):
+        if is_apple_os(self) and cross_building(self) and Version(self.version) <= "8.6.0":
+            # See https://github.com/abdes/cryptopp-cmake/pull/38
+            raise ConanInvalidConfiguration("cryptopp 8.6.0 and lower do not support cross-building on Apple platforms")
 
     def validate(self):
         if self.options.shared and Version(self.version) >= "8.7.0":
@@ -96,6 +105,7 @@ class CryptoPPConan(ConanFile):
             tc.cache_variables["CRYPTOPP_USE_INTERMEDIATE_OBJECTS_TARGET"] = False
             if self.settings.os == "Android":
                 tc.cache_variables["CRYPTOPP_NATIVE_ARCH"] = True
+            tc.cache_variables["CRYPTOPP_USE_OPENMP"] = self.options.use_openmp
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Git"] = True
         tc.generate()
 
@@ -152,4 +162,10 @@ class CryptoPPConan(ConanFile):
         elif self.settings.os == "SunOS":
             self.cpp_info.system_libs = ["nsl", "socket"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["bcrypt", "ws2_32"]
+            self.cpp_info.components["libcryptopp"].system_libs = ["bcrypt", "ws2_32"]
+
+        if not self.options.shared and self.options.use_openmp:
+            if self.settings.compiler in ("gcc", "clang"):
+                openmp_flag = ["-fopenmp"]
+                self.cpp_info.components["libcryptopp"].sharedlinkflags = openmp_flag
+                self.cpp_info.components["libcryptopp"].exelinkflags = openmp_flag
