@@ -1,7 +1,7 @@
 import functools
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -43,12 +43,8 @@ class GRPCProto(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-            if Version(conan_version) < "2.0.0":
-                self.options["protobuf"].shared = True
-                self.options["googleapis"].shared = True
-            else:
-                self.options["protobuf/*"].shared = True
-                self.options["googleapis/*"].shared = True
+            self.options["protobuf"].shared = True
+            self.options["googleapis"].shared = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")

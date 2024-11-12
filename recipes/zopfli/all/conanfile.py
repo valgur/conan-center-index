@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version

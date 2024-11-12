@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, download, unzip, load, copy, rm
 from conan.tools.layout import basic_layout

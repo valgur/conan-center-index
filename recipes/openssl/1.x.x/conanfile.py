@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import cross_building
@@ -375,10 +375,7 @@ class OpenSSLConan(ConanFile):
             # #error <stdatomic.h> is not yet supported when compiling as C, but this is planned for a future release.
             args.append("-D__STDC_NO_ATOMICS__")
 
-        if Version(conan_version).major < 2:
-            possible_values = self.options.values.fields
-        else:
-            possible_values = self.options.possible_values
+        possible_values = self.options.possible_values
         for option_name in possible_values:
             activated = self.options.get_safe(option_name)
             if activated and option_name not in ["fPIC", "openssldir", "capieng_dialog", "enable_capieng"]:

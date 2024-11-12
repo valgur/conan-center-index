@@ -1,6 +1,6 @@
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -44,9 +44,6 @@ class LightGBMConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if conan_version.major == 1 and self.settings.compiler == "apple-clang":
-            # https://github.com/conan-io/conan-center-index/pull/18759#issuecomment-1817470331
-            del self.options.with_openmp
 
     def configure(self):
         if self.options.shared:

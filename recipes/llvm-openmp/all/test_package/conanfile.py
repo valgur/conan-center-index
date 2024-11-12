@@ -1,7 +1,7 @@
 import io
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
 from conan.tools.env import Environment
@@ -37,11 +37,8 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             for executable in ["test_package_cxx", "test_package_c"]:
                 bin_path = os.path.join(self.cpp.build.bindir, executable)
-                if conan_version.major == 1:
-                    self.run(bin_path, env="conanrun")
-                else:
-                    stderr = io.StringIO()
-                    self.run(bin_path, env="conanrun", stderr=stderr)
-                    stderr = stderr.getvalue()
-                    print(stderr)
-                    assert "LLVM OMP" in stderr
+                stderr = io.StringIO()
+                self.run(bin_path, env="conanrun", stderr=stderr)
+                stderr = stderr.getvalue()
+                print(stderr)
+                assert "LLVM OMP" in stderr

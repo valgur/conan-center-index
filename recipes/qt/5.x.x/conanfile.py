@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.android import android_abi
 from conan.tools.apple import is_apple_os
@@ -204,10 +204,6 @@ class QtConan(ConanFile):
         if self.settings.os != "Android":
             del self.options.android_sdk
 
-    def _debug_output(self, message):
-        if Version(conan_version) >= "2":
-            self.output.debug(message)
-
     def configure(self):
         # if self.settings.os != "Linux":
         #         self.options.with_libiconv = False # QTBUG-84708
@@ -252,7 +248,7 @@ class QtConan(ConanFile):
 
         for module in self._submodules:
             if module not in submodules_tree:
-                self._debug_output(f"qt5: removing {module} from options as it is not an option for this version, or it is ignored or obsolete")
+                self.output.debug(f"qt5: removing {module} from options as it is not an option for this version, or it is ignored or obsolete")
                 self.options.rm_safe(module)
 
         # Requested modules:
@@ -281,7 +277,7 @@ class QtConan(ConanFile):
 
         required_but_disabled = [m for m in required_modules.keys() if self.options.get_safe(m) == False]
         if required_modules:
-            self._debug_output(f"qt5: required_modules modules {list(required_modules.keys())}")
+            self.output.debug(f"qt5: required_modules modules {list(required_modules.keys())}")
         if required_but_disabled:
             required_by = set()
             for m in required_but_disabled:
@@ -312,12 +308,12 @@ class QtConan(ConanFile):
         for status in self._module_statuses:
             # These are convenience only, should not affect package_id
             option_name = f"{status}_modules"
-            self._debug_output(f"qt5 removing convenience option: {option_name},"
+            self.output.debug(f"qt5 removing convenience option: {option_name},"
                               f" see individual module options")
             self.options.rm_safe(option_name)
 
         for option in self.options.items():
-            self._debug_output(f"qt5 option {option[0]}={option[1]}")
+            self.output.debug(f"qt5 option {option[0]}={option[1]}")
 
     def validate(self):
         check_min_cppstd(self, "11")

@@ -1,6 +1,6 @@
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import can_run
@@ -56,8 +56,7 @@ class GdkPixbufConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
-            wildcard = "" if Version(conan_version) < "2.0.0" else "/*"
-            self.options[f"glib{wildcard}"].shared = True
+            self.options["glib"].shared = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -235,7 +234,7 @@ class GdkPixbufConan(ConanFile):
 
         # Breaking change since Conan >= 2.0.8
         # Related to https://github.com/conan-io/conan/pull/14233
-        libdir_variable = "libdir1" if Version(conan_version) < "2.0" else "libdir"
+        libdir_variable = "libdir"
         pkgconfig_variables = {
             "bindir": "${prefix}/bin",
             "gdk_pixbuf_binary_version": "2.10.0",

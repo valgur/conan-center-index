@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv
@@ -33,13 +33,10 @@ class VerilatorConan(ConanFile):
             self.requires("strawberryperl/5.32.1.1", visible=False)
             if is_msvc(self):
                 self.requires("dirent/1.24", visible=False)
-        # Conan v1 does not handle flex being both a build and a host requirement correctly.
-        # It gets incorrectly marked as a dependency in CMake but a CMake module/config is not generated.
-        if conan_version >= 2:
-            if self.settings.os == "Windows":
-                self.requires("winflexbison/2.5.25", visible=False)
-            else:
-                self.requires("flex/2.6.4", visible=False)
+        if self.settings.os == "Windows":
+            self.requires("winflexbison/2.5.25", visible=False)
+        else:
+            self.requires("flex/2.6.4", visible=False)
 
     def package_id(self):
         # Verilator is an executable-only package, so the compiler does not matter
@@ -53,24 +50,15 @@ class VerilatorConan(ConanFile):
             raise ConanInvalidConfiguration("Windows build is not yet supported. Contributions are welcome")
 
     def build_requirements(self):
-        if conan_version >= 2:
-            if self.settings_build.os == "Windows":
-                self.tool_requires("winflexbison/<host_version>")
-            else:
-                self.tool_requires("flex/<host_version>")
-        else:
-            if self.settings_build.os == "Windows":
-                self.build_requires("winflexbison/2.5.25")
-            else:
-                self.build_requires("flex/2.6.4")
-
         if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
             self.tool_requires("automake/1.16.5")
             self.tool_requires("strawberryperl/<host_version>")
+            self.tool_requires("winflexbison/2.5.25")
         else:
+            self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
         if Version(self.version) >= "4.224":
             self.tool_requires("autoconf/2.72")
@@ -91,10 +79,7 @@ class VerilatorConan(ConanFile):
         tc.configure_args += ["--datarootdir=${prefix}/bin/share"]
 
         flex = "flex" if self.settings.os != "Windows" else "winflexbison"
-        if conan_version >= 2:
-            flex_info = self.dependencies[flex].cpp_info
-        else:
-            flex_info = self.dependencies.build[flex].cpp_info
+        flex_info = self.dependencies[flex].cpp_info
         tc.extra_cxxflags += [f"-I{unix_path(self, flex_info.includedir)}"]
         tc.extra_ldflags += [f"-L{unix_path(self, flex_info.libdir)}"]
         tc.generate()

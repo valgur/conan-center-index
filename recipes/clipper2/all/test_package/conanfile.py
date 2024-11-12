@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
 import os
@@ -22,11 +22,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            if conan_version.major >= 2:
-                usingz = self.dependencies["clipper2"].options.usingz
-            else:
-                usingz = self.options["clipper2"].usingz
-
+            usingz = self.dependencies["clipper2"].options.usingz
             if usingz != "ONLY":
                 bin_path = os.path.join(self.cpp.build.bindir, "test_package")
                 self.run(bin_path, env="conanrun")

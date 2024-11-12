@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import Environment
 from conan.tools.files import chdir, copy, get, replace_in_file

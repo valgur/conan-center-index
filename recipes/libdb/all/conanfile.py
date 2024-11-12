@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file, rename, rm, rmdir, save
 from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, is_msvc, check_min_vs, vs_layout
@@ -229,11 +229,10 @@ class LibdbConan(ConanFile):
                 projects.append("db_tcl")
             for project in projects:
                 project_file = os.path.join(self.source_folder, "build_windows", "VS10", f"{project}.vcxproj")
-                build_type = "{}{}".format(
+                msbuild.build_type = "{}{}".format(
                     "" if self.options.shared else "Static ",
                     "Debug" if self.settings.build_type == "Debug" else "Release",
                 )
-                msbuild.build_type = build_type if Version(conan_version).major >= 2 else f"\"{build_type}\""
                 msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
                 msbuild.build(sln=project_file)
         else:

@@ -1,6 +1,6 @@
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -62,10 +62,6 @@ class OusterSdkConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if conan_version.major == 1:
-            # Turning off by default due to perpetually missing libtins binaries on CCI
-            self.options.build_pcap = False
-            self.options.build_osf = False
 
     def configure(self):
         if self.options.shared:
@@ -99,8 +95,6 @@ class OusterSdkConan(ConanFile):
             self.requires("glfw/3.4")
 
     def validate(self):
-        if conan_version.major < 2 and self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("Windows builds require Conan >= 2.0")
         check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
