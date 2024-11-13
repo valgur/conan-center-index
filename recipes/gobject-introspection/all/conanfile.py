@@ -10,9 +10,8 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.env import Environment
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
+required_conan_version = ">=2.0.5"
 
 
 class GobjectIntrospectionConan(ConanFile):
@@ -58,6 +57,13 @@ class GobjectIntrospectionConan(ConanFile):
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         # ffi.h is exposed by public header gobject-introspection-1.0/girffi.h
         self.requires("libffi/3.4.4", transitive_headers=True)
+
+    def validate_build(self):
+        if cross_building(self):
+            # Requires QEMU or similar as an exe_wrapper for Meson to run the built executables during cross-compilation.
+            # Disabling even if 'can_run' is True, since the introspection data generation when using the package still tries to
+            # link against libgirepository-1.0.so of the executable and fails when cross-compiling.
+            raise ConanInvalidConfiguration("Cross-compilation is not supported.")
 
     def validate(self):
         if self.settings.os == "Windows" and self.settings.build_type == "Debug":
