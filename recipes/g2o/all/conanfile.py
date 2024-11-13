@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir, save, export_conandata_patches, apply_conandata_patches, replace_in_file
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -143,9 +142,9 @@ class G2oConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
-            # C++20 fails with
-            # error: call to non-‘constexpr’ function ‘void fmt::v10::detail::throw_format_error(const char*)’
-            check_max_cppstd(self, self._max_cppstd)
+        # C++20 fails with
+        # error: call to non-‘constexpr’ function ‘void fmt::v10::detail::throw_format_error(const char*)’
+        check_max_cppstd(self, self._max_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
