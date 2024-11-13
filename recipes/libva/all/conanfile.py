@@ -77,7 +77,7 @@ class PackageConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built without at least one backend dev files.")
 
     def build_requirements(self):
-        if self.options.get_safe("with_wayland") and self._has_build_profile:
+        if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -102,7 +102,7 @@ class PackageConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        if self.options.get_safe("with_wayland") and self._has_build_profile:
+        if self.options.get_safe("with_wayland"):
             # Patch the build system to use the pkg-config files generated for the build context.
             meson_build_file = os.path.join(self.source_folder, "meson.build")
             replace_in_file(

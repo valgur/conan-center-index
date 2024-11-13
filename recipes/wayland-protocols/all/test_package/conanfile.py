@@ -25,7 +25,6 @@ class TestPackageConan(ConanFile):
     def generate(self):
         tc = MesonToolchain(self)
         tc.project_options["build.pkg_config_path"] = self.generators_folder
-        tc.project_options["has_build_profile"] = self._has_build_profile
         tc.generate()
         pkg_config_deps = PkgConfigDeps(self)
         pkg_config_deps.build_context_activated = ["wayland"]
