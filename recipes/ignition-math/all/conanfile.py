@@ -76,7 +76,7 @@ class IgnitionMathConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("ignition-cmake/2.17.1")
-        self.tool_requires("doxygen/1.9.4")
+        self.tool_requires("doxygen/[>=1.8 <2]")
         if self.options.enable_swig:
             self.tool_requires("swig/4.2.1")
 

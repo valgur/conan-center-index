@@ -3,7 +3,6 @@ import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
@@ -74,7 +73,7 @@ class IgnitionUtilsConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("ignition-cmake/2.17.1")
-        self.tool_requires("doxygen/1.9.4")
+        self.tool_requires("doxygen/[>=1.8 <2]")
         if self.settings_build.os == "Windows":
             # For sed
             self.win_bash = True
