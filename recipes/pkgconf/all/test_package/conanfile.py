@@ -7,7 +7,6 @@ from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.microsoft import unix_path
 
 

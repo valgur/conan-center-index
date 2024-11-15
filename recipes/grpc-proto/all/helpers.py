@@ -10,12 +10,12 @@ def grpc_target_name(internal_name):
 class _ProtoLibrary:
     name: str = None
     srcs: list = None
-    deps: list = None
+    deps: set = None
     is_used: bool = False
 
     def __init__(self) -> None:
         self.srcs = []
-        self.deps = set(["protobuf::libprotobuf"])  # Add to all libraries even if not explicitly set
+        self.deps = {"protobuf::libprotobuf"}  # Add to all libraries even if not explicitly set
         self.is_used = True
 
     def validate(self, source_folder, all_deps):

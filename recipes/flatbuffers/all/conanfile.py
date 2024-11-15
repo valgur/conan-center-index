@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import export_conandata_patches, apply_conandata_patches, collect_libs, copy, get, replace_in_file, rmdir
 from conan.tools.scm import Version
@@ -62,7 +62,7 @@ class FlatbuffersConan(ConanFile):
     def build_requirements(self):
         # since 23.3.3 version, flatbuffers cmake scripts were refactored to use cmake 3.8 version
         # see https://github.com/google/flatbuffers/pull/7801
-        if Version(self.version) >= "2.0.8" and Version(self.version) < "23.3.3":
+        if "2.0.8" <= Version(self.version) < "23.3.3":
             self.tool_requires("cmake/[>=3.16 <4]")
 
     def source(self):

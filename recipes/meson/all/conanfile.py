@@ -4,7 +4,6 @@ import textwrap
 from conan import ConanFile
 from conan.tools.files import copy, get, rmdir, save, replace_in_file
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 

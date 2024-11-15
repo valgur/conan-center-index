@@ -10,7 +10,6 @@ from conan.tools.files import (
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path
-from conan.tools.scm import Version
 from contextlib import contextmanager
 import fnmatch
 import json

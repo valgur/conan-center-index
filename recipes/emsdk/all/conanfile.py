@@ -3,7 +3,6 @@ from conan.tools.build import cross_building
 from conan.tools.env import Environment
 from conan.tools.files import chdir, copy, get, replace_in_file
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 import json
 import os
 

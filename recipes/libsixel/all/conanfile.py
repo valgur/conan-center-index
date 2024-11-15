@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building
 from conan.tools.files import copy, get, rmdir, rm
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout

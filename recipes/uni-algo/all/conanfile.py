@@ -13,7 +13,6 @@ required_conan_version = ">=1.53.0"
 
 class UniAlgoConan(ConanFile):
     name = "uni-algo"
-    package_type = "library"
     description = "Unicode Algorithms Implementation for C/C++"
     license = ("MIT", "Unlicense")
     url = "https://github.com/conan-io/conan-center-index"

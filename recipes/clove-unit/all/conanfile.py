@@ -12,7 +12,6 @@ class CloveUnitConan(ConanFile):
     homepage = "https://github.com/fdefelici/clove-unit"
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("unit-testing", "testing", "unit testing", "test", "header-only")
-    no_copy_source = True
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

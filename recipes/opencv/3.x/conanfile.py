@@ -417,7 +417,6 @@ class OpenCVConan(ConanFile):
             for component in components:
                 conan_component = component["target"]
                 cmake_target = component["target"]
-                cmake_component = component["lib"]
                 lib_name = get_lib_name(component["lib"])
                 requires = component["requires"]
                 # TODO: we should also define COMPONENTS names of each target for find_package() but not possible yet in CMakeDeps

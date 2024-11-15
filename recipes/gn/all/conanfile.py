@@ -2,7 +2,6 @@ import os
 import shutil
 import sys
 import textwrap
-import time
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration

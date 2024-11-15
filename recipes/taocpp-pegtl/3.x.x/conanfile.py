@@ -53,8 +53,7 @@ class TaoCPPPEGTLConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires C++17, which your compiler does not support.")
 
         compiler_version = Version(self.settings.compiler.version)
-        if self.version == "3.0.0" and self.settings.compiler == "clang" and \
-           compiler_version >= "10" and compiler_version < "12":
+        if self.version == "3.0.0" and self.settings.compiler == "clang" and "10" <= compiler_version < "12":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support filesystem experimental")
 
         if self.options.boost_filesystem and (self.dependencies["boost"].options.header_only or self.dependencies["boost"].options.without_filesystem):

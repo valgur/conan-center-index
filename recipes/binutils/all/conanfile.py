@@ -379,8 +379,8 @@ class _GNUTriplet:
             return "apple"
         return cls.OS_TO_GNU_VENDOR_LUT.get(archos.os, "pc")
 
-    @classmethod
-    def calculate_gnu_abi(self, archos: _ArchOs) -> typing.Optional[str]:
+    @staticmethod
+    def calculate_gnu_abi(archos: _ArchOs) -> typing.Optional[str]:
         if archos.os in ("baremetal", ):
             if archos.arch in ("armv7",):
                 return "eabi"

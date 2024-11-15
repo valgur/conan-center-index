@@ -3,7 +3,6 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import unix_path_package_info_legacy
 import os
 import textwrap
 
