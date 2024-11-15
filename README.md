@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-11-13:
+Package versions that are available here but not yet on the main CCI repo as of 2024-11-15:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -21,6 +21,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
+- bmx/cci.20240517
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
 - cilantro/cci.20230816
