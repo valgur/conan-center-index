@@ -28,7 +28,7 @@ class SvgPPConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.85.0", transitive_headers=True)
+        self.requires("boost/1.86.0", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()

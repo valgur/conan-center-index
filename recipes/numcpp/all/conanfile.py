@@ -59,7 +59,7 @@ class NumCppConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_boost", True):
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()

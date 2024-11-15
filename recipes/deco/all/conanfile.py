@@ -41,7 +41,7 @@ class DecoConan(ConanFile):
     def requirements(self):
         self.requires("enhex-generic_serialization/1.0.0")
         self.requires("enhex-strong_type/1.0.0")
-        self.requires("boost/1.85.0")
+        self.requires("boost/1.86.0")
         self.requires("rang/3.2")
 
     def package_id(self):

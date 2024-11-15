@@ -34,7 +34,7 @@ class FakeItConan(ConanFile):
 
     def requirements(self):
         if self.options.integration == "boost":
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
         elif self.options.integration == "catch":
             self.requires("catch2/3.5.2")
         elif self.options.integration == "gtest":

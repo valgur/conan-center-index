@@ -90,7 +90,7 @@ class OnnxRuntimeConan(ConanFile):
             # v1.* is required, newer versions are not compatible
             self.requires("flatbuffers/1.12.0")
         # using 1.84.0+ fails on CCI as it prevents the cpp 17 version to be picked up when building with cpp 20
-        self.requires("boost/1.85.0", headers=True, libs=False)  # for mp11, header only, no need for libraries
+        self.requires("boost/1.86.0", headers=True, libs=False)  # for mp11, header only, no need for libraries
         self.requires("safeint/3.0.28")
         self.requires("nlohmann_json/3.11.3")
         self.requires("eigen/3.4.0")

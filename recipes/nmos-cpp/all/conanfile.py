@@ -52,7 +52,7 @@ class NmosCppConan(ConanFile):
     def requirements(self):
         # for now, consistent with project's conanfile.txt
         # INFO: details/system_error.h: #include <boost/system/system_error.hpp>
-        self.requires("boost/1.85.0", transitive_headers=True)
+        self.requires("boost/1.86.0", transitive_headers=True)
         # INFO: json_ops.h exposes cpprest/json.h
         self.requires("cpprestsdk/2.10.19", transitive_headers=True)
         self.requires("websocketpp/0.8.2")

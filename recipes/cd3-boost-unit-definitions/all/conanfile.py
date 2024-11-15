@@ -38,7 +38,7 @@ class Cd3BoostUnitDefinitionsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.85.0")
+        self.requires("boost/1.86.0")
 
     def package_id(self):
         self.info.clear()

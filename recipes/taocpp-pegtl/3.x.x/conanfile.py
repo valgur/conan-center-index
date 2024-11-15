@@ -29,7 +29,7 @@ class TaoCPPPEGTLConan(ConanFile):
 
     def requirements(self):
         if self.options.boost_filesystem:
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
 
     @property
     def _compilers_minimum_version(self):

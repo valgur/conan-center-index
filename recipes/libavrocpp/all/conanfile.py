@@ -46,7 +46,7 @@ class LibavrocppConan(ConanFile):
 
     def requirements(self):
         # boost upper to 1.81.0 requires C++14 minimum
-        self.requires("boost/1.85.0", transitive_headers=True)
+        self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("snappy/1.1.9")
 
     def validate(self):

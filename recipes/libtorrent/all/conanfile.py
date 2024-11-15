@@ -83,9 +83,9 @@ class LibtorrentConan(ConanFile):
     def requirements(self):
         # libtorrent 2.0.x [x<=6] have issue for recent boost https://github.com/arvidn/libtorrent/discussions/6757
         if Version(self.version) < "2.0.0" or Version(self.version) >= "2.0.7":
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
         else:
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
         if self.options.enable_encryption:
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
         if self.options.enable_iconv:

@@ -59,7 +59,7 @@ class LibFtdiConan(ConanFile):
         self.requires("libusb/1.0.26", transitive_headers=True, transitive_libs=True)
         if self.options.enable_cpp_wrapper:
             # boost/shared_ptr.hpp is used in public ftdi.hpp
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
 
     def validate(self):
         if is_msvc(self) and self.options.use_streaming:

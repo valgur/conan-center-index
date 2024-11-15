@@ -63,9 +63,9 @@ class BeautyConan(ConanFile):
         # For example beauty/application.hpp includes boost/asio.hpp
         if Version(self.version) >= "1.0.4":
             # https://github.com/dfleury2/beauty/issues/30
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
         else:
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
         if self.options.with_openssl:
             # dependency of asio in boost, exposed in boost/asio/ssl/detail/openssl_types.hpp
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)

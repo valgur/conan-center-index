@@ -130,7 +130,7 @@ class BehaviorTreeCPPConan(ConanFile):
 
     def requirements(self):
         if self._with_boost:
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
         if self._with_ncurses:
             self.requires("ncurses/6.4")
         if self._with_lexy:

@@ -74,7 +74,7 @@ class VigraConan(ConanFile):
             self.requires("imath/3.1.9")
 
         if self.options.with_boost_graph:
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
 
         if self.options.with_lemon:
             self.requires("coin-lemon/1.3.1")

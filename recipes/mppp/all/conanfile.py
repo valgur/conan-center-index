@@ -67,7 +67,7 @@ class MpppConan(ConanFile):
         if self.options.with_mpc:
             self.requires("mpc/1.2.0")
         if self.options.with_boost:
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
         if self.options.get_safe("with_fmt"):
             self.requires("fmt/10.2.1", transitive_headers=True)
 

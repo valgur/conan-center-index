@@ -64,7 +64,7 @@ class Stlab(ConanFile):
 
     def requirements(self):
         if self.options.with_boost:
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
         # On macOS, it is not necessary to use the libdispatch conan package,
         # because the library is included in the OS.
         if self.options.task_system == "libdispatch" and self.settings.os != "Macos":

@@ -55,7 +55,7 @@ class InfluxdbCxxConan(ConanFile):
     def requirements(self):
         self.requires("cpr/1.10.4")
         if self.options.boost:
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

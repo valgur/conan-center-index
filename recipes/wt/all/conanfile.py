@@ -99,9 +99,9 @@ class WtConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "4.9.0":
-            self.requires("boost/1.85.0", transitive_headers = True)
+            self.requires("boost/1.86.0", transitive_headers = True)
         else:
-            self.requires("boost/1.85.0", transitive_headers = True)
+            self.requires("boost/1.86.0", transitive_headers = True)
         if self.options.connector_http:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_ssl:

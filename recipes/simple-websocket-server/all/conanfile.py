@@ -37,12 +37,12 @@ class SimpleWebSocketServerConan(ConanFile):
             if self.options.use_asio_standalone:
                 self.requires("asio/1.16.1")
             else:
-                self.requires("boost/1.85.0")
+                self.requires("boost/1.86.0")
         else:
             if self.options.use_asio_standalone:
                 self.requires("asio/1.28.1")
             else:
-                self.requires("boost/1.85.0")
+                self.requires("boost/1.86.0")
 
     def package_id(self):
         self.info.clear()

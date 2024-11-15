@@ -17,7 +17,7 @@ class CrowConan(ConanFile):
         return "source_subfolder"
 
     def requirements(self):
-        self.requires("boost/1.85.0")
+        self.requires("boost/1.86.0")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version])

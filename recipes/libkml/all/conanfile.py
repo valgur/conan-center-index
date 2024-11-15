@@ -43,7 +43,7 @@ class LibkmlConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.85.0", transitive_headers=True)
+        self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("minizip/1.2.13")
         self.requires("uriparser/0.9.7")

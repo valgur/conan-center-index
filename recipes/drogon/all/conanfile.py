@@ -119,7 +119,7 @@ class DrogonConan(ConanFile):
         if self.options.with_profile:
             self.requires("coz/cci.20210322")
         if self.options.with_boost:
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
         if self.options.with_brotli:
             self.requires("brotli/1.1.0")
         if self.options.get_safe("with_postgres"):

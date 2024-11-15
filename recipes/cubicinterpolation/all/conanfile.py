@@ -42,7 +42,7 @@ class CubicInterpolationConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.85.0")
+        self.requires("boost/1.86.0")
         self.requires("eigen/3.4.0")
 
     @property

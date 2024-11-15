@@ -43,7 +43,7 @@ class LiblslConan(ConanFile):
         }
 
     def requirements(self):
-        self.requires("boost/1.85.0")
+        self.requires("boost/1.86.0")
         self.requires("pugixml/1.13")
 
     def config_options(self):

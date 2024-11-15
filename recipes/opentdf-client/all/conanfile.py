@@ -72,7 +72,7 @@ class OpenTDFConan(ConanFile):
         self.requires("nlohmann_json/3.11.3")
         self.requires("jwt-cpp/0.4.0")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("boost/1.85.0")
+        self.requires("boost/1.86.0")
         self.requires("libxml2/2.11.6")
 
     def validate(self):

@@ -60,7 +60,7 @@ class CPPValidatorConan(ConanFile):
             )
 
     def requirements(self):
-        self.requires("boost/1.85.0")
+        self.requires("boost/1.86.0")
         self.requires("fmt/10.2.1")
 
     def source(self):

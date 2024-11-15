@@ -65,7 +65,7 @@ class yomm2Recipe(ConanFile):
         # Upstream requires Boost 1.74
         # Using more modern Boost version to avoid issues like the one commented here:
         # - https://github.com/conan-io/conan/issues/15977#issuecomment-2098003085
-        self.requires("boost/1.85.0", transitive_headers=True)
+        self.requires("boost/1.86.0", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

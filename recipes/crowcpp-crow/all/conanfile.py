@@ -41,7 +41,7 @@ class CrowConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "1.1.0":
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
         else:
             self.requires("asio/1.29.0", transitive_headers=True)
         if Version(self.version) >= "1.0":

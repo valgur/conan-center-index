@@ -63,7 +63,7 @@ class LibTinsConan(ConanFile):
             # Used in two public headers:
             # - https://github.com/mfontanini/libtins/blob/v4.4/include/tins/tcp_ip/ack_tracker.h#L38
             # - https://github.com/mfontanini/libtins/blob/v4.4/include/tins/tcp_ip/stream.h#L48
-            self.requires("boost/1.85.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
         if self.options.with_wpa2:
             self.requires("openssl/[>=1.1 <4]")
 

@@ -50,7 +50,7 @@ class LogrConan(ConanFile):
         elif self.options.backend == "log4cplus":
             self.requires("log4cplus/2.1.0")
         elif self.options.backend == "boostlog":
-            self.requires("boost/1.85.0")
+            self.requires("boost/1.86.0")
 
     def package_id(self):
         self.info.settings.clear()

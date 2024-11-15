@@ -294,7 +294,7 @@ class VtkConan(ConanFile):
 
         if self.options.with_boost:
             # Used in public vtkVariantBoostSerialization.h
-            self.requires("boost/1.85.0", transitive_headers=True, transitive_libs=True)
+            self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_cgns:
             self.requires("cgns/4.3.0")
         if self.options.get_safe("with_dawn"):
