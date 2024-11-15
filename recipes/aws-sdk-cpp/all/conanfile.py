@@ -550,7 +550,6 @@ class AwsSdkCppConan(ConanFile):
         if self.settings_build.os == "Windows" and self.settings.os == "Android":
             raise ConanInvalidConfiguration("Cross-building from Windows to Android is not supported")
 
-    def validate_build(self):
         if (self.options.shared
                 and self.settings.compiler == "gcc"
                 and Version(self.settings.compiler.version) < "6.0"):
