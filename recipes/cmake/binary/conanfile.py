@@ -58,5 +58,3 @@ class CMakeConan(ConanFile):
         if self.settings.os == "Macos":
             bindir = os.path.join(self.package_folder, "CMake.app", "Contents", "bin")
             self.cpp_info.bindirs = [bindir]
-        else:
-            bindir = os.path.join(self.package_folder, "bin")

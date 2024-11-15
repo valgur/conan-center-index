@@ -91,7 +91,7 @@ class GladConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-    
+
     def generate(self):
         tc = CMakeToolchain(self)
         if "gl_profile" in self.options:
@@ -126,7 +126,7 @@ class GladConan(ConanFile):
         elif self.options.spec == "wgl":
             spec_api = {"wgl": self.options.wgl_version}
 
-        api_concat = ",".join(f"{api_name}={api_version}".format()
+        api_concat = ",".join(f"{api_name}={api_version}"
                               for api_name, api_version in spec_api.items() if api_version != "None")
 
         return api_concat

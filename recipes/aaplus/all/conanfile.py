@@ -68,7 +68,7 @@ class Aaplusconan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
-        if self.settings.compiler == "clang" and (compiler_version >= "10" and compiler_version < "12"):
+        if self.settings.compiler == "clang" and "10" <= compiler_version < "12":
             raise ConanInvalidConfiguration(
                 "AA+ cannot handle clang 10 and 11 due to filesystem being under experimental namespace"
             )

@@ -150,7 +150,6 @@ class IgnitionUtilsConan(ConanFile):
         lib_name = f"ignition-utils{version_major}"
         self.cpp_info.set_property("cmake_file_name", lib_name)
         self.cpp_info.set_property("cmake_target_name", f"{lib_name}::{lib_name}")
-        build_dirs = os.path.join(self.package_folder, "lib", "cmake")
         include_dir = os.path.join(self.package_folder, "include", "ignition", f"utils{version_major}")
 
         main_component = self.cpp_info.components[lib_name]

@@ -326,6 +326,15 @@ class QtConan(ConanFile):
         if self.options.with_sqlite3 and not self.dependencies["sqlite3"].options.enable_column_metadata:
             raise ConanInvalidConfiguration("sqlite3 option enable_column_metadata must be enabled for qt")
 
+    # def validate_build(self):
+    #     # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
+    #     # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
+    #     if Version(self.version) >= "6.8.0":
+    #         if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+    #             if not "gnu" in str(self.settings.compiler.cppstd):
+    #                 raise ConanInvalidConfiguration(f"{self.ref} requires GNU extensions support when building with {self.settings.compiler.libcxx} "
+    #                                                 f"(add -s qt/*:compiler.cppstd=gnu{self.settings.compiler.cppstd}).")
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -340,6 +349,14 @@ class QtConan(ConanFile):
             setattr(self.info.options, module, self._is_enabled(module))
         for status in self._module_statuses:
             self.info.options.rm_safe(f"{status}_modules")
+
+        # INT128 support requires GNU extensions when using libstdc++.
+        # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
+        # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
+        if Version(self.version) >= "6.8.0":
+            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+                if not "gnu" in str(self.settings.compiler.cppstd):
+                    self.info.compiler.cppstd = f"gnu{self.settings.compiler.cppstd}"
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
@@ -647,6 +664,14 @@ class QtConan(ConanFile):
         }
         for std, feature in cpp_std_map.items():
             tc.variables[feature] = current_cpp_std >= std
+
+        # INT128 support requires GNU extensions when using libstdc++.
+        # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
+        # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
+        if Version(self.version) >= "6.8.0":
+            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+                if not "gnu" in str(self.settings.compiler.cppstd):
+                    tc.variables["CMAKE_CXX_STANDARD"] = f"gnu{self.settings.compiler.cppstd}"
 
         tc.variables["QT_USE_VCPKG"] = False
         tc.cache_variables["QT_USE_VCPKG"] = False

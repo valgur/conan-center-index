@@ -6,7 +6,6 @@ from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
 import os
-import sys
 import shutil
 
 required_conan_version = ">=1.54.0"

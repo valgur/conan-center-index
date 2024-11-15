@@ -155,7 +155,6 @@ class VerilatorConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
 
-        bindir = os.path.join(self.package_folder, "bin")
         verilator_bin = "verilator_bin_dbg" if self.settings.build_type == "Debug" else "verilator_bin"
         self.conf_info.define("user.verilator:verilator", verilator_bin)
         self.buildenv_info.define("VERILATOR_BIN", verilator_bin)

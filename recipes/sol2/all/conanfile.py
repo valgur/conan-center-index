@@ -12,7 +12,6 @@ required_conan_version = ">=1.50.0"
 
 class Sol2Conan(ConanFile):
     name = "sol2"
-    package_type = "header-library"
     description = "a C++ <-> Lua API wrapper with advanced features and top notch performance"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"

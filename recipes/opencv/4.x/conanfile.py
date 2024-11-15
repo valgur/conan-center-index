@@ -269,7 +269,7 @@ class OpenCVConan(ConanFile):
 
     @property
     def _has_barcode_option(self):
-        return Version(self.version) >= "4.5.3" and Version(self.version) < "4.8.0"
+        return "4.5.3" <= Version(self.version) < "4.8.0"
 
     @property
     def _has_with_wayland_option(self):

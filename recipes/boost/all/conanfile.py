@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, to_apple_arch, XCRun
-from conan.tools.build import build_jobs, cross_building, valid_min_cppstd, supported_cppstd
+from conan.tools.build import build_jobs, cross_building, valid_min_cppstd, can_run
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
     apply_conandata_patches, chdir, collect_libs, copy, export_conandata_patches,
@@ -163,7 +163,7 @@ class BoostConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def _cppstd_flag(self, compiler_cppstd=None):
+    def _cppstd_flag(self):
         """Return the flag for the given C++ standard and compiler"""
         # TODO: Replace it by Conan tool when available: https://github.com/conan-io/conan/issues/12603
         compiler = self.settings.compiler
@@ -1205,15 +1205,15 @@ class BoostConan(ConanFile):
 
         safe_cppstd = self.settings.get_safe("compiler.cppstd")
         if safe_cppstd:
-            cppstd_version = self._cppstd_flag(safe_cppstd)
+            cppstd_version = self._cppstd_flag()
             flags.append(f"cxxstd={cppstd_version}")
             if "gnu" in safe_cppstd:
                 flags.append("cxxstd-dialect=gnu")
         elif Version(self.version) >= "1.85.0" and valid_min_cppstd(self, 14):
-            cppstd_version = self._cppstd_flag("14")
+            cppstd_version = self._cppstd_flag()
             flags.append(f"cxxstd={cppstd_version}")
         elif valid_min_cppstd(self, 11):
-            cppstd_version = self._cppstd_flag("11")
+            cppstd_version = self._cppstd_flag()
             flags.append(f"cxxstd={cppstd_version}")
 
         # LDFLAGS

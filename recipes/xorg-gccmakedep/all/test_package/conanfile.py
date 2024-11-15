@@ -3,7 +3,6 @@ from conan.errors import ConanException
 from conan.tools.files import copy, load
 from conan.tools.layout import basic_layout
 import os
-import shutil
 
 
 class TestPackageConan(ConanFile):

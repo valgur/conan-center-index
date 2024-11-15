@@ -3,7 +3,6 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir, apply_conandata_patches, export_conandata_patches, save
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
-from conan.tools.build import cross_building
 from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
