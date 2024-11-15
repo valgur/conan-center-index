@@ -301,18 +301,6 @@ class BoostConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.with_stacktrace_backtrace
 
-        # nowide requires a c++11-able compiler + movable std::fstream: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
-        # json requires a c++11-able compiler: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
-        if not valid_min_cppstd(self, 11):
-            self.options.without_fiber = True
-            self.options.without_nowide = True
-            self.options.without_json = True
-            self.options.without_url = True
-        if Version(self.version) >= "1.85.0" and not valid_min_cppstd(self, 14):
-            self.options.without_math = True
-        if Version(self.version) >= "1.86.0" and not valid_min_cppstd(self, 14):
-            self.options.without_graph = True
-
         # iconv is off by default on Windows and Solaris
         if self._is_windows_platform or self.settings.os == "SunOS":
             self.options.i18n_backend_iconv = "off"
@@ -329,95 +317,51 @@ class BoostConan(ConanFile):
             if dep_name not in self._configure_options:
                 delattr(self.options, f"without_{dep_name}")
 
-        def disable_math():
-            super_modules = self._all_super_modules("math")
+        def disable_component(name):
+            super_modules = self._all_super_modules(name)
             for smod in super_modules:
                 try:
                     setattr(self.options, f"without_{smod}", True)
                 except ConanException:
                     pass
 
-        def disable_graph():
-            super_modules = self._all_super_modules("graph")
-            for smod in super_modules:
-                try:
-                    setattr(self.options, f"without_{smod}", True)
-                except ConanException:
-                    pass
-
-        # Starting from 1.76.0, Boost.Math requires a c++11 capable compiler
-        # ==> disable it by default for older compilers or c++ standards
+        # nowide requires a c++11-able compiler + movable std::fstream: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
+        # json requires a c++11-able compiler: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
         if not valid_min_cppstd(self, 11):
-            disable_math()
+            disable_component("fiber")
+            disable_component("nowide")
+            disable_component("json")
+            disable_component("url")
+            disable_component("math")
 
         if Version(self.version) >= "1.79.0":
-            # Starting from 1.79.0, Boost.Wave requires a c++11 capable compiler
-            # ==> disable it by default for older compilers or c++ standards
-
-            def disable_wave():
-                super_modules = self._all_super_modules("wave")
-                for smod in super_modules:
-                    try:
-                        setattr(self.options, f"without_{smod}", True)
-                    except ConanException:
-                        pass
-
             if not valid_min_cppstd(self, 11):
-                disable_wave()
+                disable_component("wave")
 
         if Version(self.version) >= "1.81.0":
-            # Starting from 1.81.0, Boost.Locale requires a c++11 capable compiler
-            # ==> disable it by default for older compilers or c++ standards
-
-            def disable_locale():
-                super_modules = self._all_super_modules("locale")
-                for smod in super_modules:
-                    try:
-                        setattr(self.options, f"without_{smod}", True)
-                    except ConanException:
-                        pass
-
             if not valid_min_cppstd(self, 11):
-                disable_locale()
+                disable_component("locale")
 
         if Version(self.version) >= "1.84.0":
-            # Starting from 1.84.0, Boost.Cobalt requires a c++20 capable compiler
-            # ==> disable it by default for older compilers or c++ standards
-
-            def disable_cobalt():
-                super_modules = self._all_super_modules("cobalt")
-                for smod in super_modules:
-                    try:
-                        setattr(self.options, f"without_{smod}", True)
-                    except ConanException:
-                        pass
-
             if not self._has_coroutine_supported:
-                disable_cobalt()
-
+                disable_component("cobalt")
             # FIXME: Compilation errors on msvc shared build for boost.fiber https://github.com/boostorg/fiber/issues/314
             if is_msvc(self):
-                self.options.without_fiber = True
+                disable_component("fiber")
 
         if Version(self.version) >= "1.85.0":
-            # Starting from 1.85.0, Boost.Math requires a c++14 capable compiler
-            # https://github.com/boostorg/math/blob/boost-1.85.0/README.md
-            # ==> disable it by default for older compilers or c++ standards
             if not valid_min_cppstd(self, 14):
-                disable_math()
+                disable_component("math")
 
         if Version(self.version) >= "1.86.0":
-            # Boost 1.86.0 updated more components that require C++14 and C++17
-            # https://www.boost.org/users/history/version_1_86_0.html
             if not valid_min_cppstd(self, 14):
-                disable_graph()
-
+                disable_component("graph")
             # TODO: Revisit on Boost 1.87.0
             # It's not possible to disable process only when having shared parsed already.
             # https://github.com/boostorg/process/issues/408
             # https://github.com/boostorg/process/pull/409
             if Version(self.version) == "1.86.0" and is_msvc(self):
-                setattr(self.options, "without_process", True)
+                disable_component("process")
 
     @property
     def _configure_options(self):
@@ -741,7 +685,7 @@ class BoostConan(ConanFile):
         python_version_parts = str(self.info.options.python_version).split('.')
         python_major = int(python_version_parts[0])
         python_minor = int(python_version_parts[1])
-        if(python_major >= 3 and python_minor >= 10):
+        if python_major >= 3 and python_minor >= 10:
             return self._get_python_sc_var(name)
 
         return self._get_python_sc_var(name) or self._get_python_du_var(name)
