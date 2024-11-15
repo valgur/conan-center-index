@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project(cmake_wrapper)
 
 # Work-around for https://github.com/wjwwood/serial/issues/135

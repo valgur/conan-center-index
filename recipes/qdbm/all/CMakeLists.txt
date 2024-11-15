@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project(qdbm_wrapper VERSION "${CONAN_qdbm_VERSION}" LANGUAGES C)
 
 set(QDBM_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)

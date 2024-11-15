@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project(strmbas)
 
 set(DSROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/Samples/Win7Samples/multimedia/directshow/baseclasses")

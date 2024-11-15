@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15)
 project(pdfgen LANGUAGES C)
 
 add_library(pdfgen ${PDFGEN_SRC_DIR}/pdfgen.c)

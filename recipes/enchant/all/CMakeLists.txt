@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project(enchant VERSION "${CONAN_enchant_VERSION}")
 
 set(root "${PROJECT_SOURCE_DIR}/src")

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15)
 project(log.c LANGUAGES C)
 
 option(LOGC_USE_COLOR "Use Color" ON)
