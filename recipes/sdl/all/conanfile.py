@@ -78,7 +78,7 @@ class SDLConan(ConanFile):
         "vulkan": True,
         "libunwind": True,
     }
-    generators = "CMakeDeps", "PkgConfigDeps", "VirtualBuildEnv"
+    generators = "CMakeDeps", "PkgConfigDeps"
 
     @property
     def _is_clang_cl(self):

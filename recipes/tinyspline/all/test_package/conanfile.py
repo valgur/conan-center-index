@@ -6,7 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualRunEnv"
+    generators = "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -26,11 +26,11 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if not cross_building(self):
-            bin_c_path = os.path.join(self.cpp.build.bindirs[0], "test_package_c")
+            bin_c_path = os.path.join(self.cpp.build.bindir, "test_package_c")
             self.run(bin_c_path, run_environment=True)
 
             # TODO: rely on self.dependencies["tinyspline"].options.cxx in CONAN_V2 mode
             # see https://github.com/conan-io/conan/issues/11940#issuecomment-1223940786
-            bin_cpp_path = os.path.join(self.cpp.build.bindirs[0], "test_package_cpp")
+            bin_cpp_path = os.path.join(self.cpp.build.bindir, "test_package_cpp")
             if os.path.exists(bin_cpp_path):
                 self.run(bin_cpp_path, run_environment=True)

@@ -11,7 +11,6 @@ from conan.tools.microsoft import is_msvc, unix_path
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
     win_bash = True  # Needed in Conan v1 to avoid "Cannot wrap command with different envs."
 
     def build_requirements(self):

@@ -9,8 +9,7 @@ from conan.tools.scm import Version
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "PkgConfigDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps", "CMakeToolchain", "PkgConfigDeps"
 
     def layout(self):
         cmake_layout(self)

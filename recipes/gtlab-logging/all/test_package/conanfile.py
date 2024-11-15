@@ -6,11 +6,11 @@ import os
 
 class GTlabLoggingTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     def layout(self):
         cmake_layout(self)
-        
+
     def requirements(self):
         self.requires(self.tested_reference_str)
 
@@ -22,5 +22,5 @@ class GTlabLoggingTestConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "example")
+            bin_path = os.path.join(self.cpp.build.bindir, "example")
             self.run(bin_path, env="conanrun")

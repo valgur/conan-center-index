@@ -6,8 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
@@ -25,7 +24,7 @@ class TestPackageConan(ConanFile):
             gdal_options = self.dependencies["gdal"].options
             if gdal_options.tools:
                 self.run("gdal_translate --formats", env="conanrun")
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
-            bin_path_c = os.path.join(self.cpp.build.bindirs[0], "test_package_c")
+            bin_path_c = os.path.join(self.cpp.build.bindir, "test_package_c")
             self.run(bin_path_c, env="conanrun")

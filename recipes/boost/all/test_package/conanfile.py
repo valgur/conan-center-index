@@ -7,8 +7,7 @@ from conan.tools.files import chdir
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
 
     def _boost_option(self, name, default):
         try:

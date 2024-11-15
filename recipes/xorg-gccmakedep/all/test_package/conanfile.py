@@ -8,7 +8,6 @@ import os
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = "Makefile", "test_package.c", "test_package.h"
-    test_type = "explicit"
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)

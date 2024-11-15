@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "CMakeDeps"
 
     @property
     def _full_findx11_test(self):

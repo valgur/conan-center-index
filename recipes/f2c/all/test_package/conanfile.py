@@ -9,8 +9,7 @@ from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, VCVars, unix_
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
     win_bash = True
 
     def layout(self):

@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "CMakeToolchain", "CMakeDeps"
     requires = ("xorg/system",)
 
     def requirements(self):
@@ -23,5 +23,5 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if not cross_building(self):
-            cmd = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            cmd = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(cmd, env="conanrun")

@@ -5,8 +5,6 @@ from io import StringIO
 
 class TestPackage(ConanFile):
     settings = "os", "arch"
-    test_type = "explicit"
-    generators = "VirtualRunEnv"
 
     def requirements(self):
         self.requires(self.tested_reference_str)

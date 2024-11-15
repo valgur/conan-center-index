@@ -5,18 +5,16 @@ from conan.tools.files import copy
 import os
 
 
-# It will become the standard on Conan 2.x
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
 
     def layout(self):
         cmake_layout(self, src_folder=".")
-        
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["WITH_CUDA"] = self.dependencies["onnxruntime"].options.with_cuda

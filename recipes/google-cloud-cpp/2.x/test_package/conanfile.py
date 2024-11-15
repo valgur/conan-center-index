@@ -9,7 +9,6 @@ from conan.tools.scm import Version
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    test_type = "explicit"
 
     def requirements(self):
         self.requires(self.tested_reference_str)

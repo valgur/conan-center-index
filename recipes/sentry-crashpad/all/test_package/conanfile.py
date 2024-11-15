@@ -8,8 +8,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -34,6 +33,6 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             test_env_dir = "test_env"
             mkdir(self, test_env_dir)
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             handler_bin_path = load(self, os.path.join(self.build_folder, "handler_bin_path"))
             self.run(f"{bin_path} {test_env_dir} {handler_bin_path}", env="conanrun")

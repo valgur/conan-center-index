@@ -10,7 +10,6 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
     win_bash = True
 
     def layout(self):

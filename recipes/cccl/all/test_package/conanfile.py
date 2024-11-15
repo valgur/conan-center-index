@@ -5,8 +5,7 @@ import os
 
 class CcclTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "VCVars", "VirtualBuildEnv"
-    test_type = "explicit"
+    generators = "VCVars"
     win_bash = True
 
     def build_requirements(self):

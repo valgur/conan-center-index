@@ -7,7 +7,6 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
 
     @property
     def _extra_flags(self):

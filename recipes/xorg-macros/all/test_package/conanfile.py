@@ -5,7 +5,6 @@ from conan.tools.layout import basic_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
     win_bash = True
 
     def build_requirements(self):

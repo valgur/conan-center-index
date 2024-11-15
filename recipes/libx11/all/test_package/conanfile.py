@@ -9,8 +9,7 @@ from conan.tools.meson import Meson
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "PkgConfigDeps", "MesonToolchain", "CMakeDeps", "CMakeToolchain",  "VirtualRunEnv", "VirtualBuildEnv"
-    test_type = "explicit"
+    generators = "PkgConfigDeps", "MesonToolchain", "CMakeDeps", "CMakeToolchain",  "VirtualRunEnv"
 
     def layout(self):
         basic_layout(self)

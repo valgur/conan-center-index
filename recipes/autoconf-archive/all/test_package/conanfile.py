@@ -12,7 +12,6 @@ required_conan_version = ">=1.56.0"
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = "configure.ac", "Makefile.am", "test_package.c"
-    test_type = "explicit"
     generators = "VirtualBuildEnv"  # Need VirtualBuildEnv for Conan 1.x env_info support
     win_bash = True # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
 

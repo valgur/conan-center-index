@@ -9,8 +9,6 @@ from conan.tools.layout import basic_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "VirtualRunEnv", "VirtualBuildEnv"
-    test_type = "explicit"
 
     _targets = ("c64", "apple2")
 

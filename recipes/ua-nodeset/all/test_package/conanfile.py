@@ -6,7 +6,6 @@ from conan.tools.files import load, save
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
 
     def layout(self):
         pass
