@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15)
 project(heatshrink LANGUAGES C)
 
 add_library(heatshrink

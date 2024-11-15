@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project(cppfront LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME} ${CPPFRONT_SRC_DIR}/source/cppfront.cpp)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project(qtxlsxwriter LANGUAGES CXX)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED Core Gui CONFIG)

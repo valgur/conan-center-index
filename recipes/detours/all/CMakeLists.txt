@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project(conan_detours CXX)
 
 set(SOURCES_DIR ${CMAKE_CURRENT_LIST_DIR}/src)

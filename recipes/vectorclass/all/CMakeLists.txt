@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15)
 project(vectorclass LANGUAGES CXX)
 
 file(GLOB HEADERS "${VECTORCLASS_SRC_DIR}/*.h")
