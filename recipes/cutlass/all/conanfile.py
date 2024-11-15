@@ -35,7 +35,6 @@ class CutlassConan(ConanFile):
             "clang": "7",
             "apple-clang": "7",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def layout(self):
@@ -45,8 +44,7 @@ class CutlassConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

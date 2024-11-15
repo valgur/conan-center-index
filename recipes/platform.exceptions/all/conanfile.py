@@ -34,7 +34,6 @@ class PlatformExceptionsConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "10",
-            "Visual Studio": "16",
             "clang": "11",
             "apple-clang": "11",
         }
@@ -63,8 +62,7 @@ class PlatformExceptionsConan(ConanFile):
                 f" by {self.settings.compiler} {self.settings.compiler.version}."
             )
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

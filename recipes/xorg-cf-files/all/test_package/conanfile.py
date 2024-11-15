@@ -11,17 +11,12 @@ from conan.tools.layout import basic_layout
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = "Imakefile", "test_package.c"
-    test_type = "explicit"
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
         self.tool_requires("imake/1.0.9")
         if not self.conf_info.get("tools.gnu:make_program", check_type=str):
             self.tool_requires("make/4.4.1")
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def layout(self):
         basic_layout(self)

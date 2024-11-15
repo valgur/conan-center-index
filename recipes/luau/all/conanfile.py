@@ -39,7 +39,6 @@ class LuauConan(ConanFile):
             "gcc": "9",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 
@@ -50,8 +49,7 @@ class LuauConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -86,11 +84,6 @@ class LuauConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Luau")
         self.cpp_info.set_property("cmake_target_name", "Luau::Luau")
 
-        self.cpp_info.filenames["cmake_find_package"] = "Luau"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Luau"
-        self.cpp_info.names["cmake_find_package_multi"] = "Luau"
-        self.cpp_info.names["cmake_find_package"] = "Luau"
-
         self.cpp_info.components["Ast"].libs = ["Luau.Ast"]
         self.cpp_info.components["Ast"].set_property("cmake_target_name", "Luau::Ast")
 
@@ -112,11 +105,6 @@ class LuauConan(ConanFile):
         self.cpp_info.components["CodeGen"].set_property("cmake_target_name", "Luau::CodeGen")
         self.cpp_info.components["CodeGen"].requires = ["Ast"]
         self.cpp_info.components["CodeGen"].requires.append("VM")
-
-        if self.options.with_cli:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bin_path}")
-            self.env_info.PATH.append(bin_path)
 
         if self.options.with_web:
             self.cpp_info.components["Web"].libs = ["Luau.Web"]

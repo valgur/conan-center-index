@@ -60,8 +60,7 @@ class LlamaCppConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.get_safe("compiler.version")) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -89,7 +88,7 @@ class LlamaCppConan(ConanFile):
         tc.variables["LLAMA_CURL"] = self.options.get_safe("with_curl")
         tc.variables["BUILD_SHARED_LIBS"] = bool(self.options.shared)
         tc.variables["GGML_CUDA"] = self.options.get_safe("with_cuda")
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             tc.variables["LLAMA_NATIVE"] = False
         tc.generate()
 

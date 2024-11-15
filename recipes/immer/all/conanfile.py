@@ -36,7 +36,6 @@ class ImmerConan(ConanFile):
             "gcc": "6",
             "intel": "17",
             "sun-cc": "5.15",
-            "Visual Studio": "15",
         }
 
     def layout(self):
@@ -46,8 +45,7 @@ class ImmerConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warning(f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support.")

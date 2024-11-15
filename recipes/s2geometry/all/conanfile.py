@@ -39,7 +39,6 @@ class S2GeometryConan(ConanFile):
             "gcc": "6",
             "clang": "7",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 
@@ -62,8 +61,7 @@ class S2GeometryConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

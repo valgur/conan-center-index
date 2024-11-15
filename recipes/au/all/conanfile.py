@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.scm import Version
 import os
 
@@ -30,7 +30,6 @@ class PackageConan(ConanFile):
             "clang": "7",
             "gcc": "7",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -43,8 +42,7 @@ class PackageConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -82,9 +80,3 @@ class PackageConan(ConanFile):
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("pthread")
             self.cpp_info.system_libs.append("dl")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Au"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Au"
-        self.cpp_info.names["cmake_find_package"] = "Au::au"
-        self.cpp_info.names["cmake_find_package_multi"] = "Au::au"

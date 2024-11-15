@@ -546,15 +546,10 @@ class AwsSdkCppConan(ConanFile):
         # zlib is used if ENABLE_ZLIB_REQUEST_COMPRESSION is enabled, set ot ON by default
         self.requires("zlib/[>=1.2.11 <2]")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def validate_build(self):
-        if self._settings_build.os == "Windows" and self.settings.os == "Android":
+        if self.settings_build.os == "Windows" and self.settings.os == "Android":
             raise ConanInvalidConfiguration("Cross-building from Windows to Android is not supported")
 
-    def validate_build(self):
         if (self.options.shared
                 and self.settings.compiler == "gcc"
                 and Version(self.settings.compiler.version) < "6.0"):
@@ -726,14 +721,6 @@ class AwsSdkCppConan(ConanFile):
                 self.cpp_info.components[sdk].requires.extend(self._internal_requirements[sdk])
             self.cpp_info.components[sdk].libs = ["aws-cpp-sdk-" + sdk]
 
-            # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-            self.cpp_info.components[sdk].names["cmake_find_package"] = "aws-sdk-cpp-" + sdk
-            self.cpp_info.components[sdk].names["cmake_find_package_multi"] = "aws-sdk-cpp-" + sdk
-            component_alias = f"aws-sdk-cpp-{sdk}_alias"  # to emulate COMPONENTS names for find_package()
-            self.cpp_info.components[component_alias].names["cmake_find_package"] = sdk
-            self.cpp_info.components[component_alias].names["cmake_find_package_multi"] = sdk
-            self.cpp_info.components[component_alias].requires = [sdk]
-
         # specific system_libs, frameworks and requires of components
         if self.settings.os == "Windows":
             self.cpp_info.components["core"].system_libs.extend([
@@ -766,13 +753,3 @@ class AwsSdkCppConan(ConanFile):
         self.cpp_info.components["plugin_scripts"].builddirs.extend([
             os.path.join(self._res_folder, "cmake"),
             os.path.join(self._res_folder, "toolchains")])
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "AWSSDK"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "AWSSDK"
-        self.cpp_info.names["cmake_find_package"] = "AWS"
-        self.cpp_info.names["cmake_find_package_multi"] = "AWS"
-        self.cpp_info.components["core"].names["cmake_find_package"] = "aws-sdk-cpp-core"
-        self.cpp_info.components["core"].names["cmake_find_package_multi"] = "aws-sdk-cpp-core"
-        self.cpp_info.components["plugin_scripts"].build_modules["cmake_find_package"] = [sdk_plugin_conf]
-        self.cpp_info.components["plugin_scripts"].build_modules["cmake_find_package_multi"] = [sdk_plugin_conf]

@@ -35,7 +35,6 @@ class ImutilsCppConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15.7",
             "msvc": "19.14",
             "clang": "12",
             "apple-clang": "10.14",
@@ -60,8 +59,7 @@ class ImutilsCppConan(ConanFile):
         self.requires("libcurl/[>=7.78.0 <9]")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -97,7 +95,3 @@ class ImutilsCppConan(ConanFile):
         self.cpp_info.libs = ["imutils_cpp"]
         self.cpp_info.set_property("cmake_file_name", "imutils_cpp")
         self.cpp_info.set_property("cmake_target_name", "imutils_cpp::imutils_cpp")
-
-        # TODO: Remove after Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "imutils_cpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "imutils_cpp"

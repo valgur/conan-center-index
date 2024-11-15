@@ -156,7 +156,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_jpeg_xl:
             self.requires("libjxl/0.6.1")
         if self.options.with_lcms:
-            self.requires("lcms/2.14")
+            self.requires("lcms/2.16")
         if self.options.with_magick:
             self.requires("imagemagick/7.0.11-14")
         if self.options.with_matio:
@@ -192,7 +192,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_cgif and not (self.options.with_imagequant or self.options.with_quantizr):
             raise ConanInvalidConfiguration("with_cgif requires either with_imagequant or with_quantizr")
 
-        if Version(self.version) >= "8.15" and self.settings.compiler.cppstd:
+        if Version(self.version) >= "8.15":
             check_min_cppstd(self, 11)
 
         # Visual Studio < 2019 doesn't seem to like pointer restrict of pointer restrict in libnsgif
@@ -303,7 +303,7 @@ class LibvipsConan(ConanFile):
 
     def _patch_sources(self):
         apply_conandata_patches(self)
-        
+
         # Disable tests
         meson_build = os.path.join(self.source_folder, "meson.build")
         replace_in_file(self, meson_build, "subdir('test')", "")
@@ -394,9 +394,6 @@ class LibvipsConan(ConanFile):
             self.cpp_info.components["vips-cpp"].set_property("pkg_config_name", "vips-cpp")
             self.cpp_info.components["vips-cpp"].libs = ["vips-cpp"]
             self.cpp_info.components["vips-cpp"].requires = ["vips"]
-
-        # TODO: to remove once conan v1 support dropped
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""

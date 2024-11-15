@@ -50,8 +50,7 @@ class HunspellConan(ConanFile):
         os.remove(h)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def generate(self):
         tc = CMakeToolchain(self)

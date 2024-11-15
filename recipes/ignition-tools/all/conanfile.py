@@ -28,7 +28,6 @@ class IgnitionToolsConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7",
             "clang": "5",
@@ -42,8 +41,7 @@ class IgnitionToolsConan(ConanFile):
         self.requires("backward-cpp/1.6")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
@@ -118,7 +116,3 @@ class IgnitionToolsConan(ConanFile):
 
         # The package builds an ignition-tools-backward wrapper library,
         # but it's only meant to be used as a runtime dependency of the ign script
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_folder = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_folder)

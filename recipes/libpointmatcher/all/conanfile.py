@@ -46,7 +46,6 @@ class LibpointmatcherConan(ConanFile):
             "clang": "5",
             "apple-clang": "7",
             "msvc": "190",
-            "Visual Studio": "14",
         }
 
     def export_sources(self):
@@ -77,8 +76,7 @@ class LibpointmatcherConan(ConanFile):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -96,8 +94,6 @@ class LibpointmatcherConan(ConanFile):
         tc.cache_variables["BUILD_EXAMPLES"] = False
         tc.cache_variables["BUILD_EVALUATIONS"] = False
         tc.cache_variables["BUILD_TESTS"] = False
-        if not self.settings.compiler.cppstd:
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

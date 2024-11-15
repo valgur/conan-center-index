@@ -4,7 +4,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.53.0"
@@ -38,7 +37,6 @@ class PerfettoConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16" if Version(self.version) < "48.0" else "17",
             "msvc": "190",
             "gcc": "7",
             "clang": "5",
@@ -60,18 +58,14 @@ class PerfettoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
         def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
+            return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
 
         compiler = self.info.settings.compiler
         min_version = self._minimum_compilers_version.get(str(compiler))
-        if min_version and loose_lt_semver(str(compiler.version), min_version):
+        if min_version and loose_lt_semver(compiler.version, min_version):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires {compiler} {min_version}. The current compiler is {compiler} {compiler.version}."
             )

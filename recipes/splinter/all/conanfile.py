@@ -47,8 +47,7 @@ class SplinterConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

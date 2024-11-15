@@ -35,7 +35,6 @@ class ArsenalgearConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
@@ -70,8 +69,7 @@ class ArsenalgearConan(ConanFile):
         if Version(self.version) < "2.1.0" and is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Visual Studio.")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")

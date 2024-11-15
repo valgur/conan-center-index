@@ -6,7 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, mkdir, replace_in_file
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, mkdir
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -51,7 +51,6 @@ class ShaderSlangConan(ConanFile):
             "clang": "7",
             "gcc": "8",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -86,8 +85,7 @@ class ShaderSlangConan(ConanFile):
                 self.requires("xorg/system")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

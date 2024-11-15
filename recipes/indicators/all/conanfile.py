@@ -28,8 +28,7 @@ class IndicatorsConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         if Version(self.version) < "2.0":
             if is_msvc(self) or (self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5"):

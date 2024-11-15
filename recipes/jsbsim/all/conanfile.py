@@ -51,8 +51,7 @@ class JsbsimConan(ConanFile):
         self.requires("expat/[>=2.6.2 <3]")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -90,6 +89,3 @@ class JsbsimConan(ConanFile):
             self.cpp_info.system_libs.extend(["wsock32", "ws2_32"])
             if not self.options.shared:
                 self.cpp_info.defines.append("JSBSIM_STATIC_LINK")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

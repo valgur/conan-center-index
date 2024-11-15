@@ -34,10 +34,6 @@ class LibxlsConan(ConanFile):
         "with_cli": False,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -61,7 +57,7 @@ class LibxlsConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Visual Studio (yet). Contributions are always welcomed")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

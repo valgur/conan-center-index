@@ -8,8 +8,6 @@ from conan.tools.scm import Version
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "VirtualRunEnv"
-    test_type = "explicit"
 
     def layout(self):
         cmake_layout(self)

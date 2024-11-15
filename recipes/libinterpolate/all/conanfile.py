@@ -28,7 +28,6 @@ class PackageConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "7",
             "clang": "4",
@@ -50,8 +49,7 @@ class PackageConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported by {self.settings.os}; Try the version >= 2.6.4")
         if Version(self.version) >= "2.6.4" and self.settings.os not in ["Linux", "Windows", "Macos"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported by {self.settings.os}.")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(
             str(self.settings.compiler), False
         )
@@ -84,19 +82,7 @@ class PackageConan(ConanFile):
         )
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "libInterpolate")
+        self.cpp_info.set_property("cmake_target_name", "libInterpolate::Interpolate")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        self.cpp_info.set_property("cmake_file_name", "libInterpolate")
-        self.cpp_info.set_property(
-            "cmake_target_name", "libInterpolate::Interpolate"
-        )
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "libInterpolate"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "libInterpolate"
-        self.cpp_info.names["cmake_find_package"] = "libInterpolate"
-        self.cpp_info.names["cmake_find_package_multi"] = "libInterpolate"
-        self.cpp_info.components["Interpolate"].names["cmake_find_package"] = "Interpolate"
-        self.cpp_info.components["Interpolate"].names["cmake_find_package_multi"] = "Interpolate"
-        self.cpp_info.components["Interpolate"].requires = ["eigen::eigen","boost::boost"]

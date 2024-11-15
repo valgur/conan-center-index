@@ -42,7 +42,6 @@ class OpenTDFConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "7.5",
             "clang": "12",
@@ -77,8 +76,7 @@ class OpenTDFConan(ConanFile):
         self.requires("libxml2/2.11.6")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         # check minimum version of compiler
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
@@ -103,8 +101,6 @@ class OpenTDFConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not self.settings.get_safe("compiler.cppstd"):
-            tc.variables["CMAKE_CXX_STANDARD"] = 17
         tc.cache_variables["CMAKE_PROJECT_opentdf_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
         tc.generate()
         tc = CMakeDeps(self)
@@ -145,8 +141,6 @@ class OpenTDFConan(ConanFile):
 
         self.cpp_info.components["libopentdf"].libs = ["opentdf_static"] if not self.options.shared else ["opentdf"]
         self.cpp_info.components["libopentdf"].set_property("cmake_target_name", "copentdf-client::opentdf-client")
-        self.cpp_info.components["libopentdf"].names["cmake_find_package"] = "opentdf-client"
-        self.cpp_info.components["libopentdf"].names["cmake_find_package_multi"] = "opentdf-client"
         self.cpp_info.components["libopentdf"].requires = [
             "openssl::openssl",
             "boost::boost",

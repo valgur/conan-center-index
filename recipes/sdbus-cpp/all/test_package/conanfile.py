@@ -7,8 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class SdbusCppTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -23,5 +22,5 @@ class SdbusCppTestConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "example")
+            bin_path = os.path.join(self.cpp.build.bindir, "example")
             self.run(bin_path, env="conanrun")

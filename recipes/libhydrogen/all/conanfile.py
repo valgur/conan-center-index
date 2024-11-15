@@ -65,7 +65,3 @@ class LibhydrogenConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "hydrogen")
         self.cpp_info.set_property("cmake_target_name", "hydrogen::hydrogen")
         self.cpp_info.libs = ["hydrogen"]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "hydrogen"
-        self.cpp_info.names["cmake_find_package_multi"] = "hydrogen"

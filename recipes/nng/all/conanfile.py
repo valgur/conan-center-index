@@ -83,7 +83,6 @@ class NngConan(ConanFile):
 
     def validate(self):
         compiler_minimum_version = {
-            "Visual Studio": "14",
             "msvc": "190",
         }
         minimum_version = compiler_minimum_version.get(str(self.settings.compiler), False)
@@ -147,7 +146,3 @@ class NngConan(ConanFile):
             self.cpp_info.defines.append("NNG_SHARED_LIB")
         else:
             self.cpp_info.defines.append("NNG_STATIC_LIB")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "nng"
-        self.cpp_info.names["cmake_find_package_multi"] = "nng"

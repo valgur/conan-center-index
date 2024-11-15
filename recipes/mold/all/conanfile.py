@@ -40,7 +40,6 @@ class MoldConan(ConanFile):
             "gcc": "11",
             "clang": "12",
             "apple-clang": "14",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -73,8 +72,7 @@ class MoldConan(ConanFile):
         # mold has required C+20 since 1.4.1. However, C++20 features are used for the first time in 2.34.0.
         if Version(self.version) >= "2.34.0":
             # validate the minimum cpp standard supported. For C++ projects only
-            if self.settings.compiler.cppstd:
-                check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(
@@ -157,8 +155,3 @@ class MoldConan(ConanFile):
         self.conf_info.define("user.mold:path", mold_executable)
         self.buildenv_info.define_path("MOLD_ROOT", bindir)
         self.buildenv_info.define("LD", mold_executable)
-
-        # For legacy Conan 1.x consumers only:
-        self.env_info.PATH.append(bindir)
-        self.env_info.MOLD_ROOT = bindir
-        self.env_info.LD = mold_executable

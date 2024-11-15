@@ -78,8 +78,7 @@ class SystemcComponentsConan(ConanFile):
             # and
             #   src\sysc\tlm\scc\tlm_mm.h(31,20): error C2061: syntax error: identifier '__attribute__'
             raise ConanInvalidConfiguration(f"{self.ref} recipe is not supported on MSVC. Contributions are welcome!")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
             # C++20 fails with
             # third_party/scv-tr/src/scv-tr/_scv_introspection.h:1613:39: error: expected unqualified-id before ‘)’ token
             # and

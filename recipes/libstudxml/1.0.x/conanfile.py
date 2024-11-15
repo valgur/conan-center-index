@@ -1,8 +1,6 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, chdir, collect_libs, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 from conans import AutoToolsBuildEnvironment, MSBuild, tools
 import os
 
@@ -33,10 +31,6 @@ class LibStudXmlConan(ConanFile):
     def _source_subfolder(self):
         return "source_subfolder"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -54,15 +48,11 @@ class LibStudXmlConan(ConanFile):
     def requirements(self):
         self.requires("expat/2.5.0", transitive_headers=True, transitive_libs=True)
 
-    def validate(self):
-        if self.info.settings.compiler == "Visual Studio" and Version(self.info.settings.compiler.version) < "9":
-            raise ConanInvalidConfiguration(f"Visual Studio {self.info.settings.compiler.version} is not supported.")
-
     def build_requirements(self):
         if not is_msvc(self):
             self.tool_requires("gnu-config/cci.20210814")
             self.tool_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
+            if self.settings_build.os == "Windows" and not tools.get_env("CONAN_BASH_PATH"):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
@@ -83,9 +73,7 @@ class LibStudXmlConan(ConanFile):
 
     @property
     def _vc_ver(self):
-        if self.settings.compiler == "Visual Studio":
-            return str(Version(self.settings.compiler.version).major)
-        elif self.settings.compiler == "msvc":
+        if self.settings.compiler == "msvc":
             return {
                 "170": "11",
                 "180": "12",
@@ -98,7 +86,7 @@ class LibStudXmlConan(ConanFile):
 
     def _build_vs(self):
         vc_ver = int(self._vc_ver)
-        sln_path = None
+
         def get_sln_path():
             return os.path.join(self.source_folder, self._source_subfolder, f"libstudxml-vc{vc_ver}.sln")
 

@@ -53,8 +53,7 @@ class CpptraceConan(ConanFile):
             self.requires("libunwind/1.8.0", transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
 
     def source(self):
@@ -112,9 +111,3 @@ class CpptraceConan(ConanFile):
 
         if not self.options.shared:
             self.cpp_info.defines.append("CPPTRACE_STATIC_DEFINE")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "CPPTRACE"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "cpptrace"
-        self.cpp_info.names["cmake_find_package"] = "CPPTRACE"
-        self.cpp_info.names["cmake_find_package_multi"] = "cpptrace"

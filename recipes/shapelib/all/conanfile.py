@@ -69,14 +69,6 @@ class ShapelibConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "shapelib")
         self.cpp_info.set_property("cmake_target_name", "shapelib::shp")
         self.cpp_info.set_property("pkg_config_name", "shapelib")
-
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["shp"].libs = ["shp"]
+        self.cpp_info.libs = ["shp"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["shp"].system_libs.append("m")
-
-        # TODO: remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "shapelib"
-        self.cpp_info.names["cmake_find_package_multi"] = "shapelib"
-        self.cpp_info.components["shp"].names["cmake_find_package"] = "shp"
-        self.cpp_info.components["shp"].names["cmake_find_package_multi"] = "shp"
+            self.cpp_info.system_libs.append("m")

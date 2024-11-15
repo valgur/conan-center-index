@@ -175,8 +175,4 @@ class FltkConan(ConanFile):
             if self.options.with_xft:
                 self.cpp_info.requires.append("libxft::libxft")
             if self.options.with_gl:
-                self.cpp_info.requires.extend(["opengl::opengl", "glu::glu"])
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "fltk"
-        self.cpp_info.names["cmake_find_package_multi"] = "fltk"
+                self.cpp_info.requires.extend(["libglvnd::libglvnd", "glu::glu"])

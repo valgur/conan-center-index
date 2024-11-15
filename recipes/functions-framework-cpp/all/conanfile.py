@@ -2,9 +2,9 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
+from conan.tools.microsoft import is_msvc
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
-from conan.tools.build import check_min_cppstd, cross_building
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
@@ -37,7 +37,6 @@ class FunctionsFrameworkCppConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15.7",
             "msvc": "190",
             "clang": "7",
             "apple-clang": "11",
@@ -78,8 +77,7 @@ class FunctionsFrameworkCppConan(ConanFile):
                 )
             )
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -130,20 +128,12 @@ class FunctionsFrameworkCppConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "functions_framework_cpp")
         self.cpp_info.set_property("cmake_target_name", "functions-framework-cpp::framework")
         self.cpp_info.set_property("pkg_config_name", "functions_framework_cpp")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["framework"].libs = ["functions_framework_cpp"]
-        self.cpp_info.components["framework"].requires = [
+        self.cpp_info.libs = ["functions_framework_cpp"]
+        self.cpp_info.requires = [
             "abseil::absl_time",
             "boost::headers",
             "boost::program_options",
             "nlohmann_json::nlohmann_json",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["framework"].system_libs.append("pthread")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "functions_framework_cpp"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "functions_framework_cpp"
-        self.cpp_info.names["pkg_config"] = "functions_framework_cpp"
-        self.cpp_info.components["framework"].set_property("cmake_target_name", "functions-framework-cpp::framework")
-        self.cpp_info.components["framework"].set_property("pkg_config_name", "functions_framework_cpp")
+            self.cpp_info.system_libs.append("pthread")

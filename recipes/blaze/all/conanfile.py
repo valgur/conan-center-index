@@ -25,8 +25,7 @@ class BlazeConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def source(self):
         base_source_dir = os.path.join(self.source_folder, os.pardir)

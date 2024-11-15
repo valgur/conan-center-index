@@ -47,24 +47,18 @@ class UsocketsConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "5",
                 "clang": "3.4",
                 "apple-clang": "10",
             },
             "17": {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "7",
                 "clang": "6",
                 "apple-clang": "10",
             },
         }.get(self._min_cppstd, {})
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     @property
     def _uses_msbuild(self):
@@ -119,8 +113,7 @@ class UsocketsConan(ConanFile):
             raise ConanInvalidConfiguration("wolfssl needs opensslextra option enabled for usockets")
 
         if bool(self._min_cppstd):
-            if self.settings.compiler.get_safe("cppstd"):
-                check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
 
             minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler))
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -129,7 +122,7 @@ class UsocketsConan(ConanFile):
                 )
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not self._uses_msbuild:
+        if self.settings_build.os == "Windows" and not self._uses_msbuild:
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

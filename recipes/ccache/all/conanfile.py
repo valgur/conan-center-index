@@ -55,8 +55,7 @@ class CcacheConan(ConanFile):
             self.requires("xxhash/[~0.8]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -117,7 +116,3 @@ class CcacheConan(ConanFile):
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)

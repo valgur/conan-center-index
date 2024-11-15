@@ -67,6 +67,3 @@ class LzfseConan(ConanFile):
         self.cpp_info.libs = ["lzfse"]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("LZFSE_DLL")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

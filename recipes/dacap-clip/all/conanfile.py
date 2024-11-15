@@ -59,8 +59,7 @@ class DacapClipConan(ConanFile):
             self.requires("xorg/system")
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self) and self.info.settings.build_type == "Debug" and self.info.options.shared == True:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support MSVC debug shared build (now).")
 
@@ -115,7 +114,3 @@ class DacapClipConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "clip")
         self.cpp_info.set_property("cmake_target_name", "clip::clip")
-
-    # TODO: Remove on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "clip"
-        self.cpp_info.names["cmake_find_package_multi"] = "clip"

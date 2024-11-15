@@ -1,11 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.53.0"
 
@@ -39,17 +40,15 @@ class SonicCppConan(ConanFile):
         }
 
     def requirements(self):
-        cppstd = self.settings.get_safe("compiler.cppstd")
         # Assume we would need it if not told otherwise
-        if not cppstd or cppstd < "17":
+        if not valid_min_cppstd(self, 17):
             self.requires("string-view-lite/1.7.0")
 
     def package_id(self):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         supported_archs = ["x86", "x86_64"]
         if Version(self.version) >= "1.0.1":

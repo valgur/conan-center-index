@@ -29,7 +29,6 @@ class McapConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "191",
             "gcc": "9",
             "clang": "9",
@@ -60,8 +59,7 @@ class McapConan(ConanFile):
         if Version(self.version) < "0.1.1" and is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio compiler has been supported since 0.1.1")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

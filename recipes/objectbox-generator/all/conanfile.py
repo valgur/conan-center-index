@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, download, get
 from conan.tools.layout import basic_layout
 
@@ -47,8 +46,3 @@ class PackageConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        binpath = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH env var: {binpath}")
-        self.env_info.PATH.append(binpath)

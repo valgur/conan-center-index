@@ -36,7 +36,6 @@ class UTConan(ConanFile):
             "clang": "9" if Version(self.version) < "2.0.0" else "10",
             "gcc": "9" if Version(self.version) < "2.0.0" else "10",
             "msvc": "192",
-            "Visual Studio": "14",
         }
 
     def export_sources(self):
@@ -57,8 +56,7 @@ class UTConan(ConanFile):
             # https://github.com/boost-ext/ut/issues/637
             raise ConanInvalidConfiguration(f"{self.ref} does support Clang + libstdc++. Use -s compiler.libcxx=libc++ or Clang >16.")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         if Version(self.version) <= "1.1.8" and is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} may not be built with MSVC. "
                                             "Please use at least version 1.1.9 with MSVC.")
@@ -123,13 +121,6 @@ class UTConan(ConanFile):
         namespace = "Boost" if newer_than_1_1_8 else "boost"
         self.cpp_info.set_property("cmake_file_name", "ut")
         self.cpp_info.set_property("cmake_target_name", f"{namespace}::ut")
-
-        self.cpp_info.names["cmake_find_package"] = namespace
-        self.cpp_info.names["cmake_find_package_multi"] = namespace
-        self.cpp_info.filenames["cmake_find_package"] = "ut"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ut"
-        self.cpp_info.components["ut"].names["cmake_find_package"] = "ut"
-        self.cpp_info.components["ut"].names["cmake_find_package_multi"] = "ut"
 
         if newer_than_1_1_8:
             self.cpp_info.components["ut"].includedirs = [os.path.join("include", "ut-" + self.version, "include")]

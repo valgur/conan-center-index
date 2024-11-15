@@ -1,11 +1,10 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.55.0"
 
@@ -96,7 +95,15 @@ class LeptonicaConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_PROG"] = False
         tc.variables["SW_BUILD"] = False
-        if Version(self.version) >= "1.83.0":
+        if Version(self.version) >= "1.85.0":
+            tc.variables["ENABLE_ZLIB"] = self.options.with_zlib
+            tc.variables["ENABLE_PNG"] = self.options.with_png
+            tc.variables["ENABLE_GIF"] = self.options.with_gif
+            tc.variables["ENABLE_JPEG"] = self.options.with_jpeg
+            tc.variables["ENABLE_TIFF"] = self.options.with_tiff
+            tc.variables["ENABLE_WEBP"] = self.options.with_webp
+            tc.variables["ENABLE_OPENJPEG"] = self.options.with_openjpeg
+        elif Version(self.version) >= "1.83.0":
             tc.variables["LIBWEBP_SUPPORT"] = self.options.with_webp
             tc.variables["OPENJPEG_SUPPORT"] = self.options.with_openjpeg
         tc.generate()
@@ -145,7 +152,8 @@ class LeptonicaConan(ConanFile):
         ## We have to be more aggressive with dependencies found with pkgconfig
         ## Injection of libdirs is ensured by conan_basic_setup()
         ## openjpeg
-        replace_in_file(self, cmakelists_src, "${JP2K_LIBRARIES}", "openjp2")
+        if Version(self.version) < "1.85.0":
+            replace_in_file(self, cmakelists_src, "${JP2K_LIBRARIES}", "openjp2")
         if Version(self.version) < "1.83.0":
             # pkgconfig is prefered to CMake. Disable pkgconfig so only CMake is used
             replace_in_file(self, cmakelists, "pkg_check_modules(JP2K libopenjp2>=2.0 QUIET)", "")
@@ -154,7 +162,7 @@ class LeptonicaConan(ConanFile):
             if not self.options.with_openjpeg:
                 replace_in_file(self, cmakelists_src, "if (JP2K_FOUND)", "if(0)")
                 replace_in_file(self, cmake_configure, "if (JP2K_FOUND)", "if(0)")
-        else:
+        elif Version(self.version) < "1.85.0":
             replace_in_file(self, cmakelists, "set(JP2K_INCLUDE_DIRS ${OPENJPEG_INCLUDE_DIRS})", "set(JP2K_INCLUDE_DIRS ${OpenJPEG_INCLUDE_DIRS})")
             if not self.options.with_openjpeg:
                 replace_in_file(self, cmake_configure, "if (JP2K_FOUND)", "if(0)")
@@ -167,13 +175,14 @@ class LeptonicaConan(ConanFile):
             if not self.options.with_webp:
                 replace_in_file(self, cmakelists_src, "if (WEBP_FOUND)", "if(0)")
                 replace_in_file(self, cmake_configure, "if (WEBP_FOUND)", "if(0)")
-        if Version(self.version) >= "1.83.0" or self.options.with_webp:
-            replace_in_file(self, cmakelists_src,
-                                "if (WEBP_FOUND)",
-                                "if (WEBP_FOUND)\n"
-                                "target_link_directories(leptonica PRIVATE ${WEBP_LIBRARY_DIRS} ${WEBPMUX_LIBRARY_DIRS})\n"
-                                "target_compile_definitions(leptonica PRIVATE ${WEBP_CFLAGS_OTHER} ${WEBPMUX_CFLAGS_OTHER})")
-        replace_in_file(self, cmakelists_src, "${WEBP_LIBRARIES}", "${WEBP_LIBRARIES} ${WEBPMUX_LIBRARIES}")
+        if Version(self.version) < "1.85.0":
+            if Version(self.version) >= "1.83.0" and self.options.with_webp:
+                replace_in_file(self, cmakelists_src,
+                                    "if (WEBP_FOUND)",
+                                    "if (WEBP_FOUND)\n"
+                                    "target_link_directories(leptonica PRIVATE ${WEBP_LIBRARY_DIRS} ${WEBPMUX_LIBRARY_DIRS})\n"
+                                    "target_compile_definitions(leptonica PRIVATE ${WEBP_CFLAGS_OTHER} ${WEBPMUX_CFLAGS_OTHER})")
+            replace_in_file(self, cmakelists_src, "${WEBP_LIBRARIES}", "${WEBP_LIBRARIES} ${WEBPMUX_LIBRARIES}")
 
         # Remove detection of fmemopen() on macOS < 10.13
         # CheckFunctionExists will find it in the link library.
@@ -201,27 +210,6 @@ class LeptonicaConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))  # since 1.81.0
         rmdir(self, os.path.join(self.package_folder, "cmake"))
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"leptonica": "Leptonica::Leptonica"}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Leptonica")
         self.cpp_info.set_property("cmake_target_name", "leptonica")
@@ -230,10 +218,3 @@ class LeptonicaConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
         self.cpp_info.includedirs.append(os.path.join("include", "leptonica"))
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Leptonica"
-        self.cpp_info.names["cmake_find_package_multi"] = "Leptonica"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "lept"

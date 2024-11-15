@@ -45,8 +45,7 @@ class ZmarokSemverConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Shared library on Windows is not supported.")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

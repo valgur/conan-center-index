@@ -44,7 +44,6 @@ class LibcoroConan(ConanFile):
                 "gcc": "10.2.1",
                 "clang": "16.0.0",
                 "apple-clang": "16",
-                "Visual Studio": "16",
                 "msvc": "192",
             }
 
@@ -79,8 +78,7 @@ class LibcoroConan(ConanFile):
         self.requires("tl-expected/1.1.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if Version(self.version) < "0.10":
             if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
                 raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}.")

@@ -54,8 +54,7 @@ class LibZipppConan(ConanFile):
                 self.requires(f"libzip/{versions[1]}")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         libzippp_version = str(self.version)
         if libzippp_version != "4.0" and len(libzippp_version.split("-")) != 2:

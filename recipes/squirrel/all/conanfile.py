@@ -101,13 +101,3 @@ class SquirrelConan(ConanFile):
         self.cpp_info.components["sqstdlib"].set_property("cmake_target_name", f"squirrel::sqstdlib{suffix}")
         self.cpp_info.components["sqstdlib"].libs = [f"sqstdlib{suffix}"]
         self.cpp_info.components["sqstdlib"].requires = ["libsquirrel"]
-
-        binpath = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH env var : {binpath}")
-        self.env_info.PATH.append(binpath)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libsquirrel"].names["cmake_find_package"] = f"squirrel{suffix}"
-        self.cpp_info.components["libsquirrel"].names["cmake_find_package_multi"] = f"squirrel{suffix}"
-        self.cpp_info.components["sqstdlib"].names["cmake_find_package"] = f"sqstdlib{suffix}"
-        self.cpp_info.components["sqstdlib"].names["cmake_find_package_multi"] = f"sqstdlib{suffix}"

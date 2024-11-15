@@ -27,7 +27,6 @@ class KDBindingsConan(ConanFile):
             "gcc": "9",
             "clang": "7",
             "apple-clang": "11",
-            "Visual Studio": "15.7",
             "msvc": "191",
         }
 
@@ -42,8 +41,7 @@ class KDBindingsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++17, which your compiler does not support.")

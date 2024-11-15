@@ -31,8 +31,7 @@ class StrongTypeConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
@@ -59,11 +58,3 @@ class StrongTypeConan(ConanFile):
             "cmake_target_name", "rollbear::strong_type")
         self.cpp_info.components["strong_type"].bindirs = []
         self.cpp_info.components["strong_type"].libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "strong_type"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "strong_type"
-        self.cpp_info.names["cmake_find_package"] = "rollbear"
-        self.cpp_info.names["cmake_find_package_multi"] = "rollbear"
-        self.cpp_info.components["strong_type"].names["cmake_find_package"] = "strong_type"
-        self.cpp_info.components["strong_type"].names["cmake_find_package_multi"] = "strong_type"

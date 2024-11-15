@@ -48,7 +48,7 @@ class PdfiumConan(ConanFile):
     def requirements(self):
         self.requires("freetype/2.13.2")
         self.requires("icu/74.1")
-        self.requires("lcms/2.14")
+        self.requires("lcms/2.16")
         self.requires("openjpeg/2.5.0")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_libjpeg == "libjpeg":
@@ -57,12 +57,10 @@ class PdfiumConan(ConanFile):
             self.requires("libjpeg-turbo/3.0.1")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
         minimum_compiler_versions = {
             "gcc": "8",
             "msvc": "191",
-            "Visual Studio": "15",
         }
         min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
         if min_compiler_version and Version(self.settings.compiler.version) < min_compiler_version:

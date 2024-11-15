@@ -30,7 +30,6 @@ class YandexOzoConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15",
             "clang": "5",
             "apple-clang": "10",
         }
@@ -47,14 +46,9 @@ class YandexOzoConan(ConanFile):
         self.info.clear()
 
     def _validate_compiler_settings(self):
-        compiler = self.settings.compiler
-        if compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-
-        if not minimum_version:
-            self.output.warning("ozo requires C++17. Your compiler is unknown. Assuming it supports C++17.")
-        elif Version(self.settings.compiler.version) < minimum_version:
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration("ozo requires a compiler that supports at least C++17")
 
     def validate(self):
@@ -90,11 +84,3 @@ class YandexOzoConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "ozo")
         self.cpp_info.set_property("cmake_target_name", "yandex::ozo")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "ozo"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ozo"
-        self.cpp_info.names["cmake_find_package"] = "yandex"
-        self.cpp_info.names["cmake_find_package_multi"] = "yandex"
-        main_comp.names["cmake_find_package"] = "ozo"
-        main_comp.names["cmake_find_package_multi"] = "ozo"

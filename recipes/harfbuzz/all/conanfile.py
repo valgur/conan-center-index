@@ -1,7 +1,7 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.build import can_run, stdcpp_library
+from conan.tools.build import stdcpp_library
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
@@ -51,10 +51,6 @@ class HarfbuzzConan(ConanFile):
 
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -72,8 +68,7 @@ class HarfbuzzConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if self.options.shared and self.options.with_glib:
-            wildcard = "" if Version(conan_version) < "2.0.0" else "/*"
-            self.options[f"glib{wildcard}"].shared = True
+            self.options["glib"].shared = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -137,7 +132,7 @@ class HarfbuzzConan(ConanFile):
 
         # Avoid conflicts with libiconv
         # see: https://github.com/conan-io/conan-center-index/pull/17046#issuecomment-1554629094
-        if self._settings_build.os == "Macos":
+        if self.settings_build.os == "Macos":
             env = Environment()
             env.define_path("DYLD_FALLBACK_LIBRARY_PATH", "$DYLD_LIBRARY_PATH")
             env.define_path("DYLD_LIBRARY_PATH", "")

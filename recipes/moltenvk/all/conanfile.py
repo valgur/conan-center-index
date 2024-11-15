@@ -95,8 +95,7 @@ class MoltenVKConan(ConanFile):
         return f"{recipe_name}/{self._dependencies_versions[recipe_name]}"
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.os not in ["Macos", "iOS", "tvOS"]:
             raise ConanInvalidConfiguration(f"{self.ref} only supported on MacOS, iOS and tvOS")
         if self.settings.compiler != "apple-clang":
@@ -152,9 +151,3 @@ class MoltenVKConan(ConanFile):
             moltenvk_icd_path = os.path.join(self.package_folder, "lib", "MoltenVK_icd.json")
             self.runenv_info.prepend_path("VK_DRIVER_FILES", moltenvk_icd_path)
             self.runenv_info.prepend_path("VK_ICD_FILENAMES", moltenvk_icd_path)
-            # TODO: to remove after conan v2, it allows to not break consumers still relying on virtualenv generator
-            self.env_info.VK_DRIVER_FILES.append(moltenvk_icd_path)
-            self.env_info.VK_ICD_FILENAMES.append(moltenvk_icd_path)
-
-        if self.options.tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

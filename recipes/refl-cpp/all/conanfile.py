@@ -25,7 +25,6 @@ class ReflCppConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "8",
             "clang": "7",
@@ -42,8 +41,7 @@ class ReflCppConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

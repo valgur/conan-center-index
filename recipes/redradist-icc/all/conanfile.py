@@ -38,7 +38,6 @@ class ICCConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "apple-clang": "9.4",
             "clang": "3.3",
@@ -60,8 +59,7 @@ class ICCConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
         if is_apple_os(self):
             raise ConanInvalidConfiguration(f"OS {self.settings.os} is not supported")
@@ -107,7 +105,3 @@ class ICCConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32", "wsock32"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "icc"
-        self.cpp_info.names["cmake_find_package_multi"] = "icc"

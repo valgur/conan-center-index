@@ -29,10 +29,6 @@ class LibaomAv1Conan(ConanFile):
         "assembly": False,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -51,7 +47,7 @@ class LibaomAv1Conan(ConanFile):
     def build_requirements(self):
         if self.options.get_safe("assembly", False):
             self.tool_requires("nasm/2.15.05")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("strawberryperl/5.32.1.1")
 
     def layout(self):

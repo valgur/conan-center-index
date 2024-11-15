@@ -100,11 +100,3 @@ class GlewConan(ConanFile):
             self.cpp_info.components["glewlib"].requires.append("glu::glu")
         else:
             self.cpp_info.components["glewlib"].requires.append("mesa-glu::mesa-glu")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "GLEW"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "glew"
-        self.cpp_info.names["cmake_find_package"] = "GLEW"
-        self.cpp_info.names["cmake_find_package_multi"] = "GLEW"
-        self.cpp_info.components["glewlib"].names["cmake_find_package"] = "GLEW"
-        self.cpp_info.components["glewlib"].names["cmake_find_package_multi"] = glewlib_target_name

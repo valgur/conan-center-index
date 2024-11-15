@@ -29,7 +29,6 @@ class CertifyConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15.7",
             "clang": "7",
             "apple-clang": "11",
         }
@@ -45,8 +44,7 @@ class CertifyConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -84,17 +82,9 @@ class CertifyConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "certify")
         self.cpp_info.set_property("cmake_target_name", "certify::core")
-        component_requirements = [
+        self.cpp_info.requires = [
             "boost::headers",
             "boost::filesystem",
             "boost::date_time",
             "openssl::openssl"
         ]
-
-        self.cpp_info.requires = component_requirements
-        self.cpp_info.components["_certify"].requires = component_requirements
-        self.cpp_info.components["_certify"].names["cmake_find_package"] = "core"
-        self.cpp_info.components["_certify"].names["cmake_find_package_multi"] = "core"
-
-        self.cpp_info.names["cmake_find_package"] = "certify"
-        self.cpp_info.names["cmake_find_package_multi"] = "certify"

@@ -53,8 +53,7 @@ class openfx(ConanFile):
         self.requires("expat/[>=2.6.2 <3]")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -104,9 +103,3 @@ class openfx(ConanFile):
             self.cpp_info.system_libs.extend(["GL"])
         if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation", "OpenGL"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "openfx"
-        self.cpp_info.names["cmake_find_package_multi"] = "openfx"
-        self.cpp_info.build_modules["cmake_find_package"] = self._build_modules
-        self.cpp_info.build_modules["cmake_find_package_multi"] = self._build_modules

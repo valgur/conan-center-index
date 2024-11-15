@@ -87,14 +87,6 @@ class AngelScriptConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Angelscript")
         self.cpp_info.set_property("cmake_target_name", "Angelscript::angelscript")
         postfix = "d" if is_msvc(self) and self.settings.build_type == "Debug" else ""
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_angelscript"].libs = [f"angelscript{postfix}"]
+        self.cpp_info.libs = [f"angelscript{postfix}"]
         if self.settings.os in ("Linux", "FreeBSD", "SunOS"):
-            self.cpp_info.components["_angelscript"].system_libs.extend(["m", "pthread"])
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Angelscript"
-        self.cpp_info.names["cmake_find_package_multi"] = "Angelscript"
-        self.cpp_info.components["_angelscript"].names["cmake_find_package"] = "angelscript"
-        self.cpp_info.components["_angelscript"].names["cmake_find_package_multi"] = "angelscript"
-        self.cpp_info.components["_angelscript"].set_property("cmake_target_name", "Angelscript::angelscript")
+            self.cpp_info.system_libs.extend(["m", "pthread"])

@@ -37,7 +37,6 @@ class CppServerPackage(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "9",
-            "Visual Studio": "15",
             "msvc": "191",
             "clang": "5",
             "apple-clang": "10",
@@ -66,8 +65,7 @@ class CppServerPackage(ConanFile):
         self.requires("cppcommon/1.0.4.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires a compiler that supports at least C++17")

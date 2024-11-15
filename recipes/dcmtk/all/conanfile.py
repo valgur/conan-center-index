@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building, check_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -119,9 +119,8 @@ class DCMTKConan(ConanFile):
             # Need to supply an architecture-specific arith.h header to cross-compile.
             # TODO: add support when https://github.com/DCMTK/dcmtk/commit/eeb7f7e4b913ccf661481da2099736c358c581b9 is released
             raise ConanInvalidConfiguration("Cross building is not supported")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
-        if hasattr(self, "settings_build") and cross_building(self) and self.settings.os == "Macos":
+        check_min_cppstd(self, 11)
+        if cross_building(self) and self.settings.os == "Macos":
             # FIXME: Probable issue with flags, build includes header 'mmintrin.h'
             raise ConanInvalidConfiguration("Cross building on Macos is not supported (yet)")
 
@@ -265,27 +264,6 @@ class DCMTKConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "etc"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        # TODO: to remove once support of cmake_find_package* dropped
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {target: f"DCMTK::{target}" for target in self._dcmtk_components}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     @property
     def _dcmtk_components(self):
         def charset_conversion():
@@ -365,10 +343,6 @@ class DCMTKConan(ConanFile):
             self.cpp_info.components[target_lib].includedirs.append(os.path.join("include", "dcmtk"))
             self.cpp_info.components[target_lib].requires = requires
 
-            # TODO: to remove in conan v2 once cmake_find_package* generators removed
-            self.cpp_info.components[target_lib].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-            self.cpp_info.components[target_lib].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-
             if is_msvc(self):
                 # Required for the __cplusplus check at
                 # https://github.com/DCMTK/dcmtk/blob/DCMTK-3.6.8/config/include/dcmtk/config/osconfig.h.in#L1489
@@ -393,11 +367,3 @@ class DCMTKConan(ConanFile):
             self.runenv_info.define_path("DCMDICTPATH", dcmdictpath)
             if self.options.with_applications:
                 self.buildenv_info.define_path("DCMDICTPATH", dcmdictpath)
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "DCMTK"
-        self.cpp_info.names["cmake_find_package_multi"] = "DCMTK"
-        if self.options.default_dict == "external":
-            self.env_info.DCMDICTPATH = dcmdictpath
-        if self.options.with_applications:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

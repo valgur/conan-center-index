@@ -73,8 +73,7 @@ class IXWebSocketConan(ConanFile):
         return True
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.options.tls == "applessl" and not is_apple_os(self):
             raise ConanInvalidConfiguration("Can only use Apple SSL on Apple.")
         elif not self._can_use_openssl and self.options.tls == "openssl":

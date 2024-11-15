@@ -1,9 +1,10 @@
+import os
+
 from conan import ConanFile
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get
-import os
 
 required_conan_version = ">=1.52.0"
 
@@ -34,10 +35,6 @@ class GsoapConan(ConanFile):
     }
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         copy(self, "cmake/*.cmake", self.recipe_folder, self.export_sources_folder)
@@ -55,10 +52,10 @@ class GsoapConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
 
     def build_requirements(self):
-        if cross_building(self, skip_x64_x86=True) and hasattr(self, "settings_build"):
+        if not can_run(self):
             self.tool_requires(f"gsoap/{self.version}")
 
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.24")
         else:
             self.tool_requires("bison/3.8.2")

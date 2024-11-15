@@ -43,7 +43,6 @@ class RmluiConan(ConanFile):
             "gcc": "5",
             "intel": "17",
             "sun-cc": "5.15",
-            "Visual Studio": "15"
         }
 
     @property
@@ -62,8 +61,7 @@ class RmluiConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

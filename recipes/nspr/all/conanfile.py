@@ -8,7 +8,7 @@ from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rename, replace_in_file, rmdir, mkdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path_package_info_legacy, unix_path
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.57.0"
@@ -38,10 +38,6 @@ class NsprConan(ConanFile):
         "win32_target": "winnt",
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -64,7 +60,7 @@ class NsprConan(ConanFile):
                 raise ConanInvalidConfiguration("NSPR does not support mac M1 before 4.29")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("mozilla-build/3.3")
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -206,8 +202,3 @@ class NsprConan(ConanFile):
             self.cpp_info.system_libs.extend(["winmm", "ws2_32"])
 
         self.cpp_info.resdirs = ["res"]
-
-        # TODO: the following can be removed when the recipe supports Conan >= 2.0 only
-        aclocal = unix_path_package_info_legacy(self, os.path.join(self.package_folder, "res", "aclocal"))
-        self.output.info(f"Appending AUTOMAKE_CONAN_INCLUDES environment variable: {aclocal}")
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(aclocal)

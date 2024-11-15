@@ -36,14 +36,12 @@ class ZXingCppConan(ConanFile):
         return {
             "14" : {
                 "gcc": "5",
-                "Visual Studio": "14",
                 "msvc": "190",
                 "clang": "3.4",
                 "apple-clang": "3.4",
             },
             "17" : {
                 "gcc": "7" if Version(self.version) < "2.0.0" else "8",
-                "Visual Studio": "16",
                 "msvc": "192",
                 "clang": "5" if Version(self.version) < "2.0.0" else "7",
                 "apple-clang": "5" if Version(self.version) < "2.0.0" else "12",
@@ -67,8 +65,7 @@ class ZXingCppConan(ConanFile):
     def validate(self):
         cpp_version = 17 if Version(self.version) >= "1.2.0" else 14
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, cpp_version)
+        check_min_cppstd(self, cpp_version)
         min_version = self._compiler_cpp_support.get(str(cpp_version)).get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(f"This compiler is too old. {self.ref} needs a compiler with c++{cpp_version} support")
@@ -116,8 +113,3 @@ class ZXingCppConan(ConanFile):
         self.cpp_info.libs = ["ZXingCore" if Version(self.version) < "1.1" else "ZXing"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "ZXing"
-        self.cpp_info.names["cmake_find_package_multi"] = "ZXing"
-        self.cpp_info.names["pkg_config"] = "zxing"

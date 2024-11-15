@@ -41,8 +41,7 @@ class GeotransConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, filename=f"geotrans-{self.version}.tgz")
@@ -84,5 +83,3 @@ class GeotransConan(ConanFile):
 
         mspccs_data_path = os.path.join(self.package_folder, "res")
         self.runenv_info.define_path("MSPCCS_DATA", mspccs_data_path)
-        # TODO: to remove after conan v2, it allows to not break consumers still relying on virtualenv generator
-        self.env_info.MSPCCS_DATA = mspccs_data_path

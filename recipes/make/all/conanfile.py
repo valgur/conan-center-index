@@ -20,10 +20,6 @@ class MakeConan(ConanFile):
     license = "GPL-3.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -45,7 +41,7 @@ class MakeConan(ConanFile):
         if is_msvc(self):
             vcvars = VCVars(self)
             vcvars.generate()
-        if self._settings_build.os != "Windows":
+        if self.settings_build.os != "Windows":
             tc = AutotoolsToolchain(self)
             tc.generate()
 
@@ -53,7 +49,7 @@ class MakeConan(ConanFile):
         apply_conandata_patches(self)
         with chdir(self, self.source_folder):
             # README.W32
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 if is_msvc(self):
                     command = "build_w32.bat --without-guile"
                 else:
@@ -75,8 +71,3 @@ class MakeConan(ConanFile):
 
         make = os.path.join(self.package_folder, "bin", "gnumake.exe" if self.settings.os == "Windows" else "make")
         self.conf_info.define("tools.gnu:make_program", make)
-
-        # TODO: to remove in conan v2
-        self.user_info.make = make
-        self.env_info.CONAN_MAKE_PROGRAM = make
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

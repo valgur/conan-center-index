@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, collect_libs
+from conan.tools.files import copy, get, rm, rmdir, collect_libs
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -65,8 +65,7 @@ class VerySimpleSmtpsConan(ConanFile):
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libc++":
             raise ConanInvalidConfiguration("very-simple-smtps can not use libc++")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)

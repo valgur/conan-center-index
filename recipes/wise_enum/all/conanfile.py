@@ -52,8 +52,7 @@ class WiseEnumConan(ConanFile):
         if is_msvc(self):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -77,14 +76,3 @@ class WiseEnumConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "WiseEnum")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "WiseEnum"
-        self.cpp_info.names["cmake_find_package_multi"] = "WiseEnum"
-        self.cpp_info.names["pkg_config"] = "WiseEnum"
-        self.cpp_info.components["_wise_enum"].names["cmake_find_package"] = "wise_enum"
-        self.cpp_info.components["_wise_enum"].names["cmake_find_package_multi"] = "wise_enum"
-        self.cpp_info.components["_wise_enum"].set_property("cmake_target_name", "WiseEnum::wise_enum")
-        self.cpp_info.components["_wise_enum"].set_property("pkg_config_name", "WiseEnum")
-        self.cpp_info.components["_wise_enum"].bindirs = []
-        self.cpp_info.components["_wise_enum"].libdirs = []

@@ -63,7 +63,6 @@ class BehaviorTreeCPPConan(ConanFile):
                 "clang": "7",
                 "apple-clang": "12",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
         else:
             return {
@@ -71,7 +70,6 @@ class BehaviorTreeCPPConan(ConanFile):
                 "clang": "5",
                 "apple-clang": "12",
                 "msvc": "191",
-                "Visual Studio": "15",
             }
 
     def export_sources(self):
@@ -155,8 +153,7 @@ class BehaviorTreeCPPConan(ConanFile):
     def validate(self):
         if self.info.settings.os == "Windows" and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Windows.")
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cppstd_required)
+        check_min_cppstd(self, self._minimum_cppstd_required)
         minimum_version = self._minimum_compilers_version.get(str(self.info.settings.compiler), False)
         if not minimum_version:
             self.output.warn(f"{self.ref} requires C++{self._minimum_cppstd_required}. "
@@ -284,24 +281,9 @@ class BehaviorTreeCPPConan(ConanFile):
             requires.append("zeromq::zeromq")
 
         postfix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components[libname].libs = [f"{libname}{postfix}"]
-        self.cpp_info.components[libname].requires = requires
+        self.cpp_info.libs = [f"{libname}{postfix}"]
+        self.cpp_info.requires = requires
         if self.settings.os in ("Linux", "FreeBSD"):
-            self.cpp_info.components[libname].system_libs.extend(["pthread", "dl"])
-        if Version(self.version) >= "4.0" and \
-            self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
-            self.cpp_info.components[libname].system_libs.append("stdc++fs")
-
-        if self.options.with_tools:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.env_info.PATH.append(bin_path)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = cmake_file_name
-        self.cpp_info.filenames["cmake_find_package_multi"] = cmake_file_name
-        self.cpp_info.names["cmake_find_package"] = "BT"
-        self.cpp_info.names["cmake_find_package_multi"] = "BT"
-        self.cpp_info.components[libname].names["cmake_find_package"] = libname
-        self.cpp_info.components[libname].names["cmake_find_package_multi"] = libname
-        self.cpp_info.components[libname].set_property("cmake_target_name", f"BT::{libname}")
+            self.cpp_info.system_libs.extend(["pthread", "dl"])
+        if Version(self.version) >= "4.0" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == "8":
+            self.cpp_info.system_libs.append("stdc++fs")

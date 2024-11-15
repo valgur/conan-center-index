@@ -71,13 +71,13 @@ class FreeImageConan(ConanFile):
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.0")
+            self.requires("libjpeg-turbo/3.0.2")
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.1")
         if self.options.with_jpeg2000:
-            self.requires("openjpeg/2.5.0")
+            self.requires("openjpeg/2.5.2")
         if self.options.with_png:
-            self.requires("libpng/1.6.40")
+            self.requires("libpng/[>=1.6 <2]")
         if self.options.with_webp:
             self.requires("libwebp/1.3.2")
         if self.options.with_tiff or self.options.with_openexr:
@@ -92,8 +92,7 @@ class FreeImageConan(ConanFile):
             self.requires("libtiff/4.6.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

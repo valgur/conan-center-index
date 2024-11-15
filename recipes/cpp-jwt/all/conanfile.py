@@ -28,7 +28,6 @@ class CppJwtConan(ConanFile):
             "gcc": "6.4",
             "clang": "5",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 
@@ -46,8 +45,7 @@ class CppJwtConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

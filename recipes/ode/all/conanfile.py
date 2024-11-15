@@ -119,9 +119,3 @@ class OdeConan(ConanFile):
             libcxx = stdcpp_library(self)
             if libcxx:
                 self.cpp_info.system_libs.append(libcxx)
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "ode"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ode"
-        self.cpp_info.names["cmake_find_package"] = "ODE"
-        self.cpp_info.names["cmake_find_package_multi"] = "ODE"

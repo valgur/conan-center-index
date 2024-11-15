@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save, replace_in_file
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
@@ -22,10 +22,6 @@ class M4Conan(ConanFile):
     license = "GPL-3.0-only"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -36,7 +32,7 @@ class M4Conan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -72,7 +68,7 @@ class M4Conan(ConanFile):
             triplet_arch_windows = {"x86_64": "x86_64", "x86": "i686", "armv8": "aarch64"}
 
             host_arch = triplet_arch_windows.get(str(self.settings.arch))
-            build_arch = triplet_arch_windows.get(str(self._settings_build.arch))
+            build_arch = triplet_arch_windows.get(str(self.settings_build.arch))
 
             if host_arch and build_arch:
                 host = f"{host_arch}-w64-mingw32"
@@ -132,7 +128,3 @@ class M4Conan(ConanFile):
         m4_bin = os.path.join(self.package_folder, "bin", f"m4{bin_ext}").replace("\\", "/")
         self.runenv_info.define_path("M4", m4_bin)
         self.buildenv_info.define_path("M4", m4_bin)
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.M4 = m4_bin

@@ -52,8 +52,7 @@ class PackageConan(ConanFile):
         self.requires("tinyxml/2.6.2", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 98)
+        check_min_cppstd(self, 98)
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Only Linux and FreeBSD are currently supported. Contributions are welcome.")
 

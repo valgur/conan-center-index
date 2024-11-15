@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file
+from conan.tools.files import get, copy, rm, rmdir, replace_in_file
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 from conan.tools.scm import Version
 
@@ -42,7 +42,6 @@ class Open62541ppConan(ConanFile):
             "clang": "7",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def config_options(self):
@@ -60,8 +59,7 @@ class Open62541ppConan(ConanFile):
         self.requires("open62541/1.3.9", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

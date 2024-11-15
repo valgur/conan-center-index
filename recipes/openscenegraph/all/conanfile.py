@@ -361,14 +361,6 @@ class OpenSceneGraphConanFile(ConanFile):
             "osgVolume",
         ]
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenSceneGraph"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenSceneGraph"
-        openscenegraph.names["cmake_find_package"] = "OpenSceneGraph"
-        openscenegraph.names["cmake_find_package_multi"] = "OpenSceneGraph"
-        self.cpp_info.build_modules["cmake_find_package"].append(cmake_vars_module)
-        self.cpp_info.build_modules["cmake_find_package_multi"].append(cmake_vars_module)
-
         if self.settings.build_type == "Debug":
             postfix = "d"
         elif self.settings.build_type == "RelWithDebInfo":

@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.files import copy, get, replace_in_file, rmdir, patch, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import copy, get, apply_conandata_patches, export_conandata_patches
 from conan.tools.layout import basic_layout
 import os
 

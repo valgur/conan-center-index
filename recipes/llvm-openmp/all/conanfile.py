@@ -1,6 +1,5 @@
 import os
 import re
-import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -98,8 +97,7 @@ class LLVMOpenMpConan(ConanFile):
             )
 
         if self._version_major >= 17:
-            if self.settings.compiler.cppstd:
-                check_min_cppstd(self, 17)
+            check_min_cppstd(self, 17)
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(f"{self.ref} requires C++17, which your compiler does not support.")
@@ -238,26 +236,6 @@ class LLVMOpenMpConan(ConanFile):
 
         self._write_cmake_module()
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._conan1_targets_module_file_rel_path),
-            {
-                "OpenMP::OpenMP_C": "OpenMP::OpenMP",
-                "OpenMP::OpenMP_CXX": "OpenMP::OpenMP",
-            },
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
     def package_info(self):
         # Match FindOpenMP.cmake module provided by CMake
         self.cpp_info.set_property("cmake_find_mode", "both")
@@ -273,12 +251,3 @@ class LLVMOpenMpConan(ConanFile):
 
         omp.builddirs.append(os.path.join(self.package_folder, "lib", "cmake", "openmp"))
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenMP"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenMP"
-        omp.names["cmake_find_package"] = "OpenMP"
-        omp.names["cmake_find_package_multi"] = "OpenMP"
-        omp.builddirs.append(os.path.join(self.package_folder, "lib", "cmake"))
-        omp.build_modules["cmake_find_package"] = [self._module_file_rel_path, self._conan1_targets_module_file_rel_path]
-        omp.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path, self._conan1_targets_module_file_rel_path]

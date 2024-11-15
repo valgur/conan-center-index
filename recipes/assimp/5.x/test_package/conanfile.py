@@ -6,8 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
@@ -24,8 +23,8 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             obj_path = os.path.join(self.source_folder, "box.obj")
 
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(f"{bin_path} {obj_path}", env="conanrun")
 
-            bin_c_path = os.path.join(self.cpp.build.bindirs[0], "test_package_c")
+            bin_c_path = os.path.join(self.cpp.build.bindir, "test_package_c")
             self.run(f"{bin_c_path} {obj_path}", env="conanrun")

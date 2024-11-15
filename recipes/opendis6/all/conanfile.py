@@ -34,7 +34,6 @@ class OpenDis6Conan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "7",
             "clang": "7",
@@ -63,10 +62,9 @@ class OpenDis6Conan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <4]")
-    
+
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
@@ -90,6 +88,6 @@ class OpenDis6Conan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenDIS")
         self.cpp_info.set_property("cmake_target_name", "OpenDIS::OpenDIS6")
         self.cpp_info.set_property("cmake_target_aliases", ["OpenDIS::DIS6","OpenDIS6"])
-        
+
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

@@ -38,7 +38,3 @@ class BackportCppRecipe(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Backport::Backport")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Backport"
-        self.cpp_info.names["cmake_find_package_multi"] = "Backport"

@@ -34,10 +34,6 @@ class LibIdn(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -58,7 +54,7 @@ class LibIdn(ConanFile):
         self.requires("libiconv/1.17")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -106,7 +102,6 @@ class LibIdn(ConanFile):
             automake_conf = self.dependencies.build["automake"].conf_info
             compile_wrapper = unix_path(self, automake_conf.get("user.automake:compile-wrapper", check_type=str))
             ar_wrapper = unix_path(self, automake_conf.get("user.automake:lib-wrapper", check_type=str))
-            dumpbin_nm = unix_path(self, os.path.join(self.source_folder, "dumpbin_nm.py"))
             env.define("CC", f"{compile_wrapper} cl -nologo")
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
@@ -145,6 +140,3 @@ class LibIdn(ConanFile):
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.defines = ["IDN2_STATIC"]
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

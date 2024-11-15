@@ -31,8 +31,7 @@ class RandomConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -49,7 +48,3 @@ class RandomConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "effolkronium_random")
         self.cpp_info.set_property("cmake_target_name", "effolkronium_random")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "effolkronium_random"
-        self.cpp_info.names["cmake_find_package_multi"] = "effolkronium_random"

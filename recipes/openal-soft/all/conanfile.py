@@ -36,7 +36,6 @@ class OpenALSoftConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "6",
             "clang": "5",
@@ -64,8 +63,7 @@ class OpenALSoftConan(ConanFile):
             self.requires("libalsa/1.2.10")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         compiler = self.settings.compiler
 
@@ -133,10 +131,6 @@ class OpenALSoftConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "OpenAL::OpenAL")
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
         self.cpp_info.set_property("pkg_config_name", "openal")
-
-        self.cpp_info.names["cmake_find_package"] = "OpenAL"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenAL"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
 
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs.append(os.path.join("include", "AL"))

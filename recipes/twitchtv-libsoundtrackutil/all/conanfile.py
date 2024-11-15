@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, replace_in_file
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -38,7 +38,6 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
             "clang": "8",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -60,8 +59,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         self.requires("ms-gsl/4.0.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
 
         min_version = self._compilers_min_version.get(str(self.settings.compiler), False)
         if min_version:

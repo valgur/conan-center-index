@@ -32,8 +32,7 @@ class StatisticConan(ConanFile):
     def validate(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support Visual Studio")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

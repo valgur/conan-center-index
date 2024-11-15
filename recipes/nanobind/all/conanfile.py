@@ -32,7 +32,6 @@ class PackageConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
             "msvc": "192",
-            "Visual Studio": "15",
         }
 
     def layout(self):
@@ -45,8 +44,7 @@ class PackageConan(ConanFile):
         self.requires("tsl-robin-map/1.3.0")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

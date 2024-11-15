@@ -23,10 +23,6 @@ class Asn1cConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
@@ -38,7 +34,7 @@ class Asn1cConan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -94,8 +90,3 @@ class Asn1cConan(ConanFile):
         # so `SUPPORT_PATH` should be propagated to command line invocation to `-S` argument
         support_path = os.path.join(self.package_folder, "res", "asn1c")
         self.buildenv_info.define_path("SUPPORT_PATH", support_path)
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)
-        self.env_info.SUPPORT_PATH = support_path

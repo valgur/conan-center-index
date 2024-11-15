@@ -40,8 +40,7 @@ class CSVMONEKYConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if self.settings.arch not in ("x86", "x86_64",):
             raise ConanInvalidConfiguration(f"{self.ref} requires x86 architecture.")
@@ -71,9 +70,3 @@ class CSVMONEKYConan(ConanFile):
 
         if self.options.with_spirit:
             self.cpp_info.defines.append("USE_SPIRIT")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "csvmonkey"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "csvmonkey"
-        self.cpp_info.names["cmake_find_package"] = "csvmonkey"
-        self.cpp_info.names["cmake_find_package_multi"] = "csvmonkey"

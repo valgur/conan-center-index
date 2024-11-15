@@ -97,7 +97,3 @@ class LibbpfConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["bpf"]
         self.cpp_info.set_property("pkg_config_name", "libbpf")
-
-        # TODO: Remove once v1 is no longer needed
-        self.cpp_info.names["pkg_config"] = "libbpf"
-

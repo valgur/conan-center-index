@@ -104,14 +104,12 @@ class PocoConan(ConanFile):
                 "gcc": "6",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
             "17": {
                 "gcc": "8",
                 "clang": "7",
                 "apple-clang": "12",
-                "Visual Studio": "16",
                 "msvc": "192",
             },
         }.get(self._min_cppstd, {})
@@ -178,8 +176,7 @@ class PocoConan(ConanFile):
         del self.info.options.log_debug
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -335,11 +332,6 @@ class PocoConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Poco")
         self.cpp_info.set_property("cmake_target_name", "Poco::Poco")
 
-        self.cpp_info.filenames["cmake_find_package"] = "Poco"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Poco"
-        self.cpp_info.names["cmake_find_package"] = "Poco"
-        self.cpp_info.names["cmake_find_package_multi"] = "Poco"
-
         suffix = msvc_runtime_flag(self).lower() \
                  if is_msvc(self) and not self.options.shared \
                  else ("d" if self.settings.build_type == "Debug" else "")
@@ -350,8 +342,6 @@ class PocoConan(ConanFile):
                 requires = [f"poco_{dependency.lower()}" for dependency in comp.dependencies] + comp.external_dependencies
                 self.cpp_info.components[conan_component].set_property("cmake_target_name", f"Poco::{compname}")
                 self.cpp_info.components[conan_component].set_property("cmake_file_name", compname)
-                self.cpp_info.components[conan_component].names["cmake_find_package"] = compname
-                self.cpp_info.components[conan_component].names["cmake_find_package_multi"] = compname
                 if comp.is_lib:
                     self.cpp_info.components[conan_component].libs = [f"Poco{compname}{suffix}"]
                 self.cpp_info.components[conan_component].requires = requires

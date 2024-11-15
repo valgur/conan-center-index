@@ -1,6 +1,9 @@
+import os
+
+from conan.tools.build import can_run, check_min_cppstd
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
-import os
+
 
 class NcbiCxxToolkit(ConanFile):
     name = "ncbi-cxx-toolkit-public"
@@ -82,8 +85,7 @@ class NcbiCxxToolkit(ConanFile):
 
 #----------------------------------------------------------------------------
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
         if self.settings.os not in ["Linux", "Macos", "Windows"]:
             raise ConanInvalidConfiguration("This operating system is not supported")
         if self.settings.compiler == "Visual Studio" and tools.Version(self.settings.compiler.version) < "16":
@@ -92,7 +94,7 @@ class NcbiCxxToolkit(ConanFile):
             raise ConanInvalidConfiguration("This configuration is not supported")
         if self.settings.compiler == "gcc" and tools.Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("This version of GCC is not supported")
-        if hasattr(self, "settings_build") and tools.cross_building(self, skip_x64_x86=True):
+        if not can_run(self):
             raise ConanInvalidConfiguration("Cross compilation is not supported")
 
     def config_options(self):

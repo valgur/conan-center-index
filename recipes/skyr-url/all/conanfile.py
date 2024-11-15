@@ -1,14 +1,14 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file, collect_libs
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 import os
 
 required_conan_version = ">=1.53.0"
+
 
 class SkyrUrlConan(ConanFile):
     name = "skyr-url"
@@ -40,7 +40,6 @@ class SkyrUrlConan(ConanFile):
     def _minimum_compilers_version(self):
         # https://github.com/cpp-netlib/url/tree/v1.12.0#requirements
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7",
             "clang": "6" if Version(self.version) <= "1.12.0" else "8",
@@ -69,8 +68,7 @@ class SkyrUrlConan(ConanFile):
             self.requires("nlohmann_json/3.11.3")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(f"{self.ref} recipe lacks information about the {self.settings.compiler} compiler support.")
@@ -126,9 +124,3 @@ class SkyrUrlConan(ConanFile):
             self.cpp_info.components["url"].requires.append("nlohmann_json::nlohmann_json")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["url"].system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "skyr-url"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "skyr-url"
-        self.cpp_info.names["cmake_find_package"] = "skyr"
-        self.cpp_info.names["cmake_find_package_multi"] = "skyr"

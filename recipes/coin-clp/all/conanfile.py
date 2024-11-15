@@ -30,10 +30,6 @@ class CoinClpConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -49,7 +45,7 @@ class CoinClpConan(ConanFile):
         # Symbols are exposed https://github.com/conan-io/conan-center-index/pull/16053#issuecomment-1512637106
         self.requires("coin-utils/2.11.11", transitive_headers=True, transitive_libs=True)
         self.requires("coin-osi/0.108.10", transitive_headers=True)
-        self.requires("openblas/0.3.27")
+        self.requires("openblas/0.3.28")
 
         # TODO:
         # self.requires("metis/5.2.1")
@@ -63,7 +59,7 @@ class CoinClpConan(ConanFile):
         self.tool_requires("gnu-config/cci.20210814")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -126,7 +122,7 @@ class CoinClpConan(ConanFile):
             env.define("LD", f"{compile_wrapper} link -nologo")
             env.define("AR", f"{ar_wrapper} \"lib -nologo\"")
             env.define("NM", "dumpbin -symbols")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             # TODO: Something to fix in conan client or pkgconf recipe?
             # This is a weird workaround when build machine is Windows. Here we have to inject regular
             # Windows path to pc files folder instead of unix path flavor injected by AutotoolsToolchain...
@@ -172,6 +168,3 @@ class CoinClpConan(ConanFile):
         self.cpp_info.components["osi-clp"].set_property("pkg_config_name", "osi-clp")
         self.cpp_info.components["osi-clp"].libs = ["OsiClp"]
         self.cpp_info.components["osi-clp"].requires = ["clp", "coin-osi::coin-osi"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

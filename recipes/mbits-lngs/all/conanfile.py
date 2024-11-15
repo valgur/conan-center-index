@@ -37,7 +37,6 @@ class MBitsLngsConan(ConanFile):
         return {
             "gcc": "11",
             "clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "11.0.3",
         }
@@ -57,8 +56,7 @@ class MBitsLngsConan(ConanFile):
         self.requires("mbits-args/0.12.3")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -68,17 +66,13 @@ class MBitsLngsConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    def _settings_build(self):
-        return self.settings_build if hasattr(self, "settings_build") else self.settings
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LNGS_TESTING"] = False
         tc.variables["LNGS_LITE"] = False
         tc.variables["LNGS_LINKED_RESOURCES"] = True
         tc.variables["LNGS_NO_PKG_CONFIG"] = True
-        if cross_building(self) and hasattr(self, "settings_build"):
+        if cross_building(self):
             tc.variables["LNGS_REBUILD_RESOURCES"] = False
         tc.generate()
         tc = CMakeDeps(self)

@@ -43,10 +43,6 @@ class GnuTLSConan(ConanFile):
         "with_brotli": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -82,7 +78,7 @@ class GnuTLSConan(ConanFile):
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -196,10 +192,3 @@ class GnuTLSConan(ConanFile):
             self.cpp_info.frameworks = ["Security", "CoreFoundation"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GnuTLS"
-        self.cpp_info.names["cmake_find_package_multi"] = "GnuTLS"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        if self.options.enable_tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

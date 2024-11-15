@@ -150,6 +150,3 @@ class SDLMixerConan(ConanFile):
             elif self.settings.os == "Windows":
                 # https://github.com/libsdl-org/SDL_mixer/blob/release-2.0.4/configure.in#L376
                 self.cpp_info.system_libs.extend(["winmm"])
-
-        self.cpp_info.names["cmake_find_package"] = "SDL2_mixer"
-        self.cpp_info.names["cmake_find_package_multi"] = "SDL2_mixer"

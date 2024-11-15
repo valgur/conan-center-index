@@ -46,8 +46,7 @@ class OpenSimulationInterfaceConan(ConanFile):
         self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration(
                 "Shared Libraries are not supported on windows because of the missing symbol export in the library."
@@ -85,9 +84,3 @@ class OpenSimulationInterfaceConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "open_simulation_interface::open_simulation_interface")
         self.cpp_info.components["libopen_simulation_interface"].libs = ["open_simulation_interface"]
         self.cpp_info.components["libopen_simulation_interface"].requires = ["protobuf::libprotobuf"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "open_simulation_interface"
-        self.cpp_info.names["cmake_find_package_multi"] = "open_simulation_interface"
-        self.cpp_info.components["libopen_simulation_interface"].names["cmake_find_package"] = "open_simulation_interface"
-        self.cpp_info.components["libopen_simulation_interface"].names["cmake_find_package_multi"] = "open_simulation_interface"

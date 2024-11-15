@@ -12,7 +12,6 @@ required_conan_version = ">=1.50.0"
 
 class Sol2Conan(ConanFile):
     name = "sol2"
-    package_type = "header-library"
     description = "a C++ <-> Lua API wrapper with advanced features and top notch performance"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
@@ -43,14 +42,12 @@ class Sol2Conan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "14": {
-                "Visual Studio": "14",
                 "msvc": "190",
                 "gcc": "5",
                 "clang": "3.2",
                 "apple-clang": "4.3",
             },
             "17": {
-                "Visual Studio": "15" if Version(self.version) < "3.3.0" else "16",
                 "msvc": "191" if Version(self.version) < "3.3.0" else "192",
                 "gcc": "7",
                 "clang": "6",
@@ -75,8 +72,7 @@ class Sol2Conan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

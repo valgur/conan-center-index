@@ -1,10 +1,9 @@
 import os
 import textwrap
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.files import copy, get, rmdir, save, replace_in_file
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
@@ -76,6 +75,3 @@ class MesonConan(ConanFile):
 
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        if Version(conan_version).major < 2:
-            self.env_info.PATH.append(meson_root)

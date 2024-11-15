@@ -49,7 +49,7 @@ class FlannConan(ConanFile):
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if Version(self.version) >= "1.9.2" and self.settings.compiler.get_safe("cppstd"):
+        if Version(self.version) >= "1.9.2":
             check_min_cppstd(self, 11)
 
     def source(self):
@@ -143,11 +143,3 @@ class FlannConan(ConanFile):
         if not self.options.shared:
             self.cpp_info.components["flann_c"].defines.append("FLANN_STATIC")
         self.cpp_info.components["flann_c"].requires = ["flann_cpp"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Flann"
-        self.cpp_info.names["cmake_find_package_multi"] = "flann"
-        self.cpp_info.components["flann_cpp"].names["cmake_find_package"] = flann_cpp_lib
-        self.cpp_info.components["flann_cpp"].names["cmake_find_package_multi"] = flann_cpp_lib
-        self.cpp_info.components["flann_c"].names["cmake_find_package"] = flann_c_lib
-        self.cpp_info.components["flann_c"].names["cmake_find_package_multi"] = flann_c_lib

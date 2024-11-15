@@ -315,10 +315,3 @@ class OpenblasConan(ConanFile):
 
         self.buildenv_info.define_path("OpenBLAS_HOME", self.package_folder)
         self.runenv_info.define_path("OpenBLAS_HOME", self.package_folder)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = f"OpenBLAS{self._64bit}"
-        self.cpp_info.filenames["cmake_find_package_multi"] = f"OpenBLAS{self._64bit}"
-        self.cpp_info.names["cmake_find_package"] = "OpenBLAS"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenBLAS"
-        self.env_info.OpenBLAS_HOME = self.package_folder

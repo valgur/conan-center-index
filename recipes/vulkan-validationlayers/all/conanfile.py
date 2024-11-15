@@ -55,7 +55,6 @@ class VulkanValidationLayersConan(ConanFile):
             "clang": "6",
             "gcc": "7",
             "msvc": "191",
-            "Visual Studio": "15.7",
         }
 
     def config_options(self):
@@ -89,8 +88,7 @@ class VulkanValidationLayersConan(ConanFile):
         # TODO: add support for mimalloc
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
@@ -224,9 +222,6 @@ class VulkanValidationLayersConan(ConanFile):
             runtime_lib_discovery_path = "DYLD_LIBRARY_PATH"
         for libdir in [os.path.join(self.package_folder, libdir) for libdir in self.cpp_info.libdirs]:
             self.runenv_info.prepend_path(runtime_lib_discovery_path, libdir)
-
-        # TODO: to remove after conan v2, it allows to not break consumers still relying on virtualenv generator
-        self.env_info.VK_LAYER_PATH.append(vk_layer_path)
 
         if self.settings.os == "Android":
             self.cpp_info.system_libs.extend(["android", "log"])

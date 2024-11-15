@@ -25,7 +25,6 @@ class EnttConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15.9",
             "msvc": "191",
             "gcc": "7",
             "clang": "5",
@@ -42,8 +41,7 @@ class EnttConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -72,7 +70,3 @@ class EnttConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "EnTT::EnTT")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "EnTT"
-        self.cpp_info.names["cmake_find_package_multi"] = "EnTT"

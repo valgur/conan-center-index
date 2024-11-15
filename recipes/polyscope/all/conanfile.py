@@ -1,13 +1,11 @@
 import os
-import textwrap
-from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, save, rm, apply_conandata_patches, export_conandata_patches, replace_in_file
+from conan.tools.files import copy, get, apply_conandata_patches, export_conandata_patches
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -82,8 +80,7 @@ class PolyscopeConan(ConanFile):
         # self.requires("stb/cci.20240531")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

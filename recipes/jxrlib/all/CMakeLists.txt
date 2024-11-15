@@ -60,13 +60,6 @@ set(JXRGLUE_SOURCES
     ${JPEGXR_FOLDER}/jxrgluelib/JXRMeta.c
     ${JPEGXR_FOLDER}/jxrgluelib/JXRGluePFC.c
     ${JPEGXR_FOLDER}/jxrgluelib/JXRGlueJxr.c
-
-    ${JPEGXR_FOLDER}/jxrtestlib/JXRTest.c
-    ${JPEGXR_FOLDER}/jxrtestlib/JXRTestBmp.c
-    ${JPEGXR_FOLDER}/jxrtestlib/JXRTestHdr.c
-    ${JPEGXR_FOLDER}/jxrtestlib/JXRTestPnm.c
-    ${JPEGXR_FOLDER}/jxrtestlib/JXRTestTif.c
-    ${JPEGXR_FOLDER}/jxrtestlib/JXRTestYUV.c
 )
 add_library(jxrglue ${JXRGLUE_SOURCES})
 target_link_libraries(jxrglue jpegxr)

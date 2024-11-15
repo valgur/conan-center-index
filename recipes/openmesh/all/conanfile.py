@@ -1,10 +1,9 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.microsoft import is_msvc
 import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -48,8 +47,7 @@ class OpenmeshConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -79,30 +77,6 @@ class OpenmeshConan(ConanFile):
         if self.settings.os != "Windows":
             rm(self, "*.a" if self.options.shared else "*.[so|dylib]*", os.path.join(self.package_folder, "lib"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "OpenMeshCore": "OpenMesh::OpenMeshCore",
-                "OpenMeshTools": "OpenMesh::OpenMeshTools",
-            }
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenMesh")
         self.cpp_info.set_property("pkg_config_name", "openmesh")
@@ -120,15 +94,3 @@ class OpenmeshConan(ConanFile):
         self.cpp_info.components["openmeshtools"].set_property("cmake_target_name", "OpenMeshTools")
         self.cpp_info.components["openmeshtools"].libs = ["OpenMeshTools" + suffix]
         self.cpp_info.components["openmeshtools"].requires = ["openmeshcore"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* removed
-        self.cpp_info.names["cmake_find_package"] = "OpenMesh"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenMesh"
-        self.cpp_info.components["openmeshcore"].names["cmake_find_package"] = "OpenMeshCore"
-        self.cpp_info.components["openmeshcore"].names["cmake_find_package_multi"] = "OpenMeshCore"
-        self.cpp_info.components["openmeshcore"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["openmeshcore"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["openmeshtools"].names["cmake_find_package"] = "OpenMeshTools"
-        self.cpp_info.components["openmeshtools"].names["cmake_find_package_multi"] = "OpenMeshTools"
-        self.cpp_info.components["openmeshtools"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["openmeshtools"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

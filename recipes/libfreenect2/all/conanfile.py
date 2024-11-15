@@ -69,8 +69,7 @@ class Libfreenect2Conan(ConanFile):
             self.requires("cuda-samples/12.2")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.with_cuda:
             self.output.warning("Conan package for CUDA is not available, will use system CUDA")
 
@@ -160,7 +159,3 @@ class Libfreenect2Conan(ConanFile):
             self.cpp_info.requires += ["libva::libva"]
         if self.options.with_cuda:
             self.cpp_info.requires += ["cuda-samples::cuda-samples"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "freenect2"
-        self.cpp_info.names["cmake_find_package_multi"] = "freenect2"

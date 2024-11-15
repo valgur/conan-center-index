@@ -116,12 +116,3 @@ class ZintConan(ConanFile):
 
         # Trick to only define Zint::QZint and Zint::Zint in CMakeDeps generator
         self.cpp_info.set_property("cmake_target_name", "Zint::QZint" if self.options.with_qt else "Zint::Zint")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Zint"
-        self.cpp_info.names["cmake_find_package_multi"] = "Zint"
-        self.cpp_info.components["libzint"].names["cmake_find_package"] = "Zint"
-        self.cpp_info.components["libzint"].names["cmake_find_package_multi"] = "Zint"
-        if self.options.with_qt:
-            self.cpp_info.components["libqzint"].names["cmake_find_package"] = "QZint"
-            self.cpp_info.components["libqzint"].names["cmake_find_package_multi"] = "QZint"

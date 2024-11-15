@@ -21,8 +21,7 @@ class TlOptionalConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -45,16 +44,3 @@ class TlOptionalConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "tl-optional"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tl-optional"
-        self.cpp_info.names["cmake_find_package"] = "tl"
-        self.cpp_info.names["cmake_find_package_multi"] = "tl"
-        self.cpp_info.components["optional"].names["cmake_find_package"] = "optional"
-        self.cpp_info.components["optional"].names["cmake_find_package_multi"] = "optional"
-        self.cpp_info.components["optional"].set_property("cmake_target_name", "tl::optional")
-        self.cpp_info.components["optional"].bindirs = []
-        self.cpp_info.components["optional"].frameworkdirs = []
-        self.cpp_info.components["optional"].libdirs = []
-        self.cpp_info.components["optional"].resdirs = []

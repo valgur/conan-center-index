@@ -36,8 +36,7 @@ class OfeliConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.compiler in ["clang", "apple-clang"] or is_msvc(self):
             # Clang fails with
             # include/linear_algebra/LocalVect_impl.h:251:42: error: cannot initialize return object of type 'OFELI::Element *' with an lvalue of type 'const OFELI::Element *'

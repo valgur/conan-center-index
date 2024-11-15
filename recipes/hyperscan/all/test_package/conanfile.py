@@ -6,8 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
 
     _with_chimera = False
 
@@ -31,9 +30,9 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "hs_example")
+            bin_path = os.path.join(self.cpp.build.bindir, "hs_example")
             self.run(bin_path, env="conanrun")
 
             if self._with_chimera:
-                bin_path = os.path.join(self.cpp.build.bindirs[0], "ch_example")
+                bin_path = os.path.join(self.cpp.build.bindir, "ch_example")
                 self.run(bin_path, env="conanrun")

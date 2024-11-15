@@ -198,6 +198,12 @@ class SDLImageConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "cmake"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "SDL2_image")
+        self.cpp_info.set_property("cmake_target_name", "SDL2_image::SDL2_image")
+        if not self.options.shared:
+            self.cpp_info.set_property("cmake_target_aliases", ["SDL2_image::SDL2_image-static"])
+        self.cpp_info.set_property("pkg_config_name", "SDL2_image")
+
         lib_postfix = ""
         if Version(self.version) >= "2.6":
             if self.settings.os == "Windows" and not self.options.shared:
@@ -205,50 +211,30 @@ class SDLImageConan(ConanFile):
             if self.settings.build_type == "Debug":
                 lib_postfix += "d"
 
-        self.cpp_info.set_property("cmake_file_name", "SDL2_image")
-        self.cpp_info.set_property("cmake_target_name", "SDL2_image::SDL2_image")
-        if not self.options.shared:
-            self.cpp_info.set_property("cmake_target_aliases", ["SDL2_image::SDL2_image-static"])
-        self.cpp_info.set_property("pkg_config_name", "SDL2_image")
-        # TODO: back to global scope in conan v2 once legacy generators removed
-        self.cpp_info.components["_sdl_image"].libs = [f"SDL2_image{lib_postfix}"]
-        self.cpp_info.components["_sdl_image"].includedirs.append(os.path.join("include", "SDL2"))
+        self.cpp_info.libs = [f"SDL2_image{lib_postfix}"]
+        self.cpp_info.includedirs.append(os.path.join("include", "SDL2"))
 
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "SDL2_image"
-        self.cpp_info.names["cmake_find_package_multi"] = "SDL2_image"
-        self.cpp_info.names["pkg_config"] = "SDL2_image"
-        target_name = "SDL2_image" if self.options.shared else "SDL2_image-static"
-        self.cpp_info.components["_sdl_image"].names["cmake_find_package"] = target_name
-        self.cpp_info.components["_sdl_image"].names["cmake_find_package_multi"] = target_name
-        self.cpp_info.components["_sdl_image"].set_property("cmake_target_name", "SDL2_image::SDL2_image")
-        self.cpp_info.components["_sdl_image"].set_property("pkg_config_name", "SDL2_image")
-        self.cpp_info.components["_sdl_image"].requires = ["sdl::sdl"]
+        self.cpp_info.requires = ["sdl::sdl"]
         if self.options.with_libtiff:
-            self.cpp_info.components["_sdl_image"].requires.append("libtiff::tiff")
+            self.cpp_info.requires.append("libtiff::tiff")
         if self.options.with_libjpeg:
-            self.cpp_info.components["_sdl_image"].requires.append("libjpeg::libjpeg")
+            self.cpp_info.requires.append("libjpeg::libjpeg")
         if self.options.with_libpng:
-            self.cpp_info.components["_sdl_image"].requires.append("libpng::libpng")
+            self.cpp_info.requires.append("libpng::libpng")
         if self.options.with_libwebp:
-            self.cpp_info.components["_sdl_image"].requires.append("libwebp::libwebp")
+            self.cpp_info.requires.append("libwebp::libwebp")
         if self.options.get_safe("with_avif"):
-            self.cpp_info.components["_sdl_image"].requires.append("libavif::libavif")
+            self.cpp_info.requires.append("libavif::libavif")
         if self.options.get_safe("imageio") and not self.options.shared:
-            self.cpp_info.components["_sdl_image"].frameworks = [
+            self.cpp_info.frameworks = [
                 "CoreFoundation",
                 "CoreGraphics",
                 "Foundation",
                 "ImageIO",
             ]
             if self.settings.os == "Macos":
-                self.cpp_info.components["_sdl_image"].frameworks.append("ApplicationServices")
+                self.cpp_info.frameworks.append("ApplicationServices")
             else:
-                self.cpp_info.components["_sdl_image"].frameworks.extend([
-                    "MobileCoreServices",
-                    "UIKit",
-                ])
+                self.cpp_info.frameworks.extend(["MobileCoreServices", "UIKit"])
         if self.options.get_safe("wic"):
-            self.cpp_info.system_libs.extend([
-                "windowscodecs",
-            ])
+            self.cpp_info.system_libs.extend(["windowscodecs"])

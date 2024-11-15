@@ -52,7 +52,6 @@ class MsixConan(ConanFile):
             "apple-clang": "10",
             "clang": "7",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -85,9 +84,7 @@ class MsixConan(ConanFile):
             self.requires("xerces-c/3.2.5")
 
     def _validate_compiler_settings(self):
-        compiler = self.settings.compiler
-        if compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

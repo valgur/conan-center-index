@@ -97,8 +97,7 @@ class DpdkConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("DPDK is only supported on Linux")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if not self.dependencies["libnuma"].options.shared:
             # dpdk is strict about its exported symbols and fails when it encounters statically linked libnuma symbols

@@ -47,8 +47,7 @@ class AudiowaveformConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
 
@@ -88,7 +87,3 @@ class AudiowaveformConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_folder = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_folder)

@@ -46,7 +46,6 @@ class SobjectizerConan(ConanFile):
                 "gcc": "10",
                 "clang": "11",
                 "apple-clang": "13",
-                "Visual Studio": "17",
                 "msvc": "192"
             }
 
@@ -54,14 +53,12 @@ class SobjectizerConan(ConanFile):
             "gcc": "7",
             "clang": "6",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191"
         }
 
     def validate(self):
         minimal_cpp_standard = "17"
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, minimal_cpp_standard)
+        check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = self._compiler_support_lut()
 
         compiler = str(self.settings.compiler)
@@ -108,16 +105,8 @@ class SobjectizerConan(ConanFile):
         cmake_target = "SharedLib" if self.options.shared else "StaticLib"
         self.cpp_info.set_property("cmake_file_name", "sobjectizer")
         self.cpp_info.set_property("cmake_target_name", "sobjectizer::{}".format(cmake_target))
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_sobjectizer"].libs = collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_sobjectizer"].system_libs = ["pthread", "m"]
+            self.cpp_info.system_libs = ["pthread", "m"]
         if not self.options.shared:
-            self.cpp_info.components["_sobjectizer"].defines.append("SO_5_STATIC_LIB")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "sobjectizer"
-        self.cpp_info.names["cmake_find_package_multi"] = "sobjectizer"
-        self.cpp_info.components["_sobjectizer"].names["cmake_find_package"] = cmake_target
-        self.cpp_info.components["_sobjectizer"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["_sobjectizer"].set_property("cmake_target_name", "sobjectizer::{}".format(cmake_target))
+            self.cpp_info.defines.append("SO_5_STATIC_LIB")

@@ -111,8 +111,6 @@ class AvahiConan(ConanFile):
         for lib in ("client", "common", "core", "glib", "gobject", "libevent", "compat-libdns_sd"):
             avahi_lib = f"avahi-{lib}"
             self.cpp_info.components[lib].set_property("pkg_config_name", avahi_lib)
-            self.cpp_info.components[lib].names["cmake_find_package"] = lib
-            self.cpp_info.components[lib].names["cmake_find_package_multi"] = lib
             self.cpp_info.components[lib].libs = [avahi_lib]
             self.cpp_info.components[lib].includedirs = ["include", os.path.join("include", avahi_lib)]
         self.cpp_info.components["compat-libdns_sd"].libs = ["dns_sd"]
@@ -128,8 +126,6 @@ class AvahiConan(ConanFile):
         for app in ("autoipd", "browse", "daemon", "dnsconfd", "publish", "resolve", "set-host-name"):
             avahi_app = f"avahi-{app}"
             self.cpp_info.components[app].set_property("pkg_config_name", avahi_app)
-            self.cpp_info.components[app].names["cmake_find_package"] = app
-            self.cpp_info.components[app].names["cmake_find_package_multi"] = app
 
         self.cpp_info.components["autoipd"].requires = ["libdaemon::libdaemon"]
         self.cpp_info.components["browse"].requires = ["client", "gdbm::gdbm"]
@@ -138,7 +134,3 @@ class AvahiConan(ConanFile):
         self.cpp_info.components["publish"].requires = ["client"]
         self.cpp_info.components["resolve"].requires = ["client"]
         self.cpp_info.components["set-host-name"].requires = ["client"]
-
-        # TODO: Remove after dropping Conan 1.x support
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

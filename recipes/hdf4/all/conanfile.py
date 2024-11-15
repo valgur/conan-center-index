@@ -142,8 +142,6 @@ class Hdf4Conan(ConanFile):
         # xdr
         xdr_cmake = f"xdr-{target_suffix}"
         self.cpp_info.components["xdr"].set_property("cmake_target_name", f"hdf4::{xdr_cmake}")
-        self.cpp_info.components["xdr"].names["cmake_find_package"] = xdr_cmake
-        self.cpp_info.components["xdr"].names["cmake_find_package_multi"] = xdr_cmake
         self.cpp_info.components["xdr"].includedirs.append(unofficial_includedir)
         self.cpp_info.components["xdr"].libs = [self._get_decorated_lib("xdr")]
         if self.settings.os == "Windows":
@@ -152,8 +150,6 @@ class Hdf4Conan(ConanFile):
         # hdf
         hdf_cmake = f"hdf-{target_suffix}"
         self.cpp_info.components["hdf"].set_property("cmake_target_name", f"hdf4::{hdf_cmake}")
-        self.cpp_info.components["hdf"].names["cmake_find_package"] = hdf_cmake
-        self.cpp_info.components["hdf"].names["cmake_find_package_multi"] = hdf_cmake
         self.cpp_info.components["hdf"].includedirs.append(unofficial_includedir)
         self.cpp_info.components["hdf"].libs = [self._get_decorated_lib("hdf")]
         self.cpp_info.components["hdf"].requires = [
@@ -170,8 +166,6 @@ class Hdf4Conan(ConanFile):
         # mfhdf
         mfhdf_cmake = f"mfhdf-{target_suffix}"
         self.cpp_info.components["mfhdf"].set_property("cmake_target_name", f"hdf4::{mfhdf_cmake}")
-        self.cpp_info.components["mfhdf"].names["cmake_find_package"] = mfhdf_cmake
-        self.cpp_info.components["mfhdf"].names["cmake_find_package_multi"] = mfhdf_cmake
         self.cpp_info.components["mfhdf"].includedirs.append(unofficial_includedir)
         self.cpp_info.components["mfhdf"].libs = [self._get_decorated_lib("mfhdf")]
         self.cpp_info.components["mfhdf"].requires = ["xdr", "hdf"]

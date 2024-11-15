@@ -32,7 +32,6 @@ class ReactivePlusPlusConan(ConanFile):
         if Version(self.version) >= "2.0.0":
             # For 'consteval' support
             return {
-                "Visual Studio": "17",
                 "msvc": "193",
                 "gcc": "12",
                 "clang": "14",
@@ -40,7 +39,6 @@ class ReactivePlusPlusConan(ConanFile):
             }
         else:
             return {
-                "Visual Studio": "16.10",
                 "msvc": "192",
                 "gcc": "10",
                 "clang": "12",
@@ -54,8 +52,7 @@ class ReactivePlusPlusConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
@@ -83,12 +80,3 @@ class ReactivePlusPlusConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "RPP::rpp")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "RPP"
-        self.cpp_info.names["cmake_find_package_multi"] = "RPP"
-        self.cpp_info.components["_reactiveplusplus"].names["cmake_find_package"] = "rpp"
-        self.cpp_info.components["_reactiveplusplus"].names["cmake_find_package_multi"] = "rpp"
-        self.cpp_info.components["_reactiveplusplus"].set_property("cmake_target_name", "RPP::rpp")
-        self.cpp_info.components["_reactiveplusplus"].bindirs = []
-        self.cpp_info.components["_reactiveplusplus"].libdirs = []

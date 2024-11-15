@@ -52,8 +52,7 @@ class libb2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.use_neon and not "arm" in self.settings.arch:
             raise ConanInvalidConfiguration("Neon sources only supported on arm-based CPUs")
         if self.options.use_neon and self.options.use_sse:

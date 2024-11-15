@@ -27,14 +27,12 @@ class MDSpanConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "14": {
-                "Visual Studio": "15" if Version(self.version) < "0.2.0" else "16",
                 "msvc": "191" if Version(self.version) < "0.2.0" else "192",
                 "gcc": "5",
                 "clang": "3.4",
                 "apple-clang": "5.1"
             },
             "17": {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "8",
                 "clang": "7",
@@ -49,8 +47,7 @@ class MDSpanConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         min_version = self._minimum_compilers_version.get(
             str(self.settings.compiler))
         if not min_version:
@@ -62,10 +59,6 @@ class MDSpanConan(ConanFile):
                     f"{self.ref} requires C++{self._min_cppstd} support. "
                     f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
 
-        if str(self.settings.compiler) == "Visual Studio" and "16.6" <= Version(self.settings.compiler.version) < "17.0":
-            raise ConanInvalidConfiguration(
-                "Unsupported Visual Studio version due to upstream bug. The supported Visual Studio versions are (< 16.6 or 17.0 <=)."
-                "See upstream issue https://github.com/kokkos/mdspan/issues/26 for details.")
         # TODO: check msvcc version more precisely
         if self.settings.compiler == "msvc" and Version(self.settings.compiler.version) == "192":
             raise ConanInvalidConfiguration(
@@ -90,11 +83,3 @@ class MDSpanConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "mdspan")
         self.cpp_info.set_property("cmake_target_name", "std::mdspan")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "mdspan"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mdspan"
-        self.cpp_info.names["cmake_find_package"] = "std"
-        self.cpp_info.names["cmake_find_package_multi"] = "std"
-        self.cpp_info.components["_mdspan"].names["cmake_find_package"] = "mdspan"
-        self.cpp_info.components["_mdspan"].names["cmake_find_package_multi"] = "mdspan"

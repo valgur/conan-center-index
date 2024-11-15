@@ -41,8 +41,7 @@ class CoseCConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def requirements(self):
         self.requires("cn-cbor/1.0.0", transitive_headers=True)

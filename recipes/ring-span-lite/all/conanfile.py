@@ -35,24 +35,8 @@ class RingSpanLiteConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ring-span-lite")
-        self.cpp_info.set_property(
-            "cmake_target_name", "nonstd::ring-span-lite")
+        self.cpp_info.set_property("cmake_target_name", "nonstd::ring-span-lite")
         self.cpp_info.bindirs = []
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators
-        # removed.
-        self.cpp_info.filenames["cmake_find_package"] = "ring-span-lite"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ring-span-lite"
-        self.cpp_info.names["cmake_find_package"] = "nonstd"
-        self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
-        self.cpp_info.components["ringspanlite"].names["cmake_find_package"] = "ring-span-lite"
-        self.cpp_info.components["ringspanlite"].names["cmake_find_package_multi"] = "ring-span-lite"
-        self.cpp_info.components["ringspanlite"].set_property(
-            "cmake_target_name", "nonstd::ring-span-lite")
-        self.cpp_info.components["ringspanlite"].bindirs = []
-        self.cpp_info.components["ringspanlite"].frameworkdirs = []
-        self.cpp_info.components["ringspanlite"].libdirs = []
-        self.cpp_info.components["ringspanlite"].resdirs = []

@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.layout import basic_layout
@@ -70,9 +70,6 @@ class WaylandProtocolsConan(ConanFile):
             'datarootdir': '${prefix}/res',
             'pkgdatadir': '${datarootdir}/wayland-protocols',
         }
-        # TODO: Remove when Conan 1.x not supported
-        pkgconfig_variables = pkgconfig_variables if conan_version.major >= 2 \
-            else "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items())
         self.cpp_info.set_property("pkg_config_custom_content", pkgconfig_variables)
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []

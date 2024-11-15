@@ -38,9 +38,8 @@ class MathterConan(ConanFile):
             "apple-clang": 10,
             "clang": 6,
             "gcc": 7,
-            "Visual Studio": 16,
         }
-    
+
     def config_options(self):
         if Version(self.version) < "1.1":
             del self.options.with_xsimd
@@ -52,8 +51,7 @@ class MathterConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

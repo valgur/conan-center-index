@@ -35,10 +35,6 @@ class LibjpegConan(ConanFile):
     def _is_cl_like(self):
         return self.settings.compiler.get_safe("runtime") is not None
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -60,7 +56,7 @@ class LibjpegConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and not self._is_cl_like:
+        if self.settings_build.os == "Windows" and not self._is_cl_like:
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -188,7 +184,3 @@ class LibjpegConan(ConanFile):
         self.cpp_info.resdirs = ["res"]
         if not self.options.shared:
             self.cpp_info.defines.append("LIBJPEG_STATIC")
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "JPEG"
-        self.cpp_info.names["cmake_find_package_multi"] = "JPEG"

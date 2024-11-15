@@ -1,13 +1,11 @@
 import functools
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import get, collect_libs, copy
-from conan.tools.scm import Version
 
 from helpers import parse_proto_libraries
 
@@ -33,10 +31,6 @@ class GRPCProto(ConanFile):
     }
     exports = "helpers.py"
 
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
 
@@ -47,12 +41,8 @@ class GRPCProto(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-            if Version(conan_version) < "2.0.0":
-                self.options["protobuf"].shared = True
-                self.options["googleapis"].shared = True
-            else:
-                self.options["protobuf/*"].shared = True
-                self.options["googleapis/*"].shared = True
+            self.options["protobuf"].shared = True
+            self.options["googleapis"].shared = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -64,8 +54,7 @@ class GRPCProto(ConanFile):
         self.requires("googleapis/cci.20230501")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         if self.options.shared and \
            not (self.dependencies["protobuf"].options.shared and self.dependencies["googleapis"].options.shared):
@@ -75,18 +64,12 @@ class GRPCProto(ConanFile):
             )
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
-            self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
         tc = CMakeToolchain(self)
         googleapis_resdirs = self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs
         tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join([p.replace("\\", "/") for p in googleapis_resdirs])

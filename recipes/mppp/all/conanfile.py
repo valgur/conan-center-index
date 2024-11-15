@@ -72,8 +72,7 @@ class MpppConan(ConanFile):
             self.requires("fmt/10.2.1", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.options.with_arb:
             raise ConanInvalidConfiguration(f"{self.ref}:with_arb=True is not supported because `fredrik-johansson/arb` is not packaged in CCI. (yet)")
         if self.options.with_quadmath:
@@ -123,9 +122,3 @@ class MpppConan(ConanFile):
 
         if self.options.get_safe("with_fmt"):
             self.cpp_info.defines.append("MPPP_WITH_FMT")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "mp++"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mp++"
-        self.cpp_info.names["cmake_find_package"] = "mp++"
-        self.cpp_info.names["cmake_find_package_multi"] = "mp++"

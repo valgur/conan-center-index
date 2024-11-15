@@ -3,7 +3,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -165,7 +164,3 @@ class LibrdkafkaConan(ConanFile):
         self.cpp_info.components["rdkafka++"].set_property("pkg_config_name", "rdkafka++")
         self.cpp_info.components["rdkafka++"].libs = ["rdkafka++"]
         self.cpp_info.components["rdkafka++"].requires = ["rdkafka"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "RdKafka"
-        self.cpp_info.names["cmake_find_package_multi"] = "RdKafka"

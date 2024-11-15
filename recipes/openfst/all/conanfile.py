@@ -55,10 +55,6 @@ class OpenFstConan(ConanFile):
         "enable_special": False,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -82,8 +78,7 @@ class OpenFstConan(ConanFile):
             "clang": "7",
         }
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
         minimum_compiler = compilers.get(str(self.settings.compiler))
         if minimum_compiler:
             if Version(self.settings.compiler.version) < minimum_compiler:
@@ -183,8 +178,6 @@ class OpenFstConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenFst")
         self.cpp_info.set_property("cmake_target_name", "OpenFst::OpenFst")
         self.cpp_info.set_property("cmake_find_mode", "both")
-        self.cpp_info.names["cmake_find_package"] = "OpenFst"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenFst"
 
         self.cpp_info.libs = ["fst"]
 
@@ -219,8 +212,3 @@ class OpenFstConan(ConanFile):
                 self.cpp_info.libs.append("fstpdtscript")
 
         self.cpp_info.system_libs = ["pthread", "dl", "m"]
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment var: {bindir}")
-        self.env_info.PATH.append(bindir)

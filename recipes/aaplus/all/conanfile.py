@@ -41,7 +41,6 @@ class Aaplusconan(ConanFile):
             "gcc": "8",
             "clang": "9",
             "apple-clang": "11",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -60,8 +59,7 @@ class Aaplusconan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         compiler_version = Version(self.settings.compiler.version)
@@ -70,7 +68,7 @@ class Aaplusconan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
-        if self.settings.compiler == "clang" and (compiler_version >= "10" and compiler_version < "12"):
+        if self.settings.compiler == "clang" and "10" <= compiler_version < "12":
             raise ConanInvalidConfiguration(
                 "AA+ cannot handle clang 10 and 11 due to filesystem being under experimental namespace"
             )

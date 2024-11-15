@@ -33,7 +33,6 @@ class SiConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15",
             "clang": "5",
             "apple-clang": "10",
         }
@@ -45,8 +44,7 @@ class SiConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
@@ -85,5 +83,3 @@ class SiConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "SI")
         self.cpp_info.set_property("cmake_target_name", "SI::SI")
 
-        self.cpp_info.names["cmake_find_package"] = "SI"
-        self.cpp_info.names["cmake_find_package_multi"] = "SI"

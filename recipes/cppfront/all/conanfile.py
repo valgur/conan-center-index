@@ -27,7 +27,6 @@ class CppfrontConan(ConanFile):
         return {
             "gcc": "11",
             # cppfront requires constexpr source_location
-            "Visual Studio": "17",
             "msvc": "193",
             "clang": "12",
             # cppfront requires <ranges> which is available on apple-clang 14.3 or later..
@@ -41,8 +40,7 @@ class CppfrontConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -81,6 +79,3 @@ class CppfrontConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

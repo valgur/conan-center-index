@@ -7,8 +7,7 @@ from conan.tools.build import can_run
 
 class TestPacakgeConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
         self.requires(self.tested_reference_str)

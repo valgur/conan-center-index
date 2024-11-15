@@ -39,7 +39,6 @@ class SimpleYamlConan(ConanFile):
             "clang": "11",
             "apple-clang": "13.3",
             "msvc": "193",
-            "Visual Studio": "16.3",
         }
 
     def layout(self):
@@ -56,8 +55,7 @@ class SimpleYamlConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if (
             self.settings.compiler == "clang"
             and self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"]

@@ -47,8 +47,7 @@ class Gm2calcConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -88,7 +87,3 @@ class Gm2calcConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "GM2Calc::GM2Calc")
         self.cpp_info.set_property("pkg_config_name", "gm2calc")
         self.cpp_info.libs = ["gm2calc"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GM2Calc"
-        self.cpp_info.names["cmake_find_package_multi"] = "GM2Calc"

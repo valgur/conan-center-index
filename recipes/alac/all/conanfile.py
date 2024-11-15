@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 import os
@@ -63,9 +63,5 @@ class AlacConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["alac"]
-
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        if conan_version.major < 2 and self.options.utility:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

@@ -1,10 +1,9 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -148,12 +147,6 @@ class RaylibConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"raylib": "raylib::raylib"}
-        )
-
         # INFO: Custom modules are enabled by default but need to copy the headers manually
         include_path = os.path.join(self.package_folder, "include")
         if self.options.get_safe("camera_system", True):
@@ -162,21 +155,6 @@ class RaylibConan(ConanFile):
             copy(self, pattern="*gestures.h", dst=include_path, src=os.path.join(self.source_folder, "src"))
         if self._support_rprand_generator and self.options.get_safe("rprand_generator", True):
             copy(self, pattern="rprand.h", dst=include_path, src=os.path.join(self.source_folder, "src", "external"))
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """.format(alias=alias, aliased=aliased))
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "raylib")
@@ -192,7 +170,3 @@ class RaylibConan(ConanFile):
             self.cpp_info.system_libs.extend(["m", "pthread"])
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.append("winmm")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

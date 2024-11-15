@@ -32,7 +32,6 @@ class AndreasbuhrCppCoroConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "10",
             "clang": "8",
@@ -56,9 +55,8 @@ class AndreasbuhrCppCoroConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
-        
+        check_min_cppstd(self, self._min_cppstd)
+
         # We can't simply check for C++20, because clang and MSVC support the coroutine TS despite not having labeled (__cplusplus macro) C++20 support
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
@@ -131,9 +129,3 @@ class AndreasbuhrCppCoroConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "cppcoro")
         self.cpp_info.set_property("cmake_target_name", "cppcoro::cppcoro")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "cppcoro"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "cppcoro"
-        self.cpp_info.names["cmake_find_package"] = "cppcoro"
-        self.cpp_info.names["cmake_find_package_multi"] = "cppcoro"

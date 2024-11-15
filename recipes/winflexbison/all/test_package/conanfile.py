@@ -6,8 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
@@ -24,8 +23,8 @@ class TestPackageConan(ConanFile):
         self.run("win_flex --version")
         self.run("win_bison --version")
         if not cross_building(self):
-            bison_test = os.path.join(self.cpp.build.bindirs[0], "bison_test_package")
+            bison_test = os.path.join(self.cpp.build.bindir, "bison_test_package")
             self.run(bison_test, env="conanrun")
-            flex_test = os.path.join(self.cpp.build.bindirs[0], "flex_test_package")
+            flex_test = os.path.join(self.cpp.build.bindir, "flex_test_package")
             basic_nr_txt = os.path.join(self.source_folder, "basic_nr.txt")
             self.run(f"{flex_test} {basic_nr_txt}", env="conanrun")

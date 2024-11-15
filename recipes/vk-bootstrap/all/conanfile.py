@@ -37,7 +37,6 @@ class VkBootstrapConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "5",
-            "Visual Studio": "15",
             "msvc": "191",
             "clang": "3.7" if stdcpp_library(self) == "stdc++" else "6",
             "apple-clang": "10",
@@ -64,8 +63,7 @@ class VkBootstrapConan(ConanFile):
             self.requires("vulkan-headers/1.3.290.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

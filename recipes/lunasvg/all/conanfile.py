@@ -44,14 +44,12 @@ class LunaSVGConan(ConanFile):
                 "gcc": "5",
                 "clang": "3.5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
             "17": {
                 "gcc": "7.1",
                 "clang": "7",
                 "apple-clang": "12.0",
-                "Visual Studio": "16",
                 "msvc": "192",
             },
         }.get(self._min_cppstd, {})
@@ -79,8 +77,7 @@ class LunaSVGConan(ConanFile):
             self.requires("plutovg/0.0.7")
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

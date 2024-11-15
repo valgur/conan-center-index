@@ -37,7 +37,6 @@ class MailioConan(ConanFile):
         return {
             "gcc": "8.3",
             "clang": "6",
-            "Visual Studio": "15",
             "msvc": "191",
             "apple-clang": "10",
         }
@@ -61,8 +60,7 @@ class MailioConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

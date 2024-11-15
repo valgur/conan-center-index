@@ -28,7 +28,6 @@ class DawJsonLinkConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
@@ -48,8 +47,7 @@ class DawJsonLinkConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -86,11 +84,3 @@ class DawJsonLinkConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "daw::daw-json-link")
         self.cpp_info.components["daw"].set_property("cmake_target_name", "daw::daw-json-link")
         self.cpp_info.components["daw"].requires = ["daw_header_libraries::daw", "daw_utf_range::daw"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "daw-json-link"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "daw-json-link"
-        self.cpp_info.names["cmake_find_package"] = "daw"
-        self.cpp_info.names["cmake_find_package_multi"] = "daw"
-        self.cpp_info.components["daw"].names["cmake_find_package"] = "daw-json-link"
-        self.cpp_info.components["daw"].names["cmake_find_package_multi"] = "daw-json-link"

@@ -27,15 +27,13 @@ class PolymorphictValueConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "gcc": "8",
             "clang": "8",
             "apple-clang": "11"
         }
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(
             str(self.settings.compiler))
         if not min_version:
@@ -71,5 +69,3 @@ class PolymorphictValueConan(ConanFile):
         self.cpp_info.set_property(
             "cmake_target_name", "polymorphic_value::polymorphic_value")
 
-        self.cpp_info.names["cmake_find_package"] = "polymorphic_value"
-        self.cpp_info.names["cmake_find_package_multi"] = "polymorphic_value"

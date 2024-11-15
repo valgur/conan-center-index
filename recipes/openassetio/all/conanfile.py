@@ -42,7 +42,6 @@ class PackageConan(ConanFile):
             "gcc": "9",
             "clang": "12",
             "apple-clang": "12",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 
@@ -64,8 +63,7 @@ class PackageConan(ConanFile):
         if is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support MacOS at this time")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -129,7 +127,3 @@ class PackageConan(ConanFile):
             self.cpp_info.components["openassetio-python-bridge"].set_property("cmake_target_name", "OpenAssetIO::openassetio-python-bridge")
             self.cpp_info.components["openassetio-python-bridge"].requires = ["openassetio-core"]
             self.cpp_info.components["openassetio-python-bridge"].libs = ["openassetio-python"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenAssetIO"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenAssetIO"

@@ -79,8 +79,7 @@ class FmtConan(ConanFile):
             del self.info.options.with_fmt_alias
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -127,29 +126,20 @@ class FmtConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name",  "fmt")
 
         if self.options.get_safe("with_unicode") and is_msvc(self):
-            self.cpp_info.components["_fmt"].cxxflags.append("/utf-8")
+            self.cpp_info.cxxflags.append("/utf-8")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
         if self.options.with_fmt_alias:
-            self.cpp_info.components["_fmt"].defines.append("FMT_STRING_ALIAS=1")
+            self.cpp_info.defines.append("FMT_STRING_ALIAS=1")
 
         if self.options.header_only:
-            self.cpp_info.components["_fmt"].defines.append("FMT_HEADER_ONLY=1")
-            self.cpp_info.components["_fmt"].libdirs = []
-            self.cpp_info.components["_fmt"].bindirs = []
+            self.cpp_info.defines.append("FMT_HEADER_ONLY=1")
+            self.cpp_info.libdirs = []
+            self.cpp_info.bindirs = []
         else:
             postfix = "d" if self.settings.build_type == "Debug" else ""
             libname = "fmt" + postfix
-            self.cpp_info.components["_fmt"].libs = [libname]
+            self.cpp_info.libs = [libname]
             if self.settings.os == "Linux":
-                self.cpp_info.components["_fmt"].system_libs.extend(["m"])
+                self.cpp_info.system_libs.extend(["m"])
             if self.options.shared:
-                self.cpp_info.components["_fmt"].defines.append("FMT_SHARED")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "fmt"
-        self.cpp_info.names["cmake_find_package_multi"] = "fmt"
-        self.cpp_info.names["pkg_config"] = "fmt"
-        self.cpp_info.components["_fmt"].names["cmake_find_package"] = target
-        self.cpp_info.components["_fmt"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["_fmt"].set_property("cmake_target_name", f"fmt::{target}")
+                self.cpp_info.defines.append("FMT_SHARED")

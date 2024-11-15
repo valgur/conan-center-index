@@ -47,8 +47,7 @@ class AGSConan(ConanFile):
             raise ConanInvalidConfiguration(f"Visual Studio 2019 or older is required for v{self.version}")
         if self.settings.arch not in self._supported_archs:
             raise ConanInvalidConfiguration(f"AGS SDK doesn't support arch: {self.settings.arch}")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -56,20 +55,12 @@ class AGSConan(ConanFile):
     @property
     def _vs_ide_year(self):
         compiler_version = str(self.settings.compiler.version)
-        if str(self.settings.compiler) == "Visual Studio":
-            return {
-                "14": "2015",
-                "15": "2017",
-                "16": "2019",
-                "17": "2022",
-            }[compiler_version]
-        else:
-            return {
-                "190": "2015",
-                "191": "2017",
-                "192": "2019",
-                "193": "2022",
-            }[compiler_version]
+        return {
+            "190": "2015",
+            "191": "2017",
+            "192": "2019",
+            "193": "2022",
+        }[compiler_version]
 
     @property
     def _win_arch(self):

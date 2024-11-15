@@ -55,8 +55,7 @@ class ShadercConan(ConanFile):
         self.requires(f"spirv-headers/{self._spirv_version}")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.17.2 <4]")
@@ -127,7 +126,3 @@ class ShadercConan(ConanFile):
             "spirv-tools::spirv-tools-opt",
             "spirv-headers::spirv-headers"
         ]
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

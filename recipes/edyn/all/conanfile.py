@@ -39,7 +39,6 @@ class EdynConan(ConanFile):
             "gcc": "9.3", # GCC 9.3 started supporting attributes in constructor arguments
             "clang": "8",
             "apple-clang": "10",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -58,8 +57,7 @@ class EdynConan(ConanFile):
         self.requires("entt/3.10.3", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -103,7 +101,3 @@ class EdynConan(ConanFile):
             self.cpp_info.system_libs += ["m", "pthread"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["winmm"]
-
-        #  TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Edyn"
-        self.cpp_info.names["cmake_find_package_multi"] = "Edyn"

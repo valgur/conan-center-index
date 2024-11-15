@@ -32,7 +32,6 @@ class TaoCPPJSONConan(ConanFile):
                 "gcc": "7",
                 "clang": "6",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
         }.get(self._min_cppstd, {})
@@ -52,8 +51,7 @@ class TaoCPPJSONConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         min_compiler_version = self._min_compilers_version.get(str(self.settings.compiler), False)
         if min_compiler_version and Version(self.settings.compiler.version) < min_compiler_version:
             raise ConanInvalidConfiguration(
@@ -73,17 +71,5 @@ class TaoCPPJSONConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "taocpp-json")
         self.cpp_info.set_property("cmake_target_name", "taocpp::json")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["json"].bindirs = []
-        self.cpp_info.components["json"].libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "taocpp-json"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "taocpp-json"
-        self.cpp_info.names["cmake_find_package"] = "taocpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
-        self.cpp_info.components["json"].names["cmake_find_package"] = "json"
-        self.cpp_info.components["json"].names["cmake_find_package_multi"] = "json"
-        self.cpp_info.components["json"].set_property("cmake_target_name", "taocpp::json")
-        if self._requires_pegtl:
-            self.cpp_info.components["json"].requires = ["taocpp-pegtl::taocpp-pegtl"]
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

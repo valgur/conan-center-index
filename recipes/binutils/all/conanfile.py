@@ -50,14 +50,6 @@ class BinutilsConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
-    def _settings_target(self):
-        return self.settings_target or self.settings
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -68,15 +60,15 @@ class BinutilsConan(ConanFile):
         if not self.options.target_triplet:
             if not self.options.target_arch:
                 # If target triplet and target arch are not set, initialize it from the target settings
-                self.options.target_arch = str(self._settings_target.arch)
+                self.options.target_arch = str(self.settings_target.arch)
             if not self.options.target_os:
                 # If target triplet and target os are not set, initialize it from the target settings
-                self.options.target_os = str(self._settings_target.os)
+                self.options.target_os = str(self.settings_target.os)
             # Initialize the target_triplet from the target arch and target os
             self.options.target_triplet = _GNUTriplet.from_archos(_ArchOs(
                 arch=str(self.options.target_arch),
                 os=str(self.options.target_os),
-                extra=dict(self._settings_target.values_list))).triplet
+                extra=dict(self.settings_target.values_list))).triplet
         else:
             gnu_triplet_obj = _GNUTriplet.from_text(str(self.options.target_triplet))
             archos = _ArchOs.from_triplet(gnu_triplet_obj)
@@ -131,7 +123,7 @@ class BinutilsConan(ConanFile):
         raise ConanInvalidConfiguration(f"This configuration is unsupported by this conan recip. Please consider adding support. ({key}={value})")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type="str"):
                 self.tool_requires("msys2/cci.latest")
@@ -197,20 +189,10 @@ class BinutilsConan(ConanFile):
 
         # Add recipe path to enable running the self test in the test package.
         # Don't use this property in production code. It's unsupported.
-        self.user_info.recipe_path = os.path.realpath(__file__)
         self.cpp_info.resdirs = ["etc"]
         self.buildenv_info.define("GPROFNG_SYSCONFDIR", os.path.join(self.package_folder, "etc"))
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs = ["dl", "rt"]
-
-        # v1 exports
-        self.env_info.PATH.append(bindir)
-        if self.options.add_unprefixed_to_path:
-            self.env_info.PATH.append(absolute_target_bindir)
-        self.output.info(f"GNU triplet={self.options.target_triplet}")
-        self.user_info.gnu_triplet = self.options.target_triplet
-        self.user_info.prefix = self.options.prefix
-        self.output.info(f"executable prefix={self.options.prefix}")
 
 class _ArchOs:
     def __init__(self, arch: str, os: str, extra: typing.Optional[typing.Dict[str, str]] = None):
@@ -397,8 +379,8 @@ class _GNUTriplet:
             return "apple"
         return cls.OS_TO_GNU_VENDOR_LUT.get(archos.os, "pc")
 
-    @classmethod
-    def calculate_gnu_abi(self, archos: _ArchOs) -> typing.Optional[str]:
+    @staticmethod
+    def calculate_gnu_abi(archos: _ArchOs) -> typing.Optional[str]:
         if archos.os in ("baremetal", ):
             if archos.arch in ("armv7",):
                 return "eabi"

@@ -71,7 +71,6 @@ class ContinuableConan(ConanFile):
             "gcc": "5",
             "clang": "3.4",
             "apple-clang": "10",
-            "Visual Studio": "14",
         }
 
     def layout(self):
@@ -84,8 +83,7 @@ class ContinuableConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

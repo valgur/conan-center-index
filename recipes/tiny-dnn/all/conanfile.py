@@ -34,7 +34,6 @@ class TinyDnnConan(ConanFile):
             "clang": "3.4",
             "apple-clang": "10",
             "msvc": "190",
-            "Visual Studio": "14",
         }
 
     def layout(self):
@@ -50,8 +49,7 @@ class TinyDnnConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         compiler = str(self.settings.compiler)
         version = Version(self.settings.compiler.version)
@@ -95,19 +93,9 @@ class TinyDnnConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "tinydnn")
         self.cpp_info.set_property("cmake_target_name", "TinyDNN::tiny_dnn")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["tinydnn"].set_property("cmake_target_name", "TinyDNN::tiny_dnn")
-        self.cpp_info.components["tinydnn"].requires = ["cereal::cereal", "stb::stb"]
+        self.cpp_info.requires = ["cereal::cereal", "stb::stb"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["tinydnn"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
         if self.options.with_tbb:
-            self.cpp_info.components["tinydnn"].defines = ["CNN_USE_TBB=1"]
-            self.cpp_info.components["tinydnn"].requires.append("onetbb::onetbb")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "tinydnn"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "tinydnn"
-        self.cpp_info.names["cmake_find_package"] = "TinyDNN"
-        self.cpp_info.names["cmake_find_package_multi"] = "TinyDNN"
-        self.cpp_info.components["tinydnn"].names["cmake_find_package"] = "tiny_dnn"
-        self.cpp_info.components["tinydnn"].names["cmake_find_package_multi"] = "tiny_dnn"
+            self.cpp_info.defines = ["CNN_USE_TBB=1"]
+            self.cpp_info.requires.append("onetbb::onetbb")

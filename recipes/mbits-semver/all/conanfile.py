@@ -31,7 +31,6 @@ class MBitsSemverConan(ConanFile):
         return {
             "gcc": "11",
             "clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "11.0.3",
         }
@@ -47,8 +46,7 @@ class MBitsSemverConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(
@@ -93,10 +91,6 @@ class MBitsSemverConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mbits-semver")
         self.cpp_info.set_property("cmake_target_name", "mbits::semver")
 
-        self.cpp_info.filenames["cmake_find_package"] = "mbits-semver"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-semver"
-        self.cpp_info.names["cmake_find_package"] = "mbits"
-        self.cpp_info.names["cmake_find_package_multi"] = "mbits"
         self.cpp_info.components["semver"].set_property(
             "cmake_target_name", "mbits::semver"
         )

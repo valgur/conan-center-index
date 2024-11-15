@@ -43,8 +43,7 @@ class DimeConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -100,7 +99,3 @@ class DimeConan(ConanFile):
             self.cpp_info.defines.append("DIME_DLL" if self.options.shared else "DIME_NOT_DLL")
         if self.options.fixbig:
             self.cpp_info.defines.append("DIME_FIXBIG")
-
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bindir}")
-        self.env_info.PATH.append(bindir)

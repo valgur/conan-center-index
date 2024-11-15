@@ -34,8 +34,7 @@ class HsmConan(ConanFile):
     def validate(self):
         # FIXME: should use self.info.settings instead of self.settings for conan v2
         # https://github.com/erikzenker/hsm#dependencies
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
         if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < "8":
             raise ConanInvalidConfiguration("clang 8+ is required")
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "8":
@@ -64,8 +63,6 @@ class HsmConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "hsm"
-        self.cpp_info.names["cmake_find_package_multi"] = "hsm"
         self.cpp_info.set_property("cmake_file_name", "hsm")
         self.cpp_info.set_property("cmake_target_name", "hsm::hsm")
         self.cpp_info.requires = ["boost::headers"]

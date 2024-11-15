@@ -48,8 +48,7 @@ class SimpleWebSocketServerConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if Version(self.version) <= "2.0.1":
             if self.dependencies.get("asio"):
                 if Version(self.dependencies["asio"].ref.version) >= "1.18.0":

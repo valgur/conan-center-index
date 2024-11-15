@@ -42,7 +42,6 @@ class Opene57Conan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "7",
             "clang": "6",
@@ -70,7 +69,7 @@ class Opene57Conan(ConanFile):
             self.requires("boost/1.85.0")
 
         if self.options.with_docs:
-            self.requires("doxygen/1.9.4")
+            self.requires("doxygen/[>=1.8 <2]")
 
         if self.settings.os != "Windows":
             self.requires("icu/74.1")
@@ -78,8 +77,7 @@ class Opene57Conan(ConanFile):
         self.requires("xerces-c/3.2.4")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -141,8 +139,3 @@ class Opene57Conan(ConanFile):
         self.cpp_info.defines.append("XERCES_STATIC_LIBRARY")
         self.cpp_info.defines.append("CRCPP_INCLUDE_ESOTERIC_CRC_DEFINITIONS")
         self.cpp_info.defines.append("CRCPP_USE_CPP11")
-
-        # TODO: to remove in conan v2
-        if self.options.with_tools:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.env_info.PATH.append(bin_path)

@@ -25,8 +25,7 @@ class JthreadLiteConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -43,17 +42,5 @@ class JthreadLiteConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "nonstd::jthread-lite")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        # TODO: back to global scope once cmake_find_package* generators removed
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["jthreadlite"].system_libs = ["pthread"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "jthread-lite"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "jthread-lite"
-        self.cpp_info.names["cmake_find_package"] = "nonstd"
-        self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
-        self.cpp_info.components["jthreadlite"].names["cmake_find_package"] = "jthread-lite"
-        self.cpp_info.components["jthreadlite"].names["cmake_find_package_multi"] = "jthread-lite"
-        self.cpp_info.components["jthreadlite"].set_property("cmake_target_name", "nonstd::jthread-lite")
-        self.cpp_info.components["jthreadlite"].bindirs = []
-        self.cpp_info.components["jthreadlite"].libdirs = []
+            self.cpp_info.system_libs = ["pthread"]

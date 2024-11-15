@@ -1,11 +1,10 @@
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, export_conandata_patches, apply_conandata_patches
-from conan.tools.microsoft import is_msvc
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.scm import Version
 
@@ -44,9 +43,6 @@ class LightGBMConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if conan_version.major == 1 and self.settings.compiler == "apple-clang":
-            # https://github.com/conan-io/conan-center-index/pull/18759#issuecomment-1817470331
-            del self.options.with_openmp
 
     def configure(self):
         if self.options.shared:
@@ -63,8 +59,7 @@ class LightGBMConan(ConanFile):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         if Version(self.version) >= "4.3.0":
@@ -118,13 +113,3 @@ class LightGBMConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LightGBM")
         self.cpp_info.set_property("cmake_target_name", "LightGBM::LightGBM")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "LightGBM"
-        self.cpp_info.names["cmake_find_package_multi"] = "LightGBM"
-
-        self.cpp_info.libs = ["lib_lightgbm"] if is_msvc(self) else ["_lightgbm"]
-        if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
-        elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("pthread")

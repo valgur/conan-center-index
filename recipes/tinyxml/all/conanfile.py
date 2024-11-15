@@ -76,7 +76,3 @@ class TinyXmlConan(ConanFile):
         self.cpp_info.libs = ["tinyxml"]
         if self.options.with_stl:
             self.cpp_info.defines = ["TIXML_USE_STL"]
-
-        # TODO: to remove in conan v2, and do not port these names to CMakeDeps, it was a mistake
-        self.cpp_info.names["cmake_find_package"] = "TinyXML"
-        self.cpp_info.names["cmake_find_package_multi"] = "TinyXML"

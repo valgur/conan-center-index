@@ -1,11 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
-from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library
-from conan.tools.scm import Version
+from conan.tools.build import check_min_cppstd, stdcpp_library, valid_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-import os
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -38,7 +39,6 @@ class JsonnetConan(ConanFile):
                 "gcc": "8",
                 "clang": "7",
                 "apple-clang": "12",
-                "Visual Studio": "16",
                 "msvc": "192",
             },
         }.get(self._min_cppstd, {})
@@ -58,18 +58,17 @@ class JsonnetConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-        if Version(self.version) == "0.17.0" and Version(self.settings.compiler.get_safe("cppstd")) > "17":
+        if Version(self.version) == "0.17.0" and valid_min_cppstd(self, 17):
             raise ConanInvalidConfiguration(f"{self.ref} does not support C++{self.settings.compiler.cppstd}")
 
-        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+        if not can_run(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support cross building")
 
         if self.options.shared and is_msvc(self) and "d" in msvc_runtime_flag(self):

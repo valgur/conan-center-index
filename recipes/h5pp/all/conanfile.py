@@ -43,7 +43,6 @@ class H5ppConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7.4",
-            "Visual Studio": "15.7",
             "clang": "6",
             "apple-clang": "10",
         }
@@ -84,8 +83,7 @@ class H5ppConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
@@ -147,13 +145,3 @@ class H5ppConan(ConanFile):
         if is_msvc(self):
             self.cpp_info.components["h5pp_flags"].defines.append("NOMINMAX")
             self.cpp_info.components["h5pp_flags"].cxxflags = ["/permissive-"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "h5pp"
-        self.cpp_info.names["cmake_find_package_multi"] = "h5pp"
-        self.cpp_info.components["h5pp_headers"].names["cmake_find_package"] = "headers"
-        self.cpp_info.components["h5pp_headers"].names["cmake_find_package_multi"] = "headers"
-        self.cpp_info.components["h5pp_deps"].names["cmake_find_package"] = "deps"
-        self.cpp_info.components["h5pp_deps"].names["cmake_find_package_multi"] = "deps"
-        self.cpp_info.components["h5pp_flags"].names["cmake_find_package"] = "flags"
-        self.cpp_info.components["h5pp_flags"].names["cmake_find_package_multi"] = "flags"

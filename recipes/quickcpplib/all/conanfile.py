@@ -24,7 +24,6 @@ class QuickcpplibCodeConan(ConanFile):
         return {
             "gcc": "9",
             "clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 
@@ -52,10 +51,9 @@ class QuickcpplibCodeConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            # To simplify library integration to CCI
-            # we require C++17 to be dependency free.
-            check_min_cppstd(self, self._min_cppstd)
+        # To simplify library integration to CCI
+        # we require C++17 to be dependency free.
+        check_min_cppstd(self, self._min_cppstd)
 
         min_version = self._compiler_required_version.get(str(self.settings.compiler))
         if min_version:

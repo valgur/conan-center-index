@@ -95,7 +95,3 @@ class NanomsgConan(ConanFile):
             self.cpp_info.defines.append("NN_STATIC_LIB")
         if self.options.enable_coverage:
             self.cpp_info.defines.append("NN_ENABLE_COVERAGE")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "nanomsg"
-        self.cpp_info.names["cmake_find_package_multi"] = "nanomsg"

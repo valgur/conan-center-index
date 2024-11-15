@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import cross_building
@@ -10,7 +10,6 @@ from conan.tools.files import (
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path
-from conan.tools.scm import Version
 from contextlib import contextmanager
 import fnmatch
 import json
@@ -107,10 +106,6 @@ class OpenSSLConan(ConanFile):
     def _use_nmake(self):
         return self._is_clang_cl or is_msvc(self)
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -142,7 +137,7 @@ class OpenSSLConan(ConanFile):
                 raise ConanInvalidConfiguration("os=Emscripten requires openssl:{no_asm,no_threads,no_stdio,no_tests}=True")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             if not self.options.no_asm:
                 self.tool_requires("nasm/2.16.01")
             if self._use_nmake:
@@ -379,10 +374,7 @@ class OpenSSLConan(ConanFile):
             # #error <stdatomic.h> is not yet supported when compiling as C, but this is planned for a future release.
             args.append("-D__STDC_NO_ATOMICS__")
 
-        if Version(conan_version).major < 2:
-            possible_values = self.options.values.fields
-        else:
-            possible_values = self.options.possible_values
+        possible_values = self.options.possible_values
         for option_name in possible_values:
             activated = self.options.get_safe(option_name)
             if activated and option_name not in ["fPIC", "openssldir", "capieng_dialog", "enable_capieng"]:
@@ -636,13 +628,3 @@ class OpenSSLConan(ConanFile):
             self.cpp_info.components["ssl"].system_libs.append("atomic")
             self.cpp_info.components["crypto"].system_libs.append("socket")
             self.cpp_info.components["ssl"].system_libs.append("socket")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenSSL"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenSSL"
-        self.cpp_info.components["ssl"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["crypto"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["crypto"].names["cmake_find_package"] = "Crypto"
-        self.cpp_info.components["crypto"].names["cmake_find_package_multi"] = "Crypto"
-        self.cpp_info.components["ssl"].names["cmake_find_package"] = "SSL"
-        self.cpp_info.components["ssl"].names["cmake_find_package_multi"] = "SSL"

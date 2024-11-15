@@ -37,7 +37,6 @@ class AsioGrpcConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15.7",
             "msvc": "191",
             "clang": "6",
             "apple-clang": "11",
@@ -72,8 +71,7 @@ class AsioGrpcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         compiler_version = Version(self.settings.compiler.version)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
@@ -110,10 +108,13 @@ class AsioGrpcConan(ConanFile):
         rm(self, "asio-grpc*", os.path.join(self.package_folder, "lib", "cmake", "asio-grpc"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "asio-grpc")
+        self.cpp_info.set_property("cmake_target_name", "asio-grpc::asio-grpc")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
         build_modules = [os.path.join("lib", "cmake", "asio-grpc", "AsioGrpcProtobufGenerator.cmake")]
+        self.cpp_info.set_property("cmake_build_modules", build_modules)
 
         self.cpp_info.requires = ["grpc::grpc++_unsecure"]
         if self.options.backend == "boost":
@@ -128,11 +129,3 @@ class AsioGrpcConan(ConanFile):
 
         if self._local_allocator_option == "boost_container":
             self.cpp_info.requires.append("boost::container")
-
-        self.cpp_info.set_property("cmake_file_name", "asio-grpc")
-        self.cpp_info.set_property("cmake_target_name", "asio-grpc::asio-grpc")
-        self.cpp_info.set_property("cmake_build_modules", build_modules)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.build_modules["cmake_find_package"] = build_modules
-        self.cpp_info.build_modules["cmake_find_package_multi"] = build_modules

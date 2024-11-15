@@ -6,7 +6,7 @@ from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path, unix_path_package_info_legacy
+from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.57.0"
@@ -20,10 +20,6 @@ class GetTextConan(ConanFile):
     homepage = "https://www.gnu.org/software/gettext"
     license = "GPL-3.0-or-later"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -46,11 +42,11 @@ class GetTextConan(ConanFile):
             raise ConanInvalidConfiguration("MSVC builds of gettext for versions < 0.21 are not supported.")  # FIXME: it used to be possible. What changed?
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
-        
+
         if self.version >= Version("0.22") or is_msvc(self):
             self.build_requires("automake/1.16.5")
 
@@ -153,8 +149,3 @@ class GetTextConan(ConanFile):
         autopoint = os.path.join(self.package_folder, "bin", "autopoint")
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal)
         self.buildenv_info.define_path("AUTOPOINT", autopoint)
-
-        # TODO: the following can be removed when the recipe supports Conan >= 2.0 only
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.AUTOMAKE_CONAN_INCLUDES.append(unix_path_package_info_legacy(self, aclocal))
-        self.env_info.AUTOPOINT = unix_path_package_info_legacy(self, autopoint)

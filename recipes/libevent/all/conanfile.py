@@ -126,7 +126,3 @@ class LibeventConan(ConanFile):
             self.cpp_info.components["pthreads"].set_property("pkg_config_name", "libevent_pthreads")
             self.cpp_info.components["pthreads"].libs = ["event_pthreads"]
             self.cpp_info.components["pthreads"].requires = ["core"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Libevent"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Libevent"

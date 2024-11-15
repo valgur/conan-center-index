@@ -1,8 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, cross_building
+from conan.tools.build import check_min_cppstd
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
@@ -69,11 +68,10 @@ class PangommConan(ConanFile):
             self.requires("cairomm/1.14.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            if self._is_2_48_api:
-                check_min_cppstd(self, 17)
-            elif self._is_1_4_api:
-                check_min_cppstd(self, 11)
+        if self._is_2_48_api:
+            check_min_cppstd(self, 17)
+        elif self._is_1_4_api:
+            check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")

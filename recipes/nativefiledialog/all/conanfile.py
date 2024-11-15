@@ -1,11 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, save
-from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps, GnuToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
 
@@ -53,22 +52,13 @@ class NativefiledialogConan(ConanFile):
     @property
     def _vs_ide_year(self):
         compiler_version = str(self.settings.compiler.version)
-        if str(self.settings.compiler) == "Visual Studio":
-            return {
-                "12": "2013",
-                "14": "2015",
-                "15": "2017",
-                "16": "2019",
-                "17": "2022",
-            }[compiler_version]
-        else:
-            return {
-                "180": "2013",
-                "190": "2015",
-                "191": "2017",
-                "192": "2019",
-                "193": "2022",
-            }[compiler_version]
+        return {
+            "180": "2013",
+            "190": "2015",
+            "191": "2017",
+            "192": "2019",
+            "193": "2022",
+        }[compiler_version]
 
     @property
     def _build_subdir(self):

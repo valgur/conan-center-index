@@ -3,12 +3,12 @@ from conan.tools.apple import is_apple_os, XCRun, fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import copy, rename, get, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, GnuToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
+from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.3.0"
 
 
 class LibX264Conan(ConanFile):
@@ -35,10 +35,6 @@ class LibX264Conan(ConanFile):
     # otherwise build fails with: ln: failed to create symbolic link './Makefile' -> '../../../../../../../../../../../../../j/w/prod/buildsinglereference@2/.conan/data/libx264/cci.20220602/_/_/build/622692a7dbc145becf87f01b017e2a0d93cc644e/src/Makefile': File name too long
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -59,7 +55,7 @@ class LibX264Conan(ConanFile):
     def build_requirements(self):
         if self._with_nasm:
             self.tool_requires("nasm/2.15.05")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -68,35 +64,31 @@ class LibX264Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
-        tc = AutotoolsToolchain(self)
+        tc = GnuToolchain(self)
+        tc.configure_args["--enable-strip"] = "yes" if self.settings.build_type not in ["Debug", "RelWithDebInfo"] else "no"
+        tc.configure_args["--enable-debug"] = "yes" if self.settings.build_type in ["Debug", "RelWithDebInfo"] else "no"
+        tc.configure_args["--bit-depth"] = self.options.bit_depth
+        tc.configure_args["--disable-cli"] = None
+        tc.configure_args["--sbindir"] = None       # Not understood by configure
+        tc.configure_args["--oldincludedir"] = None # Not understood by configure
+        tc.configure_args["--disable-shared"] = None # --disable-shared is not understood
+        if self.options.shared:
+            tc.configure_args["--enable-shared"] = None
+        else:
+            tc.configure_args["--enable-static"] = None
+        if self.options.get_safe("fPIC", self.settings.os != "Windows"):
+            tc.configure_args["--enable-pic"] = None
+        if self.settings.build_type == "Debug":
+            tc.configure_args["--enable-debug"] = None
 
         extra_asflags = []
         extra_cflags = []
         extra_ldflags = []
-        args = {
-            "--bit-depth": self.options.bit_depth,
-            "--disable-cli": "",
-            "--sbindir": None,          # Not understood by configure
-            "--oldincludedir": None     # Not understood by configure
-        }
-        args["--disable-shared"] = None # --disable-shared is not understood
-        if self.options.shared:
-            args["--enable-shared"] = ""
-        else:
-            args["--enable-static"] = ""
-        if self.options.get_safe("fPIC", self.settings.os != "Windows"):
-            args["--enable-pic"] = ""
-        if self.settings.build_type == "Debug":
-            args["--enable-debug"] = ""
-
         if is_apple_os(self) and self.settings.arch == "armv8":
             # bitstream-a.S:29:18: error: unknown token in expression
             extra_asflags.append("-arch arm64")
             extra_ldflags.append("-arch arm64")
-            args["--host"] = "aarch64-apple-darwin"
+            tc.configure_args["--host"] = "aarch64-apple-darwin"
             if self.settings.os != "Macos": # TODO not sure why this is != "Macos" ... shouldn't it be == ??
                 xcrun = XCRun(self)
                 platform_flags = ["-isysroot", xcrun.sdk_path]
@@ -107,20 +99,14 @@ class LibX264Conan(ConanFile):
                 extra_cflags.extend(platform_flags)
                 extra_ldflags.extend(platform_flags)
 
-        if self._with_nasm:
-            env = Environment()
-            # FIXME: get using user_build_info
-            env.define("AS", unix_path(self, os.path.join(self.dependencies.build["nasm"].package_folder, "bin", "nasm{}".format(".exe" if self.settings.os == "Windows" else ""))))
-            env.vars(self).save_script("conanbuild_nasm")
-
         if cross_building(self):
             if self.settings.os == "Android":
                 buildenv_vars = VirtualBuildEnv(self).vars()
                 ndk_root = self.conf.get("tools.android:ndk_path", buildenv_vars.get("NDK_ROOT"))
 
                 # INFO: Conan package android-ndk does not expose toolchain path. Looks fragile but follows always same for Android NDK
-                build_os = {"Linux": "linux", "Macos": "darwin", "Windows": "windows"}.get(str(self._settings_build.os))
-                toolchain = os.path.join(ndk_root, "toolchains", "llvm", "prebuilt", f"{build_os}-{self._settings_build.arch}")
+                build_os = {"Linux": "linux", "Macos": "darwin", "Windows": "windows"}.get(str(self.settings_build.os))
+                toolchain = os.path.join(ndk_root, "toolchains", "llvm", "prebuilt", f"{build_os}-{self.settings_build.arch}")
 
                 sysroot = self.conf.get("tools.build:sysroot", buildenv_vars.get("SYSROOT", f"{toolchain}/sysroot"))
                 # INFO: x264 will look for strings appended to the cross prefix
@@ -128,9 +114,9 @@ class LibX264Conan(ConanFile):
 
                 compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
 
-                args["--build"] = None # --build is not recognized
-                args["--cross-prefix"] = cross_prefix
-                args["--sysroot"] = sysroot
+                tc.configure_args["--build"] = None # --build is not recognized
+                tc.configure_args["--cross-prefix"] = cross_prefix
+                tc.configure_args["--sysroot"] = sysroot
 
                 # the as of ndk does not work well for building libx264
                 env = Environment()
@@ -138,30 +124,31 @@ class LibX264Conan(ConanFile):
                 env.define("AS", cc_as)
                 env_vars = env.vars(self, scope="build")
                 env_vars.save_script("conanbuild_android")
+            else:
+                tc_vars = tc.extra_env.vars(self)
+                strip = tc_vars.get("STRIP", "strip")
+                tc.configure_args["--cross-prefix"] = strip.replace("strip", "")
 
         if is_msvc(self):
             env = Environment()
             env.define("CC", "cl -nologo")
-            if check_min_vs(self, 180, False):
-                extra_cflags.append("-FS")
             env.vars(self).save_script("conanbuild_msvc")
 
         if is_msvc(self) or self.settings.os in ["iOS", "watchOS", "tvOS"]:
             # autotools does not know about the msvc and Apple embedded OS canonical name(s)
-            args["--build"] = None
-            args["--host"] = None
+            tc.configure_args["--build"] = None
+            tc.configure_args["--host"] = None
 
         # The finite-math-only optimization has no effect and can cause linking errors
         # when linked against glibc >= 2.31
-        extra_cflags += ["-fno-finite-math-only"]
+        tc.extra_cflags += ["-fno-finite-math-only"]
 
         if extra_asflags:
-            args["--extra-asflags"] = " ".join(extra_asflags)
+            tc.extra_cflags["--extra-asflags"] = " ".join(extra_asflags)
         if extra_cflags:
-            args["--extra-cflags"] = " ".join(extra_cflags)
+            tc.extra_cflags["--extra-cflags"] = " ".join(extra_cflags)
         if extra_ldflags:
-            args["--extra-ldflags"] = " ".join(extra_ldflags)
-        tc.update_configure_args(args)
+            tc.extra_cflags["--extra-ldflags"] = " ".join(extra_ldflags)
         tc.generate()
 
     def build(self):
@@ -189,6 +176,3 @@ class LibX264Conan(ConanFile):
             self.cpp_info.system_libs.extend(["dl", "pthread", "m"])
         elif self.settings.os == "Android":
             self.cpp_info.system_libs.extend(["dl", "m"])
-
-        # TODO: to remove in conan v2 once pkg_config generator removed
-        self.cpp_info.names["pkg_config"] = "x264"

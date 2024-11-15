@@ -38,8 +38,7 @@ class KeychainConan(ConanFile):
             self.requires("glib/2.78.3")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         if self.settings.os == "Linux":

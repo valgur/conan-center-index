@@ -2,10 +2,9 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -44,7 +43,7 @@ class OpenEXRConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
-        if Version(self.version) < "2.5.0" and hasattr(self, "settings_build") and cross_building(self):
+        if Version(self.version) < "2.5.0" and cross_building(self):
             # cross-build supported since https://github.com/AcademySoftwareFoundation/openexr/pull/606
             raise ConanInvalidConfiguration("Cross-build not supported before openexr 2.5.0")
 
@@ -107,34 +106,6 @@ class OpenEXRConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "IlmBase::IlmBaseConfig": "OpenEXR::IlmBaseConfig",
-                "IlmBase::Half": "OpenEXR::Half",
-                "IlmBase::Iex": "OpenEXR::Iex",
-                "IlmBase::IexMath": "OpenEXR::IexMath",
-                "IlmBase::IMath": "OpenEXR::IMath",
-                "IlmBase::IlmThread": "OpenEXR::IlmThread",
-            }
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         # FIXME: we should generate 2 CMake config files: OpenEXRConfig.cmake and IlmBaseConfig.cmake
@@ -225,37 +196,3 @@ class OpenEXRConan(ConanFile):
             if libcxx:
                 self.cpp_info.components["openexr_ilmimfconfig"].system_libs.append(libcxx)
                 self.cpp_info.components["ilmbase_ilmbaseconfig"].system_libs.append(libcxx)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenEXR"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenEXR"
-        self.cpp_info.components["openexr_ilmimfconfig"].names["cmake_find_package"] = "IlmImfConfig"
-        self.cpp_info.components["openexr_ilmimfconfig"].names["cmake_find_package_multi"] = "IlmImfConfig"
-        self.cpp_info.components["openexr_ilmimf"].names["cmake_find_package"] = "IlmImf"
-        self.cpp_info.components["openexr_ilmimf"].names["cmake_find_package_multi"] = "IlmImf"
-        self.cpp_info.components["openexr_ilmimfutil"].names["cmake_find_package"] = "IlmImfUtil"
-        self.cpp_info.components["openexr_ilmimfutil"].names["cmake_find_package_multi"] = "IlmImfUtil"
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].names["cmake_find_package"] = "IlmBaseConfig"
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].names["cmake_find_package_multi"] = "IlmBaseConfig"
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_ilmbaseconfig"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_half"].names["cmake_find_package"] = "Half"
-        self.cpp_info.components["ilmbase_half"].names["cmake_find_package_multi"] = "Half"
-        self.cpp_info.components["ilmbase_half"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_half"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_iex"].names["cmake_find_package"] = "Iex"
-        self.cpp_info.components["ilmbase_iex"].names["cmake_find_package_multi"] = "Iex"
-        self.cpp_info.components["ilmbase_iex"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_iex"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_iexmath"].names["cmake_find_package"] = "IexMath"
-        self.cpp_info.components["ilmbase_iexmath"].names["cmake_find_package_multi"] = "IexMath"
-        self.cpp_info.components["ilmbase_iexmath"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_iexmath"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_imath"].names["cmake_find_package"] = "IMath"
-        self.cpp_info.components["ilmbase_imath"].names["cmake_find_package_multi"] = "IMath"
-        self.cpp_info.components["ilmbase_imath"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_imath"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_ilmthread"].names["cmake_find_package"] = "IlmThread"
-        self.cpp_info.components["ilmbase_ilmthread"].names["cmake_find_package_multi"] = "IlmThread"
-        self.cpp_info.components["ilmbase_ilmthread"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["ilmbase_ilmthread"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

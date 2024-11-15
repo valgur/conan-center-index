@@ -58,7 +58,6 @@ class DlibConan(ConanFile):
         if Version(self.version) < "19.24.2":
             return {}
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "6",
             "clang": "5",
@@ -98,11 +97,10 @@ class DlibConan(ConanFile):
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_openblas:
-            self.requires("openblas/0.3.27")
+            self.requires("openblas/0.3.28")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

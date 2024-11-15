@@ -30,7 +30,7 @@ int main() {
   return rv;
 }
 
-yylex() {
+int yylex() {
   int ch;
 
 	do { ch = getchar(); } while (ch == ' ' || ch == '\n' || ch == '\t');

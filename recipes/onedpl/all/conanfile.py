@@ -45,7 +45,6 @@ class OneDplConan(ConanFile):
             "gcc": "7",
             "clang": "6",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 
@@ -60,8 +59,7 @@ class OneDplConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -89,16 +87,3 @@ class OneDplConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "pstl::ParallelSTL")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "ParallelSTL"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ParallelSTL"
-        self.cpp_info.names["cmake_find_package"] = "pstl"
-        self.cpp_info.names["cmake_find_package_multi"] = "pstl"
-        self.cpp_info.components["_onedpl"].names["cmake_find_package"] = "ParallelSTL"
-        self.cpp_info.components["_onedpl"].names["cmake_find_package_multi"] = "ParallelSTL"
-        self.cpp_info.components["_onedpl"].set_property("cmake_target_name", "pstl::ParallelSTL")
-        self.cpp_info.components["_onedpl"].bindirs = []
-        self.cpp_info.components["_onedpl"].libdirs = []
-        if self.options.backend == "tbb":
-            self.cpp_info.components["_onedpl"].requires = ["onetbb::onetbb"]

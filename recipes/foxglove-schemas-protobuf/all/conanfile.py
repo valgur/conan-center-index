@@ -53,8 +53,7 @@ class FoxgloveSchemasProtobufConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, self._compilers_minimum_version["msvc"])
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

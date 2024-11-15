@@ -29,7 +29,6 @@ class SourceLocationConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16.6",
             "gcc": "7.1",
             "clang": "9",
             "apple-clang": "12",
@@ -42,8 +41,7 @@ class SourceLocationConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warning("source_location requires C++11. Your compiler is unknown. Assuming it supports C++11 and required functionality.")

@@ -2,16 +2,15 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
-from conan.tools.scm import Version
 import os
 
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.0.9"
 
 #
 # INFO: Please, remove all comments before pushing your PR!
@@ -41,38 +40,19 @@ class PackageConan(ConanFile):
         "fPIC": True,
         "with_foobar": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    # in case the project requires C++14/17/20/... the minimum compiler version should be listed
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "7",
-            "gcc": "7",
-            "msvc": "191",
-            "Visual Studio": "15",
-        }
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
+    # In case having config_options() or configure() method, the logic should be moved to the specific methods.
+    implements = ["auto_shared_fpic"]
 
     # no exports_sources attribute, but export_sources(self) method instead
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     def configure(self):
+        # Keep this logic only in case configure() is needed e.g pure-c project.
+        # Otherwise remove configure() and auto_shared_fpic will manage it.
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        # for plain C projects only
+        # for plain C projects only. Otherwise, remove this method.
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
@@ -80,26 +60,21 @@ class PackageConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        # Prefer self.requires method instead of requires attribute.
-        # Set transitive_headers=True (which usually also requires transitive_libs=True)
-        # if the dependency is used in any of the packaged header files.
+        # Prefer self.requirements() method instead of self.requires attribute.
         self.requires("dependency/0.8.1")
         if self.options.with_foobar:
-            # used in foo/baz.hpp:34
-            self.requires("foobar/0.1.0", transitive_headers=True, transitive_libs=True)
-        # A small number of dependencies on CCI are allowed to use version ranges.
+            # INFO: used in foo/baz.hpp:34
+            self.requires("foobar/0.1.0")
+        # Some dependencies on CCI are allowed to use version ranges.
         # See https://github.com/conan-io/conan-center-index/blob/master/docs/adding_packages/dependencies.md#version-ranges
         self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         # validate the minimum cpp standard supported. Only for C++ projects
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
+
+        # Always comment the reason including the upstream issue.
+        # INFO: Upstream only support Unix systems. See <URL>
         if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}.")
 
@@ -110,8 +85,8 @@ class PackageConan(ConanFile):
         # only if upstream configure.ac relies on PKG_CHECK_MODULES macro
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        # required to suppport windows as a build machine
-        if self._settings_build.os == "Windows":
+        # required to support windows as a build machine
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -122,10 +97,11 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # apply patches listed in conandata.yml
+        # Using patches is always the last resort to fix issues. If possible, try to fix the issue in the upstream project.
+        apply_conandata_patches(self)
 
     def generate(self):
-        # inject tool_requires env vars into the build scope (not needed if there are no tool_requires)
-        VirtualBuildEnv(self).generate()
         # inject required env vars into the build scope
         # it's required in case of native build when there is AutotoolsDeps & at least one dependency which might be shared, because configure tries to run a test executable
         if not cross_building(self):
@@ -170,8 +146,7 @@ class PackageConan(ConanFile):
             env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
-        # apply patches listed in conandata.yml
-        apply_conandata_patches(self)
+
         autotools = Autotools(self)
         # (optional) run autoreconf to regenerate configure file (libtool should be in tool_requires)
         autotools.autoreconf()
@@ -198,6 +173,9 @@ class PackageConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "package")
 
         self.cpp_info.libs = ["package_lib"]
+
+        # if the package provides a pkgconfig file (package.pc, usually installed in <prefix>/lib/pkgconfig/)
+        self.cpp_info.set_property("pkg_config_name", "package")
 
         # If they are needed on Linux, m, pthread and dl are usually needed on FreeBSD too
         if self.settings.os in ["Linux", "FreeBSD"]:

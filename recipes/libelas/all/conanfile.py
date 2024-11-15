@@ -47,8 +47,7 @@ class LibelasConan(ConanFile):
         self.requires("openmp/system")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 98)
+        check_min_cppstd(self, 98)
         if self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("Only x86 and x86_64 architectures are supported")
 

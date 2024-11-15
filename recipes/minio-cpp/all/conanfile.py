@@ -36,7 +36,6 @@ class MinioCppConan(ConanFile):
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -59,8 +58,7 @@ class MinioCppConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

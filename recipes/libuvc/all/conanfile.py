@@ -108,22 +108,11 @@ class LibuvcConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "libuvc")
         self.cpp_info.set_property("cmake_target_name", f"LibUVC::{cmake_target}")
         self.cpp_info.set_property("pkg_config_name", "libuvc")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["_libuvc"].libs = ["uvc"]
-        self.cpp_info.components["_libuvc"].requires = ["libusb::libusb"]
+        self.cpp_info.libs = ["uvc"]
+        self.cpp_info.requires = ["libusb::libusb"]
         if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.components["_libuvc"].requires.append("libjpeg::libjpeg")
+            self.cpp_info.requires.append("libjpeg::libjpeg")
         elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.components["_libuvc"].requires.append("libjpeg-turbo::jpeg")
+            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
         elif self.options.with_jpeg == "mozjpeg":
-            self.cpp_info.components["_libuvc"].requires.append("mozjpeg::libjpeg")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "libuvc"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "libuvc"
-        self.cpp_info.names["cmake_find_package"] = "LibUVC"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibUVC"
-        self.cpp_info.components["_libuvc"].names["cmake_find_package"] = cmake_target
-        self.cpp_info.components["_libuvc"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["_libuvc"].set_property("cmake_target_name", f"LibUVC::{cmake_target}")
-        self.cpp_info.components["_libuvc"].set_property("pkg_config_name", "libuvc")
+            self.cpp_info.requires.append("mozjpeg::libjpeg")

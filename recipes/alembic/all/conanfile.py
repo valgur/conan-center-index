@@ -49,8 +49,7 @@ class AlembicConan(ConanFile):
             self.requires("hdf5/1.14.5")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -95,7 +94,3 @@ class AlembicConan(ConanFile):
         self.cpp_info.libs = ["Alembic"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread"])
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Alembic"
-        self.cpp_info.names["cmake_find_package_multi"] = "Alembic"

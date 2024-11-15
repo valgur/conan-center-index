@@ -35,7 +35,6 @@ class CycloneDDSCXXConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "7",
             "apple-clang": "10",
@@ -70,8 +69,7 @@ class CycloneDDSCXXConan(ConanFile):
         self.requires("cyclonedds/{}".format(self.version), transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -159,6 +157,5 @@ class CycloneDDSCXXConan(ConanFile):
         self.cpp_info.components["idlcxx"].libs = ["cycloneddsidlcxx"]
         self.cpp_info.components["idlcxx"].set_property("cmake_target_name", "CycloneDDS-CXX::idlcxx")
         self.cpp_info.components["idlcxx"].requires = ["cyclonedds::idl"]
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
         self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
         self.runenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))

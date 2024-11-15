@@ -1,6 +1,5 @@
 import os
 import shutil
-import textwrap
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
@@ -119,51 +118,18 @@ class CryptoPPPEMConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "cryptopp-pem-shared": "cryptopp-pem::cryptopp-pem-shared",
-                "cryptopp-pem-static": "cryptopp-pem::cryptopp-pem-static"
-            }
-        )
         fix_apple_shared_install_name(self)
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         cmake_target = "cryptopp-pem-shared" if self.options.shared else "cryptopp-pem-static"
-        self.cpp_info.set_property("cmake_target_aliases", [cmake_target])
+        self.cpp_info.set_property("cmake_target_name", cmake_target)
         self.cpp_info.set_property("pkg_config_name", "libcryptopp-pem")
 
-        # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["libcryptopp-pem"].libs = collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libcryptopp-pem"].system_libs = ["pthread", "m"]
+            self.cpp_info.system_libs = ["pthread", "m"]
         elif self.settings.os == "SunOS":
-            self.cpp_info.components["libcryptopp-pem"].system_libs = ["nsl", "socket"]
+            self.cpp_info.system_libs = ["nsl", "socket"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["libcryptopp-pem"].system_libs = ["ws2_32"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed
-        self.cpp_info.components["libcryptopp-pem"].names["cmake_find_package"] = cmake_target
-        self.cpp_info.components["libcryptopp-pem"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["libcryptopp-pem"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["libcryptopp-pem"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["libcryptopp-pem"].set_property("cmake_target_name", cmake_target)
-        self.cpp_info.components["libcryptopp-pem"].set_property("pkg_config_name", "libcryptopp-pem")
-
-        self.cpp_info.components["libcryptopp-pem"].requires = ["cryptopp::cryptopp"]
+            self.cpp_info.system_libs = ["ws2_32"]
+        self.cpp_info.requires = ["cryptopp::cryptopp"]

@@ -41,8 +41,7 @@ class GlbindingConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -108,13 +107,3 @@ class GlbindingConan(ConanFile):
 
         # workaround to propagate all components in CMakeDeps generator
         self.cpp_info.set_property("cmake_target_name", "glbinding::glbinding-aux")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "glbinding"
-        self.cpp_info.names["cmake_find_package_multi"] = "glbinding"
-        self.cpp_info.components["_glbinding"].names["cmake_find_package"] = "glbinding"
-        self.cpp_info.components["_glbinding"].names["cmake_find_package_multi"] = "glbinding"
-        self.cpp_info.components["glbinding-aux"].names["cmake_find_package"] = "glbinding-aux"
-        self.cpp_info.components["glbinding-aux"].names["cmake_find_package_multi"] = "glbinding-aux"
-        self.cpp_info.components["khrplatform"].names["cmake_find_package"] = "KHRplatform"
-        self.cpp_info.components["khrplatform"].names["cmake_find_package_multi"] = "KHRplatform"

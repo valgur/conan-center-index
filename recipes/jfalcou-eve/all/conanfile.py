@@ -32,7 +32,6 @@ class JfalcouEveConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "11",
-            "Visual Studio": "16.9",
             "msvc": "192",
             "clang": "13",
             "apple-clang": "14",
@@ -51,8 +50,7 @@ class JfalcouEveConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if is_msvc(self) and Version(self.version.strip("v")) < "2023.02.15":
             raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC. See https://github.com/jfalcou/eve/issues/1022")
@@ -82,7 +80,3 @@ class JfalcouEveConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "eve")
         self.cpp_info.set_property("cmake_target_name", "eve::eve")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "eve"
-        self.cpp_info.names["cmake_find_package_multi"] = "eve"

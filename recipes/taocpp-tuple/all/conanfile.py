@@ -24,8 +24,7 @@ class TaoCPPTupleConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
@@ -43,14 +42,3 @@ class TaoCPPTupleConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "taocpp::tuple")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "taocpp-tuple"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "taocpp-tuple"
-        self.cpp_info.names["cmake_find_package"] = "taocpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
-        self.cpp_info.components["_taocpp-tuple"].names["cmake_find_package"] = "tuple"
-        self.cpp_info.components["_taocpp-tuple"].names["cmake_find_package_multi"] = "tuple"
-        self.cpp_info.components["_taocpp-tuple"].set_property("cmake_target_name", "taocpp::tuple")
-        self.cpp_info.components["_taocpp-tuple"].bindirs = []
-        self.cpp_info.components["_taocpp-tuple"].libdirs = []

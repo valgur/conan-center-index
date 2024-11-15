@@ -1,11 +1,10 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 from conan.tools.env import VirtualBuildEnv
 import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -127,29 +126,12 @@ class LibAVIFConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    @property
-    def _alias_path(self):
-        return os.path.join("lib", "conan-official-avif-targets.cmake")
-
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-
-        # TODO: remove in conan v2
-        alias = os.path.join(self.package_folder, self._alias_path)
-        content = textwrap.dedent("""\
-            if(TARGET avif::avif AND NOT TARGET avif)
-                add_library(avif INTERFACE IMPORTED)
-                set_property(
-                    TARGET avif PROPERTY
-                    INTERFACE_LINK_LIBRARIES avif::avif
-                )
-            endif()
-        """)
-        save(self, alias, content)
 
     def package_info(self):
         self.cpp_info.libs = ["avif"]
@@ -169,13 +151,3 @@ class LibAVIFConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "libavif")
         self.cpp_info.set_property("cmake_target_name", "avif")
         self.cpp_info.set_property("pkg_config_name", "libavif")
-
-        # TODO: remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "avif"
-        self.cpp_info.names["cmake_find_package_multi"] = "avif"
-        self.cpp_info.filenames["cmake_find_package"] = "libavif"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "libavif"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._alias_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = \
-            [self._alias_path]
-

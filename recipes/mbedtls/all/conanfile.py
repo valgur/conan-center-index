@@ -145,9 +145,3 @@ class MBedTLSConan(ConanFile):
         if self.options.get_safe("with_zlib"):
             for component in self.cpp_info.components:
                 self.cpp_info.components[component].requires.append("zlib::zlib")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "MbedTLS"
-        self.cpp_info.names["cmake_find_package_multi"] = "MbedTLS"
-        self.cpp_info.components["libembedtls"].names["cmake_find_package"] = "mbedtls"
-        self.cpp_info.components["libembedtls"].names["cmake_find_package_multi"] = "mbedtls"

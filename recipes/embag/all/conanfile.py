@@ -56,8 +56,7 @@ class EmbagConan(ConanFile):
         self.requires("bzip2/1.0.8", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -327,26 +327,3 @@ class PhysXConan(ConanFile):
         self.cpp_info.components["physxextensions"].set_property("cmake_target_name", "PhysX::PhysXExtensions")
         self.cpp_info.components["physxextensions"].libs = ["PhysXExtensions"]
         self.cpp_info.components["physxextensions"].requires = ["physxfoundation", "physxpvdsdk", "physxmain", "physxcommon"]
-
-        # TODO: remove in conan v2 once cmake_find_package* removed
-        self.cpp_info.names["cmake_find_package"] = "PhysX"
-        self.cpp_info.names["cmake_find_package_multi"] = "PhysX"
-        self.cpp_info.components["physxfoundation"].names["cmake_find_package"] = "PhysXFoundation"
-        self.cpp_info.components["physxfoundation"].names["cmake_find_package_multi"] = "PhysXFoundation"
-        self.cpp_info.components["physxcommon"].names["cmake_find_package"] = "PhysXCommon"
-        self.cpp_info.components["physxcommon"].names["cmake_find_package_multi"] = "PhysXCommon"
-        self.cpp_info.components["physxpvdsdk"].names["cmake_find_package"] = "PhysXPvdSDK"
-        self.cpp_info.components["physxpvdsdk"].names["cmake_find_package_multi"] = "PhysXPvdSDK"
-        self.cpp_info.components["physxmain"].names["cmake_find_package"] = "PhysX"
-        self.cpp_info.components["physxmain"].names["cmake_find_package_multi"] = "PhysX"
-        if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["physxtask"].names["cmake_find_package"] = "PhysXTask"
-            self.cpp_info.components["physxtask"].names["cmake_find_package_multi"] = "PhysXTask"
-        self.cpp_info.components["physxcharacterkinematic"].names["cmake_find_package"] = "PhysXCharacterKinematic"
-        self.cpp_info.components["physxcharacterkinematic"].names["cmake_find_package_multi"] = "PhysXCharacterKinematic"
-        self.cpp_info.components["physxcooking"].names["cmake_find_package"] = "PhysXCooking"
-        self.cpp_info.components["physxcooking"].names["cmake_find_package_multi"] = "PhysXCooking"
-        self.cpp_info.components["physxvehicle"].names["cmake_find_package"] = "PhysXVehicle"
-        self.cpp_info.components["physxvehicle"].names["cmake_find_package_multi"] = "PhysXVehicle"
-        self.cpp_info.components["physxextensions"].names["cmake_find_package"] = "PhysXExtensions"
-        self.cpp_info.components["physxextensions"].names["cmake_find_package_multi"] = "PhysXExtensions"

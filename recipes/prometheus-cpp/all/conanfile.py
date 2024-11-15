@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy, rmdir
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -59,8 +58,7 @@ class PrometheusCppConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -125,13 +123,3 @@ class PrometheusCppConan(ConanFile):
                 self.cpp_info.components["prometheus-cpp-pull"].requires.append("zlib::zlib")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["prometheus-cpp-pull"].system_libs = ["pthread", "rt"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["prometheus-cpp-core"].names["cmake_find_package"] = "core"
-        self.cpp_info.components["prometheus-cpp-core"].names["cmake_find_package_multi"] = "core"
-        if self.options.with_push:
-            self.cpp_info.components["prometheus-cpp-push"].names["cmake_find_package"] = "push"
-            self.cpp_info.components["prometheus-cpp-push"].names["cmake_find_package_multi"] = "push"
-        if self.options.with_pull:
-            self.cpp_info.components["prometheus-cpp-pull"].names["cmake_find_package"] = "pull"
-            self.cpp_info.components["prometheus-cpp-pull"].names["cmake_find_package_multi"] = "pull"

@@ -27,7 +27,6 @@ class CsLibguardedConan(ConanFile):
     def _compilers_minimum_version(self):
         if Version(self.version) < "1.3":
             return {
-                "Visual Studio": "15.2",
                 "msvc": "191",
                 "gcc": "5",
                 "clang": "5",
@@ -35,7 +34,6 @@ class CsLibguardedConan(ConanFile):
             }
         else:
             return {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "8",
                 "clang": "7",
@@ -49,8 +47,7 @@ class CsLibguardedConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -95,9 +92,3 @@ class CsLibguardedConan(ConanFile):
 
             self.cpp_info.set_property("cmake_file_name", "CsLibGuarded")
             self.cpp_info.set_property("cmake_target_name", "CsLibGuarded::CsLibGuarded")
-
-            # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-            self.cpp_info.filenames["cmake_find_package"] = "CsLibGuarded"
-            self.cpp_info.filenames["cmake_find_package_multi"] = "CsLibGuarded"
-            self.cpp_info.names["cmake_find_package"] = "CsLibGuarded"
-            self.cpp_info.names["cmake_find_package_multi"] = "CsLibGuarded"

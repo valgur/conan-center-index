@@ -63,8 +63,7 @@ class OpenGrmConan(ConanFile):
         if not self.dependencies["openfst"].options.enable_grm:
             raise ConanInvalidConfiguration("OpenGrm requires OpenFst with enable_grm enabled.")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_compiler = self._compilers_minimum_version.get(str(self.settings.compiler))
         if minimum_compiler and Version(self.settings.compiler.version) < minimum_compiler:
@@ -112,7 +111,3 @@ class OpenGrmConan(ConanFile):
         self.cpp_info.libs = ["thrax"]
         self.cpp_info.resdirs = ["res"]
         self.cpp_info.system_libs = ["pthread", "dl", "m"]
-
-        # TODO: to remove in conan v2
-        if self.options.enable_bin:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

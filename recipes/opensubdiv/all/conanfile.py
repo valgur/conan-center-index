@@ -54,7 +54,6 @@ class OpenSubdivConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "11",
@@ -89,8 +88,7 @@ class OpenSubdivConan(ConanFile):
                 self.requires("onetbb/2021.10.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
@@ -175,11 +173,3 @@ class OpenSubdivConan(ConanFile):
             dl_required = self.options.with_opengl or self.options.with_opencl
             if self.settings.os in ["Linux", "FreeBSD"] and dl_required:
                 self.cpp_info.components["osdgpu"].system_libs = ["dl"]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "OpenSubdiv"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenSubdiv"
-        self.cpp_info.components["osdcpu"].names["cmake_find_package"] = f"osdcpu{target_suffix}"
-        self.cpp_info.components["osdcpu"].names["cmake_find_package_multi"] = f"osdcpu{target_suffix}"
-        self.cpp_info.components["osdgpu"].names["cmake_find_package"] = f"osdgpu{target_suffix}"
-        self.cpp_info.components["osdgpu"].names["cmake_find_package_multi"] = f"osdgpu{target_suffix}"

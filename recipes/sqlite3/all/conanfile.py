@@ -168,9 +168,6 @@ class Sqlite3Conan(ConanFile):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = CMake(self)
         cmake.install()
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        #       Indeed CMakeDeps uses 'cmake_file_name' property to qualify CMake variables
         self._create_cmake_module_variables(
             os.path.join(self.package_folder, self._module_file_rel_path)
         )
@@ -196,31 +193,16 @@ class Sqlite3Conan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "SQLite::SQLite3")
         self.cpp_info.set_property("pkg_config_name", "sqlite3")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["sqlite"].libs = ["sqlite3"]
+        self.cpp_info.libs = ["sqlite3"]
         if self.options.omit_load_extension:
-            self.cpp_info.components["sqlite"].defines.append("SQLITE_OMIT_LOAD_EXTENSION")
+            self.cpp_info.defines.append("SQLITE_OMIT_LOAD_EXTENSION")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.threadsafe:
-                self.cpp_info.components["sqlite"].system_libs.append("pthread")
+                self.cpp_info.system_libs.append("pthread")
             if not self.options.omit_load_extension:
-                self.cpp_info.components["sqlite"].system_libs.append("dl")
+                self.cpp_info.system_libs.append("dl")
             if self.options.enable_fts5 or self.options.get_safe("enable_math_functions"):
-                self.cpp_info.components["sqlite"].system_libs.append("m")
+                self.cpp_info.system_libs.append("m")
         elif self.settings.os == "Windows":
             if self.options.shared:
-                self.cpp_info.components["sqlite"].defines.append("SQLITE_API=__declspec(dllimport)")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "SQLite3"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "SQLite3"
-        self.cpp_info.names["cmake_find_package"] = "SQLite"
-        self.cpp_info.names["cmake_find_package_multi"] = "SQLite"
-        self.cpp_info.components["sqlite"].names["cmake_find_package"] = "SQLite3"
-        self.cpp_info.components["sqlite"].names["cmake_find_package_multi"] = "SQLite3"
-        self.cpp_info.components["sqlite"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["sqlite"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["sqlite"].set_property("cmake_target_name", "SQLite::SQLite3")
-        self.cpp_info.components["sqlite"].set_property("pkg_config_name", "sqlite3")
-        if self.options.build_executable:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
+                self.cpp_info.defines.append("SQLITE_API=__declspec(dllimport)")

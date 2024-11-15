@@ -1,12 +1,11 @@
 import os
-import yaml
 
+import yaml
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building, valid_min_cppstd, check_min_cppstd
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rmdir
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
@@ -68,10 +67,6 @@ class GrpcConan(ConanFile):
     @property
     def _cxxstd_required(self):
         return 14 if Version(self.version) >= "1.47" else 11
-
-    @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
 
     @property
     def _supports_libsystemd(self):
@@ -137,8 +132,7 @@ class GrpcConan(ConanFile):
         if Version(self.version) >= "1.47" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
             raise ConanInvalidConfiguration("GCC older than 6 is not supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._cxxstd_required)
+        check_min_cppstd(self, self._cxxstd_required)
 
         if self.options.shared and not self.dependencies.host["protobuf"].options.shared:
             raise ConanInvalidConfiguration(
@@ -147,8 +141,7 @@ class GrpcConan(ConanFile):
             )
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
-            self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
         if cross_building(self):
             # when cross compiling we need pre compiled grpc plugins for protoc
             self.tool_requires(f"grpc/{self.version}")
@@ -157,11 +150,6 @@ class GrpcConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        # Set up environment so that we can run grpc-cpp-plugin at build time
-        VirtualBuildEnv(self).generate()
-        if self._is_legacy_one_profile:
-            VirtualRunEnv(self).generate(scope="build")
-
         # This doesn't work yet as one would expect, because the install target builds everything
         # and we need the install target because of the generated CMake files
         #
@@ -227,12 +215,11 @@ class GrpcConan(ConanFile):
         # Make will run commands via `/bin/sh` which will strip all env vars that start with `DYLD*`
         # This workaround wraps the protoc command to be invoked by CMake with a modified environment
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        settings_build = getattr(self, "settings_build", self.settings)
-        if settings_build.os == "Macos":
+        if self.settings_build.os == "Macos":
             replace_in_file(self, cmakelists,
                             "COMMAND ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}",
                             'COMMAND ${CMAKE_COMMAND} -E env "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}" ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}')
-        elif not cross_building(self) and settings_build.os == "Linux":
+        elif not cross_building(self) and self.settings_build.os == "Linux":
             # we are not cross-building, but protobuf or abseil may be shared
             # so we need to set LD_LIBRARY_PATH to find them
             # Note: if protobuf used RPATH instead of RUNPATH this is not needed
@@ -358,10 +345,6 @@ class GrpcConan(ConanFile):
             self.cpp_info.components[component].system_libs = values.get("system_libs", [])
             self.cpp_info.components[component].frameworks = values.get("frameworks", [])
 
-            # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-            self.cpp_info.components[component].names["cmake_find_package"] = target
-            self.cpp_info.components[component].names["cmake_find_package_multi"] = target
-
         # Executable imported targets are added through custom CMake module files,
         # since conan generators don't know how to emulate these kind of targets.
         grpc_modules = []
@@ -372,12 +355,3 @@ class GrpcConan(ConanFile):
                 grpc_module_filename = "{}.cmake".format(executable)
                 grpc_modules.append(os.path.join(self._module_path, grpc_module_filename))
         self.cpp_info.set_property("cmake_build_modules", grpc_modules)
-
-        # TODO: to remove once conan v1 not supported anymore
-        self.cpp_info.names["cmake_find_package"] = "gRPC"
-        self.cpp_info.names["cmake_find_package_multi"] = "gRPC"
-        self.env_info.GRPC_DEFAULT_SSL_ROOTS_FILE_PATH = ssl_roots_file_path
-        if grpc_modules:
-            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package"] = grpc_modules
-            self.cpp_info.components["grpc_execs"].build_modules["cmake_find_package_multi"] = grpc_modules
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

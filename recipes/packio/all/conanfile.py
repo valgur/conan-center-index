@@ -43,14 +43,12 @@ class PackioConan(ConanFile):
                 "apple-clang": "10",
                 "clang": "6",
                 "gcc": "7",
-                "Visual Studio": "16",
                 "msvc": "192",
             }
         return {
             "apple-clang": "13",
             "clang": "11",
             "gcc": "9",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -81,8 +79,7 @@ class PackioConan(ConanFile):
             self.requires("asio/1.31.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

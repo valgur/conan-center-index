@@ -68,8 +68,7 @@ class RestbedConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        if getattr(self.info.settings.compiler, "cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
             if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:

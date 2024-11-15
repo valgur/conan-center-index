@@ -54,7 +54,6 @@ class Stlab(ConanFile):
             "clang": "8",
             "apple-clang": "13",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def layout(self):
@@ -112,8 +111,7 @@ class Stlab(ConanFile):
                 f"in an infinite build loop (smells like a compiler bug). Contributions are welcomed!")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
         self._validate_min_compiler_version()
         self._validate_task_system()
@@ -129,14 +127,13 @@ class Stlab(ConanFile):
 
     @property
     def _has_coroutines_support(self):
-        if self.settings.compiler.cppstd and not valid_min_cppstd(self, 20):
+        if not valid_min_cppstd(self, 20):
             return False
         min_ver = {
             "gcc": "10",
             "clang": "13",
             "apple-clang": "13",
             "msvc": "192",
-            "Visual Studio": "16",
         }.get(str(self.settings.compiler))
         return min_ver and Version(self.settings.compiler.version) >= min_ver
 

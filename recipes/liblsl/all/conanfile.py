@@ -36,7 +36,6 @@ class LiblslConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "3.5",
@@ -59,8 +58,7 @@ class LiblslConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -110,20 +108,12 @@ class LiblslConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LSL")
         self.cpp_info.set_property("cmake_target_name", "LSL::lsl")
-        # TODO: back to global scope in conan v2
-        self.cpp_info.components["_liblsl"].requires = ["boost::boost", "pugixml::pugixml"]
-        self.cpp_info.components["_liblsl"].libs = ["lsl"]
-        self.cpp_info.components["_liblsl"].defines = ["LSLNOAUTOLINK"]
+        self.cpp_info.requires = ["boost::boost", "pugixml::pugixml"]
+        self.cpp_info.libs = ["lsl"]
+        self.cpp_info.defines = ["LSLNOAUTOLINK"]
         if not self.options.shared:
-            self.cpp_info.components["_liblsl"].defines.append("LIBLSL_STATIC")
+            self.cpp_info.defines.append("LIBLSL_STATIC")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_liblsl"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["_liblsl"].system_libs = ["iphlpapi", "winmm", "mswsock", "ws2_32"]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "LSL"
-        self.cpp_info.names["cmake_find_package_multi"] = "LSL"
-        self.cpp_info.components["_liblsl"].names["cmake_find_package"] = "lsl"
-        self.cpp_info.components["_liblsl"].names["cmake_find_package_multi"] = "lsl"
-        self.cpp_info.components["_liblsl"].set_property("cmake_target_name", "LSL::lsl")
+            self.cpp_info.system_libs = ["iphlpapi", "winmm", "mswsock", "ws2_32"]

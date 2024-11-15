@@ -64,8 +64,7 @@ class EasyhttpcppConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires the following poco options enabled: {', '.join(self._required_poco_components)}"
             )
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -97,29 +96,19 @@ class EasyhttpcppConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "easyhttpcppeasyhttp")
         self.cpp_info.set_property("cmake_target_name", "easyhttpcpp::easyhttp")
-        # TODO: back to global scope in conan v2
         libsuffix = ""
         if self.settings.build_type == "Debug":
             if self.settings.os == "Windows" and not self.options.shared:
                 libsuffix += "md"
             libsuffix += "d"
-        self.cpp_info.components["easyhttp"].libs = [f"easyhttp{libsuffix}"]
+        self.cpp_info.libs = [f"easyhttp{libsuffix}"]
         if self.settings.os == "Windows" and self.options.shared:
-            self.cpp_info.components["easyhttp"].defines.append("EASYHTTPCPP_DLL")
-        self.cpp_info.components["easyhttp"].requires = [
+            self.cpp_info.defines.append("EASYHTTPCPP_DLL")
+        self.cpp_info.requires = [
             "poco::poco_foundation", "poco::poco_data",
             "poco::poco_datasqlite", "poco::poco_net",
         ]
         if self.settings.os == "Windows":
-            self.cpp_info.components["easyhttp"].requires.append("poco::poco_netsslwin")
+            self.cpp_info.requires.append("poco::poco_netsslwin")
         else:
-            self.cpp_info.components["easyhttp"].requires.append("poco::poco_netssl")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "easyhttpcppeasyhttp"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "easyhttpcppeasyhttp"
-        self.cpp_info.names["cmake_find_package"] = "easyhttpcpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "easyhttpcpp"
-        self.cpp_info.components["easyhttp"].names["cmake_find_package"] = "easyhttp"
-        self.cpp_info.components["easyhttp"].names["cmake_find_package_multi"] = "easyhttp"
-        self.cpp_info.components["easyhttp"].set_property("cmake_target_name", "easyhttpcpp::easyhttp")
+            self.cpp_info.requires.append("poco::poco_netssl")

@@ -41,7 +41,6 @@ class TwitchNativeIpcConan(ConanFile):
             "clang": "8",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -62,8 +61,7 @@ class TwitchNativeIpcConan(ConanFile):
         self.requires("libuv/1.46.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_min_version.get(str(self.settings.compiler))
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

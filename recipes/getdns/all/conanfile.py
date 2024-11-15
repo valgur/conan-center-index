@@ -158,7 +158,3 @@ class GetDnsConan(ConanFile):
             self.cpp_info.components["dns_ext_uv"].libs = ["getdns_ext_uv" + libsuffix]
             self.cpp_info.components["dns_ext_uv"].requires = ["libgetdns", "libuv::libuv"]
             self.cpp_info.components["dns_ext_uv"].set_property("pkg_config_name", "getdns_ext_uv")
-
-        # TODO: Remove after dropping support for Conan 1.x in ConanCenterIndex
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

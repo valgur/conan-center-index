@@ -40,8 +40,7 @@ class EmioConan(ConanFile):
         return 20
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC.")

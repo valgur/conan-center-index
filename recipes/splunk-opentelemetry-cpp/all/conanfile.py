@@ -41,7 +41,6 @@ class SplunkOpentelemetryConan(ConanFile):
             "gcc": "6",
             "clang": "5",
             "apple-clang": "10",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -71,8 +70,7 @@ class SplunkOpentelemetryConan(ConanFile):
         if self.options.build_jaeger_exporter and not self.dependencies["opentelemetry-cpp"].options.get_safe("with_jaeger"):
             raise ConanInvalidConfiguration("Cannot build Jaeger exporter without with_jaeger=True in opentelemetry-cpp")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -107,7 +105,3 @@ class SplunkOpentelemetryConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "SplunkOpenTelemetry")
         self.cpp_info.set_property("cmake_target_name", "SplunkOpenTelemetry::SplunkOpenTelemetry")
         self.cpp_info.libs = ["SplunkOpenTelemetry"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "SplunkOpenTelemetry"
-        self.cpp_info.names["cmake_find_package_multi"] = "SplunkOpenTelemetry"

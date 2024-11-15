@@ -110,7 +110,3 @@ class FlatccConan(ConanFile):
         if not self.options.runtime_lib_only:
             self.cpp_info.libs.append(f"flatcc{debug_suffix}")
         self.cpp_info.libs.append(f"flatccrt{debug_suffix}")
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

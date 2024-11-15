@@ -47,7 +47,6 @@ class CycloneDDSConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "7",
             "apple-clang": "10",
@@ -85,8 +84,7 @@ class CycloneDDSConan(ConanFile):
         if self.options.enable_security and not self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} currently do not support"\
                                             "static build and security on")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -142,18 +140,18 @@ class CycloneDDSConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "CycloneDDS")
         self.cpp_info.set_property("cmake_target_name", "CycloneDDS::CycloneDDS")
         self.cpp_info.set_property("pkg_config_name", "CycloneDDS")
-        # TODO: back to global scope in conan v2
-        self.cpp_info.components["CycloneDDS"].libs = ["ddsc"]
+
+        self.cpp_info.libs = ["ddsc"]
         requires = []
         if self.options.with_shm:
             requires.append("iceoryx::iceoryx_binding_c")
         if self.options.with_ssl:
             requires.append("openssl::openssl")
-        self.cpp_info.components["CycloneDDS"].requires = requires
+        self.cpp_info.requires = requires
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["CycloneDDS"].system_libs = ["dl", "pthread"]
+            self.cpp_info.system_libs = ["dl", "pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["CycloneDDS"].system_libs = [
+            self.cpp_info.system_libs = [
                 "ws2_32",
                 "dbghelp",
                 "bcrypt",
@@ -170,21 +168,3 @@ class CycloneDDSConan(ConanFile):
             os.path.join(self.package_folder, "lib", "cmake", "CycloneDDS", "idlc"),
         ]
         self.cpp_info.builddirs = build_dirs
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "CycloneDDS"
-        self.cpp_info.names["cmake_find_package_multi"] = "CycloneDDS"
-        self.cpp_info.components["CycloneDDS"].names["cmake_find_package"] = "ddsc"
-        self.cpp_info.components["CycloneDDS"].names["cmake_find_package_multi"] = "ddsc"
-        self.cpp_info.components["CycloneDDS"].set_property("cmake_target_name", "CycloneDDS::ddsc")
-        self.cpp_info.components["CycloneDDS"].set_property("pkg_config_name", "CycloneDDS")
-        if self._has_idlc():
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-            self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
-            self.runenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
-            self.cpp_info.components["idl"].libs = ["cycloneddsidl"]
-            self.cpp_info.components["idl"].names["cmake_find_package"] = "idl"
-            self.cpp_info.components["idl"].names["cmake_find_package_multi"] = "idl"
-            self.cpp_info.components["idl"].set_property("cmake_target_name", "CycloneDDS::idl")
-            self.cpp_info.components["idl"].build_modules["cmake_find_package"] = build_modules
-            self.cpp_info.components["idl"].build_modules["cmake_find_package_multi"] = build_modules

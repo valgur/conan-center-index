@@ -5,11 +5,6 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
@@ -22,7 +17,7 @@ class TestPackageConan(ConanFile):
         obj_file = os.path.join(self.build_folder, "Lin64_1.o")
         asm_file = os.path.join(self.source_folder, "Lin64_1.asm") # content from https://www.japheth.de/JWasm/Lin64_1.html
         self.run(f"jwasm -elf64 -Fo={obj_file} {asm_file}")
-        if self._settings_build.os == "Linux" and self._settings_build.arch == "x86_64":
+        if self.settings_build.os == "Linux" and self.settings_build.arch == "x86_64":
             bin_file = os.path.join(self.build_folder, "Lin64_1")
             self.run(f"ld {obj_file} -o {bin_file}")
             self.run(bin_file, ignore_errors=True)

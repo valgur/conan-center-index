@@ -43,8 +43,7 @@ class MetallConan(ConanFile):
         return self.settings.os == 'Linux' and libver[0] == 'glibc' and Version(libver[1]) < "2.27"
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
 
         if self.settings.os not in ["Linux", "Macos"]:
             raise ConanInvalidConfiguration(
@@ -81,9 +80,6 @@ class MetallConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Metall")
         self.cpp_info.set_property("cmake_target_name", "Metall::Metall")
-
-        self.cpp_info.names["cmake_find_package"] = "Metall"
-        self.cpp_info.names["cmake_find_package_multi"] = "Metall"
 
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []

@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, replace_in_file, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -22,10 +21,6 @@ class FtjamConan(ConanFile):
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -47,7 +42,7 @@ class FtjamConan(ConanFile):
             raise ConanInvalidConfiguration("ftjam doesn't build with Visual Studio yet")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.24")
         else:
             self.tool_requires("libtool/2.4.7")
@@ -132,9 +127,3 @@ class FtjamConan(ConanFile):
         if jam_toolset:
             self.buildenv.define("JAM_TOOLSET", jam_toolset)
             self.runenv.define("JAM_TOOLSET", jam_toolset)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(jam_path)
-        self.env_info.JAM = jam_bin
-        if jam_toolset:
-            self.env_info.JAM_TOOLSET = jam_toolset

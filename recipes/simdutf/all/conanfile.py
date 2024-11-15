@@ -43,8 +43,7 @@ class SimdutfConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "9.0":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support gcc < 9.")
         if self.settings.compiler == "gcc" and self.settings.build_type == "Debug" and \

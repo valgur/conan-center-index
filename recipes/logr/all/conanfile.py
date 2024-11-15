@@ -58,8 +58,7 @@ class LogrConan(ConanFile):
 
     def validate(self):
         minimal_cpp_standard = "17"
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, minimal_cpp_standard)
+        check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
             "gcc": "10",
             "clang": "11",
@@ -113,9 +112,6 @@ class LogrConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_file_name", "logr")
-
-        self.cpp_info.names["cmake_find_package"] = "logr"
-        self.cpp_info.names["cmake_find_package_multi"] = "logr"
 
         self.cpp_info.components["logr_base"].includedirs = ["include"]
         self.cpp_info.components["logr_base"].requires = ["fmt::fmt"]

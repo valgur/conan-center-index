@@ -3,8 +3,8 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, save, chdir
 from conan.tools.scm import Version
 from conan.tools.build import check_min_cppstd
-from conan.tools.apple import XCRun, is_apple_os
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.apple import is_apple_os
+from conan.tools.env import Environment
 from conan.tools.microsoft import VCVars, is_msvc
 from conan.tools.gnu import AutotoolsDeps, AutotoolsToolchain
 
@@ -45,7 +45,6 @@ class CrashpadConan(ConanFile):
             "gcc": 5,
             "clang": "3.9",
             "msvc": "190",
-            "Visual Studio": 14,
         }.get(str(self.settings.compiler))
 
     def config_options(self):
@@ -86,8 +85,7 @@ class CrashpadConan(ConanFile):
                 raise ConanInvalidConfiguration("crashpad needs a c++14 capable compiler, version >= {}".format(min_compiler_version))
         else:
             self.output.warning("This recipe does not know about the current compiler and assumes it has sufficient c++14 supports.")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["crashpad"], destination=self.source_folder, strip_root=True)
@@ -282,6 +280,3 @@ class CrashpadConan(ConanFile):
 
         self.cpp_info.components["handler"].libs = ["handler"]
         self.cpp_info.components["handler"].requires = ["client", "util", "handler_common", "minidump", "snapshot"] + extra_handler_req
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

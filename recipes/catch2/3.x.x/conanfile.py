@@ -2,10 +2,9 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.54.0"
 
@@ -52,7 +51,6 @@ class Catch2Conan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15",
             "msvc": "191",
             "clang": "5",
             "apple-clang": "10",
@@ -77,8 +75,7 @@ class Catch2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -123,36 +120,9 @@ class Catch2Conan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         for cmake_file in ["ParseAndAddCatchTests.cmake", "Catch.cmake", "CatchAddTests.cmake"]:
-            copy(
-                self,
-                cmake_file,
-                src=os.path.join(self.source_folder, "extras"),
-                dst=os.path.join(self.package_folder, "lib", "cmake", "Catch2"),
-            )
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "Catch2::Catch2": "catch2::_catch2",
-                "Catch2::Catch2WithMain": "catch2::catch2_with_main",
-            }
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
+            copy(self, cmake_file,
+                 src=os.path.join(self.source_folder, "extras"),
+                 dst=os.path.join(self.package_folder, "lib", "cmake", "Catch2"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Catch2")
@@ -178,13 +148,3 @@ class Catch2Conan(ConanFile):
         if self.options.default_reporter:
             defines.append(f"CATCH_CONFIG_DEFAULT_REPORTER={self._default_reporter_str}")
         self.cpp_info.components["catch2_with_main"].defines = defines
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Catch2"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Catch2"
-        self.cpp_info.names["cmake_find_package"] = "catch2"
-        self.cpp_info.names["cmake_find_package_multi"] = "catch2"
-        self.cpp_info.components["_catch2"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["_catch2"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.components["catch2_with_main"].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.components["catch2_with_main"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

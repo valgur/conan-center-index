@@ -8,7 +8,6 @@ from conan.tools.build import can_run
 class vvencTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", 'VirtualRunEnv', "CMakeToolchain"
-    test_type = "explicit"
 
     def requirements(self):
         self.requires(self.tested_reference_str)

@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir, chdir
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, GnuToolchain
+from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps
 
@@ -32,10 +32,6 @@ class LibTomCryptConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, f"tomcrypt-{self.version}.def",
@@ -62,7 +58,7 @@ class LibTomCryptConan(ConanFile):
         if not is_msvc(self):
             if self.options.shared:
                 self.build_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.build_requires("make/4.4")
 
     def source(self):

@@ -48,7 +48,6 @@ class TensorflowLiteConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "8",
-            "Visual Studio": "15.8",
             "msvc": "191",
             "clang": "5",
             "apple-clang": "5.1",
@@ -99,8 +98,7 @@ class TensorflowLiteConan(ConanFile):
             self.requires("fxdiv/cci.20200417")
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -172,11 +170,6 @@ class TensorflowLiteConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tensorflowlite")
         self.cpp_info.set_property("cmake_target_name", "tensorflow::tensorflowlite")
-
-        self.cpp_info.names["cmake_find_package"] = "tensorflowlite"
-        self.cpp_info.names["cmake_find_package_multi"] = "tensorflowlite"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file]
 
         defines = []
         if not self.options.shared:

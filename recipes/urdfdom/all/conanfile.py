@@ -54,8 +54,7 @@ class PackageConan(ConanFile):
             self.requires("tinyxml/2.6.2", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

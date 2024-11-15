@@ -38,7 +38,6 @@ class CAFConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7" if Version(self.version) < "1.0.0" else "8",
             "clang": "6",   # Should be 5 but clang 5 has a bug that breaks compiling CAF
@@ -65,8 +64,7 @@ class CAFConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -132,14 +130,3 @@ class CAFConan(ConanFile):
             self.cpp_info.components["caf_openssl"].set_property("cmake_target_name", "CAF::openssl")
             self.cpp_info.components["caf_openssl"].libs = ["caf_openssl"]
             self.cpp_info.components["caf_openssl"].requires = ["caf_io", "openssl::openssl"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CAF"
-        self.cpp_info.names["cmake_find_package_multi"] = "CAF"
-        self.cpp_info.components["caf_core"].names["cmake_find_package"] = "core"
-        self.cpp_info.components["caf_core"].names["cmake_find_package_multi"] = "core"
-        self.cpp_info.components["caf_io"].names["cmake_find_package"] = "io"
-        self.cpp_info.components["caf_io"].names["cmake_find_package_multi"] = "io"
-        if self.options.with_openssl:
-            self.cpp_info.components["caf_openssl"].names["cmake_find_package"] = "openssl"
-            self.cpp_info.components["caf_openssl"].names["cmake_find_package_multi"] = "openssl"

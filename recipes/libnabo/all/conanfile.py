@@ -54,8 +54,7 @@ class LibnaboConan(ConanFile):
             self.requires("openmp/system")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -91,13 +90,4 @@ class LibnaboConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "libnabo")
         self.cpp_info.set_property("cmake_target_name", "libnabo::nabo")
-        # TODO: back to global scope in conan v2
-        self.cpp_info.components["nabo"].libs = ["nabo"]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.components["nabo"].names["cmake_find_package"] = "nabo"
-        self.cpp_info.components["nabo"].names["cmake_find_package_multi"] = "nabo"
-        self.cpp_info.components["nabo"].set_property("cmake_target_name", "libnabo::nabo")
-        self.cpp_info.components["nabo"].requires.append("eigen::eigen")
-        if self.options.with_openmp:
-            self.cpp_info.components["nabo"].requires.append("openmp::openmp")
+        self.cpp_info.libs = ["nabo"]

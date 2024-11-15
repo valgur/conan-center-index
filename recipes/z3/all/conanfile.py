@@ -47,7 +47,6 @@ class Z3Conan(ConanFile):
             "clang": "5",
             "apple-clang": "9",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def config_options(self):
@@ -66,8 +65,7 @@ class Z3Conan(ConanFile):
             self.requires("gmp/6.3.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -120,18 +118,6 @@ class Z3Conan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Z3")
         self.cpp_info.set_property("cmake_target_name", "z3::libz3")
-
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libz3"].libs = ["libz3" if self.settings.os == "Windows" else "z3"]
+        self.cpp_info.libs = ["libz3" if self.settings.os == "Windows" else "z3"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libz3"].system_libs.extend(["pthread", "m"])
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Z3"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Z3"
-        self.cpp_info.names["cmake_find_package"] = "z3"
-        self.cpp_info.names["cmake_find_package_multi"] = "z3"
-        self.cpp_info.components["libz3"].names["cmake_find_package"] = "libz3"
-        self.cpp_info.components["libz3"].names["cmake_find_package_multi"] = "libz3"
-        self.cpp_info.components["libz3"].set_property("cmake_target_name", "z3::libz3")
-        self.cpp_info.components["libz3"].requires = ["gmp::gmp"] if self.options.use_gmp else []
+            self.cpp_info.system_libs.extend(["pthread", "m"])

@@ -54,11 +54,10 @@ class GlibmmConan(ConanFile):
             self.requires("libsigcpp/2.10.8", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            if Version(self._abi_version) >= "2.68":
-                check_min_cppstd(self, 17)
-            else:
-                check_min_cppstd(self, 11)
+        if Version(self._abi_version) >= "2.68":
+            check_min_cppstd(self, 17)
+        else:
+            check_min_cppstd(self, 11)
 
         if not self.dependencies["glib"].options.shared:
             raise ConanInvalidConfiguration(

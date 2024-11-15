@@ -23,13 +23,11 @@ class StatusCodeConan(ConanFile):
             # Their README says gcc 5, but in testing only >=7 worked
             "gcc": "7",
             "clang": "3.3",
-            "Visual Studio": "14",
             "apple-clang": "5",
         }
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
         min_version = self._compiler_required_version.get(str(self.settings.compiler))
         if min_version:
@@ -53,7 +51,3 @@ class StatusCodeConan(ConanFile):
         # See https://github.com/ned14/status-code/blob/38e1e862386cb38d577664fd681ef829b0e03fba/CMakeLists.txt#L126
         self.cpp_info.set_property("cmake_file_name", "status-code")
         self.cpp_info.set_property("cmake_target_name", "status-code::hl")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["hl"].names["cmake_find_package"] = "hl"
-        self.cpp_info.components["hl"].names["cmake_find_package_multi"] = "hl"

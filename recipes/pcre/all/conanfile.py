@@ -179,15 +179,9 @@ class PCREConan(ConanFile):
                 self.cpp_info.components["libpcre32"].defines.append("PCRE_STATIC=1")
 
         if self.options.build_pcregrep:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
             # FIXME: This is a workaround to avoid ConanException. zlib and bzip2
             # are optional requirements of pcregrep executable, not of any pcre lib.
             if self.options.with_bzip2:
                 self.cpp_info.components["libpcre"].requires.append("bzip2::bzip2")
             if self.options.with_zlib:
                 self.cpp_info.components["libpcre"].requires.append("zlib::zlib")
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        #       DO NOT port this name to cmake_file_name/cmake_target_name properties, it was a mistake
-        self.cpp_info.names["cmake_find_package"] = "PCRE"
-        self.cpp_info.names["cmake_find_package_multi"] = "PCRE"

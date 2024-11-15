@@ -59,8 +59,7 @@ class LibrealsenseConan(ConanFile):
         self.requires("openmp/system")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def source(self):
         sources = self.conan_data["sources"][self.version]
@@ -148,7 +147,3 @@ class LibrealsenseConan(ConanFile):
                 "winusb",
                 "shlwapi", "mf", "mfplat", "mfreadwrite", "mfuuid"
             ])
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "realsense2"
-        self.cpp_info.names["cmake_find_package_multi"] = "realsense2"

@@ -52,8 +52,7 @@ class VsgConan(ConanFile):
         self.requires("vulkan-loader/1.3.290.0", transitive_headers=True)
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
 
         if is_msvc_static_runtime(self):
@@ -110,9 +109,3 @@ class VsgConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "vsg"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "vsg"
-        self.cpp_info.names["cmake_find_package"] = "VSG"
-        self.cpp_info.names["cmake_find_package_multi"] = "vsg"

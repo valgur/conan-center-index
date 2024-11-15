@@ -7,8 +7,6 @@ from conan.tools.files import chdir, load, save
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "VirtualBuildEnv"
-    test_type = "explicit"
 
     def layout(self):
         cmake_layout(self)

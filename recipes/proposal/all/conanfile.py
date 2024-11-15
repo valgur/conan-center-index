@@ -38,7 +38,6 @@ class PROPOSALConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "5",
@@ -72,8 +71,7 @@ class PROPOSALConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Can not build shared library on Visual Studio."
             )
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._minimum_compilers_version.get(
             str(self.settings.compiler), False
@@ -110,7 +108,3 @@ class PROPOSALConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "PROPOSAL")
         self.cpp_info.set_property("cmake_target_name", "PROPOSAL::PROPOSAL")
         self.cpp_info.libs = ["PROPOSAL"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "PROPOSAL"
-        self.cpp_info.names["cmake_find_package_multi"] = "PROPOSAL"

@@ -161,7 +161,6 @@ class LibtorchConan(ConanFile):
             "clang": "5",
             "apple-clang": "9",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     @property
@@ -272,7 +271,7 @@ class LibtorchConan(ConanFile):
             self.requires("flatbuffers/24.3.25", libs=False)
         if self.options.blas == "openblas":
             # Also provides LAPACK, currently
-            self.requires("openblas/0.3.27")
+            self.requires("openblas/0.3.28")
         if self.options.with_openmp:
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_fbgemm:
@@ -317,8 +316,7 @@ class LibtorchConan(ConanFile):
         # - tensorpipe
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.build import cross_building
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -31,10 +30,6 @@ class TcpWrappersConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -56,7 +51,7 @@ class TcpWrappersConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio is not supported")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:subsystem", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -113,6 +108,3 @@ class TcpWrappersConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["wrap"]
-
-        # TODO: to remove once conan v1 not supported anymore
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

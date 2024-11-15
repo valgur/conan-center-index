@@ -67,8 +67,7 @@ class ApprovalTestsCppConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if Version(self.version) >= "10.2.0":
             if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
@@ -91,7 +90,3 @@ class ApprovalTestsCppConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ApprovalTests::ApprovalTests")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "ApprovalTests"
-        self.cpp_info.names["cmake_find_package_multi"] = "ApprovalTests"

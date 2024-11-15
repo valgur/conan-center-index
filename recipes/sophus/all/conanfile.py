@@ -58,7 +58,3 @@ class SophusConan(ConanFile):
         self.cpp_info.libdirs = []
         if self.options.get_safe("with_fmt") == False:
             self.cpp_info.defines.append("SOPHUS_USE_BASIC_LOGGING=1")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generator removed
-        self.cpp_info.names["cmake_find_package"] = "Sophus"
-        self.cpp_info.names["cmake_find_package_multi"] = "Sophus"

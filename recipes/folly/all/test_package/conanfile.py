@@ -6,8 +6,7 @@ from conan.tools.build import can_run
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)

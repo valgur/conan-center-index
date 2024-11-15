@@ -22,8 +22,7 @@ class ExpectedLiteConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -43,13 +42,3 @@ class ExpectedLiteConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "nonstd::expected-lite")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "expected-lite"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "expected-lite"
-        self.cpp_info.names["cmake_find_package"] = "nonstd"
-        self.cpp_info.names["cmake_find_package_multi"] = "nonstd"
-        self.cpp_info.components["expectedlite"].names["cmake_find_package"] = "expected-lite"
-        self.cpp_info.components["expectedlite"].names["cmake_find_package_multi"] = "expected-lite"
-        self.cpp_info.components["expectedlite"].set_property("cmake_target_name", "nonstd::expected-lite")
-        self.cpp_info.components["expectedlite"].libdirs = []

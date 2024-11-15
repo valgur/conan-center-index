@@ -47,14 +47,10 @@ class TCSBankUriTemplateConan(ConanFile):
         compiler_name = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version)
 
-        # Exclude compiler.cppstd < 17
-        min_req_cppstd = "17"
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, min_req_cppstd)
+        check_min_cppstd(self, 17)
 
         # Exclude unsupported compilers
         compilers_required = {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7.3",
             "clang": "6.0",
@@ -101,7 +97,3 @@ class TCSBankUriTemplateConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "uri-template::uri-template")
         self.cpp_info.set_property("pkg_config_name", "uri-template")
         self.cpp_info.libs = collect_libs(self)
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "uri-template"
-        self.cpp_info.names["cmake_find_package_multi"] = "uri-template"

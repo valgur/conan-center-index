@@ -59,7 +59,6 @@ class LibtorrentConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "5" if Version(self.version) < "2.0.8" else "6",
                 "clang": "5",
@@ -93,8 +92,7 @@ class LibtorrentConan(ConanFile):
             self.requires("libiconv/1.17")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -176,38 +174,29 @@ class LibtorrentConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "LibtorrentRasterbar::torrent-rasterbar")
         self.cpp_info.set_property("pkg_config_name", "libtorrent-rasterbar")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["libtorrent-rasterbar"].includedirs = ["include", os.path.join("include", "libtorrent")]
-        self.cpp_info.components["libtorrent-rasterbar"].libs = ["torrent-rasterbar"]
+        self.cpp_info.includedirs = ["include", os.path.join("include", "libtorrent")]
+        self.cpp_info.libs = ["torrent-rasterbar"]
 
-        self.cpp_info.components["libtorrent-rasterbar"].requires = ["boost::headers", "boost::system"]
+        self.cpp_info.requires = ["boost::headers", "boost::system"]
         if self.options.enable_encryption:
-            self.cpp_info.components["libtorrent-rasterbar"].requires.append("openssl::openssl")
+            self.cpp_info.requires.append("openssl::openssl")
         if self.options.enable_iconv:
-            self.cpp_info.components["libtorrent-rasterbar"].requires.append("libiconv::libiconv")
+            self.cpp_info.requires.append("libiconv::libiconv")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libtorrent-rasterbar"].system_libs = ["dl", "pthread", "m"]
+            self.cpp_info.system_libs = ["dl", "pthread", "m"]
         elif self.settings.os == "Windows":
-            self.cpp_info.components["libtorrent-rasterbar"].system_libs = ["wsock32", "ws2_32", "iphlpapi", "dbghelp", "mswsock"]
+            self.cpp_info.system_libs = ["wsock32", "ws2_32", "iphlpapi", "dbghelp", "mswsock"]
         elif self.settings.os == "Macos":
-            self.cpp_info.components["libtorrent-rasterbar"].frameworks = ["CoreFoundation", "SystemConfiguration"]
+            self.cpp_info.frameworks = ["CoreFoundation", "SystemConfiguration"]
 
         if self.options.shared:
-            self.cpp_info.components["libtorrent-rasterbar"].defines.append("TORRENT_LINKING_SHARED")
+            self.cpp_info.defines.append("TORRENT_LINKING_SHARED")
         if self.options.enable_encryption:
-            self.cpp_info.components["libtorrent-rasterbar"].defines.extend(["TORRENT_USE_OPENSSL", "TORRENT_USE_LIBCRYPTO"])
+            self.cpp_info.defines.extend(["TORRENT_USE_OPENSSL", "TORRENT_USE_LIBCRYPTO"])
         else:
-            self.cpp_info.components["libtorrent-rasterbar"].defines.append("TORRENT_DISABLE_ENCRYPTION")
+            self.cpp_info.defines.append("TORRENT_DISABLE_ENCRYPTION")
         if self.options.enable_iconv:
-            self.cpp_info.components["libtorrent-rasterbar"].defines.append("TORRENT_USE_ICONV")
+            self.cpp_info.defines.append("TORRENT_USE_ICONV")
         if not self.options.enable_dht:
-            self.cpp_info.components["libtorrent-rasterbar"].defines.append("TORRENT_DISABLE_DHT")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "LibtorrentRasterbar"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibtorrentRasterbar"
-        self.cpp_info.components["libtorrent-rasterbar"].names["cmake_find_package"] = "torrent-rasterbar"
-        self.cpp_info.components["libtorrent-rasterbar"].names["cmake_find_package_multi"] = "torrent-rasterbar"
-        self.cpp_info.components["libtorrent-rasterbar"].set_property("cmake_target_name", "LibtorrentRasterbar::torrent-rasterbar")
-        self.cpp_info.components["libtorrent-rasterbar"].set_property("pkg_config_name", "libtorrent-rasterbar")
+            self.cpp_info.defines.append("TORRENT_DISABLE_DHT")

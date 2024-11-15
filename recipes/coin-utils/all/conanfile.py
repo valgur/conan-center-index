@@ -37,10 +37,6 @@ class CoinUtilsConan(ConanFile):
         "with_glpk": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -58,7 +54,7 @@ class CoinUtilsConan(ConanFile):
     def requirements(self):
         self.requires("bzip2/1.0.8")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("openblas/0.3.27")
+        self.requires("openblas/0.3.28")
         if self.options.with_glpk:
             self.requires("glpk/4.48")  # v4.49+ are not supported due to dropped lpx_* functions
 
@@ -67,7 +63,7 @@ class CoinUtilsConan(ConanFile):
         self.tool_requires("gnu-config/cci.20210814")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

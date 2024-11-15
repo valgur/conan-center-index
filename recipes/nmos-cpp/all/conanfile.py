@@ -1,11 +1,13 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools import build, files
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.scm import Version
 import json
 import os
 import re
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools import files
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
@@ -75,8 +77,7 @@ class NmosCppConan(ConanFile):
     def validate(self):
         if self.info.settings.os in ["Macos"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not currently supported on {self.info.settings.os}. Contributions welcomed.")
-        if self.info.settings.compiler.get_safe("cppstd"):
-            build.check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -240,9 +241,6 @@ class NmosCppConan(ConanFile):
             components_json_file = files.load(self, self._components_helper_filepath)
             components = json.loads(components_json_file)
             for component_name, values in components.items():
-                cmake_target = values["cmake_target"]
-                self.cpp_info.components[component_name].names["cmake_find_package"] = cmake_target
-                self.cpp_info.components[component_name].names["cmake_find_package_multi"] = cmake_target
                 self.cpp_info.components[component_name].bindirs = [bindir] if values.get("exe") else []
                 self.cpp_info.components[component_name].libs = values.get("libs", [])
                 self.cpp_info.components[component_name].libdirs = [libdir]
@@ -258,7 +256,3 @@ class NmosCppConan(ConanFile):
                 #self.cpp_info.components[component_name].requires.extend([(r, "private") for r in values.get("requires_private", [])])
                 self.cpp_info.components[component_name].requires.extend(values.get("requires_private", []))
         _register_components()
-
-        # add nmos-cpp-registry and nmos-cpp-node to the path
-        bin_path = os.path.join(self.package_folder, bindir)
-        self.env_info.PATH.append(bin_path)

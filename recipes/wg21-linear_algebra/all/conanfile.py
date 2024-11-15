@@ -29,7 +29,6 @@ class LAConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "10",
             "clang": "12", # Should be 11 but https://github.com/conan-io/conan-docker-tools/issues/251
@@ -38,8 +37,7 @@ class LAConan(ConanFile):
 
     def validate(self):
         compiler = self.settings.compiler
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires at least {compiler} {min_version}")
@@ -60,6 +58,3 @@ class LAConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "wg21_linear_algebra")
         self.cpp_info.set_property("cmake_target_name", "wg21_linear_algebra::wg21_linear_algebra")
-
-        self.cpp_info.names["cmake_find_package"] = "wg21_linear_algebra"
-        self.cpp_info.names["cmake_find_package_multi"] = "wg21_linear_algebra"

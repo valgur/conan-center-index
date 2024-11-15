@@ -4,7 +4,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
@@ -79,7 +79,6 @@ class FilamentConan(ConanFile):
             "clang": "6",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -116,8 +115,7 @@ class FilamentConan(ConanFile):
             self.requires("xorg/system")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -219,11 +217,3 @@ class FilamentConan(ConanFile):
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
         cmake_module = os.path.join("lib", "cmake", "conan-official-variables.cmake")
         self.cpp_info.set_property("cmake_build_modules", [cmake_module])
-        self.cpp_info.build_modules["cmake_find_package"] = [cmake_module]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [cmake_module]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "PACKAGE"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "package"
-        self.cpp_info.names["cmake_find_package"] = "PACKAGE"
-        self.cpp_info.names["cmake_find_package_multi"] = "package"

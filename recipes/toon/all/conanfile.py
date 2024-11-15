@@ -40,7 +40,6 @@ class ToonConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -51,14 +50,13 @@ class ToonConan(ConanFile):
 
     def requirements(self):
         if self.options.with_lapack:
-            self.requires("openblas/0.3.27", options={"build_lapack": True})
+            self.requires("openblas/0.3.28", options={"build_lapack": True})
 
     def package_id(self):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

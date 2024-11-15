@@ -29,7 +29,6 @@ class PrettyNameConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "gcc": "5",
             "clang": "5",
             "apple-clang": "5.1",
@@ -42,8 +41,7 @@ class PrettyNameConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if not minimum_version:
             self.output.warning("pretty-name requires C++14. Your compiler is unknown. Assuming it supports C++14.")
@@ -67,7 +65,3 @@ class PrettyNameConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "pretty-name")
         self.cpp_info.set_property("cmake_target_name", "pretty-name::pretty-name")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "pretty-name"
-        self.cpp_info.names["cmake_find_package_multi"] = "pretty-name"

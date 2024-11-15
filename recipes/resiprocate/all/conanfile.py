@@ -63,9 +63,8 @@ class ResiprocateConan(ConanFile):
         if self.settings.os == "Windows" or is_apple_os(self):
             # FIXME: unreleased versions of resiprocate use CMake and should support Windows and macOS
             raise ConanInvalidConfiguration(f"reSIProcate recipe does not currently support {self.settings.os}.")
-        if self.settings.compiler.cppstd:
-            # Uses deprecated std::allocator<void>::const_pointer, which has been removed in C++20
-            check_max_cppstd(self, 17)
+        # Uses deprecated std::allocator<void>::const_pointer, which has been removed in C++20
+        check_max_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -105,7 +104,3 @@ class ResiprocateConan(ConanFile):
         self.cpp_info.libs = ["resip", "rutil", "dum", "resipares"]
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs = ["pthread"]
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

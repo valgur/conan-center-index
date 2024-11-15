@@ -27,8 +27,7 @@ class MsdfAtlasGenConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate_build(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def requirements(self):
         if Version(self.version) < "1.3":
@@ -80,7 +79,3 @@ class MsdfAtlasGenConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bin_folder = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_folder)

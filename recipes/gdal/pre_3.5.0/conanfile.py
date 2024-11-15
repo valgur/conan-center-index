@@ -161,10 +161,6 @@ class GdalConan(ConanFile):
         "with_heif": False,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -328,9 +324,8 @@ class GdalConan(ConanFile):
             self.requires("libheif/1.13.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            min_cppstd = 14 if self.options.with_charls else 11
-            check_min_cppstd(self, min_cppstd)
+        min_cppstd = 14 if self.options.with_charls else 11
+        check_min_cppstd(self, min_cppstd)
         if self.options.get_safe("with_pcre") and self.options.get_safe("with_pcre2"):
             raise ConanInvalidConfiguration("Enable either pcre or pcre2, not both")
         if self.options.get_safe("with_pcre2") and not self.dependencies["pcre2"].options.build_pcre2_8:
@@ -342,7 +337,7 @@ class GdalConan(ConanFile):
         if self.options.with_qhull:
             if not self.dependencies["qhull"].options.reentrant:
                 raise ConanInvalidConfiguration(f"{self.ref} depends on reentrant qhull.")
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             if self.options.shared:
                 raise ConanInvalidConfiguration(f"{self.ref} can't cross-build shared lib")
             if self.options.tools:
@@ -363,7 +358,7 @@ class GdalConan(ConanFile):
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")
@@ -647,7 +642,7 @@ class GdalConan(ConanFile):
             ])
 
             # Enable C++14 if requested in conan profile or if with_charls enabled
-            if (self.settings.compiler.get_safe("cppstd") and valid_min_cppstd(self, 14)) or self.options.with_charls:
+            if valid_min_cppstd(self, 14) or self.options.with_charls:
                 tc.configure_args.append("--with-cpp14")
             # Debug
             if self.settings.build_type == "Debug":
@@ -850,10 +845,3 @@ class GdalConan(ConanFile):
         self.runenv_info.prepend_path("GDAL_DATA", gdal_data_path)
         if self.options.tools:
             self.buildenv_info.prepend_path("GDAL_DATA", gdal_data_path)
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "GDAL"
-        self.cpp_info.names["cmake_find_package_multi"] = "GDAL"
-        self.env_info.GDAL_DATA = gdal_data_path
-        if self.options.tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

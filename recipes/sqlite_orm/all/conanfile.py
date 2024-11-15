@@ -27,7 +27,6 @@ class SqliteOrmConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "5" if Version(self.version) < "1.9" else "8",
-            "Visual Studio": "14",
             "msvc": "190",
             "clang": "3.4",
             "apple-clang": "5.1",
@@ -46,8 +45,7 @@ class SqliteOrmConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -78,7 +76,3 @@ class SqliteOrmConan(ConanFile):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        self.cpp_info.filenames["cmake_find_package"] = "SqliteOrm"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "SqliteOrm"
-        self.cpp_info.names["cmake_find_package"] = "sqlite_orm"
-        self.cpp_info.names["cmake_find_package_multi"] = "sqlite_orm"

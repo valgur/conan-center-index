@@ -3,13 +3,11 @@ from conan.errors import ConanException
 from conan.tools.files import copy, load
 from conan.tools.layout import basic_layout
 import os
-import shutil
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     exports_sources = "Makefile", "test_package.c", "test_package.h"
-    test_type = "explicit"
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)

@@ -44,7 +44,6 @@ class LibunifexConan(ConanFile):
             "gcc": "9",
             "clang": "10",
             "apple-clang": "11",
-            "Visual Studio": "17",
             "msvc": "193",
         }
 
@@ -65,8 +64,7 @@ class LibunifexConan(ConanFile):
             self.requires("liburing/2.4", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_standard)
+        check_min_cppstd(self, self._minimum_standard)
 
         def lazy_lt_semver(v1, v2):
             return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
@@ -135,9 +133,3 @@ class LibunifexConan(ConanFile):
             self.cpp_info.components["unifex"].system_libs = ["pthread"]
         if self.options.get_safe("with_liburing"):
             self.cpp_info.components["unifex"].requires.append("liburing::liburing")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "unifex"
-        self.cpp_info.names["cmake_find_package_multi"] = "unifex"
-        self.cpp_info.components["unifex"].names["cmake_find_package"] = "unifex"
-        self.cpp_info.components["unifex"].names["cmake_find_package_multi"] = "unifex"

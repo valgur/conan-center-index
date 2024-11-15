@@ -1,10 +1,9 @@
 import os
-import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.files import get, copy, rmdir, save, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import get, copy, rmdir, apply_conandata_patches, export_conandata_patches
 
 required_conan_version = ">=1.53.0"
 
@@ -81,27 +80,6 @@ class opengvConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"opengv": "opengv::opengv"}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "opengv")
         self.cpp_info.set_property("cmake_target_name", "opengv")
@@ -109,8 +87,3 @@ class opengvConan(ConanFile):
         if self.options.with_python_bindings:
             opengv_dist_packages = os.path.join(self.package_folder, "lib", "python3", "dist-packages")
             self.runenv_info.prepend_path("PYTHONPATH", opengv_dist_packages)
-            self.env_info.PYTHONPATH.append(opengv_dist_packages) # remove in conan v2?
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

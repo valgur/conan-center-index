@@ -34,7 +34,6 @@ class Box2dConan(ConanFile):
             "clang": "7",
             "gcc": "8",
             "msvc": "193",
-            "Visual Studio": "17",
         }
 
     def export_sources(self):
@@ -106,8 +105,6 @@ class Box2dConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "box2d"
-        self.cpp_info.names["cmake_find_package_multi"] = "box2d"
         self.cpp_info.libs = ["box2d"]
         if Version(self.version) >= "3.0.0" and is_msvc(self) and self.options.shared:
             self.cpp_info.defines.append("BOX2D_DLL")

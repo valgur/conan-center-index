@@ -55,8 +55,7 @@ class LibCoapConan(ConanFile):
         if self.settings.os == "Windows" or is_apple_os(self):
             raise ConanInvalidConfiguration("Platform is currently not supported")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.options.dtls_backend in ["gnutls", "tinydtls"]:
             raise ConanInvalidConfiguration(f"{self.options.dtls_backend} not available yet")
 
@@ -107,17 +106,10 @@ class LibCoapConan(ConanFile):
             self.cpp_info.set_property("cmake_target_aliases", ["libcoap::coap"])
         self.cpp_info.set_property("pkg_config_name", pkgconfig_filename)
 
-        # TODO: back to global scope once legacy generators support removed
-        self.cpp_info.components["coap"].libs = [library_name]
+        self.cpp_info.libs = [library_name]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["coap"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
             if self.options.dtls_backend == "openssl":
-                self.cpp_info.components["coap"].requires = ["openssl::openssl"]
+                self.cpp_info.requires = ["openssl::openssl"]
             elif self.options.dtls_backend == "mbedtls":
-                self.cpp_info.components["coap"].requires = ["mbedtls::mbedtls"]
-
-        # TODO: to remove once legacy generators support removed
-        self.cpp_info.components["coap"].names["cmake_find_package"] = cmake_target_name
-        self.cpp_info.components["coap"].names["cmake_find_package_multi"] = cmake_target_name
-        self.cpp_info.components["coap"].set_property("cmake_target_name", f"libcoap::{cmake_target_name}")
-        self.cpp_info.components["coap"].set_property("pkg_config_name", pkgconfig_filename)
+                self.cpp_info.requires = ["mbedtls::mbedtls"]

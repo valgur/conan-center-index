@@ -62,13 +62,12 @@ class LibRawConan(ConanFile):
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.3")
         if self.options.with_lcms:
-            self.requires("lcms/2.14")
+            self.requires("lcms/2.16")
         if self.options.with_jasper:
             self.requires("jasper/4.0.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
        get(self, **self.conan_data["sources"][self.version], strip_root=True)

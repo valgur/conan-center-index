@@ -131,7 +131,7 @@ class PackageConan(ConanFile):
         if self.options.with_tinyxml:
             self.requires("tinyxml2/10.0.0")
         if self.options.with_lapack:
-            self.requires("openblas/0.3.27")
+            self.requires("openblas/0.3.28")
         if self.options.with_ipopt:
             self.requires("coin-ipopt/3.14.13")
         if self.options.with_cbc:
@@ -164,8 +164,7 @@ class PackageConan(ConanFile):
         #     self.requires("simde/0.8.2")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):

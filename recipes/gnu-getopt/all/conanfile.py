@@ -22,10 +22,6 @@ class GnuGetoptConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
@@ -42,7 +38,7 @@ class GnuGetoptConan(ConanFile):
             raise ConanInvalidConfiguration("MSVC is not supported. Consider using MSYS2 instead.")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

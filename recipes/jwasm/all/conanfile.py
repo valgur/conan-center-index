@@ -50,6 +50,3 @@ class JwasmConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove once conan v1 support dropped
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

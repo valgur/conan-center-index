@@ -1,9 +1,10 @@
+import textwrap
+
 from conan import ConanFile
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc
 import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -47,8 +48,7 @@ class YderConan(ConanFile):
             self.requires("libsystemd/253.10")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -93,27 +93,6 @@ class YderConan(ConanFile):
                 set(YDER_VERSION_STRING "{self.version}")
            """))
 
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {} if self.options.shared else {"Yder::Yder-static": "Yder::Yder"}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
-
     @property
     def _variable_file_rel_path(self):
         return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
@@ -131,13 +110,3 @@ class YderConan(ConanFile):
         self.cpp_info.set_property("cmake_module_target_name", target_name)
         self.cpp_info.set_property("pkg_config_name", "libyder")
         self.cpp_info.set_property("cmake_build_modules", [self._variable_file_rel_path])
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Yder"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Yder"
-        self.cpp_info.names["cmake_find_package"] = "Yder"
-        self.cpp_info.names["cmake_find_package_multi"] = "Yder"
-        self.cpp_info.names["pkg_config"] = "libyder"
-        self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path, self._variable_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path, self._variable_file_rel_path]

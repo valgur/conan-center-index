@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, cross_building, valid_min_cppstd
+from conan.tools.build import check_min_cppstd, cross_building, valid_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
@@ -74,7 +74,6 @@ class PopplerConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "9",
@@ -117,7 +116,7 @@ class PopplerConan(ConanFile):
         if self.options.get_safe("with_gobject_introspection"):
             self.requires("gobject-introspection/1.72.0")
         if self.options.with_qt:
-            self.requires("qt/[>=6.6 <7]")
+            self.requires("qt/[>=6.6 <7]", run=can_run(self))
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/4.7.0")
         if self.options.with_openjpeg:
@@ -145,8 +144,7 @@ class PopplerConan(ConanFile):
             raise ConanInvalidConfiguration("'win32' option of fontconfig is only available on Windows")
 
         # C++ standard required
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._cppstd_required)
+        check_min_cppstd(self, self._cppstd_required)
 
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -158,6 +156,8 @@ class PopplerConan(ConanFile):
         if self.options.get_safe("with_glib"):
             self.tool_requires("glib/<host_version>")
         self.tool_requires("cmake/[>=3.16 <4]")
+        if self.options.with_qt and not can_run(self):
+            self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

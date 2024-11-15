@@ -27,7 +27,6 @@ class QuillConan(ConanFile):
     def _compilers_minimum_versions(self):
         return {
             "gcc": "8",
-            "Visual Studio": "16",
             "clang": "7",
             "apple-clang": "12",
         }
@@ -44,8 +43,7 @@ class QuillConan(ConanFile):
         if not any(arch in str(self.settings.arch) for arch in supported_archs):
             raise ConanInvalidConfiguration(f"{self.settings.arch} is not supported by {self.ref}")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         compilers_minimum_version = self._compilers_minimum_versions
         minimum_version = compilers_minimum_version.get(str(self.settings.compiler), False)

@@ -57,8 +57,7 @@ class LibassertConan(ConanFile):
             self.requires("cpptrace/0.7.1", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         check_min_vs(self, 192)
         if not is_msvc(self):
@@ -119,14 +118,6 @@ class LibassertConan(ConanFile):
         # appending this one but not removing the default to not break consumers
         self.cpp_info.includedirs.append(os.path.join("include", "libassert"))
 
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "libassert"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "libassert"
-        self.cpp_info.names["cmake_find_package"] = "libassert"
-        self.cpp_info.names["cmake_find_package_multi"] = "libassert"
-
-        self.cpp_info.components["assert"].names["cmake_find_package"] = "assert"
-        self.cpp_info.components["assert"].names["cmake_find_package_multi"] = "assert"
         self.cpp_info.components["assert"].requires = ["cpptrace::cpptrace"]
         self.cpp_info.components["assert"].libs = ["assert"]
         if not self.options.shared:

@@ -38,7 +38,3 @@ class AnnoyConan(ConanFile):
 
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Annoy"
-        self.cpp_info.names["cmake_find_package_multi"] = "Annoy"

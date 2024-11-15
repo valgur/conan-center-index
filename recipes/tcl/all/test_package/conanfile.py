@@ -6,8 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     def layout(self):
         cmake_layout(self)
@@ -22,7 +21,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            self.run(os.path.join(self.cpp.build.bindirs[0], "test_package"), env="conanrun")
+            self.run(os.path.join(self.cpp.build.bindir, "test_package"), env="conanrun")
             if self.settings.os == "Windows":
                 self.run(os.path.join(self.source_folder, "hello.bat"), env="conanrun")
             else:

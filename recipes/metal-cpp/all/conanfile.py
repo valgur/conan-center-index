@@ -42,9 +42,7 @@ class MetalcppConan(ConanFile):
         if not os_name in ["Macos", "iOS", "tvOS"]:
             raise ConanInvalidConfiguration("Metal can only be used on an Macos, iOS or tvOS platform.")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            min_cppstd = "17"
-            check_min_cppstd(self, min_cppstd)
+        check_min_cppstd(self, 17)
 
         minimum_os_version = self.conan_data["minimum_os_version"][self.version][os_name]
 

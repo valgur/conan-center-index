@@ -6,8 +6,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
@@ -26,4 +25,4 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            self.run(os.path.join(self.cpp.build.bindirs[0], "test_package"), env="conanrun")
+            self.run(os.path.join(self.cpp.build.bindir, "test_package"), env="conanrun")

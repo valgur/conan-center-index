@@ -40,7 +40,6 @@ class PoselibConan(ConanFile):
             "clang": "6",
             "apple-clang": "10",
             "msvc": "192",
-            "Visual Studio": "16",
         }
 
     def config_options(self):
@@ -58,8 +57,7 @@ class PoselibConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

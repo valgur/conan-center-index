@@ -46,15 +46,13 @@ class GodotCppConan(ConanFile):
 
     def validate(self):
         minimal_cpp_standard = 14
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, minimal_cpp_standard)
+        check_min_cppstd(self, minimal_cpp_standard)
 
         minimal_version = {
             "gcc": "5",
             "clang": "4",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
         compiler = str(self.settings.compiler)

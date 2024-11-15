@@ -35,14 +35,12 @@ class CPPValidatorConan(ConanFile):
                 "gcc": "6",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
             "17": {
                 "gcc": "8",
                 "clang": "7",
                 "apple-clang": "12",
-                "Visual Studio": "16",
                 "msvc": "192",
             }
         }.get(self._min_cppstd, {})
@@ -54,8 +52,7 @@ class CPPValidatorConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

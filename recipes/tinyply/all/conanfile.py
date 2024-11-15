@@ -35,8 +35,7 @@ class TinyplyConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

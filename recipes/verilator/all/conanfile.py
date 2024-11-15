@@ -1,9 +1,8 @@
 import os
 import shutil
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -25,10 +24,6 @@ class VerilatorConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -37,13 +32,10 @@ class VerilatorConan(ConanFile):
             self.requires("strawberryperl/5.32.1.1", visible=False)
             if is_msvc(self):
                 self.requires("dirent/1.24", visible=False)
-        # Conan v1 does not handle flex being both a build and a host requirement correctly.
-        # It gets incorrectly marked as a dependency in CMake but a CMake module/config is not generated.
-        if conan_version >= 2:
-            if self.settings.os == "Windows":
-                self.requires("winflexbison/2.5.25", visible=False)
-            else:
-                self.requires("flex/2.6.4", visible=False)
+        if self.settings.os == "Windows":
+            self.requires("winflexbison/2.5.25", visible=False)
+        else:
+            self.requires("flex/2.6.4", visible=False)
 
     def package_id(self):
         # Verilator is an executable-only package, so the compiler does not matter
@@ -57,24 +49,15 @@ class VerilatorConan(ConanFile):
             raise ConanInvalidConfiguration("Windows build is not yet supported. Contributions are welcome")
 
     def build_requirements(self):
-        if conan_version >= 2:
-            if self._settings_build.os == "Windows":
-                self.tool_requires("winflexbison/<host_version>")
-            else:
-                self.tool_requires("flex/<host_version>")
-        else:
-            if self._settings_build.os == "Windows":
-                self.build_requires("winflexbison/2.5.25")
-            else:
-                self.build_requires("flex/2.6.4")
-
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
             self.tool_requires("automake/1.16.5")
             self.tool_requires("strawberryperl/<host_version>")
+            self.tool_requires("winflexbison/2.5.25")
         else:
+            self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
         if Version(self.version) >= "4.224":
             self.tool_requires("autoconf/2.72")
@@ -95,10 +78,7 @@ class VerilatorConan(ConanFile):
         tc.configure_args += ["--datarootdir=${prefix}/bin/share"]
 
         flex = "flex" if self.settings.os != "Windows" else "winflexbison"
-        if conan_version >= 2:
-            flex_info = self.dependencies[flex].cpp_info
-        else:
-            flex_info = self.dependencies.build[flex].cpp_info
+        flex_info = self.dependencies[flex].cpp_info
         tc.extra_cxxflags += [f"-I{unix_path(self, flex_info.includedir)}"]
         tc.extra_ldflags += [f"-L{unix_path(self, flex_info.libdir)}"]
         tc.generate()
@@ -175,7 +155,6 @@ class VerilatorConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
 
-        bindir = os.path.join(self.package_folder, "bin")
         verilator_bin = "verilator_bin_dbg" if self.settings.build_type == "Debug" else "verilator_bin"
         self.conf_info.define("user.verilator:verilator", verilator_bin)
         self.buildenv_info.define("VERILATOR_BIN", verilator_bin)
@@ -183,11 +162,3 @@ class VerilatorConan(ConanFile):
 
         module_path = os.path.join("bin", "share", "verilator", "verilator-tools.cmake")
         self.cpp_info.set_property("cmake_build_modules", [module_path])
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(bindir)
-        self.env_info.VERILATOR_BIN = verilator_bin
-        self.env_info.VERILATOR_ROOT = self.package_folder
-        self.cpp_info.builddirs.append(os.path.join("bin", "share", "verilator"))
-        self.cpp_info.build_modules["cmake_find_package"].append(module_path)
-        self.cpp_info.build_modules["cmake_find_package_multi"].append(module_path)

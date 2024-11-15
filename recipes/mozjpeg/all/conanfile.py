@@ -201,12 +201,3 @@ class MozjpegConan(ConanFile):
             self.cpp_info.components["libturbojpeg"].libs = [self._lib_name("turbojpeg")]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libturbojpeg"].system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "JPEG"
-        self.cpp_info.names["cmake_find_package_multi"] = "mozjpeg"
-        self.cpp_info.components["libjpeg"].names["cmake_find_package"] = "JPEG"
-        self.cpp_info.components["libjpeg"].names["cmake_find_package_multi"] = f"jpeg{cmake_target_suffix}"
-        if self.options.turbojpeg:
-            self.cpp_info.components["libturbojpeg"].names["cmake_find_package"] = f"turbojpeg{cmake_target_suffix}"
-            self.cpp_info.components["libturbojpeg"].names["cmake_find_package_multi"] = f"turbojpeg{cmake_target_suffix}"

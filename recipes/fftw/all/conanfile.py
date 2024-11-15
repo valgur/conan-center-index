@@ -137,37 +137,26 @@ class FFTWConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", cmake_config_name)
 
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.filenames["cmake_find_package"] = cmake_config_name
-        self.cpp_info.filenames["cmake_find_package_multi"] = cmake_config_name
-        self.cpp_info.names["cmake_find_package"] = cmake_namespace
-        self.cpp_info.names["cmake_find_package_multi"] = cmake_namespace
-
         for precision in self._all_precisions:
             prec_suffix = self._prec_suffix[precision]
             cmake_target_name = pkgconfig_name = lib_name = "fftw3" + prec_suffix
-            component_name = f"fftwlib_{precision}"
-            component = self.cpp_info.components[component_name]
 
-            # TODO: back to global scope in conan v2 once cmake_find_package_* & pkg_config generators removed
             if self.options.openmp:
-                component.libs.append(lib_name + "_omp")
-                component.requires.append("openmp::openmp")
+                self.cpp_info.libs.append(lib_name + "_omp")
+                self.cpp_info.requires.append("openmp::openmp")
             if self.options.threads and not self.options.combinedthreads:
-                component.libs.append(lib_name + "_threads")
-            self.cpp_info.components[component_name].libs.append(lib_name)
+                self.cpp_info.libs.append(lib_name + "_threads")
+            self.cpp_info.libs.append(lib_name)
             if self.settings.os in ["Linux", "FreeBSD"]:
-                component.system_libs.append("m")
+                self.cpp_info.system_libs.append("m")
                 if precision == QUAD:
-                    component.system_libs.extend(['quadmath'])
-                if self.options.threads:
-                    component.system_libs.append("pthread")
-            self.cpp_info.components[component_name].includedirs.append(os.path.join(self.package_folder, "include"))
+                    self.cpp_info.system_libs.extend(["quadmath"])
+                    if self.options.threads:
+                        self.cpp_info.system_libs.append("pthread")
+            self.cpp_info.includedirs.append(os.path.join(self.package_folder, "include"))
 
-            component.names["cmake_find_package"] = cmake_target_name
-            component.names["cmake_find_package_multi"] = cmake_target_name
-            component.set_property("cmake_target_name", f"{cmake_namespace}::{cmake_target_name}")
-            component.set_property("pkg_config_name", pkgconfig_name)
+            self.cpp_info.set_property("cmake_target_name", f"{cmake_namespace}::{cmake_target_name}")
+            self.cpp_info.set_property("pkg_config_name", pkgconfig_name)
 
     def package_id(self):
         del self.info.options.precision

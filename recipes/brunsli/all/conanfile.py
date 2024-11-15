@@ -46,8 +46,7 @@ class PackageConan(ConanFile):
         self.requires("brotli/1.0.9", transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.dependencies["brotli"].options.shared:
             raise ConanInvalidConfiguration("brotli must be built as a static library")
 

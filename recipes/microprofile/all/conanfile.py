@@ -128,8 +128,7 @@ class MicroprofileConan(ConanFile):
                 raise ConanInvalidConfiguration(f"microprofile:{opt} must be a positive integer")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.os != "Windows" and self.options.enable_timer in ["d3d11", "d3d12"]:
             raise ConanInvalidConfiguration("DirectX timers can only be used in Windows.")
         if self.options.enable_timer and self.options.enable_gpu_timer_callbacks:

@@ -8,7 +8,7 @@ from conan.tools.gnu import PkgConfigDeps
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -30,5 +30,5 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if not cross_building(self):
-            cmd = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            cmd = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(cmd, env="conanrun")

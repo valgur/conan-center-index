@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, rename, get, replace_in_file
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -107,7 +106,7 @@ class OzzAnimationConan(ConanFile):
             "ozz_build_tools": False,
             "ozz_build_gltf": False,
         }
-        
+
         if self.options.ozz_animation_tools:
             cmvars["ozz_build_tools"] = True
 

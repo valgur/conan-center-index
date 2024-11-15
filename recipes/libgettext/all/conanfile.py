@@ -75,12 +75,8 @@ class GetTextConan(ConanFile):
     def requirements(self):
         self.requires("libiconv/1.17")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -121,8 +117,7 @@ class GetTextConan(ConanFile):
             if target is not None:
                 tc.configure_args += [f"--host={target}", f"--build={target}"]
 
-            if (str(self.settings.compiler) == "Visual Studio" and Version(self.settings.compiler.version) >= "12") or \
-               (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler.version) >= "180"):
+            if is_msvc(self) and Version(self.settings.compiler.version) >= "180":
                 tc.extra_cflags += ["-FS"]
 
             if self.settings.build_type == "Debug":
@@ -221,8 +216,6 @@ class GetTextConan(ConanFile):
         if is_apple_os(self):
             self.cpp_info.frameworks.append("CoreFoundation")
 
-        self.cpp_info.names["cmake_find_package"] = "Intl"
-        self.cpp_info.names["cmake_find_package_multi"] = "Intl"
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""

@@ -48,7 +48,6 @@ class GlimExtPackage(ConanFile):
             "gcc": "9",
             "clang": "10",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -69,8 +68,7 @@ class GlimExtPackage(ConanFile):
         # TODO: unvendor DBow2 and DBow3
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

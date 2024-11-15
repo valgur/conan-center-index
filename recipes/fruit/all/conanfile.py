@@ -52,8 +52,7 @@ class FruitConan(ConanFile):
             self.requires("boost/1.85.0")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
         compiler = str(self.settings.compiler)
         compiler_version = Version(self.settings.compiler.version.value)
 
@@ -61,7 +60,6 @@ class FruitConan(ConanFile):
             "gcc": "5",
             "clang": "3.5",
             "apple-clang": "7.3",
-            "Visual Studio": "14"
         }
 
         if compiler in minimal_version and \

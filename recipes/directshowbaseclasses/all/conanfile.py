@@ -33,8 +33,7 @@ class DirectShowBaseClassesConan(ConanFile):
     def validate(self):
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} can only be used on Windows.")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

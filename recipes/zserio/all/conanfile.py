@@ -34,7 +34,6 @@ class ZserioConanFile(ConanFile):
             "clang": "11",
             "gcc": "5",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     @property
@@ -60,8 +59,7 @@ class ZserioConanFile(ConanFile):
         if self.settings.os == "Macos":
             self.output.warning("Macos is support is experimental! It's not (yet) supported by the upstream!")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_compiler_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_compiler_version and Version(self.settings.compiler.version) < minimum_compiler_version:
@@ -77,8 +75,6 @@ class ZserioConanFile(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not self.settings.get_safe("compiler.cppstd"):
-            tc.variables["CMAKE_CXX_STANDARD"] = str(self._min_cppstd)
         tc.generate()
 
     def build(self):
@@ -123,6 +119,3 @@ class ZserioConanFile(ConanFile):
         zserio_compiler_module = os.path.join(self.package_folder, self._cmake_module_path,
                                               "zserio_compiler.cmake")
         self.cpp_info.set_property("cmake_build_modules", [zserio_compiler_module])
-
-        # TODO: remove in conan v2
-        self.env_info.ZSERIO_JAR_FILE = zserio_jar_file

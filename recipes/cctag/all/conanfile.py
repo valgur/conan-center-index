@@ -90,8 +90,7 @@ class CCTagConan(ConanFile):
         if is_msvc_static_runtime(self) and not self.options.shared and self.dependencies["onetbb"].options.shared:
             raise ConanInvalidConfiguration("this specific configuration is prevented due to internal c3i limitations")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -179,7 +178,3 @@ class CCTagConan(ConanFile):
 
         # CCTag links against shared CUDA runtime by default and does not use it in headers,
         # so we don't need to explicitly link against it.
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CCTag"
-        self.cpp_info.names["cmake_find_package_multi"] = "CCTag"

@@ -5,7 +5,6 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import check_min_vs, is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -326,8 +325,6 @@ class GtsamConan(ConanFile):
         # Unvendor Spectra
         rmdir(self, os.path.join(self.source_folder, "gtsam", "3rdparty", "Spectra"))
 
-        
-
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
@@ -341,32 +338,6 @@ class GtsamConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "CMake"))
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {
-                "gtsam": "GTSAM::gtsam",
-                "gtsam_unstable": "GTSAM::gtsam_unstable",
-                "metis-gtsam": "GTSAM::metis-gtsam",
-                "CppUnitLite": "GTSAM::CppUnitLite",
-            }
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         # GTSAM uses targets without a namespace prefix:
@@ -413,19 +384,3 @@ class GtsamConan(ConanFile):
         if self.options.build_type_postfixes and self.settings.build_type != "Release":
             for component in self.cpp_info.components.values():
                 component.libs = [f"{lib}{self.settings.build_type}" for lib in component.libs]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GTSAM"
-        self.cpp_info.names["cmake_find_package_multi"] = "GTSAM"
-        for component_name, lib_name in [
-            ("libgtsam", "gtsam"),
-            ("libgtsam_unstable", "gtsam_unstable"),
-            ("libmetis-gtsam", "metis-gtsam"),
-            ("gtsam_CppUnitLite", "CppUnitLite"),
-        ]:
-            if component_name in self.cpp_info.components:
-                component = self.cpp_info.components[component_name]
-                component.names["cmake_find_package"] = lib_name
-                component.names["cmake_find_package_multi"] = lib_name
-                component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-                component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

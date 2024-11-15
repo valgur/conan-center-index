@@ -68,7 +68,6 @@ class WhisperCppConan(ConanFile):
                 "gcc": "9",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
         }.get(self._min_cppstd, {})
@@ -108,8 +107,7 @@ class WhisperCppConan(ConanFile):
                 self.options.rm_safe("coreml_allow_fallback")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -119,7 +117,7 @@ class WhisperCppConan(ConanFile):
     def requirements(self):
         if not is_apple_os(self):
             if self.options.with_blas:
-                self.requires("openblas/0.3.27")
+                self.requires("openblas/0.3.28")
         if self.options.get_safe("with_openvino"):
             self.requires("openvino/2023.2.0")
 
@@ -160,8 +158,6 @@ class WhisperCppConan(ConanFile):
 
         if self.options.get_safe("with_openvino"):
             tc.variables["WHISPER_OPENVINO"] = True
-            # TODO: remove with Conan 1.x support
-            tc.variables["CMAKE_CXX_STANDARD"] = str(self.settings.get_safe("compiler.cppstd", 11)).replace("gnu", "")
 
         if is_apple_os(self):
             if self.options.no_accelerate:

@@ -41,8 +41,7 @@ class OpenDDLParserConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -74,7 +73,3 @@ class OpenDDLParserConan(ConanFile):
             self.cpp_info.system_libs.append("m")
         if not self.options.shared:
             self.cpp_info.defines.append("OPENDDL_STATIC_LIBARY")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "openddlparser"
-        self.cpp_info.names["cmake_find_package_multi"] = "openddlparser"

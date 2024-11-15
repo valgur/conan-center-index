@@ -57,8 +57,7 @@ class CubicInterpolationConan(ConanFile):
                 f"{', '.join(self._required_boost_components)}",
             )
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "14")
+        check_min_cppstd(self, "14")
 
         if not check_min_vs(self, 192, raise_invalid=False):
             raise ConanInvalidConfiguration(f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions are welcome")
@@ -96,7 +95,3 @@ class CubicInterpolationConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "CubicInterpolation::CubicInterpolation")
         self.cpp_info.libs = ["CubicInterpolation"]
         self.cpp_info.requires = ["boost::headers", "boost::filesystem", "boost::math", "boost::serialization", "eigen::eigen"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CubicInterpolation"
-        self.cpp_info.names["cmake_find_package_multi"] = "CubicInterpolation"

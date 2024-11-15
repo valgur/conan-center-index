@@ -43,8 +43,7 @@ class LibelfinConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"libelfin doesn't support compiler: {self.settings.compiler}.")
 
@@ -76,7 +75,3 @@ class LibelfinConan(ConanFile):
         self.cpp_info.components["libdwarf++"].set_property("pkg_config_name", "libdwarf++")
         self.cpp_info.components["libdwarf++"].libs = ["dwarf++"]
         self.cpp_info.components["libdwarf++"].requires = ["libelf++"]
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.cpp_info.components["libelf++"].names["pkg_config"] = "libelf++"
-        self.cpp_info.components["libdwarf++"].names["pkg_config"] = "libdwarf++"

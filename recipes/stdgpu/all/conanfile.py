@@ -6,7 +6,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir, replace_in_file
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -55,7 +54,6 @@ class StdgpuConan(ConanFile):
                 "clang": "6",
                 "apple-clang": "6",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
         else:
             # > 1.3.0
@@ -65,7 +63,6 @@ class StdgpuConan(ConanFile):
                 "clang": "10",
                 "apple-clang": "12",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
 
     def export_sources(self):
@@ -101,8 +98,7 @@ class StdgpuConan(ConanFile):
             self.tool_requires("cmake/[>=3.18 <4]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_min_versions.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

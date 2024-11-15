@@ -50,10 +50,6 @@ class NCursesConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _is_mingw(self):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
@@ -107,7 +103,7 @@ class NCursesConan(ConanFile):
                 raise ConanInvalidConfiguration("ticlib cannot be built separately as a shared library on Windows")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -321,11 +317,3 @@ class NCursesConan(ConanFile):
         self.buildenv_info.define_path("TERMINFO", terminfo)
         self.runenv_info.define_path("TERMINFO", terminfo)
         self.conf_info.define("user.ncurses:lib_suffix", self._lib_suffix)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "Curses"
-        self.cpp_info.names["cmake_find_package_multi"] = "Curses"
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package"] = [module_rel_path]
-        self.cpp_info.components["libcurses"].build_modules["cmake_find_package_multi"] = [module_rel_path]
-        self.env_info.TERMINFO = terminfo
-        self.user_info.lib_suffix = self._lib_suffix

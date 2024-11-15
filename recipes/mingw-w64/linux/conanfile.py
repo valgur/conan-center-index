@@ -40,10 +40,6 @@ class MingwConan(ConanFile):
 
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -314,11 +310,7 @@ class MingwConan(ConanFile):
         bin_path = os.path.join(self.package_folder, "bin")
         prefix = os.path.join(bin_path, self._target_tag + "-")
 
-        self.buildenv_info.prepend_path("PATH", bin_path)
-        self.env_info.PATH.append(bin_path)
-
         self.buildenv_info.define_path("MINGW_HOME", self.package_folder)
-        self.env_info.MINGW_HOME = self.package_folder
 
         def define_tool_env(var, name):
             self.buildenv_info.define_path(var, prefix + name)

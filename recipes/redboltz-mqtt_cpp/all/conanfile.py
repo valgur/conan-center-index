@@ -30,7 +30,6 @@ class MqttCPPConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "6",
-            "Visual Studio": "15",
             "msvc": "191",
             "clang": "5",
             "apple-clang": "10",
@@ -46,8 +45,7 @@ class MqttCPPConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -72,9 +70,3 @@ class MqttCPPConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "mqtt_cpp")
         self.cpp_info.set_property("cmake_target_name", "mqtt_cpp::mqtt_cpp")
-
-        #  TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "mqtt_cpp"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mqtt_cpp"
-        self.cpp_info.names["cmake_find_package"] = "mqtt_cpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "mqtt_cpp"

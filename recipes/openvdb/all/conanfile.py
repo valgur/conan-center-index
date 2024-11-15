@@ -90,7 +90,6 @@ class OpenVDBConan(ConanFile):
             # https://github.com/AcademySoftwareFoundation/openvdb/blob/v10.0.1/doc/dependencies.txt#L56-L84
             return {
                 "msvc": "192.8",
-                "Visual Studio": "16",
                 "gcc": "9.3.1",
                 "clang": "5.0",
                 "apple-clang": "12.0",
@@ -100,7 +99,6 @@ class OpenVDBConan(ConanFile):
             # https://github.com/AcademySoftwareFoundation/openvdb/blob/v9.1.0/doc/dependencies.txt#L56-L84
             return {
                 "msvc": "191.0",
-                "Visual Studio": "15",
                 "gcc": "6.3.1",
                 "clang": "3.8",
                 "apple-clang": "10.0",
@@ -151,8 +149,7 @@ class OpenVDBConan(ConanFile):
             )
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.arch not in ("x86", "x86_64"):
             if self.options.simd:
                 raise ConanInvalidConfiguration("Only intel architectures support SSE4 or AVX.")
@@ -160,15 +157,11 @@ class OpenVDBConan(ConanFile):
         if self.options.with_exr != "deprecated":
             self.output.warning("with_exr option is deprecated, do not use anymore.")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         if Version(self.version) >= "10.0.0":
             self.tool_requires("cmake/[>=3.18 <4]")
         if self.options.build_ax:
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.tool_requires("winflexbison/2.5.25")
             else:
                 self.tool_requires("bison/3.8.2")
@@ -269,33 +262,24 @@ class OpenVDBConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OpenVDB")
         self.cpp_info.set_property("cmake_target_name", "OpenVDB::openvdb")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        main_component = self.cpp_info.components["openvdb-core"]
         lib_prefix = "lib" if is_msvc(self) and not self.options.shared else ""
-        main_component.libs = [lib_prefix + "openvdb"]
-        main_component.defines = self._public_defines
+        self.cpp_info.libs = [lib_prefix + "openvdb"]
+        self.cpp_info.defines = self._public_defines
         if self.settings.os in ("Linux", "FreeBSD"):
-            main_component.system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
 
-        main_component.requires = [
+        self.cpp_info.requires = [
             "boost::iostreams",
             "boost::system",
             "onetbb::onetbb",
         ]
         if self.settings.os == "Windows":
-            main_component.requires.append("boost::disable_autolinking")
+            self.cpp_info.requires.append("boost::disable_autolinking")
         if self.options.with_zlib:
-            main_component.requires.append("zlib::zlib")
+            self.cpp_info.requires.append("zlib::zlib")
         if self.options.with_blosc:
-            main_component.requires.append("c-blosc::c-blosc")
+            self.cpp_info.requires.append("c-blosc::c-blosc")
         if self.options.with_log4cplus:
-            main_component.requires.append("log4cplus::log4cplus")
+            self.cpp_info.requires.append("log4cplus::log4cplus")
         if self.options.use_imath_half:
-            main_component.requires.append("imath::imath")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "OpenVDB"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenVDB"
-        main_component.names["cmake_find_package"] = "openvdb"
-        main_component.names["cmake_find_package_multi"] = "openvdb"
-        main_component.set_property("cmake_target_name", "OpenVDB::openvdb")
+            self.cpp_info.requires.append("imath::imath")

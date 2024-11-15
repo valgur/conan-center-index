@@ -27,10 +27,6 @@ class LibaioConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _user_info_build(self):
         return getattr(self, "user_info_build", self.deps_user_info)
 

@@ -37,7 +37,6 @@ class EnjinCppSdk(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "9",
             "clang": "10",
@@ -134,7 +133,3 @@ class EnjinCppSdk(ConanFile):
         self.cpp_info.libs = ["enjinsdk"]
         self.cpp_info.set_property("cmake_file_name", "enjinsdk")
         self.cpp_info.set_property("cmake_target_name", "enjinsdk::enjinsdk")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "enjinsdk"
-        self.cpp_info.names["cmake_find_package_multi"] = "enjinsdk"

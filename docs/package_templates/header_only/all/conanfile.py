@@ -3,11 +3,10 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 import os
 
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.0"
 
 
 class PackageConan(ConanFile):
@@ -26,21 +25,6 @@ class PackageConan(ConanFile):
     # Do not copy sources to build folder for header only projects, unless you need to apply patches
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    # In case the project requires C++14/17/20/... the minimum compiler version should be listed
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "7",
-            "gcc": "7",
-            "msvc": "191",
-            "Visual Studio": "15",
-        }
-
     # Use the export_sources(self) method instead of the exports_sources attribute.
     def export_sources(self):
         export_conandata_patches(self)
@@ -52,9 +36,7 @@ class PackageConan(ConanFile):
         # Prefer self.requires method instead of requires attribute
         # Direct dependencies of header only libs are always transitive since they are included in public headers
         self.requires("dependency/0.8.1")
-        if self.options.with_foobar:
-            self.requires("foobar/0.1.0", transitive_headers=True, transitive_libs=True)
-        # A small number of dependencies on CCI are allowed to use version ranges.
+        # Some dependencies on CCI are allowed to use version ranges.
         # See https://github.com/conan-io/conan-center-index/blob/master/docs/adding_packages/dependencies.md#version-ranges
         self.requires("openssl/[>=1.1 <4]")
 
@@ -63,31 +45,28 @@ class PackageConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            # Validate the minimum cpp standard supported when installing the package. For C++ projects only
-            check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
-        # In case this library does not work in some another configuration, it should be validated here too
+        # Validate the minimum cpp standard supported when installing the package. For C++ projects only
+        check_min_cppstd(self, 14)
+        # in case it does not work in another configuration, it should be validated here. Always comment the reason including the upstream issue.
+        # INFO: Upstream does not support DLL: See <URL>
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} can not be used on Windows.")
 
     def source(self):
         # Download source package and extract to source folder
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    # Not mandatory when there is no patch, but will suppress warning message about missing build() method
-    def build(self):
         # The attribute no_copy_source should not be used when applying patches in build
+        # Using patches is always the last resort to fix issues. If possible, try to fix the issue in the upstream project.
         apply_conandata_patches(self)
+
+    # Suppress warning message about missing build() method when running Conan
+    def build(self):
+        pass
 
     # Copy all files to the package folder
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        # Prefer CMake.install() or similar in case the upstream offers an official method to install the headers.
         copy(self, "*.h", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
 
     def package_info(self):

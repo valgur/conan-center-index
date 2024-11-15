@@ -71,8 +71,3 @@ class MarisaConan(ConanFile):
         self.cpp_info.libs = ["marisa"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH env var with : '{bin_path}'")
-        self.env_info.PATH.append(bin_path)

@@ -55,5 +55,3 @@ class CvPlotConan(ConanFile):
 
         self.cpp_info.defines.append("CVPLOT_HEADER_ONLY")
 
-        self.cpp_info.names["cmake_find_package"] = "CvPlot"
-        self.cpp_info.names["cmake_find_package_multi"] = "CvPlot"

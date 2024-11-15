@@ -65,8 +65,7 @@ class StellaCvFbowConan(ConanFile):
         self.requires("openmp/system")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -89,10 +88,8 @@ class StellaCvFbowConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        # Let Conan set the C++ standard
-        if self.settings.compiler.cppstd:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "set(CMAKE_CXX_STANDARD 11)", "")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "set(CMAKE_CXX_STANDARD 11)", "")
 
     def build(self):
         self._patch_sources()

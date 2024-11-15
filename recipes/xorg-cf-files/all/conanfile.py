@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.gnu import AutotoolsToolchain, Autotools, PkgConfigDeps, GnuToolchain
-from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
+from conan.tools.microsoft import is_msvc
 from conan.tools.files import get, rmdir, copy, apply_conandata_patches, export_conandata_patches
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.apple import is_apple_os
@@ -20,10 +20,6 @@ class XorgCfFilesConan(ConanFile):
     homepage = "https://gitlab.freedesktop.org/xorg/util/cf"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -55,7 +51,7 @@ class XorgCfFilesConan(ConanFile):
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -91,5 +87,3 @@ class XorgCfFilesConan(ConanFile):
 
         x11_config_files = os.path.join(self.package_folder, "lib", "X11", "config")
         self.conf_info.define("user.xorg-cf-files:config-path", x11_config_files)
-
-        self.user_info.CONFIG_PATH = x11_config_files.replace("\\", "/")

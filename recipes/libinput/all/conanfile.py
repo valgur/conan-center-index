@@ -1,14 +1,11 @@
 import os
-import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import copy, get, rmdir, save
+from conan.tools.files import copy, get, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-
 
 required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
@@ -39,10 +36,6 @@ class LibinputConan(ConanFile):
         "with_wayland": True,
         "with_x11": True,
     }
-
-    @property
-    def _has_build_profile(self):
-        return hasattr(self, "settings_build")
 
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")
@@ -84,20 +77,13 @@ class LibinputConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_wayland"):
-            if self._has_build_profile:
-                self.tool_requires("wayland/<host_version>")
+            self.tool_requires("wayland/<host_version>")
             self.tool_requires("wayland-protocols/1.33")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = VirtualBuildEnv(self)
-        tc.generate()
-        if self.options.get_safe("with_wayland") and not self._has_build_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-
         tc = MesonToolchain(self)
         tc.project_options["build.pkg_config_path"] = self.generators_folder
         tc.project_options["coverity"] = False
@@ -113,22 +99,7 @@ class LibinputConan(ConanFile):
         tc.generate()
         pkg_config_deps = PkgConfigDeps(self)
         if self.options.get_safe("with_wayland"):
-            if self._has_build_profile:
-                pkg_config_deps.build_context_activated = ["wayland-protocols"]
-            else:
-                # Manually generate pkgconfig file of wayland-protocols since
-                # PkgConfigDeps.build_context_activated can't work with legacy 1 profile
-                wp_prefix = self.dependencies.build["wayland-protocols"].package_folder
-                wp_version = self.dependencies.build["wayland-protocols"].ref.version
-                wp_pkg_content = textwrap.dedent(f"""\
-                    prefix={wp_prefix}
-                    datarootdir=${{prefix}}/res
-                    pkgdatadir=${{datarootdir}}/wayland-protocols
-                    Name: Wayland Protocols
-                    Description: Wayland protocol files
-                    Version: {wp_version}
-                """)
-                save(self, os.path.join(self.generators_folder, "wayland-protocols.pc"), wp_pkg_content)
+            pkg_config_deps.build_context_activated = ["wayland-protocols"]
         pkg_config_deps.generate()
 
     def build(self):

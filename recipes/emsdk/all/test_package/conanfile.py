@@ -6,8 +6,7 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "VirtualBuildEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain"
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
@@ -36,5 +35,5 @@ class TestPackageConan(ConanFile):
 
         # Run the project that was built using emsdk
         if self.settings.os == "Emscripten":
-            test_file = os.path.join(self.cpp.build.bindirs[0], "test_package.js")
+            test_file = os.path.join(self.cpp.build.bindir, "test_package.js")
             self.run(f"node {test_file}")

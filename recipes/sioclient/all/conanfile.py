@@ -1,12 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import copy, get, replace_in_file, rm, rmdir, save
+from conan.tools.files import copy, get, replace_in_file, rmdir
 
 required_conan_version = ">=1.53.0"
 
@@ -54,8 +52,7 @@ class SioclientConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -29,7 +29,6 @@ class MortonndConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "5",
-            "Visual Studio": "14",
             "msvc": "190",
             "clang": "3.4",
             "apple-clang": "5.1",
@@ -42,14 +41,13 @@ class MortonndConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.name} {self.version} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
-    
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -69,12 +67,3 @@ class MortonndConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "morton-nd::MortonND")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "morton-nd"
-        self.cpp_info.names["cmake_find_package_multi"] = "morton-nd"
-        self.cpp_info.components["mortonnd"].names["cmake_find_package"] = "MortonND"
-        self.cpp_info.components["mortonnd"].names["cmake_find_package_multi"] = "MortonND"
-        self.cpp_info.components["mortonnd"].set_property("cmake_target_name", "morton-nd::MortonND")
-        self.cpp_info.components["mortonnd"].bindirs = []
-        self.cpp_info.components["mortonnd"].libdirs = []

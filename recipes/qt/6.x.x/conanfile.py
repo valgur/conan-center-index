@@ -9,7 +9,7 @@ import yaml
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
-from conan.tools.build import cross_building, check_min_cppstd, default_cppstd, can_run
+from conan.tools.build import cross_building, check_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
 from conan.tools.files import copy, get, replace_in_file, apply_conandata_patches, save, rm, rmdir, export_conandata_patches
@@ -17,7 +17,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.0.9"
 
 
 class QtConan(ConanFile):
@@ -67,7 +67,6 @@ class QtConan(ConanFile):
         "sysroot": [None, "ANY"],
         "multiconfiguration": [True, False],
         "disabled_features": [None, "ANY"],
-        "cross_compile": [None, "ANY"],
         "force_build_tools": [True, False],
     }
     default_options = {
@@ -108,7 +107,6 @@ class QtConan(ConanFile):
         "sysroot": None,
         "multiconfiguration": False,
         "disabled_features": "",
-        "cross_compile": None,
         "force_build_tools": False,
     }
     # All submodules are exposed as options as well
@@ -166,19 +164,6 @@ class QtConan(ConanFile):
     short_paths = True
 
     @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "9",
-            "apple-clang": "12"
-        }
-
-    @property
     @lru_cache()
     def _qtmodules_info(self):
         """
@@ -213,6 +198,7 @@ class QtConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+        copy(self, "cmake/*", self.recipe_folder, self.export_sources_folder, keep_path=True)
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -228,7 +214,6 @@ class QtConan(ConanFile):
         if self.settings.os != "Linux":
             self.options.qtwayland = False
         if not cross_building(self):
-            del self.options.cross_compile
             del self.options.force_build_tools
 
     def configure(self):
@@ -296,12 +281,7 @@ class QtConan(ConanFile):
                 self.info.settings.compiler == "clang" and Version(self.info.settings.compiler.version) >= "12":
                 raise ConanInvalidConfiguration("qt is not supported on gcc11 and clang >= 12 on C3I until conan-io/conan-center-index#13472 is fixed")
 
-        # C++ minimum standard required
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"C++{self._min_cppstd} support required, which your compiler does not support.")
+        check_min_cppstd(self, 17)
 
         if Version(self.version) >= "6.6.1" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "13.1":
             # https://bugreports.qt.io/browse/QTBUG-119490
@@ -346,24 +326,22 @@ class QtConan(ConanFile):
         if self.options.with_sqlite3 and not self.dependencies["sqlite3"].options.enable_column_metadata:
             raise ConanInvalidConfiguration("sqlite3 option enable_column_metadata must be enabled for qt")
 
-    def validate_build(self):
-        if cross_building(self):
-            if self.options.cross_compile.value is not None and not os.path.isdir(str(self.options.cross_compile)):
-                raise ConanInvalidConfiguration(f"Qt host path {self.options.cross_compile} provided via cross_compile option does not exist")
+    # def validate_build(self):
+    #     # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
+    #     # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
+    #     if Version(self.version) >= "6.8.0":
+    #         if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+    #             if not "gnu" in str(self.settings.compiler.cppstd):
+    #                 raise ConanInvalidConfiguration(f"{self.ref} requires GNU extensions support when building with {self.settings.compiler.libcxx} "
+    #                                                 f"(add -s qt/*:compiler.cppstd=gnu{self.settings.compiler.cppstd}).")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        self.info.options.rm_safe("cross_compile")
         del self.info.options.sysroot
         if self.info.options.multiconfiguration:
-            if self.info.settings.compiler == "Visual Studio":
-                if "MD" in self.info.settings.compiler.runtime:
-                    self.info.settings.compiler.runtime = "MD/MDd"
-                else:
-                    self.info.settings.compiler.runtime = "MT/MTd"
-            elif self.info.settings.compiler == "msvc":
+            if self.info.settings.compiler == "msvc":
                 self.info.settings.compiler.runtime_type = "Release/Debug"
         if self.info.settings.os == "Android":
             del self.info.options.android_sdk
@@ -371,6 +349,14 @@ class QtConan(ConanFile):
             setattr(self.info.options, module, self._is_enabled(module))
         for status in self._module_statuses:
             self.info.options.rm_safe(f"{status}_modules")
+
+        # INT128 support requires GNU extensions when using libstdc++.
+        # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
+        # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
+        if Version(self.version) >= "6.8.0":
+            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+                if not "gnu" in str(self.settings.compiler.cppstd):
+                    self.info.compiler.cppstd = f"gnu{self.settings.compiler.cppstd}"
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
@@ -470,7 +456,7 @@ class QtConan(ConanFile):
                 self.tool_requires("flex/2.6.4")
         if self._is_enabled("qtwayland"):
             self.tool_requires("wayland/1.22.0")
-        if cross_building(self) and self.options.cross_compile.value is None:
+        if cross_building(self):
             self.tool_requires(f"qt/{self.version}", options={
                 # Make sure all required tools are built
                 "qttools": self._is_enabled("qttools"),
@@ -668,8 +654,7 @@ class QtConan(ConanFile):
         if self.settings.os == "Windows":
             tc.variables["HOST_PERL"] = self.dependencies.build["strawberryperl"].conf_info.get("user.strawberryperl:perl", check_type=str)
 
-        current_cpp_std = self.settings.get_safe("compiler.cppstd", default_cppstd(self))
-        current_cpp_std = int(str(current_cpp_std).replace("gnu", ""))
+        current_cpp_std = int(str(self.settings.compiler.cppstd).replace("gnu", ""))
         cpp_std_map = {
             11: "FEATURE_cxx11",
             14: "FEATURE_cxx14",
@@ -680,15 +665,19 @@ class QtConan(ConanFile):
         for std, feature in cpp_std_map.items():
             tc.variables[feature] = current_cpp_std >= std
 
+        # INT128 support requires GNU extensions when using libstdc++.
+        # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
+        # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
+        if Version(self.version) >= "6.8.0":
+            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+                if not "gnu" in str(self.settings.compiler.cppstd):
+                    tc.variables["CMAKE_CXX_STANDARD"] = f"gnu{self.settings.compiler.cppstd}"
+
         tc.variables["QT_USE_VCPKG"] = False
         tc.cache_variables["QT_USE_VCPKG"] = False
 
         if cross_building(self):
-            if self.options.cross_compile.value is not None:
-                host_path = str(self.options.cross_compile)
-            else:
-                host_path = self.dependencies.build["qt"].package_folder
-            host_path = host_path.replace("\\", "/")
+            host_path = self.dependencies.build["qt"].package_folder.replace("\\", "/")
             tc.variables["QT_QMAKE_DEVICE_OPTIONS"] = f"CROSS_COMPILE={host_path}"
             tc.variables["QT_HOST_PATH"] = host_path
             tc.variables["QT_HOST_PATH_CMAKE_DIR"] = f"{host_path}/lib/cmake"
@@ -811,6 +800,10 @@ class QtConan(ConanFile):
         return os.path.join("lib", "cmake", "Qt6Core", "conan_qt_executables_variables.cmake")
 
     @property
+    def _cmake_cross_compile_targets(self):
+        return os.path.join("lib", "cmake", "Qt6Core", "conan_cross_compile_targets.cmake")
+
+    @property
     def _cmake_entry_point_file(self):
         return os.path.join("lib", "cmake", "Qt6Core", "conan_qt_entry_point.cmake")
 
@@ -882,6 +875,11 @@ class QtConan(ConanFile):
         rm(self, "qt-cmake-private-install.cmake", self.package_folder, recursive=True)
         rmdir(self, package_path.joinpath("lib", "pkgconfig"))
 
+        # Copy
+        # - conan_cross_compile_targets.cmake
+        # - conan_qt_entry_point.cmake
+        copy(self, "cmake/*", self.export_sources_folder, self.package_path.joinpath("lib", "cmake", "Qt6Core"), keep_path=False)
+
         # Generate lib/cmake/Qt6Core/conan_qt_executables_variables.cmake
         filecontents = 'get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)\n'
         filecontents += "set(QT_CMAKE_EXPORT_NAMESPACE Qt6)\n"
@@ -947,21 +945,6 @@ class QtConan(ConanFile):
             if self.options.gui and self._is_enabled("qtshadertools"):
                 _create_private_module("Quick", ["CorePrivate", "GuiPrivate", "QmlPrivate", "Quick"])
 
-        if self.settings.os in ["Windows", "iOS"]:
-            # Write lib/cmake/Qt6Core/conan_qt_entry_point.cmake
-            save(self, package_path.joinpath(self._cmake_entry_point_file), textwrap.dedent("""\
-                set(entrypoint_conditions "$<NOT:$<BOOL:$<TARGET_PROPERTY:qt_no_entrypoint>>>")
-                list(APPEND entrypoint_conditions "$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>")
-                if(WIN32)
-                    list(APPEND entrypoint_conditions "$<BOOL:$<TARGET_PROPERTY:WIN32_EXECUTABLE>>")
-                endif()
-                list(JOIN entrypoint_conditions "," entrypoint_conditions)
-                set(entrypoint_conditions "$<AND:${entrypoint_conditions}>")
-                set_property(
-                    TARGET ${QT_CMAKE_EXPORT_NAMESPACE}::Core
-                    APPEND PROPERTY INTERFACE_LINK_LIBRARIES "$<${entrypoint_conditions}:${QT_CMAKE_EXPORT_NAMESPACE}::EntryPointPrivate>"
-            )"""))
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Qt6")
         self.cpp_info.set_property("pkg_config_name", "qt6")
@@ -973,9 +956,6 @@ class QtConan(ConanFile):
         if not cross_building(self):
             self.buildenv_info.define_path("QT_HOST_PATH", self.package_folder)
             self.buildenv_info.define_path("QT_HOST_PATH_CMAKE_DIR", os.path.join(self.package_folder, "lib", "cmake"))
-        elif self.options.cross_compile.value is not None:
-            self.buildenv_info.define_path("QT_HOST_PATH", str(self.options.cross_compile))
-            self.buildenv_info.define_path("QT_HOST_PATH_CMAKE_DIR", os.path.join(str(self.options.cross_compile), "lib", "cmake"))
 
         build_modules = {}
         def _add_build_module(component, module):
@@ -1044,6 +1024,7 @@ class QtConan(ConanFile):
         ]))
         qtCore.builddirs.append(os.path.join("bin"))
         _add_build_module("qtCore", self._cmake_executables_file)
+        _add_build_module("qtCore", self._cmake_cross_compile_targets)
         _add_build_module("qtCore", self._cmake_qt6_private_file("Core"))
         if self.settings.os in ["Windows", "iOS"]:
             _add_build_module("qtCore", self._cmake_entry_point_file)

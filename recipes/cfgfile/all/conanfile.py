@@ -26,7 +26,6 @@ class CfgfileConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "3.5",
@@ -46,8 +45,7 @@ class CfgfileConan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -87,6 +85,3 @@ class CfgfileConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "cfgfile")
         self.cpp_info.set_property("cmake_target_name", "cfgfile::cfgfile")
         self.cpp_info.includedirs.append(os.path.join("include", "cfgfile"))
-
-        # TODO: to remove once conan v1 support dropped
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

@@ -45,7 +45,6 @@ class JoltPhysicsConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "9.2", # due to https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81429
             "clang": "5",
@@ -95,8 +94,7 @@ class JoltPhysicsConan(ConanFile):
         if self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("JoltPhysics only supports x86 architectures")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

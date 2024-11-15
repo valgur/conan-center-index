@@ -91,24 +91,10 @@ class LibCheckConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", f"Check::{target}")
         self.cpp_info.set_property("pkg_config_name", "check")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         libsuffix = "Dynamic" if is_msvc(self) and self.options.shared else ""
-        self.cpp_info.components["liblibcheck"].libs = [f"check{libsuffix}"]
+        self.cpp_info.libs = [f"check{libsuffix}"]
         if self.options.with_subunit:
-            self.cpp_info.components["liblibcheck"].requires.append("subunit::subunit")
+            self.cpp_info.requires.append("subunit::subunit")
         if not self.options.shared:
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components["liblibcheck"].system_libs = ["m", "pthread", "rt"]
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "check"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "check"
-        self.cpp_info.names["cmake_find_package"] = "Check"
-        self.cpp_info.names["cmake_find_package_multi"] = "Check"
-        self.cpp_info.components["liblibcheck"].names["cmake_find_package"] = target
-        self.cpp_info.components["liblibcheck"].names["cmake_find_package_multi"] = target
-        self.cpp_info.components["liblibcheck"].set_property("cmake_target_name", f"Check::{target}")
-        self.cpp_info.components["liblibcheck"].set_property("pkg_config_name", "check")
+                self.cpp_info.system_libs = ["m", "pthread", "rt"]

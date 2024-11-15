@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
 
@@ -31,7 +31,6 @@ class KittenConan(ConanFile):
         return {
             "gcc": "7",
             "clang": "5",
-            "Visual Studio": "15.7",
             "apple-clang": "10",
         }
 
@@ -42,8 +41,7 @@ class KittenConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
@@ -75,11 +73,3 @@ class KittenConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "kitten")
         self.cpp_info.set_property("cmake_target_name", "rvarago::kitten")
         self.cpp_info.components["libkitten"].set_property("cmake_target_name", "rvarago::kitten")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "kitten"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "kitten"
-        self.cpp_info.names["cmake_find_package"] = "rvarago"
-        self.cpp_info.names["cmake_find_package_multi"] = "rvarago"
-        self.cpp_info.components["libkitten"].names["cmake_find_package"] = "kitten"
-        self.cpp_info.components["libkitten"].names["cmake_find_package_multi"] = "kitten"

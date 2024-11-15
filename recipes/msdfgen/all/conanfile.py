@@ -60,8 +60,7 @@ class MsdfgenConan(ConanFile):
 
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported by Visual Studio")
         if self.options.with_skia:
@@ -126,14 +125,9 @@ class MsdfgenConan(ConanFile):
         # Required to avoid some side effect in CMakeDeps generator of downstream recipes
         self.cpp_info.set_property("cmake_target_name", "msdfgen::msdgen-all-unofficial")
 
-        self.cpp_info.names["cmake_find_package"] = "msdfgen"
-        self.cpp_info.names["cmake_find_package_multi"] = "msdfgen"
-
         includedir = os.path.join("include", "msdfgen")
 
         self.cpp_info.components["_msdfgen"].set_property("cmake_target_name", "msdfgen::msdfgen")
-        self.cpp_info.components["_msdfgen"].names["cmake_find_package"] = "msdfgen"
-        self.cpp_info.components["_msdfgen"].names["cmake_find_package_multi"] = "msdfgen"
         self.cpp_info.components["_msdfgen"].includedirs.append(includedir)
         self.cpp_info.components["_msdfgen"].libs = ["msdfgen" if Version(self.version) < "1.10" else "msdfgen-core"]
         self.cpp_info.components["_msdfgen"].defines = ["MSDFGEN_USE_CPP11"]
@@ -144,8 +138,6 @@ class MsdfgenConan(ConanFile):
                 self.cpp_info.components["_msdfgen"].defines.append("MSDFGEN_PUBLIC=")
 
         self.cpp_info.components["msdfgen-ext"].set_property("cmake_target_name", "msdfgen::msdfgen-ext")
-        self.cpp_info.components["msdfgen-ext"].names["cmake_find_package"] = "msdfgen-ext"
-        self.cpp_info.components["msdfgen-ext"].names["cmake_find_package_multi"] = "msdfgen-ext"
         self.cpp_info.components["msdfgen-ext"].includedirs.append(includedir)
         self.cpp_info.components["msdfgen-ext"].libs = ["msdfgen-ext"]
         self.cpp_info.components["msdfgen-ext"].requires = [
@@ -159,7 +151,3 @@ class MsdfgenConan(ConanFile):
 
         if self.options.with_openmp:
             self.cpp_info.components["_msdfgen"].requires.append("openmp::openmp")
-
-        # TODO: to remove once conan v1 support dropped
-        if self.options.utility:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

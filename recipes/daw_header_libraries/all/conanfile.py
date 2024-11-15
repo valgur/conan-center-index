@@ -28,7 +28,6 @@ class DawHeaderLibrariesConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
@@ -42,8 +41,7 @@ class DawHeaderLibrariesConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.get_safe("compiler.version")) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -58,17 +56,7 @@ class DawHeaderLibrariesConan(ConanFile):
         copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("cmake_file_name", "daw-header-libraries")
         self.cpp_info.set_property("cmake_target_name", "daw::daw-header-libraries")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "daw-header-libraries"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "daw-header-libraries"
-        self.cpp_info.names["cmake_find_package"] = "daw"
-        self.cpp_info.names["cmake_find_package_multi"] = "daw"
-        self.cpp_info.components["daw"].names["cmake_find_package"] = "daw-header-libraries"
-        self.cpp_info.components["daw"].names["cmake_find_package_multi"] = "daw-header-libraries"
-        self.cpp_info.components["daw"].set_property("cmake_target_name", "daw::daw-header-libraries")
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []

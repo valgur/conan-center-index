@@ -38,10 +38,6 @@ class XqillaConan(ConanFile):
     def _min_cppstd(self):
         return "11"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -60,15 +56,14 @@ class XqillaConan(ConanFile):
         self.requires("xerces-c/3.2.5", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self):
             raise ConanInvalidConfiguration("xqilla recipe doesn't support msvc build yet")
 
     def build_requirements(self):
         self.tool_requires("gnu-config/cci.20210814")
         self.tool_requires("libtool/2.4.7")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -133,6 +128,3 @@ class XqillaConan(ConanFile):
         self.cpp_info.libs = ["xqilla"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

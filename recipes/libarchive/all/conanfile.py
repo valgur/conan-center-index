@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, cmake_layout, CMakeDeps, CMakeToolchain
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, replace_in_file
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -122,6 +122,11 @@ class LibarchiveConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        # Not correctly identified when cross-compiling.
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        'CHECK_FUNCTION_EXISTS_GLIBC(locale_charset HAVE_LOCALE_CHARSET)',
+                        'CHECK_SYMBOL_EXISTS(locale_charset "localcharset.h" HAVE_LOCALCHARSET_H)')
 
     def generate(self):
         cmake_deps = CMakeDeps(self)
@@ -166,7 +171,6 @@ class LibarchiveConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -184,8 +188,6 @@ class LibarchiveConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "LibArchive::LibArchive")
         self.cpp_info.set_property("pkg_config_name", "libarchive")
 
-        self.cpp_info.names["cmake_find_package"] = "LibArchive"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibArchive"
 
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows" and self.options.with_cng:

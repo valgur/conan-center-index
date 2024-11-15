@@ -30,8 +30,7 @@ class WinregConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         if self.settings.os != "Windows":
             raise ConanInvalidConfiguration("WinReg is only supported on Windows")
 

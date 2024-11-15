@@ -27,7 +27,6 @@ class DawUtfRangeConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
@@ -45,8 +44,7 @@ class DawUtfRangeConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -82,11 +80,3 @@ class DawUtfRangeConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "daw::daw-utf-range")
         self.cpp_info.components["daw"].set_property("cmake_target_name", "daw::daw-utf-range")
         self.cpp_info.components["daw"].requires = ["daw_header_libraries::daw"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "daw-utf-range"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "daw-utf-range"
-        self.cpp_info.names["cmake_find_package"] = "daw"
-        self.cpp_info.names["cmake_find_package_multi"] = "daw"
-        self.cpp_info.components["daw"].names["cmake_find_package"] = "daw-utf-range"
-        self.cpp_info.components["daw"].names["cmake_find_package_multi"] = "daw-utf-range"

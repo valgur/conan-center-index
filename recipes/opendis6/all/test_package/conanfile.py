@@ -1,13 +1,12 @@
 import os
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain
+from conan.tools.cmake import CMake
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)

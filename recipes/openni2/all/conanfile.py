@@ -53,8 +53,7 @@ class Openni2Conan(ConanFile):
             self.requires("libusb/1.0.26")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.os != "Linux" and not is_apple_os(self):
             # The library should also support Windows via MSBuild.
             raise ConanInvalidConfiguration("Only Linux and macOS builds are currently supported. Contributions are welcome!")

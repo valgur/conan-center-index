@@ -32,7 +32,6 @@ class PlatformInterfacesConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "11",
-            "Visual Studio": "16",
             "msvc": "193",
             "clang": "13",
         }
@@ -49,8 +48,7 @@ class PlatformInterfacesConan(ConanFile):
                                             "which is not supported "
                                             f"by {self.settings.compiler}.")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if Version(self.settings.compiler.version) < minimum_version:
@@ -87,7 +85,3 @@ class PlatformInterfacesConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "Platform.Interfaces")
         self.cpp_info.set_property("cmake_target_name", "Platform.Interfaces::Platform.Interfaces")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Platform.Interfaces"
-        self.cpp_info.names["cmake_find_package_multi"] = "Platform.Interfaces"

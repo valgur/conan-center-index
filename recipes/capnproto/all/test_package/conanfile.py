@@ -8,7 +8,6 @@ import os
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeToolchain", "CMakeDeps"
-    test_type = "explicit"
 
     def layout(self):
         cmake_layout(self)
@@ -18,7 +17,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         VirtualRunEnv(self).generate()
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             VirtualBuildEnv(self).generate()
         else:
             VirtualRunEnv(self).generate(scope="build")

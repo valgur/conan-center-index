@@ -37,10 +37,6 @@ class LibsodiumConan(ConanFile):
     def _is_mingw(self):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -65,7 +61,7 @@ class LibsodiumConan(ConanFile):
         if not is_msvc(self):
             if self._is_mingw:
                 self.tool_requires("libtool/2.4.7")
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")
@@ -100,29 +96,18 @@ class LibsodiumConan(ConanFile):
     @property
     def _msvc_sln_folder(self):
         sln_folders = {
-            "Visual Studio": {
-                "10": "vs2010",
-                "11": "vs2012",
-                "12": "vs2013",
-                "14": "vs2015",
-                "15": "vs2017",
-                "16": "vs2019",
-            },
-            "msvc": {
-                "170": "vs2012",
-                "180": "vs2013",
-                "190": "vs2015",
-                "191": "vs2017",
-                "192": "vs2019",
-            },
+            "170": "vs2012",
+            "180": "vs2013",
+            "190": "vs2015",
+            "191": "vs2017",
+            "192": "vs2019",
         }
         default_folder = "vs2019"
         if self.version != "1.0.18":
-            sln_folders["Visual Studio"]["17"] = "vs2022"
-            sln_folders["msvc"]["193"] = "vs2022"
+            sln_folders["193"] = "vs2022"
             default_folder = "vs2022"
 
-        return sln_folders.get(str(self.settings.compiler), {}).get(str(self.settings.compiler.version), default_folder)
+        return sln_folders.get(str(self.settings.compiler.version), default_folder)
 
     def _build_msvc(self):
         msvc_sln_folder = os.path.join(self.source_folder, "builds", "msvc", self._msvc_sln_folder)

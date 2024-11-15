@@ -152,8 +152,6 @@ class GrapheneConan(ConanFile):
             self.cpp_info.components["graphene-1.0"].resdirs = ["res"]
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
-            self.env_info.GI_GIR_PATH.append(os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.env_info.GI_TYPELIB_PATH.append(os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         simd = self._get_simd_config()
         if simd["sse2"]:

@@ -51,8 +51,7 @@ class NuRaftConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Windows")
         if self.settings.os == "Macos" and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported for Macos")
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

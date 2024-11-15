@@ -33,7 +33,6 @@ class ArgparseConan(ConanFile):
             # trantor/2.5 uses [[maybe_unused]] in range-based for loop
             # Visual Studio 15 doesn't support it:
             # https://developercommunity.visualstudio.com/t/compiler-bug-on-parsing-maybe-unused-in-range-base/209488
-            "Visual Studio": "15" if Version(self.version) < "2.5" else "16",
             "msvc": "191" if Version(self.version) < "2.5" else "192",
             "apple-clang": "10",
         }
@@ -49,8 +48,7 @@ class ArgparseConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

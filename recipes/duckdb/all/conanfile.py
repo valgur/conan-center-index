@@ -90,8 +90,7 @@ class DuckdbConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         # FIXME: drop support MSVC debug shared build
         if Version(self.version) >= "0.9.2" and \
                 is_msvc(self) and self.options.shared and self.settings.build_type == "Debug":
@@ -238,9 +237,3 @@ class DuckdbConan(ConanFile):
             self.cpp_info.system_libs.append("ws2_32")
             if Version(self.version) >= "0.10.0":
                 self.cpp_info.system_libs.extend(["rstrtmgr", "bcrypt"])
-
-
-        if self.options.with_shell:
-            binpath = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH env var: {binpath}")
-            self.env_info.PATH.append(binpath)

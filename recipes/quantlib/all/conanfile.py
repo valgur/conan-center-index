@@ -98,7 +98,3 @@ class QuantlibConan(ConanFile):
         self.cpp_info.requires = ["boost::headers"]
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.shared:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "QuantLib"
-        self.cpp_info.names["cmake_find_package_multi"] = "QuantLib"

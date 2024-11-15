@@ -39,7 +39,6 @@ class MGClientConan(ConanFile):
             "gcc": "7",
             "clang": "7",
             "apple-clang": "10",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -64,8 +63,7 @@ class MGClientConan(ConanFile):
 
     def validate(self):
         if self.options.with_cpp:
-            if self.settings.compiler.get_safe("cppstd"):
-                check_min_cppstd(self, self._min_cppstd)
+            check_min_cppstd(self, self._min_cppstd)
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
                 raise ConanInvalidConfiguration(

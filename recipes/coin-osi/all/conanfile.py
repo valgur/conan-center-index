@@ -32,10 +32,6 @@ class CoinOsiConan(ConanFile):
         "with_glpk": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -52,7 +48,7 @@ class CoinOsiConan(ConanFile):
 
     def requirements(self):
         self.requires("coin-utils/2.11.11")
-        self.requires("openblas/0.3.27")
+        self.requires("openblas/0.3.28")
         if self.options.with_glpk:
             self.requires("glpk/4.48")
         # TODO: add support for: Cplex, Mosek, Xpress, Gurobi
@@ -65,7 +61,7 @@ class CoinOsiConan(ConanFile):
         self.tool_requires("gnu-config/cci.20210814")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -114,7 +110,7 @@ class CoinOsiConan(ConanFile):
             env.define("CXX", "cl -nologo")
             env.define("LD", "link -nologo")
             env.define("AR", "lib -nologo")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             # TODO: Something to fix in conan client or pkgconf recipe?
             # This is a weird workaround when build machine is Windows. Here we have to inject regular
             # Windows path to pc files folder instead of unix path flavor injected by AutotoolsToolchain...

@@ -27,8 +27,7 @@ class MpmcqueueConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration("gcc < 5 not supported")
 
@@ -47,7 +46,3 @@ class MpmcqueueConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "MPMCQueue::MPMCQueue")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "MPMCQueue"
-        self.cpp_info.names["cmake_find_package_multi"] = "MPMCQueue"

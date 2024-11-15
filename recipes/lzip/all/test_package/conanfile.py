@@ -7,8 +7,6 @@ from io import StringIO
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "VirtualRunEnv"
-    test_type = "explicit"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -20,14 +18,14 @@ class TestPackageConan(ConanFile):
         cmd_output = StringIO()
         self.run(f"lzip --version", cmd_output, env="conanrun")
 
-        #Create input test file 
+        #Create input test file
         input_file_sha256 = "6a7ef9d581b577bbe8415d69ccc2549287eb99b5d856a213df742f8b89986a6a"
         input_file = "input.txt"
         if os.path.exists(input_file):
             rm(self, input_file, ".")
 
         save(self, input_file, "Klaus is king!")
-    
+
         #Ensure output test file does not exist
         output_file = input_file + ".lz"
         if os.path.exists(output_file):
@@ -48,6 +46,6 @@ class TestPackageConan(ConanFile):
 
         if not os.path.exists(f"{input_file}"):
             raise ConanException(f"{input_file} does exist")
-        
+
         #Compare checksum of unzipped file with expected value
         check_sha256(self, input_file, input_file_sha256)

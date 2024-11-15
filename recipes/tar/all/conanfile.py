@@ -23,10 +23,6 @@ class TarConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -116,8 +112,3 @@ class TarConan(ConanFile):
         tar_bin = os.path.join(self.package_folder, "bin", "tar")
         self.conf_info.define("user.tar:path", tar_bin)
         self.env_info.TAR = tar_bin
-
-        # TODO: to remove in conan v2
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)
-        self.user_info.tar = tar_bin

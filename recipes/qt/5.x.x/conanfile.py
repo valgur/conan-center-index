@@ -1,8 +1,8 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.android import android_abi
 from conan.tools.apple import is_apple_os
-from conan.tools.build import build_jobs, check_min_cppstd, cross_building
+from conan.tools.build import build_jobs, check_min_cppstd, cross_building, can_run
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import chdir, copy, get, load, replace_in_file, rm, rmdir, save, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
@@ -131,10 +131,6 @@ class QtConan(ConanFile):
     no_copy_source = True
     short_paths = True
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export(self):
         copy(self, f"qtmodules{self.version}.conf", self.recipe_folder, self.export_folder)
 
@@ -208,10 +204,6 @@ class QtConan(ConanFile):
         if self.settings.os != "Android":
             del self.options.android_sdk
 
-    def _debug_output(self, message):
-        if Version(conan_version) >= "2":
-            self.output.debug(message)
-
     def configure(self):
         # if self.settings.os != "Linux":
         #         self.options.with_libiconv = False # QTBUG-84708
@@ -256,7 +248,7 @@ class QtConan(ConanFile):
 
         for module in self._submodules:
             if module not in submodules_tree:
-                self._debug_output(f"qt5: removing {module} from options as it is not an option for this version, or it is ignored or obsolete")
+                self.output.debug(f"qt5: removing {module} from options as it is not an option for this version, or it is ignored or obsolete")
                 self.options.rm_safe(module)
 
         # Requested modules:
@@ -285,7 +277,7 @@ class QtConan(ConanFile):
 
         required_but_disabled = [m for m in required_modules.keys() if self.options.get_safe(m) == False]
         if required_modules:
-            self._debug_output(f"qt5: required_modules modules {list(required_modules.keys())}")
+            self.output.debug(f"qt5: required_modules modules {list(required_modules.keys())}")
         if required_but_disabled:
             required_by = set()
             for m in required_but_disabled:
@@ -316,16 +308,15 @@ class QtConan(ConanFile):
         for status in self._module_statuses:
             # These are convenience only, should not affect package_id
             option_name = f"{status}_modules"
-            self._debug_output(f"qt5 removing convenience option: {option_name},"
+            self.output.debug(f"qt5 removing convenience option: {option_name},"
                               f" see individual module options")
             self.options.rm_safe(option_name)
 
         for option in self.options.items():
-            self._debug_output(f"qt5 option {option[0]}={option[1]}")
+            self.output.debug(f"qt5 option {option[0]}={option[1]}")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
         if self.options.widgets and not self.options.gui:
             raise ConanInvalidConfiguration("using option qt:widgets without option qt:gui is not possible. "
                                             "You can either disable qt:widgets or enable qt:gui")
@@ -337,7 +328,7 @@ class QtConan(ConanFile):
             if not (self.options.gui and self.options.qtdeclarative and self.options.qtlocation and self.options.qtwebchannel):
                 raise ConanInvalidConfiguration("option qt:qtwebengine requires also qt:gui, qt:qtdeclarative, qt:qtlocation and qt:qtwebchannel")
 
-            if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+            if not can_run(self):
                 raise ConanInvalidConfiguration("Cross compiling Qt WebEngine is not supported")
 
             if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
@@ -469,25 +460,20 @@ class QtConan(ConanFile):
         del self.info.options.cross_compile
         del self.info.options.sysroot
         if self.info.options.multiconfiguration:
-            if self.info.settings.compiler == "Visual Studio":
-                if "MD" in self.info.settings.compiler.runtime:
-                    self.info.settings.compiler.runtime = "MD/MDd"
-                else:
-                    self.info.settings.compiler.runtime = "MT/MTd"
-            elif self.info.settings.compiler == "msvc":
+            if self.info.settings.compiler == "msvc":
                 self.info.settings.compiler.runtime_type = "Release/Debug"
         if self.info.settings.os == "Android":
             del self.info.options.android_sdk
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows" and is_msvc(self):
+        if self.settings_build.os == "Windows" and is_msvc(self):
             self.tool_requires("jom/[>=1.1 <2]")
         if self.options.qtwebengine:
             self.tool_requires("ninja/[>=1.12 <2]")
             self.tool_requires("nodejs/18.15.0")
             self.tool_requires("gperf/3.1")
             # gperf, bison, flex, python >= 2.7.5 & < 3
-            if self._settings_build.os == "Windows":
+            if self.settings_build.os == "Windows":
                 self.tool_requires("winflexbison/2.5.25")
             else:
                 self.tool_requires("bison/3.8.2")
@@ -540,7 +526,7 @@ class QtConan(ConanFile):
     def _make_program(self):
         if is_msvc(self):
             return "jom"
-        elif self._settings_build.os == "Windows":
+        elif self.settings_build.os == "Windows":
             return "mingw32-make"
         else:
             return "make"
@@ -582,7 +568,6 @@ class QtConan(ConanFile):
 
         elif self.settings.os == "Windows":
             return {
-                "Visual Studio": "win32-msvc",
                 "msvc": "win32-msvc",
                 "gcc": "win32-g++",
                 "clang": "win32-clang-g++",
@@ -590,14 +575,11 @@ class QtConan(ConanFile):
 
         elif self.settings.os == "WindowsStore":
             if is_msvc(self):
-                if str(self.settings.compiler) == "Visual Studio":
-                    msvc_version = str(self.settings.compiler.version)
-                else:
-                    msvc_version = {
-                        "190": "14",
-                        "191": "15",
-                        "192": "16",
-                    }.get(str(self.settings.compiler.version))
+                msvc_version = {
+                    "190": "14",
+                    "191": "15",
+                    "192": "16",
+                }.get(str(self.settings.compiler.version))
                 return {
                     "14": {
                         "armv7": "winrt-arm-msvc2015",
@@ -812,7 +794,7 @@ class QtConan(ConanFile):
         else:
             xplatform_val = self._xplatform()
             if xplatform_val:
-                if not cross_building(self, skip_x64_x86=True):
+                if can_run(self):
                     args += [f"-platform {xplatform_val}"]
                 else:
                     args += [f"-xplatform {xplatform_val}"]
@@ -825,7 +807,7 @@ class QtConan(ConanFile):
 
         def _getenvpath(var):
             val = os.getenv(var)
-            if val and self._settings_build.os == "Windows":
+            if val and self.settings_build.os == "Windows":
                 val = val.replace("\\", "/")
                 os.environ[var] = val
             return val
@@ -843,10 +825,10 @@ class QtConan(ConanFile):
                          'QMAKE_LINK="' + value + '"',
                          'QMAKE_LINK_SHLIB="' + value + '"']
 
-        if self._settings_build.os == "Linux" and self.settings.compiler == "clang":
+        if self.settings_build.os == "Linux" and self.settings.compiler == "clang":
             args += ['QMAKE_CXXFLAGS+="-ftemplate-depth=1024"']
 
-        if self._settings_build.os == "Macos":
+        if self.settings_build.os == "Macos":
             # On macOS, SIP resets DYLD_LIBRARY_PATH injected by VirtualBuildEnv & VirtualRunEnv.
             # Qt builds several executables (moc etc) which are called later on during build of
             # libraries, and these executables link to several external dependencies in requirements().
@@ -876,7 +858,7 @@ class QtConan(ConanFile):
 
         os.mkdir("build_folder")
         with chdir(self, "build_folder"):
-            if self._settings_build.os == "Macos":
+            if self.settings_build.os == "Macos":
                 save(self, ".qmake.stash" , "")
                 save(self, ".qmake.super" , "")
 
@@ -918,7 +900,7 @@ Prefix = ..""")
                 rmdir(self, os.path.join(self.package_folder, "lib", "cmake", m))
 
         extension = ""
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             extension = ".exe"
         v = Version(self.version)
         filecontents = textwrap.dedent(f"""\
@@ -1014,8 +996,6 @@ Prefix = ..""")
         self.cpp_info.set_property("cmake_file_name", "Qt5")
         self.cpp_info.set_property("pkg_config_name", "qt5")
 
-        self.cpp_info.names["cmake_find_package"] = "Qt5"
-        self.cpp_info.names["cmake_find_package_multi"] = "Qt5"
 
         build_modules = {}
 
@@ -1023,8 +1003,6 @@ Prefix = ..""")
             if component not in build_modules:
                 build_modules[component] = []
             build_modules[component].append(module)
-            self.cpp_info.components[component].build_modules["cmake_find_package"].append(module)
-            self.cpp_info.components[component].build_modules["cmake_find_package_multi"].append(module)
 
         libsuffix = ""
         if self.settings.os == "Android":
@@ -1052,8 +1030,6 @@ Prefix = ..""")
             assert componentname not in self.cpp_info.components, f"Module {module} already present in self.cpp_info.components"
             self.cpp_info.components[componentname].set_property("cmake_target_name", f"Qt5::{module}")
             self.cpp_info.components[componentname].set_property("pkg_config_name", f"Qt5{module}")
-            self.cpp_info.components[componentname].names["cmake_find_package"] = module
-            self.cpp_info.components[componentname].names["cmake_find_package_multi"] = module
             if module.endswith("Private"):
                 libname = module[:-7]
             else:
@@ -1077,8 +1053,6 @@ Prefix = ..""")
             componentname = f"qt{pluginname}"
             assert componentname not in self.cpp_info.components, f"Plugin {pluginname} already present in self.cpp_info.components"
             self.cpp_info.components[componentname].set_property("cmake_target_name", f"Qt5::{pluginname}")
-            self.cpp_info.components[componentname].names["cmake_find_package"] = pluginname
-            self.cpp_info.components[componentname].names["cmake_find_package_multi"] = pluginname
             if not self.options.shared:
                 self.cpp_info.components[componentname].libs = [libname + libsuffix]
             self.cpp_info.components[componentname].libdirs = [os.path.join("plugins", plugintype)]
@@ -1110,8 +1084,6 @@ Prefix = ..""")
             module = "WinMain"
             componentname = f"qt{module}"
             self.cpp_info.components[componentname].set_property("cmake_target_name", f"Qt5::{module}")
-            self.cpp_info.components[componentname].names["cmake_find_package"] = module
-            self.cpp_info.components[componentname].names["cmake_find_package_multi"] = module
             self.cpp_info.components[componentname].libs = [f"qtmain{libsuffix}"]
             self.cpp_info.components[componentname].includedirs = []
             self.cpp_info.components[componentname].defines = []
@@ -1273,8 +1245,6 @@ Prefix = ..""")
             _add_build_module("qtQml", self._cmake_qt5_private_file("Qml"))
             _create_module("QmlModels", ["Qml"])
             self.cpp_info.components["qtQmlImportScanner"].set_property("cmake_target_name", "Qt5::QmlImportScanner")
-            self.cpp_info.components["qtQmlImportScanner"].names["cmake_find_package"] = "QmlImportScanner" # this is an alias for Qml and there to integrate with existing consumers
-            self.cpp_info.components["qtQmlImportScanner"].names["cmake_find_package_multi"] = "QmlImportScanner"
             self.cpp_info.components["qtQmlImportScanner"].requires = _get_corrected_reqs(["Qml"])
             if self.options.gui:
                 _create_module("Quick", ["Gui", "Qml", "QmlModels"])
@@ -1287,8 +1257,6 @@ Prefix = ..""")
 
         if self.options.qttools and self.options.gui and self.options.widgets:
             self.cpp_info.components["qtLinguistTools"].set_property("cmake_target_name", "Qt5::LinguistTools")
-            self.cpp_info.components["qtLinguistTools"].names["cmake_find_package"] = "LinguistTools"
-            self.cpp_info.components["qtLinguistTools"].names["cmake_find_package_multi"] = "LinguistTools"
             _create_module("UiPlugin", ["Gui", "Widgets"])
             self.cpp_info.components["qtUiPlugin"].libs = [] # this is a collection of abstract classes, so this is header-only
             self.cpp_info.components["qtUiPlugin"].libdirs = []

@@ -72,20 +72,7 @@ class CpuFeaturesConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "CpuFeatures")
         self.cpp_info.set_property("cmake_target_name", "CpuFeatures::cpu_features")
-
-        # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["libcpu_features"].libs = ["cpu_features"]
-        self.cpp_info.components["libcpu_features"].includedirs = [os.path.join("include", "cpu_features")]
+        self.cpp_info.libs = ["cpu_features"]
+        self.cpp_info.includedirs = [os.path.join("include", "cpu_features")]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libcpu_features"].system_libs = ["dl"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CpuFeatures"
-        self.cpp_info.names["cmake_find_package_multi"] = "CpuFeatures"
-        self.cpp_info.components["libcpu_features"].names["cmake_find_package"] = "cpu_features"
-        self.cpp_info.components["libcpu_features"].names["cmake_find_package_multi"] = "cpu_features"
-        self.cpp_info.components["libcpu_features"].set_property("cmake_target_name", "CpuFeatures::cpu_features")
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)
+            self.cpp_info.system_libs = ["dl"]

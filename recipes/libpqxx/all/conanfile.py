@@ -69,8 +69,7 @@ class LibpqxxConan(ConanFile):
         self.requires("libpq/15.4")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if Version(self.version) < "7.0":
             check_min_vs(self, 190)
@@ -135,15 +134,8 @@ class LibpqxxConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "libpqxx")
         self.cpp_info.set_property("cmake_target_name", "libpqxx::pqxx")
         self.cpp_info.set_property("pkg_config_name", "libpqxx")
-
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["pqxx"].libs = ["pqxx"]
+        self.cpp_info.libs = ["pqxx"]
         if self.settings.os == "Windows":
-            self.cpp_info.components["pqxx"].system_libs = ["wsock32", "ws2_32"]
+            self.cpp_info.system_libs = ["wsock32", "ws2_32"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["pqxx"].set_property("cmake_target_name", "libpqxx::pqxx")
-        self.cpp_info.components["pqxx"].set_property("pkg_config_name", "libpqxx")
-        self.cpp_info.components["pqxx"].requires = ["libpq::libpq"]

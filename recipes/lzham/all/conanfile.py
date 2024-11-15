@@ -56,7 +56,7 @@ class PackageConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("On Windows, only x86 and x86_64 are supported")
-        
+
     def _msvc_libs(self, targets=False):
         arch = "x86" if self.settings.arch == "x86" else "x64"
         suffix = f"{arch}D" if self.settings.build_type == "Debug" else arch
@@ -64,15 +64,15 @@ class PackageConan(ConanFile):
             if targets:
                  # Note: this causes its dependencies to be built too
                 return ['lzhamdll']
-            
+
             files = [f"lzham_{suffix}.dll", f"lzham_{suffix}.lib"]
         else:
             libs = ['lzhamcomp', 'lzhamdecomp', 'lzhamlib']
             if targets:
                 return libs
-            
+
             files = [f"{lib}_{suffix}.lib" for lib in libs]
-            
+
         return files
 
     def layout(self):
@@ -141,7 +141,7 @@ class PackageConan(ConanFile):
         )
 
         if is_msvc(self):
-            arch = "x86" if self.settings.arch == "x86" else "x64" 
+            arch = "x86" if self.settings.arch == "x86" else "x64"
             for target in self._msvc_libs():
                 self.output.warning(target)
                 debug_suffix = "D" if self.settings.build_type == "Debug" and not self.options.shared else ""
@@ -183,9 +183,3 @@ class PackageConan(ConanFile):
             self.cpp_info.set_property("cmake_file_name", "lzham")
             self.cpp_info.set_property("cmake_target_name", "lzham::lzham")
             self.cpp_info.set_property("pkg_config_name", "lzham")
-
-            # TODO: to remove in conan v2 once cmake_find_package_* generators
-            # removed
-            self.cpp_info.names["cmake_find_package"] = "lzham"
-            self.cpp_info.names["cmake_find_package_multi"] = "lzham"
-            self.cpp_info.names["pkg_config"] = "lzham"

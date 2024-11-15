@@ -48,8 +48,7 @@ class TroldalZippyConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         if is_msvc(self):
             check_min_vs(self, "192")
         else:
@@ -83,9 +82,3 @@ class TroldalZippyConan(ConanFile):
         # https://github.com/troldal/Zippy/blob/a838de8522f9051df0d1b202473bb69befe648702/library/CMakeLists.txt#L10
         self.cpp_info.set_property("cmake_file_name", "Zippy")
         self.cpp_info.set_property("cmake_target_name", "Zippy::Zippy")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "Zippy"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Zippy"
-        self.cpp_info.names["cmake_find_package"] = "Zippy"
-        self.cpp_info.names["cmake_find_package_multi"] = "Zippy"

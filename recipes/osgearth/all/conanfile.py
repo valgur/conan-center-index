@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, rename
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -89,7 +89,6 @@ class OsgearthConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "5",
@@ -172,8 +171,7 @@ class OsgearthConan(ConanFile):
         # https://github.com/gwaldron/osgearth/commit/dae4c9115d80eb3e655496471bbe8cdd5d6a9969
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -346,9 +344,5 @@ class OsgearthConan(ConanFile):
         setup_plugin("fastdxt")
 
         if self.settings.os == "Windows":
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
             osg_version = self.dependencies["openscenegraph"].ref.version
-            self.env_info.PATH.append(os.path.join(self.package_folder, os.path.join("bin", f"osgPlugins-{osg_version}")))
             self.runenv_info.append_path("PATH", os.path.join(self.package_folder, os.path.join("bin", f"osgPlugins-{osg_version}")))
-        elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))

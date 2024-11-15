@@ -1,0 +1,22 @@
+From b19b4e84e3e1f4b0e4e28c8c6a39907bb529e10f Mon Sep 17 00:00:00 2001
+From: Martin Siggel <martin.siggel@dlr.de>
+Date: Tue, 30 Apr 2024 14:34:47 +0200
+Subject: [PATCH] Added missing include
+
+Fixed #131
+---
+ src/gt_logstream.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/gt_logstream.h b/src/gt_logstream.h
+index 945b57c..03aab4a 100644
+--- a/src/gt_logstream.h
++++ b/src/gt_logstream.h
+@@ -9,6 +9,7 @@
+ #include <algorithm>
+ #include <sstream>
+ #include <iomanip>
++#include <cstdint>
+ 
+ #ifdef __has_cpp_attribute 
+   #if __has_cpp_attribute(nodiscard)

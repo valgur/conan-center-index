@@ -50,8 +50,7 @@ class ForestDBConan(ConanFile):
         if self.settings.compiler == "clang":
             if self.settings.compiler.libcxx == "libc++" and not self.options.shared:
                 raise ConanInvalidConfiguration("LibC++ Static Builds Unsupported")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -34,14 +34,12 @@ class So5extraConan(ConanFile):
                 "gcc": "10",
                 "clang": "11",
                 "apple-clang": "13",
-                "Visual Studio": "17",
                 "msvc": "192"
             }
         return {
             "gcc": "7",
             "clang": "6",
             "apple-clang": "10",
-            "Visual Studio": "15",
             "msvc": "191"
         }
 
@@ -58,8 +56,7 @@ class So5extraConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         compiler = str(self.settings.compiler)
         if compiler not in self._compilers_minimum_version:
             self.output.warning(f"{self.name} recipe lacks information about the {compiler} compiler standard version support")
@@ -88,11 +85,3 @@ class So5extraConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "sobjectizer::so5extra")
         self.cpp_info.components["so_5_extra"].set_property("cmake_target_name", "sobjectizer::so5extra")
         self.cpp_info.components["so_5_extra"].requires = ["sobjectizer::sobjectizer"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "so5extra"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "so5extra"
-        self.cpp_info.names["cmake_find_package"] = "sobjectizer"
-        self.cpp_info.names["cmake_find_package_multi"] = "sobjectizer"
-        self.cpp_info.components["so_5_extra"].names["cmake_find_package"] = "so5extra"
-        self.cpp_info.components["so_5_extra"].names["cmake_find_package_multi"] = "so5extra"

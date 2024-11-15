@@ -1,13 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
-import textwrap
 
 required_conan_version = ">=1.60.0 <2 || >=2.0.5"
 
@@ -37,10 +36,6 @@ class GlfwConan(ConanFile):
         "with_x11": True,
         "with_wayland": False,
     }
-
-    @property
-    def _has_build_profile(self):
-        return hasattr(self, "settings_build")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -83,8 +78,7 @@ class GlfwConan(ConanFile):
     def build_requirements(self):
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland-protocols/1.33")
-            if self._has_build_profile:
-                self.tool_requires("wayland/<host_version>")
+            self.tool_requires("wayland/<host_version>")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
 
@@ -92,12 +86,6 @@ class GlfwConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self.options.get_safe("with_wayland") and not self._has_build_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-
         tc = CMakeToolchain(self)
         tc.cache_variables["GLFW_BUILD_DOCS"] = False
         tc.cache_variables["GLFW_BUILD_EXAMPLES"] = False
@@ -118,22 +106,7 @@ class GlfwConan(ConanFile):
         cmake_deps.generate()
         if self.options.get_safe("with_wayland"):
             pkg_config_deps = PkgConfigDeps(self)
-            if self._has_build_profile:
-                pkg_config_deps.build_context_activated = ["wayland-protocols"]
-            else:
-                # Manually generate pkgconfig file of wayland-protocols since
-                # PkgConfigDeps.build_context_activated can't work with legacy 1 profile
-                wp_prefix = self.dependencies.build["wayland-protocols"].package_folder
-                wp_version = self.dependencies.build["wayland-protocols"].ref.version
-                wp_pkg_content = textwrap.dedent(f"""\
-                    prefix={wp_prefix}
-                    datarootdir=${{prefix}}/res
-                    pkgdatadir=${{datarootdir}}/wayland-protocols
-                    Name: Wayland Protocols
-                    Description: Wayland protocol files
-                    Version: {wp_version}
-                """)
-                save(self, os.path.join(self.generators_folder, "wayland-protocols.pc"), wp_pkg_content)
+            pkg_config_deps.build_context_activated = ["wayland-protocols"]
             pkg_config_deps.generate()
 
     def _patch_sources(self):
@@ -174,25 +147,6 @@ class GlfwConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"glfw": "glfw::glfw"}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "glfw3")
@@ -237,12 +191,3 @@ class GlfwConan(ConanFile):
                 "wayland::wayland-egl",
                 "xkbcommon::xkbcommon"
             ])
-
-        # backward support of cmake_find_package, cmake_find_package_multi & pkg_config generators
-        self.cpp_info.filenames["cmake_find_package"] = "glfw3"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "glfw3"
-        self.cpp_info.names["cmake_find_package"] = "glfw"
-        self.cpp_info.names["cmake_find_package_multi"] = "glfw"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        self.cpp_info.names["pkg_config"] = "glfw3"

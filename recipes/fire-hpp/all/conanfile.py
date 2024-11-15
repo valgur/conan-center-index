@@ -20,8 +20,7 @@ class FireHppConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     def configure(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")

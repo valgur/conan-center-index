@@ -89,14 +89,12 @@ class CeresSolverConan(ConanFile):
                 "clang": "5",
                 "gcc": "5",
                 "msvc": "190",
-                "Visual Studio": "14",
             },
             "17": {
                 "apple-clang": "10",
                 "clang": "7",
                 "gcc": "8",
                 "msvc": "191",
-                "Visual Studio": "15",
             },
         }.get(self._min_cppstd, {})
 
@@ -150,7 +148,7 @@ class CeresSolverConan(ConanFile):
             if Version(self.version) < "2.2.0":
                 self.requires("suitesparse-cxsparse/4.4.1")
         if self.options.get_safe("use_lapack"):
-            self.requires("openblas/0.3.27")
+            self.requires("openblas/0.3.28")
         if self._require_metis:
             self.requires("metis/5.2.1")
         if self.options.get_safe("use_TBB"):
@@ -159,8 +157,7 @@ class CeresSolverConan(ConanFile):
             self.requires("openmp/system")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -323,9 +320,3 @@ class CeresSolverConan(ConanFile):
         if self.options.get_safe("use_cuda"):
             cmake_modules.append(os.path.join("lib", "cmake", "ceres-conan-cuda-support.cmake"))
         self.cpp_info.set_property("cmake_build_modules", cmake_modules)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Ceres"
-        self.cpp_info.names["cmake_find_package_multi"] = "Ceres"
-        self.cpp_info.components["ceres"].build_modules["cmake_find_package"] = cmake_modules
-        self.cpp_info.components["ceres"].build_modules["cmake_find_package_multi"] = cmake_modules

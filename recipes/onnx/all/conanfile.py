@@ -1,15 +1,14 @@
+import os
+import sys
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, save
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
-import sys
-import textwrap
 
 required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
@@ -36,10 +35,6 @@ class OnnxConan(ConanFile):
     }
 
     @property
-    def _is_legacy_one_profile(self):
-        return not hasattr(self, "settings_build")
-
-    @property
     def _min_cppstd(self):
         if Version(self.version) >= "1.15.0":
             return 17
@@ -51,7 +46,6 @@ class OnnxConan(ConanFile):
     def _compilers_minimum_version(self):
         if Version(self.version) < "1.16.0":
             return {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "7",
                 "clang": "5",
@@ -59,7 +53,6 @@ class OnnxConan(ConanFile):
             }
         # 1.16.0+ requires <filesystem> header available with gcc8+
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "8",
             "clang": "5",
@@ -87,8 +80,7 @@ class OnnxConan(ConanFile):
         self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self._min_cppstd > 11:
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
             if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -97,18 +89,12 @@ class OnnxConan(ConanFile):
                 )
 
     def build_requirements(self):
-        if not self._is_legacy_one_profile:
-            self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if self._is_legacy_one_profile:
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
         tc = CMakeToolchain(self)
         # https://cmake.org/cmake/help/v3.28/module/FindPythonInterp.html
         # https://github.com/onnx/onnx/blob/1014f41f17ecc778d63e760a994579d96ba471ff/CMakeLists.txt#L119C1-L119C50
@@ -141,27 +127,6 @@ class OnnxConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         fix_apple_shared_install_name(self)
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {component["target"]:f"ONNX::{component['target']}" for component in self._onnx_components.values()}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     @property
     def _onnx_components(self):
@@ -198,14 +163,4 @@ class OnnxConan(ConanFile):
                 self.cpp_info.components[comp_name].requires = requires
                 self.cpp_info.components[comp_name].system_libs = system_libs
 
-                # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-                self.cpp_info.components[comp_name].names["cmake_find_package"] = target
-                self.cpp_info.components[comp_name].names["cmake_find_package_multi"] = target
-                self.cpp_info.components[comp_name].build_modules["cmake_find_package"] = [self._module_file_rel_path]
-                self.cpp_info.components[comp_name].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-
         _register_components(self._onnx_components)
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "ONNX"
-        self.cpp_info.names["cmake_find_package_multi"] = "ONNX"

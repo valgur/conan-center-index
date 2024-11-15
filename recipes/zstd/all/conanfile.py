@@ -92,12 +92,3 @@ class ZstdConan(ConanFile):
         self.cpp_info.components["zstdlib"].libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["zstdlib"].system_libs.append("pthread")
-
-        # TODO: Remove after dropping Conan 1.x from ConanCenterIndex
-        self.cpp_info.components["zstdlib"].names["cmake_find_package"] = zstd_cmake
-        self.cpp_info.components["zstdlib"].names["cmake_find_package_multi"] = zstd_cmake
-        self.cpp_info.components["zstdlib"].set_property("cmake_target_name", f"zstd::{zstd_cmake}")
-        self.cpp_info.components["zstdlib"].set_property("pkg_config_name", "libzstd")
-        if self.options.build_programs:
-            bindir = os.path.join(self.package_folder, "bin")
-            self.env_info.PATH.append(bindir)

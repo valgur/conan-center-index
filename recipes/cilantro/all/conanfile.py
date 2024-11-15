@@ -48,7 +48,6 @@ class CilantroConan(ConanFile):
             "apple-clang": "10",
             "clang": "6",
             "gcc": "7",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -83,8 +82,7 @@ class CilantroConan(ConanFile):
             self.requires("pangolin/0.9.1", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

@@ -29,8 +29,7 @@ class MikeLankampFpmConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -50,9 +49,3 @@ class MikeLankampFpmConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "fpm")
         self.cpp_info.set_property("cmake_target_name", "fpm::fpm")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "fpm"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "fpm"
-        self.cpp_info.names["cmake_find_package"] = "fpm"
-        self.cpp_info.names["cmake_find_package_multi"] = "fpm"

@@ -50,8 +50,7 @@ class BlissConan(ConanFile):
             self.requires("mpir/3.0.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         check_min_vs(self, "191")
 
     def source(self):
@@ -88,6 +87,3 @@ class BlissConan(ConanFile):
             self.cpp_info.cxxflags.append("/permissive-")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

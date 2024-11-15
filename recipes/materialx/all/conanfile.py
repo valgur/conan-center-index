@@ -47,7 +47,6 @@ class MaterialXConan(ConanFile):
             "clang": "7",
             "gcc": "7",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -73,8 +72,7 @@ class MaterialXConan(ConanFile):
 
     def validate(self):
         # validate the minimum cpp standard supported. For C++ projects only
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -93,9 +91,6 @@ class MaterialXConan(ConanFile):
         tc.variables["MATERIALX_TEST_RENDER"] = False
         tc.variables["MATERIALX_BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["MATERIALX_BUILD_GEN_MSL"] = self.options.build_gen_msl and is_apple_os
-        # TODO: Remove when Conan 1 support is dropped
-        if not self.settings.compiler.cppstd:
-            tc.variables["MATERIALX_BUILD_USE_CCACHE"] = self._min_cppstd
         tc.variables["MATERIALX_BUILD_USE_CCACHE"] = False
         tc.generate()
 

@@ -88,6 +88,3 @@ class H3Conan(ConanFile):
         self.cpp_info.defines.append(f"H3_PREFIX={self.options.h3_prefix}")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        if self.options.build_filters:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

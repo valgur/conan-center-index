@@ -59,7 +59,6 @@ class OsmanipConan(ConanFile):
     @property
     def _compiler_required_cpp17(self):
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "8",
             "clang": "7",
@@ -67,8 +66,7 @@ class OsmanipConan(ConanFile):
         }
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compiler_required_cpp17.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:

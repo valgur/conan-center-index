@@ -3,7 +3,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=1.52.0"
@@ -35,7 +34,6 @@ class NameofConan(ConanFile):
             "gcc": "9",
             "clang": "5",
             "apple-clang": "9",
-            "Visual Studio": "15.3",
             "msvc": "191",
         }
 
@@ -46,8 +44,7 @@ class NameofConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

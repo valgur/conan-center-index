@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import get, copy, rmdir, apply_conandata_patches, copy, export_conandata_patches
+from conan.tools.files import get, rmdir, apply_conandata_patches, copy, export_conandata_patches
 from conan.tools.scm import Version
 import os
 
@@ -32,11 +32,10 @@ class SevenBitConfConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 17
-    
+
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "14",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
@@ -67,14 +66,10 @@ class SevenBitConfConan(ConanFile):
             self.info.clear()
 
     def validate(self):
-        compiler = self.settings.compiler
-        compiler_name = str(compiler)
-
-        if compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
-
+        check_min_cppstd(self, self._min_cppstd)
+        compiler_name = str(self.settings.compiler)
         minimum_version = self._minimum_compilers_version.get(compiler_name, False)
-        if minimum_version and Version(compiler.version) < minimum_version:
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"Requires compiler {compiler_name} minimum version: {minimum_version} with C++17 support."
             )

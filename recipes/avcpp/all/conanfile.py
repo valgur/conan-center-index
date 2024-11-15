@@ -37,7 +37,6 @@ class AvcppConan(ConanFile):
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12.0",
-            "Visual Studio": "15",
             "msvc": "191",
         }
 
@@ -59,8 +58,7 @@ class AvcppConan(ConanFile):
         self.requires("ffmpeg/7.0.1", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -104,8 +102,6 @@ class AvcppConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "avcpp")
         self.cpp_info.set_property("cmake_target_name", f"avcpp::{target_name}")
 
-        self.cpp_info.components["AvCpp"].names["cmake_find_package"] = target_name
-        self.cpp_info.components["AvCpp"].names["cmake_find_package_multi"] = target_name
         self.cpp_info.components["AvCpp"].set_property("cmake_target_name", f"avcpp::{target_name}")
         self.cpp_info.components["AvCpp"].libs = ["avcpp", ]
         self.cpp_info.components["AvCpp"].requires = ["ffmpeg::ffmpeg", ]
@@ -113,9 +109,3 @@ class AvcppConan(ConanFile):
             self.cpp_info.components["AvCpp"].system_libs = ["mvec"]
         if self.settings.os == "Windows":
             self.cpp_info.components["AvCpp"].system_libs = ["mfplat"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "avcpp"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "avcpp"
-        self.cpp_info.names["cmake_find_package"] = "avcpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "avcpp"

@@ -1,9 +1,8 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import Environment
 from conan.tools.files import chdir, copy, get, replace_in_file
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 import json
 import os
 
@@ -20,10 +19,6 @@ class EmSDKConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     short_paths = True
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -98,7 +93,7 @@ class EmSDKConan(ConanFile):
 
     def build(self):
         with chdir(self, self.source_folder):
-            emsdk = "emsdk.bat" if self._settings_build.os == "Windows" else "./emsdk"
+            emsdk = "emsdk.bat" if self.settings_build.os == "Windows" else "./emsdk"
             self._chmod_plus_x("emsdk")
 
             # Install required tools
@@ -144,7 +139,7 @@ class EmSDKConan(ConanFile):
 
         # If we are not building for Emscripten, probably we don't want to inject following environment variables,
         #   but it might be legit use cases... until we find them, let's be conservative.
-        if not hasattr(self, "settings_target") or self.settings_target is None:
+        if self.settings_target is None:
             return
 
         if self.settings_target.os != "Emscripten":
@@ -180,17 +175,3 @@ class EmSDKConan(ConanFile):
             os.path.join("bin", "upstream", "emscripten", "tests", "cmake", "target_library"),
             os.path.join("bin", "upstream", "lib", "cmake", "llvm"),
         ]
-
-        if Version(conan_version).major < 2:
-            self.env_info.PATH.extend(self._paths)
-            self.env_info.CONAN_CMAKE_TOOLCHAIN_FILE = toolchain
-            self.env_info.EMSDK = self._emsdk
-            self.env_info.EMSCRIPTEN = self._emscripten
-            self.env_info.EM_CONFIG = self._em_config
-            self.env_info.EM_CACHE = self._em_cache
-            self.env_info.CC = compiler_executables["c"]
-            self.env_info.CXX = compiler_executables["cpp"]
-            self.env_info.AR = self._define_tool_var("emar")
-            self.env_info.NM = self._define_tool_var("emnm")
-            self.env_info.RANLIB = self._define_tool_var("emranlib")
-            self.env_info.STRIP = self._define_tool_var("emstrip")

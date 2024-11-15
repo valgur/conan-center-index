@@ -50,8 +50,7 @@ class XlntConan(ConanFile):
         self.requires("utfcpp/3.2.3")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         libstudxml_version = Version(self.dependencies["libstudxml"].ref.version)
         libstudxml_major_minor = f"{libstudxml_version.major}.{libstudxml_version.minor}"
         if Version(libstudxml_major_minor) < "1.1":
@@ -107,9 +106,3 @@ class XlntConan(ConanFile):
         self.cpp_info.libs = [f"xlnt{suffix}"]
         if not self.options.shared:
             self.cpp_info.defines.append("XLNT_STATIC")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "Xlnt"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "Xlnt"
-        self.cpp_info.names["cmake_find_package"] = "xlnt"
-        self.cpp_info.names["cmake_find_package_multi"] = "xlnt"

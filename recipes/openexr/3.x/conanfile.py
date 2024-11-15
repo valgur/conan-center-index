@@ -68,8 +68,7 @@ class OpenEXRConan(ConanFile):
             self.requires("libdeflate/1.19")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._minimum_compiler_version.get(str(self.settings.compiler))
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -118,17 +117,12 @@ class OpenEXRConan(ConanFile):
     def _add_component(self, name):
         component = self.cpp_info.components[self._conan_comp(name)]
         component.set_property("cmake_target_name", f"OpenEXR::{name}")
-        component.names["cmake_find_package"] = name
-        component.names["cmake_find_package_multi"] = name
         return component
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenEXR")
         self.cpp_info.set_property("pkg_config_name", "OpenEXR")
 
-        self.cpp_info.names["cmake_find_package"] = "OpenEXR"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenEXR"
-        self.cpp_info.names["pkg_config"] = "OpenEXR"
 
         lib_suffix = ""
         if not self.options.shared or self.settings.os == "Windows":
@@ -190,6 +184,3 @@ class OpenEXRConan(ConanFile):
         OpenEXRUtil.requires = [self._conan_comp("OpenEXR")]
         if self.settings.os in ["Linux", "FreeBSD"]:
             OpenEXRUtil.system_libs = ["m"]
-
-        # Add tools directory to PATH
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

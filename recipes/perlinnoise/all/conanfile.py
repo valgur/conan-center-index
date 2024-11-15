@@ -25,7 +25,6 @@ class PerlinnoiseConan(ConanFile):
     @property
     def _compiler_required_cpp(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
@@ -39,8 +38,7 @@ class PerlinnoiseConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compiler_required_cpp.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
@@ -68,12 +66,3 @@ class PerlinnoiseConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "siv::PerlinNoise")
 
         self.cpp_info.components["siv"].set_property("cmake_target_name", "siv::PerlinNoise")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "PerlinNoise"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "PerlinNoise"
-        self.cpp_info.names["cmake_find_package"] = "siv"
-        self.cpp_info.names["cmake_find_package_multi"] = "siv"
-
-        self.cpp_info.components["siv"].names["cmake_find_package"] = "PerlinNoise"
-        self.cpp_info.components["siv"].names["cmake_find_package_multi"] = "PerlinNoise"

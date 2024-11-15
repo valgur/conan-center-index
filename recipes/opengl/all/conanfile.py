@@ -50,8 +50,6 @@ class SysConfigOpenGLConan(ConanFile):
 
     def package_info(self):
         # TODO: Workaround for #2311 until a better solution can be found
-        self.cpp_info.filenames["cmake_find_package"] = "opengl_system"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "opengl_system"
 
         self.cpp_info.set_property("cmake_file_name", "opengl_system")
 

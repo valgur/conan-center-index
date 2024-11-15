@@ -68,8 +68,7 @@ class LoguruConan(ConanFile):
             self.requires("fmt/9.1.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         if self.options.replace_glog and not self.options.enable_streams:
             # https://github.com/emilk/loguru/blob/4adaa185883e3c04da25913579c451d3c32cfac1/docs/index.html#L692

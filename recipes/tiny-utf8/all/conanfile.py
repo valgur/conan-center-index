@@ -21,8 +21,7 @@ class Tinyutf8Conan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -45,7 +44,3 @@ class Tinyutf8Conan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "tinyutf8"
-        self.cpp_info.names["cmake_find_package_multi"] = "tinyutf8"

@@ -28,8 +28,7 @@ class BitseryConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -46,12 +45,3 @@ class BitseryConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Bitsery::bitsery")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Bitsery"
-        self.cpp_info.names["cmake_find_package_multi"] = "Bitsery"
-        self.cpp_info.components["bitserylib"].names["cmake_find_package"] = "bitsery"
-        self.cpp_info.components["bitserylib"].names["cmake_find_package_multi"] = "bitsery"
-        self.cpp_info.components["bitserylib"].set_property("cmake_target_name", "Bitsery::bitsery")
-        self.cpp_info.components["bitserylib"].bindirs = []
-        self.cpp_info.components["bitserylib"].libdirs = []

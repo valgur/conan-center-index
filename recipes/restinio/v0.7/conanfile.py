@@ -60,14 +60,12 @@ class RestinioConan(ConanFile):
 
     def validate(self):
         minimal_cpp_standard = "17"
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, minimal_cpp_standard)
+        check_min_cppstd(self, minimal_cpp_standard)
 
         minimal_version = {
             "gcc": "9",
             "clang": "10",
             "apple-clang": "11",
-            "Visual Studio": "15",
             "msvc": "191"
         }
 

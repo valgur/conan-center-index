@@ -48,7 +48,6 @@ class GinkgoConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "193",
             "gcc": "5.4",
             "clang": "3.9",
@@ -76,8 +75,7 @@ class GinkgoConan(ConanFile):
             self.requires("openmp/system")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -234,11 +232,3 @@ class GinkgoConan(ConanFile):
 
             self.cpp_info.components["ginkgo_config"].set_property("cmake_target_name", "Ginkgo::ginkgo_core")
             self.cpp_info.components["ginkgo_config"].libs = ["ginkgo_core" + debug_suffix]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Ginkgo"
-        self.cpp_info.names["cmake_find_package_multi"] = "Ginkgo"
-        self.cpp_info.components["ginkgo_core"].names["cmake_find_package"] = "ginkgo"
-        self.cpp_info.components["ginkgo_core"].names[
-            "cmake_find_package_multi"
-        ] = "ginkgo"

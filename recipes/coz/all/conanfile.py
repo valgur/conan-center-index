@@ -34,8 +34,7 @@ class CozConan(ConanFile):
         self.requires("libelfin/0.3")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         compiler_version = Version(self.settings.compiler.version)
         if self.settings.compiler == "gcc" and compiler_version < "5.0":
             raise ConanInvalidConfiguration("coz requires GCC >= 5.0")
@@ -69,9 +68,3 @@ class CozConan(ConanFile):
         self.cpp_info.libs = ["coz"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "dl", "pthread", "rt"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "coz-profiler"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "coz-profiler"
-        self.cpp_info.names["cmake_find_package"] = "coz"
-        self.cpp_info.names["cmake_find_package_multi"] = "coz"

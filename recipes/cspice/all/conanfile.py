@@ -125,7 +125,3 @@ class CspiceConan(ConanFile):
         self.cpp_info.libs = ["cspice"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2
-        if self.options.utilities:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

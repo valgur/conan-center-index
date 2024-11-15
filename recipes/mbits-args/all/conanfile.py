@@ -48,7 +48,6 @@ class MBitsArgsConan(ConanFile):
         return {
             "gcc": "8",
             "clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "10.0",
         }
@@ -64,8 +63,7 @@ class MBitsArgsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(
@@ -112,10 +110,6 @@ class MBitsArgsConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mbits-args")
         self.cpp_info.set_property("cmake_target_name", "mbits::args")
 
-        self.cpp_info.filenames["cmake_find_package"] = "mbits-args"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-args"
-        self.cpp_info.names["cmake_find_package"] = "mbits"
-        self.cpp_info.names["cmake_find_package_multi"] = "mbits"
         self.cpp_info.components["args"].set_property(
             "cmake_target_name", "mbits::args"
         )

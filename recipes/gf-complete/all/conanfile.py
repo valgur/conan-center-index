@@ -38,10 +38,6 @@ class GfCompleteConan(ConanFile):
         "avx": "auto",
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -74,7 +70,7 @@ class GfCompleteConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -191,8 +187,3 @@ class GfCompleteConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
-
-        if not is_msvc(self):
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bin_path}")
-            self.env_info.PATH.append(bin_path)

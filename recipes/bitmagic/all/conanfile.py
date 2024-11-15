@@ -27,11 +27,10 @@ class BitmagicConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 17
-    
+
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7",
             "clang": "6",
@@ -42,8 +41,7 @@ class BitmagicConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.name} requires C++17, which your compiler does not support.")

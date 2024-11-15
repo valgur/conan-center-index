@@ -8,7 +8,6 @@ from conan.tools.files import (
     replace_in_file, rm, rmdir, collect_libs
 )
 from conan.tools.scm import Version
-from conan.tools.microsoft import is_msvc
 import os
 
 required_conan_version = ">=1.53.0"
@@ -52,14 +51,12 @@ class GeographiclibConan(ConanFile):
                 "apple-clang": "3.3",
                 "gcc": "4.9",
                 "clang": "6",
-                "Visual Studio": "14", # guess
                 "msvc": "190",
             }
         elif self._min_cppstd == 14:
             return {
                 "gcc": "7",
                 "clang": "6",
-                "Visual Studio": "16",
                 "msvc": "192",
                 "apple-clang": "14",
             }
@@ -80,7 +77,7 @@ class GeographiclibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd") and self._min_cppstd:
+        if self._min_cppstd:
             check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
@@ -170,11 +167,3 @@ class GeographiclibConan(ConanFile):
         self.cpp_info.defines.append("GEOGRAPHICLIB_SHARED_LIB={}".format("1" if self.options.shared else "0"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "geographiclib"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "geographiclib"
-        self.cpp_info.names["cmake_find_package"] = "GeographicLib"
-        self.cpp_info.names["cmake_find_package_multi"] = "GeographicLib"
-        if self.options.tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

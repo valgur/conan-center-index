@@ -89,24 +89,13 @@ class RtMidiConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "RtMidi")
         self.cpp_info.set_property("cmake_target_name", "RtMidi::rtmidi")
         self.cpp_info.set_property("pkg_config_name", "rtmidi")
-        # TODO: back to global scope in conan v2
-        self.cpp_info.components["librtmidi"].includedirs = [os.path.join("include", "rtmidi")]
-        self.cpp_info.components["librtmidi"].libs = ["rtmidi"]
+        self.cpp_info.includedirs = [os.path.join("include", "rtmidi")]
+        self.cpp_info.libs = ["rtmidi"]
         if is_apple_os(self):
-            self.cpp_info.components["librtmidi"].frameworks.extend(
+            self.cpp_info.frameworks.extend(
                 ["CoreFoundation", "CoreAudio", "CoreMIDI", "CoreServices"]
             )
         elif self.settings.os == "Windows":
-            self.cpp_info.components["librtmidi"].system_libs.append("winmm")
+            self.cpp_info.system_libs.append("winmm")
         elif self.settings.os in ("FreeBSD", "Linux"):
-            self.cpp_info.components["librtmidi"].system_libs.append("pthread")
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "RtMidi"
-        self.cpp_info.names["cmake_find_package_multi"] = "RtMidi"
-        self.cpp_info.components["librtmidi"].names["cmake_find_package"] = "rtmidi"
-        self.cpp_info.components["librtmidi"].names["cmake_find_package_multi"] = "rtmidi"
-        self.cpp_info.components["librtmidi"].set_property("cmake_target_name", "RtMidi::rtmidi")
-        self.cpp_info.components["librtmidi"].set_property("pkg_config_name", "rtmidi")
-        if self._with_alsa:
-            self.cpp_info.components["librtmidi"].requires.append("libalsa::libalsa")
+            self.cpp_info.system_libs.append("pthread")

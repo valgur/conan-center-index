@@ -3,7 +3,7 @@ import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, cross_building
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save, replace_in_file
@@ -40,7 +40,6 @@ class IgnitionMathConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "5",
@@ -68,8 +67,7 @@ class IgnitionMathConan(ConanFile):
             self.requires("swig/4.2.1")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if min_version and Version(self.settings.compiler.version) < min_version:
             raise ConanInvalidConfiguration(
@@ -78,7 +76,7 @@ class IgnitionMathConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("ignition-cmake/2.17.1")
-        self.tool_requires("doxygen/1.9.4")
+        self.tool_requires("doxygen/[>=1.8 <2]")
         if self.options.enable_swig:
             self.tool_requires("swig/4.2.1")
 
@@ -154,22 +152,3 @@ class IgnitionMathConan(ConanFile):
         eigen3_component = self.cpp_info.components["eigen3"]
         eigen3_component.includedirs.append(os.path.join("include", "ignition", "math" + version_major))
         eigen3_component.requires = ["eigen::eigen"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = lib_name
-        self.cpp_info.names["cmake_find_package_multi"] = lib_name
-        self.cpp_info.names["cmake_paths"] = lib_name
-        main_component.names["cmake_find_package"] = lib_name
-        main_component.names["cmake_find_package_multi"] = lib_name
-        main_component.names["cmake_paths"] = lib_name
-        main_component.builddirs = [self._module_file_rel_dir]
-        main_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        main_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        main_component.build_modules["cmake_paths"] = [self._module_file_rel_path]
-        eigen3_component.names["cmake_find_package"] = "eigen3"
-        eigen3_component.names["cmake_find_package_multi"] = "eigen3"
-        eigen3_component.names["cmake_paths"] = "eigen3"
-        eigen3_component.builddirs = [self._module_file_rel_dir]
-        eigen3_component.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        eigen3_component.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]
-        eigen3_component.build_modules["cmake_paths"] = [self._module_file_rel_path]

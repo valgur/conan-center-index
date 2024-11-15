@@ -32,7 +32,6 @@ class TcpcatConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "7",
             "apple-clang": "12"
@@ -50,9 +49,8 @@ class TcpcatConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
-        
+        check_min_cppstd(self, self._min_cppstd)
+
         # Upstream meant to support Windows Shared builds, but they don't currently export any symbols
         # Disable for now until fixed. As this is an upstream issue they want fixed, we don't set
         # package_type = "static-library" in the configure() method so that users have a clear message error for now

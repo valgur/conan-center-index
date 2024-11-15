@@ -73,7 +73,3 @@ class OpenJDK(ConanFile):
 
         self.runenv_info.define_path("JAVA_HOME", self.package_folder)
         self.buildenv_info.define_path("JAVA_HOME", self.package_folder)
-
-        # TODO: remove `env_info` once the recipe is only compatible with Conan >= 2.0
-        self.env_info.JAVA_HOME = self.package_folder
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

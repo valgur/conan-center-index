@@ -40,7 +40,6 @@ class HexlConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7",
-            "Visual Studio": "15.7",
             "msvc": "191",
             "clang": "7",
             "apple-clang": "11",
@@ -64,8 +63,7 @@ class HexlConan(ConanFile):
             self.requires("easyloggingpp/9.97.1")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 17)
+        check_min_cppstd(self, 17)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version:
             if Version(self.settings.compiler.version) < minimum_version:
@@ -153,9 +151,3 @@ class HexlConan(ConanFile):
         self.cpp_info.components["Hexl"].requires.append("cpu_features::libcpu_features")
         if self.settings.build_type == "Debug":
             self.cpp_info.components["Hexl"].requires.append("easyloggingpp::easyloggingpp")
-
-        # TODO: Remove in Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "Hexl"
-        self.cpp_info.names["cmake_find_package_multi"] = "Hexl"
-        self.cpp_info.components["Hexl"].names["cmake_find_package"] = "hexl"
-        self.cpp_info.components["Hexl"].names["cmake_find_package_multi"] = "hexl"

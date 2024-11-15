@@ -92,9 +92,3 @@ class OpenclIcdLoaderConan(ConanFile):
                 self.cpp_info.system_libs = ["dl", "pthread"]
             elif self.settings.os == "Windows":
                 self.cpp_info.system_libs = ["cfgmgr32", "runtimeobject"]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.filenames["cmake_find_package"] = "OpenCL"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "OpenCLICDLoader"
-        self.cpp_info.names["cmake_find_package"] = "OpenCL"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenCL"

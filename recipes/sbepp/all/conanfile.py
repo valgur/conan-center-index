@@ -73,8 +73,7 @@ class PackageConan(ConanFile):
                 self.requires("pugixml/1.14")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         check_min_vs(self, 191)
         if not is_msvc(self):
@@ -130,7 +129,3 @@ class PackageConan(ConanFile):
 
         self.cpp_info.builddirs.append(self._module_path)
         self.cpp_info.set_property("cmake_build_modules", build_modules)
-
-        # TODO: to remove in conan v2
-        if self.options.with_sbeppc:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

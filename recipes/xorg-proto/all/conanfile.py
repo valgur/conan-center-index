@@ -27,22 +27,17 @@ class XorgProtoConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         self.tool_requires("automake/1.16.5")
         self.tool_requires("xorg-macros/1.20.0")
         self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
 
     def requirements(self):
-        if hasattr(self, "settings_build"):
-            self.requires("xorg-macros/1.20.0")
+        self.requires("xorg-macros/1.20.0")
 
     def package_id(self):
         self.info.clear()
@@ -95,10 +90,8 @@ class XorgProtoConan(ConanFile):
 
     def package_info(self):
         for filename, name_version in yaml.safe_load(open(self._pc_data_path)).items():
-            self.cpp_info.components[filename].filenames["pkg_config"] = filename
             self.cpp_info.components[filename].libdirs = []
-            if hasattr(self, "settings_build"):
-                self.cpp_info.components[filename].requires = ["xorg-macros::xorg-macros"]
+            self.cpp_info.components[filename].requires = ["xorg-macros::xorg-macros"]
             self.cpp_info.components[filename].version = name_version["version"]
             self.cpp_info.components[filename].set_property("pkg_config_name", filename)
 

@@ -66,9 +66,3 @@ class ClipperConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-
-        # TODO: to remove in conan v2 once cmake_find_package* & pkg_config generators removed.
-        #       Do not use these CMake names in CMakeDeps, it was a mistake,
-        #       clipper doesn't provide CMake config file
-        self.cpp_info.names["cmake_find_package"] = "polyclipping"
-        self.cpp_info.names["cmake_find_package_multi"] = "polyclipping"

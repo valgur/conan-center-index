@@ -125,23 +125,6 @@ class QhullConan(ConanFile):
             self.cpp_info.components["libqhullcpp"].libs = [f"qhullcpp{suffix}"]
             self.cpp_info.components["libqhullcpp"].requires = ["libqhull_r"]
 
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.cpp_info.names["cmake_find_package"] = "Qhull"
-        self.cpp_info.names["cmake_find_package_multi"] = "Qhull"
-        if self.options.reentrant:
-            self.cpp_info.components["libqhull_r"].names["cmake_find_package"] = self._qhull_cmake_name(True)
-            self.cpp_info.components["libqhull_r"].names["cmake_find_package_multi"] = self._qhull_cmake_name(True)
-            self.cpp_info.components["libqhull_r"].names["pkg_config"] = self._qhull_pkgconfig_name(True)
-        else:
-            self.cpp_info.components["libqhull"].names["cmake_find_package"] = self._qhull_cmake_name(False)
-            self.cpp_info.components["libqhull"].names["cmake_find_package_multi"] = self._qhull_cmake_name(False)
-            self.cpp_info.components["libqhull"].names["pkg_config"] = self._qhull_pkgconfig_name(False)
-        if self.options.get_safe("cpp"):
-            self.cpp_info.components["libqhullcpp"].names["cmake_find_package"] = "qhullcpp"
-            self.cpp_info.components["libqhullcpp"].names["cmake_find_package_multi"] = "qhullcpp"
-            self.cpp_info.components["libqhullcpp"].names["pkg_config"] = "qhullcpp"
-
     def _qhull_cmake_name(self, reentrant):
         if not self._is_v8_1 and not reentrant and self.options.shared:
             return "libqhull"

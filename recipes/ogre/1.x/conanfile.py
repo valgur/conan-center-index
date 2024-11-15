@@ -302,8 +302,7 @@ class OgreConanFile(ConanFile):
         # TODO: add support for DirectX, DirectX11, Softimage, GLSLOptimizer, HLSL2GLSL
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         # https://github.com/OGRECave/ogre/blob/v14.3.0/CMake/ConfigureBuild.cmake#L21-L25
         if self.options.shared and is_apple_os(self) and self.settings.os != "Macos":

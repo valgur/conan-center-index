@@ -10,9 +10,8 @@ class FooTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     # VirtualBuildEnv and VirtualRunEnv can be avoided if "tools.env.virtualenv:auto_use" is defined
     # (it will be defined in Conan 2.0)
-    generators = "CMakeDeps", "VirtualBuildEnv", "VirtualRunEnv"
+    generators = "CMakeDeps"
     apply_env = False
-    test_type = "explicit"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -38,5 +37,5 @@ class FooTestConan(ConanFile):
 
     def test(self):
         if not cross_building(self):
-            cmd = os.path.join(self.cpp.build.bindirs[0], "example")
+            cmd = os.path.join(self.cpp.build.bindir, "example")
             self.run(cmd, env="conanrun")

@@ -44,7 +44,6 @@ class fastgltf(ConanFile):
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -70,8 +69,7 @@ class fastgltf(ConanFile):
         self.requires("simdjson/3.2.0")
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -92,7 +90,7 @@ class fastgltf(ConanFile):
         if self.options.get_safe("use_64bit_float"):
             tc.variables["FASTGLTF_USE_64BIT_FLOAT"] = True
         if Version(self.version) >= "0.7.0":
-            tc.variables["FASTGLTF_COMPILE_AS_CPP20"] = "20" in str(self.settings.get_safe("compiler.cppstd"))
+            tc.variables["FASTGLTF_COMPILE_AS_CPP20"] = "20" in str(self.settings.compiler.cppstd)
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

@@ -40,8 +40,7 @@ class LibdxfrwConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -68,13 +67,7 @@ class LibdxfrwConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.libs = ["dxfrw"]
-
         self.cpp_info.set_property("pkg_config_name", "libdxfrw")
-
+        self.cpp_info.libs = ["dxfrw"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["m"]
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH env var: {bin_path}")
-        self.env_info.PATH.append(bin_path)

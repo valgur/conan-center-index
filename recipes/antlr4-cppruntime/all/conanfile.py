@@ -1,13 +1,13 @@
-from conan import ConanFile
-from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, check_min_vs
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, copy, rm, rmdir, save
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
 import os
-import textwrap
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import export_conandata_patches, apply_conandata_patches, get, copy, rm, rmdir
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, check_min_vs
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -79,8 +79,7 @@ class Antlr4CppRuntimeConan(ConanFile):
         # Guard: The minimum MSVC version is 16 or 1920 (which already supports C++17)
         check_min_vs(self, "192")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -129,33 +128,10 @@ class Antlr4CppRuntimeConan(ConanFile):
             rm(self, "*antlr4-runtime.dll*", os.path.join(self.package_folder, "lib"))
             rm(self, "*antlr4-runtime.*dylib", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-
         # FIXME: this also removes lib/cmake/antlr4-generator
         # This cmake config script is needed to provide the cmake function `antlr4_generate`
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-
         fix_apple_shared_install_name(self)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generatores removed
-        self._create_cmake_module_alias_targets(
-            os.path.join(self.package_folder, self._module_file_rel_path),
-            {"antlr4_shared" if self.options.shared else "antlr4_static": "antlr4-cppruntime::antlr4-cppruntime"}
-        )
-
-    def _create_cmake_module_alias_targets(self, module_file, targets):
-        content = ""
-        for alias, aliased in targets.items():
-            content += textwrap.dedent(f"""\
-                if(TARGET {aliased} AND NOT TARGET {alias})
-                    add_library({alias} INTERFACE IMPORTED)
-                    set_property(TARGET {alias} PROPERTY INTERFACE_LINK_LIBRARIES {aliased})
-                endif()
-            """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-targets.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "antlr4-runtime")
@@ -171,9 +147,3 @@ class Antlr4CppRuntimeConan(ConanFile):
             self.cpp_info.system_libs = ["m", "pthread"]
         elif is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generatores removed
-        self.cpp_info.filenames["cmake_find_package"] = "antlr4-runtime"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "antlr4-runtime"
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

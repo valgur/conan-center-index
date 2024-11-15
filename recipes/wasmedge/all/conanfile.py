@@ -22,7 +22,6 @@ class WasmedgeConan(ConanFile):
     @property
     def _compiler_alias(self):
         return {
-            "Visual Studio": "msvc",
             "msvc": "msvc",
         }.get(str(self.info.settings.compiler), "gcc")
 
@@ -79,10 +78,6 @@ class WasmedgeConan(ConanFile):
             self.cpp_info.libs = ["wasmedge"]
         else:
             self.cpp_info.libs = ["wasmedge_c"]
-
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
 
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("ws2_32")

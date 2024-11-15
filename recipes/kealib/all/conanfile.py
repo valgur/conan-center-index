@@ -51,8 +51,7 @@ class KealibConan(ConanFile):
         self.requires("hdf5/1.14.5", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         hdf5_opts = self.dependencies["hdf5"].options
         if not (hdf5_opts.enable_cxx and hdf5_opts.hl):
             raise ConanInvalidConfiguration(f"{self.ref} requires dependencies options -o 'hdf5/*:enable_cxx=True' -o 'hdf5/*:hl=True'")

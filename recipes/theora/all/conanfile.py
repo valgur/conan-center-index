@@ -1,9 +1,10 @@
-from conan import ConanFile
-from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
-from conan.tools.files import copy, download, get, replace_in_file
-from conan.tools.microsoft import is_msvc
-from conan.errors import ConanException
 import os
+
+from conan import ConanFile
+from conan.errors import ConanException
+from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
+from conan.tools.files import copy, get
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.52.0"
 
@@ -84,7 +85,3 @@ class TheoraConan(ConanFile):
         self.cpp_info.components["theoraenc"].set_property("pkg_config_name", "theoraenc")
         self.cpp_info.components["theoraenc"].libs = ["theoraenc"]
         self.cpp_info.components["theoraenc"].requires = ["ogg::ogg"]
-
-
-        # TODO: to remove in conan v2 once pkg_config generator removed
-        self.cpp_info.names["pkg_config"] = "theora_full_package"

@@ -45,8 +45,7 @@ class LibcdsConan(ConanFile):
         self.requires("boost/1.85.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("Macos M1 not supported (yet)")
 
@@ -82,19 +81,11 @@ class LibcdsConan(ConanFile):
         cmake_target = "cds" if self.options.shared else "cds-s"
         self.cpp_info.set_property("cmake_file_name", "LibCDS")
         self.cpp_info.set_property("cmake_target_name", f"LibCDS::{cmake_target}")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_libcds"].libs = collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows" and not self.options.shared:
-            self.cpp_info.components["_libcds"].defines = ["CDS_BUILD_STATIC_LIB"]
+            self.cpp_info.defines = ["CDS_BUILD_STATIC_LIB"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_libcds"].system_libs = ["m", "pthread"]
+            self.cpp_info.system_libs = ["m", "pthread"]
         if self.settings.compiler in ["gcc", "clang", "apple-clang"] and self.settings.arch == "x86_64":
-            self.cpp_info.components["_libcds"].cxxflags = ["-mcx16"]
-        self.cpp_info.components["_libcds"].requires = ["boost::boost"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "LibCDS"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibCDS"
-        self.cpp_info.components["_libcds"].names["cmake_find_package"] = cmake_target
-        self.cpp_info.components["_libcds"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["_libcds"].set_property("cmake_target_name", f"LibCDS::{cmake_target}")
+            self.cpp_info.cxxflags = ["-mcx16"]
+        self.cpp_info.requires = ["boost::boost"]

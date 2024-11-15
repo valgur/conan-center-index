@@ -30,7 +30,6 @@ class FrugallyDeepConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "4.9",
-            "Visual Studio": "14",
             "clang": "3.7",
             "apple-clang": "9",
         }
@@ -46,8 +45,7 @@ class FrugallyDeepConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -62,16 +60,14 @@ class FrugallyDeepConan(ConanFile):
         copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("cmake_file_name", "frugally-deep")
         self.cpp_info.set_property("cmake_target_name", "frugally-deep::fdeep")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["fdeep"].requires = [
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.requires = [
             "eigen::eigen",
             "functionalplus::functionalplus",
             "nlohmann_json::nlohmann_json",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["fdeep"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]

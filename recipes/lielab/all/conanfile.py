@@ -20,7 +20,7 @@ class LielabConan(ConanFile):
     license = "MIT"
 
     settings = "os", "arch", "compiler", "build_type"
-    
+
     no_copy_source = True
 
     def requirements(self):
@@ -36,20 +36,18 @@ class LielabConan(ConanFile):
             "gcc": "11",
             "clang": "12",
             "apple-clang": "13.1",
-            "Visual Studio": "17",
             "msvc": "193",
         }
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.23 <4]")
-    
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
             destination=self.source_folder, strip_root=True)
@@ -67,7 +65,7 @@ class LielabConan(ConanFile):
         cmake.configure()
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
-    
+
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
@@ -75,9 +73,7 @@ class LielabConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Lielab")
         self.cpp_info.set_property("cmake_target_name", "Lielab::Lielab")
 
-        self.cpp_info.names["cmake_find_package"] = "Lielab"
-        self.cpp_info.names["cmake_find_package_multi"] = "Lielab"
-    
+
     def package_id(self):
         self.info.clear()
 

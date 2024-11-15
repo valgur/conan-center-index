@@ -1,10 +1,12 @@
-from conans import CMake, ConanFile, tools
-from conans.errors import ConanInvalidConfiguration
 import glob
 import os
 import shutil
 import stat
 import textwrap
+
+from conan.tools.build import check_min_cppstd
+from conans import CMake, ConanFile, tools
+from conans.errors import ConanInvalidConfiguration
 
 
 class PythonOption:
@@ -66,7 +68,6 @@ class CernRootConan(ConanFile):
     @property
     def _minimum_compilers_version(self):
         return {
-            "Visual Studio": "16.1",
             "gcc": "4.8",
             "clang": "3.4",
             "apple-clang": "5.1",
@@ -102,8 +103,7 @@ class CernRootConan(ConanFile):
         self._enforce_libcxx_requirements()
 
     def _enforce_minimum_compiler_version(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
         if not min_version:
             self.output.warn(
@@ -203,7 +203,7 @@ class CernRootConan(ConanFile):
         self._cmake.definitions.update({
             "BUILD_SHARED_LIBS": True,
             "fail-on-missing": True,
-            "CMAKE_CXX_STANDARD": self._cmake_cxx_standard,
+            "CMAKE_CXX_STANDARD": str(self.settings.compiler.cppstd),
             "gnuinstall": True,
             "soversion": True,
             # Disable builtins and use Conan deps where available
@@ -270,10 +270,6 @@ class CernRootConan(ConanFile):
             )
 
     @property
-    def _cmake_cxx_standard(self):
-        return str(self.settings.compiler.get_safe("cppstd", "11"))
-
-    @property
     def _cmake_pyrootopt(self):
         if self.options.python == PythonOption.OFF:
             return False
@@ -298,8 +294,6 @@ class CernRootConan(ConanFile):
 
     def package_info(self):
         # FIXME: ROOT generates multiple CMake files
-        self.cpp_info.names["cmake_find_package"] = "ROOT"
-        self.cpp_info.names["cmake_find_package_multi"] = "ROOT"
         # See root-config --libs for a list of ordered libs
         self.cpp_info.libs = [
             "Core",

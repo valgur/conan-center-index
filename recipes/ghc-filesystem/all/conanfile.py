@@ -49,14 +49,3 @@ class GhcFilesystemRecipe(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ghcFilesystem::ghc_filesystem")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "ghc_filesystem"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "ghc_filesystem"
-        self.cpp_info.names["cmake_find_package"] = "ghcFilesystem"
-        self.cpp_info.names["cmake_find_package_multi"] = "ghcFilesystem"
-        self.cpp_info.components["ghc_filesystem"].names["cmake_find_package"] = "ghc_filesystem"
-        self.cpp_info.components["ghc_filesystem"].names["cmake_find_package_multi"] = "ghc_filesystem"
-        self.cpp_info.components["ghc_filesystem"].set_property("cmake_target_name", "ghcFilesystem::ghc_filesystem")
-        self.cpp_info.components["ghc_filesystem"].bindirs = []
-        self.cpp_info.components["ghc_filesystem"].libdirs = []

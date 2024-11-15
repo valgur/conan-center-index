@@ -1,15 +1,15 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, copy, rmdir, rm, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
-import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 
 class ZbarConan(ConanFile):
@@ -50,17 +50,10 @@ class ZbarConan(ConanFile):
         "with_jpeg": False,
         "enable_pthread": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -75,7 +68,7 @@ class ZbarConan(ConanFile):
             # GTK 4 is not yet supported
             self.requires("gtk/3.24.43")
         if self.options.with_qt:
-            self.requires("qt/[~5.15]")
+            self.requires("qt/[>=5.15 <7]")
         if self.options.with_xv or self.options.with_xshm or self.options.with_x:
             self.requires("xorg/system")
 
@@ -99,9 +92,6 @@ class ZbarConan(ConanFile):
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
-        if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
 
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
@@ -167,8 +157,8 @@ class ZbarConan(ConanFile):
         if self.options.with_gtk:
             self.cpp_info.requires.append("gtk::gtk+-3.0")
         if self.options.with_qt:
-            self.cpp_info.requires.extend(["qt::qtBase", "qt::qtGui", "qt::qtWidgets"])
-            if Version(self.dependencies["qt"].version).major == 5:
+            self.cpp_info.requires.extend(["qt::qtGui", "qt::qtWidgets"])
+            if self.dependencies["qt"].ref.version.major == 5:
                 self.cpp_info.requires.append("qt::qtX11Extras")
         if self.options.with_xv:
             self.cpp_info.requires.append("xorg::xv")

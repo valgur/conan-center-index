@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building, can_run
+from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
 from conan.tools.files import chdir, copy, get, rm, replace_in_file
 from conan.tools.layout import basic_layout
@@ -22,10 +22,6 @@ class NSSConan(ConanFile):
 
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")
@@ -48,7 +44,7 @@ class NSSConan(ConanFile):
             raise ConanInvalidConfiguration("NSS cannot link to static sqlite. Please use option sqlite3:shared=True")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")

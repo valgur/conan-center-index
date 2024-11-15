@@ -70,8 +70,7 @@ class WasmMicroRuntimeConan(ConanFile):
     def validate(self):
         # When with_fast_jit is True, C++ is required.
         if not self.options.with_fast_jit:
-            if self.settings.compiler.get_safe("cppstd"):
-                check_min_cppstd(self, 11)
+            check_min_cppstd(self, 11)
         if not self.options.with_interp and not self.options.with_aot:
             raise ConanInvalidConfiguration(f"{self.ref} requires with_interp and with_aot at least one.")
         if self.options.with_jit:

@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc, check_min_vs
@@ -66,7 +66,7 @@ class CorradeConan(ConanFile):
             )
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and cross_building(self, skip_x64_x86=True):
+        if not can_run(self):
             self.tool_requires(f"corrade/{self.version}")
 
     def source(self):
@@ -139,21 +139,15 @@ class CorradeConan(ConanFile):
             os.path.join("lib", "cmake", "UseCorrade.cmake"),
         ]
         self.cpp_info.set_property("cmake_build_modules", cmake_modules)
-        self.cpp_info.components["_corrade"].build_modules["cmake_find_package"] = cmake_modules
-        self.cpp_info.components["_corrade"].build_modules["cmake_find_package_multi"] = cmake_modules
 
         if self.options.with_main:
             self.cpp_info.components["main"].set_property("cmake_target_name", "Corrade::Main")
-            self.cpp_info.components["main"].names["cmake_find_package"] = "Main"
-            self.cpp_info.components["main"].names["cmake_find_package_multi"] = "Main"
             if self.settings.os == "Windows":
                 self.cpp_info.components["main"].libs = ["CorradeMain" + suffix]
             self.cpp_info.components["main"].requires = ["_corrade"]
 
         if self.options.with_utility:
             self.cpp_info.components["utility"].set_property("cmake_target_name", "Corrade::Utility")
-            self.cpp_info.components["utility"].names["cmake_find_package"] = "Utility"
-            self.cpp_info.components["utility"].names["cmake_find_package_multi"] = "Utility"
             self.cpp_info.components["utility"].libs = ["CorradeUtility" + suffix]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["utility"].system_libs = ["m", "dl"]
@@ -161,39 +155,23 @@ class CorradeConan(ConanFile):
 
             # This one is statically linked into utility
             # self.cpp_info.components["containers"].set_property("cmake_target_name", "Corrade::Containers")
-            # self.cpp_info.components["containers"].names["cmake_find_package"] = "Containers"
-            # self.cpp_info.components["containers"].names["cmake_find_package_multi"] = "Containers"
             # self.cpp_info.components["containers"].libs = ["CorradeContainers" + suffix]
 
         if self.options.with_interconnect:
             self.cpp_info.components["interconnect"].set_property("cmake_target_name", "Corrade::Interconnect")
-            self.cpp_info.components["interconnect"].names["cmake_find_package"] = "Interconnect"
-            self.cpp_info.components["interconnect"].names["cmake_find_package_multi"] = "Interconnect"
             self.cpp_info.components["interconnect"].libs = ["CorradeInterconnect" + suffix]
             self.cpp_info.components["interconnect"].requires = ["utility"]
 
         if self.options.with_pluginmanager:
             self.cpp_info.components["plugin_manager"].set_property("cmake_target_name", "Corrade::PluginManager")
-            self.cpp_info.components["plugin_manager"].names["cmake_find_package"] = "PluginManager"
-            self.cpp_info.components["plugin_manager"].names["cmake_find_package_multi"] = "PluginManager"
             self.cpp_info.components["plugin_manager"].libs = ["CorradePluginManager" + suffix]
             self.cpp_info.components["plugin_manager"].requires = ["utility"]
 
         if self.options.with_testsuite:
             self.cpp_info.components["test_suite"].set_property("cmake_target_name", "Corrade::TestSuite")
-            self.cpp_info.components["test_suite"].names["cmake_find_package"] = "TestSuite"
-            self.cpp_info.components["test_suite"].names["cmake_find_package_multi"] = "TestSuite"
             self.cpp_info.components["test_suite"].libs = ["CorradeTestSuite" + suffix]
             self.cpp_info.components["test_suite"].requires = ["utility"]
-
-        if self.options.with_utility:
-            bindir = os.path.join(self.package_folder, "bin")
-            self.output.info(f"Appending PATH environment variable: {bindir}")
-            self.env_info.PATH.append(bindir)
 
         # pkg_config: Add more explicit naming to generated files (avoid filesystem collision).
         for key, component in self.cpp_info.components.items():
             component.set_property("pkg_config_name", f"{self.name}_{key}")
-
-        self.cpp_info.names["cmake_find_package"] = "Corrade"
-        self.cpp_info.names["cmake_find_package_multi"] = "Corrade"

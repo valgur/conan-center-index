@@ -61,10 +61,6 @@ class CyrusSaslConan(ConanFile):
         "with_saslauthd": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -253,6 +249,3 @@ class CyrusSaslConan(ConanFile):
             self.cpp_info.system_libs = ["resolv"]
         elif is_msvc(self):
             self.cpp_info.system_libs = ["ws2_32"]
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

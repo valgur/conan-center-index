@@ -90,6 +90,3 @@ class ScdocInstallerConan(ConanFile):
             "pkg_config_custom_content",
             "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()),
         )
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(scdoc_root)

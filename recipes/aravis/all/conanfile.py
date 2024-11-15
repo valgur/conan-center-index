@@ -166,6 +166,3 @@ class AravisConan(ConanFile):
             self.runenv_info.prepend_path("GST_PLUGIN_PATH", gst_plugin_path)
             if self.options.tools:
                 self.buildenv_info.prepend_path("GST_PLUGIN_PATH", gst_plugin_path)
-            self.env_info.GST_PLUGIN_PATH.append(gst_plugin_path)
-        if self.options.tools:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

@@ -60,8 +60,3 @@ class WafConan(ConanFile):
 
         wafdir = os.path.join(self.package_folder, "lib")
         self.buildenv_info.define_path("WAFDIR", wafdir)
-
-        # TODO: Legacy, remove in 2.0
-        binpath = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(binpath)
-        self.env_info.WAFDIR = wafdir

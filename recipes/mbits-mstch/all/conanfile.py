@@ -50,8 +50,7 @@ class MBitsMstchConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 192)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(
@@ -95,10 +94,6 @@ class MBitsMstchConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mbits-mstch")
         self.cpp_info.set_property("cmake_target_name", "mbits::mstch")
 
-        self.cpp_info.filenames["cmake_find_package"] = "mbits-mstch"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mbits-mstch"
-        self.cpp_info.names["cmake_find_package"] = "mbits"
-        self.cpp_info.names["cmake_find_package_multi"] = "mbits"
         self.cpp_info.components["mstch"].set_property(
             "cmake_target_name", "mbits::mstch"
         )

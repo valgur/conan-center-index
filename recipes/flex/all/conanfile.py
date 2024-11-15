@@ -41,7 +41,7 @@ class FlexConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             self.tool_requires(f"{self.name}/{self.version}")
 
     def validate(self):
@@ -90,10 +90,5 @@ class FlexConan(ConanFile):
         # Avoid CMakeDeps messing with Conan targets
         self.cpp_info.set_property("cmake_find_mode", "none")
 
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)
-
-        lex_path = os.path.join(bindir, "flex").replace("\\", "/")
-        self.output.info("Setting LEX environment variable: {}".format(lex_path))
-        self.env_info.LEX = lex_path
+        lex_path = os.path.join(self.package_folder, "bin", "flex")
+        self.runenv_info.define_path("LEX", lex_path)

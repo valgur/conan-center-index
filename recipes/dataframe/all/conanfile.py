@@ -2,11 +2,10 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -61,21 +60,18 @@ class DataFrameConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "17": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "7",
                 "clang": "6",
                 "apple-clang": "10.0",
             },
             "20": {
-                "Visual Studio": "16",
                 "msvc": "192",
                 "gcc": "11",
                 "clang": "12",
                 "apple-clang": "13",
             },
             "23": {
-                "Visual Studio": "17",
                 "msvc": "192",
                 "gcc": "13",
                 "clang": "15",
@@ -98,8 +94,7 @@ class DataFrameConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -155,7 +150,3 @@ class DataFrameConan(ConanFile):
             self.cpp_info.defines.append("_USE_MATH_DEFINES")
         if self.options.shared:
             self.cpp_info.defines.append("HMDF_SHARED")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "DataFrame"
-        self.cpp_info.names["cmake_find_package_multi"] = "DataFrame"

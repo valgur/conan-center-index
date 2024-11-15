@@ -1,4 +1,4 @@
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
@@ -202,10 +202,6 @@ class FFMpegConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _dependencies(self):
         return {
             "avformat": ["avcodec"],
@@ -359,10 +355,6 @@ class FFMpegConan(ConanFile):
                 raise ConanInvalidConfiguration("FFmpeg '{}' option requires '{}' option to be enabled".format(
                     dependency, "' or '".join(features)))
 
-        if Version(self.version) >= "6.1" and conan_version.major == 1 and is_msvc(self) and self.options.shared:
-            # Linking fails with "Argument list too long" for some reason on Conan v1
-            raise ConanInvalidConfiguration("MSVC shared build is not supported for Conan v1")
-
         if Version(self.version) == "7.0.1" and self.settings.build_type == "Debug":
             # FIXME: FFMpeg fails to build in Debug mode with the following error:
             # ld: libavcodec/libavcodec.a(vvcdsp_init.o): in function `ff_vvc_put_pixels2_8_sse4':
@@ -380,7 +372,7 @@ class FFMpegConan(ConanFile):
                 self.tool_requires("yasm/1.3.0")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -650,7 +642,7 @@ class FFMpegConan(ConanFile):
         if ranlib:
             args.append(f"--ranlib={unix_path(self, ranlib)}")
         # for some reason pkgconf from conan can't find .pc files on Linux in the context of ffmpeg configure...
-        if self._settings_build.os != "Linux":
+        if self.settings_build.os != "Linux":
             pkg_config = self.conf.get("tools.gnu:pkg_config", default=buildenv_vars.get("PKG_CONFIG"), check_type=str)
             if pkg_config:
                 args.append(f"--pkg-config={unix_path(self, pkg_config)}")
@@ -777,8 +769,6 @@ class FFMpegConan(ConanFile):
         version = self._read_component_version(component_name)
         if version is not None:
             self.cpp_info.components[component_name].set_property("component_version", version)
-            # TODO: to remove once support of conan v1 dropped
-            self.cpp_info.components[component_name].version = version
         else:
             self.output.warning(f"cannot determine version of lib{component_name} packaged with ffmpeg!")
 

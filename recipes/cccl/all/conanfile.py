@@ -80,13 +80,3 @@ class CcclConan(ConanFile):
         self.buildenv_info.define("CC", cccl)
         self.buildenv_info.define("CXX", cccl)
         self.buildenv_info.define("LD", cccl)
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(self._cccl_dir)
-
-        self.output.info(f"Setting CC to '{cccl}'")
-        self.env_info.CC = cccl
-        self.output.info(f"Setting CXX to '{cccl}'")
-        self.env_info.CXX = cccl
-        self.output.info(f"Setting LD to '{cccl}'")
-        self.env_info.LD = cccl

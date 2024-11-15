@@ -100,7 +100,3 @@ class CmockaConan(ConanFile):
         if Version(self.version) < "1.1.7" and not self.options.shared:
             lib_suffix = "-static"
         self.cpp_info.libs = ["cmocka" + lib_suffix]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.build_modules["cmake_find_package"] = [self._module_file_rel_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [self._module_file_rel_path]

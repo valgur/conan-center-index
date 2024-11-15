@@ -50,7 +50,6 @@ class GTestConan(ConanFile):
     def _minimum_compilers_version(self):
         return {
             "11": {
-                "Visual Studio": "14",
                 "msvc": "190",
                 "gcc": "4.8.1" if Version(self.version) < "1.11.0" else "5",
                 "clang": "3.3" if Version(self.version) < "1.11.0" else "5",
@@ -59,7 +58,6 @@ class GTestConan(ConanFile):
             # Sinse 1.13.0, gtest requires C++14 and Google's Foundational C++ Support Policy
             # https://github.com/google/oss-policies-info/blob/603a042ce2ee8f165fac46721a651d796ce59cb6/foundational-cxx-support-matrix.md
             "14": {
-                "Visual Studio": "15",
                 "msvc": "191",
                 "gcc": "7.3.1",
                 "clang": "6",
@@ -90,8 +88,7 @@ class GTestConan(ConanFile):
         if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("gtest shared is not compatible with static vc runtime")
 
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -190,9 +187,3 @@ class GTestConan(ConanFile):
                 self.cpp_info.components["gmock_main"].set_property("pkg_config_name", "gmock_main")
                 self.cpp_info.components["gmock_main"].libs = [f"gmock_main{self._postfix}"]
                 self.cpp_info.components["gmock_main"].requires = ["gmock"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "GTest"
-        self.cpp_info.names["cmake_find_package_multi"] = "GTest"
-        self.cpp_info.components["libgtest"].names["cmake_find_package"] = "gtest"
-        self.cpp_info.components["libgtest"].names["cmake_find_package_multi"] = "gtest"

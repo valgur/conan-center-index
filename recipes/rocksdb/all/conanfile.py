@@ -65,7 +65,6 @@ class RocksDBConan(ConanFile):
                 "clang": "7",
                 "gcc": "7",
                 "msvc": "191",
-                "Visual Studio": "15",
             }
 
     def export_sources(self):
@@ -109,8 +108,7 @@ class RocksDBConan(ConanFile):
             self.requires("jemalloc/5.3.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -214,36 +212,12 @@ class RocksDBConan(ConanFile):
         cmake_target = "rocksdb-shared" if self.options.shared else "rocksdb"
         self.cpp_info.set_property("cmake_file_name", "RocksDB")
         self.cpp_info.set_property("cmake_target_name", f"RocksDB::{cmake_target}")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["librocksdb"].libs = collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows":
-            self.cpp_info.components["librocksdb"].system_libs = ["shlwapi", "rpcrt4"]
+            self.cpp_info.system_libs = ["shlwapi", "rpcrt4"]
             if self.options.shared:
-                self.cpp_info.components["librocksdb"].defines = ["ROCKSDB_DLL"]
+                self.cpp_info.defines = ["ROCKSDB_DLL"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["librocksdb"].system_libs = ["pthread", "m"]
+            self.cpp_info.system_libs = ["pthread", "m"]
         if self.options.lite:
-            self.cpp_info.components["librocksdb"].defines.append("ROCKSDB_LITE")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "RocksDB"
-        self.cpp_info.names["cmake_find_package_multi"] = "RocksDB"
-        self.cpp_info.components["librocksdb"].names["cmake_find_package"] = cmake_target
-        self.cpp_info.components["librocksdb"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["librocksdb"].set_property("cmake_target_name", f"RocksDB::{cmake_target}")
-        if self.options.with_gflags:
-            self.cpp_info.components["librocksdb"].requires.append("gflags::gflags")
-        if self.options.with_snappy:
-            self.cpp_info.components["librocksdb"].requires.append("snappy::snappy")
-        if self.options.get_safe("with_liburing"):
-            self.cpp_info.components["librocksdb"].requires.append("liburing::liburing")
-        if self.options.with_lz4:
-            self.cpp_info.components["librocksdb"].requires.append("lz4::lz4")
-        if self.options.with_zlib:
-            self.cpp_info.components["librocksdb"].requires.append("zlib::zlib")
-        if self.options.with_zstd:
-            self.cpp_info.components["librocksdb"].requires.append("zstd::zstd")
-        if self.options.get_safe("with_tbb"):
-            self.cpp_info.components["librocksdb"].requires.append("onetbb::onetbb")
-        if self.options.with_jemalloc:
-            self.cpp_info.components["librocksdb"].requires.append("jemalloc::jemalloc")
+            self.cpp_info.defines.append("ROCKSDB_LITE")

@@ -35,12 +35,8 @@ class UchardetConan(ConanFile):
         "check_sse2": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def config_options(self):
-        if self._settings_build not in ("x86", "x86_64"):
+        if self.settings_build not in ("x86", "x86_64"):
             self.options.rm_safe("check_sse2")
         if self.settings.os == "Windows":
             del self.options.fPIC

@@ -818,10 +818,3 @@ class GdalConan(ConanFile):
 
         if self.options.tools:
             self.buildenv_info.define_path("GDAL_DATA", gdal_data_path)
-
-        # TODO: remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "GDAL"
-        self.cpp_info.names["cmake_find_package_multi"] = "GDAL"
-        self.cpp_info.filenames["cmake_find_package"] = "GDAL"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "GDAL"
-        self.env_info.GDAL_DATA = gdal_data_path

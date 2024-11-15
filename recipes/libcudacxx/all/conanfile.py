@@ -31,7 +31,6 @@ class LibcudacxxConan(ConanFile):
     def _compilers_minimum_version(self):
         # https://nvidia.github.io/libcudacxx/setup/requirements.html#nvcc-host-compilers
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "5",
             "clang": "7",
@@ -48,8 +47,7 @@ class LibcudacxxConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -93,5 +91,3 @@ class LibcudacxxConan(ConanFile):
         self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
         module_path = os.path.join("lib", "cmake", "libcudacxx-config-official.cmake")
         self.cpp_info.set_property("cmake_build_modules", [module_path])
-        self.cpp_info.build_modules["cmake_find_package"] = [module_path]
-        self.cpp_info.build_modules["cmake_find_package_multi"] = [module_path]

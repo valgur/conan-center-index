@@ -9,8 +9,7 @@ import tarfile
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
@@ -38,7 +37,7 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             if os.path.exists("hello_world"):
                 raise ConanException("file extracted by tar archive should not exist yet")
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(f"{bin_path} test.tar", env="conanrun")
             if not os.path.exists("hello_world"):
                 raise ConanException("file not extracted")

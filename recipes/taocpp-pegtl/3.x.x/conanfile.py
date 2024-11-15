@@ -35,14 +35,12 @@ class TaoCPPPEGTLConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7" if self.options.boost_filesystem else "8",
-            "Visual Studio": "15.7",
             "clang": "6.0",
             "apple-clang": "10",
         }
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "17")
+        check_min_cppstd(self, "17")
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -55,8 +53,7 @@ class TaoCPPPEGTLConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires C++17, which your compiler does not support.")
 
         compiler_version = Version(self.settings.compiler.version)
-        if self.version == "3.0.0" and self.settings.compiler == "clang" and \
-           compiler_version >= "10" and compiler_version < "12":
+        if self.version == "3.0.0" and self.settings.compiler == "clang" and "10" <= compiler_version < "12":
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support filesystem experimental")
 
         if self.options.boost_filesystem and (self.dependencies["boost"].options.header_only or self.dependencies["boost"].options.without_filesystem):
@@ -76,25 +73,12 @@ class TaoCPPPEGTLConan(ConanFile):
         copy(self, "*", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("cmake_file_name", "pegtl")
         self.cpp_info.set_property("cmake_target_name", "taocpp::pegtl")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
         if self.options.boost_filesystem:
-            self.cpp_info.components["_taocpp-pegtl"].requires.append("boost::filesystem")
-            self.cpp_info.components["_taocpp-pegtl"].defines.append("TAO_PEGTL_BOOST_FILESYSTEM")
-        else:
-            compiler_version = Version(self.settings.compiler.version)
-            if self.settings.compiler == "clang" and compiler_version >= "10" and compiler_version < "12":
-                self.cpp_info.components["_taocpp-pegtl"].defines.append("TAO_PEGTL_STD_EXPERIMENTAL_FILESYSTEM")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "pegtl"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "pegtl"
-        self.cpp_info.names["cmake_find_package"] = "taocpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "taocpp"
-        self.cpp_info.components["_taocpp-pegtl"].names["cmake_find_package"] = "pegtl"
-        self.cpp_info.components["_taocpp-pegtl"].names["cmake_find_package_multi"] = "pegtl"
-        self.cpp_info.components["_taocpp-pegtl"].set_property("cmake_target_name", "taocpp::pegtl")
+            self.cpp_info.requires.append("boost::filesystem")
+            self.cpp_info.defines.append("TAO_PEGTL_BOOST_FILESYSTEM")
+        elif self.settings.compiler == "clang" and "10" <= Version(self.settings.compiler.version) < "12":
+            self.cpp_info.defines.append("TAO_PEGTL_STD_EXPERIMENTAL_FILESYSTEM")

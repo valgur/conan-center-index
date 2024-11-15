@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building
+from conan.tools.build import cross_building, can_run
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
@@ -43,10 +43,6 @@ class LibpqConan(ConanFile):
                self.settings.compiler.version == "8" and \
                self.settings.arch == "x86"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -74,7 +70,7 @@ class LibpqConan(ConanFile):
     def build_requirements(self):
         if is_msvc(self):
             self.tool_requires("strawberryperl/5.32.1.1")
-        elif self._settings_build.os == "Windows":
+        elif self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -102,7 +98,7 @@ class LibpqConan(ConanFile):
             tc.configure_args.append('--with-openssl' if self.options.with_openssl else '--without-openssl')
             if cross_building(self) and not self.options.with_openssl:
                 tc.configure_args.append("--disable-strong-random")
-            if cross_building(self, skip_x64_x86=True):
+            if not can_run(self):
                 tc.configure_args.append("USE_DEV_URANDOM=1")
             if self.settings.os != "Windows" and self.options.disable_rpath:
                 tc.configure_args.append('--disable-rpath')
@@ -289,5 +285,3 @@ class LibpqConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.components["pq"].system_libs = ["ws2_32", "secur32", "advapi32", "shell32", "crypt32", "wldap32"]
 
-        self.cpp_info.names["cmake_find_package"] = "PostgreSQL"
-        self.cpp_info.names["cmake_find_package_multi"] = "PostgreSQL"

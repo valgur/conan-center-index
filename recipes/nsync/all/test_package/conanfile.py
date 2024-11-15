@@ -6,8 +6,7 @@ import os
 
 class NsyncTestConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -22,7 +21,7 @@ class NsyncTestConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            test_package_c = os.path.join(self.cpp.build.bindirs[0], "test_package")
-            test_package_cpp = os.path.join(self.cpp.build.bindirs[0], "test_package_cpp")
+            test_package_c = os.path.join(self.cpp.build.bindir, "test_package")
+            test_package_cpp = os.path.join(self.cpp.build.bindir, "test_package_cpp")
             self.run(test_package_c, env="conanrun")
             self.run(test_package_cpp, env="conanrun")

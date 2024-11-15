@@ -44,8 +44,7 @@ class sqlpp11Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def requirements(self):
         self.requires("sqlpp11/0.60", transitive_headers=True, transitive_libs=True)

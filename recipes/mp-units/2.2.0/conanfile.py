@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import default_cppstd, valid_min_cppstd
+from conan.tools.build import valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
@@ -67,7 +67,6 @@ class MPUnitsConan(ConanFile):
                     "clang": "16",
                     "apple-clang": "15",
                     "msvc": "",
-                    "Visual Studio": "",
                 },
             },
             "std_format": {
@@ -77,7 +76,6 @@ class MPUnitsConan(ConanFile):
                     "clang": "17",
                     "apple-clang": "",
                     "msvc": "",
-                    "Visual Studio": "",
                 },
             },
             "cxx_modules": {
@@ -87,7 +85,6 @@ class MPUnitsConan(ConanFile):
                     "clang": "17",
                     "apple-clang": "",
                     "msvc": "",
-                    "Visual Studio": "",
                 },
             },
             "static_constexpr_vars_in_constexpr_func": {
@@ -97,7 +94,6 @@ class MPUnitsConan(ConanFile):
                     "clang": "17",
                     "apple-clang": "",
                     "msvc": "",
-                    "Visual Studio": "",
                 },
             },
             "explicit_this": {
@@ -107,7 +103,6 @@ class MPUnitsConan(ConanFile):
                     "clang": "18",
                     "apple-clang": "",
                     "msvc": "",
-                    "Visual Studio": "",
                 },
             },
         }
@@ -138,13 +133,12 @@ class MPUnitsConan(ConanFile):
 
     def _check_feature_supported(self, name, feature_name=name):
         compiler = self.settings.compiler
-        cppstd = compiler.get_safe("cppstd")
         feature = self._feature_compatibility[feature_name]
 
         # check C++ version
-        if cppstd and not valid_min_cppstd(self, feature["min_cppstd"]):
+        if not valid_min_cppstd(self, feature["min_cppstd"]):
             raise ConanInvalidConfiguration(
-                f"'{name}' requires at least cppstd={feature['min_cppstd']} ({cppstd} in use)",
+                f"'{name}' requires at least cppstd={feature['min_cppstd']} ({compiler.cppstd} in use)",
             )
 
         # check compiler version

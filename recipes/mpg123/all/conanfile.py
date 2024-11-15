@@ -53,10 +53,6 @@ class Mpg123Conan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _audio_module(self):
         return {
             "libalsa": "alsa",
@@ -99,7 +95,7 @@ class Mpg123Conan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings.arch in ["x86", "x86_64"]:
             self.tool_requires("yasm/1.3.0")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -193,23 +189,17 @@ class Mpg123Conan(ConanFile):
         self.cpp_info.components["libmpg123"].libs = ["mpg123"]
         self.cpp_info.components["libmpg123"].set_property("pkg_config_name", "libmpg123")
         self.cpp_info.components["libmpg123"].set_property("cmake_target_name", "MPG123::libmpg123")
-        self.cpp_info.components["libmpg123"].names["cmake_find_package"] = "libmpg123"
-        self.cpp_info.components["libmpg123"].names["cmake_find_package_multi"] = "libmpg123"
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.components["libmpg123"].defines.append("LINK_MPG123_DLL")
 
         self.cpp_info.components["libout123"].libs = ["out123"]
         self.cpp_info.components["libout123"].set_property("pkg_config_name", "libout123")
         self.cpp_info.components["libout123"].set_property("cmake_target_name", "MPG123::libout123")
-        self.cpp_info.components["libout123"].names["cmake_find_package"] = "libout123"
-        self.cpp_info.components["libout123"].names["cmake_find_package_multi"] = "libout123"
         self.cpp_info.components["libout123"].requires = ["libmpg123"]
 
         self.cpp_info.components["libsyn123"].libs = ["syn123"]
         self.cpp_info.components["libsyn123"].set_property("pkg_config_name", "libsyn123")
         self.cpp_info.components["libsyn123"].set_property("cmake_target_name", "MPG123::libsyn123")
-        self.cpp_info.components["libsyn123"].names["cmake_find_package"] = "libsyn123"
-        self.cpp_info.components["libsyn123"].names["cmake_find_package_multi"] = "libsyn123"
         self.cpp_info.components["libsyn123"].requires = ["libmpg123"]
 
         if self.settings.os == "Linux":
@@ -225,14 +215,3 @@ class Mpg123Conan(ConanFile):
             self.cpp_info.components["libout123"].requires.append("tinyalsa::tinyalsa")
         if self.options.module == "win32":
             self.cpp_info.components["libout123"].system_libs.append("winmm")
-
-
-        # TODO: Remove after Conan 2.x becomes the standard
-        self.cpp_info.filenames["cmake_find_package"] = "mpg123"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "mpg123"
-        self.cpp_info.names["cmake_find_package"] = "MPG123"
-        self.cpp_info.names["cmake_find_package_multi"] = "MPG123"
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)

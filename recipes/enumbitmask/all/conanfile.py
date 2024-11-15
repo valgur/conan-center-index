@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
+from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
@@ -31,7 +31,6 @@ class EnumBitmaskConan(ConanFile):
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -42,8 +41,7 @@ class EnumBitmaskConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(

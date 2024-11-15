@@ -33,7 +33,6 @@ class EarcutPackage(ConanFile):
             "gcc": "4.9",
             "intel": "15",
             "sun-cc": "5.14",
-            "Visual Studio": "12",
             "msvc": "180",
         }
 
@@ -48,8 +47,7 @@ class EarcutPackage(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -77,7 +75,3 @@ class EarcutPackage(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "earcut_hpp::earcut_hpp")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "earcut_hpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "earcut_hpp"

@@ -27,7 +27,6 @@ class SpyConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "7.4",
-            "Visual Studio": "15.7",
             "msvc": "191",
             "clang": "6",
             "apple-clang": "10",
@@ -37,8 +36,7 @@ class SpyConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

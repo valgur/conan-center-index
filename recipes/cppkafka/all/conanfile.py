@@ -45,8 +45,7 @@ class CppKafkaConan(ConanFile):
         self.requires("librdkafka/2.3.0", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -81,21 +80,12 @@ class CppKafkaConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "CppKafka::cppkafka")
         self.cpp_info.set_property("pkg_config_name", "cppkafka")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.components["_cppkafka"].libs = ["cppkafka"]
-        self.cpp_info.components["_cppkafka"].requires = ["boost::headers", "librdkafka::librdkafka"]
+        self.cpp_info.libs = ["cppkafka"]
+        self.cpp_info.requires = ["boost::headers", "librdkafka::librdkafka"]
         if self.settings.os == "Windows":
             if not self.options.shared:
-                self.cpp_info.components["_cppkafka"].system_libs = ["mswsock", "ws2_32"]
+                self.cpp_info.system_libs = ["mswsock", "ws2_32"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_cppkafka"].system_libs = ["pthread"]
+            self.cpp_info.system_libs = ["pthread"]
         if not self.options.shared:
-            self.cpp_info.components["_cppkafka"].defines.append("CPPKAFKA_STATIC")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CppKafka"
-        self.cpp_info.names["cmake_find_package_multi"] = "CppKafka"
-        self.cpp_info.components["_cppkafka"].names["cmake_find_package"] = "cppkafka"
-        self.cpp_info.components["_cppkafka"].names["cmake_find_package_multi"] = "cppkafka"
-        self.cpp_info.components["_cppkafka"].set_property("cmake_target_name", "CppKafka::cppkafka")
-        self.cpp_info.components["_cppkafka"].set_property("pkg_config_name", "cppkafka")
+            self.cpp_info.defines.append("CPPKAFKA_STATIC")

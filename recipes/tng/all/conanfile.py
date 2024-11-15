@@ -76,7 +76,3 @@ class tngConan(ConanFile):
         self.cpp_info.libs = ["tng_io"]
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs = ["m"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "tng_io"
-        self.cpp_info.names["cmake_find_package_multi"] = "tng_io"

@@ -141,14 +141,3 @@ class XlsxioConan(ConanFile):
                 self.cpp_info.components["xlsxio_readw"].system_libs.append("pthread")
             self.cpp_info.components["xlsxio_readw"].defines.append(xlsxio_macro)
 
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "xlsxio"
-        self.cpp_info.names["cmake_find_package_multi"] = "xlsxio"
-        self.cpp_info.components["xlsxio_read"].names["cmake_find_package"] = "xlsxio_read"
-        self.cpp_info.components["xlsxio_read"].names["cmake_find_package_multi"] = "xlsxio_read"
-        self.cpp_info.components["xlsxio_write"].names["cmake_find_package"] = "xlsxio_write"
-        self.cpp_info.components["xlsxio_write"].names["cmake_find_package_multi"] = "xlsxio_write"
-        if self.options.with_wide:
-            self.cpp_info.components["xlsxio_readw"].names["cmake_find_package"] = "xlsxio_readw"
-            self.cpp_info.components["xlsxio_readw"].names["cmake_find_package_multi"] = "xlsxio_readw"
-

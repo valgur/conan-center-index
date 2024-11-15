@@ -15,13 +15,8 @@ import shutil
 
 class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    test_type = "explicit"
     short_paths = True
     win_bash = True # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def layout(self):
         basic_layout(self)
@@ -30,12 +25,12 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str) # Since we are testing libltdl as well
 
     def build_requirements(self):
-        if hasattr(self, "settings_build") and not cross_building(self):
+        if not cross_building(self):
             self.tool_requires(self.tested_reference_str) # We are testing libtool/libtoolize
 
         self.tool_requires("autoconf/2.72")
         self.tool_requires("automake/1.16.5")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -151,7 +146,7 @@ class TestPackageConan(ConanFile):
         lib_extension = "dll" if self.settings.os == "Windows" else "so"
 
         if can_run(self):
-            bin_executable = unix_path(self, os.path.join(self.cpp.build.bindirs[0], "test_package"))
+            bin_executable = unix_path(self, os.path.join(self.cpp.build.bindir, "test_package"))
             lib_path = unix_path(self, os.path.join(self.cpp.build.libdirs[0], f'{lib_prefix}liba.{lib_extension}'))
             self.run(f'{bin_executable} {lib_path}', env="conanrun")
 

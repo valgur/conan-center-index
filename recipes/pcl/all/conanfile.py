@@ -333,7 +333,6 @@ class PclConan(ConanFile):
             "clang": "7",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -436,16 +435,41 @@ class PclConan(ConanFile):
                         f"'{dep}=True' is required when '{component}' is enabled."
                     )
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
+    def _patch_sources(self):
+        apply_conandata_patches(self)
+        find_modules_to_remove = [
+            "ClangFormat",
+            "DSSDK",
+            "Ensenso",
+            "FLANN",
+            "GLEW",
+            "GTestSource",
+            "OpenMP",
+            "OpenNI",
+            "OpenNI2",
+            "Pcap",
+            "Qhull",
+            "RSSDK",
+            "RSSDK2",
+            "Sphinx",
+            "davidSDK",
+            "libusb",
+        ]
+        if Version(self.version) < "1.14.0":
+            find_modules_to_remove.append("Eigen")
+        for mod in find_modules_to_remove:
+            os.remove(os.path.join(self.source_folder, "cmake", "Modules", f"Find{mod}.cmake"))
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        self._patch_sources()
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -508,16 +532,7 @@ class PclConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        find_modules_to_remove = ["FLANN", "GLEW", "Pcap", "Qhull", "libusb"]
-        if Version(self.version) < "1.14.0":
-            find_modules_to_remove.append("Eigen")
-        for mod in find_modules_to_remove:
-            os.remove(os.path.join(self.source_folder, "cmake", "Modules", f"Find{mod}.cmake"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -551,8 +566,6 @@ class PclConan(ConanFile):
 
         for name in sorted(self._enabled_components()):
             component = self.cpp_info.components[name]
-            component.names["cmake_find_package"] = name
-            component.names["cmake_find_package_multi"] = name
             component.set_property("cmake_file_name", name)
             component.set_property("cmake_module_file_name", name)
             component.set_property("cmake_target_name", f"PCL::{name}")
@@ -590,7 +603,3 @@ class PclConan(ConanFile):
                 common.system_libs.append("pthread")
         if self.settings.os == "Windows":
             common.system_libs.append("ws2_32")
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "PCL"
-        self.cpp_info.names["cmake_find_package_multi"] = "PCL"

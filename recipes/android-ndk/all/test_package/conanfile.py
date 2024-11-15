@@ -7,8 +7,7 @@ import platform
 
 class TestPackgeConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "VirtualBuildEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain"
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
@@ -35,5 +34,5 @@ class TestPackgeConan(ConanFile):
 
         # INFO: Run the project that was built using Android NDK
         if self.settings.os == "Android":
-            test_file = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            test_file = os.path.join(self.cpp.build.bindir, "test_package")
             assert os.path.exists(test_file)

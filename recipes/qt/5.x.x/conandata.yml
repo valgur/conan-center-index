@@ -43,8 +43,7 @@ patches:
       "patch_source": "https://codereview.qt-project.org/c/qt/qtbase/+/503916"
       "patch_type": "portability"
     - "base_path": "qt5/qtbase"
-      "patch_description": "Fix usage of memory_resource with apple-clang>=15 and deployment\
-        \ target of macOS < 14"
+      "patch_description": "Fix usage of memory_resource with apple-clang>=15 and deployment target of macOS < 14"
       "patch_file": "patches/5.15.12-fix-macos-cpp-lib-memory-resource.patch"
       "patch_source": "https://codereview.qt-project.org/c/qt/qtbase/+/482392"
       "patch_type": "portability"

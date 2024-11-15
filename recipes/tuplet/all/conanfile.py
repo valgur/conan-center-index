@@ -29,14 +29,12 @@ class TupletConan(ConanFile):
         if self._min_cppstd == "20":
             return {
                 "gcc": "11",
-                "Visual Studio": "17",
                 "msvc": "193",
                 "clang": "13",
                 "apple-clang": "13"
             }
         return {
             "gcc": "8",
-            "Visual Studio": "16",
             "msvc": "192",
             "clang": "7",
             "apple-clang": "12"
@@ -49,8 +47,7 @@ class TupletConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]

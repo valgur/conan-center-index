@@ -40,8 +40,7 @@ class CpphttplibConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -69,7 +68,3 @@ class CpphttplibConan(ConanFile):
             self.cpp_info.system_libs = ["pthread"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["crypt32", "cryptui", "ws2_32"]
-
-        # TODO: to remove in conan v2 once legacy generators removed
-        self.cpp_info.names["cmake_find_package"] = "httplib"
-        self.cpp_info.names["cmake_find_package_multi"] = "httplib"

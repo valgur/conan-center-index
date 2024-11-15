@@ -31,7 +31,6 @@ class FoonathanLexyConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "8",
             "clang": "7",
@@ -46,8 +45,7 @@ class FoonathanLexyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -94,11 +92,3 @@ class FoonathanLexyConan(ConanFile):
         self.cpp_info.components["lexy_unicode"].defines.append("LEXY_HAS_UNICODE_DATABASE=1")
 
         self.cpp_info.components["lexy_ext"].set_property("cmake_target_name", "lexy::lexy_ext")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "lexy"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "lexy"
-        self.cpp_info.names["cmake_find_package"] = "foonathan"
-        self.cpp_info.names["cmake_find_package_multi"] = "foonathan"
-        self.cpp_info.components["foonathan"].names["cmake_find_package"] = "lexy"
-        self.cpp_info.components["foonathan"].names["cmake_find_package_multi"] = "lexy"

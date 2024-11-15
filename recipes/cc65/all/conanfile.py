@@ -141,10 +141,3 @@ class Cc65Conan(ConanFile):
         self.buildenv_info.define_path("CC65", os.path.join(bindir, "cc65" + bin_ext))
         self.buildenv_info.define_path("AS65", os.path.join(bindir, "ca65" + bin_ext))
         self.buildenv_info.define_path("LD65", os.path.join(bindir, "cl65" + bin_ext))
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        self.env_info.PATH.append(bindir)
-        self.env_info.CC65_HOME = os.path.join(self.package_folder, "bin", "share", "cc65")
-        self.env_info.CC65 = os.path.join(bindir, "cc65" + bin_ext)
-        self.env_info.AS65 = os.path.join(bindir, "ca65" + bin_ext)
-        self.env_info.LD65 = os.path.join(bindir, "cl65" + bin_ext)

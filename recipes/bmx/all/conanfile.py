@@ -55,8 +55,7 @@ class BmxConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         # Symbol export is currently not working properly on Windows so shared
         # libraries are currently deactivated. This can later be revisited based
@@ -99,16 +98,11 @@ class BmxConan(ConanFile):
     def _add_component(self, name):
         component = self.cpp_info.components[self._conan_comp(name)]
         component.set_property("cmake_target_name", f"bmx::{name}")
-        component.names["cmake_find_package"] = name
-        component.names["cmake_find_package_multi"] = name
         return component
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "bmx")
         self.cpp_info.set_property("pkg_config_name", "bmx")
-
-        self.cpp_info.names["cmake_find_package"] = "bmx"
-        self.cpp_info.names["cmake_find_package_multi"] = "bmx"
 
         # bbc-bmx::MXF
         libmxf = self._add_component("MXF")

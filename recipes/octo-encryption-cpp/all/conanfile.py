@@ -29,7 +29,6 @@ class OctoEncryptionCPPConan(ConanFile):
             "gcc": "8",
             "clang": "9",
             "apple-clang": "11",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -40,8 +39,7 @@ class OctoEncryptionCPPConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
     def validate(self):
-        if self.info.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
         if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -83,8 +81,3 @@ class OctoEncryptionCPPConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "octo::octo-encryption-cpp")
         self.cpp_info.set_property("pkg_config_name", "octo-encryption-cpp")
         self.cpp_info.requires = ["openssl::openssl"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "octo-encryption-cpp"
-        self.cpp_info.names["cmake_find_package_multi"] = "octo-encryption-cpp"
-        self.cpp_info.names["pkg_config"] = "octo-encryption-cpp"

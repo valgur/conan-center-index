@@ -35,8 +35,7 @@ class PicobenchConan(ConanFile):
             self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -61,12 +60,6 @@ class PicobenchConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        if self.options.with_cli:
-            # TODO: Legacy, to be removed on Conan 2.0
-            binpath = os.path.join(self.package_folder, "bin")
-            self.output.info("Appending PATH env var: {}".format(binpath))
-            self.env_info.PATH.append(binpath)
-        else:
-            self.cpp_info.bindirs = []
-
         self.cpp_info.libdirs = []
+        if not self.options.with_cli:
+            self.cpp_info.bindirs = []

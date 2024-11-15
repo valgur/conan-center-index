@@ -4,8 +4,6 @@ import re
 import shutil
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -58,18 +56,11 @@ class PremakeConan(ConanFile):
     @property
     def _ide_version(self):
         compiler_version = str(self.settings.compiler.version)
-        if str(self.settings.compiler) == "Visual Studio":
-            return {"17": "2022",
-                    "16": "2019",
-                    "15": "2017",
-                    "14": "2015",
-                    "12": "2013"}.get(compiler_version)
-        else:
-            return {"193": "2022",
-                    "192": "2019",
-                    "191": "2017",
-                    "190": "2015",
-                    "180": "2013"}.get(compiler_version)
+        return {"193": "2022",
+                "192": "2019",
+                "191": "2017",
+                "190": "2015",
+                "180": "2013"}.get(compiler_version)
 
     @property
     def _msvc_build_dir(self):
@@ -163,7 +154,3 @@ class PremakeConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bindir = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bindir)

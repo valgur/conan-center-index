@@ -81,17 +81,8 @@ class WildmidiConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "WildMidi::libwildmidi")
         self.cpp_info.set_property("pkg_config_name", "wildmidi")
 
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["libwildmidi"].libs = [libname]
+        self.cpp_info.libs = [libname]
         if not self.options.shared:
-            self.cpp_info.components["libwildmidi"].defines = ["WILDMIDI_STATIC"]
+            self.cpp_info.defines = ["WILDMIDI_STATIC"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["libwildmidi"].system_libs.append("m")
-
-        # TODO: remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "WildMidi"
-        self.cpp_info.names["cmake_find_package_multi"] = "WildMidi"
-        self.cpp_info.components["libwildmidi"].names["cmake_find_package"] = "libwildmidi"
-        self.cpp_info.components["libwildmidi"].names["cmake_find_package_multi"] = "libwildmidi"
-        self.cpp_info.components["libwildmidi"].set_property("cmake_target_name", "WildMidi::libwildmidi")
-        self.cpp_info.components["libwildmidi"].set_property("pkg_config_name", "wildmidi")
+            self.cpp_info.system_libs.append("m")

@@ -34,7 +34,6 @@ class OpenXlsxConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "9",
             "clang": "9",
@@ -53,8 +52,7 @@ class OpenXlsxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -105,9 +103,3 @@ class OpenXlsxConan(ConanFile):
             self.cpp_info.system_libs.append("m")
             self.cpp_info.system_libs.append("pthread")
             self.cpp_info.system_libs.append("dl")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "OpenXLSX"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "OpenXLSX"
-        self.cpp_info.names["cmake_find_package"] = "OpenXLSX"
-        self.cpp_info.names["cmake_find_package_multi"] = "OpenXLSX"

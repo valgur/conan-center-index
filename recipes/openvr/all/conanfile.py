@@ -52,8 +52,7 @@ class OpenvrConan(ConanFile):
         self.requires("jsoncpp/1.9.5", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(
                 f"OpenVR can't be compiled by {self.settings.compiler} {self.settings.compiler.version}"

@@ -1,7 +1,6 @@
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration, ConanException
 import os
-import textwrap
 
 required_conan_version = ">=1.33.0"
 
@@ -54,7 +53,7 @@ class MagnumConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "shared_plugins": True,
-        
+
         "assimp_importer": True,
         "basis_imageconverter": False,
         "basis_importer": False,
@@ -135,7 +134,7 @@ class MagnumConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-    
+
     def requirements(self):
         self.requires("magnum/{}".format(self.version))
         if self.options.assimp_importer:
@@ -161,8 +160,7 @@ class MagnumConan(ConanFile):
         self.build_requires("corrade/{}".format(self.version))
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            tools.check_min_cppstd(self, 11)
+        tools.check_min_cppstd(self, 11)
 
         if not self.options["magnum"].trade:
             raise ConanInvalidConfiguration("Magnum Trade is required")
@@ -235,7 +233,7 @@ class MagnumConan(ConanFile):
                     f.write(textwrap.dedent("""\
                         if(NOT ${{CMAKE_VERSION}} VERSION_LESS "3.0")
                             if(TARGET MagnumPlugins::{target})
-                                set_target_properties(MagnumPlugins::{target} PROPERTIES INTERFACE_SOURCES 
+                                set_target_properties(MagnumPlugins::{target} PROPERTIES INTERFACE_SOURCES
                                                     "${{CMAKE_CURRENT_LIST_DIR}}/../../include/MagnumPlugins/{library}/importStaticPlugin.cpp")
                             endif()
                         endif()
@@ -246,15 +244,11 @@ class MagnumConan(ConanFile):
         self.copy("COPYING", src=self._source_subfolder, dst="licenses")
 
     def package_info(self):
-        self.cpp_info.names["cmake_find_package"] = "MagnumPlugins"
-        self.cpp_info.names["cmake_find_package_multi"] = "MagnumPlugins"
 
         magnum_plugin_libdir = "magnum-d" if self.settings.build_type == "Debug" and self.options.shared_plugins else "magnum"
         plugin_lib_suffix = "-d" if self.settings.build_type == "Debug" and not self.options.shared_plugins else ""
         lib_suffix = "-d" if self.settings.build_type == "Debug" else ""
 
-        self.cpp_info.components["magnumopenddl"].names["cmake_find_package"] = "MagnumOpenDdl"
-        self.cpp_info.components["magnumopenddl"].names["cmake_find_package_multi"] = "MagnumOpenDdl"
         self.cpp_info.components["magnumopenddl"].libs = ["MagnumOpenDdl{}".format(lib_suffix)]
         self.cpp_info.components["magnumopenddl"].requires = ["magnum::magnum"]
 
@@ -272,19 +266,14 @@ class MagnumConan(ConanFile):
             raise ConanException("Component not defined, please contribute it to the Conan recipe")
 
         # The global target doesn't provide anything in this package. Null it.
-        self.cpp_info.components["_global_target"].names["cmake_find_package"] = "MagnumPlugins"
-        self.cpp_info.components["_global_target"].names["cmake_find_package_multi"] = "MagnumPlugins"
-        self.cpp_info.components["_global_target"].build_modules["cmake_find_package"].append(os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake"))
 
         # Add all the plugins
         for component, target, library, folder, deps in self._plugins:
-            self.cpp_info.components[component].names["cmake_find_package"] = target
-            self.cpp_info.components[component].names["cmake_find_package_multi"] = target
             self.cpp_info.components[component].libs = ["{}{}".format(library, plugin_lib_suffix)]
             self.cpp_info.components[component].libdirs = [os.path.join(self.package_folder, "lib", magnum_plugin_libdir, folder)]
             self.cpp_info.components[component].requires = deps
             if not self.options.shared_plugins:
-                self.cpp_info.components[component].build_modules.append(os.path.join("lib", "cmake", "conan-magnum-plugins-{}.cmake".format(component)))
+                self.cpp_info.components[component].build_modules.append(os.path.join("lib", "cmake", f"conan-magnum-plugins-{component}.cmake"))
         plugin_dir = "bin" if self.settings.os == "Windows" else "lib"
         self.user_info.plugins_basepath = os.path.join(self.package_folder, plugin_dir, magnum_plugin_libdir)
 
@@ -292,32 +281,32 @@ class MagnumConan(ConanFile):
     def _plugins(self):
         #   (opt_name, (component, target, library, folder, deps))
         all_plugins = (
-            ("assimp_importer", ("assimp_importer", "AssimpImporter", "AssimpImporter", "importers", ["magnum::trade", "assimp::assimp"])), 
-            ("basis_imageconverter", ("basis_imageconverter", "--", "--", "--", [])), 
-            ("basis_importer", ("basis_importer", "--", "--", "--", [])), 
-            ("dds_importer", ("dds_importer", "DdsImporter", "DdsImporter", "importers", ["magnum::trade"])), 
-            ("devil_imageimporter", ("devil_imageimporter", "--", "--", "--", [])), 
-            ("drflac_audioimporter", ("drflac_audioimporter", "DrFlacAudioImporter", "DrFlacAudioImporter", "audioimporters", ["magnum::audio"])), 
-            ("drmp3_audioimporter", ("drmp3_audioimporter", "DrMp3AudioImporter", "DrMp3AudioImporter", "audioimporters", ["magnum::audio"])), 
-            ("drwav_audioimporter", ("drwav_audioimporter", "DrWavAudioImporter", "DrWavAudioImporter", "audioimporters", ["magnum::audio"])), 
-            ("faad2_audioimporter", ("faad2_audioimporter", "--", "--", "--", [])), 
-            ("freetype_font", ("freetype_font", "FreeTypeFont", "FreeTypeFont", "fonts", ["magnum::text", "freetype::freetype"])), 
-            ("harfbuzz_font", ("harfbuzz_font", "HarfBuzzFont", "HarfBuzzFont", "fonts", ["magnum::text", "harfbuzz::harfbuzz"])), 
-            ("jpeg_imageconverter", ("jpeg_imageconverter", "JpegImageConverter", "JpegImageConverter", "imageconverters", ["magnum::trade", "libjpeg::libjpeg"])), 
-            ("jpeg_importer", ("jpeg_importer", "JpegImporter", "JpegImporter", "importers", ["magnum::trade", "libjpeg::libjpeg"])), 
-            ("meshoptimizer_sceneconverter", ("meshoptimizer_sceneconverter", "MeshOptimizerSceneConverter", "MeshOptimizerSceneConverter", "sceneconverters", ["magnum::trade", "magnum::mesh_tools", "meshoptimizer::meshoptimizer"])), 
-            ("miniexr_imageconverter", ("miniexr_imageconverter", "MiniExrImageConverter", "MiniExrImageConverter", "imageconverters", ["magnum::trade"])), 
-            ("opengex_importer", ("opengex_importer", "OpenGexImporter", "OpenGexImporter", "importers", ["magnum::trade", "magnumopenddl", "magnum::any_image_importer"])), 
-            ("png_importer", ("png_importer", "PngImporter", "PngImporter", "importers", ["magnum::trade", "libpng::libpng"])), 
-            ("png_imageconverter", ("png_imageconverter", "PngImageConverter", "PngImageConverter", "imageconverters", ["magnum::trade"])), 
-            ("primitive_importer", ("primitive_importer", "PrimitiveImporter", "PrimitiveImporter", "importers", ["magnum::primitives", "magnum::trade"])), 
-            ("stanford_importer", ("stanford_importer", "StanfordImporter", "StanfordImporter", "importers", ["magnum::mesh_tools", "magnum::trade"])), 
-            ("stanford_sceneconverter", ("stanford_sceneconverter", "StanfordSceneConverter", "StanfordSceneConverter", "sceneconverters", ["magnum::mesh_tools", "magnum::trade"])), 
-            ("stb_imageconverter", ("stb_imageconverter", "StbImageConverter", "StbImageConverter", "imageconverters", ["magnum::trade"])), 
-            ("stb_imageimporter", ("stb_imageimporter", "StbImageImporter", "StbImageImporter", "importers", ["magnum::trade"])), 
-            ("stbtruetype_font", ("stbtruetype_font", "StbTrueTypeFont", "StbTrueTypeFont", "fonts", ["magnum::text"])), 
-            ("stbvorbis_audioimporter", ("stbvorbis_audioimporter", "StbVorbisAudioImporter", "StbVorbisAudioImporter", "audioimporters", ["magnum::audio"])), 
-            ("tinygltf_importer", ("tinygltf_importer", "TinyGltfImporter", "TinyGltfImporter", "importers", ["magnum::trade", "magnum::any_image_importer"])), 
-            ("stl_importer", ("stl_importer", "StlImporter", "StlImporter", "importers", ["magnum::mesh_tools", "magnum::trade"])), 
+            ("assimp_importer", ("assimp_importer", "AssimpImporter", "AssimpImporter", "importers", ["magnum::trade", "assimp::assimp"])),
+            ("basis_imageconverter", ("basis_imageconverter", "--", "--", "--", [])),
+            ("basis_importer", ("basis_importer", "--", "--", "--", [])),
+            ("dds_importer", ("dds_importer", "DdsImporter", "DdsImporter", "importers", ["magnum::trade"])),
+            ("devil_imageimporter", ("devil_imageimporter", "--", "--", "--", [])),
+            ("drflac_audioimporter", ("drflac_audioimporter", "DrFlacAudioImporter", "DrFlacAudioImporter", "audioimporters", ["magnum::audio"])),
+            ("drmp3_audioimporter", ("drmp3_audioimporter", "DrMp3AudioImporter", "DrMp3AudioImporter", "audioimporters", ["magnum::audio"])),
+            ("drwav_audioimporter", ("drwav_audioimporter", "DrWavAudioImporter", "DrWavAudioImporter", "audioimporters", ["magnum::audio"])),
+            ("faad2_audioimporter", ("faad2_audioimporter", "--", "--", "--", [])),
+            ("freetype_font", ("freetype_font", "FreeTypeFont", "FreeTypeFont", "fonts", ["magnum::text", "freetype::freetype"])),
+            ("harfbuzz_font", ("harfbuzz_font", "HarfBuzzFont", "HarfBuzzFont", "fonts", ["magnum::text", "harfbuzz::harfbuzz"])),
+            ("jpeg_imageconverter", ("jpeg_imageconverter", "JpegImageConverter", "JpegImageConverter", "imageconverters", ["magnum::trade", "libjpeg::libjpeg"])),
+            ("jpeg_importer", ("jpeg_importer", "JpegImporter", "JpegImporter", "importers", ["magnum::trade", "libjpeg::libjpeg"])),
+            ("meshoptimizer_sceneconverter", ("meshoptimizer_sceneconverter", "MeshOptimizerSceneConverter", "MeshOptimizerSceneConverter", "sceneconverters", ["magnum::trade", "magnum::mesh_tools", "meshoptimizer::meshoptimizer"])),
+            ("miniexr_imageconverter", ("miniexr_imageconverter", "MiniExrImageConverter", "MiniExrImageConverter", "imageconverters", ["magnum::trade"])),
+            ("opengex_importer", ("opengex_importer", "OpenGexImporter", "OpenGexImporter", "importers", ["magnum::trade", "magnumopenddl", "magnum::any_image_importer"])),
+            ("png_importer", ("png_importer", "PngImporter", "PngImporter", "importers", ["magnum::trade", "libpng::libpng"])),
+            ("png_imageconverter", ("png_imageconverter", "PngImageConverter", "PngImageConverter", "imageconverters", ["magnum::trade"])),
+            ("primitive_importer", ("primitive_importer", "PrimitiveImporter", "PrimitiveImporter", "importers", ["magnum::primitives", "magnum::trade"])),
+            ("stanford_importer", ("stanford_importer", "StanfordImporter", "StanfordImporter", "importers", ["magnum::mesh_tools", "magnum::trade"])),
+            ("stanford_sceneconverter", ("stanford_sceneconverter", "StanfordSceneConverter", "StanfordSceneConverter", "sceneconverters", ["magnum::mesh_tools", "magnum::trade"])),
+            ("stb_imageconverter", ("stb_imageconverter", "StbImageConverter", "StbImageConverter", "imageconverters", ["magnum::trade"])),
+            ("stb_imageimporter", ("stb_imageimporter", "StbImageImporter", "StbImageImporter", "importers", ["magnum::trade"])),
+            ("stbtruetype_font", ("stbtruetype_font", "StbTrueTypeFont", "StbTrueTypeFont", "fonts", ["magnum::text"])),
+            ("stbvorbis_audioimporter", ("stbvorbis_audioimporter", "StbVorbisAudioImporter", "StbVorbisAudioImporter", "audioimporters", ["magnum::audio"])),
+            ("tinygltf_importer", ("tinygltf_importer", "TinyGltfImporter", "TinyGltfImporter", "importers", ["magnum::trade", "magnum::any_image_importer"])),
+            ("stl_importer", ("stl_importer", "StlImporter", "StlImporter", "importers", ["magnum::mesh_tools", "magnum::trade"])),
             )
         return [plugin for opt_name, plugin in all_plugins if self.options.get_safe(opt_name)]

@@ -31,7 +31,6 @@ class JsonDtoConan(ConanFile):
             "gcc": "5",
             "clang": "4",
             "apple-clang": "8",
-            "Visual Studio": "14",
             "msvc": "190",
         }
 
@@ -45,8 +44,7 @@ class JsonDtoConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -76,5 +74,3 @@ class JsonDtoConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "json-dto")
         self.cpp_info.set_property("cmake_target_name", "json-dto::json-dto")
-        self.cpp_info.names["cmake_find_package"] = "json-dto"
-        self.cpp_info.names["cmake_find_package_multi"] = "json-dto"

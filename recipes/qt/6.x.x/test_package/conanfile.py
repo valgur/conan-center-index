@@ -3,14 +3,12 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, cmake_layout
-from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy, save
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualBuildEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     def layout(self):
         cmake_layout(self)
@@ -20,19 +18,18 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         if not can_run(self):
-            self.tool_requires(self.tested_reference_str)
+            self.tool_requires("qt/<host_version>")
 
     def generate(self):
         path = self.dependencies["qt"].package_folder.replace("\\", "/")
         save(self, "qt.conf", f"[Paths]\nPrefix = {path}\n")
 
-        VirtualRunEnv(self).generate()
-        if can_run(self):
-            VirtualRunEnv(self).generate(scope="build")
-
     @property
     def _can_build(self):
-        qt = self.dependencies["qt"]
+        if can_run(self):
+            qt = self.dependencies["qt"]
+        else:
+            qt = self.dependencies.build["qt"]
         return qt.options.gui and qt.options.widgets
 
     def build(self):

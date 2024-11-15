@@ -26,7 +26,6 @@ class GaiaConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "10",
             "clang": "7.0",
@@ -41,8 +40,7 @@ class GaiaConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -63,12 +61,8 @@ class GaiaConan(ConanFile):
     def package_info(self):
         if self.settings.os in ["FreeBSD", "Linux"]:
             self.cpp_info.system_libs = ["pthread"]
-        
+
         self.cpp_info.set_property("cmake_file_name", "gaia")
         self.cpp_info.set_property("cmake_target_name", "gaia::gaia")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: remove when v1 support drops
-        self.cpp_info.names["cmake_find_package"] = "gaia"
-        self.cpp_info.names["cmake_find_package_multi"] = "gaia"

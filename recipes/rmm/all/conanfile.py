@@ -30,7 +30,6 @@ class RmmConan(ConanFile):
     def _compilers_minimum_version(self):
         # Based partially on https://github.com/rapidsai/rmm/tree/v23.06.00#get-rmm-dependencies
         return {
-            "Visual Studio": "15",
             "msvc": "191",
             "gcc": "9.3",
             "clang": "8",
@@ -49,8 +48,7 @@ class RmmConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def lazy_lt_semver(v1, v2):
             # Needed to allow version "9" >= "9.3" for gcc

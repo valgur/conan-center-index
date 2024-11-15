@@ -34,7 +34,6 @@ class PatchElfConan(ConanFile):
                 "gcc": "8",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
         }.get(self._min_cppstd, {})
@@ -49,8 +48,7 @@ class PatchElfConan(ConanFile):
         if not is_apple_os(self) and self.settings.os not in ("FreeBSD", "Linux"):
             raise ConanInvalidConfiguration(f"{self.ref} is only available for GNU-like operating systems (e.g. Linux)")
 
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -94,7 +92,3 @@ class PatchElfConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bin_path))
-        self.env_info.PATH.append(bin_path)

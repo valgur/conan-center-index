@@ -130,9 +130,3 @@ class SdlttfConan(ConanFile):
             self.cpp_info.components["_sdl2_ttf"].frameworks = [
                 "AppKit", "CoreGraphics", "CoreFoundation", "CoreServices"
         ]
-
-        # TODO: to remove in conan v2
-        self.cpp_info.names["cmake_find_package"] = "SDL2_ttf"
-        self.cpp_info.names["cmake_find_package_multi"] = "SDL2_ttf"
-        self.cpp_info.components["_sdl2_ttf"].names["cmake_find_package"] = f"SDL2_ttf{suffix}"
-        self.cpp_info.components["_sdl2_ttf"].names["cmake_find_package_multi"] = f"SDL2_ttf{suffix}"

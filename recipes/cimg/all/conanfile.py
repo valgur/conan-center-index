@@ -3,7 +3,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -182,8 +181,7 @@ class CImgConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, "11")
+        check_min_cppstd(self, "11")
 
         if not self.options.get_safe("enable_display"):
             if self.options.get_safe("enable_xrandr") or self.options.get_safe("enable_xshm"):
@@ -268,8 +266,3 @@ class CImgConan(ConanFile):
 
         if self.settings.os == "Windows" and self.options.enable_display:
             self.cpp_info.system_libs.append("gdi32")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        #       do not use this name in CMakeDeps, it was a mistake, there is no official CMake config file
-        self.cpp_info.names["cmake_find_package"] = "CImg"
-        self.cpp_info.names["cmake_find_package_multi"] = "CImg"

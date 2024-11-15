@@ -1,9 +1,9 @@
 import re
 from pathlib import Path
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file, rename, rm, rmdir, save
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file, rename, rm, rmdir
 from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, is_msvc, check_min_vs, vs_layout
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -44,10 +44,6 @@ class LibdbConan(ConanFile):
     def _mingw_build(self):
         return self.settings.compiler == "gcc" and self.settings.os == "Windows"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -84,7 +80,7 @@ class LibdbConan(ConanFile):
                 raise ConanInvalidConfiguration(f"{self.ref} does not support apple-clang<10 with_cxx=True")
 
     def build_requirements(self):
-        if not self._settings_build.os == "Windows":
+        if not self.settings_build.os == "Windows":
             self.tool_requires("gnu-config/cci.20201022")
 
     def layout(self):
@@ -233,11 +229,10 @@ class LibdbConan(ConanFile):
                 projects.append("db_tcl")
             for project in projects:
                 project_file = os.path.join(self.source_folder, "build_windows", "VS10", f"{project}.vcxproj")
-                build_type = "{}{}".format(
+                msbuild.build_type = "{}{}".format(
                     "" if self.options.shared else "Static ",
                     "Debug" if self.settings.build_type == "Debug" else "Release",
                 )
-                msbuild.build_type = build_type if Version(conan_version).major >= 2 else f"\"{build_type}\""
                 msbuild.platform = "Win32" if self.settings.arch == "x86" else msbuild.platform
                 msbuild.build(sln=project_file)
         else:

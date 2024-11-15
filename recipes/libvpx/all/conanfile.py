@@ -40,10 +40,6 @@ class LibVPXConan(ConanFile):
     options.update({name: [True, False] for name in _arch_options})
     default_options.update({name: 'avx' not in name for name in _arch_options})
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -68,7 +64,7 @@ class LibVPXConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if str(self.settings.compiler) not in ["Visual Studio", "msvc", "gcc", "clang", "apple-clang"]:
+        if str(self.settings.compiler) not in ["msvc", "gcc", "clang", "apple-clang"]:
             raise ConanInvalidConfiguration(f"Unsupported compiler {self.settings.compiler}")
         if self.settings.os == "Macos" and self.settings.arch == "armv8" and Version(self.version) < "1.10.0":
             raise ConanInvalidConfiguration("M1 only supported since 1.10, please upgrade")
@@ -77,7 +73,7 @@ class LibVPXConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("yasm/1.3.0")
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -101,10 +97,7 @@ class LibVPXConan(ConanFile):
                 'sparc': 'sparc'}.get(str(self.settings.arch))
         compiler = str(self.settings.compiler)
         os_name = str(self.settings.os)
-        if str(self.settings.compiler) == "Visual Studio":
-            vc_version = self.settings.compiler.version
-            compiler = f"vs{vc_version}"
-        elif is_msvc(self):
+        if is_msvc(self):
             vc_version = str(self.settings.compiler.version)
             vc_version = {"170": "11", "180": "12", "190": "14", "191": "15", "192": "16", "193": "17", "194": "17"}[vc_version]
             compiler = f"vs{vc_version}"

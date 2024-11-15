@@ -28,7 +28,6 @@ class CppSortConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "apple-clang": "9.4",
             "clang": "3.8",
@@ -42,8 +41,7 @@ class CppSortConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if is_msvc(self) and Version(self.version) < "1.10.0":
             raise ConanInvalidConfiguration(f"{self.ref} versions older than 1.10.0 do not support MSVC")

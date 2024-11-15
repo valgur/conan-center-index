@@ -42,7 +42,6 @@ class Clipper2Conan(ConanFile):
             "gcc": "8",
             "clang": "7",
             "apple-clang": "12",
-            "Visual Studio": "16",
             "msvc": "192",
         }
 
@@ -65,8 +64,7 @@ class Clipper2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -88,7 +86,7 @@ class Clipper2Conan(ConanFile):
         if "with_max_precision" in self.options:
             tc.variables["CLIPPER2_MAX_PRECISION"] = self.options.with_max_precision
         tc.generate()
-    
+
     def _patch_sources(self):
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "CPP", "CMakeLists.txt"), "-Werror", "")

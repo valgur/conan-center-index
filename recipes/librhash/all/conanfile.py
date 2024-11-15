@@ -30,10 +30,6 @@ class LibRHashConan(ConanFile):
         "with_openssl": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src", "librhash"))
 
@@ -87,7 +83,3 @@ class LibRHashConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "librhash")
         self.cpp_info.libs = ["rhash"]
         self.cpp_info.defines.append(f"RHASH_XVERSION={self._xversion}")
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "LibRHash"
-        self.cpp_info.names["cmake_find_package_multi"] = "LibRHash"

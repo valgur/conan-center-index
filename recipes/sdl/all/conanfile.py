@@ -78,7 +78,7 @@ class SDLConan(ConanFile):
         "vulkan": True,
         "libunwind": True,
     }
-    generators = "CMakeDeps", "PkgConfigDeps", "VirtualBuildEnv"
+    generators = "CMakeDeps", "PkgConfigDeps"
 
     @property
     def _is_clang_cl(self):
@@ -182,7 +182,7 @@ class SDLConan(ConanFile):
         self.tool_requires("cmake/[>3.27 <4]")
         if self.settings.os == "Linux" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if hasattr(self, "settings_build") and self.options.get_safe("wayland"):
+        if self.options.get_safe("wayland"):
             self.build_requires("wayland/1.22.0")  # Provides wayland-scanner
 
     def source(self):
@@ -304,7 +304,7 @@ class SDLConan(ConanFile):
                 cmake_extra_ldflags += ["-L{}".format(it) for it in self.dependencies["wayland"].cpp_info.libdirs]
                 tc.variables["SDL_WAYLAND_SHARED"] = self.dependencies["wayland"].options.shared
 
-                wayland = self.dependencies["wayland"] if not hasattr(self, "settings_build") else self.dependencies.build["wayland"]
+                wayland = self.dependencies.build["wayland"]
                 wayland_bin_dir = wayland.cpp_info.bindirs[0] # for wayland scanner
                 tc.variables["WAYLAND_BIN_DIR"] = wayland_bin_dir
 
@@ -355,9 +355,6 @@ class SDLConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "SDL2")
 
-        self.cpp_info.names["cmake_find_package"] = "SDL2"
-        self.cpp_info.names["cmake_find_package_multi"] = "SDL2"
-
         postfix = "d" if self.settings.os != "Android" and self.settings.build_type == "Debug" else ""
 
         # SDL2
@@ -369,11 +366,6 @@ class SDLConan(ConanFile):
         if not self.options.shared:
             self.cpp_info.components["libsdl2"].set_property("cmake_target_aliases", ["SDL2::SDL2-static"])
         self.cpp_info.components["libsdl2"].set_property("pkg_config_name", "sdl2")
-
-        sdl2_cmake_target = "SDL2" if self.options.shared else "SDL2-static"
-        self.cpp_info.components["libsdl2"].names["cmake_find_package"] = sdl2_cmake_target
-        self.cpp_info.components["libsdl2"].names["cmake_find_package_multi"] = sdl2_cmake_target
-
         self.cpp_info.components["libsdl2"].includedirs.append(os.path.join("include", "SDL2"))
         self.cpp_info.components["libsdl2"].libs = ["SDL2" + lib_postfix]
         if self.options.get_safe("iconv", False):
@@ -418,7 +410,15 @@ class SDLConan(ConanFile):
                 "AVFoundation", "Foundation", "QuartzCore",
             ]
             if self.settings.os == "Macos":
-                self.cpp_info.components["libsdl2"].frameworks.extend(["Cocoa", "Carbon", "IOKit", "ForceFeedback"])
+                self.cpp_info.components["libsdl2"].frameworks.extend([
+                    "Cocoa",
+                    "Carbon",
+                    "IOKit",
+                    "ForceFeedback",
+                    "CoreFoundation",
+                    "CoreServices",
+                    "AppKit"
+                ])
                 self.cpp_info.components["libsdl2"].frameworks.append("GameController")
             elif self.settings.os in ["iOS", "tvOS", "watchOS"]:
                 self.cpp_info.components["libsdl2"].frameworks.extend([
@@ -442,10 +442,6 @@ class SDLConan(ConanFile):
         # SDL2main
         if self.options.sdl2main:
             self.cpp_info.components["sdl2main"].set_property("cmake_target_name", "SDL2::SDL2main")
-
-            self.cpp_info.components["sdl2main"].names["cmake_find_package"] = "SDL2main"
-            self.cpp_info.components["sdl2main"].names["cmake_find_package_multi"] = "SDL2main"
-
             self.cpp_info.components["sdl2main"].libs = ["SDL2main" + postfix]
             self.cpp_info.components["sdl2main"].requires = ["libsdl2"]
 

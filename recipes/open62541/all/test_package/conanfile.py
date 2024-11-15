@@ -4,11 +4,9 @@ from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain
 import os
 
 
-# It will become the standard on Conan 2.x
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps"
 
     def requirements(self):
         self.requires(self.tested_reference_str)
@@ -23,6 +21,7 @@ class TestPackageConan(ConanFile):
             "user.ua-nodeset:nodeset_dir").replace("\\", "/")  # sanitize path for windows systems
         tc.variables["open62541_TOOLS_DIR"] = self.dependencies["open62541"].conf_info.get(
             "user.open62541:tools_dir")
+        tc.variables["UA_SCHEMA_DIR"] = os.path.join(self.dependencies["ua-nodeset"].conf_info.get("user.ua-nodeset:nodeset_dir"), "Schema").replace("\\", "/")
         tc.generate()
 
     def build(self):
@@ -32,5 +31,5 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")

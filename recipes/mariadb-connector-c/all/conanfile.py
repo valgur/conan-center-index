@@ -107,7 +107,6 @@ class MariadbConnectorcConan(ConanFile):
         apply_conandata_patches(self)
 
         root_cmake = os.path.join(self.source_folder, "CMakeLists.txt")
-        libmariadb_cmake = os.path.join(self.source_folder, "libmariadb", "CMakeLists.txt")
         replace_in_file(self,
             root_cmake,
             "SET(SSL_LIBRARIES ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})",
@@ -153,6 +152,3 @@ class MariadbConnectorcConan(ConanFile):
 
         plugin_dir = os.path.join(self.package_folder, "lib", "plugin").replace("\\", "/")
         self.runenv_info.prepend_path("MARIADB_PLUGIN_DIR", plugin_dir)
-
-        # TODO: to remove in conan v2
-        self.env_info.MARIADB_PLUGIN_DIR.append(plugin_dir)

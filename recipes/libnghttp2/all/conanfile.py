@@ -182,8 +182,5 @@ class Nghttp2Conan(ConanFile):
         if self.options.with_hpack:
             self.cpp_info.components["nghttp2_hpack"].requires = ["jansson::jansson"]
 
-        if self.options.with_app or self.options.with_hpack:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-
         # trick for internal conan usage to pick up in downsteam pc files the pc file including all libs components
         self.cpp_info.set_property("pkg_config_name", "libnghttp2_asio" if self.options.get_safe("with_asio") else "libnghttp2")

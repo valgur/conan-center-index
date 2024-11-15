@@ -24,10 +24,6 @@ class AutomakeConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -48,9 +44,8 @@ class AutomakeConan(ConanFile):
         del self.info.settings.build_type
 
     def build_requirements(self):
-        if hasattr(self, "settings_build"):
-            self.tool_requires("autoconf/2.72")
-        if self._settings_build.os == "Windows":
+        self.tool_requires("autoconf/2.72")
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -121,13 +116,7 @@ class AutomakeConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = ["res"]
 
-        # For consumers with new integrations (Conan 1 and 2 compatible):
         compile_wrapper = os.path.join(self._automake_libdir, "compile")
         lib_wrapper = os.path.join(self._automake_libdir, "ar-lib")
         self.conf_info.define("user.automake:compile-wrapper", compile_wrapper)
         self.conf_info.define("user.automake:lib-wrapper", lib_wrapper)
-
-        # For legacy Conan 1.x consumers only:
-        self.user_info.compile = compile_wrapper
-        self.user_info.ar_lib = lib_wrapper
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

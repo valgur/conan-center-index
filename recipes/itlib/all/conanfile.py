@@ -29,8 +29,7 @@ class ItlibConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

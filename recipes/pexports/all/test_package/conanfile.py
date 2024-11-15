@@ -9,8 +9,7 @@ from conan.tools.files import load
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)

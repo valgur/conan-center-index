@@ -102,20 +102,3 @@ class IgnitionCmakeConan(ConanFile):
         self.cpp_info.components["utilities"].set_property("cmake_target_name", f"{ign_cmake_component}::utilities")
         self.cpp_info.components["utilities"].builddirs.append(os.path.join(base_module_path, f"cmake{version_major}"))
         self.cpp_info.components["utilities"].includedirs.append(os.path.join("include", "ignition", f"cmake{version_major}"))
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = ign_cmake_component
-        self.cpp_info.names["cmake_find_package_multi"] = ign_cmake_component
-        self.cpp_info.names["cmake_paths"] = ign_cmake_component
-        self.cpp_info.components[ign_cmake_component].names["cmake_find_package"] = ign_cmake_component
-        self.cpp_info.components[ign_cmake_component].names["cmake_find_package_multi"] = ign_cmake_component
-        self.cpp_info.components[ign_cmake_component].names["cmake_paths"] = ign_cmake_component
-        self.cpp_info.components[ign_cmake_component].build_modules["cmake_find_package"] = [self._module_file_rel_path, ign_cmake_file]
-        self.cpp_info.components[ign_cmake_component].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path, ign_cmake_file]
-        self.cpp_info.components[ign_cmake_component].build_modules["cmake_paths"] = [self._module_file_rel_path, ign_cmake_file]
-        self.cpp_info.components["utilities"].names["cmake_find_package"] = "utilities"
-        self.cpp_info.components["utilities"].names["cmake_find_package_multi"] = "utilities"
-        self.cpp_info.components["utilities"].names["cmake_paths"] = "utilities"
-        self.cpp_info.components["utilities"].build_modules["cmake_find_package"] = [self._module_file_rel_path, ign_cmake_file, utils_targets_file]
-        self.cpp_info.components["utilities"].build_modules["cmake_find_package_multi"] = [self._module_file_rel_path, ign_cmake_file, utils_targets_file]
-        self.cpp_info.components["utilities"].build_modules["cmake_paths"] = [self._module_file_rel_path, ign_cmake_file, utils_targets_file]

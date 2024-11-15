@@ -8,7 +8,6 @@ from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
 
     def requirements(self):
         self.requires(self.tested_reference_str)

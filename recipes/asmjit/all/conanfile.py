@@ -49,8 +49,7 @@ class AsmjitConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         if self.version >= "cci.20240531":
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
@@ -86,9 +85,6 @@ class AsmjitConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "asmjit")
         self.cpp_info.set_property("cmake_target_name", "asmjit::asmjit")
-
-        self.cpp_info.names["cmake_find_package"] = "asmjit"
-        self.cpp_info.names["cmake_find_package_multi"] = "asmjit"
 
         self.cpp_info.libs = ["asmjit"]
         if not self.options.shared:

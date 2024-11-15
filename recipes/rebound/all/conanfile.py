@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building
 from conan.tools.files import chdir, copy, get, rm, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -21,10 +20,6 @@ class ReboundConan(ConanFile):
     package_type = "shared-library"
     # Scripts always compile with optimizations enabled
     settings = "os", "arch", "compiler"
-
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
 
     def export_sources(self):
         export_conandata_patches(self)

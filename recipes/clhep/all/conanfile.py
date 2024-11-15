@@ -45,8 +45,7 @@ class ClhepConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("CLHEP doesn't properly build its shared libs with Visual Studio")
 
@@ -112,19 +111,3 @@ class ClhepConan(ConanFile):
             self.cpp_info.components[conan_comp].libs = [lib_name]
             self.cpp_info.components[conan_comp].system_libs = system_libs
             self.cpp_info.components[conan_comp].requires = requires
-
-            # TODO: to remove in conan v2 once cmake_find_package* generators removed
-            self.cpp_info.components[conan_comp].names["cmake_find_package"] = cmake_target
-            self.cpp_info.components[conan_comp].names["cmake_find_package_multi"] = cmake_target
-            self.cpp_info.components[conan_comp].names["pkg_config"] = pkg_config_name
-            self.cpp_info.components["clheplib"].requires.append(conan_comp)
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "CLHEP"
-        self.cpp_info.names["cmake_find_package_multi"] = "CLHEP"
-        self.cpp_info.names["pkg_config"] = "clhep"
-        self.cpp_info.components["clheplib"].names["cmake_find_package"] = f"CLHEP{suffix}"
-        self.cpp_info.components["clheplib"].names["cmake_find_package_multi"] = f"CLHEP{suffix}"
-        self.cpp_info.components["clheplib"].set_property("cmake_target_name", f"CLHEP::CLHEP{suffix}")
-        self.cpp_info.components["clheplib"].names["pkg_config"] = "clhep"
-        self.cpp_info.components["clheplib"].set_property("pkg_config_name", "clhep")

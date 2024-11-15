@@ -39,7 +39,6 @@ class DispensoPackage(ConanFile):
             "clang": "7",
             "gcc": "7",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def config_options(self):
@@ -61,8 +60,7 @@ class DispensoPackage(ConanFile):
         self.requires("concurrentqueue/1.0.4", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -78,10 +76,6 @@ class DispensoPackage(ConanFile):
         if self.settings.os == "Windows":
             tc.preprocessor_definitions["NOMINMAX"] = 1
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = 1
-        if self.settings.get_safe("compiler.cppstd") is None:
-            # TODO: Remove once Conan 1 is deprecated, this is needed so apple-clang
-            # can compile, as it defaults to C++98
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

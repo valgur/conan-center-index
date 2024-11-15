@@ -31,10 +31,6 @@ class LibopingConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -63,7 +59,7 @@ class LibopingConan(ConanFile):
             raise ConanInvalidConfiguration("Liboping cannot be built on a Mac/M1 at this time")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -104,8 +100,3 @@ class LibopingConan(ConanFile):
             self.cpp_info.system_libs.append("m")
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.append("ws2_32")
-
-        # TODO: Legacy, to be removed on Conan 2.0
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info("Appending PATH environment variable: {}".format(bindir))
-        self.env_info.PATH.append(bindir)

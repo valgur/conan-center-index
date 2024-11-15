@@ -45,14 +45,12 @@ class CMakeConan(ConanFile):
             raise ConanInvalidConfiguration("CMake does not support bootstrapping on Windows")
 
         minimal_cpp_standard = "11"
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, minimal_cpp_standard)
+        check_min_cppstd(self, minimal_cpp_standard)
 
         minimal_version = {
             "gcc": "4.8",
             "clang": "3.3",
             "apple-clang": "9",
-            "Visual Studio": "14",
             "msvc": "190",
         }
 
@@ -105,8 +103,6 @@ class CMakeConan(ConanFile):
             tc = CMakeToolchain(self)
             # Disabling testing because CMake tests build can fail in Windows in some cases
             tc.variables["BUILD_TESTING"] = False
-            if not self.settings.compiler.cppstd:
-                tc.variables["CMAKE_CXX_STANDARD"] = 11
             tc.variables["CMAKE_BOOTSTRAP"] = False
             if self.settings.os == "Linux":
                 tc.variables["CMAKE_USE_OPENSSL"] = self.options.with_openssl
@@ -159,8 +155,3 @@ class CMakeConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        # Needed for compatibility with v1.x - Remove when 2.0 becomes the default
-        bindir = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bindir}")
-        self.env_info.PATH.append(bindir)

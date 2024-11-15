@@ -28,8 +28,7 @@ class ValijsonConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -50,14 +49,3 @@ class ValijsonConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ValiJSON::valijson")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        # self.cpp_info.filenames["cmake_find_package"] = "valijson" # TBA: There's no installed config file
-        # self.cpp_info.filenames["cmake_find_package_multi"] = "valijson" # TBA: There's no installed config file
-        self.cpp_info.names["cmake_find_package"] = "ValiJSON"
-        self.cpp_info.names["cmake_find_package_multi"] = "ValiJSON"
-        self.cpp_info.components["libvalijson"].names["cmake_find_package"] = "valijson"
-        self.cpp_info.components["libvalijson"].names["cmake_find_package_multi"] = "valijson"
-        self.cpp_info.components["libvalijson"].set_property("cmake_target_name", "ValiJSON::valijson")
-        self.cpp_info.components["libvalijson"].bindirs = []
-        self.cpp_info.components["libvalijson"].libdirs = []

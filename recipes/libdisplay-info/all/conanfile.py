@@ -30,10 +30,6 @@ class LibdisplayInfoConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _has_build_profile(self):
-        return getattr(self, "settings_build", None)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -48,16 +44,14 @@ class LibdisplayInfoConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        if not self._has_build_profile:
-            self.requires("hwdata/0.374")
+        self.requires("hwdata/0.374")
 
     def validate(self):
         if not self.settings.os in ["FreeBSD", "Linux"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}")
 
     def build_requirements(self):
-        if self._has_build_profile:
-            self.tool_requires("hwdata/0.374")
+        self.tool_requires("hwdata/0.374")
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
@@ -71,8 +65,7 @@ class LibdisplayInfoConan(ConanFile):
             tc.project_options["build.pkg_config_path"] = self.generators_folder
         tc.generate()
         pkg_config_deps = PkgConfigDeps(self)
-        if self._has_build_profile:
-            pkg_config_deps.build_context_activated = ["hwdata"]
+        pkg_config_deps.build_context_activated = ["hwdata"]
         pkg_config_deps.generate()
         virtual_build_env = VirtualBuildEnv(self)
         virtual_build_env.generate()

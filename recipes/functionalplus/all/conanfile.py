@@ -29,7 +29,6 @@ class FunctionalPlusConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "4.9",
-            "Visual Studio": "14",
             "msvc": "190",
             "clang": "3.7",
             "apple-clang": "9",
@@ -42,8 +41,7 @@ class FunctionalPlusConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
@@ -72,17 +70,5 @@ class FunctionalPlusConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["fplus"].system_libs = ["pthread"]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.names["cmake_find_package"] = "FunctionalPlus"
-        self.cpp_info.names["cmake_find_package_multi"] = "FunctionalPlus"
-        self.cpp_info.components["fplus"].names["cmake_find_package"] = "fplus"
-        self.cpp_info.components["fplus"].names["cmake_find_package_multi"] = "fplus"
-        self.cpp_info.components["fplus"].set_property("cmake_target_name", "FunctionalPlus::fplus")
-        self.cpp_info.components["fplus"].bindirs = []
-        self.cpp_info.components["fplus"].frameworkdirs = []
-        self.cpp_info.components["fplus"].libdirs = []
-        self.cpp_info.components["fplus"].resdirs = []
+            self.cpp_info.system_libs = ["pthread"]

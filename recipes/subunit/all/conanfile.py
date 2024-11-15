@@ -34,10 +34,6 @@ class SubunitConan(ConanFile):
     }
 
     @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
-    @property
     def _is_clang_cl(self):
         return self.settings.os == "Windows" and self.settings.compiler == "clang"
 
@@ -69,7 +65,7 @@ class SubunitConan(ConanFile):
             raise ConanInvalidConfiguration("Shared builds with apple-clang are not supported")
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -162,6 +158,3 @@ class SubunitConan(ConanFile):
         self.cpp_info.components["libcppunit_subunit"].libs = ["cppunit_subunit"]
         self.cpp_info.components["libcppunit_subunit"].requires = ["cppunit::cppunit"]
         self.cpp_info.components["libcppunit_subunit"].set_property("pkg_config_name", "libcppunit_subunit")
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bin_path)

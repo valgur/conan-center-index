@@ -59,8 +59,7 @@ class DBCpppConan(ConanFile):
         self.requires("boost/1.85.0")
 
     def validate(self):
-        if self.info.settings.compiler.cppstd:
-            check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, self._minimum_cpp_standard)
         check_min_vs(self, 191)
         if not is_msvc(self):
             minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
@@ -101,5 +100,3 @@ class DBCpppConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["libdbcppp"]
-        if self.options.with_tools:
-            self.env_info.path.append(os.path.join(self.package_folder, "bin"))

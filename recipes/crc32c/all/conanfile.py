@@ -42,8 +42,7 @@ class crc32cConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -73,13 +72,4 @@ class crc32cConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Crc32c")
         self.cpp_info.set_property("cmake_target_name", "Crc32c::crc32c")
-
-        # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["_crc32c"].libs = ["crc32c"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Crc32c"
-        self.cpp_info.names["cmake_find_package_multi"] = "Crc32c"
-        self.cpp_info.components["_crc32c"].names["cmake_find_package"] = "crc32c"
-        self.cpp_info.components["_crc32c"].names["cmake_find_package_multi"] = "crc32c"
-        self.cpp_info.components["_crc32c"].set_property("cmake_target_name", "Crc32c::crc32c")
+        self.cpp_info.libs = ["crc32c"]

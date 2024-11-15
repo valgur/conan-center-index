@@ -49,8 +49,7 @@ class FuseppConan(ConanFile):
         self.requires("libfuse/3.10.5", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
         if self.settings.compiler == "gcc":
             if Version(self.settings.compiler.version) < "6":
                 raise ConanInvalidConfiguration("gcc < 6 is unsupported")
@@ -81,7 +80,3 @@ class FuseppConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
-
-        # TODO: Remove after Conan 2.0
-        self.cpp_info.names["cmake_find_package"] = "fusepp"
-        self.cpp_info.names["cmake_find_package_multi"] = "fusepp"

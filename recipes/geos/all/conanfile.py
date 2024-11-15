@@ -42,7 +42,6 @@ class GeosConan(ConanFile):
                 "gcc": "6",
                 "clang": "5",
                 "apple-clang": "10",
-                "Visual Studio": "15",
                 "msvc": "191",
             },
         }.get(self._min_cppstd, {})
@@ -65,8 +64,7 @@ class GeosConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -121,10 +119,6 @@ class GeosConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "GEOS::geos_c")
         self.cpp_info.set_property("pkg_config_name", "geos")
 
-        self.cpp_info.filenames["cmake_find_package"] = "geos"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "geos"
-        self.cpp_info.names["cmake_find_package"] = "GEOS"
-        self.cpp_info.names["cmake_find_package_multi"] = "GEOS"
 
         # GEOS::geos_cxx_flags
         self.cpp_info.components["geos_cxx_flags"].set_property("cmake_target_name", "GEOS::geos_cxx_flags")
@@ -136,8 +130,6 @@ class GeosConan(ConanFile):
 
         # GEOS::geos
         self.cpp_info.components["geos_cpp"].set_property("cmake_target_name", "GEOS::geos")
-        self.cpp_info.components["geos_cpp"].names["cmake_find_package"] = "geos"
-        self.cpp_info.components["geos_cpp"].names["cmake_find_package_multi"] = "geos"
         self.cpp_info.components["geos_cpp"].libs = ["geos"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["geos_cpp"].system_libs.append("m")
@@ -151,6 +143,3 @@ class GeosConan(ConanFile):
         self.cpp_info.components["geos_c"].set_property("cmake_target_name", "GEOS::geos_c")
         self.cpp_info.components["geos_c"].libs = ["geos_c"]
         self.cpp_info.components["geos_c"].requires = ["geos_cpp"]
-
-        if self.options.utils:
-            self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

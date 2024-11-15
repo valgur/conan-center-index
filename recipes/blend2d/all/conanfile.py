@@ -49,8 +49,7 @@ class Blend2dConan(ConanFile):
             self.requires("asmjit/cci.20240531")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
         if Version(self.version) < "0.8":
             # In Visual Studio < 16, there are compilation error. patch is already provided.

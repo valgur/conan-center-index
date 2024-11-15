@@ -43,8 +43,7 @@ class RTTRConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -89,18 +88,8 @@ class RTTRConan(ConanFile):
         cmake_target = "Core" if self.options.shared else "Core_Lib"
         self.cpp_info.set_property("cmake_file_name", "rttr")
         self.cpp_info.set_property("cmake_target_name", f"RTTR::{cmake_target}")
-        # TODO: back to global scope in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.components["_rttr"].libs = collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["_rttr"].system_libs = ["dl", "pthread"]
+            self.cpp_info.system_libs = ["dl", "pthread"]
         if self.options.shared:
-            self.cpp_info.components["_rttr"].defines = ["RTTR_DLL"]
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "rttr"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "rttr"
-        self.cpp_info.names["cmake_find_package"] = "RTTR"
-        self.cpp_info.names["cmake_find_package_multi"] = "RTTR"
-        self.cpp_info.components["_rttr"].names["cmake_find_package"] = cmake_target
-        self.cpp_info.components["_rttr"].names["cmake_find_package_multi"] = cmake_target
-        self.cpp_info.components["_rttr"].set_property("cmake_target_name", f"RTTR::{cmake_target}")
+            self.cpp_info.defines = ["RTTR_DLL"]

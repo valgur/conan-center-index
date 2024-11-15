@@ -25,10 +25,6 @@ class BisonConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -54,7 +50,7 @@ class BisonConan(ConanFile):
             )
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -160,9 +156,3 @@ class BisonConan(ConanFile):
         # yacc is a shell script, so requires a shell (such as bash)
         yacc = os.path.join(self.package_folder, "bin", "yacc").replace("\\", "/")
         self.conf_info.define("user.bison:yacc", yacc)
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
-        self.env_info.CONAN_BISON_ROOT = self.package_folder.replace("\\", "/")
-        self.env_info.BISON_PKGDATADIR = pkgdir
-        self.user_info.YACC = yacc

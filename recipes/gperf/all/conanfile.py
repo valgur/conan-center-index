@@ -19,10 +19,6 @@ class GperfConan(ConanFile):
 
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -34,13 +30,13 @@ class GperfConan(ConanFile):
         del self.info.settings.compiler
 
     def build_requirements(self):
-        if self._settings_build.os == "Windows":
+        if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
 
         # gperf makefile relies on GNU Make behaviour
-        if self._settings_build.os == "FreeBSD":
+        if self.settings_build.os == "FreeBSD":
             self.tool_requires("make/4.4.1")
 
     def source(self):
@@ -70,10 +66,10 @@ class GperfConan(ConanFile):
             env.define("OBJDUMP", ":")
             env.define("RANLIB", ":")
             env.define("STRIP", ":")
-            
+
             #Prevent msys2 from performing erroneous path conversions for C++ files
             # when invoking cl.exe as this is already handled by the compile wrapper.
-            env.define("MSYS2_ARG_CONV_EXCL", "-Tp") 
+            env.define("MSYS2_ARG_CONV_EXCL", "-Tp")
             env.vars(self).save_script("conanbuild_gperf_msvc")
 
     def build(self):
@@ -94,6 +90,3 @@ class GperfConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-
-        # TODO: to remove in conan v2
-        self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))

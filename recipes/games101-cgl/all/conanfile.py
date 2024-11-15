@@ -45,8 +45,7 @@ class Games101CglConan(ConanFile):
         self.requires("glfw/3.4", transitive_headers=True)
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25 <4.0.0]")
@@ -83,9 +82,3 @@ class Games101CglConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "games101-cgl")
         self.cpp_info.set_property("cmake_target_name", "games101-cgl::games101-cgl")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "games101-cgl"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "games101-cgl"
-        self.cpp_info.names["cmake_find_package"] = "games101-cgl"
-        self.cpp_info.names["cmake_find_package_multi"] = "games101-cgl"

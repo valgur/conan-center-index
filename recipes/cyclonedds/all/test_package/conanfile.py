@@ -5,8 +5,7 @@ from conan.tools.build import can_run
 
 class CycloneDDSTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps", "VirtualRunEnv"
-    test_type = "explicit"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
@@ -21,7 +20,7 @@ class CycloneDDSTestConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_package")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
-            bin_path = os.path.join(self.cpp.build.bindirs[0], "test_idl")
+            bin_path = os.path.join(self.cpp.build.bindir, "test_idl")
             self.run(bin_path, env="conanrun")

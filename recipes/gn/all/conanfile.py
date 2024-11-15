@@ -2,7 +2,6 @@ import os
 import shutil
 import sys
 import textwrap
-import time
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -45,7 +44,6 @@ class GnConan(ConanFile):
     def _minimum_compiler_version(self):
         if self._min_cppstd == 17:
             return {
-                "Visual Studio": 15,
                 "msvc": 191,
                 "gcc": 7,
                 "clang": 4,
@@ -57,12 +55,10 @@ class GnConan(ConanFile):
                 "clang": "12",
                 "apple-clang": "15",
                 "msvc": "192",
-                "Visual Studio": "16",
             }
 
     def validate_build(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._minimum_compiler_version.get(str(self.settings.compiler))
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"gn requires a compiler supporting C++{self._min_cppstd}")
@@ -157,7 +153,3 @@ class GnConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
-
-        bin_path = os.path.join(self.package_folder, "bin")
-        self.output.info(f"Appending PATH environment variable: {bin_path}")
-        self.env_info.PATH.append(bin_path)

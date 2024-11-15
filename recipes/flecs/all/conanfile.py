@@ -74,19 +74,11 @@ class FlecsConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "flecs")
         self.cpp_info.set_property("cmake_target_name", f"flecs::flecs{suffix}")
 
-        # TODO: back to global scope once cmake_find_package* generators removed
-        self.cpp_info.components["_flecs"].libs = [f"flecs{suffix}"]
+        self.cpp_info.libs = [f"flecs{suffix}"]
         if not self.options.shared:
-            self.cpp_info.components["_flecs"].defines.append("flecs_STATIC")
+            self.cpp_info.defines.append("flecs_STATIC")
         if Version(self.version) >= "3.0.0":
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components["_flecs"].system_libs.append("pthread")
+                self.cpp_info.system_libs.append("pthread")
             elif self.settings.os == "Windows":
-                self.cpp_info.components["_flecs"].system_libs.extend(["wsock32", "ws2_32"])
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "flecs"
-        self.cpp_info.names["cmake_find_package_multi"] = "flecs"
-        self.cpp_info.components["_flecs"].names["cmake_find_package"] = f"flecs{suffix}"
-        self.cpp_info.components["_flecs"].names["cmake_find_package_multi"] = f"flecs{suffix}"
-        self.cpp_info.components["_flecs"].set_property("cmake_target_name", f"flecs::flecs{suffix}")
+                self.cpp_info.system_libs.extend(["wsock32", "ws2_32"])

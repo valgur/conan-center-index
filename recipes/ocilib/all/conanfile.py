@@ -2,8 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get, rm, rmdir, chdir
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
-from conan.tools.scm import Version
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 import os
 
 required_conan_version = ">=1.54.0"
@@ -35,8 +34,7 @@ class OCILIBConan(ConanFile):
         return 11
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.ref} recipe only supports Linux for now. Pull requests to add new configurtations are welcomed.")
         # TODO: Check support for other platforms

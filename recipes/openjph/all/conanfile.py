@@ -55,11 +55,10 @@ class OpenJPH(ConanFile):
             self.requires("libtiff/4.6.0")
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            required_cpp_version = 11
-            if self.options.with_stream_expand_tool:
-                required_conan_version = 14
-            check_min_cppstd(self, required_cpp_version)
+        if self.options.with_stream_expand_tool:
+            check_min_cppstd(self, 14)
+        else:
+            check_min_cppstd(self, 11)
 
         if self.settings.compiler == "gcc" and \
             Version(self.settings.compiler.version) < "6.0":
@@ -74,13 +73,7 @@ class OpenJPH(ConanFile):
         tc.variables["OJPH_ENABLE_TIFF_SUPPORT"] = self.options.with_tiff
         tc.variables["OJPH_BUILD_STREAM_EXPAND"] = self.options.with_stream_expand_tool
         tc.variables["OJPH_DISABLE_SIMD"] = self.options.disable_simd
-
-        # Workaround for Conan 1 where the CXX standard version isn't set to a fallback to gnu98 happens
-        if not self.settings.get_safe("compiler.cppstd"):
-            tc.cache_variables["CMAKE_CXX_STANDARD"] = 14 if self.options.with_stream_expand_tool else 11
-
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -113,8 +106,3 @@ class OpenJPH(ConanFile):
             v = Version(self.version)
             version_suffix = f".{v.major}.{v.minor}"
         self.cpp_info.libs = ["openjph" + version_suffix]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* & pkg_config generators removed
-        self.cpp_info.names["cmake_find_package"] = "openjph"
-        self.cpp_info.names["cmake_find_package_multi"] = "openjph"
-        self.cpp_info.names["pkg_config"] = "openjph"

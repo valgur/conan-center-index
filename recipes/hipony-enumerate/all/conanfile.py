@@ -33,7 +33,6 @@ class HiponyEnumerateConan(ConanFile):
     def _compilers_minimum_version(self):
         return {
             "gcc": "8" if self.options.aggregates else "6",
-            "Visual Studio": "16" if self.options.aggregates else "14",
             "msvc": "192"  if self.options.aggregates else "190",
             "clang": "5.0" if self.options.aggregates else "3.9",
             "apple-clang": "10",
@@ -54,8 +53,7 @@ class HiponyEnumerateConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._minimum_standard)
+        check_min_cppstd(self, self._minimum_standard)
 
         def lazy_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -101,17 +99,5 @@ class HiponyEnumerateConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "hipony-enumerate")
         self.cpp_info.set_property("cmake_target_name", "hipony::enumerate")
-        # TODO: back to global scope in conan v2 once cmake_find_package_* generators removed
         if self.options.aggregates:
-            self.cpp_info.components["enumerate"].defines.append(
-                "HIPONY_ENUMERATE_AGGREGATES_ENABLED")
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "hipony-enumerate"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "hipony-enumerate"
-        self.cpp_info.names["cmake_find_package"] = "hipony"
-        self.cpp_info.names["cmake_find_package_multi"] = "hipony"
-        self.cpp_info.components["enumerate"].names["cmake_find_package"] = "enumerate"
-        self.cpp_info.components["enumerate"].names["cmake_find_package_multi"] = "enumerate"
-        self.cpp_info.components["enumerate"].set_property("cmake_target_name", "hipony::enumerate")
-        if self.options.aggregates:
-            self.cpp_info.components["enumerate"].requires.append("pfr::pfr")
+            self.cpp_info.defines.append("HIPONY_ENUMERATE_AGGREGATES_ENABLED")

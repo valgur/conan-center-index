@@ -31,7 +31,6 @@ class TaskflowConan(ConanFile):
     @property
     def _compilers_minimum_version(self):
         return {
-            "Visual Studio": "16",
             "msvc": "192",
             "gcc": "7.3" if Version(self.version) < "3.7.0" else "8.4",
             "clang": "6.0",
@@ -48,8 +47,7 @@ class TaskflowConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler.get_safe("cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
 
         def loose_lt_semver(v1, v2):
             lv1 = [int(v) for v in v1.split(".")]
@@ -85,7 +83,3 @@ class TaskflowConan(ConanFile):
             self.cpp_info.system_libs.append("pthread")
         if is_msvc(self):
             self.cpp_info.defines.append("_ENABLE_EXTENDED_ALIGNED_STORAGE")
-
-        # TODO: to remove in conan v2 once cmake_find_package* generators removed
-        self.cpp_info.names["cmake_find_package"] = "Taskflow"
-        self.cpp_info.names["cmake_find_package_multi"] = "Taskflow"

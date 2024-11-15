@@ -1,6 +1,6 @@
 import os
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -54,7 +54,6 @@ class OusterSdkConan(ConanFile):
             "clang": "5",
             "apple-clang": "10",
             "msvc": "191",
-            "Visual Studio": "15",
         }
 
     def export_sources(self):
@@ -63,10 +62,6 @@ class OusterSdkConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if conan_version.major == 1:
-            # Turning off by default due to perpetually missing libtins binaries on CCI
-            self.options.build_pcap = False
-            self.options.build_osf = False
 
     def configure(self):
         if self.options.shared:
@@ -100,10 +95,7 @@ class OusterSdkConan(ConanFile):
             self.requires("glfw/3.4")
 
     def validate(self):
-        if conan_version.major < 2 and self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("Windows builds require Conan >= 2.0")
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -210,10 +202,3 @@ class OusterSdkConan(ConanFile):
                 "glad::glad",
                 "glfw::glfw",
             ]
-
-        # TODO: to remove in conan v2 once cmake_find_package_* generators removed
-        self.cpp_info.filenames["cmake_find_package"] = "OusterSDK"
-        self.cpp_info.filenames["cmake_find_package_multi"] = "OusterSDK"
-        self.cpp_info.names["cmake_find_package"] = "OusterSDK"
-        self.cpp_info.names["cmake_find_package_multi"] = "OusterSDK"
-
