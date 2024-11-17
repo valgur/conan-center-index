@@ -20,7 +20,6 @@ class TestPackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def generate(self):
-
         # Expose `PKG_CONFIG_PATH` to be able to find libexample1.pc
         env = Environment()
         self.output.info(f"Source folder: {self.source_folder}")

@@ -5,7 +5,6 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, export_conandata_patches, apply_conandata_patches
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -80,8 +79,6 @@ class LightGBMConan(ConanFile):
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate(scope="build")
 
     def _patch_sources(self):
         apply_conandata_patches(self)

@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
     apply_conandata_patches, copy, export_conandata_patches, get,
     replace_in_file, rm, rmdir, collect_libs
@@ -116,8 +115,6 @@ class GeographiclibConan(ConanFile):
         tc.variables["GEOGRAPHICLIB_LIB_TYPE"] = "SHARED" if self.options.shared else "STATIC"
         tc.variables["GEOGRAPHICLIB_PRECISION"] = self._cmake_option_precision
         tc.generate()
-
-        VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)

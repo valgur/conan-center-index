@@ -468,7 +468,6 @@ class QtConan(ConanFile):
             })
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         if not cross_building(self):
             VirtualRunEnv(self).generate(scope="build")
 

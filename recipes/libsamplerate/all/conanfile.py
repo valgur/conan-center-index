@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 import os
@@ -53,8 +52,6 @@ class LibsamplerateConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["LIBSAMPLERATE_EXAMPLES"] = False
         tc.variables["LIBSAMPLERATE_INSTALL"] = True

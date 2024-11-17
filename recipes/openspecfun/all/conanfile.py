@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches
 
 required_conan_version = ">=1.53.0"
@@ -53,7 +52,6 @@ class OpenSpecfunConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
         tc.generate()
 

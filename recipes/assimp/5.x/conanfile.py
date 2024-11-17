@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library, check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
@@ -263,9 +262,6 @@ class AssimpConan(ConanFile):
         cd.set_property("rapidjson", "cmake_target_name", "rapidjson::rapidjson")
         cd.set_property("utfcpp", "cmake_target_name", "utf8cpp::utf8cpp")
         cd.generate()
-
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)

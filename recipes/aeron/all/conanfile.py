@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get, replace_in_file, rename, rm
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -76,8 +75,6 @@ class AeronConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.cache_variables["BUILD_AERON_DRIVER"] = self.options.build_aeron_driver
         tc.cache_variables["BUILD_AERON_ARCHIVE_API"] = self.options.build_aeron_archive_api

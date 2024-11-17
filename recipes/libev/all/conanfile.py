@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.cmake import CMake, CMakeToolchain
@@ -68,8 +67,6 @@ class LibevConan(ConanFile):
             tc.variables["EV_SRC_DIR"] = self.source_folder.replace("\\", "/")
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.generate()
 

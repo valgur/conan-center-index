@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir, replace_in_file
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -73,9 +72,6 @@ class PkgConfConan(ConanFile):
             "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = MesonToolchain(self)
         if Version(self.version) >= "1.9.4":
             tc.project_options["tests"] = "disabled"

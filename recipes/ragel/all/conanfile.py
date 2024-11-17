@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
@@ -45,8 +45,6 @@ class RagelConan(ConanFile):
             dpes = CMakeDeps(self)
             dpes.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             if not cross_building(self):
                 env = VirtualRunEnv(self)
                 env.generate(scope="build")

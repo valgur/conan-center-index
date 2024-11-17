@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 
 
 class TestPackageConan(ConanFile):
@@ -16,9 +16,6 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def generate(self):
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         # Hack to avoid adding tool_requires(self.tested_reference_str),
         # which tends to fail with a missing binaries error
         runenv = VirtualRunEnv(self)

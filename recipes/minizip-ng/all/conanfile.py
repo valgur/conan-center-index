@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
@@ -102,10 +102,6 @@ class MinizipNgConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        if self._needs_pkg_config:
-            env = VirtualBuildEnv(self)
-            env.generate()
-
         tc = CMakeToolchain(self)
         tc.cache_variables["MZ_FETCH_LIBS"] = False
         tc.cache_variables["MZ_COMPAT"] = self.options.mz_compatibility

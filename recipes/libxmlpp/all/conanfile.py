@@ -4,7 +4,6 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.microsoft import is_msvc
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, rmdir, rename, get, rm, replace_in_file
 from conan.tools.layout import basic_layout
@@ -100,8 +99,6 @@ class LibXMLPlusPlus(ConanFile):
                 "cpp_std=c++", "cpp_std=vc++")
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         tc = MesonToolchain(self)
         tc.project_options["build-examples"] = "false"
         tc.project_options["build-tests"] = "false"

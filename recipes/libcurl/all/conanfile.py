@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, download, export_conandata_patches, get, load, replace_in_file, rm, rmdir, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -216,8 +216,6 @@ class LibcurlConan(ConanFile):
         download(self, cert_url, "cacert.pem", verify=True, sha256=cert_sha256)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if self._is_using_cmake_build:
             self._generate_with_cmake()
         else:

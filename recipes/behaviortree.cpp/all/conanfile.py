@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, copy, rmdir, replace_in_file, save, rm
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.scm import Version
@@ -177,9 +176,6 @@ class BehaviorTreeCPPConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_PROJECT_behaviortree_cpp_INCLUDE"] = "conan_deps.cmake"
         tc.variables["WITH_LEXY"] = self._with_lexy

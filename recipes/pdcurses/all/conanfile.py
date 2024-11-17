@@ -5,7 +5,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, load, replace_in_file, rmdir, save, rename
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -85,8 +84,6 @@ class PDCursesConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()

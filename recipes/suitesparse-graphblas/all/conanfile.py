@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import copy, get, rm, rmdir
 
 required_conan_version = ">=1.53.0"
@@ -64,9 +64,6 @@ class SuiteSparseGraphBlasConan(ConanFile):
         return os.path.join(self.package_folder, "share")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared

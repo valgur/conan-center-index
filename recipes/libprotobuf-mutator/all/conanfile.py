@@ -3,7 +3,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 import os
@@ -95,8 +94,6 @@ class LibProtobufMutatorConan(ConanFile):
         )
 
     def generate(self):
-        tc = VirtualBuildEnv(self)
-        tc.generate()
         tc = CMakeToolchain(self)
         tc.variables["LIB_PROTO_MUTATOR_TESTING"] = False
         tc.variables["LIB_PROTO_MUTATOR_DOWNLOAD_PROTOBUF"] = False

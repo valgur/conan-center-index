@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, collect_libs
 from conan.tools.microsoft import is_msvc
 
@@ -75,8 +74,6 @@ class QuickfixConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["HAVE_SSL"] = self.options.with_ssl
         tc.variables["HAVE_POSTGRESQL"] = self.options.with_postgres

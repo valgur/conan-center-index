@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import chdir, copy, get, rmdir, replace_in_file, download
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.scm import Version
@@ -64,9 +64,6 @@ class LibsndioConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), line, "")
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
-
         # Inject requires env vars in build scope
         # It's required in case of native build when there is AutotoolsDeps & at least one dependency which might be shared, because configure tries to run a test executable
         if not cross_building(self):

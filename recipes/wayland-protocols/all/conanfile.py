@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -43,8 +42,6 @@ class WaylandProtocolsConan(ConanFile):
         tc.project_options["datadir"] = "res"
         tc.project_options["tests"] = "false"
         tc.generate()
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
 
     def _patch_sources(self):
         if Version(self.version) <= "1.23":

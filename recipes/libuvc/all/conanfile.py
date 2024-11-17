@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
@@ -71,8 +71,6 @@ class LibuvcConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_BUILD_TARGET"] = "Shared" if self.options.shared else "Static"
         tc.variables["LIBUVC_WITH_JPEG"] = bool(self.options.with_jpeg)

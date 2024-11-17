@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.files import copy
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
@@ -22,8 +21,6 @@ class TestPackageConan(ConanFile):
         self.tool_requires("automake/1.16.5")
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--enable-option-checking=fatal")
         tc.configure_args.append("--enable-gtk-doc=no")

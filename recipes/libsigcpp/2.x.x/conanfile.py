@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rename, replace_in_file, rm, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -51,8 +50,6 @@ class LibSigCppConan(ConanFile):
             destination=self.source_folder, strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = MesonToolchain(self)
         tc.project_options["build-examples"] = "false"
         tc.project_options["build-documentation"] = "false"

@@ -3,7 +3,7 @@ import shutil
 
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import chdir
 from conan.tools.layout import basic_layout
 
@@ -19,9 +19,6 @@ class TestPackageConan(ConanFile):
         basic_layout(self)
 
     def generate(self):
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         env = Environment()
         for var in ["DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]:
             env.append_path(var, self.build_folder)

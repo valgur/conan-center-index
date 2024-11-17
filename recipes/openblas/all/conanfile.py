@@ -3,7 +3,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches, save
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 import os
@@ -180,8 +179,6 @@ class OpenblasConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared

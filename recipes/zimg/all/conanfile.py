@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -69,7 +68,6 @@ class ZimgConan(ConanFile):
             tc.properties["WholeProgramOptimization"] = "false"
             tc.generate()
         else:
-            VirtualBuildEnv(self).generate()
             tc = AutotoolsToolchain(self)
             tc.generate()
 

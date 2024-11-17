@@ -65,8 +65,6 @@ class LibMP3LameConan(ConanFile):
             tc = NMakeToolchain(self)
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.configure_args.append("--disable-frontend")
             if self.settings.compiler == "clang" and self.settings.arch in ["x86", "x86_64"]:

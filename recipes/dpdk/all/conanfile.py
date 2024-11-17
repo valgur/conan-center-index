@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches, collect_libs, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -124,8 +124,6 @@ class DpdkConan(ConanFile):
 
         deps = PkgConfigDeps(self)
         deps.generate()
-
-        VirtualBuildEnv(self).generate()
 
         # To install pyelftools
         env = Environment()

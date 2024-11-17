@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir, chdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
@@ -65,9 +65,6 @@ class LibTomCryptConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         if not cross_building(self):
             venv = VirtualRunEnv(self)
             venv.generate(scope="build")

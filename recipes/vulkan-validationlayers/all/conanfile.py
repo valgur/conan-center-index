@@ -3,7 +3,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, mkdir, rename, replace_in_file, rm
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
@@ -112,9 +111,6 @@ class VulkanValidationLayersConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["USE_CCACHE"] = False
         if self.settings.os in ["Linux", "FreeBSD"]:

@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, replace_in_file
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -104,8 +103,6 @@ class LibqasmConan(ConanFile):
         tc.variables["LIBQASM_BUILD_PYTHON"] = self.options.build_python
         tc.variables["LIBQASM_BUILD_TESTS"] = self._should_build_test
         tc.generate()
-        env = VirtualBuildEnv(self)
-        env.generate()
 
     def _patch_sources(self):
         werror = "/WX" if is_msvc(self) else "-Werror"

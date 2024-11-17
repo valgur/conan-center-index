@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
@@ -77,9 +76,6 @@ class NativefiledialogConan(ConanFile):
         }[str(self.settings.arch)]
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         if is_msvc(self):
             tc = MSBuildToolchain(self)
             tc.generate()

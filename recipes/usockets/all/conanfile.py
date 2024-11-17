@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, chdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -162,9 +161,6 @@ class UsocketsConan(ConanFile):
             deps = MSBuildDeps(self)
             deps.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
-
             tc = AutotoolsToolchain(self)
             env = tc.environment()
             if is_msvc(self):

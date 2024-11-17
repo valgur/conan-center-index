@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, can_run, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import rename, get, apply_conandata_patches, replace_in_file, rmdir, rm, export_conandata_patches, mkdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -210,9 +210,6 @@ class LibMysqlClientCConan(ConanFile):
                             "MY_ADD_CUSTOM_TARGET(run_libmysql_api_test ALL", "message(TRACE ")
 
     def generate(self):
-        vbenv = VirtualBuildEnv(self)
-        vbenv.generate()
-
         if not cross_building(self):
             vrenv = VirtualRunEnv(self)
             vrenv.generate(scope="build")

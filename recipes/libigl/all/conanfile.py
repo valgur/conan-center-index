@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir, replace_in_file, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
@@ -105,9 +104,6 @@ class LibiglConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_PROJECT_libigl_INCLUDE"] = "conan_deps.cmake"
         tc.variables["LIBIGL_USE_STATIC_LIBRARY"] = not self.options.header_only

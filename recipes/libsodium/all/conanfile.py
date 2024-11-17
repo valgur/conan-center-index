@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -78,9 +77,6 @@ class LibsodiumConan(ConanFile):
             )
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
-
             tc = AutotoolsToolchain(self)
             yes_no = lambda v: "yes" if v else "no"
             tc.configure_args.append("--enable-soname-versions={}".format(yes_no(self.options.use_soname)))

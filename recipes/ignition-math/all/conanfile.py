@@ -5,7 +5,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, save, replace_in_file
 from conan.tools.scm import Version
 
@@ -84,8 +83,6 @@ class IgnitionMathConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.cache_variables["SKIP_SWIG"] = not self.options.enable_swig

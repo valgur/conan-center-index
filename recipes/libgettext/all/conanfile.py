@@ -4,7 +4,7 @@ import os
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
+from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import (
     apply_conandata_patches,
     copy,
@@ -87,8 +87,6 @@ class GetTextConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         if not cross_building(self):
             VirtualRunEnv(self).generate(scope="build")
 

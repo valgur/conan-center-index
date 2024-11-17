@@ -7,7 +7,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, to_apple_arch
 from conan.tools.build import cross_building, can_run
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, get, rm, rmdir, export_conandata_patches
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -100,8 +99,6 @@ class RubyConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--disable-install-doc")
         if not self.options.shared and self.options.with_static_linked_ext:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os, to_apple_arch
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -77,9 +77,6 @@ class SwigConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        build_env = VirtualBuildEnv(self)
-        build_env.generate()
-
         tc = AutotoolsToolchain(self)
         env = tc.environment()
 

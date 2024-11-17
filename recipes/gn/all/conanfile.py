@@ -96,9 +96,6 @@ class GnConan(ConanFile):
         return ""
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         # Make sure CXX env var is set, otherwise gn defaults it to clang++
         # https://gn.googlesource.com/gn/+/refs/heads/main/build/gen.py#386
         env = Environment()

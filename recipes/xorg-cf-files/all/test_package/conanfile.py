@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy
 from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
@@ -28,9 +27,6 @@ class TestPackageConan(ConanFile):
         # Instruct Imake to use the native compiler for its own C code
         tc.extra_env.define("CC", "cc")
         tc.generate()
-
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
 
     def build(self):
         for src in self.exports_sources:

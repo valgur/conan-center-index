@@ -75,9 +75,6 @@ class PackageConan(ConanFile):
             replace_in_file(self, join(self.source_folder, "configure"), "300*", "30*")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         ad = AutotoolsDeps(self)
         ad.generate()
 

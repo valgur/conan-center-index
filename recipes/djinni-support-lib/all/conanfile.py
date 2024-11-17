@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get
 
 required_conan_version = ">=1.53.0"
@@ -75,8 +74,6 @@ class DjinniSupportLib(ConanFile):
             tc.variables["JAVA_AWT_INCLUDE_PATH"] = self.source_folder.replace("\\", "/")
         tc.generate()
         tc = CMakeDeps(self)
-        tc.generate()
-        tc = VirtualBuildEnv(self)
         tc.generate()
 
     def build(self):

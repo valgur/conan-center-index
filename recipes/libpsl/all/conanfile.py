@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -72,8 +71,6 @@ class LibPslConan(ConanFile):
         }.get(str(self.options.with_idna), str(self.options.with_idna))
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = MesonToolchain(self)
         tc.project_options["runtime"] = self._idna_option
         tc.project_options["builtin"] = self._idna_option

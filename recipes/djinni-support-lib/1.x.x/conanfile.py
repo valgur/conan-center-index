@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
@@ -150,8 +149,6 @@ class DjinniSupportLib(ConanFile):
             tc.variables["JAVA_AWT_INCLUDE_PATH"] = "NotNeeded"
         tc.generate()
         tc = CMakeDeps(self)
-        tc.generate()
-        tc = VirtualBuildEnv(self)
         tc.generate()
 
     def build(self):

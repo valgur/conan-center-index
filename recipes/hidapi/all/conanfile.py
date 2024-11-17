@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -81,8 +80,6 @@ class HidapiConan(ConanFile):
             tc.properties["WholeProgramOptimization"] = "false"
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.generate()
             deps = PkgConfigDeps(self)

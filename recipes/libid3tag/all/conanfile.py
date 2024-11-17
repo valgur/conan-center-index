@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rm, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -74,8 +73,6 @@ class LibId3TagConan(ConanFile):
             deps = CMakeDeps(self)
             deps.generate()
         else:
-            venv = VirtualBuildEnv(self)
-            venv.generate()
             tc = AutotoolsToolchain(self)
             tc.generate()
             deps = AutotoolsDeps(self)

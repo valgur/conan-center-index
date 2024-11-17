@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get
 from conan.tools.scm import Version
 
@@ -89,8 +88,6 @@ class TreeGenConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["TREE_GEN_BUILD_TESTS"] = self._should_build_test
         tc.generate()
-        env = VirtualBuildEnv(self)
-        env.generate()
 
     def build(self):
         cmake = CMake(self)

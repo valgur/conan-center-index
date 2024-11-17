@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, load, rm, rmdir, save
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -71,8 +70,6 @@ class MesaGluConan(ConanFile):
         tc.project_options["gl_provider"] = "glvnd" if self._with_libglvnd else "gl"
         tc.generate()
         tc = PkgConfigDeps(self)
-        tc.generate()
-        tc = VirtualBuildEnv(self)
         tc.generate()
 
     def _patch_sources(self):

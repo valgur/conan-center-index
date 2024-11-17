@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, chdir, copy, replace_in_file, rm
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -54,8 +53,6 @@ class LzmaSdkConan(ConanFile):
             tc = NMakeToolchain(self)
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.generate()
             deps = AutotoolsDeps(self)

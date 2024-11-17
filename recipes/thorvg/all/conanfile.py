@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, rename, replace_in_file, rm
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -149,8 +148,6 @@ class ThorvgConan(ConanFile):
         tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
     def _patch_sources(self):
         # Workaround to avoid: Stripping target 'src\\thorvg-0.dll'.

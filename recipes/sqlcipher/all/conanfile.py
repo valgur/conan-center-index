@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -101,9 +101,6 @@ class SqlcipherConan(ConanFile):
         }.get(str(self.options.temporary_store))
 
     def _generate_msvc(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = NMakeToolchain(self)
         env = tc.environment()
         crypto_dep = self.dependencies[str(self.options.crypto_library)].cpp_info
@@ -138,9 +135,6 @@ class SqlcipherConan(ConanFile):
         return self.options.crypto_library == "commoncrypto" and is_apple_os(self)
 
     def _generate_unix(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")

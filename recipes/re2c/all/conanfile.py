@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -47,7 +46,6 @@ class Re2CConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--disable-benchmarks")
         env = tc.environment()

@@ -21,7 +21,6 @@ class TestPackageConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         VirtualBuildEnv(self).generate(scope="run")
 
     def test(self):

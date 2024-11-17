@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 
@@ -53,8 +53,6 @@ class TreConan(ConanFile):
             tc = CMakeToolchain(self)
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             if not cross_building(self):
                 env = VirtualRunEnv(self)
                 env.generate(scope="build")

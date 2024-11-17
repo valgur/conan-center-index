@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get
 
 required_conan_version = ">=1.52.0"
@@ -76,9 +75,6 @@ class GsoapConan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.generate()
-
-        ms = VirtualBuildEnv(self)
-        ms.generate()
 
     def build(self):
         cmake = CMake(self)

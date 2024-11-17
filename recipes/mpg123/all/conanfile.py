@@ -6,7 +6,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches, rmdir, rm
 from conan.tools.microsoft import is_msvc
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.build import cross_building
 import os
 
@@ -105,8 +105,6 @@ class Mpg123Conan(ConanFile):
 
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")

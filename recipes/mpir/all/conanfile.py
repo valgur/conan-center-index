@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import XCRun, to_apple_arch
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -70,15 +69,10 @@ class MpirConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, keep_permissions=True)
 
     def _generate_msvc(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = MSBuildToolchain(self)
         tc.generate()
 
     def _generate_autotools(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--disable-silent-rules")
         tc.configure_args.append("--enable-cxx" if self.options.get_safe("enable_cxx") else "--disable-cxx")

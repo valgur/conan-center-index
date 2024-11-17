@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, replace_in_file, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -69,8 +68,6 @@ class SasscConan(ConanFile):
             deps.configuration = self._msbuild_configuration
             deps.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.configure_args += ["--disable-tests"]
             tc.generate()

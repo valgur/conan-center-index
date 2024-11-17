@@ -3,7 +3,7 @@ from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.files import get, chdir, copy, export_conandata_patches, apply_conandata_patches, mkdir, rename
 from conan.tools.layout import basic_layout
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.microsoft import VCVars, is_msvc, NMakeDeps, NMakeToolchain
 from conan.tools.apple import is_apple_os
 from conan.tools.scm import Version
@@ -83,9 +83,6 @@ class MpdecimalConan(ConanFile):
                         tc.extra_cxxflags.append("-DLIBMPDECXX_DLL")
             tc.generate()
         else:
-            # inject tool_requires env vars in build scope (not needed if there is no tool_requires)
-            env = VirtualBuildEnv(self)
-            env.generate()
             # inject requires env vars in build scope
             # it's required in case of native build when there is AutotoolsDeps & at least one dependency which might be shared, because configure tries to run a test executable
             if not cross_building(self):

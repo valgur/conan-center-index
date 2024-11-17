@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import can_run
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -103,8 +103,6 @@ class GdkPixbufConan(ConanFile):
         return self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "12" and self.settings.build_type == "Debug"
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if can_run(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")

@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -47,9 +46,6 @@ class YASMConan(ConanFile):
                   destination=self.source_folder, strip_root=True)
 
     def _generate_autotools(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
         enable_debug = "yes" if self.settings.build_type == "Debug" else "no"
         tc.configure_args.extend([

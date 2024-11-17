@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -39,8 +38,6 @@ class GtkDocStubConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--datarootdir=${prefix}/res")
         tc.generate()

@@ -3,7 +3,6 @@ import tarfile
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import download, move_folder_contents, copy, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -71,9 +70,6 @@ class LibUdevConan(ConanFile):
         move_folder_contents(self, os.path.join(self.source_folder, f"systemd-stable-{self.version}"), self.source_folder)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = MesonToolchain(self)
         tc.project_options["tests"] = "false"
         tc.project_options["selinux"] = "false"

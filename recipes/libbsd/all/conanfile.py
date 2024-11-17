@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rmdir
 from conan.tools.layout import basic_layout
 
@@ -34,16 +33,14 @@ class LibBsdConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-    
+
     def configure(self):
         if self.options.shared:
            self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-    
+
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
         if is_apple_os(self):
             tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
@@ -53,7 +50,7 @@ class LibBsdConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
-    
+
     def validate(self):
         if not is_apple_os(self) and self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.ref} is only available for GNU-like operating systems (e.g. Linux)")

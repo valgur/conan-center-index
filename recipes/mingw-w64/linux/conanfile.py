@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import chdir, copy, get, mkdir, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -116,9 +116,6 @@ class MingwConan(ConanFile):
         env = Environment()
         env.append_path("PATH", os.path.join(self.package_folder, "bin"))
         env.vars(self).save_script("conanbuild_package_bin_path")
-
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
         deps = PkgConfigDeps(self)
         deps.generate()

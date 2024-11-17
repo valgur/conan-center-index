@@ -8,8 +8,6 @@ from conan.tools.scm import Version
 
 class FooTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    # VirtualBuildEnv and VirtualRunEnv can be avoided if "tools.env.virtualenv:auto_use" is defined
-    # (it will be defined in Conan 2.0)
     generators = "CMakeDeps"
     apply_env = False
 

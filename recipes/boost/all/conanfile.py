@@ -612,8 +612,6 @@ class BoostConan(ConanFile):
 
     def generate(self):
         if not self.options.header_only:
-            env = VirtualBuildEnv(self)
-            env.generate()
             vc = VCVars(self)
             vc.generate()
             self._create_user_config_jam()

@@ -5,7 +5,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -138,9 +137,6 @@ class CairoConan(ConanFile):
     def generate(self):
         def is_enabled(value):
             return "enabled" if value else "disabled"
-
-        env = VirtualBuildEnv(self)
-        env.generate()
 
         pkg_deps = PkgConfigDeps(self)
         pkg_deps.generate()

@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import copy, get, rm, save, rmdir
 from conan.tools.scm import Version
 
@@ -81,9 +81,6 @@ class GnuradioVolkConan(ConanFile):
         return os.path.join(self.build_folder, "site-packages")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_STATIC_LIBS"] = not self.options.shared
         tc.variables["ENABLE_TESTING"] = False

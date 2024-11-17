@@ -6,7 +6,6 @@ from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, move_folder_contents, rmdir, load, save
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -132,8 +131,6 @@ class LLVMOpenMpConan(ConanFile):
             get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["OPENMP_STANDALONE_BUILD"] = True
         tc.variables["LIBOMP_ENABLE_SHARED"] = self.options.get_safe("shared", True)

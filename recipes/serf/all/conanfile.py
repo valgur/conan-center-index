@@ -3,7 +3,7 @@ import re
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, mkdir, rm, rmdir, save
 from conan.tools.gnu import GnuToolchain
 from conan.tools.layout import basic_layout
@@ -65,9 +65,6 @@ class SerfConan(ConanFile):
         return f"-{argname}'{unix_path(self, path)}'"
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = GnuToolchain(self)
         tc_vars = tc.extra_env.vars(self)
         args = ["-Y", self.source_folder]

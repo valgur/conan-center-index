@@ -2,7 +2,7 @@ import os
 import shutil
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 
 
 class TestPackageConan(ConanFile):
@@ -32,9 +32,6 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def generate(self):
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         runenv = VirtualRunEnv(self)
         runenv.generate()
 

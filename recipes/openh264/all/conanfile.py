@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.build import stdcpp_library
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, rm, rename, replace_in_file
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -70,8 +69,6 @@ class OpenH264Conan(ConanFile):
             destination=self.source_folder, strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = MesonToolchain(self)
         tc.project_options["tests"] = "disabled"
         tc.generate()

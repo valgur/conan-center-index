@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -61,8 +60,6 @@ class LibdeflateConan(ConanFile):
             tc = NMakeToolchain(self)
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.generate()
 

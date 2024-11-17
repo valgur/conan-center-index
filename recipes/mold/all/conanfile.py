@@ -5,7 +5,6 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 
 required_conan_version = ">=1.47.0"
 
@@ -114,9 +113,6 @@ class MoldConan(ConanFile):
         cd = CMakeDeps(self)
         cd.set_property("zstd", "cmake_target_name", "zstd::zstd")
         cd.generate()
-
-        vbe = VirtualBuildEnv(self)
-        vbe.generate()
 
     def _patch_sources(self):
         # Make sure these have been unvendored correctly.

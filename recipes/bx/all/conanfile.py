@@ -7,7 +7,6 @@ from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import MSBuild, VCVars
 from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.env import VirtualBuildEnv
 from pathlib import Path
 import os
 
@@ -87,8 +86,6 @@ class bxConan(ConanFile):
                     destination=os.path.join(self.source_folder, self._bx_folder))
 
     def generate(self):
-        vbe = VirtualBuildEnv(self)
-        vbe.generate()
         if is_msvc(self):
             tc = VCVars(self)
             tc.generate()

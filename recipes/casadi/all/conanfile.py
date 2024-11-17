@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 
@@ -255,9 +254,6 @@ class PackageConan(ConanFile):
         tc.variables["WITH_BUILD_OSQP"] = False
         tc.variables["WITH_BUILD_TINYXML"] = False
         tc.generate()
-
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
         if self.options.with_osqp:
             osqp = self.dependencies["osqp"].cpp_info

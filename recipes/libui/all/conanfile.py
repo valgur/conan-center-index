@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get
 from conan.tools.gnu import PkgConfigDeps
 
@@ -52,7 +51,6 @@ class libuiConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = CMakeToolchain(self)
         tc.generate()
         tc = PkgConfigDeps(self)

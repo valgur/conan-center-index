@@ -3,7 +3,7 @@ from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.android import android_abi
 from conan.tools.apple import is_apple_os
 from conan.tools.build import build_jobs, check_min_cppstd, cross_building, can_run
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import chdir, copy, get, load, replace_in_file, rm, rmdir, save, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, is_msvc_static_runtime, VCVars
@@ -510,8 +510,6 @@ class QtConan(ConanFile):
         pc.generate()
         ms = VCVars(self)
         ms.generate()
-        vbe = VirtualBuildEnv(self)
-        vbe.generate()
         if not cross_building(self):
             vre = VirtualRunEnv(self)
             vre.generate(scope="build")

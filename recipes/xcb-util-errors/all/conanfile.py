@@ -4,7 +4,6 @@ import sys
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps, AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
@@ -71,7 +70,6 @@ class XcbUtilErrorsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = AutotoolsToolchain(self)
         if not self._have_python:
             python_path = os.path.join(self.dependencies.build["cpython"].cpp_info.bindir, "python3")

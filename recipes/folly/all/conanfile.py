@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rmdir, replace_in_file, save, rm
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -138,8 +137,6 @@ class FollyConan(ConanFile):
         return f"{prefix}++{year}"
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_PROJECT_folly_INCLUDE"] = "conan_deps.cmake"
         # Folly fails to check Gflags: https://github.com/conan-io/conan/issues/12012

@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
     apply_conandata_patches, chdir, copy, export_conandata_patches, get, mkdir,
     rename, replace_in_file, rm, rmdir
@@ -76,8 +75,6 @@ class Argon2Conan(ConanFile):
             tc.properties["WholeProgramOptimization"] = "false"
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.make_args.extend([
                 "LIBRARY_REL=lib",

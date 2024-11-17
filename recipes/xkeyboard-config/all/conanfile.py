@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -43,7 +42,6 @@ class XkeyboardConfigConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = MesonToolchain(self)
         tc.generate()
         deps = PkgConfigDeps(self)

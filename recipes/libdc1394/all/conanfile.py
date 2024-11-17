@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -61,8 +60,6 @@ class Libdc1394Conan(ConanFile):
             destination=self.source_folder, strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--disable-examples")
         tc.generate()

@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file, \
     rename
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -125,8 +125,6 @@ class LibVPXConan(ConanFile):
         return f"{arch}-{os_name}-{compiler}"
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
 
         if is_apple_os(self) and self.settings.get_safe("compiler.libcxx") == "libc++":

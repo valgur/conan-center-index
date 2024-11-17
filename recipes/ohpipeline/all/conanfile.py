@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeDeps, CMakeToolchain, CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, download, export_conandata_patches, apply_conandata_patches
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -70,8 +69,6 @@ class OhPipelineConan(ConanFile):
             )
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
         tc = CMakeToolchain(self)
         tc.generate()
         deps = CMakeDeps(self)

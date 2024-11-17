@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
+from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import get, rmdir, export_conandata_patches, apply_conandata_patches, copy, replace_in_file, rm, save
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -63,9 +63,6 @@ class LibIdnConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")

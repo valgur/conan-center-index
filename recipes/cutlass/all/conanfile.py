@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.tools.scm import Version
 
@@ -73,7 +72,6 @@ class CutlassConan(ConanFile):
         tc.cache_variables["CUTLASS_ENABLE_CUBLAS"] = False
         tc.cache_variables["CUTLASS_ENABLE_CUDNN"] = False
         tc.generate()
-        VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
         # Don't look for CUDA, we're only installing the headers

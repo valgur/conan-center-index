@@ -3,7 +3,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, load, rmdir, rm
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
@@ -108,9 +107,6 @@ class OneTBBConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         toolchain = CMakeToolchain(self)
         toolchain.variables["TBB_TEST"] = False
         toolchain.variables["TBB_STRICT"] = False

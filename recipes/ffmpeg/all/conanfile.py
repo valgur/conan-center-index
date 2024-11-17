@@ -456,8 +456,6 @@ class FFMpegConan(ConanFile):
         return tc
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")

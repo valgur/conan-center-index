@@ -2,7 +2,6 @@ from conan import ConanFile
 
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.layout import basic_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, get, export_conandata_patches, apply_conandata_patches, rm, copy, load, save
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 import os
@@ -72,9 +71,6 @@ class NasRecipe(ConanFile):
 
         deps = AutotoolsDeps(self)
         deps.generate()
-
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
 
     @property
     def _imake_irulesrc(self):

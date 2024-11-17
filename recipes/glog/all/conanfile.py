@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 from conan.tools.build import check_min_cppstd
@@ -92,9 +91,6 @@ class GlogConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = VirtualBuildEnv(self)
-        tc.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["WITH_GFLAGS"] = self.options.with_gflags
         tc.variables["WITH_THREADS"] = self.options.with_threads

@@ -4,7 +4,6 @@ import tarfile
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, replace_in_file, download, move_folder_contents
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -107,9 +106,6 @@ class LibsystemdConan(ConanFile):
         return ""
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = MesonToolchain(self)
         tc.project_options["selinux"] = ("true" if self.options.with_selinux
                                          else "false")

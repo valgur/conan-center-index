@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.scm import Version
 import os
@@ -79,9 +78,6 @@ class SpirvtoolsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = CMakeToolchain(self)
         # BUILD_SHARED_LIBS is used if SPIRV_TOOLS_BUILD_STATIC is set to False
         tc.variables["SPIRV_TOOLS_BUILD_STATIC"] = False

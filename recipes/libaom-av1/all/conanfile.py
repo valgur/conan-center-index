@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.scm import Version
 import os
@@ -57,8 +56,6 @@ class LibaomAv1Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=Version(self.version) >= "3.3.0")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_EXAMPLES"] = False
         tc.variables["ENABLE_TESTS"] = False

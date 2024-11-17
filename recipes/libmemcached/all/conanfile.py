@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.build import cross_building
 from conan.tools.files import apply_conandata_patches, get, copy, export_conandata_patches, rm, rmdir, save
@@ -61,8 +61,6 @@ class LibmemcachedConan(ConanFile):
         save(self, os.path.join(self.source_folder, "tests", "include.am"), "test:\t\n")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")

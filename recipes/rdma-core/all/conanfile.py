@@ -4,7 +4,6 @@ import re
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, copy, rmdir, load, save, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 
@@ -64,8 +63,6 @@ class PackageConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = VirtualBuildEnv(self)
-        tc.generate()
         tc = CMakeToolchain(self)
         # Shared libraries are built by default and even if ENABLE_STATIC is turned on,
         # the static libraries still have dependencies on the shared libraries.

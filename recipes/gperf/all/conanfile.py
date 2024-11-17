@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -44,9 +44,6 @@ class GperfConan(ConanFile):
             destination=self.source_folder, strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
         if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
             tc.extra_cflags.append("-FS")

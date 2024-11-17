@@ -5,7 +5,6 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 import os
 
 required_conan_version = ">=1.54.0"
@@ -73,8 +72,6 @@ class OatppConan(ConanFile):
             tc.variables["OATPP_MSVC_LINK_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
         tc.variables["OATPP_LINK_TEST_LIBRARY"] = self.options.with_test_library
         tc.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate(scope="build")
 
     def build(self):
         cmake = CMake(self)

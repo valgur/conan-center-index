@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import XCRun, is_apple_os
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir, rm, chdir, download, patch
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -65,10 +65,6 @@ class GFortranConan(ConanFile):
         download(self, **self.conan_data["sources"][self.version]["homebrew-patches"], filename="homebrew.patch")
 
     def generate(self):
-        # Ensure binutils and flex are on the path.
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         runenv = VirtualRunEnv(self)
         runenv.generate(scope="build")
 

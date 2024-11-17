@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import cross_building, can_run
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches, chdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
@@ -62,9 +62,6 @@ class Krb5Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")

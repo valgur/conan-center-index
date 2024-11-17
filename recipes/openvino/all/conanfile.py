@@ -184,7 +184,6 @@ class OpenvinoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def generate(self):
-
         deps = CMakeDeps(self)
         deps.generate()
 

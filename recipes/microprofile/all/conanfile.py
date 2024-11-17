@@ -5,7 +5,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, save, load
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
@@ -145,8 +144,6 @@ class MicroprofileConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = CMakeToolchain(self)
         tc.variables["MP_MINIZ"] = self.options.with_miniz
         tc.variables["MP_GPU_TIMERS_VULKAN"] = self.options.enable_timer == "vulkan"

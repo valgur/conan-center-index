@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import get, copy, replace_in_file, save
 from conan.tools.gnu import GnuToolchain
 
@@ -77,9 +77,6 @@ class ZenohCConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["ZENOHC_INSTALL_STATIC_LIBRARY"] = not self.options.shared
         tc.variables["ZENOHC_BUILD_WITH_LOGGER_AUTOINIT"] = self.options.logger_autoinit

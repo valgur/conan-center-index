@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, copy, rmdir
 from conan.tools.scm import Version
 
@@ -80,9 +79,6 @@ class Z3Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["Z3_USE_LIB_GMP"] = self.options.use_gmp
         tc.variables["Z3_SINGLE_THREADED"] = not self.options.multithreaded

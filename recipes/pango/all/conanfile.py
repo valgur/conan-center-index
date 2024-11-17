@@ -4,7 +4,6 @@ import glob
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rename, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -135,8 +134,6 @@ class PangoConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         deps = PkgConfigDeps(self)
         if self.options.with_introspection:
             # gnome.generate_gir() in Meson looks for gobject-introspection-1.0.pc

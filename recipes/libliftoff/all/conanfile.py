@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -58,8 +57,6 @@ class LibliftoffConan(ConanFile):
         tc.project_options["werror"] = False
         tc.generate()
         tc = PkgConfigDeps(self)
-        tc.generate()
-        tc = VirtualBuildEnv(self)
         tc.generate()
 
     def _patch_sources(self):

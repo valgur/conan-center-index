@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, rmdir, save
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -71,8 +70,6 @@ class LibGlvndConan(ConanFile):
                   strip_root=True)
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         pkg_config_deps = PkgConfigDeps(self)
         pkg_config_deps.generate()
         tc = MesonToolchain(self)

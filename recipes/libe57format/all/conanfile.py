@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.tools.scm import Version
 
@@ -53,8 +52,6 @@ class LibE57FormatConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
         tc = CMakeToolchain(self)
         tc.variables["E57_BUILD_SHARED"] = self.options.shared
         tc.variables["E57_BUILD_TEST"] = False

@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
@@ -244,9 +243,6 @@ class ITKConan(ConanFile):
         deps = CMakeDeps(self)
         deps.set_property("fftw", "cmake_file_name", "FFTW")
         deps.generate()
-
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)

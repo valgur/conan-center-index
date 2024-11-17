@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir
 
 required_conan_version = ">=1.53.0"
@@ -91,9 +90,6 @@ class LapackConan(ConanFile):
 
         tc = CMakeDeps(self)
         tc.generate()
-
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
     def build(self):
         cmake = CMake(self)

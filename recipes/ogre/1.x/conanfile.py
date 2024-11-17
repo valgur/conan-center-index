@@ -6,7 +6,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, save, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
@@ -348,9 +347,6 @@ class OgreConanFile(ConanFile):
         return path.replace("\\", "/")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         # https://github.com/OGRECave/ogre/blob/v14.3.0/CMakeLists.txt#L281-L420
         tc.variables["OGRE_STATIC"] = not self.options.shared

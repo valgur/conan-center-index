@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import copy, save, chdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.microsoft import is_msvc, unix_path
@@ -26,8 +26,6 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
 

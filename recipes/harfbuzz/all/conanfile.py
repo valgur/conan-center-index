@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -127,8 +127,6 @@ class HarfbuzzConan(ConanFile):
                 # Mitigate https://learn.microsoft.com/en-us/cpp/build/reference/zf?view=msvc-170
                 return "vs", ["/bigobj"]
             return "ninja", []
-
-        VirtualBuildEnv(self).generate()
 
         # Avoid conflicts with libiconv
         # see: https://github.com/conan-io/conan-center-index/pull/17046#issuecomment-1554629094

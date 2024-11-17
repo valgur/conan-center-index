@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import can_run, cross_building
 from conan.tools.cmake import cmake_layout, CMake
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 import os
 
 
@@ -21,9 +21,7 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         VirtualRunEnv(self).generate()
-        if cross_building(self):
-            VirtualBuildEnv(self).generate()
-        else:
+        if not cross_building(self):
             VirtualRunEnv(self).generate(scope="build")
 
     def build(self):

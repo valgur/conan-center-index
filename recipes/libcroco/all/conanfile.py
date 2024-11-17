@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, PkgConfigDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -66,8 +66,6 @@ class LibcrocoConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = AutotoolsToolchain(self)
         # ./configure fails in C3I otherwise with:
         # error: -Bsymbolic requested but not supported by ld

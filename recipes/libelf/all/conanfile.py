@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -69,8 +68,6 @@ class LibelfConan(ConanFile):
             tc.variables["LIBELF_SRC_DIR"] = self.source_folder.replace("\\", "/")
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
             tc.configure_args.extend([
                 # it's required, libelf doesnt seem to understand DESTDIR

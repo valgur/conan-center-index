@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 
 required_conan_version = ">=1.53.0"
@@ -127,8 +126,6 @@ class LibSolvConan(ConanFile):
         deps = CMakeDeps(self)
         deps.set_property("xz_utils", "cmake_file_name", "LZMA")
         deps.generate()
-
-        VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")

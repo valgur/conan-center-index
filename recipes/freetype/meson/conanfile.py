@@ -5,7 +5,6 @@ import textwrap
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import (
     apply_conandata_patches, copy, export_conandata_patches, load,
     get, rename, replace_in_file, rm, rmdir, save
@@ -82,8 +81,6 @@ class FreetypeConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
 

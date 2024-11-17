@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.files import get, rmdir, copy, apply_conandata_patches, export_conandata_patches
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
-from conan.tools.env import VirtualBuildEnv
 import os
 
 
@@ -37,8 +36,6 @@ class InnoextractConan(ConanFile):
                   destination=self.source_folder)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         # Turn off static library detection, which is on by default on Windows.
         # This keeps the CMakeLists.txt from trying to detect static Boost

@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir, rm
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime
@@ -255,8 +254,6 @@ class PangolinConan(ConanFile):
         if self.options.get_safe("with_wayland"):
             deps = PkgConfigDeps(self)
             deps.generate()
-            venv = VirtualBuildEnv(self)
-            venv.generate()
 
     def _patch_sources(self):
         rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))

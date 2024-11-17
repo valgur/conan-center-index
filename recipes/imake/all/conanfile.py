@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
@@ -75,9 +74,6 @@ class ImakeConan(ConanFile):
         export_conandata_patches(self)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = AutotoolsToolchain(self)
 
         if self.settings.os == "Windows":

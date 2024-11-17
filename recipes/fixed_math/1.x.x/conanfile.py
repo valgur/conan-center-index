@@ -5,7 +5,6 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.tools.scm import Version
 from conan.tools.layout import basic_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -91,8 +90,6 @@ class FixedMathConan(ConanFile):
         if is_msvc(self):
             tc.variables["CMAKE_CXX_FLAGS"] = "/Zc:__cplusplus"
         tc.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate(scope="build")
 
     def build(self):
         if not self.options.header_only:

@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir, replace_in_file, load
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -84,9 +83,6 @@ class GrapheneConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         deps = PkgConfigDeps(self)
         if self.options.get_safe("with_introspection"):
             deps.build_context_activated = ["gobject-introspection"]

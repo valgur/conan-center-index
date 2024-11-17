@@ -4,7 +4,7 @@ import shutil
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy, get, chdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -58,8 +58,6 @@ class MrcalConan(ConanFile):
         copy(self, "*", "mrbuild", os.path.join("libdogleg", "mrbuild"))
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         # CHOLMOD .so file is not found without the VirtualRunEnv for some reason
         env = VirtualRunEnv(self)
         env.generate(scope="build")

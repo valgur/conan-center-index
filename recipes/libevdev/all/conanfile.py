@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -56,8 +55,6 @@ class LibEvdevConan(ConanFile):
         tc.project_options["tests"] = "disabled"
         tc.project_options["documentation"] = "disabled"
         tc.project_options["coverity"] = "false"
-        tc.generate()
-        tc = VirtualBuildEnv(self)
         tc.generate()
 
     def build(self):

@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building, build_jobs
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy, get, rename, rm, rmdir, replace_in_file, save, chdir, mkdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -123,9 +123,6 @@ class Libxml2Conan(ConanFile):
         elif self._is_mingw_windows:
             pass # nothing to do for mingw?  it calls mingw-make directly
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
-
             if not cross_building(self):
                 env = VirtualRunEnv(self)
                 env.generate(scope="build")

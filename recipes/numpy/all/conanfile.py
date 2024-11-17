@@ -3,7 +3,7 @@ import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import copy, get, save
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -69,9 +69,6 @@ class NumpyConan(ConanFile):
         return os.path.join(self.build_folder, "site-packages")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         env = Environment()
         # NumPy can only be built with its vendored Meson
         env.prepend_path("PATH", str(self._meson_root))

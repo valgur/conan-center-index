@@ -3,7 +3,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy, rm, chdir
 from conan.tools.build import check_min_cppstd, cross_building, build_jobs
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.gnu import AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 import os
@@ -112,8 +111,6 @@ class ComputeLibraryConan(ConanFile):
         tc.generate()
         tc = AutotoolsDeps(self)
         tc.generate()
-        tc = VirtualBuildEnv(self)
-        tc.generate(scope="build")
 
     def build(self):
         # INFO: Using scons to build the library we don't have control over shared/static and install step, it is done all together always

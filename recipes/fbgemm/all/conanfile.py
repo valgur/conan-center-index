@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, export_conandata_patches, get, apply_conandata_patches, rmdir, replace_in_file
 from conan.tools.scm import Version
 
@@ -99,8 +98,6 @@ class FbgemmConan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.generate()
-
-        VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)

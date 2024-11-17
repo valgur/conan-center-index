@@ -3,7 +3,6 @@ from conan.tools.files import get, replace_in_file, copy
 from conan.tools.build import cross_building
 from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.microsoft import VCVars, is_msvc
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.apple import is_apple_os
@@ -62,8 +61,6 @@ class GenieConan(ConanFile):
         return "debug" if self.settings.build_type == "Debug" else "release"
 
     def generate(self):
-        vbe = VirtualBuildEnv(self)
-        vbe.generate()
         if is_msvc(self):
             ms = VCVars(self)
             ms.generate()

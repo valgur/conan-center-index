@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import (
     apply_conandata_patches,
     chdir,
@@ -90,9 +90,6 @@ class TkConan(ConanFile):
         )
 
     def generate(self):
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()

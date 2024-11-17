@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -216,8 +215,6 @@ class OsgearthConan(ConanFile):
         # Use the same name for shared and static targets
         deps.set_property("rocksdb", "cmake_target_aliases", ["RocksDB::rocksdb", "RocksDB::rocksdb-shared"])
         deps.generate()
-
-        VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)

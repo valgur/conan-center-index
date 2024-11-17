@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rename, replace_in_file, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -78,8 +77,6 @@ class LibSELinuxConan(ConanFile):
         return os.path.join(self.source_folder, f"libselinux-{self.version}")
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         pkg_config_deps = PkgConfigDeps(self)
         pkg_config_deps.generate()
         tc = AutotoolsToolchain(self)

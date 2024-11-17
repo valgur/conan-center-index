@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
@@ -112,8 +111,6 @@ class LeptonicaConan(ConanFile):
         if self.options.with_webp or self.options.with_openjpeg:
             pc = PkgConfigDeps(self)
             pc.generate()
-            env = VirtualBuildEnv(self)
-            env.generate()
 
     def _patch_sources(self):
         apply_conandata_patches(self)
