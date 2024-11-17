@@ -59,6 +59,7 @@ class LibMP3LameConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self) or self._is_clang_cl:
@@ -117,7 +118,6 @@ class LibMP3LameConan(ConanFile):
         autotools.make()
 
     def build(self):
-        apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "include", "libmp3lame.sym"), "lame_init_old\n", "")
 
         if is_msvc(self) or self._is_clang_cl:

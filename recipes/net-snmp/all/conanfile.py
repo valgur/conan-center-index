@@ -79,6 +79,7 @@ class NetSnmpConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _is_debug(self):
@@ -172,7 +173,6 @@ class NetSnmpConan(ConanFile):
                             f'LIBS="-lcrypto -l{crypto_link_flags} $LIBS"')
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "win32")):
                 self._patch_msvc()

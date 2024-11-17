@@ -52,6 +52,7 @@ class LibalsaConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         virtual_build_env = VirtualBuildEnv(self)
@@ -67,7 +68,6 @@ class LibalsaConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         if Version(self.version) > "1.2.4":
             autotools.autoreconf()

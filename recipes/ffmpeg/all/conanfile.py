@@ -379,6 +379,7 @@ class FFMpegConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _target_arch(self):
@@ -408,7 +409,6 @@ class FFMpegConan(ConanFile):
         }.get(str(self.settings.os), "none")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if Version(self.version) < "5.1":
             # suppress MSVC linker warnings: https://trac.ffmpeg.org/ticket/7396
             # warning LNK4049: locally defined symbol x264_levels imported

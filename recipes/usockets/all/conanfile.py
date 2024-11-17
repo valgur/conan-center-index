@@ -131,9 +131,9 @@ class UsocketsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self._uses_msbuild:
             vcxproj_file = os.path.join(self.source_folder, "uSockets.vcxproj")
             platform_toolset = MSBuildToolchain(self).toolset

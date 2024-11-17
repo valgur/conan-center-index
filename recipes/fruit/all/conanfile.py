@@ -89,6 +89,7 @@ class FruitConan(ConanFile):
                 shutil.move(os.path.join(self.source_folder, extracted_dir, file_name), self.source_folder)
         else:
             get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -103,7 +104,6 @@ class FruitConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

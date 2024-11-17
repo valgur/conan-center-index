@@ -72,6 +72,7 @@ class GoogleAPIS(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -153,7 +154,6 @@ class GoogleAPIS(ConanFile):
         return proto_libraries
 
     def build(self):
-        apply_conandata_patches(self)
         proto_libraries = self._parse_proto_libraries()
         # Use a separate file to host the generated code, which is generated in full each time.
         # This is safe to call multiple times, for example, if you need to invoke `conan build` more than

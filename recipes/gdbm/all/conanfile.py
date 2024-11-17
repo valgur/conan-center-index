@@ -74,6 +74,7 @@ class GdbmConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         virtual_build_env = VirtualBuildEnv(self)
@@ -114,7 +115,6 @@ class GdbmConan(ConanFile):
         autotools_deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         for gnu_config in [
             self.conf.get("user.gnu-config:config_guess", check_type=str),
             self.conf.get("user.gnu-config:config_sub", check_type=str),

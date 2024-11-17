@@ -140,14 +140,14 @@ class wxWidgetsConan(ConanFile):
                 self.requires("gstreamer/1.22.3")
                 self.requires("gst-plugins-base/1.19.2")
             self.requires("libcurl/[>=7.78.0 <9]")
-        
+
         if self.options.jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.jpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.5")
-        
+
         self.requires("libpng/[>=1.6 <2]")
         self.requires("libtiff/4.6.0")
         self.requires("zlib/[>=1.2.11 <2]")
@@ -165,8 +165,6 @@ class wxWidgetsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
         # Don't change library names when cross-compiling
         replace_in_file(self, os.path.join(self.source_folder, "build", "cmake", "functions.cmake"),
@@ -259,7 +257,6 @@ class wxWidgetsConan(ConanFile):
         deps.generate()
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

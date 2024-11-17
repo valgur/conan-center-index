@@ -84,6 +84,7 @@ class LibgdConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -116,7 +117,6 @@ class LibgdConan(ConanFile):
         deps.generate()
 
     def _patch(self):
-        apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "${CMAKE_SOURCE_DIR}",
                         "${CMAKE_CURRENT_SOURCE_DIR}")

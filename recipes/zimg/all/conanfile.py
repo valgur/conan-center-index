@@ -61,6 +61,7 @@ class ZimgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -74,7 +75,6 @@ class ZimgConan(ConanFile):
             tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             #==========================
             # TODO: to remove once https://github.com/conan-io/conan/pull/12817 available in conan client

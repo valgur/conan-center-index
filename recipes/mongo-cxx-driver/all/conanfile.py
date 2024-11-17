@@ -112,6 +112,7 @@ class MongoCxxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -142,7 +143,6 @@ class MongoCxxConan(ConanFile):
             shutil.copy(src=mongoc_config_file, dst=bson_config_file)
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

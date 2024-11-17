@@ -66,6 +66,7 @@ class CppRestSDKConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -93,7 +94,6 @@ class CppRestSDKConan(ConanFile):
                                   'libc++', 'libstdc++')
 
     def build(self):
-        apply_conandata_patches(self)
         self._patch_clang_libcxx()
         cmake = CMake(self)
         cmake.configure()

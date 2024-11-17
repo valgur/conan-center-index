@@ -78,6 +78,7 @@ class RestbedConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,7 +91,6 @@ class RestbedConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if not self.options.shared:
             for file in list(Path(self.source_folder).rglob("*.h")) + list(Path(self.source_folder).rglob("*.hpp")):
                 data = file.read_text()

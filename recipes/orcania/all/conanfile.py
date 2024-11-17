@@ -52,8 +52,8 @@ class OrcaniaConan(ConanFile):
             self.requires("getopt-for-visual-studio/20200201")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -70,11 +70,7 @@ class OrcaniaConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

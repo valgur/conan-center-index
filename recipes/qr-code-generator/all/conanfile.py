@@ -67,6 +67,7 @@ class QrCodeGeneratorConan(ConanFile):
             destination=self.source_folder,
             strip_root=True
         )
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -77,7 +78,6 @@ class QrCodeGeneratorConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()

@@ -60,18 +60,6 @@ class OpenvrConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.cache_variables["BUILD_SHARED"] = self.options.shared
-        tc.cache_variables["BUILD_UNIVERSAL"] = False
-        # Let Conan handle the stdlib setting, even if we are using libc++
-        tc.cache_variables["USE_LIBCXX"] = False
-        tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
         # Honor fPIC=False
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-fPIC", "")
@@ -84,8 +72,17 @@ class OpenvrConan(ConanFile):
              "target_link_libraries(${LIBNAME} JsonCpp::JsonCpp)",
              append=True)
 
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.cache_variables["BUILD_SHARED"] = self.options.shared
+        tc.cache_variables["BUILD_UNIVERSAL"] = False
+        # Let Conan handle the stdlib setting, even if we are using libc++
+        tc.cache_variables["USE_LIBCXX"] = False
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
+
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

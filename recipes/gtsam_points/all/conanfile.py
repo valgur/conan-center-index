@@ -73,6 +73,9 @@ class GtsamPointsPackage(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        rmdir(self, os.path.join(self.source_folder, "thirdparty"))
+        rm(self, "FindGTSAM.cmake", os.path.join(self.source_folder, "cmake"))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -86,13 +89,7 @@ class GtsamPointsPackage(ConanFile):
 
         VirtualBuildEnv(self).generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        rmdir(self, os.path.join(self.source_folder, "thirdparty"))
-        rm(self, "FindGTSAM.cmake", os.path.join(self.source_folder, "cmake"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

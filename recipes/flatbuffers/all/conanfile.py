@@ -67,6 +67,7 @@ class FlatbuffersConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         self._patch_sources()
 
     def generate(self):
@@ -96,8 +97,6 @@ class FlatbuffersConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         # Prefer manual injection of current version in build(), otherwise it tries to call git
         replace_in_file(self, cmakelists, "include(CMake/Version.cmake)", "")

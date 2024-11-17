@@ -87,6 +87,7 @@ class PCREConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -117,7 +118,6 @@ class PCREConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         cmake_file = os.path.join(self.source_folder, "CMakeLists.txt")
         # Avoid man and share during install stage
         replace_in_file(self, cmake_file, "INSTALL(FILES ${man1} DESTINATION man/man1)", "")

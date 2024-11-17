@@ -84,7 +84,8 @@ class PhysXConan(ConanFile):
                 )
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         self._patch_sources()
 
     def generate(self):
@@ -147,8 +148,6 @@ class PhysXConan(ConanFile):
         return "CMakeModules" if self.settings.os == "Windows" else "cmakemodules"
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # There is no reason to force consumer of PhysX public headers to use one of
         # NDEBUG or _DEBUG, since none of them relies on NDEBUG or _DEBUG
         replace_in_file(self, os.path.join(self.source_folder, "pxshared", "include", "foundation", "PxPreprocessor.h"),

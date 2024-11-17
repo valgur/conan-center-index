@@ -102,10 +102,10 @@ class CspiceConan(ConanFile):
                 get(self, **data)
             rmdir(self, self.source_folder)
             rename(self, "cspice", os.path.basename(self.source_folder))
+        apply_conandata_patches(self)
 
     def build(self):
         self._get_sources()
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=self._parent_source_folder)
         cmake.build()

@@ -81,9 +81,9 @@ class PcapplusplusConan(ConanFile):
             props_file = os.path.join(self.generators_folder, "conantoolchain.props")
             vcxproj_templates = glob.glob(f"{self.source_folder}/mk/vs/*.vcxproj.template")
             for template_file in vcxproj_templates:
-                # Load conan-generated conantoolchain.props before Microsoft.Cpp.props 
+                # Load conan-generated conantoolchain.props before Microsoft.Cpp.props
                 # so that we have precedence over PlatformToolset version
-                replace_in_file(self, template_file, '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />', 
+                replace_in_file(self, template_file, '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />',
                                 f'<Import Project="{props_file}" />\n<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />')
 
     def generate(self):
@@ -102,7 +102,7 @@ class PcapplusplusConan(ConanFile):
                 tc.configure_args.append("--use-immediate-mode")
             if is_apple_os(self) and "arm" in self.settings.arch:
                 tc.configure_args.append("--arm64")
-            
+
             tc.generate()
 
     def build(self):

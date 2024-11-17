@@ -58,6 +58,7 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,7 +73,6 @@ class PackageConan(ConanFile):
         CMakeDeps(self).generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Do not hard-code libraries to SHARED
         parser_cmakelists = os.path.join(self.source_folder, "urdf_parser", "CMakeLists.txt")
         replace_in_file(self, parser_cmakelists, " SHARED", "")

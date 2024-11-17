@@ -61,6 +61,7 @@ class BisonConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -102,8 +103,6 @@ class BisonConan(ConanFile):
         tc.generate(env)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         makefile = os.path.join(self.source_folder, "Makefile.in")
         yacc = os.path.join(self.source_folder, "src", "yacc.in")
 

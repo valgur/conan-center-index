@@ -95,6 +95,7 @@ class MongoCDriverConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _ssl_cmake_value(self):
@@ -171,7 +172,6 @@ class MongoCDriverConan(ConanFile):
             env.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         libmongoc_cmake = os.path.join(self.source_folder, "src", "libmongoc", "CMakeLists.txt")
         replace_in_file(self, libmongoc_cmake,
                         "include (FindSnappy)\nif (SNAPPY_INCLUDE_DIRS)",

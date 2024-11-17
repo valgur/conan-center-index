@@ -119,13 +119,12 @@ class OpenCVConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
-
         get(self, **self.conan_data["sources"][self.version][1],
             destination=self._contrib_folder, strip_root=True)
+        rmdir(self, os.path.join(self.source_folder, "3rdparty"))
+        apply_conandata_patches(self)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-        rmdir(self, os.path.join(self.source_folder, "3rdparty"))
         if self.options.contrib:
             freetype_cmake = os.path.join(self._contrib_folder, "modules", "freetype", "CMakeLists.txt")
             replace_in_file(self, freetype_cmake, "ocv_check_modules(FREETYPE freetype2)", "find_package(Freetype REQUIRED MODULE)")

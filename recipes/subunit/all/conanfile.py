@@ -73,6 +73,7 @@ class SubunitConan(ConanFile):
             self.tool_requires("automake/1.16.5")
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -130,7 +131,6 @@ class SubunitConan(ConanFile):
             env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
-        apply_conandata_patches(self)
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()

@@ -57,6 +57,7 @@ class VilibConan(ConanFile):
         rmdir(self, "assets")
         rmdir(self, "ros")
         rmdir(self, os.path.join("visual_lib", "test"))
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -66,7 +67,6 @@ class VilibConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

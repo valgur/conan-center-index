@@ -61,6 +61,7 @@ class NasRecipe(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0],  strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _user_info_build(self):
@@ -89,8 +90,6 @@ class NasRecipe(ConanFile):
         return ["IRULESRC={}".format(self._imake_irulesrc), "IMAKE_DEFINES={}".format(self._imake_defines)]
 
     def build(self):
-        apply_conandata_patches(self)
-
         for gnu_config in [
             self.conf.get("user.gnu-config:config_guess", check_type=str),
             self.conf.get("user.gnu-config:config_sub", check_type=str),

@@ -38,8 +38,6 @@ class CoinBuildtoolsConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
         download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
-
-    def build(self):
         apply_conandata_patches(self)
 
     @staticmethod

@@ -88,6 +88,7 @@ class PackageConan(ConanFile):
             destination=self.source_folder,
             strip_root=True
         )
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -107,7 +108,6 @@ class PackageConan(ConanFile):
             tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         for project in ['lzhamcomp', 'lzhamdecomp', 'lzhamdll', 'lzhamlib']:
             filename = 'lzham' if project == 'lzhamdll' else project
             vcxproj_file = os.path.join(self.source_folder, project, f"{filename}.vcxproj")

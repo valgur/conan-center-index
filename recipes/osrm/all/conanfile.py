@@ -118,6 +118,7 @@ class OsrmConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -143,8 +144,6 @@ class OsrmConan(ConanFile):
         tc.generate(scope="build")
 
     def _patch_source(self):
-        apply_conandata_patches(self)
-
         # Disable subdirs
         save(self, os.path.join(self.source_folder, "unit_tests", "CMakeLists.txt"), "")
         save(self, os.path.join(self.source_folder, "src", "benchmarks", "CMakeLists.txt"), "")

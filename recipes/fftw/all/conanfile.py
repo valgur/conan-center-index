@@ -83,6 +83,7 @@ class FFTWConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -104,7 +105,6 @@ class FFTWConan(ConanFile):
         return [p for p in ALL if self.options.get_safe(f"precision_{p}")]
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "find_package (OpenMP)", "find_package(OpenMP REQUIRED)")
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),

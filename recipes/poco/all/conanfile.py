@@ -205,6 +205,7 @@ class PocoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def _dep_include_paths(self, dep_name):
         dep = self.dependencies[dep_name]
@@ -265,7 +266,6 @@ class PocoConan(ConanFile):
             vcvars.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # mysql
         if self.options.get_safe("enable_data_mysql"):
             mysql_cpp_info = self.dependencies["libmysqlclient"].cpp_info

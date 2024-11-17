@@ -83,6 +83,8 @@ class GDCMConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        rm(self, "Find*.cmake", os.path.join(self.source_folder, "CMake"))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -110,12 +112,7 @@ class GDCMConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "CMake"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

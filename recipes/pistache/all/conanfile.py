@@ -91,6 +91,7 @@ class PistacheConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if self.version == "cci.20201127":
@@ -118,7 +119,6 @@ class PistacheConan(ConanFile):
             env.generate(scope="build")
 
     def build(self):
-        apply_conandata_patches(self)
         if self.version != "cci.20201127":
             replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
                                     "dependency('RapidJSON', fallback: ['rapidjson', 'rapidjson_dep'])",

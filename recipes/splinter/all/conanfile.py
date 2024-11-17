@@ -51,6 +51,8 @@ class SplinterConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rmdir(self, os.path.join(self.source_folder, "thirdparty"))
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -59,12 +61,7 @@ class SplinterConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        rmdir(self, os.path.join(self.source_folder, "thirdparty"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -130,6 +130,7 @@ class LLVMOpenMpConan(ConanFile):
                  dst=os.path.join(self.source_folder, "cmake"))
         else:
             get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -145,7 +146,6 @@ class LLVMOpenMpConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self._version_major < 17:
             # Fix CMake version and policies not being propagated in linker tests
             replace_in_file(self, os.path.join(self.source_folder, "runtime", "cmake", "LibompCheckLinkerFlag.cmake"),

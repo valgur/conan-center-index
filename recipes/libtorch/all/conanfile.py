@@ -359,6 +359,7 @@ class LibtorchConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
         # Keep only a restricted set of vendored dependencies.
         # Do it before build() to limit the amount of files to copy.
@@ -470,7 +471,6 @@ class LibtorchConan(ConanFile):
         self.run(f"python -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Recreate some for add_subdirectory() to work
         for pkg in ["foxi", "fmt", "FXdiv", "psimd", "mimalloc"]:
             save(self, os.path.join(self.source_folder, "third_party", pkg, "CMakeLists.txt"), "")

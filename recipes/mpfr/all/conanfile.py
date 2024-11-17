@@ -74,6 +74,7 @@ class MpfrConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -135,7 +136,6 @@ class MpfrConan(ConanFile):
         return sources, headers, defs
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self.settings.os == "Windows": # Allow mixed shared and static libs
             replace_in_file(self, os.path.join(self.source_folder, "configure"),
                 'as_fn_error $? "libgmp isn\'t provided as a DLL: use --enable-static --disable-shared" "$LINENO" 5',

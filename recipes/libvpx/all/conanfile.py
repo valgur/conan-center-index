@@ -80,6 +80,7 @@ class LibVPXConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _install_tmp_folder(self):
@@ -182,7 +183,6 @@ class LibVPXConan(ConanFile):
         tc.generate(env)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Disable LTO for Visual Studio when CFLAGS doesn't contain -GL
         if is_msvc(self):
             cflags = " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list))

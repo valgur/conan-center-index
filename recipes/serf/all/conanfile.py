@@ -59,6 +59,9 @@ class SerfConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        pc_in = os.path.join(self.source_folder, "build", "serf.pc.in")
+        save(self, pc_in, load(self, pc_in))
 
     def _lib_path_arg(self, path):
         argname = "LIBPATH:" if is_msvc(self) else "L"
@@ -109,13 +112,7 @@ class SerfConan(ConanFile):
         scons_args = " ".join([escape_str(s) for s in args] + [f"{k}={escape_str(v)}" for k, v in kwargs.items()])
         save(self, os.path.join(self.source_folder, "scons_args"), scons_args)
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        pc_in = os.path.join(self.source_folder, "build", "serf.pc.in")
-        save(self, pc_in, load(self, pc_in))
-
     def build(self):
-        self._patch_sources()
         with chdir(self, self.source_folder):
             self.run("scons {}".format(load(self, "scons_args")))
 

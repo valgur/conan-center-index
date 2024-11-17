@@ -64,6 +64,7 @@ class LibrealsenseConan(ConanFile):
     def source(self):
         sources = self.conan_data["sources"][self.version]
         get(self, **sources["source"], strip_root=True)
+        apply_conandata_patches(self)
         for firmware in sources["firmware"]:
             filename = os.path.basename(urllib.parse.urlparse(firmware["url"]).path)
             download(self, filename=filename, **firmware)
@@ -104,7 +105,6 @@ class LibrealsenseConan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -58,22 +58,18 @@ class GKlibConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-
-        tc.variables["ASSERT"] = self.settings.build_type == "Debug"
-        tc.variables["ASSERT2"] = self.settings.build_type == "Debug"
-
-        tc.generate()
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
         # Disable -march=native, which breaks cross-compilation and produces non-portable binaries
         replace_in_file(self, os.path.join(self.source_folder, "GKlibSystem.cmake"),  "-march=native", "")
 
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["ASSERT"] = self.settings.build_type == "Debug"
+        tc.variables["ASSERT2"] = self.settings.build_type == "Debug"
+        tc.generate()
+
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

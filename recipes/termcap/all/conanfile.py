@@ -44,6 +44,7 @@ class TermcapConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def _extract_sources(self):
         makefile_text = open(os.path.join(self.source_folder, "Makefile.in")).read()
@@ -65,8 +66,6 @@ class TermcapConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         if self.settings.os == "Windows":
             for src in self._extract_sources()[0]:
                 txt = open(src).read()

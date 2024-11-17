@@ -96,6 +96,7 @@ class FreeImageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -113,7 +114,6 @@ class FreeImageConan(ConanFile):
         cd.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         rmdir(self, os.path.join(self.source_folder, "Source", "LibPNG"))
         rmdir(self, os.path.join(self.source_folder, "Source", "LibTIFF4"))
         rmdir(self, os.path.join(self.source_folder, "Source", "LibOpenJPEG"))

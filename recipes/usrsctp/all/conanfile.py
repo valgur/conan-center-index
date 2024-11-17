@@ -44,6 +44,11 @@ class UsrsctpConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        # Fix "The CMake policy CMP0091 must be NEW, but is ''"
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "project(usrsctplib C)\ncmake_minimum_required(VERSION 3.0)",
+                        "cmake_minimum_required(VERSION 3.15)\nproject(usrsctplib C)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -54,15 +59,7 @@ class UsrsctpConan(ConanFile):
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
         tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # Fix "The CMake policy CMP0091 must be NEW, but is ''"
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "project(usrsctplib C)\ncmake_minimum_required(VERSION 3.0)",
-                        "cmake_minimum_required(VERSION 3.15)\nproject(usrsctplib C)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

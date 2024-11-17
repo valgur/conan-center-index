@@ -111,6 +111,7 @@ class DpdkConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -141,7 +142,6 @@ class DpdkConan(ConanFile):
         self.run(f"python -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}")
 
     def build(self):
-        apply_conandata_patches(self)
         self._pip_install(["pyelftools"])
         meson = Meson(self)
         meson.configure()

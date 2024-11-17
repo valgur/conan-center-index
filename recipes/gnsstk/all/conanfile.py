@@ -61,6 +61,7 @@ class GNSSTkConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -76,7 +77,6 @@ class GNSSTkConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Disable examples and tests
         save(self, os.path.join(self.source_folder, "examples", "CMakeLists.txt"), "")
         save(self, os.path.join(self.source_folder, "core", "tests", "CMakeLists.txt"), "")

@@ -44,6 +44,7 @@ class HunspellConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         # NOTE: The source contains a pre-configured hunvisapi.h and it would
         #       prevent no_copy_source and building without patches.
         h = os.path.join(self.source_folder, "src", "hunspell", "hunvisapi.h")
@@ -58,7 +59,6 @@ class HunspellConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()

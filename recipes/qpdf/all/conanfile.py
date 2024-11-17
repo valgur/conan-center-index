@@ -90,6 +90,7 @@ class QpdfConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = VirtualBuildEnv(self)
@@ -120,7 +121,6 @@ class QpdfConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # we generally expect to have one crypto in-place, but need to patch the found mechanics
         # since we avoid currently the correct pkg_config
         replace_in_file(self, os.path.join(self.source_folder, "libqpdf", "CMakeLists.txt"),

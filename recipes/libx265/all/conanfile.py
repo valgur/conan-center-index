@@ -92,6 +92,7 @@ class Libx265Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -118,7 +119,6 @@ class Libx265Conan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "source", "CMakeLists.txt")
         replace_in_file(self, cmakelists,
                                 "if((WIN32 AND ENABLE_CLI) OR (WIN32 AND ENABLE_SHARED))",

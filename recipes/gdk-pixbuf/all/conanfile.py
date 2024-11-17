@@ -97,6 +97,7 @@ class GdkPixbufConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _requires_compiler_rt(self):
@@ -146,7 +147,6 @@ class GdkPixbufConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         meson_build = os.path.join(self.source_folder, "meson.build")
         gdk_meson_build = os.path.join(self.source_folder, "gdk-pixbuf", "meson.build")
 

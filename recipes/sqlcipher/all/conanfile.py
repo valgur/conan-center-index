@@ -80,6 +80,7 @@ class SqlcipherConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
 
     @property
@@ -203,7 +204,6 @@ class SqlcipherConan(ConanFile):
                             f"#! /bin/sh\nexport DYLD_LIBRARY_PATH={libpaths}:$DYLD_LIBRARY_PATH\n")
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             with chdir(self, self.source_folder):
                 main_target = "dll" if self.options.shared else "sqlcipher.lib"

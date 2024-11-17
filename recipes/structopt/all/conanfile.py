@@ -65,16 +65,14 @@ class StructoptConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rmdir(self, os.path.join(self.source_folder, "include", "structopt", "third_party"))
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
-
-    def build(self):
-        apply_conandata_patches(self)
-        rmdir(self, os.path.join(self.source_folder, "include", "structopt", "third_party"))
 
     def package(self):
         copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

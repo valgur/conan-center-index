@@ -69,6 +69,8 @@ class GetDnsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake", "modules"))
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -112,12 +114,7 @@ class GetDnsConan(ConanFile):
         deps.set_property("libuv", "cmake_target_name", "Libuv::Libuv")
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake", "modules"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

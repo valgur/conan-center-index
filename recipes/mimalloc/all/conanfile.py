@@ -99,6 +99,7 @@ class MimallocConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -119,7 +120,6 @@ class MimallocConan(ConanFile):
             vcvars.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self) and self.settings.arch == "x86" and self.options.shared:
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                             "mimalloc-redirect.lib",

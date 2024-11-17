@@ -64,6 +64,7 @@ class BasuConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         feature = lambda option: "enabled" if option else "disabled"
@@ -78,7 +79,6 @@ class BasuConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         meson = Meson(self)
         meson.configure()
         meson.build()

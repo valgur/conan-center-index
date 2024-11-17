@@ -73,6 +73,7 @@ class LibUSBConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -90,7 +91,6 @@ class LibUSBConan(ConanFile):
             deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             solution_msvc_year = "2017" if Version(self.version) < "1.0.24" else "2019"
             solution = f"libusb_{'dll' if self.options.shared else 'static'}_{solution_msvc_year}.vcxproj"

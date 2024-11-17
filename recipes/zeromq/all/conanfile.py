@@ -71,6 +71,7 @@ class ZeroMQConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -97,7 +98,6 @@ class ZeroMQConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self.options.encryption == "libsodium":
             cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
             cpp_info_sodium = self.dependencies["libsodium"].cpp_info

@@ -100,6 +100,7 @@ class OpenSubdivConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _osd_gpu_enabled(self):
@@ -137,7 +138,6 @@ class OpenSubdivConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self.settings.os == "Macos" and not self._osd_gpu_enabled:
             path = os.path.join(self.source_folder, "opensubdiv", "CMakeLists.txt")
             replace_in_file(self, path, "$<TARGET_OBJECTS:osd_gpu_obj>", "")

@@ -68,6 +68,7 @@ class LibSELinuxConan(ConanFile):
     def source(self):
         for download in self.conan_data["sources"][self.version]:
             get(self, **download)
+        apply_conandata_patches(self)
 
     @property
     def _sepol_source_folder(self):
@@ -94,7 +95,6 @@ class LibSELinuxConan(ConanFile):
         tc.generate(env=env)
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         for subdir in [self._sepol_source_folder, self._selinux_source_folder]:
             with chdir(self, subdir):

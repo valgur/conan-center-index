@@ -34,6 +34,7 @@ class LibmemcachedConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -55,7 +56,6 @@ class LibmemcachedConan(ConanFile):
         self.tool_requires("libtool/2.4.7")
 
     def _patch_source(self):
-        apply_conandata_patches(self)
         # Disable tests. This avoids a test dependency on libuuid as well.
         save(self, os.path.join(self.source_folder, "libtest", "include.am"), "test:\t\n")
         save(self, os.path.join(self.source_folder, "tests", "include.am"), "test:\t\n")

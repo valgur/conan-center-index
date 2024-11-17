@@ -64,9 +64,9 @@ class TroldalZippyConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def package(self):
-        apply_conandata_patches(self)
         copy(self, "LICENSE",
              dst=os.path.join(self.package_folder, "licenses"),
              src=self.source_folder)

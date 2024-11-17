@@ -93,6 +93,7 @@ class RmluiConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
                   destination=self.source_folder, strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -110,8 +111,6 @@ class RmluiConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # If we are using robin_hood hashing provided by conan, we need to change its include path
         if self.options.with_thirdparty_containers:
             config_path = os.path.join(self.source_folder,

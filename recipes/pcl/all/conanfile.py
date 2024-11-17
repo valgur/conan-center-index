@@ -442,7 +442,8 @@ class PclConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
 
-    def _patch_sources(self):
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         find_modules_to_remove = [
             "ClangFormat",
@@ -466,10 +467,6 @@ class PclConan(ConanFile):
             find_modules_to_remove.append("Eigen")
         for mod in find_modules_to_remove:
             os.remove(os.path.join(self.source_folder, "cmake", "Modules", f"Find{mod}.cmake"))
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        self._patch_sources()
 
     def generate(self):
         tc = CMakeToolchain(self)

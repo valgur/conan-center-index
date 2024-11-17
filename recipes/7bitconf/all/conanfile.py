@@ -76,9 +76,9 @@ class SevenBitConfConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
-        apply_conandata_patches(self)
         if not self.options.header_only:
             tc = CMakeToolchain(self)
             tc.variables["_7BIT_CONF_BUILD_EXAMPLES"] = False

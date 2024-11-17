@@ -47,12 +47,12 @@ class SzipConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
-
-    def build(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+                        "set (CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+
+    def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

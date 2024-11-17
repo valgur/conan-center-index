@@ -82,14 +82,11 @@ class ThriftConan(ConanFile):
         if self.options.with_qt5 and not can_run(self):
             self.tool_requires("qt/<host_version>")
 
-    def _patch_sources(self):
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # No static code analysis (seems to trigger CMake warnings due to weird custom Find module file)
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(StaticCodeAnalysis)", "")
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        self._patch_sources()
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -148,6 +148,7 @@ class GrpcConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         # This doesn't work yet as one would expect, because the install target builds everything
@@ -206,8 +207,6 @@ class GrpcConan(ConanFile):
         cmake_deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # On macOS if all the following are true:
         # - protoc from protobuf has shared library dependencies
         # - grpc_cpp_plugin has shared library deps (when crossbuilding)

@@ -175,6 +175,7 @@ class OpenblasConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -225,7 +226,6 @@ class OpenblasConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Disable test subdirs.
         # ctest also otherwise fails to compile on Android API 22 and earlier due to incomplete complex support.
         save(self, os.path.join(self.source_folder, "cpp_thread_test", "CMakeLists.txt"), "")

@@ -69,6 +69,7 @@ class LibtoolConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _datarootdir(self):
@@ -111,7 +112,6 @@ class LibtoolConan(ConanFile):
         tc.generate(env)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         config_guess =  self.dependencies.build["gnu-config"].conf_info.get("user.gnu-config:config_guess")
         config_sub = self.dependencies.build["gnu-config"].conf_info.get("user.gnu-config:config_sub")
         shutil.copy(config_sub, os.path.join(self.source_folder, "build-aux", "config.sub"))

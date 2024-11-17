@@ -88,6 +88,7 @@ class TkConan(ConanFile):
             strip_root=True,
             destination=self.source_folder,
         )
+        apply_conandata_patches(self)
 
     def generate(self):
         buildenv = VirtualBuildEnv(self)
@@ -203,7 +204,6 @@ class TkConan(ConanFile):
             )
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             self._build_nmake()
         else:

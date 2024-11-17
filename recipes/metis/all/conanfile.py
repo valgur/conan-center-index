@@ -70,6 +70,7 @@ class METISConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         rm(self, "*.pdf", self.source_folder, recursive=True)
         copy(self, "CMakeLists.txt", self.export_sources_folder, self.source_folder)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -91,11 +92,7 @@ class METISConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

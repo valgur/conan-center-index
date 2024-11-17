@@ -50,6 +50,7 @@ class LuajitConan(ConanFile):
     def source(self):
         filename = f"LuaJIT-{self.version}.tar.gz"
         get(self, **self.conan_data["sources"][self.version], filename=filename, strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _target_sys(self):
@@ -124,7 +125,6 @@ class LuajitConan(ConanFile):
         return "luajit-2.1"
 
     def build(self):
-        apply_conandata_patches(self)
         self._patch_sources()
         if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "src")):

@@ -58,6 +58,7 @@ class TcpWrappersConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _shext(self):
@@ -76,7 +77,6 @@ class TcpWrappersConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.make(target="linux")

@@ -44,12 +44,10 @@ class RocketConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def package_id(self):
         self.info.clear()
-
-    def build(self):
-        apply_conandata_patches(self)
 
     def _extract_license(self):
         readme_content = load(self, os.path.join(self.source_folder, "README.md"))

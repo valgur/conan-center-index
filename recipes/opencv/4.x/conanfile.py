@@ -1177,13 +1177,11 @@ class OpenCVConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
-
         get(self, **self.conan_data["sources"][self.version][1],
             destination=self._contrib_folder, strip_root=True)
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
 
+    def _patch_sources(self):
         # Patches in opencv
         # -----------------
 

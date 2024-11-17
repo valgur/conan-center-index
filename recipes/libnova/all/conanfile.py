@@ -64,6 +64,7 @@ class LibnovaConan(ConanFile):
 
         # Download archive
         get(self, **self.conan_data["sources"][self.version]["archive"], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -71,7 +72,6 @@ class LibnovaConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

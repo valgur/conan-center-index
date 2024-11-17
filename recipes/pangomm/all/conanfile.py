@@ -80,6 +80,7 @@ class PangommConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -96,8 +97,6 @@ class PangommConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # glibmm_generate_extra_defs library does not provide any standard way
         # for discovery, which is why pangomm uses "find_library" method instead
         # of "dependency". this patch adds a hint to where this library is

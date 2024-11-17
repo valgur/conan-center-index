@@ -49,6 +49,10 @@ class PExportsConan(ConanFile):
     def source(self):
         filename = "pexports.tar.xz"
         get(self, **self.conan_data["sources"][self.version], filename=filename, strip_root=True)
+        apply_conandata_patches(self)
+        # Fix for: Invalid configuration `aarch64-apple-darwin': machine `aarch64-apple' not recognized
+        replace_in_file(self, os.path.join(self.source_folder, "build-aux", "config.sub"),
+                        "avr | avr32 ", "avr | avr32 | aarch64")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -71,14 +75,7 @@ class PExportsConan(ConanFile):
             env.define("LD", "link -nologo")
             env.vars(self).save_script("conanbuild_msvc")
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # Fix for: Invalid configuration `aarch64-apple-darwin': machine `aarch64-apple' not recognized
-        replace_in_file(self, os.path.join(self.source_folder, "build-aux", "config.sub"),
-                        "avr | avr32 ", "avr | avr32 | aarch64")
-
     def build(self):
-        self._patch_sources()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()

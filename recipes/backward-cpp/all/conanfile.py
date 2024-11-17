@@ -105,6 +105,7 @@ class BackwardCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if self.options.header_only:
@@ -126,7 +127,6 @@ class BackwardCppConan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if self.options.header_only:
             return
         cmake = CMake(self)

@@ -63,6 +63,7 @@ class DiligentCoreConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def package_id(self):
         if visual.is_msvc(self.info):
@@ -101,7 +102,6 @@ class DiligentCoreConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "project(DiligentCore)",
                         "project(DiligentCore)\n\ninclude(conan_deps.cmake)")

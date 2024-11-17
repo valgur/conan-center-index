@@ -56,6 +56,7 @@ class OdbcConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -75,7 +76,6 @@ class OdbcConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # support more triplets
         for gnu_config in [
             self.conf.get("user.gnu-config:config_guess", check_type=str),

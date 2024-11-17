@@ -109,6 +109,7 @@ class ProtobufConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _cmake_install_base_path(self):
@@ -154,8 +155,6 @@ class ProtobufConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         if self._protobuf_release < "22.0":
             # In older versions of protobuf, this file defines the `protobuf_generate` function
             protobuf_config_cmake = os.path.join(self.source_folder, "cmake", "protobuf-config.cmake.in")

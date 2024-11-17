@@ -88,6 +88,7 @@ class SpeedbConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -109,7 +110,6 @@ class SpeedbConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # to avoid wrong CPU detection, modify not to use "-march=native" in apple-clang
         if cross_building(self) and self.settings.compiler == "apple-clang":
             replace_in_file(self,

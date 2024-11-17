@@ -50,6 +50,8 @@ class FtjamConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "jamgram.c"), "\n#line", "\n//#line")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -61,10 +63,6 @@ class FtjamConan(ConanFile):
             tc = AutotoolsToolchain(self)
             tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "jamgram.c"), "\n#line", "\n//#line")
-
     def _jam_toolset(self, os, compiler):
         if is_msvc(self):
             return "VISUALC"
@@ -75,7 +73,6 @@ class FtjamConan(ConanFile):
         return None
 
     def build(self):
-        self._patch_sources()
         with chdir(self, self.source_folder):
             if self.settings.os == "Windows":
                 # toolset name of the system building ftjam

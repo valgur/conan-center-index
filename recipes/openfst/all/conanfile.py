@@ -103,6 +103,7 @@ class OpenFstConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -126,7 +127,6 @@ class OpenFstConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if not can_run(self):
             # Skip a "Float equality is good" try_run check.
             replace_in_file(self, os.path.join(self.source_folder, "configure"),

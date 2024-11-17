@@ -50,6 +50,7 @@ class JungleConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,7 +59,6 @@ class JungleConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         # TODO: add a patch file
         path = Path(self.source_folder, "include", "libjungle", "sized_buf.h")
         path.write_text("#include <stdint.h>\n" + path.read_text())

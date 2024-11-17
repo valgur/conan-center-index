@@ -79,9 +79,9 @@ class GfCompleteConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Don't build tests and examples (and also tools if Visual Studio)
         to_build = ["src"]
         if not is_msvc(self):

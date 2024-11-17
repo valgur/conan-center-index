@@ -155,6 +155,7 @@ class EmbreeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -196,7 +197,6 @@ class EmbreeConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # some compilers (e.g. clang) do not like UTF-16 sources
         rc = os.path.join(self.source_folder, "kernels", "embree.rc")
         content = load(self, rc, encoding="utf_16_le")

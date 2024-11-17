@@ -88,7 +88,8 @@ class CrashpadConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version]["crashpad"], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["crashpad"], strip_root=True)
+        apply_conandata_patches(self)
         get(self, **self.conan_data["sources"][self.version]["mini_chromium"],
             destination=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium"), strip_root=True)
 
@@ -132,8 +133,6 @@ class CrashpadConan(ConanFile):
             return str(self.options.http_transport)
 
     def build(self):
-        apply_conandata_patches(self)
-
         if is_msvc(self):
             replace_in_file(self, os.path.join(self.source_folder, "third_party", "zlib", "BUILD.gn"),
                                   "libs = [ \"z\" ]",

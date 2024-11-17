@@ -119,6 +119,7 @@ class ICUConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -177,8 +178,6 @@ class ICUConan(ConanFile):
             env.vars(self).save_script("conanbuild_icu_msvc")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         if not self._with_unit_tests:
             # Prevent any call to python during configuration, it's only needed for unit tests
             replace_in_file(

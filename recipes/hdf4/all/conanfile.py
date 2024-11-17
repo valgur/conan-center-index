@@ -66,6 +66,7 @@ class Hdf4Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         if Version(self.version) > "4.2.15":
             move_folder_contents(self, os.path.join(self.source_folder, f"hdf-{self.version}"), self.source_folder)
 
@@ -106,7 +107,6 @@ class Hdf4Conan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         libs = ["JPEG::JPEG", "ZLIB::ZLIB"]
         if self.options.szip_support:
             libs.append("SZIP::SZIP")

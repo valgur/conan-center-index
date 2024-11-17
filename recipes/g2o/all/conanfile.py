@@ -157,6 +157,7 @@ class G2oConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -194,7 +195,6 @@ class G2oConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         copy(self, "FindSuiteSparse.cmake", self.export_sources_folder, os.path.join(self.source_folder, "cmake_modules"))
         save(self, os.path.join(self.source_folder, "g2o", "EXTERNAL", "CMakeLists.txt"), "")
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),

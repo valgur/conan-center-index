@@ -79,10 +79,10 @@ class OhPipelineConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
+        apply_conandata_patches(self)
         download(self, **self.conan_data["sources"][self.version]["cmake"], filename="CMakeLists.txt")
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

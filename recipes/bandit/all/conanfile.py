@@ -23,12 +23,10 @@ class BanditConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
-
-    def build(self):
-        apply_conandata_patches(self)
 
     def package(self):
         copy(self, "LICENSE.txt", src=os.path.join(self.source_folder, "docs"), dst=os.path.join(self.package_folder, "licenses"))

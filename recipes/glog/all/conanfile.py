@@ -90,6 +90,7 @@ class GlogConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = VirtualBuildEnv(self)
@@ -115,7 +116,6 @@ class GlogConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # do not force PIC
         if Version(self.version) <= "0.5.0":
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),

@@ -58,6 +58,7 @@ class NASMConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -74,7 +75,6 @@ class NASMConan(ConanFile):
             tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             with chdir(self, self.source_folder):
                 self.run(f'nmake /f {os.path.join("Mkfiles", "msvc.mak")}')

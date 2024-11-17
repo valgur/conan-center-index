@@ -138,6 +138,7 @@ class OnnxRuntimeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -182,7 +183,6 @@ class OnnxRuntimeConan(ConanFile):
         vbe.generate(scope="build")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         copy(self, "onnxruntime_external_deps.cmake",
              src=os.path.join(self.export_sources_folder, "cmake"),
              dst=os.path.join(self.source_folder, "cmake", "external"))

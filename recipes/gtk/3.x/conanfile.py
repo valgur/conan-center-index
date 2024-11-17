@@ -165,6 +165,7 @@ class GtkConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -218,7 +219,6 @@ class GtkConan(ConanFile):
         return output.getvalue().strip()
 
     def build(self):
-        apply_conandata_patches(self)
         meson = Meson(self)
         meson.configure()
         meson.build()

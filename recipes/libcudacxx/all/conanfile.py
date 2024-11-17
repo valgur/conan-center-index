@@ -56,10 +56,8 @@ class LibcudacxxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        move_folder_contents(self, os.path.join(self.source_folder, "libcudacxx"), self.source_folder)
-
-    def build(self):
         apply_conandata_patches(self)
+        move_folder_contents(self, os.path.join(self.source_folder, "libcudacxx"), self.source_folder)
 
     def package(self):
         copy(self, "LICENSE.TXT",

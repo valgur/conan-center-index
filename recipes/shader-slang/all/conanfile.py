@@ -99,6 +99,7 @@ class ShaderSlangConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -116,7 +117,6 @@ class ShaderSlangConan(ConanFile):
         VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Everything except dxc/dxcapi.h is unvendored
         mkdir(self, os.path.join(self.source_folder, "external_headers"))
         os.rename(os.path.join(self.source_folder, "external", "dxc"),

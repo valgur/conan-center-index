@@ -77,6 +77,7 @@ class LibxsltConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -166,7 +167,6 @@ class LibxsltConan(ConanFile):
             self.run(f"nmake -f Makefile.msvc {targets}")
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             self._build_msvc()
         else:

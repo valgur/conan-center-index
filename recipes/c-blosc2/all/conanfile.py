@@ -85,6 +85,13 @@ class CBlosc2Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        for filename in glob.glob(os.path.join(self.source_folder, "cmake", "Find*.cmake")):
+            if os.path.basename(filename) not in [
+                "FindSIMD.cmake",
+            ]:
+                rm(self, os.path.basename(filename), os.path.join(self.source_folder, "cmake"))
+
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -123,17 +130,7 @@ class CBlosc2Conan(ConanFile):
             deps.set_property("zstd", "cmake_file_name", "ZSTD")
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        for filename in glob.glob(os.path.join(self.source_folder, "cmake", "Find*.cmake")):
-            if os.path.basename(filename) not in [
-                "FindSIMD.cmake",
-            ]:
-                rm(self, os.path.basename(filename), os.path.join(self.source_folder, "cmake"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -187,10 +187,9 @@ class SDLConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
 
+    def _patch_sources(self):
         if Version(self.version) < "2.30.0":
             cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
             if self.settings.os == "Macos":

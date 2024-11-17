@@ -60,6 +60,7 @@ class TinycborConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -75,7 +76,6 @@ class TinycborConan(ConanFile):
             tc.generate(env)
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             with chdir(self, self.source_folder):
                 self.run("nmake -f Makefile.nmake")

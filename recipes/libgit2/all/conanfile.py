@@ -126,6 +126,7 @@ class LibGit2Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     _cmake_https = {
         "openssl": "OpenSSL",
@@ -176,7 +177,6 @@ class LibGit2Conan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

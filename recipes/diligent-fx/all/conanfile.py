@@ -15,11 +15,13 @@ class DiligentFxConan(ConanFile):
     license = ("Apache-2.0")
     topics = ("graphics", "game-engine", "renderer", "graphics-library")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], 
-    "fPIC":         [True, False],
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
     }
-    default_options = {"shared": False, 
-    "fPIC": True,
+    default_options = {
+        "shared": False,
+        "fPIC": True,
     }
     generators = "cmake_find_package", "cmake"
     _cmake = None
@@ -41,6 +43,7 @@ class DiligentFxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
+        apply_conandata_patches(self)
 
     def validate(self):
         if self.options.shared:
@@ -53,9 +56,6 @@ class DiligentFxConan(ConanFile):
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
 
     def requirements(self):
         if self.version == "cci.20220219" or self.version == "cci.20211112":
@@ -92,7 +92,6 @@ class DiligentFxConan(ConanFile):
         return self._cmake
 
     def build(self):
-        self._patch_sources()
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -102,7 +101,7 @@ class DiligentFxConan(ConanFile):
         self.copy("License.txt", dst="licenses", src=self._source_subfolder)
         rename(self, src=os.path.join(self.package_folder, "include", "source_subfolder"),
                      dst=os.path.join(self.package_folder, "include", "DiligentFx"))
-        shutil.move(os.path.join(self.package_folder, "Shaders"), 
+        shutil.move(os.path.join(self.package_folder, "Shaders"),
                     os.path.join(self.package_folder, "res", "Shaders"))
 
         self.copy(pattern="*.dll", src=self._build_subfolder, dst="bin", keep_path=False)

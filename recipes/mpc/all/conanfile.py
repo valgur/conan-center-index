@@ -64,6 +64,7 @@ class MpcConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -81,7 +82,6 @@ class MpcConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         if not os.path.exists(os.path.join(self.source_folder, "configure")):
             autotools.autoreconf(["-i"])

@@ -113,6 +113,7 @@ class PdalConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -158,7 +159,6 @@ class PdalConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         top_cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
 
         # Ensure only Conan-generated Find modules are used

@@ -54,6 +54,7 @@ class FlannConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -73,8 +74,6 @@ class FlannConan(ConanFile):
         cd.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # remove embedded lz4
         rmdir(self, os.path.join(self.source_folder, "src", "cpp", "flann", "ext"))
 

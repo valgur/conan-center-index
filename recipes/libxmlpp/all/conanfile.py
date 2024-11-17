@@ -85,10 +85,9 @@ class LibXMLPlusPlus(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
 
+    def _patch_sources(self):
         if is_msvc(self):
             # when using cpp_std=c++NM the /permissive- flag is added which
             # attempts enforcing standard conformant c++ code. the problem is

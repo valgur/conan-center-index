@@ -84,6 +84,7 @@ class LibAVIFConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -110,7 +111,6 @@ class LibAVIFConan(ConanFile):
 
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         if Version(self.version) < "1.1.0":
             replace_in_file(self, cmakelists, "find_package(libyuv QUIET)", "find_package(libyuv REQUIRED CONFIG)")

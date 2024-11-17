@@ -60,6 +60,7 @@ class Argon2Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _kernel_name(self):
@@ -87,7 +88,6 @@ class Argon2Conan(ConanFile):
             tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             vcxproj = os.path.join(self.source_folder, "vs2015", "Argon2OptDll", "Argon2OptDll.vcxproj")
             argon2_header = os.path.join(self.source_folder, "include", "argon2.h")

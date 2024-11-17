@@ -81,6 +81,12 @@ class CunitConan(ConanFile):
         with chdir(self, self.source_folder):
             for f in glob.glob("*.c"):
                 os.chmod(f, 0o644)
+        apply_conandata_patches(self)
+        # Clean up makefiles from source folder
+        os.unlink(Path(self.source_folder) / "config.status")
+        os.unlink(Path(self.source_folder) / "config.log")
+        os.unlink(Path(self.source_folder) / "Makefile")
+
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -113,13 +119,6 @@ class CunitConan(ConanFile):
         tc.generate(env)
 
     def build(self):
-        apply_conandata_patches(self)
-
-        # Clean up makefiles from source folder
-        os.unlink(Path(self.source_folder) / "config.status")
-        os.unlink(Path(self.source_folder) / "config.log")
-        os.unlink(Path(self.source_folder) / "Makefile")
-
         autotools = Autotools(self)
         autotools.autoreconf()
         autotools.configure()

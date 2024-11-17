@@ -52,6 +52,7 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,7 +68,6 @@ class PackageConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Allow Conan to control the linkage type of the output libraries
         if not self.options.shared:
             replace_in_file(self, os.path.join(self.source_folder, "brunsli.cmake"), " SHARED", "")

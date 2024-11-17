@@ -62,6 +62,7 @@ class AcadoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -82,7 +83,6 @@ class AcadoConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # -march=native is not portable and not supported on all architectures
         replace_in_file(self, os.path.join(self.source_folder, "cmake", "CompilerOptions.cmake"), " -march=native", "")
         # TODO: Use Eigen from Conan. Failed with static assert errors even if using matching eigen/3.2.0 version for some reason.

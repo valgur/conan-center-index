@@ -53,6 +53,7 @@ class OhNetConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -83,7 +84,6 @@ class OhNetConan(ConanFile):
         return args
 
     def build(self):
-        apply_conandata_patches(self)
         targets = "ohNetDll TestsNative proxies devices"
         args = []
         self._fill_ohnet_args(args)

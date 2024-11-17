@@ -143,6 +143,7 @@ class MicroprofileConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -162,7 +163,6 @@ class MicroprofileConan(ConanFile):
 
     def build(self):
         self._create_defines_file(os.path.join(self.source_folder, "microprofile.config.h"))
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

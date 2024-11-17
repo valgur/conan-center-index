@@ -105,6 +105,7 @@ class GTestConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -123,7 +124,6 @@ class GTestConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # No warnings as errors
         internal_utils = os.path.join(self.source_folder, "googletest", "cmake", "internal_utils.cmake")
         replace_in_file(self, internal_utils, "-WX", "")

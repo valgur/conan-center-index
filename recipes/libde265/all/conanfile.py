@@ -49,6 +49,9 @@ class Libde265Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -57,13 +60,7 @@ class Libde265Conan(ConanFile):
         tc.variables["DISABLE_SSE"] = not self.options.get_safe("sse", False)
         tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

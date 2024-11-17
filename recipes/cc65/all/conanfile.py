@@ -56,6 +56,7 @@ class Cc65Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -72,7 +73,6 @@ class Cc65Conan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             for vcxproj in self.source_path.joinpath("src").rglob("*.vcxproj"):
                 replace_in_file(self, vcxproj, "v141", msvs_toolset(self))

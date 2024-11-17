@@ -126,6 +126,7 @@ class DCMTKConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -215,8 +216,6 @@ class DCMTKConan(ConanFile):
         }
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # Workaround for CMakeDeps bug with check_* like functions.
         # See https://github.com/conan-io/conan/issues/12012 & https://github.com/conan-io/conan/issues/12180
         if self.options.with_openssl:

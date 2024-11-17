@@ -135,7 +135,8 @@ class GoogleCloudCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def requirements(self):
         # These must remain pinned in conan index.
@@ -166,7 +167,6 @@ class GoogleCloudCppConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # This was informed by comments in the grpc port. On macOS `Make` will
         # run commands via `/bin/sh`. `/bin/sh` is subject to System Integrity
         # Protections.  In particular, the system will purge the DYLD_LIBRARY_PATH

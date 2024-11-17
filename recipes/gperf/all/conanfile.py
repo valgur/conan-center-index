@@ -40,8 +40,8 @@ class GperfConan(ConanFile):
             self.tool_requires("make/4.4.1")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -73,7 +73,6 @@ class GperfConan(ConanFile):
             env.vars(self).save_script("conanbuild_gperf_msvc")
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         with chdir(self, self.source_folder):
             autotools.configure()

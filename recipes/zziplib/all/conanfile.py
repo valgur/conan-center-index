@@ -52,8 +52,8 @@ class ZziplibConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -75,7 +75,6 @@ class ZziplibConan(ConanFile):
         cd.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -112,7 +111,7 @@ class ZziplibConan(ConanFile):
             if Version(self.version) >= "0.13.72" and self.options.shared and is_apple_os(self):
                 self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko"]
             else:
-                self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko{suffix}"]            
+                self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko{suffix}"]
             self.cpp_info.components["zzipfseeko"].requires = ["zlib::zlib"]
         # libzzipwrap
         if self.options.zzipwrap:

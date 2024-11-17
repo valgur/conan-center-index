@@ -79,6 +79,7 @@ class AtSpi2CoreConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         virtual_build_env = VirtualBuildEnv(self)
@@ -99,7 +100,6 @@ class AtSpi2CoreConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "bus", "meson.build"),
                                 "if x11_dep.found()",
                                 "if get_option('x11').enabled()" if Version(self.version) >= "2.47.1"

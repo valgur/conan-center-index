@@ -55,6 +55,7 @@ class LibdeflateConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self) or self._is_clangcl:
@@ -77,7 +78,6 @@ class LibdeflateConan(ConanFile):
             autotools.make()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self) or self._is_clangcl:
             self._build_nmake()
         else:

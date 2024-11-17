@@ -96,6 +96,7 @@ class KtxConan(ConanFile):
         rmdir(self, os.path.join(self.source_folder, "tests"))
         rmdir(self, os.path.join(self.source_folder, "other_lib"))
         save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -111,7 +112,6 @@ class KtxConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Unvendor several libs (we rely on patch files to link those libs)
         # It's worth noting that vendored jpeg-compressor can't be replaced by CCI equivalent
         basisu_dir = os.path.join(self.source_folder, "lib", "basisu")

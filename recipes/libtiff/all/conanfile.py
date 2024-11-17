@@ -100,6 +100,7 @@ class LibtiffConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -136,8 +137,6 @@ class LibtiffConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # remove FindXXXX for conan dependencies
         for module in self.source_path.joinpath("cmake").glob("Find*.cmake"):
             if module.name != "FindCMath.cmake":

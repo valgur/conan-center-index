@@ -57,6 +57,7 @@ class AngelScriptConan(ConanFile):
             headers={"User-Agent": "ConanCenter"},
             strip_root=True,
         )
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -68,7 +69,6 @@ class AngelScriptConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "angelscript", "projects", "cmake"))
         cmake.build()

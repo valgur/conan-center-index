@@ -415,11 +415,10 @@ class OpenCVConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rmdir(self, os.path.join(self.source_folder, "3rdparty"))
+        apply_conandata_patches(self)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-        rmdir(self, os.path.join(self.source_folder, "3rdparty"))
-
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
 
         for cascade in ["lbpcascades", "haarcascades"]:

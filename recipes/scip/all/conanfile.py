@@ -73,6 +73,7 @@ class SCIPConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def requirements(self):
         def _mapping_requires(dep, **kwargs):
@@ -108,7 +109,6 @@ class SCIPConan(ConanFile):
         return ";".join(item.replace("\\", "/") for sublist in arrays for item in sublist)
 
     def generate(self):
-        apply_conandata_patches(self)
         tc = CMakeToolchain(self)
         tc.variables["SHARED"] = self.options.shared
         tc.variables["READLINE"] = False  # required for interactive stuff

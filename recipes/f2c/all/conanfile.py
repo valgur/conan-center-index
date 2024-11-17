@@ -78,6 +78,7 @@ class F2cConan(ConanFile):
             self._chmod_plus_x("fc")
         with chdir(self, "libf2c"):
             get(self, **self.conan_data["sources"][self.version]["libf2c"])
+        apply_conandata_patches(self)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -143,7 +144,6 @@ class F2cConan(ConanFile):
             replace_in_file(self, fc, "-lf2c -lm", "-lf2c")
 
     def build(self):
-        apply_conandata_patches(self)
         self._build_libf2c()
         self._build_f2c()
 

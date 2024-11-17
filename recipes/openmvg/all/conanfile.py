@@ -113,6 +113,7 @@ class OpenmvgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -173,7 +174,6 @@ class OpenmvgConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # bypass a check for submodules
         mkdir(self, os.path.join(self.source_folder, "src", "dependencies", "cereal", "include"))
         # ensure internal dependencies are not used by accident

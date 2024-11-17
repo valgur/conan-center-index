@@ -43,8 +43,8 @@ class PtexConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -55,7 +55,6 @@ class PtexConan(ConanFile):
         cd.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # disable subdirs
         save(self, os.path.join(self.source_folder, "src", "utils", "CMakeLists.txt"), "")
         save(self, os.path.join(self.source_folder, "src", "tests", "CMakeLists.txt"), "")

@@ -57,6 +57,9 @@ class KcovConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        # Disable project Find*.cmake modules just in case
+        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -73,13 +76,7 @@ class KcovConan(ConanFile):
         deps.set_property("libcrpcut", "cmake_file_name", "LibCRPCUT")
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # Disable project Find*.cmake modules just in case
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

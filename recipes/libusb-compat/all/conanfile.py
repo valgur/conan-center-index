@@ -69,6 +69,7 @@ class LibUSBCompatConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def _iterate_lib_paths_win(self, lib):
         """Return all possible library paths for lib"""
@@ -148,7 +149,6 @@ class LibUSBCompatConan(ConanFile):
         return sources, headers
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         for gnu_config in [
             self.conf.get("user.gnu-config:config_guess", check_type=str),
             self.conf.get("user.gnu-config:config_sub", check_type=str),

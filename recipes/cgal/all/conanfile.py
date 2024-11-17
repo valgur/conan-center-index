@@ -62,20 +62,17 @@ class CgalConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
             )
 
-    def _patch_sources(self):
-        replace_in_file(self,  os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "if(NOT PROJECT_NAME)", "if(1)", strict=False)
-        apply_conandata_patches(self)
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self,  os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "if(NOT PROJECT_NAME)", "if(1)", strict=False)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

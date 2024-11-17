@@ -85,6 +85,7 @@ class GetTextConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -189,7 +190,6 @@ class GetTextConan(ConanFile):
             deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         autotools.configure("gettext-runtime")
         autotools.make()

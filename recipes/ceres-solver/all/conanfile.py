@@ -184,6 +184,8 @@ class CeresSolverConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        copy(self, "FindSuiteSparse.cmake", self.export_sources_folder, os.path.join(self.source_folder, "cmake"))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -235,12 +237,7 @@ class CeresSolverConan(ConanFile):
         deps.set_property("suitesparse-cxsparse", "cmake_target_name", "CXSparse::CXSparse")
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        copy(self, "FindSuiteSparse.cmake", self.export_sources_folder, os.path.join(self.source_folder, "cmake"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

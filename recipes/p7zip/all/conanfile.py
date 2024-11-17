@@ -35,7 +35,8 @@ class PSevenZipConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is only supported by x86_64 and armv8")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -62,12 +63,8 @@ class PSevenZipConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "makefile.machine"),
                             "OPTFLAGS=-O -s", "OPTFLAGS=" + optflags)
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        self._patch_compiler()
-
     def build(self):
-        self._patch_sources()
+        self._patch_compiler()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.make()

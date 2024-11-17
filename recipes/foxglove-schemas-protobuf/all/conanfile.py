@@ -51,6 +51,7 @@ class FoxgloveSchemasProtobufConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -85,7 +86,6 @@ class FoxgloveSchemasProtobufConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

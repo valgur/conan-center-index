@@ -100,6 +100,7 @@ class MinizipNgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if self._needs_pkg_config:
@@ -133,7 +134,6 @@ class MinizipNgConan(ConanFile):
             env.vars(self).save_script("conanbuild_pkg_config_path")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if Version(self.version) < "4.0.0":
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                                   "set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)",

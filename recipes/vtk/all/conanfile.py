@@ -587,6 +587,7 @@ class VtkConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -834,7 +835,6 @@ class VtkConan(ConanFile):
                 replace_in_file(self, path, "tools/kiss_fftnd.h", "kiss_fftnd.h")
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         self._patch_kissfft()

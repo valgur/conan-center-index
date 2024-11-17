@@ -57,6 +57,7 @@ class LibyuvConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,8 +68,6 @@ class LibyuvConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # remove default CMAKE_POSITION_INDEPENDENT_CODE if not requested
         use_fpic = self.options.get_safe("fPIC") or self.options.get_safe("shared")
         if Version(self.version) >= "1892" and not use_fpic:

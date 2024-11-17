@@ -49,8 +49,8 @@ class NewmatConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} does not support dynamic library with msvc.")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder)
+        get(self, **self.conan_data["sources"][self.version])
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,7 +58,6 @@ class NewmatConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()

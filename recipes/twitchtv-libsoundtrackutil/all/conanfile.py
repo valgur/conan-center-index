@@ -68,6 +68,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -81,7 +82,6 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         path = Path(self.source_folder, "libsoundtrackutil", "include", "libsoundtrackutil", "ByteStream.h")
         path.write_text("#include <cstdint>\n" + path.read_text())
         cmake = CMake(self)

@@ -95,9 +95,6 @@ class UnicornConan(ConanFile):
         return os.path.join(self.build_folder, "jwasm_wrapper.py")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["UNICORN_INSTALL"] = True
         tc.variables["UNICORN_BUILD_SAMPLES"] = False
@@ -138,8 +135,32 @@ class UnicornConan(ConanFile):
             """))
             os.chmod(self._jwasm_wrapper, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 
+
+    @property
+    def _jwasm_wrapper(self):
+        return os.path.join(self.build_folder, "jwasm_wrapper.py")
+
+    def generate(self):
+        env = VirtualBuildEnv(self)
+        env.generate()
+
+        tc = CMakeToolchain(self)
+        tc.variables["UNICORN_INSTALL"] = True
+        tc.variables["UNICORN_BUILD_SAMPLES"] = False
+        tc.cache_variables["UNICORN_ARCH"] = ";".join(self._supported_archs())
+        if self._needs_jwasm:
+            tc.variables["CMAKE_ASM_MASM_COMPILER"] = self._jwasm_wrapper
+            if self.settings.arch == "x86_64":
+                tc.variables["CMAKE_ASM_MASM_FLAGS"] = {
+                    "x86_64": "-win64",
+                    "x86": "-coff",
+                }[str(self.settings.arch)]
+        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
+
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -89,6 +89,7 @@ class MozjpegConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
                   destination=self.source_folder, strip_root=True)
+        apply_conandata_patches(self)
 
     def generate_cmake(self):
         tc = CMakeToolchain(self)
@@ -144,7 +145,6 @@ class MozjpegConan(ConanFile):
             self.generate_autotools()
 
     def build(self):
-        apply_conandata_patches(self)
         if self._use_cmake:
             cmake = CMake(self)
             cmake.configure()

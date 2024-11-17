@@ -77,6 +77,7 @@ class LibrsvgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -113,7 +114,6 @@ class LibrsvgConan(ConanFile):
             env.vars(self).save_script("conanbuild_msvc")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Force disable docs
         replace_in_file(self, os.path.join(self.source_folder, "configure.ac"),
                         "GTK_DOC_CHECK(", "# GTK_DOC_CHECK(")

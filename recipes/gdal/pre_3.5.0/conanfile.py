@@ -365,10 +365,9 @@ class GdalConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
 
+    def _patch_sources(self):
         # Remove embedded dependencies
         embedded_libs = [
             os.path.join("alg", "internal_libqhull"),

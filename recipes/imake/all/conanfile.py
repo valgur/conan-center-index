@@ -70,6 +70,7 @@ class ImakeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -123,7 +124,6 @@ class ImakeConan(ConanFile):
         pkgconf.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         autotools.configure()
         autotools.make(args=["V=1"])

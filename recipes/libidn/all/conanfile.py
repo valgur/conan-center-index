@@ -61,6 +61,7 @@ class LibIdnConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -112,7 +113,6 @@ class LibIdnConan(ConanFile):
             env.vars(self).save_script("conanbuild_msvc")
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Disable examples and tests
         for subdir in ["examples", "tests", "fuzz", "gltests", os.path.join("lib", "gltests"), "doc"]:
             save(self, os.path.join(self.source_folder, subdir, "Makefile.in"), "all:\ninstall:\n")

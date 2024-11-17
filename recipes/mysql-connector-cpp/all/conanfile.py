@@ -80,6 +80,7 @@ class MysqlConnectorCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         VirtualBuildEnv(self).generate()
@@ -107,7 +108,6 @@ class MysqlConnectorCppConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Disable boostrap(), which is unnecessary and fragile with variables set by Conan
         # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/CMakeLists.txt#L69-L71
         # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/cdk/cmake/bootstrap.cmake#L55

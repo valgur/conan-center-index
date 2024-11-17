@@ -212,6 +212,7 @@ class AssimpConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -268,8 +269,6 @@ class AssimpConan(ConanFile):
         venv.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # Don't force several compiler and linker flags
         for pattern in [
             "-fPIC",

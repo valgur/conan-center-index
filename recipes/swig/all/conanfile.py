@@ -75,6 +75,7 @@ class SwigConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         build_env = VirtualBuildEnv(self)
@@ -142,7 +143,6 @@ class SwigConan(ConanFile):
             deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Rely on AutotoolsDeps instead of pcre2-config
         # https://github.com/swig/swig/blob/v4.1.1/configure.ac#L70-L92
         # https://github.com/swig/swig/blob/v4.0.2/configure.ac#L65-L86

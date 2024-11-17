@@ -53,6 +53,7 @@ class ZookeeperClientCConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -66,8 +67,6 @@ class ZookeeperClientCConan(ConanFile):
         bvenv.generate()
 
     def build(self):
-        apply_conandata_patches(self)
-
         # We have to install maven to generate jute files which are required by zookeeper-client
         # Override maven.repo.local to avoid writing to ~/.m2
         m2_repository = os.path.join(self.build_folder, "m2", "repository")

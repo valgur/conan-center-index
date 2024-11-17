@@ -70,6 +70,7 @@ class MdnsResponderConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _posix_folder(self):
@@ -167,7 +168,6 @@ class MdnsResponderConan(ConanFile):
             tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if self.options.with_opt_patches:
             for patchfile in self.conan_data.get("patches", {}).get("{}-opt".format(self.version), []):
                 patch(self, **patchfile)

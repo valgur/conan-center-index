@@ -47,6 +47,10 @@ class ZstdConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        # Don't force PIC
+        replace_in_file(self, os.path.join(self.source_folder, "build", "cmake", "lib", "CMakeLists.txt"),
+                        "POSITION_INDEPENDENT_CODE On", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -56,14 +60,7 @@ class ZstdConan(ConanFile):
         tc.variables["ZSTD_MULTITHREAD_SUPPORT"] = self.options.threading
         tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # Don't force PIC
-        replace_in_file(self, os.path.join(self.source_folder, "build", "cmake", "lib", "CMakeLists.txt"),
-                              "POSITION_INDEPENDENT_CODE On", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "build", "cmake"))
         cmake.build()

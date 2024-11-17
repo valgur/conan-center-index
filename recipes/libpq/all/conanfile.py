@@ -77,6 +77,7 @@ class LibpqConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -170,7 +171,6 @@ class LibpqConan(ConanFile):
                 "-v __cxa_atexit -e pthread_exit")
 
     def build(self):
-        apply_conandata_patches(self)
         self._patch_sources()
         if is_msvc(self):
             with chdir(self, os.path.join(self.source_folder, "src", "tools", "msvc")):

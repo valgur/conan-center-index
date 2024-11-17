@@ -50,6 +50,7 @@ class LcmsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -58,7 +59,6 @@ class LcmsConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if check_min_vs(self, "190", raise_invalid=False):
             # since VS2015 vsnprintf is built-in
             path = os.path.join(self.source_folder, "src", "lcms2_internal.h")

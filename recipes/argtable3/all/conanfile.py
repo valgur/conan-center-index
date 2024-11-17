@@ -44,6 +44,7 @@ class Argtable3Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -51,7 +52,6 @@ class Argtable3Conan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         # The initial space is important (the cmake script does OFFSET 0)
         save(self, os.path.join(self.build_folder, "version.tag"), f" {self.version}.0\n")
         cmake = CMake(self)

@@ -55,6 +55,7 @@ class TinyExrConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _extracted_license(self):
@@ -63,9 +64,6 @@ class TinyExrConan(ConanFile):
         for i in range(3, 27):
             license_content.append(content_lines[i][:-1])
         return "\n".join(license_content)
-
-    def build(self):
-        apply_conandata_patches(self)
 
     def package(self):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extracted_license)

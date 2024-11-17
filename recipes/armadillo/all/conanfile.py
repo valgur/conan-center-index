@@ -223,10 +223,9 @@ class ArmadilloConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
         apply_conandata_patches(self)
 
+    def _patch_sources(self):
         def _override_pkg_module(pkg, content):
             save(self, self.source_path.joinpath("cmake_aux", "Modules", f"ARMA_Find{pkg}.cmake"), content)
 

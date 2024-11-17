@@ -58,6 +58,7 @@ class LibStudXmlConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
             destination=self._source_subfolder, strip_root=True)
+        apply_conandata_patches(self)
 
     def _configure_autotools(self):
         if not self._autotools:
@@ -129,7 +130,6 @@ class LibStudXmlConan(ConanFile):
         autotools.make()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             self._build_vs()
         else:

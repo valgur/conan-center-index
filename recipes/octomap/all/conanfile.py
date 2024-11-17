@@ -62,6 +62,7 @@ class OctomapConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -76,7 +77,6 @@ class OctomapConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Create binaries in build tree instead of source tree
         replace_in_file(self, os.path.join(self.source_folder, "octomap", "CMakeLists.txt"),
                               "SET( BASE_DIR ${CMAKE_SOURCE_DIR} )",

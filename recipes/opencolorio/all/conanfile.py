@@ -103,6 +103,10 @@ class OpenColorIOConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath", "minizip-ng"):
+            rm(self, f"Find{module}.cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -144,15 +148,7 @@ class OpenColorIOConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        for module in ("expat", "lcms2", "pystring", "yaml-cpp", "Imath", "minizip-ng"):
-            rm(self, "Find"+module+".cmake", os.path.join(self.source_folder, "share", "cmake", "modules"))
-
     def build(self):
-        self._patch_sources()
-
         cm = CMake(self)
         cm.configure()
         cm.build()

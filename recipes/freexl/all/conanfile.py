@@ -63,6 +63,7 @@ class FreexlConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -82,7 +83,6 @@ class FreexlConan(ConanFile):
             deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             args = "freexl_i.lib FREEXL_EXPORT=-DDLL_EXPORT" if self.options.shared else "freexl.lib"
             with chdir(self, self.source_folder):

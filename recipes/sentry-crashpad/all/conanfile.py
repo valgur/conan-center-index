@@ -81,6 +81,7 @@ class SentryCrashpadConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][str(self.version)])
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -92,7 +93,6 @@ class SentryCrashpadConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         openssl_repl = "find_package(OpenSSL REQUIRED)" if self.options.get_safe("with_tls") else ""
         if Version(self.version) < "0.6.1":
             replace_in_file(self, os.path.join(self.source_folder, "external", "crashpad", "CMakeLists.txt"),

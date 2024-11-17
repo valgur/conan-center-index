@@ -172,6 +172,7 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=False)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -295,7 +296,6 @@ class PackageConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         cmakelists = self.source_path.joinpath("CMakeLists.txt")
         content = cmakelists.read_text(encoding="utf-8")
         # Ensure the WITH_* dependencies are REQUIRED

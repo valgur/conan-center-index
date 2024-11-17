@@ -63,6 +63,7 @@ class ReadosmConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -85,7 +86,6 @@ class ReadosmConan(ConanFile):
             deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # fix MinGW
         zlib_lib = self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
         replace_in_file(

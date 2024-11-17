@@ -161,6 +161,7 @@ class PopplerConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _dct_decoder(self):
@@ -248,7 +249,6 @@ class PopplerConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Use upper-case package names to force CMakeDeps to define upper-case variables
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "find_package(Freetype", "find_package(FREETYPE")

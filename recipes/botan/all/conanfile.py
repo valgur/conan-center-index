@@ -223,6 +223,7 @@ class BotanConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _cxxflags(self):
@@ -245,7 +246,6 @@ class BotanConan(ConanFile):
         VirtualBuildEnv(self).generate()
 
     def build(self):
-        apply_conandata_patches(self)
         with chdir(self, self.source_folder):
             self.run(self._configure_cmd)
             self.run(self._make_cmd)

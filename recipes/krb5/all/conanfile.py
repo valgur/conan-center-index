@@ -60,6 +60,7 @@ class Krb5Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -116,7 +117,6 @@ class Krb5Conan(ConanFile):
         self.build_requires("bison/3.8.2")
 
     def build(self):
-        apply_conandata_patches(self)
         with chdir(self, os.path.join(self.source_folder, "src")):
             self.run("autoreconf -vif")
         autotools = Autotools(self)

@@ -57,6 +57,7 @@ class FoonathanMemoryConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,7 +68,6 @@ class FoonathanMemoryConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         current_version = Version(self.version)
         if "0.7.2" <= current_version < "0.7.4":
             # Remove static linking when cross-building, see:

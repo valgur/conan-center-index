@@ -43,8 +43,8 @@ class YASMConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version][0],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
+        apply_conandata_patches(self)
 
     def _generate_autotools(self):
         env = VirtualBuildEnv(self)
@@ -75,7 +75,6 @@ class YASMConan(ConanFile):
             self._generate_autotools()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             cmake = CMake(self)
             cmake.configure()

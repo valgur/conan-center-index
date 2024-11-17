@@ -70,6 +70,7 @@ class DBCpppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -81,7 +82,6 @@ class DBCpppConan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         rm(self, "KCD2Network.cpp", self.source_folder, recursive=True) # Cannot support KCD because of weird dll issues
         cmake = CMake(self)
         cmake.configure()

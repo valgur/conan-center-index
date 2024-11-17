@@ -60,6 +60,7 @@ class ZintConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -73,7 +74,6 @@ class ZintConan(ConanFile):
         deps.generate()
 
     def _patch_source(self):
-        apply_conandata_patches(self)
         # Don't override CMAKE_OSX_SYSROOT, it can easily break consumers.
         replace_in_file(
             self,

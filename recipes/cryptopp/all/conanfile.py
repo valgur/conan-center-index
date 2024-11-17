@@ -65,11 +65,13 @@ class CryptoPPConan(ConanFile):
     def source(self):
         # Get cryptopp sources
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)
+        apply_conandata_patches(self)
 
         if Version(self.version) < "8.7.0":
             # Get CMakeLists
             base_source_dir = os.path.join(self.source_folder, os.pardir)
             get(self, **self.conan_data["sources"][self.version]["cmake"], destination=base_source_dir)
+            apply_conandata_patches(self)
             src_folder = os.path.join(
                 base_source_dir,
                 f"cryptopp-cmake-CRYPTOPP_{self.version.replace('.', '_')}",
@@ -110,7 +112,6 @@ class CryptoPPConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Use cpu-features.h from Android NDK
         if self.settings.os == "Android" and Version(self.version) < "8.4.0":
             # Replicate logic from: https://github.com/weidai11/cryptopp/blob/CRYPTOPP_8_2_0/cpu.cpp#L46-L52

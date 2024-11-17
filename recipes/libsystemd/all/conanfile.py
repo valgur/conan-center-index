@@ -95,6 +95,9 @@ class LibsystemdConan(ConanFile):
         with tarfile.open("sources.tar.gz", "r:gz") as tar:
             tar.extractall()
         move_folder_contents(self, os.path.join(self.source_folder, f"systemd-stable-{self.version}"), self.source_folder)
+        apply_conandata_patches(self)
+        meson_build = os.path.join(self.source_folder, "meson.build")
+        replace_in_file(self, meson_build, "@CONAN_SRC_REL_PATH@", f"'../{self.source_path.name}'")
 
     @property
     def _so_version(self):
@@ -176,14 +179,7 @@ class LibsystemdConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        meson_build = os.path.join(self.source_folder, "meson.build")
-        replace_in_file(self, meson_build, "@CONAN_SRC_REL_PATH@", f"'../{self.source_path.name}'")
-
     def build(self):
-        self._patch_sources()
-
         meson = Meson(self)
         meson.configure()
         target = ("systemd:shared_library" if self.options.shared

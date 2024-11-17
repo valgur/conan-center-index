@@ -76,6 +76,7 @@ class SfmlConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         # sfml/2.6.0 uses minimp3 and glad in extlibs
         if Version(self.version) < "2.6.0":
             rmdir(self, os.path.join(self.source_folder, "extlibs"))
@@ -101,7 +102,6 @@ class SfmlConan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -87,6 +87,7 @@ class VulkanLoaderConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if self._is_pkgconf_needed or self._is_mingw:
@@ -117,8 +118,6 @@ class VulkanLoaderConan(ConanFile):
             pkg.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         if Version(self.version) < "1.3.234":
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "FindVulkanHeaders.cmake"),
                                   "HINTS ${VULKAN_HEADERS_INSTALL_DIR}/share/vulkan/registry",

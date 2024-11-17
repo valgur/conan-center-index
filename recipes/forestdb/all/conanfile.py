@@ -54,6 +54,7 @@ class ForestDBConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -65,7 +66,6 @@ class ForestDBConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         lib_target = "forestdb"
         if not self.options.shared:
             lib_target = "static_lib"

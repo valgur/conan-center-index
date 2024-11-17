@@ -68,6 +68,7 @@ class LibrasterliteConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -92,7 +93,6 @@ class LibrasterliteConan(ConanFile):
             deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             target = "rasterlite_i.lib" if self.options.shared else "rasterlite.lib"
             optflags = ["-D_USE_MATH_DEFINES"]

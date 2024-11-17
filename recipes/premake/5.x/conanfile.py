@@ -52,6 +52,7 @@ class PremakeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _ide_version(self):
@@ -116,7 +117,6 @@ class PremakeConan(ConanFile):
             deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self.options.get_safe("lto", None) is False:
             for fn in glob.glob(os.path.join(self._gmake_build_dir, "*.make")):
                 replace_in_file(self, fn, "-flto", "", strict=False)

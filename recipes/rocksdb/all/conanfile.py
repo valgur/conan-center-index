@@ -123,6 +123,9 @@ class RocksDBConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package(uring)", "find_package(uring REQUIRED CONFIG)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -172,13 +175,7 @@ class RocksDBConan(ConanFile):
             deps.set_property("zstd", "cmake_target_name", "zstd::zstd")
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(uring)", "find_package(uring REQUIRED CONFIG)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

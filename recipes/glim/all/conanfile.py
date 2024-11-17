@@ -80,6 +80,7 @@ class GlimPackage(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -93,7 +94,6 @@ class GlimPackage(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Make sure third-party deps are unvendored
         rmdir(self, os.path.join(self.source_folder, "thirdparty"))
         # Forbid building as a ROS package with ROS deps

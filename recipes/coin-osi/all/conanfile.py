@@ -68,6 +68,7 @@ class CoinOsiConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -118,7 +119,6 @@ class CoinOsiConan(ConanFile):
         tc.generate(env)
 
     def build(self):
-        apply_conandata_patches(self)
         copy(self, "*", os.path.join(self.dependencies.build["coin-buildtools"].package_folder, "res"),
              os.path.join(self.source_folder, "BuildTools"))
         copy(self, "*", os.path.join(self.dependencies.build["coin-buildtools"].package_folder, "res"),

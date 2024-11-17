@@ -73,6 +73,14 @@ class CryptoPPPEMConan(ConanFile):
                  os.path.join(self.source_folder, "LICENSE"),
                  sha256="efa5140027e396a3844f9f48d65e014c9a710939ac02e22d32c33a51e1750eef")
 
+        apply_conandata_patches(self)
+        if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
+            shutil.copyfile(
+                os.path.join(os.environ.get("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"),
+                os.path.join(self.source_folder, "cpu-features.h"))
+        # Honor fPIC option
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
@@ -94,17 +102,7 @@ class CryptoPPPEMConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        if self.settings.os == "Android" and "ANDROID_NDK_HOME" in os.environ:
-            shutil.copyfile(
-                os.path.join(os.environ.get("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"),
-                os.path.join(self.source_folder, "cpu-features.h"))
-        apply_conandata_patches(self)
-        # Honor fPIC option
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

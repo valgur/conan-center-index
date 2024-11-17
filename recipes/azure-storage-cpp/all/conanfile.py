@@ -98,6 +98,7 @@ class AzureStorageCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -119,7 +120,6 @@ class AzureStorageCppConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         cmakelists_path = os.path.join(self.source_folder, "Microsoft.WindowsAzure.Storage", "CMakeLists.txt")
         # Do not force C++11 and libc++
         replace_in_file(self, cmakelists_path, "-std=c++11", "")

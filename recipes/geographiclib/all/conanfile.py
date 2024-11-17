@@ -100,6 +100,7 @@ class GeographiclibConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _cmake_option_precision(self):
@@ -120,7 +121,6 @@ class GeographiclibConan(ConanFile):
         VirtualBuildEnv(self).generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         if Version(self.version) < "2":
             # it does not work on Windows but is not needed

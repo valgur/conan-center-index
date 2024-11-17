@@ -249,6 +249,10 @@ class Open62541Conan(ConanFile):
                     filename=archive_name,
                     strip_root=True)
 
+        apply_conandata_patches(self)
+        if Version(self.version) >= "1.3.1":
+            os.unlink(os.path.join(self.source_folder, "tools", "cmake", "FindPython3.cmake"))
+
     def _get_log_level(self):
         return {
             "Fatal": "600",
@@ -360,13 +364,7 @@ class Open62541Conan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        if Version(self.version) >= "1.3.1":
-            os.unlink(os.path.join(self.source_folder, "tools", "cmake", "FindPython3.cmake"))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

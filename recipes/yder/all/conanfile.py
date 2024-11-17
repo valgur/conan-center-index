@@ -49,6 +49,7 @@ class YderConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -67,7 +68,6 @@ class YderConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self.options.shared:
             if not self.dependencies["orcania"].options.shared:
                 replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "Orcania::Orcania", "Orcania::Orcania-static")

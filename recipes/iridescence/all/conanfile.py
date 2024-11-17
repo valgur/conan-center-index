@@ -93,6 +93,13 @@ class IridescenceConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        if Version(self.dependencies["imgui"].ref.version) >= "1.90":
+            # https://github.com/ocornut/imgui/blob/master/imgui.cpp#L460
+            replace_in_file(self, os.path.join(self.source_folder, "src", "guik", "viewer", "viewer_ui.cpp"),
+                            "ImGui::GetWindowContentRegionWidth()",
+                            "(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x)")
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -115,16 +122,7 @@ class IridescenceConan(ConanFile):
 
         VirtualBuildEnv(self).generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        if Version(self.dependencies["imgui"].ref.version) >= "1.90":
-            # https://github.com/ocornut/imgui/blob/master/imgui.cpp#L460
-            replace_in_file(self, os.path.join(self.source_folder, "src", "guik", "viewer", "viewer_ui.cpp"),
-                            "ImGui::GetWindowContentRegionWidth()",
-                            "(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

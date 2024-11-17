@@ -66,6 +66,7 @@ class MpdecimalConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if is_msvc(self):
@@ -91,7 +92,6 @@ class MpdecimalConan(ConanFile):
             deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if not is_msvc(self):
             """
             Using autotools:

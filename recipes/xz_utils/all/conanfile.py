@@ -78,6 +78,7 @@ class XZUtilsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if self._use_msbuild:
@@ -141,7 +142,6 @@ class XZUtilsConan(ConanFile):
         msbuild.build(os.path.join(build_script_folder, solution_file), targets=[self._msbuild_target])
 
     def build(self):
-        apply_conandata_patches(self)
         if self._use_msbuild:
             self._build_msvc()
         else:

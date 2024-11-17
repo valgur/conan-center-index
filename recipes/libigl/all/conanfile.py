@@ -103,6 +103,7 @@ class LibiglConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -160,7 +161,6 @@ class LibiglConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if Version(self.version) < "2.4.0":
             libigl_cmake = os.path.join(self.source_folder, "cmake", "libigl.cmake")
             replace_in_file(self, libigl_cmake, "-fPIC", "")

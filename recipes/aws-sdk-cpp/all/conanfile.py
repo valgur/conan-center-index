@@ -575,6 +575,7 @@ class AwsSdkCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def _enabled_sdks(self):
         for sdk in self._sdks:
@@ -617,7 +618,6 @@ class AwsSdkCppConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Disable warnings as errors
         if self.version == "1.9.234":
             replace_in_file(

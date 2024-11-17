@@ -53,8 +53,6 @@ class Im95ableReaConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def build(self):
         apply_conandata_patches(self)
 
     def package(self):

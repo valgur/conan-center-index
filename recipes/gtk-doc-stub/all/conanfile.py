@@ -37,6 +37,7 @@ class GtkDocStubConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         virtual_build_env = VirtualBuildEnv(self)
@@ -46,7 +47,6 @@ class GtkDocStubConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()

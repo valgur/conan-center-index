@@ -134,6 +134,7 @@ class CairoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         def is_enabled(value):
@@ -203,8 +204,6 @@ class CairoConan(ConanFile):
         meson.generate()
 
     def build(self):
-        apply_conandata_patches(self)
-
         # Dependency freetype2 found: NO found 2.11.0 but need: '>= 9.7.3'
         if self.options.with_freetype:
             replace_in_file(self, os.path.join(self.source_folder, "meson.build"),

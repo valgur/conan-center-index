@@ -129,6 +129,7 @@ class OpenCascadeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -185,8 +186,6 @@ class OpenCascadeConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         cmakelists_tools = os.path.join(self.source_folder, "tools", "CMakeLists.txt")
         occt_toolkit_cmake = os.path.join(self.source_folder, "adm", "cmake", "occt_toolkit.cmake")

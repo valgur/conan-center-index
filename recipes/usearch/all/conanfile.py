@@ -96,6 +96,7 @@ class USearchConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if not self.options.header_only:
@@ -118,7 +119,6 @@ class USearchConan(ConanFile):
             deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Disable address sanitizer, which is not compatible with Conan packages
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "-fsanitize=address", "")

@@ -85,6 +85,7 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -101,7 +102,6 @@ class PackageConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if self.options.get_safe("with_wayland"):
             # Patch the build system to use the pkg-config files generated for the build context.
             meson_build_file = os.path.join(self.source_folder, "meson.build")

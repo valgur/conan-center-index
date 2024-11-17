@@ -73,6 +73,7 @@ class SdlttfConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -87,8 +88,6 @@ class SdlttfConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
-
         # missing from distribution (only in 2.0.15?)
         save(self, os.path.join(self.source_folder, "SDL2_ttfConfig.cmake"), "")
 

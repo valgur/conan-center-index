@@ -60,6 +60,7 @@ class PackageConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         # INFO: Conan 1.x does not find nasm package automatically due PATH priority.
@@ -84,7 +85,6 @@ class PackageConan(ConanFile):
         tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build(target=self._cmake_target)

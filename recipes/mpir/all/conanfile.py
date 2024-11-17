@@ -68,6 +68,7 @@ class MpirConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, keep_permissions=True)
+        apply_conandata_patches(self)
 
     def _generate_msvc(self):
         env = VirtualBuildEnv(self)
@@ -161,7 +162,6 @@ class MpirConan(ConanFile):
                 replace_in_file(self, full_file, 'check_config $(Platform) $(Configuration) 15', f'check_config $(Platform) $(Configuration) {ver}', strict=False)
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if is_msvc(self):
             self._patch_new_msvc_version(16, "v142")
             self._patch_new_msvc_version(17, "v143")

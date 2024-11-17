@@ -65,6 +65,7 @@ class QCustomPlotConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -78,7 +79,6 @@ class QCustomPlotConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         if Version(self.version) >= "2.0.0":
             # allow static qcustomplot with shared qt, and vice versa
             replace_in_file(self, os.path.join(self.source_folder, "qcustomplot.h"),

@@ -57,6 +57,7 @@ class LibEstConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         if not cross_building(self):
@@ -68,7 +69,6 @@ class LibEstConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        apply_conandata_patches(self)
         # Remove duplicate AM_INIT_AUTOMAKE
         replace_in_file(self, os.path.join(self.source_folder, "configure.ac"),
                         "AM_INIT_AUTOMAKE\n", "")
