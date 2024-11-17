@@ -63,6 +63,7 @@ class EigenConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Eigen3")
         self.cpp_info.set_property("cmake_target_name", "Eigen3::Eigen")
         self.cpp_info.set_property("pkg_config_name", "eigen3")
+        self.cpp_info.includedirs = [os.path.join("include", "eigen3")]
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         if self.settings.os in ["Linux", "FreeBSD"]:
