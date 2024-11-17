@@ -101,8 +101,7 @@ class TkConan(ConanFile):
             # This is required because tcl needs to be available when configure tries to
             # run a test executable
             if not cross_building(self):
-                runenv = VirtualRunEnv(self)
-                runenv.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
 
             yes_no = lambda v: "yes" if v else "no"
             tc = AutotoolsToolchain(self)

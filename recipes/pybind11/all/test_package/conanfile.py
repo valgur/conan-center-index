@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualRunEnv
+from conan.tools.env import Environment
 from conan.tools.build import can_run
 
 import os
@@ -28,9 +28,6 @@ class TestPackageConan(ConanFile):
         env = Environment()
         env.append_path("PYTHONPATH", os.path.join(self.build_folder, self.cpp.build.libdirs[0]))
         env.vars(self, scope="run").save_script("testrun")
-
-        run = VirtualRunEnv(self)
-        run.generate()
 
     def layout(self):
         cmake_layout(self)

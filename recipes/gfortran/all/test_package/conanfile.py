@@ -18,9 +18,7 @@ class TestPackageConan(ConanFile):
     def generate(self):
         # Hack to avoid adding tool_requires(self.tested_reference_str),
         # which tends to fail with a missing binaries error
-        runenv = VirtualRunEnv(self)
-        runenv.generate(scope="build")
-        runenv.generate(scope="run")
+        VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
         tc.generate()

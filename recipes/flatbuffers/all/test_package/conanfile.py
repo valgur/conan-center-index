@@ -16,11 +16,8 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str, run=can_run(self))
 
     def generate(self):
-        env = VirtualRunEnv(self)
-        env.generate()
         if can_run(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = CMakeToolchain(self)
         tc.variables["FLATBUFFERS_HEADER_ONLY"] = self.dependencies["flatbuffers"].options.header_only
         tc.generate()

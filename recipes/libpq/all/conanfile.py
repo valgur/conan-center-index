@@ -88,8 +88,7 @@ class LibpqConan(ConanFile):
             env.vars(self).save_script("conanbuild_msvc")
         else:
             if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
             tc = AutotoolsToolchain(self)
             tc.configure_args.append('--without-readline')
             tc.configure_args.append('--without-zlib')

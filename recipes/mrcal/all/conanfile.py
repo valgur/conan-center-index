@@ -59,8 +59,7 @@ class MrcalConan(ConanFile):
 
     def generate(self):
         # CHOLMOD .so file is not found without the VirtualRunEnv for some reason
-        env = VirtualRunEnv(self)
-        env.generate(scope="build")
+        VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         if self.options.with_libelas:
             tc.make_args.append("USE_LIBELAS=1")

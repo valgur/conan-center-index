@@ -71,8 +71,7 @@ class ResiprocateConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            venv = VirtualRunEnv(self)
-            venv.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         # These options do not support yes/no
         if self.options.with_ssl:

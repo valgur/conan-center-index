@@ -77,8 +77,7 @@ class LibfabricConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         yes_no_dl = lambda v: {"True": "yes", "False": "no", "shared": "dl"}[str(v)]
         tc = AutotoolsToolchain(self)
         tc.configure_args += [

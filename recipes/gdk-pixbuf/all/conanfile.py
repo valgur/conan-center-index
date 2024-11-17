@@ -104,8 +104,7 @@ class GdkPixbufConan(ConanFile):
 
     def generate(self):
         if can_run(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         deps = PkgConfigDeps(self)
         if self.options.with_introspection:

@@ -79,8 +79,7 @@ class NettleConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
             "--enable-public-key" if self.options.public_key else "--disable-public-key",

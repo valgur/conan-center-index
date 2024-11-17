@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualRunEnv
 from conan.tools.scm import Version
 
 
@@ -29,8 +28,6 @@ class TestPackageConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["WITH_COMPUTE"] = self._supports_compute()
         tc.generate()
-        # Environment so that the compiled test executable can load shared libraries
-        VirtualRunEnv(self).generate(scope="run")
         deps = CMakeDeps(self)
         deps.generate()
 

@@ -66,8 +66,7 @@ class KModConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)

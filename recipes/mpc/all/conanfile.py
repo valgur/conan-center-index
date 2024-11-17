@@ -67,8 +67,7 @@ class MpcConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = AutotoolsToolchain(self)
         tc.configure_args.append(f'--with-gmp={unix_path(self, self.dependencies["gmp"].package_folder)}')

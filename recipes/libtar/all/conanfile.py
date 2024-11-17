@@ -60,8 +60,7 @@ class LibTarConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = GnuToolchain(self)
         tc.configure_args["--with-zlib"] = "yes" if self.options.with_zlib else "no"
         tc.generate()

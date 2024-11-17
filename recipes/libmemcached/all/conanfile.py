@@ -62,8 +62,7 @@ class LibmemcachedConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         tc.configure_args.append('--disable-dependency-tracking')
         if not self.options.sasl:

@@ -63,8 +63,7 @@ class GameNetworkingSocketsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualRunEnv(self)
-        venv.generate(scope="build")
+        VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
         tc.variables["GAMENETWORKINGSOCKETS_BUILD_EXAMPLES"] = False

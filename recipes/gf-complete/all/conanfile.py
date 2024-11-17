@@ -99,8 +99,7 @@ class GfCompleteConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = AutotoolsToolchain(self)
         if not is_msvc(self) and "x86" in self.settings.arch:

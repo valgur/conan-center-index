@@ -61,8 +61,7 @@ class PackageConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         # Disable warnings
         tc.extra_cflags.append("-w")

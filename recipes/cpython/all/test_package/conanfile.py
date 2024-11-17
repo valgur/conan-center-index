@@ -65,7 +65,6 @@ class TestPackageConan(ConanFile):
             pass
 
         # The build also needs access to the run environment to run the python executable
-        VirtualRunEnv(self).generate(scope="run")
         VirtualRunEnv(self).generate(scope="build")
 
         if self._test_setuptools:

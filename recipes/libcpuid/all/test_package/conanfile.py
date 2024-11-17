@@ -18,7 +18,6 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         VirtualRunEnv(self).generate(scope="build")
-        VirtualRunEnv(self).generate(scope="run")
 
     def build(self):
         cmake = CMake(self)

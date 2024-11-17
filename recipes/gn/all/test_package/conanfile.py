@@ -35,7 +35,6 @@ class TestPackageConan(ConanFile):
         }.get(str(self.settings.arch), str(self.settings.arch))
 
     def generate(self):
-        VirtualRunEnv(self).generate(scope="run")
         VirtualRunEnv(self).generate(scope="build")
 
     def build(self):

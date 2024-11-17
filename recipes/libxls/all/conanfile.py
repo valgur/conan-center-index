@@ -67,8 +67,7 @@ class LibxlsConan(ConanFile):
 
     def generate(self):
         if can_run(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         if not can_run(self):
             tc.configure_args.append("ac_cv_func_malloc_0_nonnull=yes")

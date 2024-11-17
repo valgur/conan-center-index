@@ -106,8 +106,7 @@ class Mpg123Conan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         if is_msvc(self):
             tc = CMakeToolchain(self)
             tc.variables["NO_MOREINFO"] = not self.options.moreinfo

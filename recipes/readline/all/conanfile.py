@@ -63,8 +63,7 @@ class ReadLineConan(ConanFile):
         if not cross_building(self):
             # Expose LD_LIBRARY_PATH when there are shared dependencies,
             # as configure tries to run a test executable (when not cross-building)
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([

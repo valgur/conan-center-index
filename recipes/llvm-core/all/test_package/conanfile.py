@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout, CMakeDeps, CMakeToolchain, CMake
-from conan.tools.env import VirtualRunEnv
 from conan.tools.build import can_run
 
 import os
@@ -28,8 +27,6 @@ class TestPackageConan(ConanFile):
         if self.dependencies[self.tested_reference_str].options.shared:
             tc.variables["LLVM_SHARED"] = True
         tc.generate()
-
-        VirtualRunEnv(self).generate()
 
     def build(self):
         cmake = CMake(self)

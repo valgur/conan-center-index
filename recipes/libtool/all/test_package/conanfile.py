@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import cross_building, can_run
-from conan.tools.env import Environment, VirtualRunEnv
+from conan.tools.env import Environment
 from conan.tools.files import chdir, mkdir, rmdir
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
 from conan.tools.layout import basic_layout
@@ -102,10 +102,6 @@ class TestPackageConan(ConanFile):
         for var in ["DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH"]:
             env.append_path(var, os.path.join(self.autotools_package_folder, "lib"))
         env.vars(self, scope="run").save_script("conanrun_libtool_testpackage")
-
-        runenv = VirtualRunEnv(self)
-        runenv.generate()
-
 
     def _build_autotools(self):
         """ Test autotools integration """

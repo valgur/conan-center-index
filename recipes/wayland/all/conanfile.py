@@ -69,8 +69,7 @@ class WaylandConan(ConanFile):
 
     def generate(self):
         if can_run(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         pkg_config_deps = PkgConfigDeps(self)
         if not can_run(self):

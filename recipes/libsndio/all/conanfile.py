@@ -67,8 +67,7 @@ class LibsndioConan(ConanFile):
         # Inject requires env vars in build scope
         # It's required in case of native build when there is AutotoolsDeps & at least one dependency which might be shared, because configure tries to run a test executable
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = AutotoolsToolchain(self)
 

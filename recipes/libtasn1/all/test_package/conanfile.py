@@ -20,7 +20,6 @@ class TestPackageConan(ConanFile):
             self.tool_requires(self.tested_reference_str)
 
     def generate(self):
-        VirtualRunEnv(self).generate()
         if not cross_building(self):
             VirtualRunEnv(self).generate(scope="build")
 

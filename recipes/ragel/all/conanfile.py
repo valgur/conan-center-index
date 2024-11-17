@@ -46,8 +46,7 @@ class RagelConan(ConanFile):
             dpes.generate()
         else:
             if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
             tc = AutotoolsToolchain(self)
             tc.generate()
 

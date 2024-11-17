@@ -36,9 +36,7 @@ class TestPackageConan(ConanFile):
         return sys.executable
 
     def generate(self):
-        venv = VirtualRunEnv(self)
-        venv.generate(scope="build")
-        venv.generate(scope="run")
+        VirtualRunEnv(self).generate(scope="build")
         tc = CMakeToolchain(self)
         tc.variables["Python_EXECUTABLE"] = PurePath(self._python_interpreter).as_posix()
         tc.generate()

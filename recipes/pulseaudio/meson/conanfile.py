@@ -86,8 +86,7 @@ class PulseAudioConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = MesonToolchain(self)
         tc.project_options['udevrulesdir']="${prefix}/bin/udev/rules.d"

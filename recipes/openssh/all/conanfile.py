@@ -99,8 +99,7 @@ class PackageConan(ConanFile):
             tc.configure_args.append("--with-ssl-dir={}".format(openssl.package_folder))
             # It needs libcrypto.so in build time context
             if openssl.options.shared:
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
         elif self.options.with_libcrypto == "libressl":
             libressl = self.dependencies["libressl"]
             tc.configure_args.append("--with-ssl-dir={}".format(libressl.package_folder))

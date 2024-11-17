@@ -74,8 +74,7 @@ class TclConan(ConanFile):
             deps.generate()
         else:
             if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
 
             tc = AutotoolsToolchain(self)
             def yes_no(v): return "yes" if v else "no"

@@ -77,8 +77,7 @@ class GdbmConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            virtual_run_env = VirtualRunEnv(self)
-            virtual_run_env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         enable_debug = self.settings.build_type in ["Debug", "RelWithDebInfo"]

@@ -67,8 +67,7 @@ class GiflibConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
             tc.extra_defines.append("USE_GIF_DLL" if self.options.shared else "USE_GIF_LIB")

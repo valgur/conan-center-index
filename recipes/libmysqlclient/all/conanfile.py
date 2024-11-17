@@ -211,8 +211,7 @@ class LibMysqlClientCConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            vrenv = VirtualRunEnv(self)
-            vrenv.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = CMakeToolchain(self)
         # Not used anywhere in the CMakeLists

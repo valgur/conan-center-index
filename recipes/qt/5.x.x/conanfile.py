@@ -511,8 +511,7 @@ class QtConan(ConanFile):
         ms = VCVars(self)
         ms.generate()
         if not cross_building(self):
-            vre = VirtualRunEnv(self)
-            vre.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         env = Environment()
         env.define("MAKEFLAGS", f"j{build_jobs(self)}")
         env.define("ANGLE_DIR", self.angle_path)

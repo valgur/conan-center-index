@@ -65,8 +65,7 @@ class GFortranConan(ConanFile):
         download(self, **self.conan_data["sources"][self.version]["homebrew-patches"], filename="homebrew.patch")
 
     def generate(self):
-        runenv = VirtualRunEnv(self)
-        runenv.generate(scope="build")
+        VirtualRunEnv(self).generate(scope="build")
 
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--enable-languages=fortran")

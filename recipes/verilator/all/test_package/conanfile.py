@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
-from conan.tools.env import VirtualRunEnv
 from conan.tools.files import save, load
 from conan.tools.scm import Version
 
@@ -33,7 +32,6 @@ class TestPackageConan(ConanFile):
         return True
 
     def generate(self):
-        VirtualRunEnv(self).generate()
         tc = CMakeToolchain(self)
         tc.variables["BUILD_SYSTEMC"] = self._with_systemc_example
         tc.generate()

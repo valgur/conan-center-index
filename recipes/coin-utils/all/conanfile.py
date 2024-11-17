@@ -73,8 +73,7 @@ class CoinUtilsConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         deps = PkgConfigDeps(self)
         deps.generate()

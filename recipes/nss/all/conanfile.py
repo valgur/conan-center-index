@@ -61,8 +61,8 @@ class NSSConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualRunEnv(self)
-        env.generate(scope="build")
+        VirtualRunEnv(self).generate(scope="build")
+
         vc = VCVars(self)
         vc.generate()
 

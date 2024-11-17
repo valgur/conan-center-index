@@ -30,7 +30,6 @@ class TestPackageConan(ConanFile):
         """)
         save(self, "qt.conf", qt_conf)
 
-        VirtualRunEnv(self).generate()
         if can_run(self):
             VirtualRunEnv(self).generate(scope="build")
 

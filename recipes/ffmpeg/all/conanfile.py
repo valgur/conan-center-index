@@ -457,8 +457,7 @@ class FFMpegConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         def opt_enable_disable(what, v):
             return "--{}-{}".format("enable" if v else "disable", what)

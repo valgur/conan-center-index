@@ -20,7 +20,6 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def generate(self):
-        VirtualRunEnv(self).generate()
         if not cross_building(self):
             VirtualRunEnv(self).generate(scope="build")
 

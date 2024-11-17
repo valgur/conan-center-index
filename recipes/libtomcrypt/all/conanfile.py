@@ -66,8 +66,7 @@ class LibTomCryptConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            venv = VirtualRunEnv(self)
-            venv.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
 
         tc = GnuToolchain(self)
         if self.settings.os == "Windows" and not is_msvc(self):

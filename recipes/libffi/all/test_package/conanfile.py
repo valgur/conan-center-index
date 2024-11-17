@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
-from conan.tools.env import VirtualRunEnv
 from conan.tools.microsoft import msvc_runtime_flag
 import os
 
@@ -22,8 +21,6 @@ class TestPackageConan(ConanFile):
         if "d" in msvc_runtime_flag(self):
             tc.preprocessor_definitions["DISABLE_FFI_CALL"] = 1
         tc.generate()
-        virtual_run_env = VirtualRunEnv(self)
-        virtual_run_env.generate()
 
     def build(self):
         cmake = CMake(self)

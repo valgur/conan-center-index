@@ -77,8 +77,7 @@ class MpfrConan(ConanFile):
 
     def generate(self):
         if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         if self.settings.os == "Windows":
             if is_msvc(self) and not check_min_vs(self, 193, raise_invalid=False) and \
                 not self.conf.get("tools.cmake.cmaketoolchain:generator", check_type=str):

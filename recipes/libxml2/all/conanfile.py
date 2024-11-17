@@ -124,8 +124,7 @@ class Libxml2Conan(ConanFile):
             pass # nothing to do for mingw?  it calls mingw-make directly
         else:
             if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
 
             tc = AutotoolsToolchain(self)
 

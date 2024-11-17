@@ -89,12 +89,10 @@ class NetSnmpConan(ConanFile):
             tc = NMakeToolchain(self)
             tc.generate()
             # Workaround for "unresolved external symbol" errors during shared build
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
+            VirtualRunEnv(self).generate(scope="build")
         else:
             if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
             tc = AutotoolsToolchain(self)
             debug_flag = "enable" if self._is_debug else "disable"
             ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
