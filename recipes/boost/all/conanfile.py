@@ -377,7 +377,7 @@ class BoostConan(ConanFile):
 
     @property
     def _stacktrace_addr2line_available(self):
-        if (self._is_apple_embedded_platform or self.settings.get_safe("os.subsystem") == "catalyst"):
+        if self._is_apple_embedded_platform or self.settings.get_safe("os.subsystem") == "catalyst":
              # sandboxed environment - cannot launch external processes (like addr2line), system() function is forbidden
             return False
         return not self.options.header_only and not self.options.without_stacktrace and self.settings.os != "Windows"
@@ -439,8 +439,7 @@ class BoostConan(ConanFile):
 
     @property
     def _cxx11_boost_libraries(self):
-        libraries = ["fiber", "json", "nowide", "url"]
-        libraries.append("math")
+        libraries = ["fiber", "json", "nowide", "url", "math"]
         if Version(self.version) >= "1.79.0":
             libraries.append("wave")
         if Version(self.version) >= "1.81.0":
@@ -455,8 +454,7 @@ class BoostConan(ConanFile):
             libraries.append("thread")
         if Version(self.version) >= "1.85.0":
             libraries.append("system")
-        libraries.sort()
-        return list(filter(lambda library: f"without_{library}" in self.options, libraries))
+        return sorted(lib for lib in libraries if f"without_{lib}" in self.options)
 
     @property
     def _cxx14_boost_libraries(self):
@@ -464,8 +462,7 @@ class BoostConan(ConanFile):
         if Version(self.version) >= "1.85.0":
             # https://github.com/boostorg/math/blob/develop/README.md#boost-math-library
             libraries.append("math")
-        libraries.sort()
-        return list(filter(lambda library: f"without_{library}" in self.options, libraries))
+        return sorted(lib for lib in libraries if f"without_{lib}" in self.options)
 
     @property
     def _cxx20_boost_libraries(self):
@@ -473,8 +470,7 @@ class BoostConan(ConanFile):
         if Version(self.version) >= "1.84.0":
             # https://github.com/boostorg/cobalt/blob/boost-1.84.0/build/Jamfile#L54
             libraries.append("cobalt")
-        libraries.sort()
-        return list(filter(lambda library: f"without_{library}" in self.options, libraries))
+        return sorted(lib for lib in libraries if f"without_{lib}" in self.options)
 
     def validate(self):
         if not self.options.multithreading:
