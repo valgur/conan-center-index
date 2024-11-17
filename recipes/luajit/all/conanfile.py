@@ -7,7 +7,7 @@ from conan.tools.build import cross_building
 from conan.tools.files import get, chdir, replace_in_file, copy, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, MSBuildToolchain, VCVars, unix_path
+from conan.tools.microsoft import is_msvc, MSBuildToolchain, unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -67,8 +67,6 @@ class LuajitConan(ConanFile):
     def generate(self):
         if is_msvc(self):
             tc = MSBuildToolchain(self)
-            tc.generate()
-            tc = VCVars(self)
             tc.generate()
         else:
             tc = GnuToolchain(self)

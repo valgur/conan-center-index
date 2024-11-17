@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rmdir, mkdir, rename
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, VCVars, NMakeDeps, NMakeToolchain
+from conan.tools.microsoft import is_msvc, NMakeDeps, NMakeToolchain
 
 required_conan_version = ">=1.53.0"
 
@@ -69,9 +69,6 @@ class MpdecimalConan(ConanFile):
 
     def generate(self):
         if is_msvc(self):
-            vcvars = VCVars(self)
-            vcvars.generate()
-
             deps = NMakeDeps(self)
             deps.generate()
 

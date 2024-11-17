@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import VCVars, is_msvc, is_msvc_static_runtime, NMakeToolchain, NMakeDeps
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, NMakeToolchain, NMakeDeps
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.58.0"
@@ -129,9 +129,6 @@ class SqlcipherConan(ConanFile):
 
         tc = NMakeDeps(self)
         tc.generate()
-
-        vcvars = VCVars(self)
-        vcvars.generate()
 
     @property
     def _use_commoncrypto(self):

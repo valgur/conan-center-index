@@ -12,7 +12,7 @@ from conan.tools.files import (
     rmdir
 )
 from conan.tools.microsoft import (
-    MSBuild, MSBuildDeps, MSBuildToolchain, VCVars, is_msvc, vs_layout
+    MSBuild, MSBuildDeps, MSBuildToolchain, is_msvc, vs_layout
 )
 
 required_conan_version = ">=1.52.0"
@@ -94,8 +94,6 @@ class PackageConan(ConanFile):
             tc = MSBuildToolchain(self)
             tc.generate()
             tc = MSBuildDeps(self)
-            tc.generate()
-            tc = VCVars(self)
             tc.generate()
         else:
             tc = CMakeToolchain(self)

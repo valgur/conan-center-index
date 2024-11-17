@@ -4,7 +4,7 @@ from conan.tools.files import get, chdir, copy, export_conandata_patches, apply_
 from conan.tools.layout import basic_layout
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.microsoft import VCVars, is_msvc, NMakeDeps, NMakeToolchain
+from conan.tools.microsoft import is_msvc, NMakeDeps, NMakeToolchain
 from conan.tools.apple import is_apple_os
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
@@ -69,9 +69,6 @@ class MpdecimalConan(ConanFile):
 
     def generate(self):
         if is_msvc(self):
-            vcvars = VCVars(self)
-            vcvars.generate()
-
             deps = NMakeDeps(self)
             deps.generate()
 
@@ -89,8 +86,7 @@ class MpdecimalConan(ConanFile):
             # inject requires env vars in build scope
             # it's required in case of native build when there is AutotoolsDeps & at least one dependency which might be shared, because configure tries to run a test executable
             if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
+                VirtualRunEnv(self).generate(scope="build")
 
             tc = AutotoolsToolchain(self)
             tc.configure_args.append("--enable-cxx" if self.options.cxx else "--disable-cxx")

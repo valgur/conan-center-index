@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, copy, download, export_conandata_patches, apply_conandata_patches, chdir, mkdir, rename, replace_in_file, load, save
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, NMakeToolchain, VCVars, unix_path
+from conan.tools.microsoft import is_msvc, NMakeToolchain, unix_path
 
 required_conan_version = ">=1.54.0"
 
@@ -88,7 +88,6 @@ class F2cConan(ConanFile):
 
         # libf2c
         if is_msvc(self):
-            VCVars(self).generate()
             tc = NMakeToolchain(self)
             tc.generate()
         else:

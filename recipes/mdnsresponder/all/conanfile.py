@@ -6,7 +6,7 @@ from conan.tools.files import symlinks, rmdir, get, replace_in_file, rename, chd
     apply_conandata_patches
 from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain, VCVars
+from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -164,8 +164,6 @@ class MdnsResponderConan(ConanFile):
         elif is_msvc(self):
             tc = MSBuildToolchain(self)
             tc.configuration = "Debug" if self.settings.build_type == "Debug" else "Release"
-            tc.generate()
-            tc = VCVars(self)
             tc.generate()
 
     def build(self):
