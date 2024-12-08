@@ -240,6 +240,15 @@ class QtConan(ConanFile):
         for option in self.options.items():
             self.output.debug(f"qt6 option: {option}")
 
+        if Version(self.version) >= "6.8.0":
+            # INT128 support requires GNU extensions when using libstdc++.
+            # Force-enable GNU extensions for this recipe.
+            # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
+            # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
+            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+                if not "gnu" in str(self.settings.compiler.cppstd):
+                    self.settings.compiler.cppstd = f"gnu{self.settings.compiler.cppstd}"
+
     @property
     @lru_cache()
     def _enabled_modules(self):
@@ -349,14 +358,6 @@ class QtConan(ConanFile):
             setattr(self.info.options, module, self._is_enabled(module))
         for status in self._module_statuses:
             self.info.options.rm_safe(f"{status}_modules")
-
-        # INT128 support requires GNU extensions when using libstdc++.
-        # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
-        # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
-        if Version(self.version) >= "6.8.0":
-            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
-                if not "gnu" in str(self.settings.compiler.cppstd):
-                    self.info.compiler.cppstd = f"gnu{self.settings.compiler.cppstd}"
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
