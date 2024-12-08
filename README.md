@@ -13,14 +13,31 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-11-17:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-08:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
+- arrow/10.0.0
+- arrow/10.0.1
+- arrow/11.0.0
+- arrow/12.0.0
+- arrow/12.0.1
+- arrow/13.0.0
+- arrow/14.0.0
+- arrow/14.0.1
+- arrow/16.0.0
+- arrow/7.0.0
+- arrow/8.0.0
+- arrow/8.0.1
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
+- caf/0.18.0
+- caf/0.18.2
+- caf/0.18.5
+- caf/0.19.2
+- caf/0.19.3
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -44,6 +61,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dpdk/24.07
 - f2c/20240312
 - faiss/1.8.0
+- fastpfor/cci.20220205
+- fastpfor/cci.20221225
 - fbgemm/0.8.0
 - fenster/0.0.0.cci.20240909
 - filament/1.5.3
@@ -54,6 +73,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gfortran/13.2.0
 - gici/cci.20240421
 - gl2ps/1.4.2
+- glfw/3.3.2
+- glfw/3.3.3
+- glfw/3.3.4
+- glfw/3.3.5
+- glfw/3.3.6
 - glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
@@ -86,6 +110,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libhdfs3/cci.20191105
 - libice/1.1.1
 - libosmium/2.20.0
+- libpq/10.23
+- libpq/11.21
+- libpq/12.16
+- libpq/13.12
+- libpq/9.6.24
 - librsvg/2.40.21
 - librsvg/2.57.0
 - libsm/1.2.4
@@ -132,12 +161,25 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/14.3.0
 - open62541pp/0.12.0
 - openblas/0.3.28
+- opencolorio/2.3.0
+- opencolorio/2.3.1
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
 - openni2/2.2.0.33
 - openpmix/5.0.3
 - openspecfun/0.5.7
+- openvino/2023.2.0
+- openvino/2024.0.0
+- openvino/2024.1.0
+- openvino/2024.2.0
+- openvino/2024.3.0
+- openvino/2024.4.0
+- orc/1.7.10
+- orc/1.8.6
+- orc/1.8.7
+- orc/1.9.2
+- orc/1.9.3
 - osgearth/3.7
 - osrm/5.27.1
 - pangolin/0.9.1
@@ -153,11 +195,23 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qt-advanced-docking-system/3.8.4
 - qt-advanced-docking-system/4.2.0
 - qt/6.8.0
-- reproc/14.2.5
+- qxlsx/1.4.4
+- reflect-cpp/0.10.0
+- reflect-cpp/0.11.0
+- reflect-cpp/0.11.1
+- reflect-cpp/0.6.0
+- rocksdb/6.20.3
+- rocksdb/6.27.3
+- rocksdb/9.0.0
+- rocksdb/9.1.0
+- rocksdb/9.2.1
+- rocksdb/9.7.2
+- rocksdb/9.7.3
 - rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.77.1
 - rust/1.81.0
+- sentry-native/0.7.10
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/cci.20240727
@@ -190,6 +244,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/5.8.0
 - sundials/6.7.0
 - sundials/7.1.1
+- thorvg/0.14.0
+- thorvg/0.14.1
+- thorvg/0.14.2
+- thorvg/0.14.4
+- thorvg/0.14.5
+- thorvg/0.15.1
+- thorvg/0.15.2
 - thrust/2.6.1
 - tpl/cci.20210302
 - usearch/2.9.1
@@ -205,6 +266,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.3.243.0
 - vulkan-validationlayers/1.3.268.0
 - vulkan-validationlayers/1.3.290.0
+- whisper-cpp/1.2.1
+- whisper-cpp/1.4.3
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
 - xcb-util-errors/1.0.1
