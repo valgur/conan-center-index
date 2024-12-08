@@ -13,7 +13,6 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        self.tool_requires(self.tested_reference_str)
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
@@ -26,17 +25,17 @@ class TestPackageConan(ConanFile):
         cmake_deps = CMakeDeps(self)
         cmake_deps.generate()
         pkg_config_deps = PkgConfigDeps(self)
-        pkg_config_deps.build_context_activated = ["wayland"]
-        pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
         pkg_config_deps.generate()
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-        pkg_config = PkgConfig(self, "wayland-scanner_BUILD", self.generators_folder)
+
+        pkg_config = PkgConfig(self, "wayland-scanner", self.generators_folder)
         wayland_scanner = pkg_config.variables["wayland_scanner"]
-        self.run(f"{wayland_scanner} --version", env="conanrun")
+        if can_run(self):
+            self.run(f"{wayland_scanner} --version", env="conanrun")
 
     def test(self):
         if can_run(self):

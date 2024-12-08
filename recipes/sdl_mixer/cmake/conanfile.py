@@ -62,7 +62,7 @@ class SDLMixerConan(ConanFile):
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.tinymidi
-        if not (self.settings.os == "Windows" or is_apple_os(self)):
+        if self.settings.os not in ["Windows", "Macos"]:
             del self.options.nativemidi
 
     def configure(self):
@@ -260,7 +260,7 @@ class SDLMixerConan(ConanFile):
         if self.settings.os == "Windows":
             if self.options.nativemidi:
                 self.cpp_info.system_libs.append("winmm")
-        elif is_apple_os(self):
-            self.cpp_info.frameworks.extend(["AudioToolbox", "AudioUnit", "CoreServices", "CoreGraphics", "CoreFoundation"])
+        elif is_apple_os(self) and not self.options.shared:
+            self.cpp_info.frameworks.extend(["AudioToolbox", "CoreServices", "CoreGraphics", "CoreFoundation"])
             if self.settings.os == "Macos":
-                self.cpp_info.frameworks.append("AppKit")
+                self.cpp_info.frameworks.extend(["AppKit", "AudioUnit"])

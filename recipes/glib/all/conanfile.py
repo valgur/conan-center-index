@@ -10,7 +10,7 @@ import os
 import shutil
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class GLibConan(ConanFile):

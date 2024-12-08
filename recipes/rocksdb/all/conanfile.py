@@ -6,12 +6,11 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir, \
-    replace_in_file
-from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class RocksDBConan(ConanFile):
@@ -58,15 +57,6 @@ class RocksDBConan(ConanFile):
     def _min_cppstd(self):
         return "11" if Version(self.version) < "8.8.1" else "17"
 
-    @property
-    def _compilers_minimum_version(self):
-        return {} if self._min_cppstd == "11" else {
-                "apple-clang": "10",
-                "clang": "7",
-                "gcc": "7",
-                "msvc": "191",
-            }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -109,12 +99,6 @@ class RocksDBConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
 
         if self.settings.arch not in ["x86_64", "ppc64le", "ppc64", "mips64", "armv8"]:
             raise ConanInvalidConfiguration("Rocksdb requires a 64-bit architecture.")
@@ -209,12 +193,28 @@ class RocksDBConan(ConanFile):
         cmake_target = "rocksdb-shared" if self.options.shared else "rocksdb"
         self.cpp_info.set_property("cmake_file_name", "RocksDB")
         self.cpp_info.set_property("cmake_target_name", f"RocksDB::{cmake_target}")
-        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.components["librocksdb"].libs = collect_libs(self)
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["shlwapi", "rpcrt4"]
+            self.cpp_info.components["librocksdb"].system_libs = ["shlwapi", "rpcrt4"]
             if self.options.shared:
-                self.cpp_info.defines = ["ROCKSDB_DLL"]
+                self.cpp_info.components["librocksdb"].defines = ["ROCKSDB_DLL"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["pthread", "m"]
+            self.cpp_info.components["librocksdb"].system_libs = ["pthread", "m"]
         if self.options.lite:
-            self.cpp_info.defines.append("ROCKSDB_LITE")
+            self.cpp_info.components["librocksdb"].defines.append("ROCKSDB_LITE")
+
+        self.cpp_info.components["librocksdb"].set_property("cmake_target_name", f"RocksDB::{cmake_target}")
+        if self.options.with_gflags:
+            self.cpp_info.components["librocksdb"].requires.append("gflags::gflags")
+        if self.options.with_snappy:
+            self.cpp_info.components["librocksdb"].requires.append("snappy::snappy")
+        if self.options.with_lz4:
+            self.cpp_info.components["librocksdb"].requires.append("lz4::lz4")
+        if self.options.with_zlib:
+            self.cpp_info.components["librocksdb"].requires.append("zlib::zlib")
+        if self.options.with_zstd:
+            self.cpp_info.components["librocksdb"].requires.append("zstd::zstd")
+        if self.options.get_safe("with_tbb"):
+            self.cpp_info.components["librocksdb"].requires.append("onetbb::onetbb")
+        if self.options.with_jemalloc:
+            self.cpp_info.components["librocksdb"].requires.append("jemalloc::jemalloc")

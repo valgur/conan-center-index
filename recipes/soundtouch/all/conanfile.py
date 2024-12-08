@@ -1,10 +1,13 @@
-from conan import ConanFile
-from conan.tools.files import get, copy, rm, rmdir, apply_conandata_patches, export_conandata_patches
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, replace_in_file
+from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 class SoundTouchConan(ConanFile):
     name = "soundtouch"
@@ -13,6 +16,8 @@ class SoundTouchConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://codeberg.org/soundtouch/soundtouch"
     topics = ("audio", "processing", "tempo", "pitch", "playback")
+
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -50,9 +55,24 @@ class SoundTouchConan(ConanFile):
             # not used in any public headers
             self.requires("openmp/system")
 
+    def validate(self):
+        if Version(self.version) >= "2.3.3":
+            check_min_cppstd(self, 17)
+
+        if self.settings.os == "Macos" and self.options.integer_samples and self.options.with_dll:
+            # Undefined symbols for architecture arm64:
+            #   "soundtouch::BPMDetect::inputSamples(float const*, int)", referenced from:
+            #       _bpm_putSamples in SoundTouchDLL.cpp.o
+            #       _bpm_putSamples_i16 in SoundTouchDLL.cpp.o
+            raise ConanInvalidConfiguration('The -o="&:integer_samples=True" option is incompatible with -o="&:with_dll=True"')
+
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
         apply_conandata_patches(self)
+        if Version(self.version) >= "2.3.3":
+            # Let Conan handle the C++ standard
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "set(CMAKE_CXX_STANDARD 17)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

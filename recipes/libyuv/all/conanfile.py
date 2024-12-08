@@ -5,7 +5,7 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibyuvConan(ConanFile):
@@ -61,25 +61,16 @@ class LibyuvConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["TEST"] = False
-        tc.variables["LIBYUV_WITH_JPEG"] = bool(self.options.with_jpeg)
+        tc.cache_variables["TEST"] = False
+        tc.cache_variables["LIBYUV_WITH_JPEG"] = bool(self.options.with_jpeg)
+        if self.options.get_safe("shared"):
+            # Force FPIC for shared, Conan does not set it
+            tc.cache_variables["CMAKE_POSITION_INDEPENDENT_CODE"] = True
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # remove default CMAKE_POSITION_INDEPENDENT_CODE if not requested
-        use_fpic = self.options.get_safe("fPIC") or self.options.get_safe("shared")
-        if Version(self.version) >= "1892" and not use_fpic:
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "CMakeLists.txt"),
-                "SET(CMAKE_POSITION_INDEPENDENT_CODE ON)",
-                "",
-            )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -92,6 +83,8 @@ class LibyuvConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["yuv"]
         self.cpp_info.requires = []
+        if self.settings.compiler == "msvc":
+            self.cpp_info.defines.append("_CRT_SECURE_NO_WARNINGS")
         if self.options.with_jpeg == "libjpeg":
             self.cpp_info.requires.append("libjpeg::libjpeg")
         elif self.options.with_jpeg == "libjpeg-turbo":

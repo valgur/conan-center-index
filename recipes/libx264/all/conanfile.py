@@ -5,7 +5,7 @@ from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import copy, rename, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, GnuToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc
+from conan.tools.microsoft import is_msvc, unix_path
 import os
 
 required_conan_version = ">=2.3.0"
@@ -25,15 +25,17 @@ class LibX264Conan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "bit_depth": [8, 10, "all"],
+        "with_opencl": [True, False],
+        "with_asm": [True, False]
     }
+    # The project by default enables opencl and asm, it can be opted-out
     default_options = {
         "shared": False,
         "fPIC": True,
         "bit_depth": "all",
+        "with_opencl": True,
+        "with_asm": True
     }
-
-    # otherwise build fails with: ln: failed to create symbolic link './Makefile' -> '../../../../../../../../../../../../../j/w/prod/buildsinglereference@2/.conan/data/libx264/cci.20220602/_/_/build/622692a7dbc145becf87f01b017e2a0d93cc644e/src/Makefile': File name too long
-    short_paths = True
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -80,6 +82,10 @@ class LibX264Conan(ConanFile):
             tc.configure_args["--enable-pic"] = None
         if self.settings.build_type == "Debug":
             tc.configure_args["--enable-debug"] = None
+        if not self.options.with_opencl:
+            tc.configure_args["--disable-opencl"] = None
+        if not self.options.with_asm:
+            tc.configure_args["--disable-asm"] = None
 
         extra_asflags = []
         extra_cflags = []
@@ -98,6 +104,11 @@ class LibX264Conan(ConanFile):
                 extra_asflags.extend(platform_flags)
                 extra_cflags.extend(platform_flags)
                 extra_ldflags.extend(platform_flags)
+
+        if self._with_nasm:
+            env = Environment()
+            env.define("AS", unix_path(self, os.path.join(self.dependencies.build["nasm"].package_folder, "bin", "nasm{}".format(".exe" if self.settings.os == "Windows" else ""))))
+            env.vars(self).save_script("conanbuild_nasm")
 
         if cross_building(self):
             if self.settings.os == "Android":

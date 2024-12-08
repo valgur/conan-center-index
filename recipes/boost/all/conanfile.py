@@ -362,6 +362,9 @@ class BoostConan(ConanFile):
             # https://github.com/boostorg/process/pull/409
             if Version(self.version) == "1.86.0" and is_msvc(self):
                 disable_component("process")
+            if self.settings.os == "iOS":
+                # the process library doesn't build (and doesn't even make sense) on iOS
+                self.options.without_process = True
 
     @property
     def _configure_options(self):

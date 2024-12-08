@@ -9,7 +9,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1.0"
 
 class ArrowConan(ConanFile):
     name = "arrow"
@@ -122,20 +122,6 @@ class ArrowConan(ConanFile):
         # https://github.com/apache/arrow/pull/13991
         return "11" if Version(self.version) < "10.0.0" else "17"
 
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "11": {
-                "clang": "3.9",
-            },
-            "17": {
-                "gcc": "8",
-                "clang": "7",
-                "apple-clang": "10",
-                "msvc": "191",
-            },
-        }.get(self._min_cppstd, {})
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_cmake_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
@@ -244,10 +230,13 @@ class ArrowConan(ConanFile):
 
         check_min_cppstd(self, self._min_cppstd)
 
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+        if (
+            Version(self.version) < "10.0.0"
+            and self.settings.compiler == "clang"
+            and Version(self.settings.compiler.version) < "3.9"
+        ):
             raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
+                f"{self.ref} requires C++11, which needs at least clang-3.9"
             )
 
         if self.options.get_safe("skyhook", False):
@@ -503,6 +492,9 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow_flight"].set_property("cmake_target_name", f"ArrowFlight::arrow_flight_{cmake_suffix}")
             self.cpp_info.components["libarrow_flight"].libs = [f"arrow_flight{suffix}"]
             self.cpp_info.components["libarrow_flight"].requires = ["libarrow"]
+            # https://github.com/apache/arrow/pull/43137#pullrequestreview-2267476893
+            if Version(self.version) >= "18.0.0" and self.options.with_openssl:
+                self.cpp_info.components["libarrow_flight"].requires.append("openssl::openssl")
 
         if self.options.get_safe("with_flight_sql"):
             self.cpp_info.components["libarrow_flight_sql"].set_property("pkg_config_name", "flight_sql")

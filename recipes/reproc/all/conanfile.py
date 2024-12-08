@@ -7,8 +7,6 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
-
 
 class PackageConan(ConanFile):
     name = "reproc"
@@ -50,10 +48,6 @@ class PackageConan(ConanFile):
     def validate(self):
         if self.options.cxx:
             check_min_cppstd(self, 11)
-        if self.settings.os == "Windows" and self.options.shared:
-            # test_package fails with:
-            # unresolved external symbol "class std::chrono::duration<int,struct std::ratio<1,1000> > const reproc::infinite"
-            raise ConanInvalidConfiguration("Shared libraries are not supported on Windows")
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
             # drain.hpp:55:43: error: ‘stream’ is not a class, namespace, or enumeration
             raise ConanInvalidConfiguration("GCC < 6 is not supported")
@@ -65,6 +59,8 @@ class PackageConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["REPROC++"] = self.options.cxx
         tc.variables["REPROC_MULTITHREADED"] = self.options.multithreaded
+        tc.variables["REPROC_TEST"] = False
+        tc.variables["REPROC_EXAMPLES"] = False
         tc.generate()
 
 
@@ -82,9 +78,8 @@ class PackageConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        # The C++ component should have its separate reproc++-config.cmake file,
-        # but it's currently not supported by Conan
-        self.cpp_info.set_property("cmake_file_name", "reproc")
+        cmake_config_name = "reproc++" if self.options.cxx else "reproc"
+        self.cpp_info.set_property("cmake_file_name", cmake_config_name)
 
         self.cpp_info.components["reproc_c"].set_property("pkg_config_name", "reproc")
         self.cpp_info.components["reproc_c"].set_property("cmake_target_name", "reproc")
@@ -96,8 +91,8 @@ class PackageConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.components["reproc_c"].system_libs.append("Ws2_32")
 
-        self.cpp_info.components["reproc_cxx"].set_property("pkg_config_name", "reproc++")
-        self.cpp_info.components["reproc_cxx"].set_property("cmake_target_name", "reproc++")
-        self.cpp_info.components["reproc_cxx"].libs = ["reproc++"]
-        self.cpp_info.components["reproc_cxx"].requires = ["reproc_c"]
-
+        if self.options.cxx:
+            self.cpp_info.components["reproc_cxx"].set_property("pkg_config_name", "reproc++")
+            self.cpp_info.components["reproc_cxx"].set_property("cmake_target_name", "reproc++")
+            self.cpp_info.components["reproc_cxx"].libs = ["reproc++"]
+            self.cpp_info.components["reproc_cxx"].requires = ["reproc_c"]

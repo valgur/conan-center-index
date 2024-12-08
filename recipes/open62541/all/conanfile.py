@@ -7,7 +7,7 @@ import glob
 import os
 import yaml
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4.0"
 
 
 class Open62541Conan(ConanFile):
@@ -362,6 +362,7 @@ class Open62541Conan(ConanFile):
 
         tc.generate()
         tc = CMakeDeps(self)
+        tc.set_property("mbedtls", "cmake_additional_variables_prefixes", ["MBEDTLS"])
         tc.generate()
 
     def build(self):

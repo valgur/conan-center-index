@@ -1,18 +1,23 @@
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.cmake import CMake, cmake_layout
+from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain
 import os
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeToolchain", "CMakeDeps"
+    generators = "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.preprocessor_definitions["HAS_JPEG"] = bool(self.dependencies[self.tested_reference_str].options.with_jpeg)
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)

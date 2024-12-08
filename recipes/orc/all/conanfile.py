@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir, replace_in_file, mkdir
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
+required_conan_version = ">=2.1"
 
 class OrcRecipe(ConanFile):
     name = "orc"
@@ -73,7 +73,7 @@ class OrcRecipe(ConanFile):
         self.requires("lz4/1.9.4")
         self.requires("snappy/1.1.9")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("zstd/1.5.5")
+        self.requires("zstd/[~1.5]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -88,6 +88,7 @@ class OrcRecipe(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        self._patch_sources()
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -103,12 +104,7 @@ class OrcRecipe(ConanFile):
         tc.variables["STOP_BUILD_ON_WARNING"] = False
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
 
-        # CMake versions less than 3.12 are supported by ORC pre-1.9.0 versions.
-        # Setting policy CMP0077 to NEW to remove unnecessary cache_variables settings.
-        if self.version < "1.9.0":
-            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-
-        protoc_path = os.path.join(self.dependencies.build["protobuf"].cpp_info.bindir, "protoc")
+        protoc_path = os.path.join(self.dependencies["protobuf"].cpp_info.bindir, "protoc")
         tc.variables["PROTOBUF_EXECUTABLE"] = protoc_path.replace("\\", "/")
         tc.variables["HAS_POST_2038"] = self.settings.os != "Windows"
         tc.variables["HAS_PRE_1970"] = self.settings.os != "Windows"
@@ -126,7 +122,6 @@ class OrcRecipe(ConanFile):
                         "add_library (orc STATIC ${SOURCE_FILES})", "add_library (orc ${SOURCE_FILES})")
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
