@@ -76,15 +76,15 @@ class CAresConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "c-ares::cares")
         self.cpp_info.set_property("pkg_config_name", "libcares")
 
-        self.cpp_info.libs = collect_libs(self)
+        self.cpp_info.components["cares"].libs = collect_libs(self)
         if not self.options.shared:
-            self.cpp_info.defines.append("CARES_STATICLIB")
+            self.cpp_info.components["cares"].defines.append("CARES_STATICLIB")
         if self.settings.os == "Linux":
-            self.cpp_info.system_libs.append("rt")
+            self.cpp_info.components["cares"].system_libs.append("rt")
             if Version(self.version) >= "1.23.0":
-                self.cpp_info.system_libs.append("pthread")
+                self.cpp_info.components["cares"].system_libs.append("pthread")
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(["ws2_32", "advapi32"])
-            self.cpp_info.system_libs.append("iphlpapi")
+            self.cpp_info.components["cares"].system_libs.extend(["ws2_32", "advapi32"])
+            self.cpp_info.components["cares"].system_libs.append("iphlpapi")
         elif is_apple_os(self):
-            self.cpp_info.system_libs.append("resolv")
+            self.cpp_info.components["cares"].system_libs.append("resolv")
