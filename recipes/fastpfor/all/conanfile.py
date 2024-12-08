@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
@@ -50,12 +50,12 @@ class FastPFORConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " -march=native", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["WITH_TEST"] = False
+        tc.cache_variables["WITH_TEST"] = False
         if self._has_simde:
-            tc.cache_variables["SUPPORT_NEON"] = True
             tc.preprocessor_definitions["SIMDE_ENABLE_NATIVE_ALIASES"] = 1
         tc.generate()
         tc = CMakeDeps(self)
