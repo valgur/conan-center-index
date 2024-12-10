@@ -55,7 +55,7 @@ class GnConan(ConanFile):
                 "clang": "12",
                 "apple-clang": "15",
                 "msvc": "192",
-            }
+            }.get(str(self.settings.compiler))
 
     def validate_build(self):
         check_min_cppstd(self, self._min_cppstd)
