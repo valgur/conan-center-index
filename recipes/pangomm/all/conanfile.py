@@ -59,7 +59,7 @@ class PangommConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("pango/1.51.0", transitive_headers=True, transitive_libs=True)
+        self.requires("pango/1.54.0", transitive_headers=True, transitive_libs=True)
         if self._is_2_48_api:
             self.requires("glibmm/2.78.1", transitive_headers=True, transitive_libs=True)
             self.requires("cairomm/1.18.0", transitive_headers=True, transitive_libs=True)
@@ -149,8 +149,8 @@ class PangommConan(ConanFile):
         giomm_lib = "glibmm::giomm-2.68" if self._is_2_48_api else "glibmm::giomm-2.4"
         cairomm_lib = "cairomm::cairomm-1.16" if self._is_2_48_api else "cairomm::cairomm-1.0"
 
-        self.cpp_info.components[pangomm_lib].set_property("pkg_config_name", pangomm_lib)
-        self.cpp_info.components[pangomm_lib].libs = [pangomm_lib]
-        self.cpp_info.components[pangomm_lib].includedirs = [os.path.join("include", pangomm_lib)]
-        self.cpp_info.components[pangomm_lib].requires = ["pango::pangocairo", glibmm_lib, giomm_lib, cairomm_lib]
-        self.cpp_info.components[pangomm_lib].set_property("pkg_config_custom_content", f"gmmprocm4dir=${{libdir}}/{pangomm_lib}/proc/m4")
+        self.cpp_info.set_property("pkg_config_name", pangomm_lib)
+        self.cpp_info.libs = [pangomm_lib]
+        self.cpp_info.includedirs = [os.path.join("include", pangomm_lib)]
+        self.cpp_info.requires = ["pango::pangocairo", glibmm_lib, giomm_lib, cairomm_lib]
+        self.cpp_info.set_property("pkg_config_custom_content", f"gmmprocm4dir=${{libdir}}/{pangomm_lib}/proc/m4")
