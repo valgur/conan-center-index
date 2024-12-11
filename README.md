@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-12-10:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-11:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -122,6 +122,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
+- mavlink/1.0.12.cci.20240530
+- mavlink/1.0.12.cci.20241205
+- mavsdk/2.13.0
 - mkfontscale/1.2.3
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
