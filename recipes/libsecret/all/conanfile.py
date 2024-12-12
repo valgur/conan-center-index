@@ -27,12 +27,14 @@ class LibsecretConan(ConanFile):
         "fPIC": [True, False],
         "crypto": [False, "libgcrypt", "gnutls"],
         "with_libgcrypt": [True, False, "deprecated"],
+        "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "crypto": "libgcrypt",
         "with_libgcrypt": "deprecated",
+        "with_introspection": False,
     }
 
     def config_options(self):
@@ -72,6 +74,8 @@ class LibsecretConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
+        if self.options.with_introspection:
+            self.tool_requires("gobject-introspection/1.78.1")
 
         if is_apple_os(self):
             # Avoid using gettext from homebrew which may be linked against
@@ -87,7 +91,8 @@ class LibsecretConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = MesonToolchain(self)
-        tc.project_options["introspection"] = "false"
+        tc.project_options["introspection"] = "true" if self.options.with_introspection else "false"
+        tc.project_options["vapi"] = "false"
         tc.project_options["manpage"] = "false"
         tc.project_options["gtk_doc"] = "false"
         if Version(self.version) >= "0.21.2":
@@ -96,6 +101,8 @@ class LibsecretConan(ConanFile):
             tc.project_options["gcrypt"] = "true" if self.options.crypto == "libgcrypt" else "false"
         tc.generate()
         deps = PkgConfigDeps(self)
+        if self.options.with_introspection:
+            deps.build_context_activated = ["gobject-introspection"]
         deps.generate()
 
     def build(self):
@@ -108,15 +115,20 @@ class LibsecretConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        os.rename(os.path.join(self.package_folder, "share"),
+                  os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsecret-1")
         self.cpp_info.includedirs = [os.path.join("include", "libsecret-1")]
+        self.cpp_info.resdirs = ["res"]
         self.cpp_info.libs = ["secret-1"]
         self.cpp_info.requires = ["glib::glib-2.0", "glib::gobject-2.0", "glib::gio-2.0"]
         if self.options.get_safe("crypto") == "libgcrypt":
             self.cpp_info.requires.append("libgcrypt::libgcrypt")
         elif self.options.get_safe("crypto") == "gnutls":
             self.cpp_info.requires.append("gnutls::gnutls")
+        if self.options.with_introspection:
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
