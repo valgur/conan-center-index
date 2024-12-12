@@ -3,14 +3,11 @@ import re
 from pathlib import Path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, load, replace_in_file
 from conan.tools.google import BazelToolchain, BazelDeps, bazel_layout, Bazel
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class SkiaConan(ConanFile):
@@ -30,19 +27,6 @@ class SkiaConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -64,30 +48,15 @@ class SkiaConan(ConanFile):
         self.requires("icu/75.1")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        self.tool_requires("bazel/6.2.0")
+        self.tool_requires("bazel/6.5.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-    def generate(self):
-        VirtualBuildEnv(self).generate()
-
-        tc = BazelToolchain(self)
-        tc.generate()
-
-        deps = BazelDeps(self)
-        deps.generate()
-
-    def _patch_sources(self):
         # Keep only the external deps that are not available from Conan
         keep_external = [
             "cxx",
@@ -100,8 +69,13 @@ class SkiaConan(ConanFile):
             if path.is_dir() and path.name not in keep_external:
                 rmdir(self, path)
 
+    def generate(self):
+        tc = BazelToolchain(self)
+        tc.generate()
+        deps = BazelDeps(self)
+        deps.generate()
+
     def build(self):
-        self._patch_sources()
         bazel = Bazel(self)
         bazel.build(target="//:skia_public")
 
