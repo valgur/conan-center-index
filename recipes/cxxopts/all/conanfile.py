@@ -43,7 +43,7 @@ class CxxOptsConan(ConanFile):
 
     def requirements(self):
         if self.options.unicode:
-            self.requires("icu/74.1")
+            self.requires("icu/75.1")
 
     def package_id(self):
         self.info.clear()

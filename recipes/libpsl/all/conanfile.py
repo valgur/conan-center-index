@@ -49,7 +49,7 @@ class LibPslConan(ConanFile):
 
     def requirements(self):
         if self.options.with_idna == "icu":
-            self.requires("icu/74.1")
+            self.requires("icu/75.1")
         elif self.options.with_idna == "libidn":
             self.requires("libidn/1.36")
         elif self.options.with_idna == "libidn2":
