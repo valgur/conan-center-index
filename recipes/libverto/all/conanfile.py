@@ -71,7 +71,7 @@ class LibVertoConan(ConanFile):
 
     def requirements(self):
         if self.options.with_glib:
-            self.requires("glib/2.78.1")
+            self.requires("glib/2.78.3")
         if self.options.with_libevent:
             self.requires("libevent/2.1.12")
         if self.options.with_libev:
