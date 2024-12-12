@@ -35,6 +35,7 @@ class HarfbuzzConan(ConanFile):
         "with_directwrite": [True, False],
         "with_coretext": [True, False],
         "with_subset": ["deprecated", True, False],
+        "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
@@ -47,6 +48,7 @@ class HarfbuzzConan(ConanFile):
         "with_directwrite": False,
         "with_coretext": True,
         "with_subset": "deprecated",
+        "with_introspection": False,
     }
 
     short_paths = True
@@ -100,6 +102,9 @@ class HarfbuzzConan(ConanFile):
         if self.options.with_subset != "deprecated":
             self.output.warning("The 'with_subset' option is deprecated and will be removed in a future version. It never had any effect.")
 
+        if self.options.with_introspection and not self.options.shared:
+            raise ConanInvalidConfiguration("with_introspection=True requires -o shared=True")
+
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -110,6 +115,8 @@ class HarfbuzzConan(ConanFile):
             # Ensure that the gettext we use at build time is compatible
             # with the libiconv that is transitively exposed by glib
             self.tool_requires("gettext/0.21")
+        if self.options.with_introspection:
+            self.tool_requires("gobject-introspection/1.78.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -140,7 +147,10 @@ class HarfbuzzConan(ConanFile):
             env.define_path("DYLD_LIBRARY_PATH", "")
             env.vars(self, scope="build").save_script("conanbuild_macos_runtimepath")
 
-        PkgConfigDeps(self).generate()
+        deps = PkgConfigDeps(self)
+        if self.options.with_introspection:
+            deps.build_context_activated = ["gobject-introspection"]
+        deps.generate()
 
         backend, cxxflags = meson_backend_and_flags()
         tc = MesonToolchain(self, backend=backend)
@@ -153,7 +163,7 @@ class HarfbuzzConan(ConanFile):
             "coretext": is_enabled(self.options.get_safe("with_coretext")),
             "directwrite": is_enabled(self.options.get_safe("with_directwrite")),
             "gobject": is_enabled(self.options.with_glib),
-            "introspection": is_enabled(False),
+            "introspection": is_enabled(self.options.with_introspection),
             "tests": "disabled",
             "docs": "disabled",
             "benchmark": "disabled",
@@ -174,6 +184,9 @@ class HarfbuzzConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        if self.options.with_introspection:
+            os.rename(os.path.join(self.package_folder, "share"),
+                      os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
 
@@ -211,6 +224,11 @@ class HarfbuzzConan(ConanFile):
             libcxx = stdcpp_library(self)
             if libcxx:
                 self.cpp_info.components["harfbuzz_"].system_libs.append(libcxx)
+
+        if self.options.with_introspection:
+            self.cpp_info.components["harfbuzz_"].resdirs = ["res"]
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         self.cpp_info.components["subset"].set_property("cmake_target_name", "harfbuzz::subset")
         self.cpp_info.components["subset"].set_property("pkg_config_name", "harfbuzz-subset")
