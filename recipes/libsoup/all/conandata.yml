@@ -1,0 +1,9 @@
+sources:
+  "3.6.1":
+    url: "http://ftp.gnome.org/pub/GNOME/sources/libsoup/3.6/libsoup-3.6.1.tar.xz"
+    sha256: "ceb1f1aa2bdd73b2cd8159d3998c96c55ef097ef15e4b4f36029209fa18af838"
+patches:
+  "3.6.1":
+    - patch_file: "patches/3.6.1-fix-krb5-dep.patch"
+      patch_description: "Fix krb5 dependency detection"
+      patch_type: "conan"
