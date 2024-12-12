@@ -1,13 +1,12 @@
-import os
-
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, rm
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, rm, replace_in_file
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.54.0"
+import os
+
+required_conan_version = ">=2.1"
 
 
 class TesseractConan(ConanFile):
@@ -39,36 +38,12 @@ class TesseractConan(ConanFile):
         "with_libarchive": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return "11" if Version(self.version) < "5.0.0" else "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "11": {
-                "msvc": "190",
-                "gcc": "5",
-                "clang": "5",
-                "apple-clang": "6",
-            },
-            "17": {
-                "msvc": "192",
-                "gcc": "7",
-                "clang": "7",
-                "apple-clang": "11",
-            },
-        }.get(self._min_cppstd, {})
-
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) < "5.0.0":
-            del self.options.with_libcurl
-            del self.options.with_libarchive
 
     def configure(self):
         if self.options.shared:
@@ -82,7 +57,7 @@ class TesseractConan(ConanFile):
             self.requires("leptonica/1.83.1")
         else:
             self.requires("leptonica/1.82.0")
-        if self.settings.os == "Windows" and Version(self.version) >= "5.0.0":
+        if self.settings.os == "Windows":
             self.requires("libtiff/4.6.0")
         # libarchive is required for 4.x so default value is true
         if self.options.get_safe("with_libarchive", default=True):
@@ -92,13 +67,7 @@ class TesseractConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, "17")
 
         if self.options.with_training:
             # do not enforce failure and allow user to build with system cairo, pango, fontconfig
@@ -106,42 +75,31 @@ class TesseractConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TRAINING_TOOLS"] = self.options.with_training
         tc.variables["INSTALL_CONFIGS"] = self.options.with_training
-
-        # pre-5.0.0 uses custom STATIC variable instead of BUILD_SHARED_LIBS
-        if Version(self.version) < "5.0.0":
-            tc.variables["STATIC"] = not self.options.shared
-
         # Use CMake-based package build and dependency detection, not the pkg-config, cppan or SW
         tc.variables["CPPAN_BUILD"] = False
         tc.variables["SW_BUILD"] = False
-
         # disable autodetect of vector extensions and march=native
         tc.variables["ENABLE_OPTIMIZATIONS"] = self.options.with_auto_optimize
-
-        if Version(self.version) < "5.0.0":
-            tc.variables["AUTO_OPTIMIZE"] = self.options.with_auto_optimize
-
         # Set Leptonica_DIR to ensure that find_package will be called in original CMake file
-        leptonica = self.dependencies["leptonica"]
-        tc.variables["Leptonica_DIR"] = leptonica.package_folder.replace("\\", "/")
-        # Skip a try_run() for cross-compilation support
-        tc.variables["LEPT_TIFF_RESULT"] = 0 if leptonica.options.with_tiff else 1
-
-        if Version(self.version) >= "5.0.0":
-            tc.variables["DISABLE_CURL"] = not self.options.with_libcurl
-            tc.variables["DISABLE_ARCHIVE"] = not self.options.with_libarchive
+        tc.variables["Leptonica_DIR"] = self.dependencies["leptonica"].package_folder.replace("\\", "/")
+        tc.variables["DISABLE_CURL"] = not self.options.with_libcurl
+        tc.variables["DISABLE_ARCHIVE"] = not self.options.with_libarchive
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.generate()
 
     def build(self):
+        apply_conandata_patches(self)
+        if self.dependencies["leptonica"].options.get_safe("with_tiff"):
+            # version <=5.2 do not contain this check, and if not replaced it fail, strict=False is safe
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), 
+                            "check_leptonica_tiff_support()", "", strict=False)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -149,6 +107,7 @@ class TesseractConan(ConanFile):
     def package(self):
         cmake = CMake(self)
         cmake.install()
+
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -165,20 +124,22 @@ class TesseractConan(ConanFile):
         self.cpp_info.set_property("cmake_target_aliases", ["libtesseract"])
         self.cpp_info.set_property("pkg_config_name", "tesseract")
 
-        self.cpp_info.libs = [self._libname]
-        self.cpp_info.requires = ["leptonica::leptonica"]
-        if self.settings.os == "Windows" and Version(self.version) >= "5.0.0":
-            self.cpp_info.requires.append("libtiff::tiff")
+        # TODO: back to global scope once cmake_find_package* generators removed
+        self.cpp_info.components["libtesseract"].libs = [self._libname]
+        self.cpp_info.components["libtesseract"].requires = ["leptonica::leptonica"]
+        if self.settings.os == "Windows":
+            self.cpp_info.components["libtesseract"].requires.append("libtiff::libtiff")
         if self.options.get_safe("with_libcurl", default=False):
-            self.cpp_info.requires.append("libcurl::libcurl")
+            self.cpp_info.components["libtesseract"].requires.append("libcurl::libcurl")
         if self.options.get_safe("with_libarchive", default=True):
-            self.cpp_info.requires.append("libarchive::libarchive")
+            self.cpp_info.components["libtesseract"].requires.append("libarchive::libarchive")
         if self.options.shared:
-            self.cpp_info.defines = ["TESS_IMPORTS"]
+            self.cpp_info.components["libtesseract"].defines = ["TESS_IMPORTS"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["pthread"]
+            self.cpp_info.components["libtesseract"].system_libs = ["pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["ws2_32"]
+            self.cpp_info.components["libtesseract"].system_libs = ["ws2_32"]
+        self.cpp_info.components["libtesseract"].set_property("pkg_config_name", "tesseract")
 
     @property
     def _libname(self):
