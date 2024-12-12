@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-12-11:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-12:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -67,6 +67,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gst-libav/1.19.2
 - gtk/3.24.43
 - gtk/4.15.6
+- gtkmm/3.24.9
+- gtkmm/4.16.0
 - gtsam_points/1.0.4
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
@@ -80,6 +82,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libbpf/1.4.6
 - libcroco/0.6.13
 - libcudacxx/2.6.1
+- libdwarf/0.5.0
+- libdwarf/0.7.0
+- libdwarf/0.9.0
 - libecwj2/3.3
 - libelas/cci.20150630
 - libfontenc/1.1.8
