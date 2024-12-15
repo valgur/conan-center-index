@@ -143,6 +143,7 @@ class freeglutConan(ConanFile):
         tc.variables["INSTALL_PDB"] = False
         tc.variables["FREEGLUT_REPLACE_GLUT"] = self.options.replace_glut
         tc.preprocessor_definitions["FREEGLUT_LIB_PRAGMAS"] = "0"
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
         cmake_deps = CMakeDeps(self)
         cmake_deps.generate()
@@ -180,3 +181,29 @@ class freeglutConan(ConanFile):
                 self.cpp_info.defines.append("FREEGLUT_STATIC=1")
             self.cpp_info.defines.append("FREEGLUT_LIB_PRAGMAS=0")
             self.cpp_info.system_libs.extend(["glu32", "gdi32", "winmm", "user32"])
+
+        if self._requires_libglvnd_egl:
+            self.cpp_info.requires.append("libglvnd::egl")
+        if self._requires_libglvnd_gles:
+            self.cpp_info.requires.append("libglvnd::gles1")
+            self.cpp_info.requires.append("libglvnd::gles2")
+        if self._requires_libglvnd_glx:
+            self.cpp_info.requires.append("libglvnd::gl")
+        if self._with_libglvnd:
+            self.cpp_info.requires.append("libglvnd::opengl")
+        else:
+            self.cpp_info.requires.append("opengl::opengl")
+        if self._with_x11:
+            # https://github.com/freeglut/freeglut/blob/v3.4.0/CMakeLists.txt#L261-L278
+            self.cpp_info.requires.extend([
+                "xorg::x11",
+                "xorg::xrandr",
+                "xorg::xxf86vm",
+                "xorg::xinput",
+            ])
+        if self.options.get_safe("with_wayland"):
+            self.cpp_info.requires.extend(["wayland::wayland-client", "wayland::wayland-cursor", "wayland::wayland-egl", "xkbcommon::xkbcommon"])
+        if is_apple_os(self) or self.settings.os == "Windows":
+            self.cpp_info.requires.append("glu::glu")
+        else:
+            self.cpp_info.requires.append("mesa-glu::mesa-glu")
