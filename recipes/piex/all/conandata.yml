@@ -1,0 +1,10 @@
+sources:
+  "0.27":
+    url: "https://github.com/google/piex/archive/refs/tags/v0.27.tar.gz"
+    sha256: "10d81f58fb81784676552447ab37e8f82f7998752533e5299690837a9295138c"
+patches:
+  "0.27":
+    - patch_file: "patches/pr3-fix-build-error.patch"
+      patch_description: "Fix build error with strlen in image_type_recognition"
+      patch_type: "backport"
+      patch_source: "https://github.com/google/piex/pull/3"

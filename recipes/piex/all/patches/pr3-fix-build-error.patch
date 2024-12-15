@@ -1,0 +1,28 @@
+From 851c5e10d01d988aceffeefd3892dbf6d1d3ab67 Mon Sep 17 00:00:00 2001
+From: Warren Falk <warren@warrenfalk.com>
+Date: Sat, 20 Jan 2024 16:03:41 -0500
+Subject: [PATCH] Fix build error with strlen in image_type_recognition
+
+---
+ src/image_type_recognition/image_type_recognition_lite.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/image_type_recognition/image_type_recognition_lite.cc b/src/image_type_recognition/image_type_recognition_lite.cc
+index 5976f42..be23b06 100755
+--- a/src/image_type_recognition/image_type_recognition_lite.cc
++++ b/src/image_type_recognition/image_type_recognition_lite.cc
+@@ -206,12 +206,12 @@ class ArwTypeChecker : public TypeChecker {
+ class Cr3TypeChecker : public TypeChecker {
+  public:
+   static constexpr size_t kSignatureOffset = 4;
+-  static constexpr const char* kSignature = "ftypcrx ";
++  static constexpr const char kSignature[] = "ftypcrx ";
+ 
+   virtual RawImageTypes Type() const { return kCr3Image; }
+ 
+   virtual size_t RequestedSize() const {
+-    return kSignatureOffset + strlen(kSignature);
++    return kSignatureOffset + std::size(kSignature) - 1;
+   }
+ 
+   // Checks for the ftyp box w/ brand 'crx '.
