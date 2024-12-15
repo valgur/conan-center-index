@@ -101,3 +101,8 @@ class LibXvConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "xv")
         self.cpp_info.set_property("cmake_target_name", "X11::Xv")
         self.cpp_info.libs = ["Xv"]
+        self.cpp_info.requires = [
+            "xorg-proto::xorg-proto",
+            "libx11::x11",
+            "libxext::libxext",
+        ]

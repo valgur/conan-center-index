@@ -90,3 +90,8 @@ class LibXcompositeConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "xcomposite")
         self.cpp_info.set_property("cmake_target_name", "X11::Xcomposite")
         self.cpp_info.libs = ["Xcomposite"]
+        self.cpp_info.requires = [
+            "xorg-proto::xorg-proto",
+            "libx11::x11",
+            "libxfixes::libxfixes",
+        ]

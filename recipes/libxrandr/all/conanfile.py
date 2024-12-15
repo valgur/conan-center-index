@@ -102,3 +102,9 @@ class LibXrandrConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "xrandr")
         self.cpp_info.set_property("cmake_target_name", "X11::Xrandr")
         self.cpp_info.libs = ["Xrandr"]
+        self.cpp_info.requires = [
+            "xorg-proto::xorg-proto",
+            "libx11::x11",
+            "libxext::libxext",
+            "libxrender::libxrender",
+        ]

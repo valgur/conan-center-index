@@ -101,3 +101,8 @@ class LibXResConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "xres")
         self.cpp_info.set_property("cmake_target_name", "X11::XRes")
         self.cpp_info.libs = ["XRes"]
+        self.cpp_info.requires = [
+            "xorg-proto::xorg-proto",
+            "libx11::x11",
+            "libxext::libxext",
+        ]

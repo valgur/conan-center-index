@@ -88,3 +88,4 @@ class XcbUtilKeysymsConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "xcb-keysyms")
         self.cpp_info.set_property("cmake_target_name", "X11::xcb_keysyms")
         self.cpp_info.libs = ["xcb-keysyms"]
+        self.cpp_info.requires = ["libxcb::xcb", "xorg-proto::xorg-proto"]

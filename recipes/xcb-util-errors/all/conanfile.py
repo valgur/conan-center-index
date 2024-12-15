@@ -101,3 +101,4 @@ class XcbUtilErrorsConan(ConanFile):
         self.cpp_info.libs = ["xcb-errors"]
         xcbproto_version = self.dependencies.build["xcb-proto"].ref.version
         self.cpp_info.set_property("pkg_config_custom_content", f"xcbproto_version={xcbproto_version}")
+        self.cpp_info.requires = ["libxcb::xcb"]
