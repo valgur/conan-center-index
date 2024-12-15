@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-12-12:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-15:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -74,6 +74,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/9.0.0
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
+- icu4x/1.4.1
+- icu4x/1.5.1
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
 - iridescence/0.1.3
@@ -82,9 +84,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libbpf/1.4.6
 - libcroco/0.6.13
 - libcudacxx/2.6.1
-- libdwarf/0.5.0
-- libdwarf/0.7.0
-- libdwarf/0.9.0
 - libecwj2/3.3
 - libelas/cci.20150630
 - libfontenc/1.1.8
@@ -95,6 +94,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - librsvg/2.57.0
 - libsm/1.2.4
 - libsolv/0.7.29
+- libsoup/3.6.1
 - libtomcrypt/1.18.2
 - libtommath/1.2.1
 - libtommath/1.3.0
@@ -167,7 +167,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.81.0
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
-- skia/cci.20240727
+- skia/132
 - sleef/3.6.1
 - small_gicp/0.1.2
 - spirv-cross/1.3.290.0
@@ -206,12 +206,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vswhere/3.1.7
 - vtk-m/2.2.0
 - vtk/9.3.1
+- vulkan-memory-allocator/3.1.0
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
 - vulkan-utility-libraries/1.3.290.0
 - vulkan-validationlayers/1.3.243.0
 - vulkan-validationlayers/1.3.268.0
 - vulkan-validationlayers/1.3.290.0
+- wuffs/0.3.4
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
 - xcb-util-errors/1.0.1
