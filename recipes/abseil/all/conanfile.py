@@ -227,13 +227,19 @@ class AbseilConan(ConanFile):
         abseil_components = json.loads(components_json_file)
         for pkgconfig_name, values in abseil_components.items():
             cmake_target = values["cmake_target"]
-            self.cpp_info.components[pkgconfig_name].set_property("cmake_target_name", "absl::{}".format(cmake_target))
-            self.cpp_info.components[pkgconfig_name].set_property("pkg_config_name", pkgconfig_name)
-            self.cpp_info.components[pkgconfig_name].libs = values.get("libs", [])
-            self.cpp_info.components[pkgconfig_name].defines = values.get("defines", [])
-            self.cpp_info.components[pkgconfig_name].system_libs = values.get("system_libs", [])
-            self.cpp_info.components[pkgconfig_name].frameworks = values.get("frameworks", [])
-            self.cpp_info.components[pkgconfig_name].requires = values.get("requires", [])
+            component = self.cpp_info.components[pkgconfig_name]
+            component.set_property("cmake_target_name", f"absl::{cmake_target}")
+            component.set_property("pkg_config_name", pkgconfig_name)
+            component.libs = values.get("libs", [])
+            component.defines = values.get("defines", [])
+            component.system_libs = values.get("system_libs", [])
+            component.frameworks = values.get("frameworks", [])
+            component.requires = values.get("requires", [])
+            # Pass includedirs and libdirs only via absl_config to limit the potentially large number of build flags being passed
+            if pkgconfig_name != "absl_config":
+                component.includedirs = []
+                if not component.libs:
+                    component.libdirs = []
 
 class _ABIFile:
     abi = {}
