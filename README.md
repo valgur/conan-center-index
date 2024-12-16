@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-12-15:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-16:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -48,6 +48,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fenster/0.0.0.cci.20240909
 - filament/1.5.3
 - fortran/cci.latest
+- freeglut/3.6.0
 - g2o/20230806
 - gdal/3.9.2
 - gdalcpp/1.3.0
@@ -152,6 +153,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pcl/1.14.1
 - pdal/2.7.2
 - perf/6.11
+- piex/0.2.7
 - polyscope/2.3.0
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
