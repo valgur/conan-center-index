@@ -50,6 +50,10 @@ class BinutilsConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    @property
+    def _settings_target(self):
+        return getattr(self, "settings_target", None) or self.settings
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -60,15 +64,15 @@ class BinutilsConan(ConanFile):
         if not self.options.target_triplet:
             if not self.options.target_arch:
                 # If target triplet and target arch are not set, initialize it from the target settings
-                self.options.target_arch = str(self.settings_target.arch)
+                self.options.target_arch = str(self._settings_target.arch)
             if not self.options.target_os:
                 # If target triplet and target os are not set, initialize it from the target settings
-                self.options.target_os = str(self.settings_target.os)
+                self.options.target_os = str(self._settings_target.os)
             # Initialize the target_triplet from the target arch and target os
             self.options.target_triplet = _GNUTriplet.from_archos(_ArchOs(
                 arch=str(self.options.target_arch),
                 os=str(self.options.target_os),
-                extra=dict(self.settings_target.values_list))).triplet
+                extra=dict(self._settings_target.values_list))).triplet
         else:
             gnu_triplet_obj = _GNUTriplet.from_text(str(self.options.target_triplet))
             archos = _ArchOs.from_triplet(gnu_triplet_obj)
@@ -108,7 +112,7 @@ class BinutilsConan(ConanFile):
             raise ConanInvalidConfiguration(f"target_arch={target_archos.arch}/target_os={target_archos.os} is not compatible with {target_gnu_triplet.triplet}. Change target triplet to {suggested_gnu_triplet.triplet}, or change target_arch/target_os to {suggested_archos.arch}/{suggested_archos.os}.")
 
         # Check, when used as build requirement in a cross build, whether the target arch/os agree
-        settings_target = self.settings_target
+        settings_target = getattr(self, "settings_target", None)
         if settings_target is not None:
             if self.options.target_arch != settings_target.arch:
                 raise ConanInvalidConfiguration(f"binutils:target_arch={self.options.target_arch} does not match target architecture={settings_target.arch}")
