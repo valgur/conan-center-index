@@ -294,7 +294,7 @@ class GdalConan(ConanFile):
         # if self.options.with_sfcgal:
         #     self.requires("sfcgal/1.3.7")
         if self.options.with_qhull:
-            self.requires("qhull/8.0.1")
+            self.requires("qhull/8.1.alpha4")
         if self.options.with_opencl:
             self.requires("opencl-headers/2022.09.30")
             self.requires("opencl-icd-loader/2022.09.30")

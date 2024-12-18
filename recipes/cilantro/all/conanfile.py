@@ -74,7 +74,7 @@ class CilantroConan(ConanFile):
         self.requires("spectra/1.0.1", transitive_headers=True, transitive_libs=True)
         self.requires("nanoflann/1.5.2", transitive_headers=True, transitive_libs=True)
         self.requires("tinyply/2.3.4", transitive_headers=True, transitive_libs=True)
-        self.requires("qhull/cci.20231130", transitive_headers=True, transitive_libs=True)
+        self.requires("qhull/8.1.alpha4", transitive_headers=True, transitive_libs=True)
         if self.options.with_openmp:
             # '#pragma omp' is used in public headers
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
