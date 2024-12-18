@@ -452,8 +452,12 @@ class GdalConan(ConanFile):
         tc.variables["GDAL_USE_ZLIB_INTERNAL"] = False
         tc.variables["GDAL_USE_ZSTD"] = self.options.with_zstd
 
-        tc.variables["Parquet_FOUND"] = self.options.with_arrow and self.dependencies["arrow"].options.parquet
-        tc.variables["ArrowDataset_FOUND"] = self.options.with_arrow and self.dependencies["arrow"].options.dataset_modules
+        if self.options.with_arrow:
+            arrow = self.dependencies["arrow"]
+            tc.variables["Parquet_FOUND"] = arrow.options.parquet
+            tc.variables["Parquet_VERSION"] = str(arrow.ref.version)
+            tc.variables["ArrowDataset_FOUND"] = arrow.options.dataset_modules
+            tc.variables["ArrowDataset_VERSION"] = str(arrow.ref.version)
 
         # General workaround for try_compile() tests in the project
         # https://github.com/conan-io/conan/issues/12180
