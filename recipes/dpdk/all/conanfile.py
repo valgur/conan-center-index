@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches, collect_libs, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -48,16 +48,13 @@ class DpdkConan(ConanFile):
         "with_openssl": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return "11"
-
     def export_sources(self):
         export_conandata_patches(self)
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.options["libnuma"].shared = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -96,9 +93,7 @@ class DpdkConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("DPDK is only supported on Linux")
-
-        check_min_cppstd(self, self._min_cppstd)
-
+        check_min_cppstd(self, 11)
         if not self.dependencies["libnuma"].options.shared:
             # dpdk is strict about its exported symbols and fails when it encounters statically linked libnuma symbols
             raise ConanInvalidConfiguration("libnuma must be built with '-o libnuma/*:shared=True'")
@@ -123,10 +118,7 @@ class DpdkConan(ConanFile):
         tc.extra_cflags.append(f"-I{self.dependencies['linux-headers-generic'].cpp_info.includedir}")
         tc.generate()
 
-        deps = PkgConfigDeps(self)
-        deps.generate()
-
-        VirtualBuildEnv(self).generate()
+        PkgConfigDeps(self).generate()
 
         # To install pyelftools
         env = Environment()
@@ -160,4 +152,5 @@ class DpdkConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libdpdk")
+        # The project builds almost 200 libraries.
         self.cpp_info.libs = collect_libs(self)
