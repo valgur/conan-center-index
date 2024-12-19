@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-12-18:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-19:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -158,7 +158,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - poppler/24.03.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
-- qhull/cci.20231130
+- qhull/8.1-alpha4
 - qscintilla/2.14.1
 - qt-advanced-docking-system/3.8.4
 - qt-advanced-docking-system/4.2.0
