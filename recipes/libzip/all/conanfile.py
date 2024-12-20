@@ -23,7 +23,7 @@ class LibZipConan(ConanFile):
         "with_bzip2": [True, False],
         "with_lzma": [True, False],
         "with_zstd": [True, False],
-        "crypto": [False, "win32", "openssl", "mbedtls"],
+        "crypto": [False, "win32", "openssl", "mbedtls", "gnutls"],
         "tools": [True, False],
     }
     default_options = {
@@ -68,15 +68,17 @@ class LibZipConan(ConanFile):
             self.requires("bzip2/1.0.8")
 
         if self.options.with_lzma:
-            self.requires("xz_utils/5.4.5")
-
-        if self.options.get_safe("with_zstd"):
-            self.requires("zstd/1.5.5")
+            self.requires("xz_utils/[>=5.4.5 <6]")
 
         if self.options.crypto == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         elif self.options.crypto == "mbedtls":
             self.requires("mbedtls/3.5.0")
+        elif self.options.crypto == "gnutls":
+            self.requires("gnutls/3.8.2")
+
+        if self.options.get_safe("with_zstd"):
+            self.requires("zstd/[~1.5]")
 
     def validate(self):
         if self.options.crypto == "win32" and self.settings.os != "Windows":
@@ -104,7 +106,7 @@ class LibZipConan(ConanFile):
         if self._has_zstd_support:
             tc.variables["ENABLE_ZSTD"] = self.options.with_zstd
         tc.variables["ENABLE_COMMONCRYPTO"] = False  # TODO: We need CommonCrypto package
-        tc.variables["ENABLE_GNUTLS"] = False  # TODO: We need GnuTLS package
+        tc.variables["ENABLE_GNUTLS"] = self.options.crypto == "gnutls"
         tc.variables["ENABLE_MBEDTLS"] = self.options.crypto == "mbedtls"
         tc.variables["ENABLE_OPENSSL"] = self.options.crypto == "openssl"
         tc.variables["ENABLE_WINDOWS_CRYPTO"] = self.options.crypto == "win32"
@@ -129,6 +131,7 @@ class LibZipConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "libzip")
         self.cpp_info.set_property("cmake_target_name", "libzip::zip")
         self.cpp_info.set_property("pkg_config_name", "libzip")
+
         self.cpp_info.libs = ["zip"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["advapi32"]
