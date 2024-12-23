@@ -7,7 +7,7 @@ patches:
   "6.8.1":
     - "base_path": "qtwebengine"
       "patch_description": "Workaround for too long .rps file name"
-      "patch_file": "patches/c72097e_6.6.0.diff"
+      "patch_file": "patches/c72097e_6.8.0.diff"
       "patch_source": "https://codereview.qt-project.org/c/yocto/meta-qt5/+/192172"
       "patch_type": "bugfix"
     - "patch_description": "Rewrite FindXCB.cmake to not ignore transitive dependencies"
