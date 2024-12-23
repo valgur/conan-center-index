@@ -187,7 +187,7 @@ class QtConan(ConanFile):
             str(self.settings.arch),
             str(self.settings.compiler),
             str(self.settings.compiler.version),
-            str(self.settings.compiler.libcxx),
+            str(self.settings.compiler.get_safe("libcxx")),
         )
 
     def export(self):
@@ -240,11 +240,11 @@ class QtConan(ConanFile):
             self.output.debug(f"qt6 option: {option}")
 
         if Version(self.version) >= "6.8.0":
-            # INT128 support requires GNU extensions when using libstdc++.
-            # Force-enable GNU extensions for this recipe.
+            # INT128 support is mandatory since 6.8.0, but this requires GNU extensions when using libstdc++.
+            # Force-enable the extensions for this recipe as a workaround.
             # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
             # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
-            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
+            if self.settings.compiler.get_safe("libcxx") in ["libstdc++", "libstdc++11"]:
                 if not "gnu" in str(self.settings.compiler.cppstd):
                     self.settings.compiler.cppstd = f"gnu{self.settings.compiler.cppstd}"
 
@@ -348,10 +348,6 @@ class QtConan(ConanFile):
             setattr(self.info.options, module, self._is_enabled(module))
         for status in self._module_statuses:
             self.info.options.rm_safe(f"{status}_modules")
-        if Version(self.version) >= "6.8.0":
-            if str(self.info.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
-                if "gnu" not in str(self.info.settings.compiler.cppstd):
-                    self.info.settings.compiler.cppstd = f"gnu{self.info.settings.compiler.cppstd}"
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
@@ -659,13 +655,6 @@ class QtConan(ConanFile):
         }
         for std, feature in cpp_std_map.items():
             tc.variables[feature] = current_cpp_std >= std
-
-        # The mandatory INT128 support requires GNU extensions when using libstdc++.
-        # https://github.com/qt/qtbase/commit/7805b3c32f88a5405a4a12b402c93cf6cb5dedc4
-        # https://github.com/qt/qtbase/blob/v6.8.0/src/corelib/global/qtypes.cpp#L506-L511
-        if Version(self.version) >= "6.8.0":
-            if str(self.settings.compiler.libcxx) in ["libstdc++", "libstdc++11"]:
-                tc.variables["CMAKE_CXX_EXTENSIONS"] = True
 
         tc.variables["QT_USE_VCPKG"] = False
         tc.cache_variables["QT_USE_VCPKG"] = False
