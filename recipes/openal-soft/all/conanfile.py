@@ -8,7 +8,7 @@ from conan.tools.scm import Version
 import os
 import textwrap
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.0.9"
 
 
 class OpenALSoftConan(ConanFile):
@@ -28,55 +28,30 @@ class OpenALSoftConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "191",
-            "gcc": "6",
-            "clang": "5",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # OpenAL's API is pure C, thus the c++ standard does not matter
-        # Because the backend is C++, the C++ STL matters
-        self.settings.rm_safe("compiler.cppstd")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def package_id(self):
+        # OpenAL's API is pure C, thus the C++ standard does not matter
+        # Because the backend is C++, the C++ STL matters
+        del self.info.settings.compiler.cppstd
 
     def requirements(self):
         if self.settings.os == "Linux":
             self.requires("libalsa/1.2.10")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
+        check_min_cppstd(self, 14)
         compiler = self.settings.compiler
-
-        minimum_version = self._minimum_compilers_version.get(str(compiler), False)
-        if minimum_version and Version(compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
-            )
-
         if compiler == "clang" and Version(compiler.version) < "9" and \
            compiler.get_safe("libcxx") in ("libstdc++", "libstdc++11"):
             raise ConanInvalidConfiguration(
-                f"{self.ref} cannot be built with {compiler} {compiler.version} and stdlibc++(11) c++ runtime",
+                f"{self.ref} cannot be built with {compiler} {compiler.version} and stdlibc++(11) C++ runtime",
             )
 
     def source(self):
