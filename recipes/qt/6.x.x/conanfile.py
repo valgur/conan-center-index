@@ -134,7 +134,6 @@ class QtConan(ConanFile):
         "qtpositioning",
         "qtquick3d",
         "qtquick3dphysics",
-        "qtquickcontrols2",
         "qtquickeffectmaker",
         "qtquicktimeline",
         "qtremoteobjects",
