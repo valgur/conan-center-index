@@ -8,7 +8,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import check_min_cppstd
 from conan.tools.env import VirtualBuildEnv, Environment
-from conan.tools.files import chdir, copy, get, load, save, replace_in_file
+from conan.tools.files import chdir, copy, get, load, save, replace_in_file, export_conandata_patches, apply_conandata_patches
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars
 from conan.tools.scm import Version
@@ -23,9 +23,11 @@ class GnConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gn.googlesource.com/"
     topics = ("build system", "ninja")
-
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -68,6 +70,7 @@ class GnConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])
+        apply_conandata_patches(self)
 
     @property
     def _gn_platform(self):
