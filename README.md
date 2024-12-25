@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-12-23:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-25:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -165,6 +165,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qt/6.8.1
 - rosx_introspection/1.0.2
 - rust/1.72.1
+- rust/1.75.0
 - rust/1.77.1
 - rust/1.81.0
 - sfcgal/1.5.0
@@ -230,5 +231,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xkeyboard-config/2.43
 - xorg/1.8.10
 - xtrans/1.5.0
-- zenoh-c/0.10.1-rc
+- zenoh-c/0.11.0.3
+- zenoh-c/1.1.0
 
