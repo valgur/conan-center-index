@@ -9,12 +9,12 @@ import yaml
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
-from conan.tools.build import cross_building, check_min_cppstd, can_run
+from conan.tools.build import cross_building, check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
 from conan.tools.files import copy, get, replace_in_file, apply_conandata_patches, save, rm, rmdir, export_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc, is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.0.9"
@@ -295,6 +295,11 @@ class QtConan(ConanFile):
             # https://bugreports.qt.io/browse/QTBUG-119490
             raise ConanInvalidConfiguration("apple-clang >= 13.1 is required by qt >= 6.6.1 cf QTBUG-119490")
 
+        if self._is_enabled("qtquickeffectmaker"):
+            # https://github.com/qt/qtquickeffectmaker/blob/v6.8.1/CMakeLists.txt#L53
+            if cross_building(self):
+                raise ConanInvalidConfiguration("Cross-compiling qtquickeffectmaker is not supported")
+
         if self._is_enabled("qtwebengine"):
             if not self.options.shared:
                 raise ConanInvalidConfiguration("Static builds of Qt WebEngine are not supported")
@@ -302,8 +307,6 @@ class QtConan(ConanFile):
                 raise ConanInvalidConfiguration("option qt:qtwebengine requires also qt:gui, qt:qtdeclarative and qt:qtwebchannel")
             if not self.options.with_dbus and self.settings.os == "Linux":
                 raise ConanInvalidConfiguration("option qt:webengine requires also qt:with_dbus on Linux")
-            if not can_run(self):
-                raise ConanInvalidConfiguration("Cross compiling Qt WebEngine is not supported")
 
         if self.options.widgets and not self.options.gui:
             raise ConanInvalidConfiguration("using option qt:widgets without option qt:gui is not possible. "
@@ -447,15 +450,30 @@ class QtConan(ConanFile):
                 self.tool_requires("flex/2.6.4")
         if self._is_enabled("qtwayland"):
             self.tool_requires("wayland/1.22.0")
+        if self._is_enabled("qtwebengine"):
+            self.tool_requires("gn/qt-20240924")
         if cross_building(self):
             self.tool_requires(f"qt/{self.version}", options={
                 # Make sure all required tools are built
                 "qttools": self._is_enabled("qttools"),
-                "qtshadertools": self._is_enabled("qtshadertools"),
+                "qtactiveqt": self._is_enabled("qtactiveqt"),
+                "qtconnectivity": self._is_enabled("qtconnectivity") and self.options.get_safe("with_bluez", False),
                 "qtdeclarative": self._is_enabled("qtdeclarative"),
+                "qtgrpc": self._is_enabled("qtgrpc"),
+                "qtopcua": self._is_enabled("qtopcua"),
+                "qtquick3d": self._is_enabled("qtquick3d"),
+                "qtquick3dphysics": self._is_enabled("qtquick3dphysics"),
+                "qtquickeffectmaker": self._is_enabled("qtquickeffectmaker"),
                 "qtremoteobjects": self._is_enabled("qtremoteobjects"),
                 "qtscxml": self._is_enabled("qtscxml"),
+                "qtserialbus": self._is_enabled("qtserialbus"),
+                "qtshadertools": self._is_enabled("qtshadertools"),
+                "qtsvg": self._is_enabled("qtsvg"),
+                "qtwayland": self._is_enabled("qtwayland"),
                 "with_dbus": self.options.with_dbus,
+                # Some tools are only built when shared=True
+                # https://github.com/qt/qtdeclarative/blob/v6.8.1/tools/CMakeLists.txt#L37
+                "shared": self.options.shared,
             })
 
     def generate(self):
@@ -482,6 +500,10 @@ class QtConan(ConanFile):
         # don't override https://github.com/qt/qtmultimedia/blob/dev/cmake/FindGStreamer.cmake
         deps.set_property("gstreamer", "cmake_file_name", "gstreamer_conan")
         deps.set_property("gstreamer", "cmake_find_mode", "module")
+
+        if cross_building(self) and self._is_enabled("qtwebengine"):
+            # https://github.com/qt/qtwebengine/blob/v6.8.1/src/host/CMakeLists.txt#L22
+            deps.build_context_activated = ["qt"]
 
         deps.generate()
 
@@ -511,24 +533,28 @@ class QtConan(ConanFile):
             save(self, "bash_env", f'export DYLD_LIBRARY_PATH="{dyld_library_path}"')
             env.define_path("BASH_ENV", os.path.abspath("bash_env"))
 
+        # Using ON/OFF to avoid warnings like
+        # Auto-resetting 'FEATURE_widgets' from 'TRUE' to 'ON', because the dependent feature 'gui' was marked dirty.
+        def _on_off(value):
+            return "ON" if value else "OFF"
+
         tc = CMakeToolchain(self, generator="Ninja")
 
         tc.absolute_paths = True
 
-        tc.variables["QT_UNITY_BUILD"] = self.options.unity_build
+        tc.variables["QT_UNITY_BUILD"] = _on_off(self.options.unity_build)
 
         tc.variables["QT_BUILD_TESTS"] = "OFF"
         tc.variables["QT_BUILD_EXAMPLES"] = "OFF"
 
-        if is_msvc(self) and "MT" in msvc_runtime_flag(self):
-            tc.variables["FEATURE_static_runtime"] = "ON"
+        tc.variables["FEATURE_static_runtime"] = _on_off(is_msvc_static_runtime(self))
 
         if self.options.multiconfiguration:
             tc.variables["CMAKE_CONFIGURATION_TYPES"] = "Release;Debug"
-        tc.variables["FEATURE_optimize_size"] = self.settings.build_type == "MinSizeRel"
+        tc.variables["FEATURE_optimize_size"] = _on_off(self.settings.build_type == "MinSizeRel")
 
         for module in self._qtmodules_info:
-            tc.variables[f"BUILD_{module}"] = self._is_enabled(module)
+            tc.variables[f"BUILD_{module}"] = _on_off(self._is_enabled(module))
         tc.variables["BUILD_qtqa"] = "OFF"
         tc.variables["BUILD_qtrepotools"] = "OFF"
 
@@ -564,7 +590,15 @@ class QtConan(ConanFile):
         # Prevent finding LibClang from the system
         # this is needed by the QDoc tool inside Qt Tools
         # See: https://github.com/conan-io/conan-center-index/issues/24729#issuecomment-2255291495
-        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_WrapLibClang"] = "ON"
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_WrapLibClang"] = True
+
+        if self._is_enabled("qtwebengine"):
+            # Use GN from Conan instead of having Qt build it
+            tc.variables["Gn_FOUND"] = True
+            tc.variables["Gn_VERSION"] = self.version
+            gn_dir = self.dependencies.build["gn"].package_folder
+            executable = "gn.exe" if self.settings_build.os == "Windows" else "gn"
+            tc.variables["Gn_EXECUTABLE"] = os.path.join(gn_dir, "bin", executable).replace("\\", "/")
 
         for opt, conf_arg in [("with_glib", "glib"),
                               ("with_icu", "icu"),
@@ -580,7 +614,7 @@ class QtConan(ConanFile):
                               ("with_gssapi", "gssapi"),
                               ("with_egl", "egl"),
                               ("with_gstreamer", "gstreamer")]:
-            tc.variables[f"FEATURE_{conf_arg}"] = self.options.get_safe(opt, False)
+            tc.variables[f"FEATURE_{conf_arg}"] = _on_off(self.options.get_safe(opt))
 
 
         for opt, conf_arg in [("with_doubleconversion", "doubleconversion"),
@@ -590,7 +624,7 @@ class QtConan(ConanFile):
                               ("with_libpng", "png"),
                               ("with_sqlite3", "sqlite"),
                               ("with_pcre2", "pcre2")]:
-            if self.options.get_safe(opt, False):
+            if self.options.get_safe(opt):
                 if self.options.multiconfiguration:
                     tc.variables[f"FEATURE_{conf_arg}"] = "ON"
                 else:
@@ -654,7 +688,7 @@ class QtConan(ConanFile):
             23: "FEATURE_cxx2b",
         }
         for std, feature in cpp_std_map.items():
-            tc.variables[feature] = current_cpp_std >= std
+            tc.variables[feature] = _on_off(current_cpp_std >= std)
 
         tc.variables["QT_USE_VCPKG"] = False
         tc.cache_variables["QT_USE_VCPKG"] = False
@@ -667,6 +701,12 @@ class QtConan(ConanFile):
             # Tools are not built by default when cross compiling, and we won't build them by default either,
             # since the Qt CMake macros will try to use them as build tools in consuming projects.
             tc.variables["QT_FORCE_BUILD_TOOLS"] = self.options.force_build_tools
+
+        # Fix for a deluge of warnings on CMake 3.31
+        #   The VERSION keyword was followed by an empty string or no value at all.
+        #   Policy CMP0174 is not set, so cmake_parse_arguments() will unset the
+        #   arg_VERSION variable rather than setting it to an empty string.
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0174"] = "OLD"
 
         tc.generate()
 
@@ -716,10 +756,8 @@ class QtConan(ConanFile):
             # Don't use os.path.join, or it removes the \\?\ prefix, which enables long paths
             destination = rf"\\?\{self.source_folder}"
         download_info = self._get_download_info()
-        get(self, **download_info["root"], strip_root=True, destination=destination)
+        get(self, **download_info.pop("root"), strip_root=True, destination=destination)
         for component, info in download_info.items():
-            if component == "root":
-                continue
             self.output.info(f"Fetching {component}...")
             get(self, **info, strip_root=True, destination=os.path.join(destination, component))
         # Remove empty subdirs
@@ -767,6 +805,8 @@ class QtConan(ConanFile):
                                 "  if (enable_precompiled_headers) {\n    if (is_win) {",
                                 "  if (enable_precompiled_headers) {\n    if (false) {"
                                 )
+            # Use GN from Conan
+            replace_in_file(self, os.path.join(self.source_folder, "qtwebengine", "configure.cmake"), "find_package(Gn ", "# find_package(Gn ")
 
     def build(self):
         self._get_sources()
@@ -842,13 +882,17 @@ class QtConan(ConanFile):
         rm(self, "*.la*", package_path.joinpath("lib"), recursive=True)
         rm(self, "*.pdb*", self.package_folder, recursive=True)
 
-        for path in sorted(list(package_path.rglob("Find*.cmake")) + list(package_path.rglob("*Config.cmake")) + list(package_path.rglob("*-config.cmake"))):
+        cmake_dir = package_path.joinpath("lib", "cmake")
+        tool_dirs = []
+        for path in sorted(list(cmake_dir.rglob("Find*.cmake")) + list(cmake_dir.rglob("*Config.cmake")) + list(cmake_dir.rglob("*-config.cmake"))):
+            if path.parent.name.endswith("Tools") or path.parent.name in ["Qt6HostInfo", "Qt6BuildInternals"]:
+                tool_dirs.append(path.parent)
+                continue
             # Keep tool and host info configs for cross-compilation support.
-            if not (path.parent.name.endswith("Tools") or path.parent.name == "Qt6HostInfo"):
-                self.output.info(f"Removing {path.relative_to(package_path)}")
-                path.unlink()
-        for path in package_path.joinpath("lib", "cmake").iterdir():
-            if path.name.endswith("Tools") or path.name == "Qt6HostInfo":
+            self.output.info(f"Removing {path.relative_to(package_path)}")
+            path.unlink()
+        for path in cmake_dir.iterdir():
+            if path in tool_dirs:
                 continue
             if path.joinpath(f"{path.name}Macros.cmake").is_file():
                 continue
@@ -1516,9 +1560,8 @@ class QtConan(ConanFile):
 
         def _add_build_modules_for_component(component):
             for req in self.cpp_info.components[component].requires:
-                if "::" in req: # not a qt component
-                    continue
-                _add_build_modules_for_component(req)
+                if "::" not in req:
+                    _add_build_modules_for_component(req)
             build_modules_list.extend(build_modules.pop(component, []))
 
         for c in list(self.cpp_info.components):
