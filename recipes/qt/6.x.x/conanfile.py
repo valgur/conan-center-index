@@ -153,7 +153,8 @@ class QtConan(ConanFile):
         "qtwebsockets",
         "qtwebview",
     ]
-    options.update({module: [True, False] for module in _modules})
+    options.update({module: ["auto", True, False] for module in _modules})
+    default_options.update({module: "auto" for module in _modules})
     # essential_modules, addon_modules, deprecated_modules, preview_modules:
     #    these are only provided for convenience, set to False by default
     _module_statuses = ["essential", "addon", "deprecated", "preview"]
@@ -200,6 +201,8 @@ class QtConan(ConanFile):
         copy(self, "cmake/*", self.recipe_folder, self.export_sources_folder, keep_path=True)
 
     def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_icu
             del self.options.with_fontconfig
@@ -216,6 +219,8 @@ class QtConan(ConanFile):
             del self.options.force_build_tools
 
     def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         if not self.options.gui:
             del self.options.opengl
             del self.options.with_vulkan
@@ -236,8 +241,6 @@ class QtConan(ConanFile):
             del self.options.with_pulseaudio
         if self.settings.os in ("FreeBSD", "Linux") and self._is_enabled("qtwebengine"):
             self.options.with_fontconfig = True
-        for option in self.options.items():
-            self.output.debug(f"qt6 option: {option}")
 
         if Version(self.version) >= "6.8.0":
             # INT128 support is mandatory since 6.8.0, but this requires GNU extensions when using libstdc++.
@@ -255,10 +258,16 @@ class QtConan(ConanFile):
         # - any module for non-removed options that have 'True' value
         # - any enabled via `xxx_modules` that does not have a 'False' value
         enabled_statuses = {status for status in self._module_statuses if self.options.get_safe(f"{status}_modules")}
-        modules_enabled_by_option = {module for module in self._modules if self.options.get_safe(module)}
-        modules_disabled_by_option = {module for module in self._modules if self.options.get_safe(module) == False}
         modules_enabled_by_status = {module for module, info in self._qtmodules_info.items() if info["status"] in enabled_statuses}
-        requested_modules = modules_enabled_by_option | modules_enabled_by_status
+        explicitly_enabled = set()
+        explicitly_disabled = set()
+        for module in self._modules:
+            if str(self.options.get_safe(module)) not in ["None", "auto"]:
+                if self.options.get_safe(module):
+                    explicitly_enabled.add(module)
+                else:
+                    explicitly_disabled.add(module)
+        requested_modules = (modules_enabled_by_status | explicitly_enabled) - explicitly_disabled
         self.output.info(f"Requested modules: {sorted(requested_modules)}")
         required_modules = set()
         dependants = defaultdict(list)
@@ -270,11 +279,11 @@ class QtConan(ConanFile):
         additional = sorted(required_modules - requested_modules)
         if additional:
             self.output.info(f"Additional required modules: {additional}")
-        required_but_disabled = sorted(required_modules & modules_disabled_by_option)
+        required_but_disabled = sorted(required_modules & explicitly_disabled)
         if required_but_disabled:
             required_by = set()
             for m in required_but_disabled:
-                required_by |= dependants[m]
+                required_by |= set(dependants[m])
             raise ConanInvalidConfiguration(f"Modules {required_but_disabled} are explicitly disabled, "
                                             f"but are required by {sorted(required_by)}, enabled by other options")
         return requested_modules | required_modules
@@ -312,6 +321,27 @@ class QtConan(ConanFile):
             raise ConanInvalidConfiguration("using option qt:widgets without option qt:gui is not possible. "
                                             "You can either disable qt:widgets or enable qt:gui")
 
+        if not self.options.gui:
+            for module in [
+                "qt3d",
+                "qtactiveqt",
+                "qtcharts",
+                "qtdatavis3d",
+                "qtimageformats",
+                "qtlottie",
+                "qtmultimedia",
+                "qtquick3d",
+                "qtquick3dphysics",
+                "qtquickeffectmaker",
+                "qtquicktimeline",
+                "qtshadertools",
+                "qtvirtualkeyboard",
+                "qtwayland",
+                "qtwebview",
+            ]:
+                if self._is_enabled(module):
+                    raise ConanInvalidConfiguration(f"{module} cannot be built without -o qt/*:gui=True")
+
         if self.settings.os == "Android" and self.options.get_safe("opengl", "no") == "desktop":
             raise ConanInvalidConfiguration("OpenGL desktop is not supported on Android.")
 
@@ -331,7 +361,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_x11") and not self.dependencies.direct_host["xkbcommon"].options.with_x11:
             raise ConanInvalidConfiguration("The 'with_x11' option for the 'xkbcommon' package must be enabled when the 'with_x11' option is enabled")
 
-        if self.options.get_safe("qtwayland") and not self.dependencies.direct_host["xkbcommon"].options.with_wayland:
+        if self._is_enabled("qtwayland") and not self.dependencies.direct_host["xkbcommon"].options.with_wayland:
             raise ConanInvalidConfiguration("The 'with_wayland' option for the 'xkbcommon' package must be enabled when the 'qtwayland' option is enabled")
 
         if self.options.with_sqlite3 and not self.dependencies["sqlite3"].options.enable_column_metadata:
@@ -440,6 +470,7 @@ class QtConan(ConanFile):
         if self.settings.os == "Windows":
             self.tool_requires("strawberryperl/5.32.1.1")
         if self._is_enabled("qtwebengine"):
+            self.tool_requires("gn/qt-20240924")
             self.tool_requires("nodejs/18.15.0")
             self.tool_requires("gperf/3.1")
             # gperf, bison, flex, python >= 2.7.5 & < 3
@@ -450,10 +481,18 @@ class QtConan(ConanFile):
                 self.tool_requires("flex/2.6.4")
         if self._is_enabled("qtwayland"):
             self.tool_requires("wayland/1.22.0")
-        if self._is_enabled("qtwebengine"):
-            self.tool_requires("gn/qt-20240924")
         if cross_building(self):
+            need_gui = bool(self._enabled_modules & {
+                "qtactiveqt",
+                "qtquick3d",
+                "qtquick3dphysics",
+                "qtquickeffectmaker",
+                "qtshadertools",
+                "qtwayland",
+            })
             self.tool_requires(f"qt/{self.version}", options={
+                "gui": self.options.gui and need_gui,
+                "widgets": self.options.widgets and need_gui,
                 # Make sure all required tools are built
                 "qttools": self._is_enabled("qttools"),
                 "qtactiveqt": self._is_enabled("qtactiveqt"),
@@ -473,7 +512,7 @@ class QtConan(ConanFile):
                 "with_dbus": self.options.with_dbus,
                 # Some tools are only built when shared=True
                 # https://github.com/qt/qtdeclarative/blob/v6.8.1/tools/CMakeLists.txt#L37
-                "shared": self.options.shared,
+                "shared": self.options.shared and self._is_enabled("qtdeclarative"),
             })
 
     def generate(self):
@@ -849,9 +888,11 @@ class QtConan(ConanFile):
         if self.settings.os == "Windows":
             targets.extend(["windeployqt"])
         if self._is_enabled("qttools"):
-            targets.extend(["qhelpgenerator", "qtattributionsscanner"])
+            if self.options.gui:
+                targets.extend(["qhelpgenerator"])
+            targets.extend(["qtattributionsscanner"])
             targets.extend(["lconvert", "lprodump", "lrelease", "lrelease-pro", "lupdate", "lupdate-pro"])
-        if self._is_enabled("qtshadertools"):
+        if self._is_enabled("qtshadertools") and self.options.gui:
             targets.append("qsb")
         if self._is_enabled("qtdeclarative"):
             targets.extend(["qmltyperegistrar", "qmlcachegen", "qmllint", "qmlimportscanner"])
@@ -907,7 +948,7 @@ class QtConan(ConanFile):
         # Copy
         # - conan_cross_compile_targets.cmake
         # - conan_qt_entry_point.cmake
-        copy(self, "cmake/*", self.export_sources_folder, self.package_path.joinpath("lib", "cmake", "Qt6Core"), keep_path=False)
+        copy(self, "cmake/*", self.export_sources_folder, package_path.joinpath("lib", "cmake", "Qt6Core"), keep_path=False)
 
         # Generate lib/cmake/Qt6Core/conan_qt_executables_variables.cmake
         filecontents = 'get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)\n'
@@ -1002,44 +1043,44 @@ class QtConan(ConanFile):
 
         def _get_corrected_reqs(requires):
             reqs = []
-            for r in requires:
-                if "::" in r:
-                    corrected_req = r
-                else:
-                    corrected_req = f"qt{r}"
-                    assert corrected_req in self.cpp_info.components, f"{corrected_req} required but not yet present in self.cpp_info.components"
-                reqs.append(corrected_req)
+            for req in requires:
+                if "::" not in req:
+                    req = f"qt{req}"
+                    assert req in self.cpp_info.components, f"{req} required but not yet present in self.cpp_info.components"
+                reqs.append(req)
             return reqs
 
         def _create_module(module, requires=None, has_include_dir=True):
             name = f"qt{module}"
             assert name not in self.cpp_info.components, f"Module {module} already present in self.cpp_info.components"
-            self.cpp_info.components[name].set_property("cmake_target_name", f"Qt6::{module}")
-            self.cpp_info.components[name].set_property("pkg_config_name", f"Qt6{module}")
+            component = self.cpp_info.components[name]
+            component.set_property("cmake_target_name", f"Qt6::{module}")
+            component.set_property("pkg_config_name", f"Qt6{module}")
             libname = module[:-7] if module.endswith("Private") else module
-            self.cpp_info.components[name].libs = [f"Qt6{libname}{libsuffix}"]
+            component.libs = [f"Qt6{libname}{libsuffix}"]
             if has_include_dir:
-                self.cpp_info.components[name].includedirs = ["include", os.path.join("include", f"Qt{module}")]
-            self.cpp_info.components[name].defines = [f"QT_{module.upper()}_LIB"]
+                component.includedirs = ["include", os.path.join("include", f"Qt{module}")]
+            component.defines = [f"QT_{module.upper()}_LIB"]
             requires = requires or []
             if module != "Core" and "Core" not in requires:
                 requires.append("Core")
-            self.cpp_info.components[name].requires = _get_corrected_reqs(requires)
-            return self.cpp_info.components[name]
+            component.requires = _get_corrected_reqs(requires)
+            return component
 
         def _create_plugin(pluginname, libname, plugintype, requires=None):
             name = f"qt{pluginname}"
             assert name not in self.cpp_info.components, f"Plugin {pluginname} already present in self.cpp_info.components"
-            self.cpp_info.components[name].set_property("cmake_target_name", f"Qt6::{pluginname}")
+            component = self.cpp_info.components[name]
+            component.set_property("cmake_target_name", f"Qt6::{pluginname}")
             if not self.options.shared:
-                self.cpp_info.components[name].libs = [libname + libsuffix]
-            self.cpp_info.components[name].libdirs = [os.path.join("plugins", plugintype)]
-            self.cpp_info.components[name].includedirs = []
+                component.libs = [libname + libsuffix]
+            component.libdirs = [os.path.join("plugins", plugintype)]
+            component.includedirs = []
             requires = requires or []
             if "Core" not in requires:
                 requires.append("Core")
-            self.cpp_info.components[name].requires = _get_corrected_reqs(requires)
-            return self.cpp_info.components[name]
+            component.requires = _get_corrected_reqs(requires)
+            return component
 
         qtPlatform = self.cpp_info.components["qtPlatform"]
         qtPlatform.set_property("cmake_target_name", "Qt6::Platform")
@@ -1299,7 +1340,7 @@ class QtConan(ConanFile):
                 _create_module("OpenGLWidgets", ["OpenGL", "Widgets"])
 
         # since https://github.com/qt/qtdeclarative/commit/4fb84137f1c0a49d64b8bef66fef8a4384cc2a68
-        qt_quick_enabled = self.options.gui and self._is_enabled("qtshadertools")
+        qt_quick_enabled = self._is_enabled("qtdeclarative") and self.options.gui and self._is_enabled("qtshadertools")
 
         if self._is_enabled("qtdeclarative"):
             _create_module("Qml", ["Network"])
@@ -1308,6 +1349,7 @@ class QtConan(ConanFile):
             qtQmlImportScanner = self.cpp_info.components["qtQmlImportScanner"]
             qtQmlImportScanner.set_property("cmake_target_name", "Qt6::QmlImportScanner")
             qtQmlImportScanner.requires = _get_corrected_reqs(["Qml"])
+            _create_module("QmlWorkerScript", ["Qml"])
             if qt_quick_enabled:
                 _create_module("Quick", ["Gui", "Qml", "QmlModels"])
                 _add_build_module("qtQuick", self._cmake_qt6_private_file("Quick"))
@@ -1315,7 +1357,6 @@ class QtConan(ConanFile):
                     _create_module("QuickWidgets", ["Gui", "Qml", "Quick", "Widgets"])
                 _create_module("QuickShapes", ["Gui", "Qml", "Quick"])
                 _create_module("QuickTest", ["Test", "Quick"])
-            _create_module("QmlWorkerScript", ["Qml"])
 
         if self._is_enabled("qttools") and self.options.gui and self.options.widgets:
             qtLinguistTools = self.cpp_info.components["qtLinguistTools"]
@@ -1336,7 +1377,7 @@ class QtConan(ConanFile):
             _create_module("Quick3DRuntimeRender", ["Gui", "Quick", "Quick3DAssetImport", "Quick3DUtils", "ShaderTools"])
             _create_module("Quick3D", ["Gui", "Qml", "Quick", "Quick3DRuntimeRender"])
 
-        if (self._is_enabled("qtquickcontrols2") or self._is_enabled("qtdeclarative")) and qt_quick_enabled:
+        if self._is_enabled("qtquickcontrols2") and qt_quick_enabled:
             _create_module("QuickControls2", ["Gui", "Quick"])
             _create_module("QuickTemplates2", ["Gui", "Quick"])
 
@@ -1423,7 +1464,7 @@ class QtConan(ConanFile):
                 multimedia_reqs.append("pulseaudio::pulse")
             _create_module("Multimedia", multimedia_reqs)
             _create_module("MultimediaWidgets", ["Multimedia", "Widgets", "Gui"])
-            if self._is_enabled("qtdeclarative") and qt_quick_enabled:
+            if qt_quick_enabled:
                 _create_module("MultimediaQuick", ["Multimedia", "Quick"])
             if self.options.with_gstreamer:
                 _create_plugin("QGstreamerMediaPlugin", "gstreamermediaplugin", "multimedia", [
