@@ -416,7 +416,7 @@ class VtkConan(ConanFile):
 
     def tool_requirements(self):
         if self.options.with_qt and not can_run(self):
-            self.tool_requires("qt/<host_version>")
+            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
     def validate(self):
         if is_msvc(self) and not self.options.shared:

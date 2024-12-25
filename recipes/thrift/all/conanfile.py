@@ -80,7 +80,7 @@ class ThriftConan(ConanFile):
             self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
         if self.options.with_qt5 and not can_run(self):
-            self.tool_requires("qt/<host_version>")
+            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

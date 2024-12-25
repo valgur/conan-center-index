@@ -1173,7 +1173,7 @@ class OpenCVConan(ConanFile):
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_qt") and not can_run(self):
-            self.tool_requires("qt/<host_version>")
+            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)

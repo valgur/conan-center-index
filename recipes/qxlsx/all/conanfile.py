@@ -53,7 +53,7 @@ class QXlsxConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")
         # INFO: QXlsx use Qt automoc: https://github.com/QtExcel/QXlsx/blob/v1.4.9/QXlsx/CMakeLists.txt#L12
-        self.tool_requires("qt/<host_version>")
+        self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

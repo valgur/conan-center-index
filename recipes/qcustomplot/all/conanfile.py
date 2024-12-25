@@ -58,7 +58,7 @@ class QCustomPlotConan(ConanFile):
 
     def build_requirements(self):
         if not can_run(self):
-            self.tool_requires("qt/<host_version>")
+            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
     def layout(self):
         cmake_layout(self, src_folder="src")

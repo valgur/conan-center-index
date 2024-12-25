@@ -202,7 +202,7 @@ class wxWidgetsConan(ConanFile):
         self.tool_requires("cmake/[>=3.17 <4]")
         self.tool_requires("ninja/[>=1.10.2 <2]")
         if self._toolkit == "qt" and not can_run(self):
-            self.tool_requires("qt/<host_version>")
+            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
     def layout(self):
         cmake_layout(self, src_folder="src")

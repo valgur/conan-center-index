@@ -54,7 +54,7 @@ class QarchiveConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.17 <4]")
         if not can_run(self):
-            self.tool_requires("qt/<host_version>")
+            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
