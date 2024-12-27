@@ -8,7 +8,7 @@
  ecm_find_package_version_check(XCB)
  
  # Note that this list needs to be ordered such that any component
-@@ -177,7 +178,72 @@
+@@ -177,7 +178,78 @@
  ecm_find_package_handle_library_components(XCB
      COMPONENTS ${XCB_components}
  )
@@ -76,6 +76,12 @@
 +    _add_xcb_component(XVMC xvmc)
 +
 +    set(XCB_VERSION ${X11_VERSION})
++    if(NOT XCB_VERSION)
++        # FindX11 from CMake does not set X11_VERSION
++        find_package(PkgConfig QUIET)
++        pkg_check_modules(PKG_XCB QUIET xcb)
++        set(XCB_VERSION ${PKG_XCB_VERSION})
++    endif()
 +endif()
 +
 +include(FindPackageHandleStandardArgs)
@@ -94,13 +100,13 @@
  ecm_find_package_version_check(X11_XCB)
  
  # use pkg-config to get the directories and then use these values
-@@ -83,6 +85,25 @@
+@@ -83,6 +85,31 @@
      NAMES X11-xcb
      HINTS ${PKG_X11_XCB_LIBRARY_DIRS}
  )
 +endif(0)
 +
-+find_dependency(X11 COMPONENTS x11_xcb)
++find_dependency(X11)
 +
 +if(TARGET X11::XCB)
 +    return()
@@ -112,9 +118,15 @@
 +
 +    # compatibility variables
 +    set(X11_XCB_FOUND TRUE)
-+    set(X11_XCB_VERSION ${X11_VERSION})
 +    set(X11_XCB_LIBRARY X11::X11_xcb)
 +    set(X11_XCB_INCLUDE_DIR ${X11_X11_xcb_INCLUDE_PATH})
++    set(X11_XCB_VERSION ${X11_VERSION})
++    if(NOT X11_XCB_VERSION)
++        # FindX11 from CMake does not set X11_VERSION
++        find_package(PkgConfig QUIET)
++        pkg_check_modules(PKG_X11_XCB QUIET x11-xcb)
++        set(X11_XCB_VERSION ${PKG_X11_XCB_VERSION})
++    endif()
 +endif()
 +
  
