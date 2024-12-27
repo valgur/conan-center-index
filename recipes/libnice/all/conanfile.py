@@ -13,7 +13,7 @@ required_conan_version = ">=1.60.0 <2 || >=2.0.6"
 class LibniceConan(ConanFile):
     name = "libnice"
     homepage = "https://libnice.freedesktop.org/"
-    license = ("MPL-1.1", "LGPL-2.1-only")
+    license = "LGPL-2.1-or-later OR MPL-1.1"
     url = "https://github.com/conan-io/conan-center-index"
     description = "a GLib ICE implementation"
     topics = ("ice", "stun", "turn")
