@@ -609,6 +609,8 @@ class QtConan(ConanFile):
         # this is needed by the QDoc tool inside Qt Tools
         # See: https://github.com/conan-io/conan-center-index/issues/24729#issuecomment-2255291495
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_WrapLibClang"] = True
+        # Do not accidentally enable xkbcommon-x11 support when qtwayand is enabled
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_XKB_COMMON_X11"] = not self.options.get_safe("with_x11", False)
 
         for opt, conf_arg in [
             ("gui", "gui"),
@@ -634,6 +636,7 @@ class QtConan(ConanFile):
             ("with_vulkan", "vulkan"),
             ("with_x11", "xcb"),
             ("with_x11", "xcb_xlib"),
+            ("with_x11", "xkbcommon_x11"),
             ("with_x11", "xlib"),
             ("with_zstd", "zstd"),
         ]:
@@ -1136,10 +1139,11 @@ class QtConan(ConanFile):
             if self.options.get_safe("with_fontconfig"):
                 qtGui.requires.append("fontconfig::fontconfig")
             if self.settings.os in ["Linux", "FreeBSD"]:
-                if self._is_enabled("qtwayland") or self.options.get_safe("with_x11"):
-                    qtGui.requires.append("xkbcommon::xkbcommon")
                 if self.options.get_safe("with_x11"):
                     qtGui.requires.append("xorg::xorg")
+                    qtGui.requires.append("xkbcommon::libxkbcommon-x11")
+                if self._is_enabled("qtwayland"):
+                    qtGui.requires.append("xkbcommon::libxkbcommon")
                 if self.options.get_safe("with_egl"):
                     qtGui.requires.append("egl::egl")
             if self.settings.os != "Windows" and self.options.get_safe("opengl", "no") != "no":
