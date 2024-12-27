@@ -11,9 +11,7 @@ https://ftp.icm.edu.pl/packages/qt/archive/
 https://ftp.acc.umu.se/mirror/qt.io/qtproject/archive/
 https://www.nic.funet.fi/pub/mirrors/download.qt-project.org/archive/
 https://qt.mirror.constant.com/archive/
-https://mirrors.sau.edu.cn/qt/archive/
 https://mirrors.cloud.tencent.com/qt/archive/
 https://mirror.bjtu.edu.cn/qt/archive/
 https://mirrors.sjtug.sjtu.edu.cn/qt/archive/
-https://ftp.jaist.ac.jp/pub/qtproject/archive/
 https://ftp.yz.yamagata-u.ac.jp/pub/qtproject/archive/
