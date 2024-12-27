@@ -639,30 +639,37 @@ class QtConan(ConanFile):
             executable = "gn.exe" if self.settings_build.os == "Windows" else "gn"
             tc.variables["Gn_EXECUTABLE"] = os.path.join(gn_dir, "bin", executable).replace("\\", "/")
 
-        for opt, conf_arg in [("with_glib", "glib"),
-                              ("with_icu", "icu"),
-                              ("with_fontconfig", "fontconfig"),
-                              ("with_mysql", "sql_mysql"),
-                              ("with_pq", "sql_psql"),
-                              ("with_odbc", "sql_odbc"),
-                              ("gui", "gui"),
-                              ("widgets", "widgets"),
-                              ("with_zstd", "zstd"),
-                              ("with_vulkan", "vulkan"),
-                              ("with_brotli", "brotli"),
-                              ("with_gssapi", "gssapi"),
-                              ("with_egl", "egl"),
-                              ("with_gstreamer", "gstreamer")]:
+        for opt, conf_arg in [
+            ("gui", "gui"),
+            ("opengl", "opengl"),
+            ("widgets", "widgets"),
+            ("with_brotli", "brotli"),
+            ("with_egl", "egl"),
+            ("with_fontconfig", "fontconfig"),
+            ("with_glib", "glib"),
+            ("with_gssapi", "gssapi"),
+            ("with_gstreamer", "gstreamer"),
+            ("with_icu", "icu"),
+            ("with_mysql", "sql_mysql"),
+            ("with_odbc", "sql_odbc"),
+            ("with_pq", "sql_psql"),
+            ("with_vulkan", "vulkan"),
+            ("with_x11", "xcb"),
+            ("with_x11", "xcb_xlib"),
+            ("with_x11", "xlib"),
+            ("with_zstd", "zstd"),
+        ]:
             tc.variables[f"FEATURE_{conf_arg}"] = _on_off(self.options.get_safe(opt))
 
-
-        for opt, conf_arg in [("with_doubleconversion", "doubleconversion"),
-                              ("with_freetype", "freetype"),
-                              ("with_harfbuzz", "harfbuzz"),
-                              ("with_libjpeg", "jpeg"),
-                              ("with_libpng", "png"),
-                              ("with_sqlite3", "sqlite"),
-                              ("with_pcre2", "pcre2")]:
+        for opt, conf_arg in [
+            ("with_doubleconversion", "doubleconversion"),
+            ("with_freetype", "freetype"),
+            ("with_harfbuzz", "harfbuzz"),
+            ("with_libjpeg", "jpeg"),
+            ("with_libpng", "png"),
+            ("with_pcre2", "pcre2"),
+            ("with_sqlite3", "sqlite"),
+        ]:
             if self.options.get_safe(opt):
                 if self.options.multiconfiguration:
                     tc.variables[f"FEATURE_{conf_arg}"] = "ON"
@@ -672,13 +679,15 @@ class QtConan(ConanFile):
                 tc.variables[f"FEATURE_{conf_arg}"] = "OFF"
                 tc.variables[f"FEATURE_system_{conf_arg}"] = "OFF"
 
-        for opt, conf_arg in [("with_doubleconversion", "doubleconversion"),
-                              ("with_freetype", "freetype"),
-                              ("with_harfbuzz", "harfbuzz"),
-                              ("with_libjpeg", "libjpeg"),
-                              ("with_libpng", "libpng"),
-                              ("with_md4c", "libmd4c"),
-                              ("with_pcre2", "pcre")]:
+        for opt, conf_arg in [
+            ("with_doubleconversion", "doubleconversion"),
+            ("with_freetype", "freetype"),
+            ("with_harfbuzz", "harfbuzz"),
+            ("with_libjpeg", "libjpeg"),
+            ("with_libpng", "libpng"),
+            ("with_md4c", "libmd4c"),
+            ("with_pcre2", "pcre"),
+        ]:
             if self.options.get_safe(opt, False):
                 if self.options.multiconfiguration:
                     tc.variables[f"INPUT_{conf_arg}"] = "qt"
