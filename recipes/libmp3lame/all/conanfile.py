@@ -146,3 +146,4 @@ class LibMP3LameConan(ConanFile):
         self.cpp_info.libs = ["mp3lame"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
+        self.cpp_info.includedirs.append(os.path.join("include", "lame"))
