@@ -112,6 +112,8 @@ class LibniceConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
+        self.cpp_info.set_property("pkg_config_name", "nice")
         self.cpp_info.libs = ["nice"]
+        self.cpp_info.includedirs.append(os.path.join("include", "nice"))
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("advapi32")
