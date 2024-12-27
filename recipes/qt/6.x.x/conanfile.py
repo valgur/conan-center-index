@@ -64,8 +64,6 @@ class QtConan(ConanFile):
 
         "unity_build": [True, False],
         "device": [None, "ANY"],
-        "sysroot": [None, "ANY"],
-        "multiconfiguration": [True, False],
         "disabled_features": [None, "ANY"],
         "force_build_tools": [True, False],
     }
@@ -104,8 +102,6 @@ class QtConan(ConanFile):
 
         "unity_build": False,
         "device": None,
-        "sysroot": None,
-        "multiconfiguration": False,
         "disabled_features": "",
         "force_build_tools": False,
     }
@@ -191,6 +187,15 @@ class QtConan(ConanFile):
             str(self.settings.compiler.get_safe("libcxx")),
         )
 
+    @property
+    def _android_abi(self):
+        return {
+            "armv7": "armeabi-v7a",
+            "armv8": "arm64-v8a",
+            "x86": "x86",
+            "x86_64": "x86_64",
+        }.get(str(self.settings.arch))
+
     def export(self):
         copy(self, f"{self.version}.conf", os.path.join(self.recipe_folder, "qtmodules"), os.path.join(self.export_folder, "qtmodules"))
         copy(self, f"{self.version}.yml", os.path.join(self.recipe_folder, "sources"), os.path.join(self.export_folder, "sources"))
@@ -232,8 +237,6 @@ class QtConan(ConanFile):
             del self.options.with_md4c
             self.options.rm_safe("with_x11")
             self.options.rm_safe("with_egl")
-        if self.options.multiconfiguration:
-            del self.settings.build_type
         if not self._is_enabled("qtmultimedia"):
             self.options.rm_safe("with_libalsa")
             del self.options.with_openal
@@ -371,10 +374,6 @@ class QtConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.info.options.sysroot
-        if self.info.options.multiconfiguration:
-            if self.info.settings.compiler == "msvc":
-                self.info.settings.compiler.runtime_type = "Release/Debug"
         if self.info.settings.os == "Android":
             del self.info.options.android_sdk
         for module in self._modules:
@@ -399,43 +398,41 @@ class QtConan(ConanFile):
                 self.requires("moltenvk/1.2.2")
         if self.options.with_glib:
             self.requires("glib/2.78.3")
-        if self.options.with_doubleconversion and not self.options.multiconfiguration:
+        if self.options.with_doubleconversion:
             self.requires("double-conversion/3.3.0")
-        if self.options.get_safe("with_freetype", False) and not self.options.multiconfiguration:
+        if self.options.get_safe("with_freetype"):
             self.requires("freetype/2.13.2")
-        if self.options.get_safe("with_fontconfig", False):
+        if self.options.get_safe("with_fontconfig"):
             self.requires("fontconfig/2.15.0")
-        if self.options.get_safe("with_icu", False):
+        if self.options.get_safe("with_icu"):
             self.requires("icu/75.1")
-        if self.options.get_safe("with_harfbuzz", False) and not self.options.multiconfiguration:
+        if self.options.get_safe("with_harfbuzz"):
             self.requires("harfbuzz/8.3.0")
-        if self.options.get_safe("with_libjpeg", False) and not self.options.multiconfiguration:
-            if self.options.with_libjpeg == "libjpeg-turbo":
-                self.requires("libjpeg-turbo/[>=3.0 <3.1]")
-            else:
-                self.requires("libjpeg/9e")
-        if self.options.get_safe("with_libpng", False) and not self.options.multiconfiguration:
+        if self.options.get_safe("with_libjpeg") == "libjpeg":
+            self.requires("libjpeg/9e")
+        elif self.options.get_safe("with_libjpeg") == "libjpeg-turbo":
+            self.requires("libjpeg-turbo/[>=3.0 <3.1]")
+        if self.options.get_safe("with_libpng"):
             self.requires("libpng/[>=1.6 <2]")
-        if self.options.with_sqlite3 and not self.options.multiconfiguration:
+        if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
-        if self.options.get_safe("with_mysql", False):
+        if self.options.get_safe("with_mysql"):
             self.requires("libmysqlclient/8.1.0")
         if self.options.with_pq:
             self.requires("libpq/15.4")
-        if self.options.with_odbc:
-            if self.settings.os != "Windows":
-                self.requires("odbc/2.3.11")
-        if self.options.get_safe("with_openal", False):
+        if self.options.with_odbc and self.settings.os != "Windows":
+            self.requires("odbc/2.3.11")
+        if self.options.get_safe("with_openal"):
             self.requires("openal-soft/1.22.2")
-        if self.options.get_safe("with_libalsa", False):
+        if self.options.get_safe("with_libalsa"):
             self.requires("libalsa/1.2.10")
         if self.options.get_safe("with_x11") or self._is_enabled("qtwayland"):
             self.requires("xkbcommon/1.6.0")
-        if self.options.get_safe("with_x11", False):
+        if self.options.get_safe("with_x11"):
             self.requires("xorg/system")
         if self.options.get_safe("with_egl"):
             self.requires("egl/system")
-        if self.settings.os != "Windows" and self.options.get_safe("opengl", "no") != "no":
+        if self.options.get_safe("opengl", "no") != "no" and self.settings.os != "Windows":
             self.requires("opengl/system")
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")
@@ -457,7 +454,7 @@ class QtConan(ConanFile):
             self.requires("pulseaudio/17.0")
         if self.options.with_dbus:
             self.requires("dbus/1.15.8")
-        if self.settings.os in ["Linux", "FreeBSD"] and self.options.with_gssapi:
+        if self.options.get_safe("with_gssapi"):
             self.requires("krb5/1.21.2")
         if self.options.get_safe("with_md4c"):
             self.requires("md4c/0.4.8")
@@ -587,9 +584,6 @@ class QtConan(ConanFile):
         tc.variables["QT_BUILD_EXAMPLES"] = "OFF"
 
         tc.variables["FEATURE_static_runtime"] = _on_off(is_msvc_static_runtime(self))
-
-        if self.options.multiconfiguration:
-            tc.variables["CMAKE_CONFIGURATION_TYPES"] = "Release;Debug"
         tc.variables["FEATURE_optimize_size"] = _on_off(self.settings.build_type == "MinSizeRel")
 
         for module in self._qtmodules_info:
@@ -613,11 +607,6 @@ class QtConan(ConanFile):
                 tc.variables["INPUT_openssl"] = "linked"
                 tc.variables["QT_FEATURE_openssl_linked"] = "ON"
 
-        # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
-        # Required for several try_compile() tests against Conan packages at
-        # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/configure.cmake#L148
-        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
-
         if self.options.with_dbus:
             tc.variables["INPUT_dbus"] = "linked"
         else:
@@ -631,28 +620,27 @@ class QtConan(ConanFile):
         # See: https://github.com/conan-io/conan-center-index/issues/24729#issuecomment-2255291495
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_WrapLibClang"] = True
 
-        if self._is_enabled("qtwebengine"):
-            # Use GN from Conan instead of having Qt build it
-            tc.variables["Gn_FOUND"] = True
-            tc.variables["Gn_VERSION"] = self.version
-            gn_dir = self.dependencies.build["gn"].package_folder
-            executable = "gn.exe" if self.settings_build.os == "Windows" else "gn"
-            tc.variables["Gn_EXECUTABLE"] = os.path.join(gn_dir, "bin", executable).replace("\\", "/")
-
         for opt, conf_arg in [
             ("gui", "gui"),
             ("opengl", "opengl"),
             ("widgets", "widgets"),
             ("with_brotli", "brotli"),
+            ("with_doubleconversion", "doubleconversion"),
             ("with_egl", "egl"),
             ("with_fontconfig", "fontconfig"),
+            ("with_freetype", "freetype"),
             ("with_glib", "glib"),
             ("with_gssapi", "gssapi"),
             ("with_gstreamer", "gstreamer"),
+            ("with_harfbuzz", "harfbuzz"),
             ("with_icu", "icu"),
+            ("with_libjpeg", "jpeg"),
+            ("with_libpng", "png"),
             ("with_mysql", "sql_mysql"),
             ("with_odbc", "sql_odbc"),
+            ("with_pcre2", "pcre2"),
             ("with_pq", "sql_psql"),
+            ("with_sqlite3", "sqlite"),
             ("with_vulkan", "vulkan"),
             ("with_x11", "xcb"),
             ("with_x11", "xcb_xlib"),
@@ -660,24 +648,7 @@ class QtConan(ConanFile):
             ("with_zstd", "zstd"),
         ]:
             tc.variables[f"FEATURE_{conf_arg}"] = _on_off(self.options.get_safe(opt))
-
-        for opt, conf_arg in [
-            ("with_doubleconversion", "doubleconversion"),
-            ("with_freetype", "freetype"),
-            ("with_harfbuzz", "harfbuzz"),
-            ("with_libjpeg", "jpeg"),
-            ("with_libpng", "png"),
-            ("with_pcre2", "pcre2"),
-            ("with_sqlite3", "sqlite"),
-        ]:
-            if self.options.get_safe(opt):
-                if self.options.multiconfiguration:
-                    tc.variables[f"FEATURE_{conf_arg}"] = "ON"
-                else:
-                    tc.variables[f"FEATURE_system_{conf_arg}"] = "ON"
-            else:
-                tc.variables[f"FEATURE_{conf_arg}"] = "OFF"
-                tc.variables[f"FEATURE_system_{conf_arg}"] = "OFF"
+            tc.variables[f"FEATURE_system_{conf_arg}"] = _on_off(self.options.get_safe(opt))
 
         for opt, conf_arg in [
             ("with_doubleconversion", "doubleconversion"),
@@ -688,28 +659,27 @@ class QtConan(ConanFile):
             ("with_md4c", "libmd4c"),
             ("with_pcre2", "pcre"),
         ]:
-            if self.options.get_safe(opt, False):
-                if self.options.multiconfiguration:
-                    tc.variables[f"INPUT_{conf_arg}"] = "qt"
-                else:
-                    tc.variables[f"INPUT_{conf_arg}"] = "system"
-            else:
-                tc.variables[f"INPUT_{conf_arg}"] = "no"
+            tc.variables[f"INPUT_{conf_arg}"] = "system" if self.options.get_safe(opt) else "no"
 
         for feature in str(self.options.disabled_features).split():
             tc.variables[f"FEATURE_{feature}"] = "OFF"
+
+        if self.settings.os == "Windows":
+            tc.variables["HOST_PERL"] = self.dependencies.build["strawberryperl"].conf_info.get("user.strawberryperl:perl", check_type=str)
+
+        if self._is_enabled("qtwebengine"):
+            # Use GN from Conan instead of having Qt build it
+            tc.variables["Gn_FOUND"] = True
+            tc.variables["Gn_VERSION"] = self.version
+            gn_dir = self.dependencies.build["gn"].package_folder
+            executable = "gn.exe" if self.settings_build.os == "Windows" else "gn"
+            tc.variables["Gn_EXECUTABLE"] = os.path.join(gn_dir, "bin", executable).replace("\\", "/")
 
         if self.settings.os == "Macos":
             tc.variables["FEATURE_framework"] = "OFF"
         elif self.settings.os == "Android":
             tc.variables["CMAKE_ANDROID_NATIVE_API_LEVEL"] = self.settings.os.api_level
-            tc.variables["ANDROID_ABI"] = {"armv7": "armeabi-v7a",
-                                           "armv8": "arm64-v8a",
-                                           "x86": "x86",
-                                           "x86_64": "x86_64"}.get(str(self.settings.arch))
-
-        if self.options.sysroot:
-            tc.variables["CMAKE_SYSROOT"] = self.options.sysroot
+            tc.variables["ANDROID_ABI"] = self._android_abi
 
         if self.options.device:
             tc.variables["QT_QMAKE_TARGET_MKSPEC"] = f"devices/{self.options.device}"
@@ -723,9 +693,6 @@ class QtConan(ConanFile):
         tc.variables["FEATURE_pkg_config"] = "ON"
         if self.settings.compiler == "gcc" and self.settings.build_type == "Debug" and not self.options.shared:
             tc.variables["BUILD_WITH_PCH"] = "OFF"  # disabling PCH to save disk space
-
-        if self.settings.os == "Windows":
-            tc.variables["HOST_PERL"] = self.dependencies.build["strawberryperl"].conf_info.get("user.strawberryperl:perl", check_type=str)
 
         current_cpp_std = int(str(self.settings.compiler.cppstd).replace("gnu", ""))
         cpp_std_map = {
@@ -749,6 +716,11 @@ class QtConan(ConanFile):
             # Tools are not built by default when cross compiling, and we won't build them by default either,
             # since the Qt CMake macros will try to use them as build tools in consuming projects.
             tc.variables["QT_FORCE_BUILD_TOOLS"] = self.options.force_build_tools
+
+        # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
+        # Required for several try_compile() tests against Conan packages at
+        # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/configure.cmake#L148
+        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
 
         # Fix for a deluge of warnings on CMake 3.31
         #   The VERSION keyword was followed by an empty string or no value at all.
