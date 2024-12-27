@@ -551,23 +551,13 @@ class QtConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-        # TODO: to remove when properly handled by conan (see https://github.com/conan-io/conan/issues/11962)
+        # Unset potentially conflicting environment variables
         env = Environment()
         env.unset("VCPKG_ROOT")
-        env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
-        env.vars(self).save_script("conanbuildenv_pkg_config_path")
-        if self.settings_build.os == "Macos":
-            # On macOS, SIP resets DYLD_LIBRARY_PATH injected by VirtualBuildEnv & VirtualRunEnv
-            dyld_library_path = "$DYLD_LIBRARY_PATH"
-            dyld_library_path_build = vbe.vars().get("DYLD_LIBRARY_PATH")
-            if dyld_library_path_build:
-                dyld_library_path = f"{dyld_library_path_build}:{dyld_library_path}"
-            if not cross_building(self):
-                dyld_library_path_host = vre.vars().get("DYLD_LIBRARY_PATH")
-                if dyld_library_path_host:
-                    dyld_library_path = f"{dyld_library_path_host}:{dyld_library_path}"
-            save(self, "bash_env", f'export DYLD_LIBRARY_PATH="{dyld_library_path}"')
-            env.define_path("BASH_ENV", os.path.abspath("bash_env"))
+        if not cross_building(self):
+            env.unset("QT_HOST_PATH")
+            env.unset("QT_HOST_PATH_CMAKE_DIR")
+        env.vars(self).save_script("conanbuildenv_unset_vars")
 
         # Using ON/OFF to avoid warnings like
         # Auto-resetting 'FEATURE_widgets' from 'TRUE' to 'ON', because the dependent feature 'gui' was marked dirty.
