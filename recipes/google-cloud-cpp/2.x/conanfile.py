@@ -240,11 +240,14 @@ class GoogleCloudCppConan(ConanFile):
     def _add_proto_component(self, component):
         self.cpp_info.components[component].requires = self._generate_proto_requires(component)
         self.cpp_info.components[component].libs = [f"google_cloud_cpp_{component}"]
+        # https://github.com/googleapis/google-cloud-cpp/blob/v2.28.0/cmake/AddPkgConfig.cmake#L93
+        self.cpp_info.components[component].set_property("pkg_config_name", f"google_cloud_cpp_{component}")
 
     def _add_grpc_component(self, component, protos, extra=None):
         SHARED_REQUIRES=["grpc_utils", "common", "grpc::grpc++", "grpc::_grpc", "protobuf::libprotobuf", "abseil::absl_memory"]
         self.cpp_info.components[component].requires = (extra or []) + [protos] + SHARED_REQUIRES
         self.cpp_info.components[component].libs = [f"google_cloud_cpp_{component}"]
+        self.cpp_info.components[component].set_property("pkg_config_name", f"google_cloud_cpp_{component}")
 
     # The compute librar(ies) do not use gRPC, and they have many components
     # with dependencies between them
@@ -262,13 +265,16 @@ class GoogleCloudCppConan(ConanFile):
             requires = requires + COMPUTE_COMMON_COMPONENTS
         self.cpp_info.components[component].requires = requires + SHARED_REQUIRES
         self.cpp_info.components[component].libs = [f"google_cloud_cpp_{component}"]
+        self.cpp_info.components[component].set_property("pkg_config_name", f"google_cloud_cpp_{component}")
 
     def package_info(self):
         self.cpp_info.components["common"].requires = ["abseil::absl_any", "abseil::absl_flat_hash_map", "abseil::absl_memory", "abseil::absl_optional", "abseil::absl_time"]
         self.cpp_info.components["common"].libs = ["google_cloud_cpp_common"]
+        self.cpp_info.components["common"].set_property("pkg_config_name", "google_cloud_cpp_common")
 
         self.cpp_info.components["rest_internal"].requires = ["common", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
         self.cpp_info.components["rest_internal"].libs = ["google_cloud_cpp_rest_internal"]
+        self.cpp_info.components["rest_internal"].set_property("pkg_config_name", f"google_cloud_cpp_rest_internal")
 
         # A small number of gRPC-generated stubs are used directly in the common components
         # shared by all gRPC-based libraries.  These must be defined without reference to `grpc_utils`.
@@ -284,6 +290,7 @@ class GoogleCloudCppConan(ConanFile):
 
         self.cpp_info.components["grpc_utils"].requires = list(GRPC_UTILS_REQUIRED_PROTOS) + ["common", "abseil::absl_function_ref", "abseil::absl_memory", "abseil::absl_time", "grpc::grpc++", "grpc::_grpc"]
         self.cpp_info.components["grpc_utils"].libs = ["google_cloud_cpp_grpc_utils"]
+        self.cpp_info.components["grpc_utils"].set_property("pkg_config_name", "google_cloud_cpp_grpc_utils")
 
         for component in self._proto_components():
             if component == 'storage_protos':
@@ -295,13 +302,17 @@ class GoogleCloudCppConan(ConanFile):
                 self._add_proto_component(component)
 
         # Interface libraries for backwards compatibility
-        self.cpp_info.components["cloud_bigquery_protos"].requires = ["bigquery_protos"]
-        self.cpp_info.components["cloud_dialogflow_v2_protos"].requires = ["dialogflow_es_protos"]
-        self.cpp_info.components["cloud_speech_protos"].requires = ["speech_protos"]
-        self.cpp_info.components["cloud_texttospeech_protos"].requires = ["texttospeech_protos"]
-        self.cpp_info.components["devtools_cloudtrace_v2_trace_protos"].requires = ["trace_protos"]
-        self.cpp_info.components["devtools_cloudtrace_v2_tracing_protos"].requires = ["trace_protos"]
-        self.cpp_info.components["logging_type_type_protos"].requires = ["logging_type_protos"]
+        for old_name, new_name in [
+            ("cloud_bigquery_protos", "bigquery_protos"),
+            ("cloud_dialogflow_v2_protos", "dialogflow_es_protos"),
+            ("cloud_speech_protos", "speech_protos"),
+            ("cloud_texttospeech_protos", "texttospeech_protos"),
+            ("devtools_cloudtrace_v2_trace_protos", "trace_protos"),
+            ("devtools_cloudtrace_v2_tracing_protos", "trace_protos"),
+            ("logging_type_type_protos", "logging_type_protos"),
+        ]:
+            self.cpp_info.components[old_name].requires = [new_name]
+            self.cpp_info.components[old_name].set_property("pkg_config_name", f"google_cloud_cpp_{old_name}")
 
         for component in self._components():
             protos=f"{component}_protos"
@@ -326,12 +337,46 @@ class GoogleCloudCppConan(ConanFile):
         if Version(self.version) >= '2.19.0':
             self.cpp_info.components["rest_protobuf_internal"].requires = ["rest_internal", "grpc_utils", "common"]
             self.cpp_info.components["rest_protobuf_internal"].libs = ["google_cloud_cpp_rest_protobuf_internal"]
+            self.cpp_info.components["rest_protobuf_internal"].set_property("pkg_config_name", "google_cloud_cpp_rest_protobuf_internal")
             # The `google-cloud-cpp::compute` interface library groups all the compute
             # libraries in a single target.
             self.cpp_info.components["compute"].requires = [c for c in self._components() if c.startswith("compute_")]
+            self.cpp_info.components["compute"].set_property("pkg_config_name", "google_cloud_cpp_compute")
             # The `google-cloud-cpp::oauth2` library does not depend on gRPC or any protos.
             self.cpp_info.components["oauth2"].requires = ["rest_internal", "common", "nlohmann_json::nlohmann_json", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
             self.cpp_info.components["oauth2"].libs = ["google_cloud_cpp_oauth2"]
+            self.cpp_info.components["oauth2"].set_property("pkg_config_name", "google_cloud_cpp_oauth2")
 
         self.cpp_info.components["storage"].requires = ["rest_internal", "common", "nlohmann_json::nlohmann_json", "abseil::absl_memory", "abseil::absl_strings", "abseil::absl_str_format", "abseil::absl_time", "abseil::absl_variant", "crc32c::crc32c", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
         self.cpp_info.components["storage"].libs = ["google_cloud_cpp_storage"]
+        self.cpp_info.components["storage"].set_property("pkg_config_name", "google_cloud_cpp_storage")
+
+        # Match googleapis.pc exported by the project
+        # https://github.com/googleapis/google-cloud-cpp/blob/v2.28.0/external/googleapis/CMakeLists.txt#L398-L431
+        self.cpp_info.components["googleapis"].set_property("pkg_config_name", "googleapis")
+        self.cpp_info.components["googleapis"].requires = [
+            "bigtable_protos",
+            "cloud_bigquery_protos",
+            "iam_protos",
+            "pubsub_protos",
+            # "storage_protos", - skipped in the recipe
+            "logging_protos",
+            "iam_v1_iam_policy_protos",
+            "iam_v1_options_protos",
+            "iam_v1_policy_protos",
+            "longrunning_operations_protos",
+            "api_auth_protos",
+            "api_annotations_protos",
+            "api_client_protos",
+            "api_field_behavior_protos",
+            "api_http_protos",
+            "rpc_status_protos",
+            "rpc_error_details_protos",
+            "type_expr_protos",
+            "grpc::grpc++",
+            "grpc::_grpc",
+            "openssl::openssl",
+            "protobuf::libprotobuf",
+            "zlib::zlib",
+            # "c-ares::c-ares", - listed, but not actually used anywhere
+        ]
