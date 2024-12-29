@@ -286,7 +286,7 @@ class GtkConan(ConanFile):
         if self.options.enable_broadway_backend:
             self.cpp_info.components["gdk-broadway-3.0"].set_property("pkg_config_name", "gdk-broadway-3.0")
             self.cpp_info.components["gdk-broadway-3.0"].requires = ["gdk-3.0"]
-            self.cpp_info.components["gtk-broadway-3.0"].set_property("pkg_config_name", "gtk-broadway-3.0")
+            self.cpp_info.components["gtk-broadway-3.0"].set_property("pkg_config_name", "gtk+-broadway-3.0")
             self.cpp_info.components["gtk-broadway-3.0"].requires = ["gtk+-3.0"]
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gdk/broadway/meson.build#L70
             if self.settings.os == "Windows":
@@ -295,7 +295,7 @@ class GtkConan(ConanFile):
         if self.options.get_safe("with_x11"):
             self.cpp_info.components["gdk-x11-3.0"].set_property("pkg_config_name", "gdk-x11-3.0")
             self.cpp_info.components["gdk-x11-3.0"].requires = ["gdk-3.0"]
-            self.cpp_info.components["gtk-x11-3.0"].set_property("pkg_config_name", "gtk-x11-3.0")
+            self.cpp_info.components["gtk-x11-3.0"].set_property("pkg_config_name", "gtk+-x11-3.0")
             self.cpp_info.components["gtk-x11-3.0"].requires = ["gtk+-3.0"]
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gdk/x11/meson.build#L59-70
             self.cpp_info.components["gdk-3.0"].requires.extend([
@@ -320,7 +320,7 @@ class GtkConan(ConanFile):
         if self.options.get_safe("with_wayland"):
             self.cpp_info.components["gdk-wayland-3.0"].set_property("pkg_config_name", "gdk-wayland-3.0")
             self.cpp_info.components["gdk-wayland-3.0"].requires = ["gdk-3.0"]
-            self.cpp_info.components["gtk-wayland-3.0"].set_property("pkg_config_name", "gtk-wayland-3.0")
+            self.cpp_info.components["gtk-wayland-3.0"].set_property("pkg_config_name", "gtk+-wayland-3.0")
             self.cpp_info.components["gtk-wayland-3.0"].requires = ["gtk+-3.0"]
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gdk/wayland/meson.build#L29-36
             self.cpp_info.components["gdk-3.0"].requires.extend([
@@ -335,7 +335,7 @@ class GtkConan(ConanFile):
         if is_apple_os(self):
             self.cpp_info.components["gdk-quartz-3.0"].set_property("pkg_config_name", "gdk-quartz-3.0")
             self.cpp_info.components["gdk-quartz-3.0"].requires = ["gdk-3.0"]
-            self.cpp_info.components["gtk-quartz-3.0"].set_property("pkg_config_name", "gtk-quartz-3.0")
+            self.cpp_info.components["gtk-quartz-3.0"].set_property("pkg_config_name", "gtk+-quartz-3.0")
             self.cpp_info.components["gtk-quartz-3.0"].requires = ["gtk+-3.0"]
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gdk/quartz/meson.build#L48-53
             self.cpp_info.components["gdk-3.0"].requires.append("cairo::cairo-quartz")
@@ -351,7 +351,7 @@ class GtkConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.components["gdk-win32-3.0"].set_property("pkg_config_name", "gdk-win32-3.0")
             self.cpp_info.components["gdk-win32-3.0"].requires = ["gdk-3.0"]
-            self.cpp_info.components["gtk-win32-3.0"].set_property("pkg_config_name", "gtk-win32-3.0")
+            self.cpp_info.components["gtk-win32-3.0"].set_property("pkg_config_name", "gtk+-win32-3.0")
             self.cpp_info.components["gtk-win32-3.0"].requires = ["gtk+-3.0"]
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gdk/win32/meson.build#L53-56
             self.cpp_info.components["gdk-3.0"].requires.append("cairo::cairo-win32")
