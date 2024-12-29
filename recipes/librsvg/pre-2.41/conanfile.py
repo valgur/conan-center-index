@@ -139,7 +139,7 @@ class LibrsvgConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "librsvg-2.0")
         self.cpp_info.set_property("pkg_config_custom_content", "svgz_supported=true\ncss_supported=true\n")
         self.cpp_info.includedirs.append(os.path.join("include", "librsvg-2.0"))
-        self.cpp_info.libs = ["librsvg-2"]
+        self.cpp_info.libs = ["rsvg-2"]
         self.cpp_info.requires = [
             "cairo::cairo_",
             "cairo::cairo-png",
