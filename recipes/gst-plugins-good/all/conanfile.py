@@ -95,14 +95,16 @@ class GStPluginsGoodConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if not self.options.with_qt:
-            self.options.remove("with_wayland")
-            self.options.remove("with_egl")
+        if self.options.with_qt:
+            self.options["gst-plugins-base"].with_egl = self.options.with_egl
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                self.options["gst-plugins-base"].with_xorg = self.options.with_xorg
+                self.options["gst-plugins-base"].with_wayland = self.options.with_wayland
+        else:
+            self.options.rm_safe("with_wayland")
+            self.options.rm_safe("with_egl")
         self.options["gstreamer"].shared = self.options.shared
         self.options["gst-plugins-base"].shared = self.options.shared
-        self.options["gst-plugins-base"].with_xorg = self.options.with_xorg
-        self.options["gst-plugins-base"].with_wayland = self.options.with_wayland
-        self.options["gst-plugins-base"].with_egl = self.options.with_egl
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -114,8 +116,8 @@ class GStPluginsGoodConan(ConanFile):
         opts["qtshadertools"] = True
         if self.settings.os in ["Linux", "FreeBSD"]:
             opts["with_x11"] = self.options.with_xorg
-            opts["with_egl"] = self.options.with_wayland
-            opts["qtwayland"] = self.options.with_egl
+            opts["with_egl"] = self.options.with_egl
+            opts["qtwayland"] = self.options.with_wayland
         return opts
 
     def requirements(self):
