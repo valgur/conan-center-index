@@ -104,7 +104,6 @@ class GtkConan(ConanFile):
         self.requires("harfbuzz/8.3.0")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/1.22.0")
-            self.requires("wayland-protocols/1.33")
             self.requires("xkbcommon/1.6.0")
         if self.options.get_safe("with_x11"):
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.37/gdk/x11/gdkx11display.h#L34-35
@@ -143,6 +142,8 @@ class GtkConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
+        if self.options.get_safe("with_wayland"):
+            self.tool_requires("wayland-protocols/1.33")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.78.1")  # for g-ir-scanner
 
@@ -205,6 +206,8 @@ class GtkConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
+        if self.options.get_safe("with_wayland"):
+            deps.build_context_activated.append("wayland-protocols")
         if self.options.with_introspection:
             # gnome.generate_gir() in Meson looks for gobject-introspection-1.0.pc
             deps.build_context_activated = ["gobject-introspection"]
@@ -328,7 +331,6 @@ class GtkConan(ConanFile):
                 "wayland::wayland-client",
                 "wayland::wayland-cursor",
                 "wayland::wayland-egl",
-                "wayland-protocols::wayland-protocols",
             ])
             self.cpp_info.components["gtk+-3.0"].requires.append("pango::pangoft2")
 
