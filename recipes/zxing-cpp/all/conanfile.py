@@ -111,5 +111,7 @@ class ZXingCppConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ZXing::ZXing")
         self.cpp_info.set_property("pkg_config_name", "zxing")
         self.cpp_info.libs = ["ZXingCore" if Version(self.version) < "1.1" else "ZXing"]
+        # https://github.com/zxing-cpp/zxing-cpp/blob/v1.0.8/zxing.pc.in#L10
+        self.cpp_info.includedirs.append(os.path.join("include", "ZXing"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m"]
