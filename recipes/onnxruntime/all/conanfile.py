@@ -274,4 +274,4 @@ class OnnxRuntimeConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "onnxruntime")
         self.cpp_info.set_property("cmake_target_name", "onnxruntime::onnxruntime")
         # https://github.com/microsoft/onnxruntime/blob/v1.14.1/cmake/CMakeLists.txt#L1584
-        self.cpp_info.set_property("pkg_config_name", "onnxruntime")
+        self.cpp_info.set_property("pkg_config_name", "libonnxruntime")
