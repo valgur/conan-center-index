@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc
@@ -92,3 +93,7 @@ class SrtConan(ConanFile):
             self.cpp_info.system_libs = ["pthread"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]
+        if not self.options.shared:
+            # The library exports a C API, which needs explicit linking against the C++ stdlib
+            if stdcpp_library(self):
+                self.cpp_info.system_libs.append(stdcpp_library(self))
