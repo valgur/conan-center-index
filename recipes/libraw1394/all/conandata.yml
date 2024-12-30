@@ -1,0 +1,4 @@
+sources:
+  "2.1.2":
+    url: "https://www.kernel.org/pub/linux/libs/ieee1394/libraw1394-2.1.2.tar.gz"
+    sha256: "ddc4e32721cdfe680d964aaede68ac606a20cd17dd2ba70e2d7e0692086ab57c"
