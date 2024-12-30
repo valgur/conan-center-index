@@ -1,14 +1,13 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class Libdc1394Conan(ConanFile):
@@ -18,7 +17,7 @@ class Libdc1394Conan(ConanFile):
     homepage = "https://damien.douxchamps.net/ieee1394/libdc1394/"
     description = "libdc1394 provides a complete high level API to control IEEE 1394 based cameras"
     topics = ("ieee1394", "camera", "iidc", "dcam")
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -44,6 +43,8 @@ class Libdc1394Conan(ConanFile):
 
     def requirements(self):
         self.requires("libusb/1.0.26")
+        if self.settings.os == "Linux":
+            self.requires("libraw1394/2.1.2")
 
     def validate(self):
         if self.info.settings.os == "Windows":
@@ -58,26 +59,24 @@ class Libdc1394Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        tc = AutotoolsToolchain(self)
-        tc.configure_args.append("--disable-examples")
-        # Disable auto-detection of X11 and SDL dependencies
-        tc.configure_args.append("--without-x")
-        tc.configure_args.append("SDL_CONFIG=/dev/null")
-        tc.generate()
-        deps = PkgConfigDeps(self)
-        deps.generate()
-
-    def _patch_sources(self):
         for gnu_config in [
             self.conf.get("user.gnu-config:config_guess", check_type=str),
             self.conf.get("user.gnu-config:config_sub", check_type=str),
         ]:
             if gnu_config:
                 copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=self.source_folder)
+
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        tc.configure_args.append("--disable-examples")
+        # Disable auto-detection of X11 and SDL dependencies
+        tc.configure_args.append("--without-x")
+        tc.configure_args.append("SDL_CONFIG=/dev/null")
+        tc.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         self._patch_sources()
