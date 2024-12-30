@@ -76,8 +76,6 @@ class LibCVDConan(ConanFile):
             # FFMPEG v5.x+ are not supported
             self.requires("ffmpeg/7.0.1", transitive_libs=True)
         if self.options.with_libdc1394:
-            # FIXME: libidc1394 seems to be missing raw1394 dependency
-            # test_package fails with "undefined reference to `raw1394_new_handle'" etc
             self.requires("libdc1394/2.2.7")
         if self.options.with_libjpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
