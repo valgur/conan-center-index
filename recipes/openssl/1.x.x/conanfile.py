@@ -142,6 +142,7 @@ class OpenSSLConan(ConanFile):
                 self.tool_requires("nasm/2.16.01")
             if self._use_nmake:
                 self.tool_requires("strawberryperl/5.32.1.1")
+                self.tool_requires("jom/1.1.4")
             else:
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -506,7 +507,7 @@ class OpenSSLConan(ConanFile):
                 self._patch_install_name()
 
                 if self._use_nmake:
-                    self.run("nmake /F Makefile")
+                    self.run("jom /F Makefile")
                 else:
                     autotools.make()
 
@@ -529,7 +530,7 @@ class OpenSSLConan(ConanFile):
         copy(self, "*LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False)
         if self._use_nmake:
             with chdir(self, self.source_folder):
-                self.run(f"nmake -f Makefile install_sw DESTDIR={self.package_folder}")
+                self.run(f"jom -f Makefile install_sw DESTDIR={self.package_folder}")
             rm(self, "*.pdb", self.package_folder, recursive=True)
         else:
             autotools = Autotools(self)

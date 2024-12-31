@@ -12,6 +12,8 @@ import fnmatch
 import os
 import textwrap
 
+from conans.errors import ConanException
+
 required_conan_version = ">=1.57.0"
 
 
@@ -148,6 +150,7 @@ class OpenSSLConan(ConanFile):
                 self.tool_requires("nasm/2.16.01")
             if self._use_nmake:
                 self.tool_requires("strawberryperl/5.32.1.1")
+                self.tool_requires("jom/1.1.4")
             else:
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -484,8 +487,8 @@ class OpenSSLConan(ConanFile):
 
         save(self, os.path.join(self.source_folder, "Configurations", "20-conan.conf"), config)
 
-    def _run_make(self, targets=None, parallel=True, install=False):
-        command = [self._make_program]
+    def _run_make(self, targets=None, parallel=True, install=False, use_jom=False):
+        command = [self._make_program(use_jom)]
         if install:
             command.append(f"DESTDIR={self._adjust_path(self.package_folder)}")
         if targets:
@@ -520,7 +523,14 @@ class OpenSSLConan(ConanFile):
                         replace_in_file(self, mkinstallvars_pl, "$values{$k} = $v;", """$v->[0] =~ s|\\\\|/|g; $values{$k} = $v;""")
                     else:
                         replace_in_file(self, mkinstallvars_pl, "$ENV{$k} = $v;", """$v =~ s|\\\\|/|g; $ENV{$k} = $v;""")
-            self._run_make()
+            try:
+                self._run_make(use_jom=True)
+            except ConanException:
+                if self._use_nmake:
+                    # Try again with plain nmake instead of jom in case something broke due to parallelization
+                    self._run_make(use_jom=False)
+                else:
+                    raise
 
     def _make_install(self):
         with chdir(self, self.source_folder):
@@ -531,9 +541,10 @@ class OpenSSLConan(ConanFile):
         configdata_pm = self._adjust_path(os.path.join(self.source_folder, "configdata.pm"))
         self.run(f"{self._perl} {configdata_pm} --dump")
 
-    @property
-    def _make_program(self):
-        return "nmake" if self._use_nmake else "make"
+    def _make_program(self, use_jom):
+        if self._use_nmake:
+            return "jom" if use_jom else "nmake"
+        return "make"
 
     def _replace_runtime_in_file(self, filename):
         runtime = msvc_runtime_flag(self)
