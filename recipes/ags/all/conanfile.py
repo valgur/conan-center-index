@@ -60,6 +60,7 @@ class AGSConan(ConanFile):
             "191": "2017",
             "192": "2019",
             "193": "2022",
+            "194": "2022",
         }[compiler_version]
 
     @property
