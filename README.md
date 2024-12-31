@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2024-12-29:
+Package versions that are available here but not yet on the main CCI repo as of 2024-12-31:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -66,7 +66,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
 - gpu.cpp/0.1.0
-- gst-libav/1.19.2
+- gst-libav/1.24.10
+- gst-plugins-bad/1.24.10
+- gst-plugins-base/1.24.10
+- gst-plugins-good/1.24.10
+- gst-plugins-ugly/1.24.10
+- gstreamer/1.24.10
 - gtk/3.24.43
 - gtk/4.15.6
 - gtkmm/3.24.9
@@ -81,17 +86,21 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
 - iridescence/0.1.3
+- json-glib/1.10.6
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libbpf/1.4.6
+- libcaca/0.99.beta20
 - libcroco/0.6.13
 - libcudacxx/2.6.1
 - libecwj2/3.3
 - libelas/cci.20150630
 - libfontenc/1.1.8
+- libgudev/238
 - libhdfs3/cci.20191105
 - libice/1.1.1
 - libosmium/2.20.0
+- libraw1394/2.1.2
 - librsvg/2.40.21
 - librsvg/2.57.0
 - libsm/1.2.4
@@ -135,7 +144,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mkfontscale/1.2.3
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
-- nanobind/1.9.2
+- nanobind/2.4.0
 - netpbm/11.6.0
 - nss/3.104
 - numpy/1.26.4
