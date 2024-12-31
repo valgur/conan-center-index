@@ -28,9 +28,12 @@ class QtConan(ConanFile):
     homepage = "https://www.qt.io"
     license = "LGPL-3.0-only"
     settings = "os", "arch", "compiler", "build_type"
+    package_type = "library"
 
     options = {
         "shared": [True, False],
+        "fPIC": [True, False],
+
         "opengl": ["no", "desktop", "dynamic"],
         "with_vulkan": [True, False],
         "openssl": [True, False],
@@ -69,7 +72,8 @@ class QtConan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "opengl": "desktop",
+        "fPIC": True,
+
         "with_vulkan": False,
         "openssl": True,
         "with_pcre2": True,
