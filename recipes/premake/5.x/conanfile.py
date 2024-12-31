@@ -57,11 +57,14 @@ class PremakeConan(ConanFile):
     @property
     def _ide_version(self):
         compiler_version = str(self.settings.compiler.version)
-        return {"193": "2022",
-                "192": "2019",
-                "191": "2017",
-                "190": "2015",
-                "180": "2013"}.get(compiler_version)
+        return {
+            "194": "2022",
+            "193": "2022",
+            "192": "2019",
+            "191": "2017",
+            "190": "2015",
+            "180": "2013",
+        }.get(compiler_version)
 
     @property
     def _msvc_build_dir(self):
