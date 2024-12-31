@@ -116,7 +116,15 @@ class MpirConan(ConanFile):
 
     @property
     def _vs_ide_version(self):
-        msvc_to_ide = {"170": "11", "180": "12", "190": "14", "191": "15", "192": "16", "193": "17"}
+        msvc_to_ide = {
+            "170": "11",
+            "180": "12",
+            "190": "14",
+            "191": "15",
+            "192": "16",
+            "193": "17",
+            "194": "17",
+        }
         return msvc_to_ide.get(str(self.settings.compiler.version), "17")
 
     @property
