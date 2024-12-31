@@ -106,6 +106,7 @@ class LibsodiumConan(ConanFile):
         default_folder = "vs2019"
         if self.version != "1.0.18":
             sln_folders["193"] = "vs2022"
+            sln_folders["194"] = "vs2022"
             default_folder = "vs2022"
 
         return sln_folders.get(str(self.settings.compiler.version), default_folder)
