@@ -1644,6 +1644,7 @@ def _qt_xplatform(os, arch, compiler, compiler_version, libcxx):
                 "191": "2017",
                 "192": "2019",
                 "193": "2022",
+                "194": "2022",
             }.get(compiler_version)
             return {
                 "armv7": f"winrt-arm-msvc{year}",
