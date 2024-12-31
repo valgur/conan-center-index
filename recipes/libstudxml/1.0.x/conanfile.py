@@ -82,6 +82,7 @@ class LibStudXmlConan(ConanFile):
                 "191": "15",
                 "192": "16",
                 "193": "17",
+                "194": "17",
             }[str(self.settings.compiler.version)]
         return None
 
