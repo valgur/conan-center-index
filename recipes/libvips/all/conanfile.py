@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, replace_in_file, rm, rmdir, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import copy, get, replace_in_file, rm, rmdir, apply_conandata_patches, export_conandata_patches, rename
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -11,7 +11,7 @@ from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.6"
+required_conan_version = ">=2.0.6"
 
 
 class LibvipsConan(ConanFile):
@@ -224,13 +224,7 @@ class LibvipsConan(ConanFile):
         if self.options.introspection:
             self.tool_requires("gobject-introspection/1.72.0")
         self.tool_requires("glib/<host_version>")
-
-        if self.settings.os == "Macos":
-            # Avoid using gettext from homebrew which may be linked against
-            # a different/incompatible libiconv than the one being exposed
-            # in the runtime environment (DYLD_LIBRARY_PATH)
-            # See https://github.com/conan-io/conan-center-index/pull/17502#issuecomment-1542492466
-            self.tool_requires("gettext/0.22.5")
+        self.tool_requires("gettext/0.22.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -326,13 +320,15 @@ class LibvipsConan(ConanFile):
         meson.install()
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
 
     def package_info(self):
         self.cpp_info.components["vips"].set_property("pkg_config_name", "vips")
         self.cpp_info.components["vips"].libs = ["vips"]
+        self.cpp_info.components["vips"].resdirs = ["res"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["vips"].system_libs.extend(["m", "pthread"])
         self.cpp_info.components["vips"].requires = [
