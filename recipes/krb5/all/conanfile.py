@@ -113,8 +113,8 @@ class Krb5Conan(ConanFile):
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.build_requires("automake/1.16.5")
-        self.build_requires("bison/3.8.2")
+        self.tool_requires("automake/1.16.5")
+        self.tool_requires("bison/3.8.2")
 
     def build(self):
         with chdir(self, os.path.join(self.source_folder, "src")):

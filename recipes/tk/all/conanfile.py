@@ -68,7 +68,7 @@ class TkConan(ConanFile):
                 and not self.conf.get("tools.microsoft.bash:path")
                 and not self.conf.get("tools.microsoft.bash:subsystem")
             ):
-                self.build_requires("msys2/cci.latest")
+                self.tool_requires("msys2/cci.latest")
 
     def validate(self):
         if self.dependencies["tcl"].options.shared != self.options.shared:

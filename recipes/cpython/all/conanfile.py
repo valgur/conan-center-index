@@ -104,7 +104,7 @@ class CPythonConan(ConanFile):
         if Version(self.version) >= "3.11" and not is_msvc(self) and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if not can_run(self) and not is_msvc(self):
-            self.build_requires(f"cpython/{self.version}")
+            self.tool_requires(f"cpython/{self.version}")
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")

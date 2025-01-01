@@ -157,7 +157,7 @@ class MagnumConan(ConanFile):
             raise ConanInvalidConfiguration("Requires 'faad2', not available in ConanCenter yet")
 
     def build_requirements(self):
-        self.build_requires("corrade/{}".format(self.version))
+        self.tool_requires(f"corrade/{self.version}")
 
     def validate(self):
         tools.check_min_cppstd(self, 11)

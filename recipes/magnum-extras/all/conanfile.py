@@ -75,7 +75,7 @@ class MagnumExtrasConan(ConanFile):
             raise ConanInvalidConfiguration("OpenGL ES 3 required, use option 'magnum:target_gl=gles3'")
 
     def build_requirements(self):
-        self.build_requires("corrade/{}".format(self.version))
+        self.tool_requires(f"corrade/{self.version}")
 
     def source(self):
         tools.get(**self.conan_data["sources"][self.version],

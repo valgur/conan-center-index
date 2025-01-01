@@ -45,8 +45,8 @@ class TarConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) == "1.35":
-            self.build_requires("automake/1.16.5")
-            self.build_requires("gettext/0.22.5")
+            self.tool_requires("automake/1.16.5")
+            self.tool_requires("gettext/0.22.5")
 
     def validate(self):
         if self.settings.os == "Windows":

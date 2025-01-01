@@ -32,10 +32,10 @@ class SevenZipConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) < "22":
-            self.build_requires("lzma_sdk/9.20")
+            self.tool_requires("lzma_sdk/9.20")
 
         if not is_msvc(self) and self.settings_build.os == "Windows" and "make" not in os.environ.get("CONAN_MAKE_PROGRAM", ""):
-            self.build_requires("make/4.3")
+            self.tool_requires("make/4.3")
 
     def package_id(self):
         del self.info.settings.build_type

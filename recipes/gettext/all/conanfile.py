@@ -48,7 +48,7 @@ class GetTextConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
         if self.version >= Version("0.22") or is_msvc(self):
-            self.build_requires("automake/1.16.5")
+            self.tool_requires("automake/1.16.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
