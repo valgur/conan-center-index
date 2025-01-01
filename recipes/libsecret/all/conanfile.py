@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir
 from conan.tools.gnu import PkgConfigDeps
@@ -9,7 +9,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.6"
+required_conan_version = ">=2.0.6"
 
 
 class LibsecretConan(ConanFile):
@@ -74,15 +74,9 @@ class LibsecretConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
+        self.tool_requires("gettext/0.22.5")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.78.1")
-
-        if is_apple_os(self):
-            # Avoid using gettext from homebrew which may be linked against
-            # a different/incompatible libiconv than the one being exposed
-            # in the runtime environment (DYLD_LIBRARY_PATH)
-            # See https://github.com/conan-io/conan-center-index/pull/17502#issuecomment-1542492466
-            self.tool_requires("gettext/0.22.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
