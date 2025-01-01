@@ -28,7 +28,7 @@ class LibSoupConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "gssapi": True,
+        "gssapi": False,
         "with_introspection": False,
     }
     languages = ["C"]
