@@ -48,6 +48,7 @@ class JsonGlibConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
+        self.tool_requires("gettext/0.22.5")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.78.1")
 
@@ -59,7 +60,7 @@ class JsonGlibConan(ConanFile):
         tc.project_options["tests"] = "false"
         tc.project_options["documentation"] = "disabled"
         tc.project_options["man"] = "false"
-        tc.project_options["nls"] = "disabled"
+        tc.project_options["nls"] = "enabled"
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
@@ -81,9 +82,8 @@ class JsonGlibConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if self.options.with_introspection:
-            os.rename(os.path.join(self.package_folder, "share"),
-                      os.path.join(self.package_folder, "res"))
+        os.rename(os.path.join(self.package_folder, "share"),
+                  os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
@@ -91,7 +91,7 @@ class JsonGlibConan(ConanFile):
         self.cpp_info.libs = ["json-glib-1.0"]
         self.cpp_info.includedirs = [os.path.join("include", "json-glib-1.0")]
         self.cpp_info.requires = ["glib::gio-2.0"]
+        self.cpp_info.resdirs = ["res"]
         if self.options.with_introspection:
-            self.cpp_info.resdirs = ["res"]
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
