@@ -1,15 +1,11 @@
+import os
+
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches, copy, export_conandata_patches, get,
-    rm, rmdir
-)
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, rename
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-
-import os
 
 required_conan_version = ">=1.64.0 <2 || >=2.2.0"
 
@@ -56,18 +52,13 @@ class FontconfigConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        self.tool_requires("gettext/0.22.5")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
-        deps = PkgConfigDeps(self)
-        deps.generate()
-
         tc = MesonToolchain(self)
         tc.project_options.update({
             "doc": "disabled",
@@ -78,6 +69,8 @@ class FontconfigConan(ConanFile):
             "datadir": os.path.join("res", "share"),
         })
         tc.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         meson = Meson(self)
@@ -101,6 +94,7 @@ class FontconfigConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Fontconfig::Fontconfig")
         self.cpp_info.set_property("pkg_config_name", "fontconfig")
         self.cpp_info.libs = ["fontconfig"]
+        self.cpp_info.resdirs = [os.path.join("res", "etc"), os.path.join("res", "share")]
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs.extend(["m", "pthread"])
 
@@ -111,7 +105,6 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
-    from conan.tools.files import rename
     import glob
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:
