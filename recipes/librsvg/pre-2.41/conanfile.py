@@ -59,10 +59,11 @@ class LibrsvgConan(ConanFile):
         self.requires("libcroco/0.6.13")
 
     def validate(self):
-        if not self.dependencies["pango"].options.with_cairo:
+        pango_opt = self.dependencies["pango"].options
+        if not pango_opt.with_cairo:
             raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_cairo=True")
-        if not self.dependencies["pango"].options.with_freetype:
-            raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_freetype=True")
+        if not (pango_opt.with_freetype and pango_opt.with_fontconfig):
+            raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_freetype=True -o pango/*:with_fontconfig=True")
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
