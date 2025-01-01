@@ -84,6 +84,11 @@ class FFTWConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package (OpenMP)", "find_package(OpenMP REQUIRED)")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "target_compile_options (${fftw3_lib}_omp PRIVATE ${OpenMP_C_FLAGS})",
+                        "target_link_libraries (${fftw3_lib}_omp OpenMP::OpenMP_C)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -104,18 +109,10 @@ class FFTWConan(ConanFile):
     def _all_precisions(self):
         return [p for p in ALL if self.options.get_safe(f"precision_{p}")]
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package (OpenMP)", "find_package(OpenMP REQUIRED)")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "target_compile_options (${fftw3_lib}_omp PRIVATE ${OpenMP_C_FLAGS})",
-                        "target_link_libraries (${fftw3_lib}_omp OpenMP::OpenMP_C)")
-
     def build(self):
         def on_off(value):
             return "ON" if value else 'OFF'
 
-        self._patch_sources()
         for current_precision in self._all_precisions:
             cmake = CMake(self)
             variables = {
@@ -139,24 +136,28 @@ class FFTWConan(ConanFile):
 
         for precision in self._all_precisions:
             prec_suffix = self._prec_suffix[precision]
-            cmake_target_name = pkgconfig_name = lib_name = "fftw3" + prec_suffix
+            lib_name = "fftw3" + prec_suffix
+            component_name = f"fftwlib_{precision}"
+            component = self.cpp_info.components[component_name]
 
             if self.options.openmp:
-                self.cpp_info.libs.append(lib_name + "_omp")
-                self.cpp_info.requires.append("openmp::openmp")
+                component.libs.append(lib_name + "_omp")
+                component.requires.append("openmp::openmp")
             if self.options.threads and not self.options.combinedthreads:
-                self.cpp_info.libs.append(lib_name + "_threads")
-            self.cpp_info.libs.append(lib_name)
+                component.libs.append(lib_name + "_threads")
+            self.cpp_info.components[component_name].libs.append(lib_name)
             if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.system_libs.append("m")
+                component.system_libs.append("m")
                 if precision == QUAD:
-                    self.cpp_info.system_libs.extend(["quadmath"])
-                    if self.options.threads:
-                        self.cpp_info.system_libs.append("pthread")
-            self.cpp_info.includedirs.append(os.path.join(self.package_folder, "include"))
+                    component.system_libs.extend(["quadmath"])
+                if self.options.threads:
+                    component.system_libs.append("pthread")
+            self.cpp_info.components[component_name].includedirs.append(os.path.join(self.package_folder, "include"))
 
-            self.cpp_info.set_property("cmake_target_name", f"{cmake_namespace}::{cmake_target_name}")
-            self.cpp_info.set_property("pkg_config_name", pkgconfig_name)
+            component.names["cmake_find_package"] = lib_name
+            component.names["cmake_find_package_multi"] = lib_name
+            component.set_property("cmake_target_name", f"{cmake_namespace}::{lib_name}")
+            component.set_property("pkg_config_name", lib_name)
 
     def package_id(self):
         del self.info.options.precision
