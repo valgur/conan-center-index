@@ -1,16 +1,15 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, rename
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 import os
 
+required_conan_version = ">=2.0.5"
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
 
 class AtSpi2CoreConan(ConanFile):
     name = "at-spi2-core"
@@ -28,11 +27,13 @@ class AtSpi2CoreConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_x11": [True, False],
+        "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_x11": True,
+        "with_introspection": False,
     }
 
     def export_sources(self):
@@ -50,14 +51,11 @@ class AtSpi2CoreConan(ConanFile):
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
 
-    def build_requirements(self):
-        self.tool_requires("meson/[>=1.2.3 <2]")
-        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("glib/<host_version>")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.78.3")
+        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("dbus/1.15.8")
         if self.options.get_safe("with_x11"):
@@ -73,43 +71,43 @@ class AtSpi2CoreConan(ConanFile):
         if Version(self.version) < "2.50.0" and is_apple_os(self):
             raise ConanInvalidConfiguration("macOS is not supported before version 2.50.0")
 
-    def layout(self):
-        basic_layout(self, src_folder="src")
-        self.cpp.package.resdirs = ["res"]
+    def build_requirements(self):
+        self.tool_requires("meson/[>=1.2.3 <2]")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
+        self.tool_requires("glib/<host_version>")
+        self.tool_requires("gettext/0.22.5")
+        if self.options.with_introspection:
+            self.tool_requires("gobject-introspection/1.78.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "bus", "meson.build"),
+                        "if x11_dep.found()",
+                        "if get_option('x11').enabled()")
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                        "subdir('tests')",
+                        "#subdir('tests')")
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                        "libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
+                        "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         tc = MesonToolchain(self)
-        if Version(self.version) >= "2.47.1":
-            tc.project_options["introspection"] = "disabled"
-            tc.project_options["x11"] = "enabled" if self.options.get_safe("with_x11") else "disabled"
-        else:
-            tc.project_options["introspection"] = "no"
-            tc.project_options["x11"] = "yes" if self.options.get_safe("with_x11") else "no"
+        tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
+        tc.project_options["x11"] = "enabled" if self.options.get_safe("with_x11") else "disabled"
         if self.settings.os != "Linux":
             tc.project_options["atk_only"] = "true"
-
         tc.project_options["docs"] = "false"
         tc.generate()
-        tc = PkgConfigDeps(self)
-        tc.generate()
+
+        deps = PkgConfigDeps(self)
+        if self.options.with_introspection:
+            deps.build_context_activated.append("gobject-introspection")
+        deps.generate()
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "bus", "meson.build"),
-                                "if x11_dep.found()",
-                                "if get_option('x11').enabled()" if Version(self.version) >= "2.47.1"
-                                else "if x11_option == 'yes'")
-        replace_in_file(self, os.path.join(self.source_folder, 'meson.build'),
-            "subdir('tests')",
-            "#subdir('tests')")
-        replace_in_file(self, os.path.join(self.source_folder, 'meson.build'),
-            "libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
-            "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -120,6 +118,7 @@ class AtSpi2CoreConan(ConanFile):
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
+        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
@@ -129,6 +128,7 @@ class AtSpi2CoreConan(ConanFile):
             self.cpp_info.components["atspi"].set_property("pkg_config_name", "atspi-2")
             self.cpp_info.components["atspi"].libs = ["atspi"]
             self.cpp_info.components["atspi"].includedirs = ["include/at-spi-2.0"]
+            self.cpp_info.components["atspi"].resdirs = ["res"]
             self.cpp_info.components["atspi"].requires = ["dbus::dbus", "glib::glib-2.0", "glib::gobject-2.0"]
             if self.options.with_x11:
                 self.cpp_info.components["atspi"].requires.extend(["xorg::x11", "xorg::xtst", "xorg::xi"])
@@ -136,13 +136,19 @@ class AtSpi2CoreConan(ConanFile):
         self.cpp_info.components["atk"].set_property("pkg_config_name", "atk")
         self.cpp_info.components["atk"].libs = ["atk-1.0"]
         self.cpp_info.components["atk"].includedirs = ["include/atk-1.0"]
+        self.cpp_info.components["atk"].resdirs = ["res"]
         self.cpp_info.components["atk"].requires = ["glib::glib-2.0", "glib::gobject-2.0"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["atk-bridge"].set_property("pkg_config_name", "atk-bridge-2.0")
             self.cpp_info.components["atk-bridge"].libs = ["atk-bridge-2.0"]
             self.cpp_info.components["atk-bridge"].includedirs = [os.path.join("include", "at-spi2-atk", "2.0")]
+            self.cpp_info.components["atk-bridge"].resdirs = ["res"]
             self.cpp_info.components["atk-bridge"].requires = ["atspi", "atk", "glib::gmodule-2.0"]
+
+        if self.options.with_introspection:
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
