@@ -149,7 +149,7 @@ class NCursesConan(ConanFile):
             tc.configure_args["--enable-interop"] = "yes"
         if is_msvc(self):
             build = host = f"{self.settings.arch}-w64-mingw32-msvc"
-            tc.configure_args["ac_cv_func_getopt"] = "yes",
+            tc.configure_args["ac_cv_func_getopt"] = "yes"
             tc.configure_args["ac_cv_func_setvbuf_reversed"] = "no"
             # The env vars below are used by ./configure, but not during make
             tc.make_args["CC"] = "cl -nologo"
