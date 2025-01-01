@@ -54,6 +54,7 @@ class LibSoupConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        self.tool_requires("gettext/0.22.5")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/1.78.1")
 
