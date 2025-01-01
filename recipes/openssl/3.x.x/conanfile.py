@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os, XCRun
 from conan.tools.build import build_jobs
 from conan.tools.files import chdir, copy, get, replace_in_file, rm, rmdir, save
@@ -11,8 +11,6 @@ from conan.tools.scm import Version
 import fnmatch
 import os
 import textwrap
-
-from conans.errors import ConanException
 
 required_conan_version = ">=1.57.0"
 
