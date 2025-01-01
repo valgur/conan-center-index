@@ -30,6 +30,7 @@ class LibsystemdConan(ConanFile):
         "with_lz4": [True, False],
         "with_xz": [True, False],
         "with_zstd": [True, False],
+        "nls": [True, False],
     }
     default_options = {
         "shared": False,
@@ -38,6 +39,7 @@ class LibsystemdConan(ConanFile):
         "with_lz4": True,
         "with_xz": True,
         "with_zstd": True,
+        "nls": True,
     }
 
     def export_sources(self):
@@ -83,10 +85,12 @@ class LibsystemdConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
-        self.tool_requires("m4/1.4.19")
-        self.tool_requires("gperf/3.1")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        self.tool_requires("m4/1.4.19")
+        self.tool_requires("gperf/3.1")
+        if self.options.nls:
+            self.tool_requires("gettext/0.22.5")
 
     def source(self):
         # Extract using standard Python tools due to Conan's unzip() not handling backslashes in
@@ -113,14 +117,15 @@ class LibsystemdConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
 
+        def _bool(value):
+            return "true" if value else "false"
+
         tc = MesonToolchain(self)
-        tc.project_options["selinux"] = ("true" if self.options.with_selinux
-                                         else "false")
-        tc.project_options["lz4"] = ("true" if self.options.with_lz4
-                                     else "false")
-        tc.project_options["xz"] = "true" if self.options.with_xz else "false"
-        tc.project_options["zstd"] = ("true" if self.options.with_zstd
-                                      else "false")
+        tc.project_options["selinux"] = _bool(self.options.with_selinux)
+        tc.project_options["lz4"] = _bool(self.options.with_lz4)
+        tc.project_options["xz"] = _bool(self.options.with_xz)
+        tc.project_options["zstd"] = _bool(self.options.with_zstd)
+        tc.project_options["translations"] = _bool(self.options.nls)
 
         if self.options.shared:
             tc.project_options["static-libsystemd"] = "false"
@@ -185,6 +190,8 @@ class LibsystemdConan(ConanFile):
         target = ("systemd:shared_library" if self.options.shared
                   else "systemd:static_library")
         meson.build(target=f"version.h {target}")
+        if self.options.nls:
+            meson.build(target="systemd-gmo")
 
     def package(self):
         copy(self, "LICENSE.LGPL2.1", self.source_folder,
@@ -195,16 +202,23 @@ class LibsystemdConan(ConanFile):
         if self.options.shared:
             copy(self, "libsystemd.so", self.build_folder,
                  os.path.join(self.package_folder, "lib"))
-            copy(self, "libsystemd.so.{}".format(self._so_version.split('.')),
+            copy(self, f"libsystemd.so.{self._so_version.split('.')}",
                  self.build_folder, os.path.join(self.package_folder, "lib"))
-            copy(self, "libsystemd.so.{}".format(self._so_version),
+            copy(self, f"libsystemd.so.{self._so_version}",
                  self.build_folder, os.path.join(self.package_folder, "lib"))
         else:
             copy(self, "libsystemd.a", self.build_folder,
                  os.path.join(self.package_folder, "lib"))
+
+        if self.options.nls:
+            copy(self, "*.mo",
+                 os.path.join(self.build_folder, "po"),
+                 os.path.join(self.package_folder, "res", "locale"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsystemd")
         self.cpp_info.set_property("component_version", str(Version(self.version).major))
         self.cpp_info.libs = ["systemd"]
         self.cpp_info.system_libs = ["rt", "pthread", "dl"]
+        if self.options.nls:
+            self.cpp_info.resdirs = ["res"]
