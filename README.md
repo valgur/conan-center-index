@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-01:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-02:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -67,6 +67,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnuradio-volk/3.1.2
 - gpu.cpp/0.1.0
 - gst-libav/1.24.10
+- gst-orc/0.4.40
 - gst-plugins-bad/1.24.10
 - gst-plugins-base/1.24.10
 - gst-plugins-good/1.24.10
