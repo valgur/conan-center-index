@@ -161,7 +161,7 @@ class MinizipNgConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "MINIZIP::minizip")
         self.cpp_info.set_property("pkg_config_name", "minizip")
 
-        prefix = "lib" if is_msvc(self) or self._is_clang_cl else ""
+        prefix = "lib" if Version(self.version) < "4.0.7" and (is_msvc(self) or self._is_clang_cl) else ""
         suffix = "" if self.options.mz_compatibility else "-ng"
         self.cpp_info.libs = [f"{prefix}minizip{suffix}"]
         if self.options.with_lzma:
