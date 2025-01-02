@@ -2,6 +2,7 @@ import os
 import shutil
 
 from conan import ConanFile
+from conan.tools import CppInfo
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
@@ -10,7 +11,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgCon
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.0.5"
 
 
 class CoinUtilsConan(ConanFile):
@@ -134,29 +135,15 @@ class CoinUtilsConan(ConanFile):
         if is_msvc(self):
             # Custom AutotoolsDeps for cl like compilers
             # workaround for https://github.com/conan-io/conan/issues/12784
-            includedirs = []
-            defines = []
-            libs = []
-            libdirs = []
-            linkflags = []
-            cxxflags = []
-            cflags = []
+            cpp_info = CppInfo(self)
             for dependency in self.dependencies.values():
-                deps_cpp_info = dependency.cpp_info.aggregated_components()
-                includedirs.extend(deps_cpp_info.includedirs)
-                defines.extend(deps_cpp_info.defines)
-                libs.extend(deps_cpp_info.libs + deps_cpp_info.system_libs)
-                libdirs.extend(deps_cpp_info.libdirs)
-                linkflags.extend(deps_cpp_info.sharedlinkflags + deps_cpp_info.exelinkflags)
-                cxxflags.extend(deps_cpp_info.cxxflags)
-                cflags.extend(deps_cpp_info.cflags)
-
+                cpp_info.merge(dependency.cpp_info.aggregated_components())
             env = Environment()
-            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in includedirs] + [f"-D{d}" for d in defines])
-            env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in libs])
-            env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in libdirs] + linkflags)
-            env.append("CXXFLAGS", cxxflags)
-            env.append("CFLAGS", cflags)
+            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in cpp_info.includedirs] + [f"-D{d}" for d in cpp_info.defines])
+            env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in cpp_info.libs])
+            env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in cpp_info.libdirs] + cpp_info.sharedlinkflags + cpp_info.exelinkflags)
+            env.append("CXXFLAGS", cpp_info.cxxflags)
+            env.append("CFLAGS", cpp_info.cflags)
             env.vars(self).save_script("conanautotoolsdeps_cl_workaround")
         else:
             deps = AutotoolsDeps(self)
