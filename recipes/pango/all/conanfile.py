@@ -12,7 +12,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.60.0 <2 || >=2.0.5"
+required_conan_version = ">=2.0.5"
 
 
 class PangoConan(ConanFile):
@@ -83,6 +83,8 @@ class PangoConan(ConanFile):
         self.requires("fribidi/1.0.13")
         # "pango/pango-coverage.h" includes "hb.h"
         self.requires("harfbuzz/8.3.0", transitive_headers=True)
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if (
@@ -129,7 +131,7 @@ class PangoConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -138,9 +140,6 @@ class PangoConan(ConanFile):
         VirtualBuildEnv(self).generate()
 
         deps = PkgConfigDeps(self)
-        if self.options.with_introspection:
-            # gnome.generate_gir() in Meson looks for gobject-introspection-1.0.pc
-            deps.build_context_activated = ["gobject-introspection"]
         deps.generate()
 
         enabled_disabled = lambda opt: "enabled" if opt else "disabled"
@@ -210,8 +209,9 @@ class PangoConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["pango_"].resdirs = ["res"]
+            self.cpp_info.components["pango_"].requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         # From meson.build: "To build pangoft2, we need HarfBuzz, FontConfig and FreeType"
         if self.options.with_freetype and self.options.with_fontconfig:
@@ -277,5 +277,3 @@ class PangoConan(ConanFile):
             self.cpp_info.components["pangocairo"].includedirs = [
                 os.path.join(self.package_folder, "include", "pango-1.0")
             ]
-
-        self.runenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))

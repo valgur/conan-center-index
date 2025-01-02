@@ -39,6 +39,8 @@ class JsonGlibConan(ConanFile):
 
     def requirements(self):
         self.requires("glib/2.78.3", transitive_headers=True)
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if self.options.with_introspection and not self.options.shared:
@@ -50,7 +52,7 @@ class JsonGlibConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/0.22.5")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -64,8 +66,6 @@ class JsonGlibConan(ConanFile):
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
-        if self.options.with_introspection:
-            deps.build_context_activated.append("gobject-introspection")
         deps.generate()
 
     def build(self):
@@ -93,5 +93,6 @@ class JsonGlibConan(ConanFile):
         self.cpp_info.requires = ["glib::gio-2.0"]
         self.cpp_info.resdirs = ["res"]
         if self.options.with_introspection:
+            self.cpp_info.requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

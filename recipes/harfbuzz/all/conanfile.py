@@ -12,7 +12,7 @@ from conan.tools.scm import Version
 
 import os
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.6"
+required_conan_version = ">=2.0.6"
 
 
 class HarfbuzzConan(ConanFile):
@@ -85,6 +85,8 @@ class HarfbuzzConan(ConanFile):
             self.requires("icu/75.1")
         if self.options.with_glib:
             self.requires("glib/2.78.3")
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if self.options.shared and self.options.with_glib and not self.dependencies["glib"].options.shared:
@@ -116,7 +118,7 @@ class HarfbuzzConan(ConanFile):
             # with the libiconv that is transitively exposed by glib
             self.tool_requires("gettext/0.22.5")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -148,8 +150,6 @@ class HarfbuzzConan(ConanFile):
             env.vars(self, scope="build").save_script("conanbuild_macos_runtimepath")
 
         deps = PkgConfigDeps(self)
-        if self.options.with_introspection:
-            deps.build_context_activated = ["gobject-introspection"]
         deps.generate()
 
         backend, cxxflags = meson_backend_and_flags()
@@ -227,8 +227,9 @@ class HarfbuzzConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["harfbuzz_"].resdirs = ["res"]
+            self.cpp_info.components["harfbuzz_"].requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         self.cpp_info.components["subset"].set_property("cmake_target_name", "harfbuzz::subset")
         self.cpp_info.components["subset"].set_property("pkg_config_name", "harfbuzz-subset")

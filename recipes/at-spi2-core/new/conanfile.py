@@ -1,10 +1,12 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, rename
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -56,6 +58,8 @@ class AtSpi2CoreConan(ConanFile):
 
     def requirements(self):
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1", libs=True, run=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("dbus/1.15.8")
         if self.options.get_safe("with_x11"):
@@ -78,7 +82,7 @@ class AtSpi2CoreConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/0.22.5")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -94,17 +98,19 @@ class AtSpi2CoreConan(ConanFile):
                         "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
 
     def generate(self):
+        VirtualRunEnv(self).generate(scope="build")
         tc = MesonToolchain(self)
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.project_options["x11"] = "enabled" if self.options.get_safe("with_x11") else "disabled"
         if self.settings.os != "Linux":
             tc.project_options["atk_only"] = "true"
         tc.project_options["docs"] = "false"
+        if self.options.with_introspection and not is_msvc(self):
+            # g-ir-scanner tends to use system libgirepository-1.0.so otherwise
+            tc.extra_ldflags.append(f"-L{self.dependencies['gobject-introspection'].cpp_info.libdir}")
         tc.generate()
 
         deps = PkgConfigDeps(self)
-        if self.options.with_introspection:
-            deps.build_context_activated.append("gobject-introspection")
         deps.generate()
 
     def build(self):
@@ -147,8 +153,11 @@ class AtSpi2CoreConan(ConanFile):
             self.cpp_info.components["atk-bridge"].requires = ["atspi", "atk", "glib::gmodule-2.0"]
 
         if self.options.with_introspection:
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                self.cpp_info.components["atk"].requires.append("gobject-introspection::gobject-introspection")
+                self.cpp_info.components["atspi"].requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):

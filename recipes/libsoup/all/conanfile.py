@@ -49,6 +49,8 @@ class LibSoupConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.gssapi:
             self.requires("krb5/1.21.2")
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -56,7 +58,7 @@ class LibSoupConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("gettext/0.22.5")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -75,9 +77,6 @@ class LibSoupConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
-        if self.options.with_introspection:
-            # gnome.generate_gir() in Meson looks for gobject-introspection-1.0.pc
-            deps.build_context_activated = ["gobject-introspection"]
         if self.options.gssapi:
             deps.set_property("krb5", "pkg_config_name", "krb5-gssapi")
         deps.generate()
@@ -121,5 +120,6 @@ class LibSoupConan(ConanFile):
         if self.options.gssapi:
             self.cpp_info.components[name].requires.append("krb5::krb5-gssapi")
         if self.options.with_introspection:
+            self.cpp_info.components[name].requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

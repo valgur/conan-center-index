@@ -63,6 +63,8 @@ class GdkPixbufConan(ConanFile):
 
     def requirements(self):
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1")
         if self.options.with_libpng:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_libtiff:
@@ -93,7 +95,7 @@ class GdkPixbufConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -111,8 +113,6 @@ class GdkPixbufConan(ConanFile):
             env.generate(scope="build")
 
         deps = PkgConfigDeps(self)
-        if self.options.with_introspection:
-            deps.build_context_activated = ["gobject-introspection"]
         deps.generate()
 
         tc = MesonToolchain(self)
@@ -254,8 +254,9 @@ class GdkPixbufConan(ConanFile):
         self.env_info.GDK_PIXBUF_PIXDATA = gdk_pixbuf_pixdata # remove in conan v2?
 
         if self.options.with_introspection:
+            self.cpp_info.requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""

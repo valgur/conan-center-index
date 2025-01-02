@@ -39,6 +39,8 @@ class LibgudevConan(ConanFile):
     def requirements(self):
         self.requires("libudev/255.13")
         self.requires("glib/2.78.3", transitive_headers=True)
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if self.options.with_introspection and not self.options.shared:
@@ -49,7 +51,7 @@ class LibgudevConan(ConanFile):
         self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -62,8 +64,6 @@ class LibgudevConan(ConanFile):
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
-        if self.options.with_introspection:
-            deps.build_context_activated.append("gobject-introspection")
         deps.generate()
 
     def build(self):
@@ -92,5 +92,6 @@ class LibgudevConan(ConanFile):
         ]
         if self.options.with_introspection:
             self.cpp_info.resdirs = ["res"]
+            self.cpp_info.requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

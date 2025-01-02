@@ -56,6 +56,8 @@ class GrapheneConan(ConanFile):
     def requirements(self):
         if self.options.with_glib:
             self.requires("glib/2.78.3")
+        if self.options.get_safe("with_introspection"):
+            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if self.settings.compiler == "gcc":
@@ -78,7 +80,7 @@ class GrapheneConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_introspection"):
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -88,8 +90,6 @@ class GrapheneConan(ConanFile):
         env.generate()
 
         deps = PkgConfigDeps(self)
-        if self.options.get_safe("with_introspection"):
-            deps.build_context_activated = ["gobject-introspection"]
         deps.generate()
 
         meson = MesonToolchain(self)
@@ -150,8 +150,9 @@ class GrapheneConan(ConanFile):
 
         if self.options.get_safe("with_introspection"):
             self.cpp_info.components["graphene-1.0"].resdirs = ["res"]
+            self.cpp_info.components["graphene-1.0"].requires.append("gobject-introspection::gobject-introspection")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
-            self.buildenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         simd = self._get_simd_config()
         if simd["sse2"]:
