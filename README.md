@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-02:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-03:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -34,10 +34,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
-- confu_json/1.0.1
-- confu_json/1.1.0
 - cppserver/1.0.4.1
 - cub/2.6.1
+- cuda-api-wrappers/0.7-b1
+- cuda-api-wrappers/0.7.0-b2
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
@@ -143,6 +143,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
 - mkfontscale/1.2.3
+- mppp/0.26
+- mppp/0.27
+- mppp/1.0.0
+- mppp/1.0.2
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
 - nanobind/2.4.0
