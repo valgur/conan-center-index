@@ -106,7 +106,7 @@ class PopplerConan(ConanFile):
     def requirements(self):
         self.requires("poppler-data/0.4.11", transitive_headers=True, transitive_libs=True)
         # https://gitlab.freedesktop.org/poppler/poppler/-/blob/poppler-22.04.0/splash/SplashFTFont.h#L30
-        self.requires("freetype/2.13.2", transitive_headers=True, transitive_libs=True)
+        self.requires("freetype/2.13.3", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_libiconv"):
             self.requires("libiconv/1.17")
         if self.options.fontconfiguration == "fontconfig":
@@ -272,8 +272,8 @@ class PopplerConan(ConanFile):
         # Ignore package versions in find_soft_mandatory_package()
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "find_package(${_package_name} ${_package_version})", "find_package(${_package_name})")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "FREETYPE ${FREETYPE_VERSION} REQUIRED", "FREETYPE REQUIRED")
+        # replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+        #                 "FREETYPE ${FREETYPE_VERSION} REQUIRED", "FREETYPE REQUIRED")
 
     def build(self):
         self._patch_sources()
