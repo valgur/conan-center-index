@@ -375,7 +375,7 @@ class OpenCVConan(ConanFile):
             # opencv 2.x doesn't support openexr >= 3
             self.requires("openexr/2.5.7")
         if self.options.get_safe("with_tiff"):
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/system")
 

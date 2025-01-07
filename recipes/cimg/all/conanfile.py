@@ -156,7 +156,7 @@ class CImgConan(ConanFile):
         if self.options.enable_png:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.enable_tiff:
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
         if self.options.enable_ffmpeg:
             self.requires("ffmpeg/7.0.1")
         if self.options.enable_opencv:

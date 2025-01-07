@@ -68,7 +68,7 @@ class Librasterlite2Conan(ConanFile):
         self.requires("libjpeg/9e")
         self.requires("libpng/[>=1.6 <2]")
         self.requires("libspatialite/5.1.0")
-        self.requires("libtiff/4.6.0")
+        self.requires("libtiff/[>=4.5 <5]")
         self.requires("libxml2/[>=2.12.0 <3]")
         # Used in rasterlite2/sqlite.h public header
         self.requires("sqlite3/[>=3.42 <4]", transitive_headers=True, transitive_libs=True)

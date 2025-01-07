@@ -89,7 +89,7 @@ class FreeImageConan(ConanFile):
         if self.options.with_jxr:
             self.requires("jxrlib/cci.20170615")
         if self.options.with_tiff:
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
 
     def validate(self):
         check_min_cppstd(self, "11")

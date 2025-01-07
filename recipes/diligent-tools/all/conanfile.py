@@ -82,7 +82,7 @@ class DiligentToolsConan(ConanFile):
         if self.options.jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/2.1.4")
         self.requires("libpng/1.6.37")
-        self.requires("libtiff/4.3.0")
+        self.requires("libtiff/[>=4.5 <5]")
         self.requires("zlib/1.2.12")
 
     @property

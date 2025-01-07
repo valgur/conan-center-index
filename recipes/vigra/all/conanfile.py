@@ -60,7 +60,7 @@ class VigraConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def requirements(self):
-        self.requires("libtiff/4.6.0")
+        self.requires("libtiff/[>=4.5 <5]")
         self.requires("libpng/[>=1.6 <2]")
         self.requires("fftw/3.3.10")
         self.requires("zlib/[>=1.2.11 <2]")

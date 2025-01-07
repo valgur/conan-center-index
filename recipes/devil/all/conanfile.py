@@ -53,7 +53,7 @@ class DevilConan(ConanFile):
         if self.options.with_jpeg:
             self.requires("libjpeg/9e")
         if self.options.with_tiff:
-            self.requires("libtiff/4.7.0")
+            self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_jasper:
             self.requires("jasper/4.2.4")
         if self.options.with_squish:

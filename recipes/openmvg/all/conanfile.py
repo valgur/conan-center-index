@@ -96,7 +96,7 @@ class OpenmvgConan(ConanFile):
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.5")
         self.requires("libpng/[>=1.6 <2]")
-        self.requires("libtiff/4.6.0")
+        self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_openmp:
             # '#pragma omp' is used in public headers
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)

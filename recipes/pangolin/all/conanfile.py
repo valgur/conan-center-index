@@ -163,7 +163,7 @@ class PangolinConan(ConanFile):
         if self.options.with_realsense:
             self.requires("librealsense/2.53.1")
         if self.options.with_tiff:
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_toon:
             # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_opengl/include/pangolin/gl/cg.h#L40
             self.requires("toon/3.2", transitive_headers=True, transitive_libs=True)

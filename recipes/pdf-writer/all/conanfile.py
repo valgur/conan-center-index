@@ -58,7 +58,7 @@ class PDFWriterConan(ConanFile):
         if self.options.with_jpeg:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_tiff:
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

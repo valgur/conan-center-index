@@ -112,7 +112,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_tiff:
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_webp:
             self.requires("libwebp/1.4.0")
         if self.options.with_xml2:

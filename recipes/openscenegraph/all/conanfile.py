@@ -158,7 +158,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.get_safe("with_png"):
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_tiff:
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
 

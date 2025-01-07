@@ -383,7 +383,7 @@ class VtkConan(ConanFile):
         if self.options.with_theora:
             self.requires("theora/1.1.1")
         if self.options.with_tiff:
-            self.requires("libtiff/4.6.0")
+            self.requires("libtiff/[>=4.5 <5]")
         if self.options.get_safe("with_x11"):
             # Used in public vtkXOpenGLRenderWindow.h
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
