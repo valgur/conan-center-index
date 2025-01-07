@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-06:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-07:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -57,6 +57,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gl2ps/1.4.2
 - glim/1.0.4
 - glim_ext/1.0.0
+- glog/0.4.0
+- glog/0.5.0
 - glomap/cci.20240802
 - glpk/4.48
 - glpk/4.65
@@ -192,6 +194,30 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-headers/1.3.290.0
 - spirv-tools/1.3.290.0
 - splinter/3.0
+- sqlite3/3.36.0
+- sqlite3/3.37.2
+- sqlite3/3.38.5
+- sqlite3/3.39.0
+- sqlite3/3.39.1
+- sqlite3/3.39.2
+- sqlite3/3.39.3
+- sqlite3/3.39.4
+- sqlite3/3.40.0
+- sqlite3/3.40.1
+- sqlite3/3.41.1
+- sqlite3/3.41.2
+- sqlite3/3.42.0
+- sqlite3/3.43.0
+- sqlite3/3.43.1
+- sqlite3/3.43.2
+- sqlite3/3.44.0
+- sqlite3/3.44.1
+- sqlite3/3.45.0
+- sqlite3/3.45.1
+- sqlite3/3.45.2
+- sqlite3/3.46.0
+- sqlite3/3.47.0
+- sqlite3/3.47.1
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
 - suitesparse-amd/3.3.3
