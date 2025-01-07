@@ -4,11 +4,11 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file, collect_libs, rm, rename
+from conan.tools.files import export_conandata_patches, get, copy, rmdir, replace_in_file, collect_libs, rm, rename
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.60.0 <2 || >=2.0.5"
+required_conan_version = ">=2.0.5"
 
 
 class ProjConan(ConanFile):
@@ -56,7 +56,7 @@ class ProjConan(ConanFile):
 
     def requirements(self):
         self.requires("nlohmann_json/3.11.3")
-        self.requires("sqlite3/[>=3.45.0 <4]")
+        self.requires("sqlite3/[>=3.44 <4]")
         if self.options.get_safe("with_tiff"):
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.get_safe("with_curl"):
@@ -65,14 +65,12 @@ class ProjConan(ConanFile):
     def build_requirements(self):
         if Version(self.version) >= "9.4.0":
             self.tool_requires("cmake/[>=3.16 <4]")
-        self.tool_requires("sqlite3/[>=3.45.0 <4]")
+        self.tool_requires("sqlite3/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
-
         tc = CMakeToolchain(self)
         tc.variables["USE_THREAD"] = self.options.threadsafe
         tc.variables["BUILD_CCT"] = self.options.build_executables
