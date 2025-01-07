@@ -14,9 +14,6 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
 
-    def build_requirements(self):
-        self.tool_requires(self.tested_reference_str)
-
     def build(self):
         cmake = CMake(self)
         cmake.configure()

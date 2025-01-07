@@ -3,9 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import get, load, save
-from conan.tools.scm import Version
 import os
-import textwrap
 
 required_conan_version = ">=1.53.0"
 
@@ -30,7 +28,9 @@ class Sqlite3Conan(ConanFile):
         "enable_fts3_parenthesis": [True, False],
         "enable_fts4": [True, False],
         "enable_fts5": [True, False],
+        "enable_icu": [True, False],
         "enable_json1": [True, False],
+        "enable_memsys5": [True, False],
         "enable_soundex": [True, False],
         "enable_preupdate_hook": [True, False],
         "enable_rtree": [True, False],
@@ -60,7 +60,9 @@ class Sqlite3Conan(ConanFile):
         "enable_fts3_parenthesis": False,
         "enable_fts4": False,
         "enable_fts5": False,
+        "enable_icu": False,
         "enable_json1": False,
+        "enable_memsys5": False,
         "enable_soundex": False,
         "enable_preupdate_hook": False,
         "enable_rtree": True,
@@ -82,15 +84,9 @@ class Sqlite3Conan(ConanFile):
 
     exports_sources = "CMakeLists.txt"
 
-    @property
-    def _has_enable_math_function_option(self):
-        return Version(self.version) >= "3.35.0"
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if not self._has_enable_math_function_option:
-            del self.options.enable_math_functions
 
     def configure(self):
         if self.options.shared:
@@ -100,6 +96,10 @@ class Sqlite3Conan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        if self.options.enable_icu:
+            self.requires("icu/75.1")
 
     def validate(self):
         if self.options.build_executable:
@@ -125,7 +125,9 @@ class Sqlite3Conan(ConanFile):
         tc.variables["ENABLE_FTS3_PARENTHESIS"] = self.options.enable_fts3_parenthesis
         tc.variables["ENABLE_FTS4"] = self.options.enable_fts4
         tc.variables["ENABLE_FTS5"] = self.options.enable_fts5
+        tc.variables["ENABLE_ICU"] = self.options.enable_icu
         tc.variables["ENABLE_JSON1"] = self.options.enable_json1
+        tc.variables["ENABLE_MEMSYS5"] = self.options.enable_memsys5
         tc.variables["ENABLE_PREUPDATE_HOOK"] = self.options.enable_preupdate_hook
         tc.variables["ENABLE_SOUNDEX"] = self.options.enable_soundex
         tc.variables["ENABLE_RTREE"] = self.options.enable_rtree
@@ -135,8 +137,7 @@ class Sqlite3Conan(ConanFile):
         tc.variables["USE_URI"] = self.options.use_uri
         tc.variables["OMIT_LOAD_EXTENSION"] = self.options.omit_load_extension
         tc.variables["OMIT_DEPRECATED"] = self.options.omit_deprecated
-        if self._has_enable_math_function_option:
-            tc.variables["ENABLE_MATH_FUNCTIONS"] = self.options.enable_math_functions
+        tc.variables["ENABLE_MATH_FUNCTIONS"] = self.options.enable_math_functions
         tc.variables["HAVE_FDATASYNC"] = True
         tc.variables["HAVE_GMTIME_R"] = True
         tc.variables["HAVE_LOCALTIME_R"] = self.settings.os != "Windows"
@@ -168,24 +169,6 @@ class Sqlite3Conan(ConanFile):
         save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         cmake = CMake(self)
         cmake.install()
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_file_rel_path)
-        )
-
-    def _create_cmake_module_variables(self, module_file):
-        content = textwrap.dedent("""\
-            if(DEFINED SQLite_INCLUDE_DIRS)
-                set(SQLite3_INCLUDE_DIRS ${SQLite_INCLUDE_DIRS})
-            endif()
-            if(DEFINED SQLite_LIBRARIES)
-                set(SQLite3_LIBRARIES ${SQLite_LIBRARIES})
-            endif()
-        """)
-        save(self, module_file, content)
-
-    @property
-    def _module_file_rel_path(self):
-        return os.path.join("lib", "cmake", f"conan-official-{self.name}-variables.cmake")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
@@ -194,6 +177,8 @@ class Sqlite3Conan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "sqlite3")
 
         self.cpp_info.libs = ["sqlite3"]
+        if self.options.enable_icu:
+            self.cpp_info.requires = ["icu::icu"]
         if self.options.omit_load_extension:
             self.cpp_info.defines.append("SQLITE_OMIT_LOAD_EXTENSION")
         if self.settings.os in ["Linux", "FreeBSD"]:

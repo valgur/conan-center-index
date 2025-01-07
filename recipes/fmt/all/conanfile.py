@@ -8,7 +8,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class FmtConan(ConanFile):
@@ -123,10 +123,19 @@ class FmtConan(ConanFile):
         target = "fmt-header-only" if self.options.header_only else "fmt"
         self.cpp_info.set_property("cmake_file_name", "fmt")
         self.cpp_info.set_property("cmake_target_name", f"fmt::{target}")
+
+        # Mirror upstream find package version policy:
+        # https://github.com/fmtlib/fmt/blob/11.1.1/CMakeLists.txt#L403-L407
+        self.cpp_info.set_property("cmake_config_version_compat", "AnyNewerVersion")
         self.cpp_info.set_property("pkg_config_name",  "fmt")
 
-        if self.options.get_safe("with_unicode") and is_msvc(self):
-            self.cpp_info.cxxflags.append("/utf-8")
+        if is_msvc(self):
+            if self.options.get_safe("with_unicode"):
+                self.cpp_info.cxxflags.append("/utf-8")
+            else:
+                # Set the FMT_UNICODE=0, as defined publicly upstream
+                # https://github.com/fmtlib/fmt/blob/11.1.1/CMakeLists.txt#L371
+                self.cpp_info.defines.append("FMT_UNICODE=0")
 
         if self.options.with_fmt_alias:
             self.cpp_info.defines.append("FMT_STRING_ALIAS=1")
