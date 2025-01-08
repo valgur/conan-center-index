@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-07:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-08:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -23,6 +23,18 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - blis/0.9.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
+- catch2/3.0.1
+- catch2/3.1.0
+- catch2/3.2.0
+- catch2/3.2.1
+- catch2/3.3.0
+- catch2/3.3.1
+- catch2/3.3.2
+- catch2/3.5.0
+- catch2/3.5.1
+- catch2/3.5.2
+- catch2/3.5.3
+- catch2/3.7.0
 - cilantro/cci.20230816
 - cimg/3.3.5
 - coin-buildtools/0.8.11
@@ -36,8 +48,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - colmap/3.10
 - cppserver/1.0.4.1
 - cub/2.6.1
-- cuda-api-wrappers/0.7-b1
-- cuda-api-wrappers/0.7.0-b2
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
@@ -57,8 +67,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gl2ps/1.4.2
 - glim/1.0.4
 - glim_ext/1.0.0
-- glog/0.4.0
-- glog/0.5.0
 - glomap/cci.20240802
 - glpk/4.48
 - glpk/4.65
@@ -145,10 +153,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
 - mkfontscale/1.2.3
-- mppp/0.26
-- mppp/0.27
-- mppp/1.0.0
-- mppp/1.0.2
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
 - nanobind/2.4.0
@@ -194,30 +198,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-headers/1.3.290.0
 - spirv-tools/1.3.290.0
 - splinter/3.0
-- sqlite3/3.36.0
-- sqlite3/3.37.2
-- sqlite3/3.38.5
-- sqlite3/3.39.0
-- sqlite3/3.39.1
-- sqlite3/3.39.2
-- sqlite3/3.39.3
-- sqlite3/3.39.4
-- sqlite3/3.40.0
-- sqlite3/3.40.1
-- sqlite3/3.41.1
-- sqlite3/3.41.2
-- sqlite3/3.42.0
-- sqlite3/3.43.0
-- sqlite3/3.43.1
-- sqlite3/3.43.2
-- sqlite3/3.44.0
-- sqlite3/3.44.1
-- sqlite3/3.45.0
-- sqlite3/3.45.1
-- sqlite3/3.45.2
-- sqlite3/3.46.0
-- sqlite3/3.47.0
-- sqlite3/3.47.1
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
 - suitesparse-amd/3.3.3
