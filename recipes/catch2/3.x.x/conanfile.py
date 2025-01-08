@@ -2,11 +2,11 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.0"
 
 
 class Catch2Conan(ConanFile):
@@ -39,29 +39,13 @@ class Catch2Conan(ConanFile):
     extension_properties = {"compatibility_cppstd": False}
 
     @property
-    def _min_cppstd(self):
-        return "14"
-
-    @property
     def _min_console_width(self):
         # Catch2 doesn't build if less than this value
         return 46
 
     @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "msvc": "191",
-            "clang": "5",
-            "apple-clang": "10",
-        }
-
-    @property
     def _default_reporter_str(self):
         return str(self.options.default_reporter).strip('"')
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -74,13 +58,12 @@ class Catch2Conan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def build_requirements(self):
+        if Version(self.version) >= "3.8.0":
+            self.tool_requires("cmake/[>=3.16 <4]")
+
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler doesn't support",
-            )
+        check_min_cppstd(self, 14)
 
         try:
             if int(self.options.console_width) < self._min_console_width:

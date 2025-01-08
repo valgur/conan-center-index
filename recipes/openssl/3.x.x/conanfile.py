@@ -143,12 +143,12 @@ class OpenSSLConan(ConanFile):
             raise ConanInvalidConfiguration("OpenSSL 3 does not support building shared libraries for iOS")
 
     def build_requirements(self):
-        if self.settings_build.os == "Windows":
-            if not self.options.no_asm:
+        if self._settings_build.os == "Windows":
+            if not self.options.no_asm and self.settings.arch in ["x86", "x86_64"]:
                 self.tool_requires("nasm/2.16.01")
             if self._use_nmake:
                 self.tool_requires("strawberryperl/5.32.1.1")
-                self.tool_requires("jom/1.1.4")
+                self.tool_requires("jom/[*]")
             else:
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -279,7 +279,7 @@ class OpenSSLConan(ConanFile):
             "Windows-x86-Visual Studio": "VC-WIN32",
             "Windows-x86_64-Visual Studio": "VC-WIN64A",
             "Windows-armv7-Visual Studio": "VC-WIN32-ARM",
-            "Windows-armv8-Visual Studio": "VC-WIN64-ARM",
+            "Windows-armv8-Visual Studio": "VC-WIN64-CLANGASM-ARM",
             "Windows-*-Visual Studio": "VC-noCE-common",
             "Windows-ia64-clang": "VC-WIN64I",  # Itanium
             "Windows-x86-clang": "VC-WIN32",

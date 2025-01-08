@@ -71,7 +71,7 @@ class LibtiffConan(ConanFile):
         if self.options.zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.libdeflate:
-            self.requires("libdeflate/1.19")
+            self.requires("libdeflate/[>=1.19 <=1.22]") #tested with this range
         if self.options.lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.jpeg == "libjpeg":
@@ -129,10 +129,13 @@ class LibtiffConan(ConanFile):
 
         deps = CMakeDeps(self)
         if Version(self.version) >= "4.5.1":
+            deps.set_property("jbig", "cmake_file_name", "JBIG")
             deps.set_property("jbig", "cmake_target_name", "JBIG::JBIG")
+            deps.set_property("xz_utils", "cmake_file_name", "liblzma")
             deps.set_property("xz_utils", "cmake_target_name", "liblzma::liblzma")
             deps.set_property("libdeflate", "cmake_file_name", "Deflate")
             deps.set_property("libdeflate", "cmake_target_name", "Deflate::Deflate")
+            deps.set_property("zstd", "cmake_file_name", "ZSTD")
         deps.set_property("lerc", "cmake_target_name", "LERC::LERC")
         deps.generate()
 
