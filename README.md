@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-08:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-09:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -23,18 +23,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - blis/0.9.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
-- catch2/3.0.1
-- catch2/3.1.0
-- catch2/3.2.0
-- catch2/3.2.1
-- catch2/3.3.0
-- catch2/3.3.1
-- catch2/3.3.2
-- catch2/3.5.0
-- catch2/3.5.1
-- catch2/3.5.2
-- catch2/3.5.3
-- catch2/3.7.0
 - cilantro/cci.20230816
 - cimg/3.3.5
 - coin-buildtools/0.8.11
@@ -46,6 +34,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cppserver/1.0.0.0
+- cppserver/1.0.1.0
 - cppserver/1.0.4.1
 - cub/2.6.1
 - cuda-samples/12.5
