@@ -73,6 +73,8 @@ class NsprConan(ConanFile):
             rename(self, "nspr", self.source_folder)
 
     def generate(self):
+        VirtualBuildEnv(self).generate()
+
         tc = AutotoolsToolchain(self)
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [

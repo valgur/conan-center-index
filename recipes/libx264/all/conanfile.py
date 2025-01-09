@@ -66,6 +66,8 @@ class LibX264Conan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        VirtualBuildEnv(self).generate()
+
         tc = GnuToolchain(self)
         tc.configure_args["--enable-strip"] = "yes" if self.settings.build_type not in ["Debug", "RelWithDebInfo"] else "no"
         tc.configure_args["--enable-debug"] = "yes" if self.settings.build_type in ["Debug", "RelWithDebInfo"] else "no"

@@ -96,6 +96,7 @@ class Openni2Conan(ConanFile):
         return compilers_from_conf.get("cpp", buildenv_vars.get("CXX", self._default_compiler))
 
     def generate(self):
+        VirtualBuildEnv(self).generate()
         tc = AutotoolsToolchain(self)
         tc.make_args.extend([
             f"CFG={self._build_type}",

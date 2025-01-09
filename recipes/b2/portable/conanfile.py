@@ -119,6 +119,8 @@ class B2Conan(ConanFile):
             )
 
     def build(self):
+        VirtualBuildEnv(self).generate()
+
         # The order of the with:with: below is important. The first one changes
         # the current dir. While the second does env changes that guarantees
         # that dir doesn't change if/when vsvars runs to set the msvc compile
