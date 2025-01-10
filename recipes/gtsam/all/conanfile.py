@@ -140,11 +140,11 @@ class GtsamConan(ConanFile):
             self.requires("spectra/1.0.1")
         if self.options.with_TBB:
             if Version(self.version) >= "4.1":
-                self.requires("onetbb/2021.10.0", transitive_headers=True, transitive_libs=True)
+                self.requires("onetbb/2021.12.0", transitive_headers=True, transitive_libs=True)
             else:
                 self.requires("onetbb/2020.3.3", transitive_headers=True, transitive_libs=True)
         if self.options.default_allocator == "tcmalloc":
-            self.requires("gperftools/2.15")
+            self.requires("gperftools/2.16")
         if self.options.support_nested_dissection:
             # Used in a public header here:
             # https://github.com/borglab/gtsam/blob/4.2.0/gtsam_unstable/partition/FindSeparator-inl.h#L23-L27
