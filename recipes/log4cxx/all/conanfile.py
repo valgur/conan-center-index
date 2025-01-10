@@ -65,12 +65,6 @@ class Log4cxxConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
             self.options.rm_safe("with_smtp_appender") # *nix only
-        elif Version(self.version) <= "1.0.0": # SMTP appender is broken in version 0.12 through 1.0.0
-            self.options.rm_safe("with_smtp_appender")
-        if Version(self.version) < "1.0.0":
-            self.options.rm_safe("with_multiprocess_rolling_file_appender")
-            self.options.rm_safe("with_networking")
-            self.options.rm_safe("with_fmt_layout")
 
     def configure(self):
         if self.options.shared:
@@ -82,6 +76,7 @@ class Log4cxxConan(ConanFile):
     def requirements(self):
         self.requires("apr/1.7.4")
         self.requires("apr-util/1.6.1")
+        self.requires("expat/2.6.4")
         if self.options.get_safe("with_odbc_appender") and self.settings.os != "Windows":
             self.requires("odbc/2.3.11")
         if self.options.get_safe("with_smtp_appender"):
@@ -92,7 +87,7 @@ class Log4cxxConan(ConanFile):
             self.requires("qt/[>=5.15 <7]")
 
     def validate(self):
-        if Version(self.version) < "1.0.0" or self.options.get_safe("with_multiprocess_rolling_file_appender"):
+        if self.options.get_safe("with_multiprocess_rolling_file_appender"):
             check_min_cppstd(self, 17)
         else:
             check_min_cppstd(self, 11)
@@ -109,19 +104,26 @@ class Log4cxxConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["LOG4CXX_INSTALL_PDB"] = False
-        if Version(self.version) >= "1.0.0":
-            tc.variables["LOG4CXX_NETWORKING_SUPPORT"] = self.options.with_networking
-            tc.variables["LOG4CXX_MULTIPROCESS_ROLLING_FILE_APPENDER"] = self.options.with_multiprocess_rolling_file_appender
-            tc.variables["ENABLE_FMT_LAYOUT"] = self.options.with_fmt_layout
-        if Version(self.version) > "1.0.0" and self.settings.os != "Windows":
+        tc.variables["LOG4CXX_NETWORKING_SUPPORT"] = self.options.with_networking
+        tc.variables["LOG4CXX_MULTIPROCESS_ROLLING_FILE_APPENDER"] = self.options.with_multiprocess_rolling_file_appender
+        tc.variables["ENABLE_FMT_LAYOUT"] = self.options.with_fmt_layout
+        if self.settings.os != "Windows":
             tc.variables["LOG4CXX_ENABLE_ESMTP"] = self.options.with_smtp_appender
         tc.variables["LOG4CXX_ENABLE_ODBC"] = self.options.with_odbc_appender
         tc.variables["LOG4CXX_CHAR"] = self.options.char_type
         tc.variables["LOG4CXX_CHARSET"] = self.options.char_encoding
         tc.variables["LOG4CXX_WCHAR_T"] = self.options.with_wchar_t
         tc.variables["LOG4CXX_QT_SUPPORT"] = self.options.with_qt
+        tc.variables["APR_STATIC"] = not self.dependencies["apr"].options.shared
+        tc.variables["APU_STATIC"] = not self.dependencies["apr-util"].options.shared
         tc.generate()
         deps = CMakeDeps(self)
+        deps.set_property("apr", "cmake_file_name", "APR")
+        deps.set_property("apr-util", "cmake_file_name", "APR-Util")
+        deps.set_property("apr-util", "cmake_additional_variables_prefixes", ["APR_UTIL"])
+        deps.set_property("expat", "cmake_file_name", "EXPAT")
+        deps.set_property("expat", "cmake_find_mode", "config")
+        deps.set_property("expat", "cmake_target_name", "EXPAT::EXPAT")
         deps.generate()
         deps = PkgConfigDeps(self)
         deps.generate()

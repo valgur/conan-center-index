@@ -9,7 +9,7 @@ import os
 
 required_conan_version = ">=1.53.0"
 
-class CppServerPackage(ConanFile):
+class CppServer(ConanFile):
     name = "cppserver"
     description = "Ultra fast and low latency asynchronous socket server and" \
         " client C++ library with support TCP, SSL, UDP, HTTP, HTTPS, WebSocket" \
@@ -29,19 +29,6 @@ class CppServerPackage(ConanFile):
         "shared": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "msvc": "191",
-            "clang": "5",
-            "apple-clang": "10",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -57,18 +44,12 @@ class CppServerPackage(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # Used in asio/asio.h public header
-        self.requires("asio/1.27.0", transitive_headers=True, transitive_libs=True)
-        # Used in transitive asio/ssl.hpp header from asio
+        self.requires("asio/1.27.0", transitive_headers=True)
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
-        # threads/thread.h used in asio/service.h public header
-        self.requires("cppcommon/1.0.4.0", transitive_headers=True, transitive_libs=True)
+        self.requires("cppcommon/1.0.3.0", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires a compiler that supports at least C++17")
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         if Version(self.version) >= "1.0.2.0":
