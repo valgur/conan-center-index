@@ -1,12 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, rm, copy
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -22,26 +20,11 @@ class GtsamPointsPackage(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "march_native": [True, False],
         "cuda": [True, False],
     }
     default_options = {
-        "march_native": False,
         "cuda": False,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "clang": "10",
-            "apple-clang": "12",
-            "msvc": "192",
-        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -57,16 +40,10 @@ class GtsamPointsPackage(ConanFile):
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         self.requires("nanoflann/1.3.2", transitive_headers=True, transitive_libs=True)
         if self.options.cuda:
-            # Thrust 2.x from CUDA 12 and newer is not compatible
-            self.requires("thrust/1.17.2", transitive_headers=True, transitive_libs=True, options={"device_system": "cuda"})
+            self.requires("thrust/2.7.0", transitive_headers=True, transitive_libs=True, options={"device_system": "cuda"})
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <4]")
@@ -79,7 +56,7 @@ class GtsamPointsPackage(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_WITH_MARCH_NATIVE"] = self.options.march_native
+        tc.variables["BUILD_WITH_MARCH_NATIVE"] = False
         tc.variables["BUILD_WITH_CUDA"] = self.options.cuda
         tc.generate()
 
