@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-09:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-10:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -100,7 +100,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libgudev/238
 - libhdfs3/cci.20191105
 - libice/1.1.1
+- libid3tag/0.15.1b
 - libosmium/2.20.0
+- libpcap/1.10.0
+- libpcap/1.9.1
 - libraw1394/2.1.2
 - librsvg/2.40.21
 - librsvg/2.57.0
@@ -137,6 +140,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxxf86vm/1.1.5
 - llvm-core/18.1.7
 - llvm-openmp/18.1.8
+- log4cxx/0.12.1
+- log4cxx/0.13.0
+- log4cxx/1.1.0
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mavlink/1.0.12.cci.20240530
@@ -147,7 +153,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mysql-connector-cpp/9.0.0
 - nanobind/2.4.0
 - netpbm/11.6.0
-- nss/3.104
+- nss/3.107
 - numpy/1.26.4
 - ogre/14.3.0
 - open62541pp/0.12.0
