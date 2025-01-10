@@ -289,9 +289,14 @@ class GtsamConan(ConanFile):
             replace_in_file(self, gtsam_build_types_cmake, "/MDd ", f"/{msvc_runtime_flag(self)} ")
 
         # Ensure a newer CMake standard is used for non-cache_variables support and other policies
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "cmake_minimum_required(VERSION 3.0)",
-                        "cmake_minimum_required(VERSION 3.15)")
+        if Version(self.version, qualifier=True) >= "4.3":
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "cmake_minimum_required(VERSION 3.9...3.29)",
+                            "cmake_minimum_required(VERSION 3.15...3.29)")
+        else:
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "cmake_minimum_required(VERSION 3.0)",
+                            "cmake_minimum_required(VERSION 3.15)")
 
         # Fix tcmalloc / gperftools handling
         if self.options.default_allocator == "tcmalloc":
