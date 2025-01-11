@@ -9,6 +9,7 @@ from conan.tools.env import VirtualBuildEnv, Environment, VirtualRunEnv
 from conan.tools.files import copy, get, replace_in_file, export_conandata_patches, apply_conandata_patches, rmdir, save, load, collect_libs
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars, unix_path
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.60.0 <2.0 || >=2.0.6"
 
@@ -242,6 +243,21 @@ class NSSConan(ConanFile):
         self.run(cmd, cwd=os.path.join(self.source_folder, "nss"))
         self.run("ninja", cwd=self._target_build_dir)
 
+    def _generate_nss_config(self):
+        # https://github.com/nss-dev/nss/blob/NSS_3_107_RTM/pkg/pkg-config/nss-config.in
+        content = load(self, os.path.join(self.source_folder, "nss", "pkg", "pkg-config", "nss-config.in"))
+        content = content.replace(
+            "prefix=@prefix@",
+            'prefix="$(cd "$(dirname "$0")/.." && pwd)"'
+        )
+        version = Version(self.version)
+        content = content.replace("@MOD_MAJOR_VERSION@", str(version.major))
+        content = content.replace("@MOD_MINOR_VERSION@", str(version.minor))
+        content = content.replace("@MOD_PATCH_VERSION@", str(version.patch))
+        path = os.path.join(self.package_folder, "bin", "nss-config")
+        save(self, path, content)
+        os.chmod(path, os.stat(path).st_mode | 0o111)
+
     def package(self):
         copy(self, "COPYING", src=os.path.join(self.source_folder, "nss"), dst=os.path.join(self.package_folder, "licenses"))
 
@@ -256,6 +272,7 @@ class NSSConan(ConanFile):
         if self.options.get_safe("shared", True):
             exe_pattern = "*.exe" if self.settings.os == "Windows" else "*"
             copy(self, exe_pattern, os.path.join(self._dist_dir, "bin"), os.path.join(self.package_folder, "bin"))
+        self._generate_nss_config()
 
         lib_dir = os.path.join(self._dist_dir, "lib")
         if self.options.get_safe("shared", True):
@@ -268,32 +285,18 @@ class NSSConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        # Since the project does not export any .pc files,
-        # we will rely on the .pc files created by Fedora
-        # https://src.fedoraproject.org/rpms/nss/tree/rawhide
-        # and Debian
-        # https://salsa.debian.org/mozilla-team/nss/-/tree/master/debian
-        # instead.
-
-        # Do not use
-        self.cpp_info.set_property("pkg_config_name", "_nss")
-
-        # https://src.fedoraproject.org/rpms/nss/blob/rawhide/f/nss.pc.in
+        # https://github.com/nss-dev/nss/blob/NSS_3_107_RTM/pkg/pkg-config/nss.pc.in
         self.cpp_info.components["nss_pc"].set_property("pkg_config_name", "nss")
-        self.cpp_info.components["nss_pc"].requires = ["libnss", "ssl", "smime"]
+        self.cpp_info.components["nss_pc"].requires = ["ssl", "smime", "libnss", "util"]
 
         self.cpp_info.components["libnss"].libs = ["nss3"]
         self.cpp_info.components["libnss"].includedirs.append(os.path.join("include", "nss"))
         self.cpp_info.components["libnss"].requires = ["util", "nspr::nspr"]
 
-        # https://src.fedoraproject.org/rpms/nss/blob/rawhide/f/nss-util.pc.in
-        self.cpp_info.components["util"].set_property("pkg_config_name", "nss-util")
         self.cpp_info.components["util"].libs = ["nssutil3"]
         self.cpp_info.components["util"].includedirs.append(os.path.join("include", "nss"))
         self.cpp_info.components["util"].requires = ["nspr::nspr"]
 
-        # https://src.fedoraproject.org/rpms/nss/blob/rawhide/f/nss-softokn.pc.in
-        self.cpp_info.components["softokn"].set_property("pkg_config_name", "nss-softokn")
         self.cpp_info.components["softokn"].libs = ["softokn3"]
         self.cpp_info.components["softokn"].requires = ["libnss", "freebl", "sqlite3::sqlite3"]
         if self.options.enable_legacy_db:
