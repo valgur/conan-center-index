@@ -30,7 +30,7 @@ class PopplerConan(ConanFile):
         "float": [True, False],
         "with_cairo": [True, False],
         "with_glib": [True, False],
-        "with_gobject_introspection": [True, False],
+        "with_introspection": [True, False],
         "with_qt": [True, False],
         "with_gtk": [True, False],
         "with_libiconv": [True, False],
@@ -51,7 +51,7 @@ class PopplerConan(ConanFile):
         "with_cairo": False,
         "splash": True,
         "with_glib": False,
-        "with_gobject_introspection": True,
+        "with_introspection": True,
         "with_qt": False,
         "with_gtk": False,
         "with_libiconv": True,
@@ -79,7 +79,7 @@ class PopplerConan(ConanFile):
         if not self.options.with_cairo:
             self.options.rm_safe("with_glib")
         if not self.options.get_safe("with_glib"):
-            self.options.rm_safe("with_gobject_introspection")
+            self.options.rm_safe("with_introspection")
             self.options.rm_safe("with_gtk")
         if not self.options.cpp:
             self.options.rm_safe("with_libiconv")
@@ -99,7 +99,7 @@ class PopplerConan(ConanFile):
             self.requires("cairo/1.18.0")
         if self.options.get_safe("with_glib"):
             self.requires("glib/2.78.3")
-        if self.options.get_safe("with_gobject_introspection"):
+        if self.options.get_safe("with_introspection"):
             self.requires("gobject-introspection/1.72.0")
         if self.options.with_qt:
             self.requires("qt/[>=6.6 <7]", run=can_run(self))
@@ -133,9 +133,11 @@ class PopplerConan(ConanFile):
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        self.tool_requires("cmake/[>=3.16 <4]")
         if self.options.get_safe("with_glib"):
             self.tool_requires("glib/<host_version>")
-        self.tool_requires("cmake/[>=3.16 <4]")
+            if self.options.with_introspection:
+                self.tool_requires("gobject-introspection/<host_version>")
         if self.options.with_qt and not can_run(self):
             self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
@@ -163,7 +165,7 @@ class PopplerConan(ConanFile):
         tc.variables["ENABLE_CPP"] = self.options.cpp
         tc.variables["ENABLE_DCTDECODER"] = self._dct_decoder
         tc.variables["ENABLE_GLIB"] = self.options.get_safe("with_glib", False)
-        tc.variables["ENABLE_GOBJECT_INTROSPECTION"] = self.options.get_safe("with_gobject_introspection", False)
+        tc.variables["ENABLE_GOBJECT_INTROSPECTION"] = self.options.get_safe("with_introspection", False)
         tc.variables["ENABLE_GPGME"] = False
         tc.variables["ENABLE_GTK_DOC"] = False
         tc.variables["ENABLE_JPEG"] = self.options.with_libjpeg
@@ -315,10 +317,12 @@ class PopplerConan(ConanFile):
             self.cpp_info.components["libpoppler-glib"].libs = ["poppler-glib"]
             self.cpp_info.components["libpoppler-glib"].set_property("pkg_config_name", "poppler-glib")
             self.cpp_info.components["libpoppler-glib"].requires = ["libpoppler-cairo", "glib::glib"]
-            if self.options.get_safe("with_gtk"):
+            if self.options.with_gtk:
                 self.cpp_info.components["libpoppler-glib"].requires.append("gtk::gtk")
-            if self.options.get_safe("with_gobject_introspection"):
+            if self.options.with_introspection:
                 self.cpp_info.components["libpoppler-glib"].requires.append("gobject-introspection::gobject-introspection")
+                self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+                self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         if self.options.with_qt:
             qt_major = Version(self.dependencies["qt"].ref.version).major
