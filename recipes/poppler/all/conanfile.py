@@ -2,13 +2,14 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, cross_building, valid_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd, check_min_cstd, cross_building, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, rename
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=2.4"
 
 
 class PopplerConan(ConanFile):
@@ -26,8 +27,8 @@ class PopplerConan(ConanFile):
         "fPIC": [True, False],
         "cpp": [True, False],
         "fontconfiguration": ["generic", "fontconfig", "win32"],
-        "splash": [True, False],
         "float": [True, False],
+        "splash": [True, False],
         "with_cairo": [True, False],
         "with_glib": [True, False],
         "with_introspection": [True, False],
@@ -48,9 +49,10 @@ class PopplerConan(ConanFile):
         "fPIC": True,
         "cpp": True,
         "fontconfiguration": "generic",
-        "with_cairo": False,
+        "float": False,
         "splash": True,
-        "with_glib": False,
+        "with_cairo": True,
+        "with_glib": True,
         "with_introspection": True,
         "with_qt": False,
         "with_gtk": False,
@@ -63,7 +65,6 @@ class PopplerConan(ConanFile):
         "with_tiff": True,
         "with_libcurl": False,
         "with_zlib": True,
-        "float": False,
     }
 
     def export_sources(self):
@@ -99,8 +100,8 @@ class PopplerConan(ConanFile):
             self.requires("cairo/1.18.0")
         if self.options.get_safe("with_glib"):
             self.requires("glib/2.78.3")
-        if self.options.get_safe("with_introspection"):
-            self.requires("gobject-introspection/1.72.0")
+            if self.options.with_introspection:
+                self.requires("gobject-introspection/1.78.1")
         if self.options.with_qt:
             self.requires("qt/[>=6.6 <7]", run=can_run(self))
         if self.options.get_safe("with_gtk"):
@@ -112,7 +113,7 @@ class PopplerConan(ConanFile):
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/9e")
         if self.options.with_nss:
-            self.requires("nss/3.93")
+            self.requires("nss/3.107")
         if self.options.with_png:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_tiff:
@@ -128,7 +129,9 @@ class PopplerConan(ConanFile):
     def validate(self):
         if self.options.fontconfiguration == "win32" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration("'win32' option of fontconfig is only available on Windows")
-        check_min_cppstd(self, 17)
+        check_min_cppstd(self, 20)
+        if self.settings.get_safe("compiler.cstd"):
+            check_min_cstd(self, 17)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -153,8 +156,6 @@ class PopplerConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not valid_min_cppstd(self, self._cppstd_required):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._cppstd_required
         tc.variables["BUILD_CPP_TESTS"] = False
         tc.variables["BUILD_CPP_TESTS"] = False
         tc.variables["BUILD_GTK_TESTS"] = False
@@ -198,7 +199,7 @@ class PopplerConan(ConanFile):
 
         if self.options.with_openjpeg:
             # FIXME: openjpeg's cmake_find_package should provide these variables
-            tc.variables["OPENJPEG_MAJOR_VERSION"] = Version(self.dependencies["openjpeg"].ref.version).major
+            tc.variables["OPENJPEG_MAJOR_VERSION"] = str(Version(self.dependencies["openjpeg"].ref.version).major)
 
         # Workaround for cross-build to at least iOS/tvOS/watchOS,
         # when dependencies are found with find_path() and find_library()
@@ -210,22 +211,6 @@ class PopplerConan(ConanFile):
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         else:
             tc.preprocessor_definitions["POPPLER_STATIC"] = ""
-
-        # To ensure check_cxx_source_compiles() checks work correctly
-        # https://github.com/conan-io/conan/issues/12180
-        tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
-
-        # Workaround for MSVC:
-        # CMake Error at cmake/modules/PopplerMacros.cmake:91 (message):
-        #   Unsupported CMAKE_BUILD_TYPE:
-        tc.cache_variables["CMAKE_BUILD_TYPE"] = str(self.settings.build_type)
-
-        if self.settings.os == "Windows" and self.options.with_libjpeg == "libjpeg":
-            # Workaround for
-            # C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\basetsd.h(77,29): error C2371: 'INT32': redefinition; different basic types
-            # due to libjpeg's jmorecfg.h defining INT32
-            # https://github.com/mapnik/node-mapnik/issues/276
-            tc.preprocessor_definitions["XMD_H"] = ""
 
         tc.generate()
 
@@ -239,6 +224,11 @@ class PopplerConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
+        if self.options.get_safe("with_introspection"):
+            env = Environment()
+            env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
+            env.vars(self).save_script("pkg_config_env")
+
     def _patch_sources(self):
         # Use upper-case package names to force CMakeDeps to define upper-case variables
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
@@ -250,6 +240,11 @@ class PopplerConan(ConanFile):
                         "find_package(${_package_name} ${_package_version})", "find_package(${_package_name})")
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "FREETYPE ${FREETYPE_VERSION} REQUIRED", "FREETYPE REQUIRED")
+        # Fix host-context gir tools being used even when cross-compiling
+        for tool in ["scanner", "compiler", "generate"]:
+            replace_in_file(self, os.path.join(self.source_folder, "cmake", "modules", "FindGObjectIntrospection.cmake"),
+                            f"_gir_get_pkgconfig_var(INTROSPECTION_{tool.upper()} ",
+                            f'set(INTROSPECTION_{tool.upper()} "g-ir-{tool}") #')
 
     def build(self):
         self._patch_sources()
@@ -262,6 +257,8 @@ class PopplerConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        if self.options.get_safe("with_introspection"):
+            rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.components["libpoppler"].libs = ["poppler"]
@@ -287,9 +284,9 @@ class PopplerConan(ConanFile):
         if self.options.with_png:
             self.cpp_info.components["libpoppler"].requires.append("libpng::libpng")
         if self.options.with_nss:
-            self.cpp_info.components["libpoppler"].requires.append("nss::nss")
+            self.cpp_info.components["libpoppler"].requires.append("nss::nss_pc")
         if self.options.with_tiff:
-            self.cpp_info.components["libpoppler"].requires.append("libtiff::tiff")
+            self.cpp_info.components["libpoppler"].requires.append("libtiff::libtiff")
         if self.options.with_libcurl:
             self.cpp_info.components["libpoppler"].requires.append("libcurl::libcurl")
         if self.options.with_zlib:
@@ -320,6 +317,7 @@ class PopplerConan(ConanFile):
             if self.options.with_gtk:
                 self.cpp_info.components["libpoppler-glib"].requires.append("gtk::gtk")
             if self.options.with_introspection:
+                self.cpp_info.components["libpoppler-glib"].resdirs = ["res"]
                 self.cpp_info.components["libpoppler-glib"].requires.append("gobject-introspection::gobject-introspection")
                 self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
                 self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
