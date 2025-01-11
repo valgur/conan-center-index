@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, cross_building, valid_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
@@ -66,19 +65,6 @@ class PopplerConan(ConanFile):
         "with_zlib": True,
         "float": False,
     }
-
-    @property
-    def _cppstd_required(self):
-        return 17
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "9",
-            "apple-clang": "11",
-        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -142,13 +128,7 @@ class PopplerConan(ConanFile):
     def validate(self):
         if self.options.fontconfiguration == "win32" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration("'win32' option of fontconfig is only available on Windows")
-
-        # C++ standard required
-        check_min_cppstd(self, self._cppstd_required)
-
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("C++14 support required, which your compiler does not support.")
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -165,14 +145,11 @@ class PopplerConan(ConanFile):
 
     @property
     def _dct_decoder(self):
-        if self.options.with_libjpeg == False:
-            return "none"
-        else:
+        if self.options.with_libjpeg:
             return str(self.options.with_libjpeg)
+        return "none"
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = CMakeToolchain(self)
         if not valid_min_cppstd(self, self._cppstd_required):
             tc.variables["CMAKE_CXX_STANDARD"] = self._cppstd_required
@@ -234,7 +211,19 @@ class PopplerConan(ConanFile):
 
         # To ensure check_cxx_source_compiles() checks work correctly
         # https://github.com/conan-io/conan/issues/12180
-        tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = self.settings.build_type
+        tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
+
+        # Workaround for MSVC:
+        # CMake Error at cmake/modules/PopplerMacros.cmake:91 (message):
+        #   Unsupported CMAKE_BUILD_TYPE:
+        tc.cache_variables["CMAKE_BUILD_TYPE"] = str(self.settings.build_type)
+
+        if self.settings.os == "Windows" and self.options.with_libjpeg == "libjpeg":
+            # Workaround for
+            # C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\basetsd.h(77,29): error C2371: 'INT32': redefinition; different basic types
+            # due to libjpeg's jmorecfg.h defining INT32
+            # https://github.com/mapnik/node-mapnik/issues/276
+            tc.preprocessor_definitions["XMD_H"] = ""
 
         tc.generate()
 
@@ -339,5 +328,3 @@ class PopplerConan(ConanFile):
 
         datadir = self.dependencies["poppler-data"].conf_info.get("user.poppler-data:datadir")
         self.runenv.define_path("POPPLER_DATADIR", datadir)
-        self.output.info(f"Setting POPPLER_DATADIR env var: {datadir}")
-        self.env_info.POPPLER_DATADIR = datadir
