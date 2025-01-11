@@ -13,13 +13,23 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-10:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-11:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
+- benchmark/1.5.6
+- benchmark/1.6.0
+- benchmark/1.6.1
+- benchmark/1.6.2
+- benchmark/1.7.0
+- benchmark/1.7.1
+- benchmark/1.8.0
+- benchmark/1.8.1
+- benchmark/1.8.2
+- benchmark/1.8.3
 - blis/0.9.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
@@ -34,10 +44,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
-- cppserver/1.0.0.0
-- cppserver/1.0.1.0
 - cppserver/1.0.4.1
-- cub/2.6.1
+- cub/2.7.0
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
@@ -77,7 +85,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtk/4.15.6
 - gtkmm/3.24.9
 - gtkmm/4.16.0
-- gtsam_points/1.0.4
+- gtsam/4.3-pre.20250110
+- gtsam_points/1.0.6
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
 - hlslpp/3.5.3
@@ -93,17 +102,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libbpf/1.4.6
 - libcaca/0.99.beta20
 - libcroco/0.6.13
-- libcudacxx/2.6.1
+- libcudacxx/2.7.0
 - libecwj2/3.3
 - libelas/cci.20150630
 - libfontenc/1.1.8
 - libgudev/238
 - libhdfs3/cci.20191105
 - libice/1.1.1
-- libid3tag/0.15.1b
 - libosmium/2.20.0
-- libpcap/1.10.0
-- libpcap/1.9.1
 - libraw1394/2.1.2
 - librsvg/2.40.21
 - librsvg/2.57.0
@@ -140,9 +146,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxxf86vm/1.1.5
 - llvm-core/18.1.7
 - llvm-openmp/18.1.8
-- log4cxx/0.12.1
-- log4cxx/0.13.0
-- log4cxx/1.1.0
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mavlink/1.0.12.cci.20240530
@@ -217,7 +220,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/5.8.0
 - sundials/6.7.0
 - sundials/7.1.1
-- thrust/2.6.1
+- thrust/2.7.0
 - tpl/cci.20210302
 - usearch/2.9.1
 - vilib/cci.20210625

@@ -1,11 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import copy, get, move_folder_contents, export_conandata_patches, apply_conandata_patches, rename
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.52.0"
 
@@ -23,20 +21,6 @@ class LibcudacxxConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     short_paths = True
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    @property
-    def _compilers_minimum_version(self):
-        # https://nvidia.github.io/libcudacxx/setup/requirements.html#nvcc-host-compilers
-        return {
-            "msvc": "191",
-            "gcc": "5",
-            "clang": "7",
-            "apple-clang": "10",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -47,17 +31,12 @@ class LibcudacxxConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
         move_folder_contents(self, os.path.join(self.source_folder, "libcudacxx"), self.source_folder)
+        apply_conandata_patches(self)
 
     def package(self):
         copy(self, "LICENSE.TXT",
