@@ -55,7 +55,7 @@ class LibLqrConan(ConanFile):
             basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.81.0", transitive_headers=True)
+        self.requires("glib/2.78.3", transitive_headers=True)
 
     def build_requirements(self):
         if not self._is_cl_like:
