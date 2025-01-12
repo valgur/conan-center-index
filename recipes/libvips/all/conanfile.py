@@ -222,7 +222,7 @@ class LibvipsConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.introspection:
-            self.tool_requires("gobject-introspection/1.72.0")
+            self.tool_requires("gobject-introspection/1.78.1")
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/0.22.5")
 

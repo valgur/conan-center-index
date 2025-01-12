@@ -72,7 +72,7 @@ class LibniceConan(ConanFile):
         self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")  # for glib-mkenums
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/1.72.0")
+            self.tool_requires("gobject-introspection/1.78.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

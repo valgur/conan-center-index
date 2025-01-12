@@ -94,7 +94,7 @@ class AravisConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.introspection:
-            self.tool_requires("gobject-introspection/1.72.0")
+            self.tool_requires("gobject-introspection/1.78.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
