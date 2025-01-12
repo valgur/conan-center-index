@@ -56,10 +56,10 @@ class GobjectIntrospectionConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) >= "1.82.0":
-            # [>=2.82.0 <3]
-            self.requires("glib/2.82.4", transitive_headers=True, transitive_libs=True)
+            self.requires("glib/[>=2.82.0 <3]", transitive_headers=True, transitive_libs=True)
         else:
-            self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+            glib_minor = Version(self.version).minor
+            self.requires(f"glib/[~2.{glib_minor}]", transitive_headers=True, transitive_libs=True)
         # ffi.h is exposed by public header gobject-introspection-1.0/girffi.h
         self.requires("libffi/3.4.4", transitive_headers=True)
 
