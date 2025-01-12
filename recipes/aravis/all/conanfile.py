@@ -69,12 +69,10 @@ class AravisConan(ConanFile):
         self.requires("glib/2.78.3", transitive_headers=True)
         self.requires("libxml2/[>=2.12.5 <3]")
         self.requires("zlib/[>=1.2.11 <2]")
-
         if self.options.usb:
             self.requires("libusb/1.0.26")
         if self.options.gst_plugin:
-            self.requires("gstreamer/1.24.11")
-            self.requires("gst-plugins-base/1.19.2")
+            self.requires("gst-plugins-base/1.24.11")
 
     def validate(self):
         if is_msvc_static_runtime(self):
@@ -94,7 +92,7 @@ class AravisConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

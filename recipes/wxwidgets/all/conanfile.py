@@ -176,8 +176,7 @@ class wxWidgetsConan(ConanFile):
             if self.options.secretstore:
                 self.requires("libsecret/0.21.4")
             if self.options.mediactrl and self._toolkit.startswith("gtk"):
-                self.requires("gstreamer/1.24.11")
-                self.requires("gst-plugins-base/1.19.2")
+                self.requires("gst-plugins-base/1.24.11")
             if self._toolkit.startswith("gtk"):
                 self.requires("xkbcommon/1.6.0", options={"with_x11": True})
             if self.options.webrequest:
