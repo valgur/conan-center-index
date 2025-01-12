@@ -73,6 +73,8 @@ class AravisConan(ConanFile):
             self.requires("libusb/1.0.26")
         if self.options.gst_plugin:
             self.requires("gst-plugins-base/1.24.11")
+        if self.options.introspection:
+            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if is_msvc_static_runtime(self):
@@ -146,6 +148,8 @@ class AravisConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
         if not self.options.tools:
             rm(self, "arv-*", os.path.join(self.package_folder, "bin"))
+        if self.options.introspection:
+            rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
@@ -164,3 +168,8 @@ class AravisConan(ConanFile):
             self.runenv_info.prepend_path("GST_PLUGIN_PATH", gst_plugin_path)
             if self.options.tools:
                 self.buildenv_info.prepend_path("GST_PLUGIN_PATH", gst_plugin_path)
+
+        if self.options.introspection:
+            self.cpp_info.resdirs = ["res"]
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
