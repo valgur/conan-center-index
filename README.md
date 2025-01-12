@@ -13,23 +13,13 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-11:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-12:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
-- benchmark/1.5.6
-- benchmark/1.6.0
-- benchmark/1.6.1
-- benchmark/1.6.2
-- benchmark/1.7.0
-- benchmark/1.7.1
-- benchmark/1.8.0
-- benchmark/1.8.1
-- benchmark/1.8.2
-- benchmark/1.8.3
 - blis/0.9.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
@@ -175,7 +165,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - perf/6.11
 - piex/0.2.7
 - polyscope/2.3.0
-- poppler/24.03.0
+- poppler/25.01.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
 - qhull/8.1-alpha4
@@ -193,6 +183,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - skia/132
 - sleef/3.6.1
 - small_gicp/0.1.2
+- spectra/1.1.0
 - spirv-cross/1.3.290.0
 - spirv-headers/1.3.290.0
 - spirv-tools/1.3.290.0
