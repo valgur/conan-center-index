@@ -131,6 +131,8 @@ class LibvipsConan(ConanFile):
     def requirements(self):
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        if self.options.introspection:
+            self.requires("gobject-introspection/1.78.1")
         if self.options.get_safe("with_archive"):
             self.requires("libarchive/3.7.2")
         if self.options.with_cfitsio:
@@ -222,7 +224,7 @@ class LibvipsConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.introspection:
-            self.tool_requires("gobject-introspection/1.78.1")
+            self.tool_requires("gobject-introspection/<host_version>")
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/0.22.5")
 
@@ -384,6 +386,12 @@ class LibvipsConan(ConanFile):
             self.cpp_info.components["vips"].requires.append("libwebp::libwebp")
         if self.options.with_zlib:
             self.cpp_info.components["vips"].requires.append("zlib::zlib")
+
+        if self.options.introspection:
+            self.cpp_info.components["vips"].resdirs = ["res"]
+            self.cpp_info.components["vips"].requires.append("gobject-introspection::gobject-introspection")
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         if self.options.cpp:
             self.cpp_info.components["vips-cpp"].set_property("pkg_config_name", "vips-cpp")
