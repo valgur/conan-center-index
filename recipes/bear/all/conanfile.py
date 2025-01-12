@@ -55,8 +55,8 @@ class BearConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
-            # fmt/ranges.h fails to compile with C++20
-            check_max_cppstd(self, 17)
+        # fmt/ranges.h fails to compile with C++20
+        check_max_cppstd(self, 17)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
