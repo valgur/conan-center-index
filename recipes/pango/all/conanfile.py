@@ -64,6 +64,8 @@ class PangoConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
+        if self.options.with_introspection:
+            self.options["harfbuzz"].with_introspection = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
