@@ -2,14 +2,14 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualRunEnv
+from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.env import Environment
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -21,9 +21,9 @@ class GobjectIntrospectionConan(ConanFile):
     license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.gnome.org/GNOME/gobject-introspection"
-    topics = ("gobject-instrospection",)
+    topics = ("gobject", "introspection",)
 
-    package_type = "application"
+    package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "build_introspection_data": [True, False],
@@ -47,7 +47,7 @@ class GobjectIntrospectionConan(ConanFile):
             self.options.build_introspection_data = False
 
     def configure(self):
-        if self.options.get_safe("build_introspection_data"):
+        if self.options.build_introspection_data:
             # INFO: g-ir-scanner looks for dynamic glib and gobject libraries when running
             self.options["glib"].shared = True
 
@@ -55,8 +55,11 @@ class GobjectIntrospectionConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        # https://gitlab.gnome.org/GNOME/gobject-introspection/-/blob/1.76.1/meson.build?ref_type=tags#L127-131
-        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        if Version(self.version) >= "1.82.0":
+            # [>=2.82.0 <3]
+            self.requires("glib/2.82.4", transitive_headers=True, transitive_libs=True)
+        else:
+            self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         # ffi.h is exposed by public header gobject-introspection-1.0/girffi.h
         self.requires("libffi/3.4.4", transitive_headers=True)
 
