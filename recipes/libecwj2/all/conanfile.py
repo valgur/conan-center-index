@@ -56,6 +56,9 @@ class PackageConan(ConanFile):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("Only Linux and FreeBSD are currently supported. Contributions are welcome.")
 
+    def build_requirements(self):
+        self.tool_requires("libtool/2.4.7")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
