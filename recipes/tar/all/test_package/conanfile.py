@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout
-from conan.tools.files import chdir, load, save
+from conan.tools.files import chdir, load
 
 
 class TestPackageConan(ConanFile):
@@ -14,10 +14,6 @@ class TestPackageConan(ConanFile):
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
 
-    def generate(self):
-        tar_bin = self.dependencies.build["tar"].conf_info.get("user.tar:path")
-        save(self, os.path.join(self.build_folder, "tar_bin"), tar_bin)
-
     def test(self):
         # Verify that the compression tools are available
         self.run("gzip --version")
@@ -26,7 +22,7 @@ class TestPackageConan(ConanFile):
         self.run("lzma --version")
         self.run("zstd --version")
 
-        tar_bin = load(self, os.path.join(self.build_folder, "tar_bin"))
+        tar_bin = self.dependencies.build["tar"].conf_info.get("user.tar:path")
         with chdir(self, self.source_folder):
             test_tar = os.path.join(self.build_folder, "test.tar.zstd")
             self.run(f"{tar_bin} --zstd -cf {test_tar} conanfile.py")
