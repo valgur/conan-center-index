@@ -144,14 +144,12 @@ class CorradeConan(ConanFile):
             self.cpp_info.components["main"].set_property("cmake_target_name", "Corrade::Main")
             if self.settings.os == "Windows":
                 self.cpp_info.components["main"].libs = ["CorradeMain" + suffix]
-            self.cpp_info.components["main"].requires = ["_corrade"]
 
         if self.options.with_utility:
             self.cpp_info.components["utility"].set_property("cmake_target_name", "Corrade::Utility")
             self.cpp_info.components["utility"].libs = ["CorradeUtility" + suffix]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["utility"].system_libs = ["m", "dl"]
-            self.cpp_info.components["utility"].requires = ["_corrade"]
 
             # This one is statically linked into utility
             # self.cpp_info.components["containers"].set_property("cmake_target_name", "Corrade::Containers")
