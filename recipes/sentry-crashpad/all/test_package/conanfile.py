@@ -20,9 +20,6 @@ class TestPackageConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["HAS_PROXY"] = Version(self.dependencies[self.tested_reference_str].ref.version) > "0.6.2"
         tc.generate()
-        handler_exe = "crashpad_handler.exe" if self.settings.os == "Windows" else "crashpad_handler"
-        handler_bin_path = os.path.join(self.dependencies[self.tested_reference_str].package_folder, "bin", handler_exe)
-        save(self, os.path.join(self.build_folder, "handler_bin_path"), handler_bin_path)
 
     def build(self):
         cmake = CMake(self)
@@ -34,5 +31,6 @@ class TestPackageConan(ConanFile):
             test_env_dir = "test_env"
             mkdir(self, test_env_dir)
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
-            handler_bin_path = load(self, os.path.join(self.build_folder, "handler_bin_path"))
+            handler_exe = "crashpad_handler.exe" if self.settings.os == "Windows" else "crashpad_handler"
+            handler_bin_path = os.path.join(self.dependencies[self.tested_reference_str].cpp_info.bindir, handler_exe)
             self.run(f"{bin_path} {test_env_dir} {handler_bin_path}", env="conanrun")
