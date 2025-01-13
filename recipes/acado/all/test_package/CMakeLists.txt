@@ -12,6 +12,11 @@ find_package(ACADO REQUIRED CONFIG)
 add_executable(codegen codegen.cpp)
 target_link_libraries(codegen PRIVATE ACADO::ACADO)
 
+if(NOT CAN_RUN)
+    # Can't run codegen
+    return()
+endif()
+
 set(CODEGEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated_code)
 
 set(codegen_GENERATED_FILES
