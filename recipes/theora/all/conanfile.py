@@ -1,12 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanException
 from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.4"
 
 class TheoraConan(ConanFile):
     name = "theora"
@@ -19,34 +18,18 @@ class TheoraConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
+    languages = ["C"]
+    implements = ["auto_header_only"]
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder,"src"))
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            try:
-                del self.options.fPIC
-            except ConanException:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except ConanException:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except ConanException:
-            pass
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("ogg/1.3.5")
+        # Used in theora/codec.h, theora/theoraenc.h, theora/theoradec.h
+        self.requires("ogg/1.3.5", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
