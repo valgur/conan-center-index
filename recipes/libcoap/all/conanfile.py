@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 
@@ -55,7 +54,6 @@ class LibCoapConan(ConanFile):
         if self.settings.os == "Windows" or is_apple_os(self):
             raise ConanInvalidConfiguration("Platform is currently not supported")
 
-        check_min_cppstd(self, 11)
         if self.options.dtls_backend in ["gnutls", "tinydtls"]:
             raise ConanInvalidConfiguration(f"{self.options.dtls_backend} not available yet")
 
