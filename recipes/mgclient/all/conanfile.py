@@ -1,13 +1,11 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.scm import Version
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 class MGClientConan(ConanFile):
     name = "mgclient"
@@ -29,19 +27,6 @@ class MGClientConan(ConanFile):
         "with_cpp": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "msvc": "192",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -52,8 +37,9 @@ class MGClientConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+        if not self.options.with_cpp:
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -63,12 +49,7 @@ class MGClientConan(ConanFile):
 
     def validate(self):
         if self.options.with_cpp:
-            check_min_cppstd(self, self._min_cppstd)
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
+            check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
