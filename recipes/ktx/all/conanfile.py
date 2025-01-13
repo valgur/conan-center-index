@@ -72,11 +72,29 @@ class KtxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
         # Avoid copying of 300 MB of test assets and third-party binaries
         rmdir(self, os.path.join(self.source_folder, "tests"))
         rmdir(self, os.path.join(self.source_folder, "other_lib"))
         save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
+
         apply_conandata_patches(self)
+
+        # Unvendor several libs (we rely on patch files to link those libs)
+        # It's worth noting that vendored jpeg-compressor can't be replaced by CCI equivalent
+        basisu_dir = os.path.join(self.source_folder, "lib", "basisu")
+        if Version(self.version) < "4.1.0":
+            ## lodepng (the patch file 0002-lodepng-no-export-symbols is important, in order to not try to export lodepng symbols)
+            os.remove(os.path.join(basisu_dir, "encoder", "lodepng.cpp"))
+            os.remove(os.path.join(basisu_dir, "encoder", "lodepng.h"))
+
+        ## zstd
+        rmdir(self, os.path.join(basisu_dir, "zstd"))
+
+        # disable -Werror
+        if Version(self.version) >= "4.3.2":
+            replace_in_file(self, os.path.join(self.source_folder, "lib", "astc-encoder", "Source", "cmake_core.cmake"),
+                            "-Werror", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -91,23 +109,7 @@ class KtxConan(ConanFile):
         deps.set_property("zstd", "cmake_target_name", "zstd::libzstd")
         deps.generate()
 
-    def _patch_sources(self):
-        # Unvendor several libs (we rely on patch files to link those libs)
-        # It's worth noting that vendored jpeg-compressor can't be replaced by CCI equivalent
-        basisu_dir = os.path.join(self.source_folder, "lib", "basisu")
-        if Version(self.version) < "4.1.0":
-            ## lodepng (the patch file 0002-lodepng-no-export-symbols is important, in order to not try to export lodepng symbols)
-            os.remove(os.path.join(basisu_dir, "encoder", "lodepng.cpp"))
-            os.remove(os.path.join(basisu_dir, "encoder", "lodepng.h"))
-        ## zstd
-        rmdir(self, os.path.join(basisu_dir, "zstd"))
-        # disable -Werror
-        if Version(self.version) >= "4.3.2":
-            replace_in_file(self, os.path.join(self.source_folder, "lib", "astc-encoder", "Source", "cmake_core.cmake"),
-                            "-Werror", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
