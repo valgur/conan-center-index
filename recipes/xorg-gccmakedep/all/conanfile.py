@@ -25,7 +25,8 @@ class XorgGccmakedep(ConanFile):
         self.requires("xorg-macros/1.20.0")
 
     def build_requirements(self):
-        self.tool_requires("pkgconf/[>=2.2 <3]")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def validate(self):
         if self.settings.os == "Windows":
