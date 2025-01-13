@@ -4,7 +4,6 @@ import sqlite3
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
-from conan.tools.files import save, load
 
 
 class TestPackageConan(ConanFile):
@@ -17,10 +16,6 @@ class TestPackageConan(ConanFile):
     def layout(self):
         cmake_layout(self)
 
-    def generate(self):
-        with_sqlcipher = bool(self.dependencies["sqlpp11-connector-sqlite3"].options.with_sqlcipher)
-        save(self, os.path.join(self.build_folder, "with_sqlcipher"), repr(with_sqlcipher))
-
     def build(self):
         cmake = CMake(self)
         cmake.configure()
@@ -28,7 +23,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            with_sqlcipher = load(self, os.path.join(self.build_folder, "with_sqlcipher")) == "True"
+            with_sqlcipher = self.dependencies["sqlpp11-connector-sqlite3"].options.with_sqlcipher
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
             # test that the database is encrypted when sqlcipher is used
