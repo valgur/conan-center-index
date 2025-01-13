@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get
 
@@ -52,7 +51,6 @@ class libb2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, 11)
         if self.options.use_neon and not "arm" in self.settings.arch:
             raise ConanInvalidConfiguration("Neon sources only supported on arm-based CPUs")
         if self.options.use_neon and self.options.use_sse:
