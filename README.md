@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-12:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-13:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -53,6 +53,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gfortran/13.2.0
 - gici/cci.20240421
 - gl2ps/1.4.2
+- glib/2.81.2
+- glib/2.82.4
 - glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
@@ -63,14 +65,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnsstk/14.3.0
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
+- gobject-introspection/1.82.0
 - gpu.cpp/0.1.0
-- gst-libav/1.24.10
+- gst-libav/1.24.11
 - gst-orc/0.4.40
-- gst-plugins-bad/1.24.10
-- gst-plugins-base/1.24.10
-- gst-plugins-good/1.24.10
-- gst-plugins-ugly/1.24.10
-- gstreamer/1.24.10
+- gst-plugins-bad/1.24.11
+- gst-plugins-base/1.24.11
+- gst-plugins-good/1.24.11
+- gst-plugins-ugly/1.24.11
+- gstreamer/1.24.11
 - gtk/3.24.43
 - gtk/4.15.6
 - gtkmm/3.24.9
