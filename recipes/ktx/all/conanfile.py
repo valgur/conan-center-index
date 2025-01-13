@@ -122,17 +122,14 @@ class KtxConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Ktx")
         self.cpp_info.set_property("cmake_target_name", "KTX::ktx")
-        # TODO: back to root level in conan v2
-        self.cpp_info.components["libktx"].libs = ["ktx"]
-        self.cpp_info.components["libktx"].defines = [
-            "KTX_FEATURE_KTX1", "KTX_FEATURE_KTX2", "KTX_FEATURE_WRITE"
-        ]
+        self.cpp_info.libs = ["ktx"]
+        self.cpp_info.defines = ["KTX_FEATURE_KTX1", "KTX_FEATURE_KTX2", "KTX_FEATURE_WRITE"]
         if not self.options.shared:
-            self.cpp_info.components["libktx"].defines.append("KHRONOS_STATIC")
+            self.cpp_info.defines.append("KHRONOS_STATIC")
             libcxx = stdcpp_library(self)
             if libcxx:
-                self.cpp_info.components["libktx"].system_libs.append(libcxx)
+                self.cpp_info.system_libs.append(libcxx)
         if self.settings.os == "Windows":
-            self.cpp_info.components["libktx"].defines.append("BASISU_NO_ITERATOR_DEBUG_LEVEL")
+            self.cpp_info.defines.append("BASISU_NO_ITERATOR_DEBUG_LEVEL")
         elif self.settings.os == "Linux":
-            self.cpp_info.components["libktx"].system_libs.extend(["m", "dl", "pthread"])
+            self.cpp_info.system_libs.extend(["m", "dl", "pthread"])
