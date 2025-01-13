@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -55,12 +56,12 @@ class LibtiffConan(ConanFile):
             del self.options.fPIC
         if Version(self.version) <= "4.5.0":
             # test_package.cpp segfaults with older libtiff versions
-            del self.options.cxx
+            self.options.cxx = False
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if not self.options.get_safe("cxx"):
+        if not self.options.cxx:
             self.settings.rm_safe("compiler.cppstd")
             self.settings.rm_safe("compiler.libcxx")
 
@@ -100,7 +101,6 @@ class LibtiffConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -119,14 +119,11 @@ class LibtiffConan(ConanFile):
             tc.variables["tiff-tests"] = False
             tc.variables["tiff-contrib"] = False
             tc.variables["tiff-docs"] = False
-        tc.variables["cxx"] = self.options.get_safe("cxx", False)
-        tc.variables["jbg_newlen"] = True  # Skip a buggy check_symbol_exists()
-        tc.variables["CMath_HAVE_LIBC_POW"] = self.settings.os in ["Linux", "FreeBSD"]  # Skip a buggy check when cross-compiling
+        tc.variables["cxx"] = self.options.cxx
         # BUILD_SHARED_LIBS must be set in command line because defined upstream before project()
         tc.cache_variables["BUILD_SHARED_LIBS"] = bool(self.options.shared)
         tc.cache_variables["CMAKE_FIND_PACKAGE_PREFER_CONFIG"] = True
         tc.generate()
-
         deps = CMakeDeps(self)
         if Version(self.version) >= "4.5.1":
             deps.set_property("jbig", "cmake_file_name", "JBIG")
@@ -140,8 +137,10 @@ class LibtiffConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        # remove FindXXXX for conan dependencies
-        for module in self.source_path.joinpath("cmake").glob("Find*.cmake"):
+        apply_conandata_patches(self)
+
+        # remove all FindXXXX for conan dependencies
+        for module in Path(self.source_folder, "cmake").glob("Find*.cmake"):
             if module.name != "FindCMath.cmake":
                 module.unlink()
 
@@ -203,7 +202,7 @@ class LibtiffConan(ConanFile):
         if self.options.lerc:
             self.cpp_info.components["tiff"].requires.append("lerc::lerc")
 
-        if self.options.get_safe("cxx"):
+        if self.options.cxx:
             self.cpp_info.components["tiffxx"].libs.append(f"tiffxx{suffix}")
             # https://cmake.org/cmake/help/latest/module/FindTIFF.html#imported-targets
             # https://github.com/libsdl-org/libtiff/blob/v4.6.0/libtiff/CMakeLists.txt#L229
