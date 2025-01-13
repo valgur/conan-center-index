@@ -68,15 +68,15 @@ class LibSolvConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.enable_lzma_compression:
-            self.requires("xz_utils/5.4.5")
+            self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.enable_bzip2_compression:
             self.requires("bzip2/1.0.8")
         if self.options.enable_zstd_compression:
-            self.requires("zstd/1.5.6")
+            self.requires("zstd/[~1.5]")
         if self.options.with_libxml2:
-            self.requires("libxml2/2.12.7")
+            self.requires("libxml2/[>=2.12.5 <3]")
         else:
-            self.requires("expat/2.6.2")
+            self.requires("expat/[>=2.6.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
