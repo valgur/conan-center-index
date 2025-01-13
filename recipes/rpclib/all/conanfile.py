@@ -75,7 +75,7 @@ class rpclibConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             mkdir(self, os.path.join(self.self.package_folder, "bin"))
             for dll in Path(self.self.package_folder, "lib").glob("*.dll"):
-                rename(self, dll, os.path.join(self.package_path, "bin", dll.name))
+                rename(self, dll, os.path.join(self.package_folder, "bin", dll.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rpclib")

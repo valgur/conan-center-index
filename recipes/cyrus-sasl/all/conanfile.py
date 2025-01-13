@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
@@ -7,7 +10,6 @@ from conan.tools.files import copy, get, rm, rmdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path, is_msvc, MSBuildDeps, MSBuildToolchain, MSBuild
-import os
 
 required_conan_version = ">=1.54.0"
 
@@ -188,7 +190,7 @@ class CyrusSaslConan(ConanFile):
             props_path = os.path.join(self.generators_folder, props_file)
             if os.path.exists(props_path):
                 import_conan_generators += f"<Import Project=\"{props_path}\" />"
-        for vcxproj_file in self.source_path.joinpath("win32").glob("*.vcxproj"):
+        for vcxproj_file in Path(self.source_folder, "win32").glob("*.vcxproj"):
             replace_in_file(self, vcxproj_file,
                             "<PlatformToolset>v140</PlatformToolset>",
                             f"<PlatformToolset>{platform_toolset}</PlatformToolset>")

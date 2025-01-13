@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
@@ -78,7 +79,7 @@ class HscppConan(ConanFile):
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def package(self):

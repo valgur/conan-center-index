@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -130,7 +131,7 @@ class GFortranConan(ConanFile):
         rm(self, "*.a", os.path.join(self.package_folder, "lib"))
 
         # Drop ar, nm, ranlib, cpp, etc. to not clash with the existing C/C++ toolchain
-        for f in self.package_path.joinpath("bin").iterdir():
+        for f in Path(self.package_folder, "bin").iterdir():
             if f.name != self._gfortran_full_executable:
                 f.unlink()
         with chdir(self, os.path.join(self.package_folder, "bin")):

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -115,7 +116,7 @@ class Openni2Conan(ConanFile):
         rmdir(self, os.path.join(self.source_folder, "ThirdParty", "LibJPEG"))
         replace_in_file(self, os.path.join(self.source_folder, "Source", "Drivers", "PS1080", "Sensor", "Bayer.cpp"), "register ", "")
         if is_apple_os(self):
-            for makefile in self.source_path.joinpath("Source", "Drivers").rglob("Makefile"):
+            for makefile in Path(self.source_folder, "Source", "Drivers").rglob("Makefile"):
                 replace_in_file(self, makefile, "usb-1.0.0", "usb-1.0", strict=False)
 
     def build(self):

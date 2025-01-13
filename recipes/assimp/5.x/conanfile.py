@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library, check_min_cppstd
@@ -6,7 +9,6 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.54.0"
 
@@ -285,13 +287,13 @@ class AssimpConan(ConanFile):
 
         # Make sure vendored libs are not used by accident by removing their subdirs
         allow_vendored = ["Open3DGC"]
-        for contrib_dir in self.source_path.joinpath("contrib").iterdir():
+        for contrib_dir in Path(self.source_folder, "contrib").iterdir():
             if contrib_dir.is_dir() and contrib_dir.name not in allow_vendored:
                 rmdir(self, contrib_dir)
 
         # Do not include add vendored library sources to the build
         # https://github.com/assimp/assimp/blob/v5.3.1/code/CMakeLists.txt#L1151-L1159
-        code_cmakelists = self.source_path.joinpath("code", "CMakeLists.txt")
+        code_cmakelists = Path(self.source_folder, "code", "CMakeLists.txt")
         content = code_cmakelists.read_text(encoding="utf-8")
         for vendored_lib in [
             "unzip_compile",
@@ -317,7 +319,7 @@ class AssimpConan(ConanFile):
             save(self, os.path.join(self.source_folder, "contrib", contrib_header),
                  f"#include <{include}>\n")
         if Version(self.version) >= "5.4.0":
-            rmdir(self, self.source_path.joinpath("contrib", "utf8cpp"))
+            rmdir(self, Path(self.source_folder, "contrib", "utf8cpp"))
 
         # minizip is provided via conan_deps.cmake, no need to use pkgconfig
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),

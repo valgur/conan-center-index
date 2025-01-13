@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -89,7 +90,7 @@ class GoogleGuetzliConan(ConanFile):
                 autotools.make()
 
     def package(self):
-        for path in (self.source_path / "bin").rglob("guetzli*"):
+        for path in Path(self.source_folder, "bin").rglob("guetzli*"):
             copy(self, path.name,
                  dst=os.path.join(self.package_folder, "bin"),
                  src=path.parent)

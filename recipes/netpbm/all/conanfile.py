@@ -1,5 +1,6 @@
 import os
 import shutil
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -187,7 +188,7 @@ class NetpbmConan(ConanFile):
     def package(self):
         for file in ["copyright_summary", "patent_summary", "GPL_LICENSE.txt", "lgpl_v21.txt", "COPYRIGHT.PATENT"]:
             copy(self, file, os.path.join(self.source_folder, "doc"), os.path.join(self.package_folder, "licenses"))
-        temp_dir = self.package_path.joinpath("tmp")
+        temp_dir = Path(self.package_folder, "tmp")
         lib_dir = temp_dir.joinpath("lib")
         with chdir(self, self.source_folder):
             autotools = Autotools(self)

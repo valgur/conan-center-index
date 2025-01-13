@@ -268,7 +268,7 @@ class OpenSceneGraphConanFile(ConanFile):
         for package in ["Fontconfig", "Freetype", "GDAL", "GIFLIB", "GTA", "Jasper", "OpenEXR"]:
             # Prefer conan's find package scripts over osg's
             os.unlink(os.path.join(self.source_folder, "CMakeModules", f"Find{package}.cmake"))
-        plugins_root = Path(self.source_path.joinpath("src", "osgPlugins"))
+        plugins_root = Path(self.source_folder, "src", "osgPlugins")
         for path in plugins_root.rglob("CMakeLists.txt"):
             if path.parent == plugins_root:
                 # Don't replace in the root dir
@@ -280,7 +280,7 @@ class OpenSceneGraphConanFile(ConanFile):
             # e.g. replace IF(FFMPEG_FOUND) with IF(OSG_WITH_FFMPEG)
             content = re.sub(r"\b([A-Z]+)_FOUND\b", r"OSG_WITH_\1", content)
             path.write_text(content)
-        for path in self.source_path.joinpath(self.source_folder, "CMakeModules").rglob("*.cmake"):
+        for path in Path(self.source_folder, "CMakeModules").rglob("*.cmake"):
             content = path.read_text(encoding='utf-8', errors='ignore')
             lib_match = re.search(r'FIND_LIBRARY\(([^ ]+)_LIBRARY', content)
             if lib_match:
@@ -308,7 +308,7 @@ class OpenSceneGraphConanFile(ConanFile):
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def package(self):

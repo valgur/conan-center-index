@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -59,7 +60,7 @@ class CgltfConan(ConanFile):
     def build(self):
         self._create_source_files()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def _remove_implementation(self, header_fullpath):
@@ -81,8 +82,8 @@ class CgltfConan(ConanFile):
         for header_file in ["cgltf.h", "cgltf_write.h"]:
             header_fullpath = os.path.join(self.package_folder, "include", header_file)
             self._remove_implementation(header_fullpath)
-        for dll in (self.package_path / "lib").glob("*.dll"):
-            rename(self, dll, self.package_path / "bin" / dll.name)
+        for dll in Path(self.package_folder, "lib").glob("*.dll"):
+            rename(self, dll, Path(self.package_folder, "bin", dll.name))
 
     def package_info(self):
         self.cpp_info.libs = ["cgltf"]

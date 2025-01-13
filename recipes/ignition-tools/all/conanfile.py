@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -68,7 +69,7 @@ class IgnitionToolsConan(ConanFile):
         tc.generate()
 
     def _patch_sources(self):
-        for cmakelists in self.source_path.rglob("CMakeLists.txt"):
+        for cmakelists in Path(self.source_folder).rglob("CMakeLists.txt"):
             replace_in_file(self, cmakelists, "${CMAKE_SOURCE_DIR}", "${PROJECT_SOURCE_DIR}", strict=False)
             replace_in_file(self, cmakelists, "${CMAKE_BINARY_DIR}", "${PROJECT_BINARY_DIR}", strict=False)
         # Generating ign.rb fails on Windows, do it outside of CMake in package() instead

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.files import copy, get, save
@@ -30,7 +31,7 @@ class WafConan(ConanFile):
 
     @property
     def _license_text(self):
-        license_text = self.source_path.joinpath("waf").read_bytes().split(b'"""', 3)[1]
+        license_text = Path(self.source_folder, "waf").read_bytes().split(b'"""', 3)[1]
         return license_text.decode().lstrip()
 
     def build(self):

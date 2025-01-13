@@ -1,5 +1,6 @@
 import os
 import textwrap
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -62,7 +63,7 @@ class NumpyConan(ConanFile):
 
     @property
     def _meson_root(self):
-        return self.source_path.joinpath("vendored-meson", "meson")
+        return Path(self.source_folder, "vendored-meson", "meson")
 
     @property
     def _build_site_packages(self):

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
@@ -296,7 +297,7 @@ class PackageConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        cmakelists = self.source_path.joinpath("CMakeLists.txt")
+        cmakelists = Path(self.source_folder, "CMakeLists.txt")
         content = cmakelists.read_text(encoding="utf-8")
         # Ensure the WITH_* dependencies are REQUIRED
         content = content.replace("find_package(${PKG})", "find_package(${PKG} REQUIRED)")

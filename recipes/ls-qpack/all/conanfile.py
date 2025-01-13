@@ -1,7 +1,9 @@
-from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
+from pathlib import Path
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 
 required_conan_version = ">=1.53.0"
 
@@ -62,7 +64,7 @@ class LsQpackConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def package(self):

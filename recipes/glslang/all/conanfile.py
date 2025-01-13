@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -110,13 +111,13 @@ class GlslangConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        for cmake_file in sorted(self.source_path.rglob("CMakeLists.txt")):
+        for cmake_file in sorted(Path(self.source_folder).rglob("CMakeLists.txt")):
             content = cmake_file.read_text(encoding="utf8")
             if "POSITION_INDEPENDENT_CODE ON" in content:
                 content = re.sub(r"set_property\(TARGET \S+ PROPERTY POSITION_INDEPENDENT_CODE ON\)\n", "", content)
                 content = content.replace("POSITION_INDEPENDENT_CODE ON", "")
                 cmake_file.write_text(content, encoding="utf8")
-                self.output.info(f"Patched fPIC handling in {cmake_file.relative_to(self.source_path)}")
+                self.output.info(f"Patched fPIC handling in {cmake_file.relative_to(self.source_folder)}")
             if "POSITION_INDEPENDENT_CODE" in content:
                 raise ConanException(f"POSITION_INDEPENDENT_CODE found in {cmake_file}, please update the recipe")
 

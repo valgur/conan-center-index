@@ -1,11 +1,12 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, export_conandata_patches, apply_conandata_patches
 from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import copy, get, replace_in_file, export_conandata_patches, apply_conandata_patches
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
@@ -100,7 +101,7 @@ class LightGBMConan(ConanFile):
     def build(self):
         self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def package(self):

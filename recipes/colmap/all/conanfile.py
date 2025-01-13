@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, can_run
@@ -127,10 +128,10 @@ class ColmapConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "set(CMAKE_CUDA_STANDARD 14)", "")
 
-        for module in self.source_path.joinpath("cmake").glob("Find*.cmake"):
+        for module in Path(self.source_folder, "cmake").glob("Find*.cmake"):
             if module.name != "FindDependencies.cmake":
                 module.unlink()
-        find_dependencies = self.source_path.joinpath("cmake", "FindDependencies.cmake")
+        find_dependencies = Path(self.source_folder, "cmake", "FindDependencies.cmake")
         replace_in_file(self, find_dependencies, " QUIET", " REQUIRED")
 
         if not self.options.gui and not self.options.cuda:

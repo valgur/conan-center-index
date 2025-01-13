@@ -1,6 +1,7 @@
 import os
 import re
 import tarfile
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -101,7 +102,7 @@ class LibsystemdConan(ConanFile):
         move_folder_contents(self, os.path.join(self.source_folder, f"systemd-stable-{self.version}"), self.source_folder)
         apply_conandata_patches(self)
         meson_build = os.path.join(self.source_folder, "meson.build")
-        replace_in_file(self, meson_build, "@CONAN_SRC_REL_PATH@", f"'../{self.source_path.name}'")
+        replace_in_file(self, meson_build, "@CONAN_SRC_REL_PATH@", f"'../{Path(self.source_folder).name}'")
 
     @property
     def _so_version(self):

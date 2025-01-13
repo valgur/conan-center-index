@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -74,7 +75,7 @@ class Cc65Conan(ConanFile):
 
     def _patch_sources(self):
         if is_msvc(self):
-            for vcxproj in self.source_path.joinpath("src").rglob("*.vcxproj"):
+            for vcxproj in Path(self.source_folder, "src").rglob("*.vcxproj"):
                 replace_in_file(self, vcxproj, "v141", msvs_toolset(self))
                 replace_in_file(self, vcxproj, "<WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>", "")
         if self.settings.os == "Windows":
@@ -126,7 +127,7 @@ class Cc65Conan(ConanFile):
             with chdir(self, os.path.join(self.source_folder)):
                 autotools = Autotools(self)
                 autotools.install()
-            rmdir(self, os.path.join(self.package_path, "samples"))
+            rmdir(self, os.path.join(self.package_folder, "samples"))
             rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):

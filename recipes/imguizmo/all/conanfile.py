@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -61,7 +62,7 @@ class ImGuizmoConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "GraphEditor.cpp"),
                             "AddBezierCurve", "AddBezierCubic")
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self.source_path.parent)
+        cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def package(self):

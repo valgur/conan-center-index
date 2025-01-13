@@ -161,7 +161,7 @@ class SwigConan(ConanFile):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
-        for path in self.package_path.iterdir():
+        for path in Path(self.package_folder).iterdir():
             if path.is_dir() and path.name not in ["bin", "lib", "licenses"]:
                 rmdir(self, path)
 

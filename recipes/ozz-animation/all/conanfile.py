@@ -133,7 +133,7 @@ class OzzAnimationConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        pkg = self.package_path
+        pkg = Path(self.package_folder)
 
         if self.options.ozz_animation_tools:
             json = Path(self.build_folder)/'src'/'animation'/'offline'/'tools'/'json'

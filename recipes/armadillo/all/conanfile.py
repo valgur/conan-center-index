@@ -1,11 +1,13 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import copy, get, rmdir, apply_conandata_patches, export_conandata_patches, save
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
 import os
 import textwrap
+from pathlib import Path
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import copy, get, rmdir, apply_conandata_patches, export_conandata_patches, save
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.55.0"
 
@@ -227,7 +229,7 @@ class ArmadilloConan(ConanFile):
 
     def _patch_sources(self):
         def _override_pkg_module(pkg, content):
-            save(self, self.source_path.joinpath("cmake_aux", "Modules", f"ARMA_Find{pkg}.cmake"), content)
+            save(self, Path(self.source_folder, "cmake_aux", "Modules", f"ARMA_Find{pkg}.cmake"), content)
 
         def _disable_pkg_module(pkg, var=None):
             _override_pkg_module(pkg, f"set({var or pkg}_FOUND NO)")

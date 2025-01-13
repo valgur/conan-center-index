@@ -153,7 +153,7 @@ class OsrmConan(ConanFile):
                         '"$<TARGET_LINKER_FILE:${engine_lib}>"', '"${engine_lib}"')
 
         # Disable vendored deps
-        for subdir in self.source_path.joinpath("third_party").iterdir():
+        for subdir in Path(self.source_folder, "third_party").iterdir():
             if subdir.name not in ["vtzero", "microtar"] and not subdir.name.startswith("cheap-ruler"):
                 rmdir(self, subdir)
                 save(self, subdir.joinpath("CMakeLists.txt"), "")
