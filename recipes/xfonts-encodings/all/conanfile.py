@@ -28,8 +28,6 @@ class XFontsEncodingsConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
-        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("mkfontscale/[*]")
         # Also requires gzip, assumed to be available on the system
 
