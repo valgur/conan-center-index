@@ -1,17 +1,15 @@
-from conan import ConanFile
-from conan.tools.files import copy, get, rename
-from conan.tools.build import check_min_cppstd
-from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, check_min_vs, is_msvc_static_runtime
-from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import MSBuild, VCVars
-from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.env import VirtualBuildEnv
-from pathlib import Path
 import os
+from pathlib import Path
 
-required_conan_version = ">=1.50.0"
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import copy, get, rename
+from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, VCVars
+
+required_conan_version = ">=2.0"
 
 
 class bimgConan(ConanFile):
@@ -68,14 +66,6 @@ class bimgConan(ConanFile):
         return projs
 
     @property
-    def _compiler_required(self):
-        return {
-            "gcc": "8",
-            "clang": "3.3",
-            "apple-clang": "5",
-        }
-
-    @property
     def _bx_version(self): #mapping of bimg version to required/used bx version
         return {"cci.20230114": "cci.20221116"}
 
@@ -87,14 +77,6 @@ class bimgConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 14)
-        check_min_vs(self, 191)
-        if not is_msvc(self):
-            try:
-                minimum_required_compiler_version = self._compiler_required[str(self.settings.compiler)]
-                if Version(self.settings.compiler.version) < minimum_required_compiler_version:
-                    raise ConanInvalidConfiguration("This package requires C++14 support. The current compiler does not support it.")
-            except KeyError:
-                self.output.warn("This recipe has no checking for the current compiler. Please consider adding it.")
 
     def build_requirements(self):
         self.tool_requires("genie/1170")
