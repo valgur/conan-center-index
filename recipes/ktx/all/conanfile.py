@@ -32,24 +32,6 @@ class KtxConan(ConanFile):
     }
 
     @property
-    def _min_cppstd(self):
-        if Version(self.version) < "4.3.2":
-            return 11
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        if self._min_cppstd == 17:
-            return {
-                "gcc": "8",
-                "clang": "7",
-                "apple-clang": "10",
-                "msvc": "191",
-            }
-        return {}
-
-
-    @property
     def _has_sse_support(self):
         return self.settings.arch in ["x86", "x86_64"]
 
@@ -80,12 +62,10 @@ class KtxConan(ConanFile):
         self.requires("zstd/1.5.5")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        if Version(self.version) >= "4.3.2":
+            check_min_cppstd(self, 17)
+        else:
+            check_min_cppstd(self, 11)
         if Version(self.version) >= "4.2" and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < 6:
             # astcenc_vecmathlib_sse_4.h:809:41: error: the last argument must be a 4-bit immediate
             raise ConanInvalidConfiguration("GCC v6+ is required")
