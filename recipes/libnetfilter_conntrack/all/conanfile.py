@@ -47,6 +47,10 @@ class Libnetfilter_conntrackConan(ConanFile):
         self.requires("libmnl/1.0.4", transitive_headers=True, transitive_libs=True)
         self.requires("libnfnetlink/1.0.2", transitive_headers=True)
 
+    def build_requirements(self):
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 

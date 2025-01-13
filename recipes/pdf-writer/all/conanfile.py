@@ -63,6 +63,10 @@ class PDFWriterConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
 
+    def build_requirements(self):
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)

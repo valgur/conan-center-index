@@ -466,6 +466,8 @@ class QtConan(ConanFile):
             del self.info.options.android_sdk
 
     def build_requirements(self):
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings_build.os == "Windows" and is_msvc(self):
             self.tool_requires("jom/[>=1.1 <2]")
         if self.options.qtwebengine:
