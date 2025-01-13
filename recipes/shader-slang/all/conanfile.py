@@ -73,7 +73,7 @@ class ShaderSlangConan(ConanFile):
         self.requires("glslang/1.3.290.0")
         self.requires("spirv-headers/1.3.290.0")
         self.requires("spirv-tools/1.3.290.0")
-        self.requires("lz4/1.10.0")
+        self.requires("lz4/1.9.4")
         self.requires("miniz/3.0.2")
         self.requires("unordered_dense/4.4.0")
         if self.options.enable_gfx:
