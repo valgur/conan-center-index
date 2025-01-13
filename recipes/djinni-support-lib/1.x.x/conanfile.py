@@ -8,7 +8,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -76,15 +75,6 @@ class DjinniSupportLib(ConanFile):
         else:
             return self.options.with_cppcli
 
-    @property
-    def _supported_compilers(self):
-        return {
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
     def configure(self):
         if is_msvc(self) or self.options.shared:
             self.options.rm_safe("fPIC")
@@ -118,17 +108,7 @@ class DjinniSupportLib(ConanFile):
                     "Python on Windows is not fully yet supported, please see"
                     " https://github.com/cross-language-cpp/djinni-support-lib/issues."
                 )
-        check_min_cppstd(self, "17")
-        try:
-            minimum_required_compiler_version = self._supported_compilers[str(self.settings.compiler)]
-            if Version(self.settings.compiler.version) < minimum_required_compiler_version:
-                raise ConanInvalidConfiguration(
-                    "This package requires c++17 support. The current compiler does not support it."
-                )
-        except KeyError:
-            self.output.warning(
-                "This recipe has no support for the current compiler. Please consider adding it."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         if not self.options.system_java and self._jni_support:
