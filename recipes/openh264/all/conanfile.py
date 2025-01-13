@@ -47,8 +47,6 @@ class OpenH264Conan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
-        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings.arch in ["x86", "x86_64"]:
             self.tool_requires("nasm/2.16.01")
 
