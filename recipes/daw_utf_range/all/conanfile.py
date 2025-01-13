@@ -1,13 +1,11 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import get, copy, rmdir
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-
 import os
 
-required_conan_version = ">=1.47.0"
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import get, copy, rmdir
+
+required_conan_version = ">=2.0"
 
 class DawUtfRangeConan(ConanFile):
     name = "daw_utf_range"
@@ -20,19 +18,6 @@ class DawUtfRangeConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-        }
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -44,12 +29,7 @@ class DawUtfRangeConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-        if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -58,7 +38,6 @@ class DawUtfRangeConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["DAW_USE_PACKAGE_MANAGEMENT"] = True
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -75,8 +54,5 @@ class DawUtfRangeConan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-
         self.cpp_info.set_property("cmake_file_name", "daw-utf-range")
         self.cpp_info.set_property("cmake_target_name", "daw::daw-utf-range")
-        self.cpp_info.components["daw"].set_property("cmake_target_name", "daw::daw-utf-range")
-        self.cpp_info.components["daw"].requires = ["daw_header_libraries::daw"]
