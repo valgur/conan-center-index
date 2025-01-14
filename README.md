@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-13:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-14:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -42,6 +42,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dpdk/24.07
 - f2c/20240312
 - faiss/1.8.0
+- fastgltf/0.4.0
+- fastgltf/0.5.0
+- fastgltf/0.6.1
+- fastgltf/0.7.0
 - fbgemm/0.8.0
 - fenster/0.0.0.cci.20240909
 - filament/1.5.3
@@ -82,6 +86,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_points/1.0.6
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
+- hictk/0.0.1
+- hictk/0.0.10
+- hictk/0.0.2
+- hictk/0.0.3
+- hictk/0.0.8
+- hictk/0.0.9
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
@@ -154,6 +164,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/14.3.0
 - open62541pp/0.12.0
 - openblas/0.3.28
+- openexr/2.4.0
+- openexr/3.1.7
+- openexr/3.1.9
+- openexr/3.2.1
+- openexr/3.2.2
+- openexr/3.2.3
+- openexr/3.3.0
+- openexr/3.3.1
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
@@ -171,7 +189,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
-- qhull/8.1-alpha4
+- qhull/8.1.alpha4
 - qscintilla/2.14.1
 - qt-advanced-docking-system/3.8.4
 - qt-advanced-docking-system/4.2.0
@@ -217,6 +235,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.7.0
 - tpl/cci.20210302
 - usearch/2.9.1
+- uwebsockets/20.63.0
+- uwebsockets/20.64.0
+- uwebsockets/20.65.0
+- uwebsockets/20.66.0
+- uwebsockets/20.67.0
 - vilib/cci.20210625
 - vlfeat/0.9.21
 - volk/1.3.290.0
