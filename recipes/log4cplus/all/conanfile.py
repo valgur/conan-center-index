@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, collect_libs
-from conan.tools.build import check_min_cppstd, valid_max_cppstd
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
@@ -64,8 +64,7 @@ class Log4cplusConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
-        if not valid_max_cppstd(self, 14):
-            raise ConanInvalidConfiguration(f"${self.ref} does not support C++17")
+        check_max_cppstd(self, 14)
         if Version(self.version) >= "2.1.2" and \
            is_msvc(self) and Version(self.settings.compiler.version) < 192:
             raise ConanInvalidConfiguration(f"${self.ref} requires Visual Studio 2019 or newer")
