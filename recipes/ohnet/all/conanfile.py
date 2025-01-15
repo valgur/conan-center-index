@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.tools.files import get, chdir, copy, mkdir, export_conandata_patches, apply_conandata_patches
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag, NMakeToolchain
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, NMakeToolchain
 from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
 import os
@@ -48,8 +48,12 @@ class OhNetConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if is_msvc(self) and (self.options.shared or msvc_runtime_flag(self).startswith('MD')):
+        if is_msvc(self) and (self.options.shared or not is_msvc_static_runtime(self)):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support shared builds with Visual Studio yet")
+
+    def build_requirements(self):
+        # required for thirdparty/python_patch/patch.py
+        self.build_requires("cpython/[~3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -74,7 +78,12 @@ class OhNetConan(ConanFile):
         installlibdir = os.path.join(self.package_folder, "lib")
         installincludedir = os.path.join(self.package_folder, "include")
 
-        args.extend([f"prefix={self.package_folder}",f"installdir={self.package_folder}",  f"installlibdir={installlibdir}", f"installincludedir={installincludedir}"])
+        args.extend([
+            f"prefix={self.package_folder}",
+            f"installdir={self.package_folder}",
+            f"installlibdir={installlibdir}",
+            f"installincludedir={installincludedir}"
+        ])
 
         if not is_msvc(self):
             args = self._fill_openhome_architecture(args)
