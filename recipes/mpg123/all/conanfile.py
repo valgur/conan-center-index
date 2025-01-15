@@ -4,7 +4,7 @@ from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
-from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches, rmdir, rm
+from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches, replace_in_file, rmdir, rm
 from conan.tools.microsoft import is_msvc
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.build import cross_building
@@ -93,7 +93,7 @@ class Mpg123Conan(ConanFile):
     def build_requirements(self):
         if self.settings.arch in ["x86", "x86_64"]:
             self.tool_requires("yasm/1.3.0")
-        if self.settings_build.os == "Windows":
+        if self.settings_build.os == "Windows" and not is_msvc(self):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -101,7 +101,6 @@ class Mpg123Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -162,6 +161,12 @@ class Mpg123Conan(ConanFile):
             cmake.configure(build_script_folder=os.path.join(self.source_folder, "ports", "cmake"))
             cmake.build()
         else:
+            if self.settings.compiler == "apple-clang" and cross_building(self):
+                # when testing if the assembler supports avx - propagate cflags (CFLAGS) to the assembler
+                # (which should contain "-arch x86_64" when crossbuilding with appleclang)
+                replace_in_file(self, os.path.join(self.source_folder, "configure"),
+                                    "$CCAS -c -o conftest.o",
+                                    "$CCAS $CFLAGS -c -o conftest.o")
             autotools = Autotools(self)
             autotools.configure()
             autotools.make()
