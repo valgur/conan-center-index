@@ -162,7 +162,7 @@ class bgfxConan(ConanFile):
             os_to_use_arch_config_suffix = {"Windows": False, "Linux": False, "FreeBSD": False, "Macos": True, "Android": True, "iOS": True}
 
             build_type_to_make_config = {"Debug": "config=debug", "Release": "config=release"}
-            arch_to_make_config_suffix = {"x86": "32", "x86_64": "64"}
+            arch_to_make_config_suffix = {"x86": "32", "x86_64": "64", "armv8": "64", "armv7": "32", "armv7hf": "32"}
             os_to_use_make_config_suffix = {"Windows": True, "Linux": True, "FreeBSD": True, "Macos": False, "Android": False, "iOS": False}
 
             # Generate projects through genie
