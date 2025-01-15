@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars
@@ -46,23 +46,22 @@ class MakeConan(ConanFile):
             tc.generate()
 
     def build(self):
-        with chdir(self, self.source_folder):
+        if self.settings_build.os == "Windows":
             # README.W32
-            if self.settings_build.os == "Windows":
-                if is_msvc(self):
-                    command = "build_w32.bat --without-guile"
-                else:
-                    command = "build_w32.bat --without-guile gcc"
+            if is_msvc(self):
+                self.run("build_w32.bat --without-guile", cwd=self.source_folder)
             else:
-                autotools = Autotools(self)
-                autotools.configure()
-                command = "./build.sh"
-            self.run(command)
+                self.run("build_w32.bat --without-guile gcc", cwd=self.source_folder)
+        else:
+            autotools = Autotools(self)
+            autotools.configure()
+            self.run("./build.sh")
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         for make_exe in ("make", "*gnumake.exe"):
-            copy(self, make_exe, src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            src = self.source_folder if self.settings_build.os == "Windows" else self.build_folder
+            copy(self, make_exe, src, os.path.join(self.package_folder, "bin"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.includedirs = []
