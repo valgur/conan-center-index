@@ -106,11 +106,11 @@ class bxConan(ConanFile):
                                         "FreeBSD": "--gcc=freebsd", "Macos": "--gcc=osx",
                                         "Android": "--gcc=android", "iOS": "--gcc=ios"}
             gmake_os_to_proj = {"Windows": "mingw", "Linux": "linux", "FreeBSD": "freebsd", "Macos": "osx", "Android": "android", "iOS": "ios"}
-            gmake_arch_to_genie_suffix = {"x86": "-x86", "x86_64": "-x64", "armv8": "-arm64", "armv7": "-arm"}
+            gmake_arch_to_genie_suffix = {"x86": "-x86", "x86_64": "-x64", "armv8": "-arm64", "armv7": "-arm", "armv7hf": "-arm"}
             os_to_use_arch_config_suffix = {"Windows": False, "Linux": False, "FreeBSD": False, "Macos": True, "Android": True, "iOS": True}
 
             build_type_to_make_config = {"Debug": "config=debug", "Release": "config=release"}
-            arch_to_make_config_suffix = {"x86": "32", "x86_64": "64"}
+            arch_to_make_config_suffix = {"x86": "32", "x86_64": "64", "armv8": "64", "armv7": "32", "armv7hf": "32"}
             os_to_use_make_config_suffix = {"Windows": True, "Linux": True, "FreeBSD": True, "Macos": False, "Android": False, "iOS": False}
 
             # Generate projects through genie
@@ -131,7 +131,7 @@ class bxConan(ConanFile):
             # Build make args from settings
             conf = build_type_to_make_config[str(self.settings.build_type)]
             if os_to_use_make_config_suffix[str(self.settings.os)]:
-                conf += arch_to_make_config_suffix[str(self.settings.arch)]
+                conf += arch_to_make_config_suffix.get(str(self.settings.arch), str(self.settings.arch))
             if self.settings.os == "Windows":
                 mingw = "MINGW=$MINGW_PREFIX"
                 proj_path = proj_path.replace("\\", "/") # Fix path for msys...
