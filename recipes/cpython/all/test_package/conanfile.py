@@ -23,6 +23,8 @@ class TestPackageConan(ConanFile):
         # with your global pip, then it will fail to run in this test package.
         # To avoid that, just add a requirement on CMake.
         self.tool_requires("cmake/[>=3.16 <4]")
+        if not can_run(self):
+            self.tool_requires("cpython/<host_version>")
 
     def layout(self):
         cmake_layout(self)
@@ -42,7 +44,7 @@ class TestPackageConan(ConanFile):
     def _test_setuptools(self):
         # TODO Should we still try to test this?
         # https://github.com/python/cpython/pull/101039
-        return can_run(self) and self._supports_modules and self._py_version < "3.12"
+        return self._supports_modules and self._py_version < "3.12"
 
     @property
     def _supports_modules(self):
@@ -51,7 +53,8 @@ class TestPackageConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["BUILD_MODULE"] = self._supports_modules
-        tc.cache_variables["CAN_RUN"] = can_run(self)
+        if not can_run(self):
+            tc.variables["Python_EXECUTABLE"] = os.path.join(self.dependencies.build["cpython"].package_folder, "bin", "python").replace("\\", "/")
         tc.generate()
 
         deps = CMakeDeps(self)

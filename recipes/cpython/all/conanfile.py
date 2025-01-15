@@ -684,7 +684,11 @@ class CPythonConan(ConanFile):
         else()
             set(_CONAN_PYTHON_SUFFIX "")
         endif()
-        set(Python${_CONAN_PYTHON_SUFFIX}_EXECUTABLE @PYTHON_EXECUTABLE@)
+        get_filename_component(_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/../../" ABSOLUTE)
+        # Allow Python_EXECUTABLE to be overridden for cross-compilation support
+        if(NOT DEFINED Python_EXECUTABLE)
+            set(Python${_CONAN_PYTHON_SUFFIX}_EXECUTABLE @PYTHON_EXECUTABLE@)
+        endif()
         set(Python${_CONAN_PYTHON_SUFFIX}_LIBRARY @PYTHON_LIBRARY@)
 
         # Fails if these are set beforehand
@@ -711,11 +715,11 @@ class CPythonConan(ConanFile):
 
         # In order for the package to be relocatable, these variables must be relative to the installed CMake file
         if is_msvc(self):
-            python_exe = "${CMAKE_CURRENT_LIST_DIR}/../../" + self._cpython_interpreter_name
-            python_library = "${CMAKE_CURRENT_LIST_DIR}/../" + self._exact_lib_name
+            python_exe = "${_PREFIX_PATH}/" + self._cpython_interpreter_name
+            python_library = "${_PREFIX_PATH}/lib/" + self._exact_lib_name
         else:
-            python_exe = "${CMAKE_CURRENT_LIST_DIR}/../../bin/" + self._cpython_interpreter_name
-            python_library = "${CMAKE_CURRENT_LIST_DIR}/../" + self._exact_lib_name
+            python_exe = "${_PREFIX_PATH}/bin/" + self._cpython_interpreter_name
+            python_library = "${_PREFIX_PATH}/lib/" + self._exact_lib_name
 
         cmake_file = os.path.join(self.package_folder, self._cmake_module_path, "use_conan_python.cmake")
         content = template.replace("@PYTHON_EXECUTABLE@", python_exe).replace("@PYTHON_LIBRARY@", python_library)
