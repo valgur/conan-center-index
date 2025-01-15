@@ -1,12 +1,11 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
-from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+
+required_conan_version = ">=2.0"
 
 
 class CycloneDDSConan(ConanFile):
@@ -39,19 +38,6 @@ class CycloneDDSConan(ConanFile):
 
     short_paths = True
 
-    @property
-    def _min_cppstd(self):
-        return "14"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "msvc": "192",
-            "clang": "7",
-            "apple-clang": "10",
-        }
-
     def _has_idlc(self, info=False):
         # don't build idlc when it makes little sense or not supported
         host_os = self.info.settings.os if info else self.settings.os
@@ -68,8 +54,6 @@ class CycloneDDSConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self,src_folder="src")
@@ -82,14 +66,7 @@ class CycloneDDSConan(ConanFile):
 
     def validate(self):
         if self.options.enable_security and not self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} currently do not support"\
-                                            "static build and security on")
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} currently do not support static build and security on")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")
