@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-14:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-15:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -201,6 +201,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.81.0
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
+- simdjson/3.10.0
+- simdjson/3.11.2
+- simdjson/3.2.0
+- simdjson/3.3.0
+- simdjson/3.5.0
+- simdjson/3.6.4
+- simdjson/3.7.0
+- simdjson/3.8.0
+- simdjson/3.9.1
+- simdjson/3.9.2
 - skia/132
 - sleef/3.6.1
 - small_gicp/0.1.2
