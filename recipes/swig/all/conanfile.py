@@ -95,6 +95,9 @@ class SwigConan(ConanFile):
         if self._use_pcre2:
             env.define("PCRE2_LIBS", " ".join("-l" + lib for lib in self.dependencies["pcre2"].cpp_info.libs))
 
+        # match ./autogen.sh
+        env.define("ACLOCAL", "aclocal -I Tools/config")
+
         if self.settings.os in ["Linux", "FreeBSD"]:
             tc.configure_args.append("LIBS=-ldl")
             tc.extra_defines.append("HAVE_UNISTD_H=1")
@@ -148,7 +151,7 @@ class SwigConan(ConanFile):
         self._patch_sources()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
-            self.run("./autogen.sh")
+            autotools.autoreconf()
             autotools.configure()
             autotools.make()
 
