@@ -1,13 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rmdir
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.0"
 
 
 class TinyDnnConan(ConanFile):
@@ -23,25 +21,12 @@ class TinyDnnConan(ConanFile):
     options = {"with_tbb": [True, False]}
     default_options = {"with_tbb": False}
 
-    @property
-    def _min_cppstd(self):
-        return "14"
-
-    @property
-    def _min_compilers_version(self):
-        return {
-            "gcc": "5",
-            "clang": "3.4",
-            "apple-clang": "10",
-            "msvc": "190",
-        }
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("cereal/1.3.1")
-        self.requires("stb/cci.20210713")
+        self.requires("stb/cci.20240531")
         if self.options.with_tbb:
             self.requires("onetbb/2020.3")
 
@@ -49,12 +34,7 @@ class TinyDnnConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        compiler = str(self.settings.compiler)
-        version = Version(self.settings.compiler.version)
-        if compiler in self._min_compilers_version and version < self._min_compilers_version[compiler]:
-            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports at least C++{self._min_cppstd}")
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
