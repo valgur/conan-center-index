@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rename
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -67,7 +67,6 @@ class LiquidDspConan(ConanFile):
             raise ConanInvalidConfiguration("MSVC is not supported due to missing 'complex' data type support")
 
     def build_requirements(self):
-        # For ./bootstrap.sh
         self.tool_requires("libtool/2.4.7")
 
     def source(self):
@@ -77,20 +76,16 @@ class LiquidDspConan(ConanFile):
         venv = VirtualBuildEnv(self)
         venv.generate()
 
-        gcc_env = Environment()
-        if self.settings.build_type == "Debug":
-            cflags = "-g -O0"
-        else:
-            cflags = "-s -O2 -DNDEBUG"
-        gcc_env.append("CFLAGS", cflags)
-        gcc_env.vars(self, scope="gcc").save_script("conan_gcc_env")
-
         tc = AutotoolsToolchain(self)
         if self.settings.build_type == "Debug":
             tc.configure_args.append("--enable-debug-messages")
         if self.options.simdoverride:
             tc.configure_args.append("--enable-simdoverride")
-        tc.generate(gcc_env)
+        if self.settings.build_type == "Debug":
+            tc.extra_cflags.extend(["-g", "-O0"])
+        else:
+            tc.extra_cflags.extend(["-s", "-O2", "-DNDEBUG"])
+        tc.generate()
 
     def _rename_libraries(self):
         with chdir(self, self.source_folder):
@@ -99,8 +94,8 @@ class LiquidDspConan(ConanFile):
 
     def build(self):
         with chdir(self, self.source_folder):
-            self.run("./bootstrap.sh", env=["conanbuild", "gcc"])
             autotools = Autotools(self)
+            autotools.autoreconf()
             autotools.configure()
             autotools.make(self._target_name)
         self._rename_libraries()
