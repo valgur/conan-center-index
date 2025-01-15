@@ -16,7 +16,7 @@ required_conan_version = ">=2.0"
 class RocksDBConan(ConanFile):
     name = "rocksdb"
     description = "A library that provides an embeddable, persistent key-value store for fast storage"
-    license = ("GPL-2.0-only", "Apache-2.0")
+    license = "Apache-2.0 OR GPL-2.0-only"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/facebook/rocksdb"
     topics = ("database", "leveldb", "facebook", "key-value")
