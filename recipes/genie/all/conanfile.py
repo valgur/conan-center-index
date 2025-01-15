@@ -1,13 +1,12 @@
-from conan import ConanFile
-from conan.tools.files import get, replace_in_file, copy
-from conan.tools.build import cross_building
-from conan.tools.layout import basic_layout
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.microsoft import VCVars, is_msvc
-from conan.tools.gnu import AutotoolsToolchain, Autotools
-from conan.tools.apple import is_apple_os
 import os
+
+from conan import ConanFile
+from conan.tools.apple import is_apple_os
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import get, replace_in_file, copy
+from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import VCVars, is_msvc
 
 required_conan_version = ">=1.51.3"
 
@@ -26,10 +25,6 @@ class GenieConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
 
-    def validate(self):
-        if cross_building(self):
-            raise ConanInvalidConfiguration("Cross building is not yet supported. Contributions are welcome")
-
     def build_requirements(self):
         if self.settings_build.os == "Windows":
             self.win_bash = True
@@ -39,7 +34,7 @@ class GenieConan(ConanFile):
             self.tool_requires("cccl/1.3")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _os(self):
@@ -50,6 +45,11 @@ class GenieConan(ConanFile):
             "Linux": "linux",
             "FreeBSD": "bsd",
         }[str(self.settings.os)]
+
+    def _patch_arch(self):
+        # Don't hard-code arch flags
+        makefile = os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make")
+        replace_in_file(self, makefile, " -m64", "")
 
     def _patch_compiler(self, cc, cxx):
         makefile = os.path.join(self.source_folder, "build", f"gmake.{self._os}", "genie.make")
@@ -72,6 +72,7 @@ class GenieConan(ConanFile):
             tc.generate()
 
     def build(self):
+        self._patch_arch()
         if is_msvc(self):
             self._patch_compiler("cccl", "cccl")
             self.run("make", cwd=self.source_folder)
