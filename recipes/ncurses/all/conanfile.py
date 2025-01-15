@@ -139,6 +139,9 @@ class NCursesConan(ConanFile):
         tc.configure_args["--enable-rpath"] = "no"
         tc.configure_args["--enable-pc-files"] = "no"
         tc.configure_args["--datarootdir"] = "${prefix}/res"
+        if cross_building(self):
+            tc_vars = tc.extra_env.vars(self)
+            tc.configure_args["--with-build-cc"] = tc_vars.get("CC_FOR_BUILD", "cc")
         build = None
         host = None
         if self.settings.os == "Windows":
