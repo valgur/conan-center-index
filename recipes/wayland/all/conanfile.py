@@ -66,6 +66,10 @@ class WaylandConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Meson fails to find the build-scope wayland-scanner via pkg-config otherwise
+        replace_in_file(self, os.path.join("src", "meson.build"),
+                        "dependency('wayland-scanner', native: true, version: meson.project_version())",
+                        "dependency('wayland-scanner')")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -74,21 +78,20 @@ class WaylandConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
 
-        pkg_config_deps = PkgConfigDeps(self)
+        deps = PkgConfigDeps(self)
         if not can_run(self):
-            pkg_config_deps.build_context_activated = ["wayland"]
+            deps.build_context_activated.append("wayland")
         elif self.dependencies["expat"].is_build_context:  # wayland is being built as build_require
             # If wayland is the build_require, all its dependencies are treated as build_requires
-            pkg_config_deps.build_context_activated = [dep.ref.name for _, dep in self.dependencies.host.items()]
-        pkg_config_deps.generate()
+            deps.build_context_activated.extend(dep.ref.name for _, dep in self.dependencies.host.items())
+        deps.generate()
+
         tc = MesonToolchain(self)
         tc.project_options["libdir"] = "lib"
         tc.project_options["datadir"] = "res"
         tc.project_options["libraries"] = self.options.enable_libraries
         tc.project_options["dtd_validation"] = self.options.enable_dtd_validation
         tc.project_options["documentation"] = False
-        if not can_run(self):
-            tc.project_options["build.pkg_config_path"] = self.generators_folder
         if Version(self.version) >= "1.18.91":
             tc.project_options["scanner"] = True
         tc.generate()
