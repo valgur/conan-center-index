@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-15:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-16:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -21,6 +21,17 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
+- botan/2.17.3
+- botan/2.18.2
+- botan/2.19.1
+- botan/2.19.2
+- botan/2.19.3
+- botan/2.19.4
+- botan/3.0.0
+- botan/3.1.0
+- botan/3.1.1
+- botan/3.2.0
+- botan/3.6.0
 - cargo-cbuild/0.10.4
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -42,10 +53,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dpdk/24.07
 - f2c/20240312
 - faiss/1.8.0
-- fastgltf/0.4.0
-- fastgltf/0.5.0
-- fastgltf/0.6.1
-- fastgltf/0.7.0
 - fbgemm/0.8.0
 - fenster/0.0.0.cci.20240909
 - filament/1.5.3
@@ -86,12 +93,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_points/1.0.6
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
-- hictk/0.0.1
-- hictk/0.0.10
-- hictk/0.0.2
-- hictk/0.0.3
-- hictk/0.0.8
-- hictk/0.0.9
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
@@ -164,14 +165,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/14.3.0
 - open62541pp/0.12.0
 - openblas/0.3.28
-- openexr/2.4.0
-- openexr/3.1.7
-- openexr/3.1.9
-- openexr/3.2.1
-- openexr/3.2.2
-- openexr/3.2.3
-- openexr/3.3.0
-- openexr/3.3.1
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
@@ -201,16 +194,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.81.0
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
-- simdjson/3.10.0
-- simdjson/3.11.2
-- simdjson/3.2.0
-- simdjson/3.3.0
-- simdjson/3.5.0
-- simdjson/3.6.4
-- simdjson/3.7.0
-- simdjson/3.8.0
-- simdjson/3.9.1
-- simdjson/3.9.2
 - skia/132
 - sleef/3.6.1
 - small_gicp/0.1.2
@@ -245,11 +228,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.7.0
 - tpl/cci.20210302
 - usearch/2.9.1
-- uwebsockets/20.63.0
-- uwebsockets/20.64.0
-- uwebsockets/20.65.0
-- uwebsockets/20.66.0
-- uwebsockets/20.67.0
 - vilib/cci.20210625
 - vlfeat/0.9.21
 - volk/1.3.290.0
