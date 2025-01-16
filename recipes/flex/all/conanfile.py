@@ -6,6 +6,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.files import get, rmdir, copy, rm, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
 
@@ -28,34 +29,36 @@ class FlexConan(ConanFile):
         "fPIC": True,
     }
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
-
     def export_sources(self):
         export_conandata_patches(self)
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.settings.rm_safe("compiler.libcxx")
+        self.settings.rm_safe("compiler.cppstd")
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         # Flex requires M4 to be compiled. If consumer does not have M4
         # installed, Conan will need to know that Flex requires it.
         self.requires("m4/1.4.19")
 
-    def build_requirements(self):
-        self.tool_requires("m4/1.4.19")
-        if cross_building(self):
-            self.tool_requires(f"{self.name}/{self.version}")
-
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration("Flex package is not compatible with Windows. "
                                             "Consider using winflexbison instead.")
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    def build_requirements(self):
+        self.tool_requires("m4/1.4.19")
+        if cross_building(self):
+            self.tool_requires(f"{self.name}/{self.version}")
 
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         at = AutotoolsToolchain(self)
