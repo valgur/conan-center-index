@@ -58,7 +58,7 @@ class ICU4XConan(ConanFile):
     def generate(self):
         env = Environment()
         # Ensure the correct linker is used, especially when cross-compiling
-        target_upper = self.conf.get("user.rust:target", check_type=str).upper().replace("-", "_")
+        target_upper = self.conf.get("user.rust:target_host", check_type=str).upper().replace("-", "_")
         cc = GnuToolchain(self).extra_env.vars(self)["CC"]
         env.define_path(f"CARGO_TARGET_{target_upper}_LINKER", cc)
         # Don't add the Cargo dependencies to a global Cargo cache
@@ -87,7 +87,7 @@ class ICU4XConan(ConanFile):
     def _dist_dir(self):
         build_type = "debug" if self.settings.build_type == "Debug" else "release"
         if cross_building(self):
-            platform = self.conf.get("user.rust:target", check_type=str)
+            platform = self.conf.get("user.rust:target_host", check_type=str)
             return Path(self.build_folder, platform, build_type)
         return Path(self.build_folder, build_type)
 
