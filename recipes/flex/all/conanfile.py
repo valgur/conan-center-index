@@ -5,10 +5,10 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.files import get, rmdir, copy, rm, export_conandata_patches, apply_conandata_patches
-from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4"
 
 
 class FlexConan(ConanFile):
@@ -61,18 +61,21 @@ class FlexConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        at = AutotoolsToolchain(self)
-        at.configure_args.extend([
-            "--disable-nls",
-            "--disable-bootstrap",
-            "HELP2MAN=/bin/true",
-            "M4=m4",
-            # https://github.com/westes/flex/issues/247
-            "ac_cv_func_malloc_0_nonnull=yes", "ac_cv_func_realloc_0_nonnull=yes",
-            # https://github.com/easybuilders/easybuild-easyconfigs/pull/5792
-            "ac_cv_func_reallocarray=no",
-        ])
-        at.generate()
+        tc = GnuToolchain(self)
+        tc.configure_args["--disable-nls"] = None
+        tc.configure_args["--disable-bootstrap"] = None
+        tc.configure_args["HELP2MAN"] = "/bin/true"
+        tc.configure_args["M4"] = "m4"
+        # https://github.com/westes/flex/issues/247
+        tc.configure_args["ac_cv_func_malloc_0_nonnull"] = "yes"
+        tc.configure_args["ac_cv_func_realloc_0_nonnull"] = "yes"
+        # https://github.com/easybuilders/easybuild-easyconfigs/pull/5792
+        tc.configure_args["ac_cv_func_reallocarray"] = "no"
+        env = tc.extra_env
+        env_vars = env.vars(self)
+        # flex looks for build-context CC even if not cross-compiling
+        env.define_path("CC_FOR_BUILD", env_vars.get("CC_FOR_BUILD", env_vars["CC"]))
+        tc.generate()
 
     def build(self):
         autotools = Autotools(self)
