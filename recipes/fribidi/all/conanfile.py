@@ -1,13 +1,14 @@
+import os
+
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
+from conan.tools.build import cross_building
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
-import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4.0"
 
 
 class FriBiDiCOnan(ConanFile):
@@ -30,19 +31,11 @@ class FriBiDiCOnan(ConanFile):
         "fPIC": True,
         "with_deprecated": True,
     }
+    languages = ["C"]
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -55,8 +48,6 @@ class FriBiDiCOnan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = MesonToolchain(self)
         tc.project_options["deprecated"] = self.options.with_deprecated
         tc.project_options["docs"] = False
@@ -64,6 +55,9 @@ class FriBiDiCOnan(ConanFile):
             tc.project_options["bin"] = False
             tc.project_options["tests"] = False
         tc.generate()
+        if cross_building(self):
+            # required for gen-unicode-version build tool
+            MesonToolchain(self, native=True).generate()
 
     def build(self):
         meson = Meson(self)
