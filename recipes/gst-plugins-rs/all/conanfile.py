@@ -4,8 +4,9 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
 from conan.tools.env import Environment
-from conan.tools.files import copy, get, rm, rmdir, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import copy, get, rm, rmdir, export_conandata_patches, apply_conandata_patches, replace_in_file
 from conan.tools.gnu import PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
@@ -80,7 +81,22 @@ class GStPluginsRsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+    def _define_rust_env(self, env, scope="host", cflags=None):
+        target = self.conf.get(f"user.rust:target_{scope}", check_type=str).replace("-", "_")
+        cc = GnuToolchain(self).extra_env.vars(self)["CC" if scope == "host" else "CC_FOR_BUILD"]
+        env.define_path(f"CARGO_TARGET_{target.upper()}_LINKER", cc)
+        env.define_path(f"CC_{target}", cc)
+        if cflags:
+            env.append(f"CFLAGS_{target}", cflags)
+
     def generate(self):
+        env = Environment()
+        self._define_rust_env(env, "host")
+        if cross_building(self):
+            self._define_rust_env(env, "build")
+        env.define_path("CARGO_HOME", os.path.join(self.build_folder, "cargo"))
+        env.vars(self).save_script("cargo_paths")
+
         tc = MesonToolchain(self)
 
         def feature(value):
@@ -156,18 +172,13 @@ class GStPluginsRsConan(ConanFile):
         tc.project_options["tests"] = "disabled"
 
         tc.generate()
+        rust_target = self.conf.get(f"user.rust:target_host", check_type=str)
+        replace_in_file(self, "conan_meson_cross.ini",
+                        "[binaries]",
+                        f"[binaries]\nrust = ['rustc', '--target', '{rust_target}']")
 
         deps = PkgConfigDeps(self)
         deps.generate()
-
-        env = Environment()
-        # Ensure the correct linker is used, especially when cross-compiling
-        target_upper = self.conf.get("user.rust:target_host", check_type=str).upper().replace("-", "_")
-        cc = GnuToolchain(self).extra_env.vars(self)["CC"]
-        env.define_path(f"CARGO_TARGET_{target_upper}_LINKER", cc)
-        # Don't add the Cargo dependencies to a global Cargo cache
-        env.define_path("CARGO_HOME", os.path.join(self.build_folder, "cargo"))
-        env.vars(self).save_script("cargo_paths")
 
     def build(self):
         meson = Meson(self)
