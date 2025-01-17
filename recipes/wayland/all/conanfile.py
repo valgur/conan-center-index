@@ -1,13 +1,14 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import can_run
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.build import can_run, cross_building
+from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.53.0"
 
@@ -66,10 +67,6 @@ class WaylandConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # Meson fails to find the build-scope wayland-scanner via pkg-config otherwise
-        replace_in_file(self, os.path.join("src", "meson.build"),
-                        "dependency('wayland-scanner', native: true, version: meson.project_version())",
-                        "dependency('wayland-scanner')")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -95,6 +92,13 @@ class WaylandConan(ConanFile):
         if Version(self.version) >= "1.18.91":
             tc.project_options["scanner"] = True
         tc.generate()
+
+        if cross_building(self):
+            # required for dependency(..., native: true) in meson.build
+            env = Environment()
+            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
+            env.vars(self).save_script("pkg_config_for_build_env.sh")
 
     def _patch_sources(self):
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
