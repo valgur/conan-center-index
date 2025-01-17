@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-16:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-17:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -21,18 +21,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
-- botan/2.17.3
-- botan/2.18.2
-- botan/2.19.1
-- botan/2.19.2
-- botan/2.19.3
-- botan/2.19.4
-- botan/3.0.0
-- botan/3.1.0
-- botan/3.1.1
-- botan/3.2.0
-- botan/3.6.0
-- cargo-cbuild/0.10.4
+- cargo-c/0.10.8
 - casadi/3.6.6
 - cilantro/cci.20230816
 - cimg/3.3.5
@@ -83,6 +72,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gst-plugins-bad/1.24.11
 - gst-plugins-base/1.24.11
 - gst-plugins-good/1.24.11
+- gst-plugins-rs/0.14.0-alpha.1
 - gst-plugins-ugly/1.24.11
 - gstreamer/1.24.11
 - gtk/3.24.43
@@ -192,6 +182,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.75.0
 - rust/1.77.1
 - rust/1.81.0
+- rust/1.84.0
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/132
@@ -254,6 +245,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xfonts-encodings/1.1.0
 - xgboost/2.0.3
 - xkeyboard-config/2.43
+- xorg-macros/1.20.2
 - xorg/1.8.10
 - xtrans/1.5.0
 - zenoh-c/0.11.0.3
