@@ -3,10 +3,10 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import chdir, copy, get
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4"
 
 
 class LinuxHeadersGenericConan(ConanFile):
@@ -37,7 +37,10 @@ class LinuxHeadersGenericConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        tc = AutotoolsToolchain(self)
+        tc = GnuToolchain(self)
+        tc_vars = tc.extra_env.vars(self)
+        # HOSTCC  scripts/basic/fixdep
+        tc.make_args["HOSTCC"] = tc_vars["CC_FOR_BUILD"]
         tc.generate()
 
     def build(self):
