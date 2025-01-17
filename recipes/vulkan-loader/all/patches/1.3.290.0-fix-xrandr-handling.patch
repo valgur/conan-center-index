@@ -1,0 +1,25 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -111,6 +111,7 @@
+ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|DragonFly|GNU")
+     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
+     option(BUILD_WSI_XLIB_SUPPORT "Build Xlib WSI support" ON)
++    option(BUILD_WSI_XLIB_XRANDR_SUPPORT "Build X11 Xrandr WSI support" ON)
+     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
+     option(BUILD_WSI_DIRECTFB_SUPPORT "Build DirectFB WSI support" OFF)
+ 
+@@ -123,8 +124,13 @@
+     endif()
+     if(BUILD_WSI_XLIB_SUPPORT)
+         pkg_check_modules(X11 REQUIRED QUIET IMPORTED_TARGET x11)
+-        target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_XLIB_KHR VK_USE_PLATFORM_XLIB_XRANDR_EXT)
++        target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_XLIB_KHR)
+         target_link_libraries(platform_wsi INTERFACE PkgConfig::X11)
++        if(BUILD_WSI_XLIB_XRANDR_SUPPORT)
++            pkg_check_modules(XRANDR REQUIRED QUIET IMPORTED_TARGET xrandr)
++            target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_XLIB_XRANDR_EXT)
++            target_link_libraries(platform_wsi INTERFACE PkgConfig::XRANDR)
++        endif()
+     endif()
+     if(BUILD_WSI_WAYLAND_SUPPORT)
+         target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_WAYLAND_KHR)

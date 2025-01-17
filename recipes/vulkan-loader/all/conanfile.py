@@ -194,6 +194,7 @@ class VulkanLoaderConan(ConanFile):
         self.cpp_info.requires.append("vulkan-headers::vulkan-headers")
         if self.options.get_safe("with_wsi_xlib"):
             self.cpp_info.requires.append("xorg::x11")
+            self.cpp_info.requires.append("xorg::xrandr")
         if self.options.get_safe("with_wsi_xcb"):
             self.cpp_info.requires.append("xorg::xcb")
         if Version(self.version) < "1.3.231" and self.options.get_safe("with_wsi_wayland"):
