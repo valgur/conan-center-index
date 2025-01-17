@@ -1,11 +1,10 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rm, rmdir
-from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.layout import basic_layout
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import copy, get, rm, rmdir
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.53.0"
 
@@ -42,6 +41,9 @@ class LibPciAccessConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def requirements(self):
+        self.requires("zlib/[>=1.2.11 <2]")
+
     def validate(self):
         def is_supported(settings):
             if settings.os in ("Linux", "FreeBSD", "SunOS"):
@@ -53,15 +55,17 @@ class LibPciAccessConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
         self.tool_requires("xorg-macros/1.20.2")
+        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        ms = VirtualBuildEnv(self)
-        ms.generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         autotools = Autotools(self)
