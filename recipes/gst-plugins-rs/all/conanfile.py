@@ -1,7 +1,10 @@
 import os
+import re
 import shutil
+from functools import lru_cache
 from pathlib import Path
 
+import yaml
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
@@ -11,16 +14,9 @@ from conan.tools.gnu import PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
-
-
-def _option_name(name):
-    if name.startswith("rs"):
-        name = name[2:]
-    return {
-        "flv": "flavors",
-    }.get(name, name)
 
 
 class GStPluginsRsConan(ConanFile):
@@ -34,183 +30,41 @@ class GStPluginsRsConan(ConanFile):
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
 
-    _plugins = {
-        "aws": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-video-1.0",
-            "openssl::openssl",
-        ],
-        "cdg": [
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "claxon": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-        ],
-        "dav1d": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "dav1d::dav1d",
-        ],
-        "fallbackswitch": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "ffv1": [
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "fmp4": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-base::gstreamer-pbutils-1.0",
-        ],
-        "gif": [
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "gopbuffer": [],
-        "gtk4": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-base::gstreamer-allocators-1.0",
-            "gst-plugins-base::gstreamer-gl-1.0",
-            "gtk::gtk4",
-        ],
-        "hlssink3": [
-            "gst-plugins-base::gstreamer-app-1.0",
-        ],
-        "hsv": [
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "json": [],
-        "lewton": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-        ],
-        "livesync": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-        ],
-        "mp4": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-base::gstreamer-pbutils-1.0",
-        ],
-        "mpegtslive": [],
-        "ndi": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "originalbuffer": [
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "quinn": [],
-        "raptorq": [
-            "gst-plugins-base::gstreamer-rtp-1.0",
-        ],
-        "rav1e": [
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "regex": [],
-        "reqwest": [
-            "openssl::openssl",
-        ],
-        "rsaudiofx": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-        ],
-        "rsclosedcaption": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "pango::pango-1.0",
-            "pango::pangocairo-1.0",
-            "cairo::cairo-gobject",
-        ],
-        "rsfile": [],
-        "rsflv": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-        ],
-        "rsinter": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-base::gstreamer-app-1.0",
-        ],
-        "rsonvif": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-base::gstreamer-rtp-1.0",
-            "pango::pango-1.0",
-            "pango::pangocairo-1.0",
-        ],
-        "rspng": [
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "rsrelationmeta": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-bad::gstreamer-analytics-1.0",
-        ],
-        "rsrtp": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-base::gstreamer-rtp-1.0",
-            "gstreamer::gstreamer-net-1.0",
-        ],
-        "rsrtsp": [
-            "gst-plugins-base::gstreamer-app-1.0",
-            "gst-plugins-base::gstreamer-pbutils-1.0",
-            "gstreamer::gstreamer-net-1.0",
-        ],
-        "rstracers": [],
-        "rsvideofx": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "cairo::cairo-gobject",
-        ],
-        "rswebp": [
-            "gst-plugins-base::gstreamer-video-1.0",
-            "libwebp::webpdemux",
-        ],
-        "rswebrtc": [
-            "gst-plugins-bad::gstreamer-webrtc-1.0",
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-video-1.0",
-            "gst-plugins-base::gstreamer-app-1.0",
-            "gst-plugins-base::gstreamer-rtp-1.0",
-            "gst-plugins-base::gstreamer-sdp-1.0",
-            "gstreamer::gstreamer-net-1.0",
-        ],
-        "sodium": [
-            "libsodium::libsodium",
-        ],
-        "speechmatics": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "openssl::openssl",
-        ],
-        "spotify": [],
-        "streamgrouper": [],
-        "textahead": [],
-        "textwrap": [],
-        "threadshare": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-rtp-1.0",
-            "gstreamer::gstreamer-net-1.0",
-        ],
-        "togglerecord": [
-            "gst-plugins-base::gstreamer-audio-1.0",
-            "gst-plugins-base::gstreamer-video-1.0",
-        ],
-        "uriplaylistbin": [],
-        "webrtchttp": [
-            "gst-plugins-bad::gstreamer-webrtc-1.0",
-        ],
-    }
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-
-        **{_option_name(name): [True, False] for name in _plugins if _option_name(name)},
     }
     default_options = {
         "shared": False,
         "fPIC": True,
 
-        **{_option_name(name): False for name in _plugins if _option_name(name)},
+        # Additionally, all supported plugins can be enabled/disabled using the same option names as in meson_options.txt
     }
 
     languages = ["C"]
 
+    @staticmethod
+    def _option_name(plugin):
+        return plugin if not plugin.startswith("rs") else plugin[2:]
+
     @property
     def _bad(self):
         return self.dependencies["gst-plugins-bad"].options
+
+    def export(self):
+        copy(self, "plugins/*.yml", self.recipe_folder, self.export_folder)
+
+    def init(self):
+        options = set()
+        for plugins_yml in Path(self.recipe_folder, "plugins").glob("*.yml"):
+            plugins_info = yaml.safe_load(plugins_yml.read_text())
+            for plugin, info in plugins_info.items():
+                options.update(info.get("options", [self._option_name(plugin)]))
+        options = sorted(options)
+        self.options.update(
+            {option: [True, False] for option in options},
+            {option: False for option in options}
+        )
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -224,28 +78,58 @@ class GStPluginsRsConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.options["gstreamer"].shared = self.options.shared
         if self.options.webrtc:
-            self.options["gst-plugins-bad"].with_srtp = True
-            self.options["gst-plugins-bad"].with_nice = True
-            self.options["gst-plugins-bad"].with_sctp = True
-            self.options["gst-plugins-bad"].with_ssl = "openssl"
+            self.options["gst-plugins-bad"].webrtc = True
             self.options.rtp = True
 
     def layout(self):
         basic_layout(self)
 
+    @property
+    @lru_cache()
+    def _plugins(self):
+        version = Version(self.version)
+        return yaml.safe_load(Path(self.recipe_folder, "plugins", f"{version.major}.{version.minor}.yml").read_text())
+
     def _is_enabled(self, plugin):
-        return self.options.get_safe(_option_name(plugin), False)
+        required_options = self._plugins[plugin].get("options", [self._option_name(plugin)])
+        return all(self.options.get_safe(opt, False) for opt in required_options)
+
+    @lru_cache()
+    def _plugin_reqs(self, plugin):
+        reqs = []
+        for req in self._plugins[plugin]["requires"]:
+            m = re.fullmatch("gstreamer-(.+)-1.0", req)
+            if m and m[1] in _gstreamer_libs:
+                reqs.append(f"gstreamer::{m[1]}")
+            elif m and m[1] in _plugins_base_libs:
+                reqs.append(f"gst-plugins-base::{m[1]}")
+            elif m and m[1] in _plugins_bad_libs:
+                reqs.append(f"gst-plugins-bad::{m[1]}")
+            else:
+                reqs.append(req)
+        return reqs
 
     @property
-    def _plugin_reqs(self):
-        requires = set()
-        for plugin, plugin_requires in self._plugins.items():
+    @lru_cache()
+    def _all_reqs(self):
+        reqs = set()
+        for plugin in self._plugins:
             if self._is_enabled(plugin):
-                requires.update({req.split("::")[0] for req in plugin_requires})
-        return requires
+                reqs.update(r.split("::")[0] for r in self._plugin_reqs(plugin) if "::" in r)
+        return reqs
+
+    @property
+    @lru_cache()
+    def _all_options(self):
+        options = set()
+        for plugins_yml in Path(self.recipe_folder, "plugins").glob("*.yml"):
+            plugins_info = yaml.safe_load(plugins_yml.read_text())
+            for plugin, info in plugins_info.items():
+                options.update(info.get("options", [self._option_name(plugin)]))
+        return options
 
     def requirements(self):
-        reqs = self._plugin_reqs
+        reqs = self._all_reqs
         self.requires("gstreamer/1.24.11", transitive_headers=True, transitive_libs=True)
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         if "gst-plugins-base" in reqs:
@@ -275,8 +159,6 @@ class GStPluginsRsConan(ConanFile):
         if self.options.shared != self.dependencies["gstreamer"].options.shared:
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration("GStreamer and GstPlugins must be either all shared, or all static")
-        if self.options.webrtc and not self.options.rtp:
-            raise ConanInvalidConfiguration("webrtc option requires rtp option to be enabled")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -308,8 +190,7 @@ class GStPluginsRsConan(ConanFile):
         env.vars(self).save_script("cargo_paths")
 
         tc = MesonToolchain(self)
-        for plugin in self._plugins:
-            opt = _option_name(plugin)
+        for opt in self._all_options:
             tc.project_options[opt] = "enabled" if self.options.get_safe(opt) else "disabled"
         tc.project_options["doc"] = "disabled"
         tc.project_options["examples"] = "disabled"
@@ -374,6 +255,63 @@ class GStPluginsRsConan(ConanFile):
             gst_plugins.append(name)
             return component
 
-        for plugin, plugin_requires in self._plugins.items():
+        for plugin, info in self._plugins.items():
             if self._is_enabled(plugin):
-                _define_plugin(plugin, plugin_requires)
+                _define_plugin(plugin, self._plugin_reqs(plugin))
+
+
+_gstreamer_libs = {
+    "base",
+    "check",
+    "controller",
+    "net",
+}
+_plugins_base_libs = {
+    "allocators",
+    "app",
+    "audio",
+    "fft",
+    "gl",
+    "gl-egl",
+    "gl-prototypes",
+    "gl-wayland",
+    "gl-x11",
+    "pbutils",
+    "plugins-base",
+    "riff",
+    "rtp",
+    "rtsp",
+    "sdp",
+    "tag",
+    "video",
+}
+_plugins_bad_libs = {
+    "adaptivedemux",
+    "analytics",
+    "bad-audio",
+    "bad-base-camerabinsrc",
+    "codecparsers",
+    "codecs",
+    "cuda",
+    "d3d11",
+    "downloader",
+    "dxva",
+    "insertbin",
+    "isoff",
+    "mpegts",
+    "mse",
+    "opencv",
+    "photography",
+    "play",
+    "player",
+    "sctp",
+    "transcoder",
+    "va",
+    "vulkan",
+    "vulkan-wayland",
+    "vulkan-xcb",
+    "wayland",
+    "webrtc",
+    "webrtc-nice",
+    "winrt",
+}
