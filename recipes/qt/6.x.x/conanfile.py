@@ -74,6 +74,7 @@ class QtConan(ConanFile):
         "shared": False,
         "fPIC": True,
 
+        "opengl": "desktop",
         "with_vulkan": False,
         "openssl": True,
         "with_pcre2": True,
