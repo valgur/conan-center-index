@@ -79,7 +79,6 @@ class Libdc1394Conan(ConanFile):
         deps.generate()
 
     def build(self):
-        self._patch_sources()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.configure()
