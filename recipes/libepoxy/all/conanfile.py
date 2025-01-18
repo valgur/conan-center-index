@@ -61,9 +61,11 @@ class EpoxyConan(ConanFile):
         self.requires("opengl/system")
         if self.settings.os == "Linux":
             if self.options.x11:
-                self.requires("xorg/system")
+                # Used in include/epoxy/glx.h
+                self.requires("xorg/system", transitive_headers=True)
             if self.options.egl:
-                self.requires("egl/system")
+                # Used in include/epoxy/egl_generated.h
+                self.requires("egl/system", transitive_headers=True)
 
     def validate(self):
         if self.settings.os == "Windows" and not self.options.shared:
