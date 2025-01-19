@@ -135,3 +135,7 @@ class PkgConfConan(ConanFile):
         self.buildenv_info.prepend_path("ACLOCAL_PATH", pkgconf_aclocal)
         # TODO: evaluate if `ACLOCAL_PATH` is enough and we can stop using `AUTOMAKE_CONAN_INCLUDES`
         self.buildenv_info.prepend_path("AUTOMAKE_CONAN_INCLUDES", pkgconf_aclocal)
+
+        # To ensure that PkgConfig(self, "<lib>").variables uses the correct executable
+        if not self.conf.get("tools.gnu:pkg_config", default=False):
+            self.conf_info.define("tools.gnu:pkg_config", pkg_config)
