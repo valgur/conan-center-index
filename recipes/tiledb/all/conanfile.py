@@ -214,7 +214,7 @@ class TileDBConan(ConanFile):
             "libwebp::webpmux": "WebP::libwebpmux",
             "lz4": "LZ4::LZ4",
             "zlib": "ZLIB::ZLIB",
-            "zstd": "Zstd::Zstd",
+            "zstd": "zstd::libzstd",
         }
         for component, new_target_name in renamed_targets.items():
             deps.set_property(component, "cmake_target_name", new_target_name)
