@@ -59,7 +59,8 @@ class OpenALConan(ConanFile):
             self.options.rm_safe("fPIC")
         # OpenAL's API is pure C, thus the c++ standard does not matter
         # Because the backend is C++, the C++ STL matters
-        self.settings.rm_safe("compiler.cppstd")
+        if not self._openal_cxx_backend:
+            self.settings.rm_safe("compiler.cppstd")
         if not self._openal_cxx_backend:
             self.settings.rm_safe("compiler.libcxx")
 
