@@ -110,13 +110,6 @@ class ProjConan(ConanFile):
 
         replace_in_file(self, cmakelists, "/W4", "")
 
-        # Fix up usage of SQLite3 finder outputs
-        if Version(self.version) < "9.4.0":
-            rm(self, "FindSqlite3.cmake", os.path.join(self.source_folder, "cmake"))
-            replace_in_file(self, cmakelists, "SQLITE3_FOUND", "SQLite3_FOUND")
-            replace_in_file(self, cmakelists, "SQLITE3_VERSION", "SQLite3_VERSION")
-            replace_in_file(self, cmakelists, "find_package(Sqlite3 REQUIRED)", "find_package(SQLite3 REQUIRED)")
-
         # Let CMake install shared lib with a clean rpath !
         if "7.1.0" <= Version(self.version) < "9.0.0":
             replace_in_file(self, cmakelists, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
