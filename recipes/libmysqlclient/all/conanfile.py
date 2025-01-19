@@ -254,8 +254,8 @@ class LibMysqlClientCConan(ConanFile):
         if not can_run(self):
             # Add guesses for try_run() checks.
             # FMA (fused multiply-add) is typically available on modern x86_64 and ARMv8 CPUs
-            tc.variables["HAVE_C_FLOATING_POINT_FUSED_MADD_EXITCODE"] = self.settings.arch in ["x86_64", "armv8"]
-            tc.variables["HAVE_CXX_FLOATING_POINT_FUSED_MADD_EXITCODE"] = self.settings.arch in ["x86_64", "armv8"]
+            tc.variables["HAVE_C_FLOATING_POINT_FUSED_MADD"] = self.settings.arch in ["x86_64", "armv8"]
+            tc.variables["HAVE_CXX_FLOATING_POINT_FUSED_MADD"] = self.settings.arch in ["x86_64", "armv8"]
             # setns() is available on Linux Kernel >= 3.0
             tc.variables["HAVE_SETNS"] = self.settings.os == "Linux"
             # clock_gettime() is available on Linux, FreeBSD, macOS, but not Windows
