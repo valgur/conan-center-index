@@ -44,9 +44,9 @@ class Libhdfs3Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libxml2/2.12.2")
-        self.requires("protobuf/3.21.12")
-        # self.requires("kerberos/0")
+        self.requires("libxml2/[>=2.12.5 <3]")
+        self.requires("protobuf/5.27.0")
+        self.requires("krb5/1.21.2")
         # self.requires("gsasl/0")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("util-linux-libuuid/2.39.2")
