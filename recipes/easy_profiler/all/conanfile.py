@@ -108,7 +108,6 @@ class EasyProfilerConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "easy_profiler")
 
         self.cpp_info.libs = ["easy_profiler"]
-        self.cpp_info.builddirs.append(self._module_subfolder)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "pthread"]
         elif self.settings.os == "Windows":
