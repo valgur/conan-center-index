@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 import os
 
@@ -21,31 +21,28 @@ class GlewConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_egl": [True, False],
-        "with_glu": ["mesa-glu", "system"]
+        "with_glu": ["mesa-glu", "system"],
+        "with_xorg": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_egl": False,
+        "with_glu": "mesa-glu",
+        "with_xorg": True,
     }
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def validate(self):
-        if self.options.with_glu == "mesa-glu" and (is_apple_os(self) or self.settings.os == "Windows"):
-            raise ConanInvalidConfiguration("mesa-glu only suppported on Linux.")
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
             del self.options.with_egl
-
-        if self.options.with_glu == None:
-            if is_apple_os(self) or self.settings.os == "Windows":
-                self.options.with_glu = "system"
-            else:
-                self.options.with_glu = "mesa-glu"
+        if is_apple_os(self) or self.settings.os == "Windows":
+            self.options.with_glu = "system"
+        if self.settings.os not in ["Linux", "FreeBSD"]:
+            del self.options.with_xorg
 
     def configure(self):
         if self.options.shared:
@@ -63,6 +60,12 @@ class GlewConan(ConanFile):
             self.requires("mesa-glu/9.0.3", transitive_headers=True)
         else:
             self.requires("glu/system", transitive_headers=True)
+        if self.options.get_safe("with_xorg"):
+            self.requires("xorg/system")
+
+    def validate(self):
+        if self.options.with_glu == "mesa-glu" and (is_apple_os(self) or self.settings.os == "Windows"):
+            raise ConanInvalidConfiguration("mesa-glu is only supported on Linux.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -72,7 +75,11 @@ class GlewConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_UTILS"] = False
         tc.variables["GLEW_EGL"] = self.options.get_safe("with_egl", False)
+        tc.variables["GLEW_X11"] = self.options.get_safe("with_xorg", False)
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_X11"] = not self.options.get_safe("with_xorg", False)
         tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -112,3 +119,6 @@ class GlewConan(ConanFile):
             self.cpp_info.components["glewlib"].requires.append("mesa-glu::mesa-glu")
         else:
             self.cpp_info.components["glewlib"].requires.append("glu::glu")
+
+        if self.options.get_safe("with_xorg"):
+            self.cpp_info.components["glewlib"].requires.append("xorg::x11")
