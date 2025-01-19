@@ -80,6 +80,11 @@ class LibsndfileConan(ConanFile):
             self.requires("mpg123/1.31.2")
             self.requires("libmp3lame/3.100")
 
+    def build_requirements(self):
+        # https://github.com/libsndfile/libsndfile/blob/1.2.2/cmake/SndFileChecks.cmake#L255
+        if self.options.shared:
+            self.tool_requires("cpython/[~3.12]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
