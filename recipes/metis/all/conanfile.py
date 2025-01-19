@@ -66,6 +66,11 @@ class METISConan(ConanFile):
         if self.options.with_openmp:
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
+    def build_requirements(self):
+        if self.options.with_openmp:
+            # Required for LINK_LANGUAGE generator expression
+            self.tool_requires("cmake/[>=3.18 <4]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         rm(self, "*.pdf", self.source_folder, recursive=True)
