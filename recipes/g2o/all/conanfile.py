@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir, save, export_conandata_patches, apply_conandata_patches, replace_in_file
@@ -110,6 +111,10 @@ class G2oConan(ConanFile):
         # Used in stuff/opengl_wrapper.h
         self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         self.requires("freeglut/3.4.0", transitive_headers=True, transitive_libs=True)
+        if is_apple_os(self) or self.settings.os == "Windows":
+            self.requires("glu/system")
+        else:
+            self.requires("mesa-glu/9.0.3")
         if self.options.with_openmp:
             # Used in core/openmp_mutex.h, also '#pragma omp' is used in several core public headers
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
@@ -181,6 +186,13 @@ class G2oConan(ConanFile):
                         '"$<BUILD_INTERFACE:${CSPARSE_INCLUDE_DIR}>"')
         replace_in_file(self, os.path.join(self.source_folder, "g2o", "solvers", "csparse", "CMakeLists.txt"),
                         "${CSPARSE_LIBRARY}", "${CSPARSE_LIBRARIES}")
+        # Ensure GLU from Conan is used
+        glu = "glu" if "glu" in self.dependencies else "mesa-glu"
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package(OpenGL)",
+                        f"find_package(OpenGL)\nfind_package({glu})")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "OpenGL::GLU", f"{glu}::{glu}")
 
     def build(self):
         self._patch_sources()
