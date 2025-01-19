@@ -89,7 +89,7 @@ class Imlib2Conan(ConanFile):
         if self.options.with_heif:
             self.requires("libheif/1.18.2")
         if self.options.with_id3:
-            self.requires("libid3tag/0.15.1b")
+            self.requires("libid3tag/0.16.3")
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_jpeg == "libjpeg-turbo":
