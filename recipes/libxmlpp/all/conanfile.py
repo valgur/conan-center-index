@@ -1,6 +1,6 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.build import check_min_cppstd
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
@@ -34,21 +34,6 @@ class LibXMLPlusPlus(ConanFile):
     }
 
     @property
-    def _min_cppstd(self):
-        return "17" if Version(self.version) >= "5.4.0" else "11"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "17": {
-                "gcc": "8",
-                "clang": "7",
-                "apple-clang": "12",
-                "msvc": "192",
-            },
-        }.get(self._min_cppstd, {})
-
-    @property
     def _lib_version(self):
         return "5.0"
 
@@ -71,12 +56,7 @@ class LibXMLPlusPlus(ConanFile):
         self.requires("glibmm/2.75.0")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, "17" if Version(self.version) >= "5.4.0" else "11")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
