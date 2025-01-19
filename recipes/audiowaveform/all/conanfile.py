@@ -38,7 +38,7 @@ class AudiowaveformConan(ConanFile):
 
     def requirements(self):
         self.requires("libgd/2.3.3")
-        self.requires("libid3tag/0.15.1b")
+        self.requires("libid3tag/0.16.3")
         self.requires("libmad/0.15.1b")
         self.requires("libsndfile/1.2.2")
         self.requires("boost/1.86.0")
