@@ -77,6 +77,9 @@ class bxConan(ConanFile):
             tc.generate()
         else:
             tc = AutotoolsToolchain(self)
+            tc_env = tc.environment().vars(self)
+            for var, value in tc_env.items():
+                tc.make_args.append(f"{var}={value}")
             tc.generate()
 
     def build(self):
