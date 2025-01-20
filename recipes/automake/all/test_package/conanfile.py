@@ -23,7 +23,11 @@ class TestPackageConan(ConanFile):
         "apple-clang": "clang",
     }
 
-    def _system_compiler(self, cxx=False):
+    def _compiler(self, cxx=False):
+        executables = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
+        cc = executables.get("cpp" if cxx else "c")
+        if cc:
+            return cc
         system_cc = self._default_cc.get(str(self.settings.compiler))
         if system_cc and cxx:
             if self.settings.compiler == "gcc":
@@ -58,8 +62,8 @@ class TestPackageConan(ConanFile):
         # via `tools.build:compiler_executables` or buildenv variables,
         # we tell autotools to guess the name matching the current setting
         # (otherwise it falls back to finding gcc first)
-        cc = self._system_compiler()
-        cxx = self._system_compiler(cxx=True)
+        cc = self._compiler()
+        cxx = self._compiler(cxx=True)
         if cc and cxx:
             # Using shell parameter expansion
             env.define("CC", f"${{CC-{cc}}}")
@@ -71,7 +75,7 @@ class TestPackageConan(ConanFile):
 
     def build(self):
         # Test compilation through compile wrapper script
-        compiler = self._system_compiler()
+        compiler = self._compiler()
         source_file = unix_path(self, os.path.join(self.source_folder, "test_package_1.c"))
         with chdir(self, self.build_folder):
             self.run(f"$COMPILE {compiler} {source_file} -o script_test", env="conanbuild")
