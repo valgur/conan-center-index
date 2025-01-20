@@ -42,7 +42,7 @@ Use packages that are provided by conan
 +find_package(libgd REQUIRED CONFIG)
 +find_package(SndFile REQUIRED CONFIG)
 +find_package(libmad REQUIRED CONFIG)
-+find_package(libid3tag REQUIRED CONFIG)
++find_package(id3tag REQUIRED CONFIG)
 +find_package(Boost COMPONENTS program_options filesystem regex REQUIRED)
  
  #-------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ Use packages that are provided by conan
 +    SndFile::sndfile
 +    libgd::libgd
 +    libmad::libmad
-+    libid3tag::libid3tag
++    id3tag::id3tag
 +    Boost::program_options Boost::filesystem Boost::regex
  )
  
