@@ -319,7 +319,7 @@ class GdalConan(ConanFile):
         # if not self.options.without_lerc:
         #     self.requires("lerc/2.1") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
         if self.options.with_exr:
-            self.requires("openexr/3.1.9")
+            self.requires("openexr/3.3.2")
         if self.options.with_heif:
             self.requires("libheif/1.13.0")
 
