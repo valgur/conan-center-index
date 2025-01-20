@@ -106,6 +106,7 @@ class LibdwarfConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["dwarf"]
-
         if self.options.with_dwarfgen:
             self.cpp_info.libs.append("dwarfp")
+        if Version(self.version) < "0.9":
+            self.cpp_info.includedirs.append(os.path.join("include", "libdwarf"))
