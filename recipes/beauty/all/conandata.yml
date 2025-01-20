@@ -13,6 +13,10 @@ patches:
     - patch_file: "patches/0002-remove-openssl-target.patch"
       patch_description: "Avoid defining openssl::openssl target when defined by Conan"
       patch_type: "conan"
+    - patch_file: "patches/0003-fix-boost-1.86-compatibility.patch"
+      patch_description: "Fix compatibility with Boost 1.86"
+      patch_type: "portability"
+      patch_source: "https://github.com/dfleury2/beauty/pull/39"
   "1.0.3":
     - patch_file: "patches/0002-remove-openssl-target.patch"
       patch_description: "Avoid defining openssl::openssl target when defined by Conan"

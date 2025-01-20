@@ -1,0 +1,23 @@
+From b00dc0fb8eaeea5fd5ea110e1965ee0b3ec150c8 Mon Sep 17 00:00:00 2001
+From: Christoph Thien <chr.thien@googlemail.com>
+Date: Wed, 27 Nov 2024 11:18:38 +0100
+Subject: [PATCH] fix compilation with Boost 1.86
+
+There was an interface change in Boost 1.86. Now we do not have only an IteratorConnectHandler. Boost 1.86 adds a RangeConnectHandler. Compiler now selects another handler type for 'auto&&'. Hence we need to clarify excepted handler type here.
+---
+ include/beauty/websocket_client.hpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/beauty/websocket_client.hpp b/include/beauty/websocket_client.hpp
+index 2ea12dd..d7e48fd 100644
+--- a/include/beauty/websocket_client.hpp
++++ b/include/beauty/websocket_client.hpp
+@@ -70,7 +70,7 @@ class websocket_client : public std::enable_shared_from_this<websocket_client> {
+         // Make the connection on the IP address we get from a lookup
+         beast::get_lowest_layer(_websocket).async_connect(
+                 results,
+-                [me = this->shared_from_this()](auto ec, auto&& ep) {
++                [me = this->shared_from_this()](auto ec, asio::ip::tcp::resolver::results_type::endpoint_type ep) {
+                     me->on_connect(ec, ep);
+                 });
+     }
