@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-18:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-20:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -145,6 +145,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20240530
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
+- meson/1.6.1
 - mkfontscale/1.2.3
 - mrcal/2.4.1
 - mysql-connector-cpp/9.0.0
@@ -159,7 +160,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openmpi/5.0.5
 - openmvg/2.1
 - openni2/2.2.0.33
-- openpmix/5.0.3
+- openpmix/5.0.6
 - openspecfun/0.5.7
 - osgearth/3.7
 - osrm/5.27.1
