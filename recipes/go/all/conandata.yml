@@ -1,0 +1,118 @@
+sources:
+  "1.23.5":
+    Linux:
+      x86:
+        url: "https://go.dev/dl/go1.23.5.linux-386.tar.gz"
+        sha256: "6ecf6a41d0925358905fa2641db0e1c9037aa5b5bcd26ca6734caf50d9196417"
+      x86_64:
+        url: "https://go.dev/dl/go1.23.5.linux-amd64.tar.gz"
+        sha256: "cbcad4a6482107c7c7926df1608106c189417163428200ce357695cc7e01d091"
+      armv8:
+        url: "https://go.dev/dl/go1.23.5.linux-arm64.tar.gz"
+        sha256: "47c84d332123883653b70da2db7dd57d2a865921ba4724efcdf56b5da7021db0"
+      armv6:
+        url: "https://go.dev/dl/go1.23.5.linux-armv6l.tar.gz"
+        sha256: "04e0b5cf5c216f0aa1bf8204d49312ad0845800ab0702dfe4357c0b1241027a3"
+      mips:
+        url: "https://go.dev/dl/go1.23.5.linux-mips.tar.gz"
+        sha256: "d9e937f2fac4fc863850fb4cc31ae76d5495029a62858ef09c78604472d354c0"
+      mips64:
+        url: "https://go.dev/dl/go1.23.5.linux-mips64.tar.gz"
+        sha256: "59710d0782abafd47e40d1cf96aafa596bbdee09ac7c61062404604f49bd523e"
+      ppc64:
+        url: "https://go.dev/dl/go1.23.5.linux-ppc64.tar.gz"
+        sha256: "db110284a0c91d4545273f210ca95b9f89f6e3ac90f39eb819033a6b96f25897"
+      ppc64le:
+        url: "https://go.dev/dl/go1.23.5.linux-ppc64le.tar.gz"
+        sha256: "db268bf5710b5b1b82ab38722ba6e4427d9e4942aed78c7d09195a9dff329613"
+      riscv64:
+        url: "https://go.dev/dl/go1.23.5.linux-riscv64.tar.gz"
+        sha256: "d9da15778442464f32acfa777ac731fd4d47362b233b83a0932380cb6d2d5dc8"
+      s390x:
+        url: "https://go.dev/dl/go1.23.5.linux-s390x.tar.gz"
+        sha256: "14924b917d35311eb130e263f34931043d4f9dc65f20684301bf8f60a72edcdf"
+    Macos:
+      x86_64:
+        url: "https://go.dev/dl/go1.23.5.darwin-amd64.tar.gz"
+        sha256: "d8b310b0b6bd6a630307579165cfac8a37571483c7d6804a10dd73bbefb0827f"
+      armv8:
+        url: "https://go.dev/dl/go1.23.5.darwin-arm64.tar.gz"
+        sha256: "047bfce4fbd0da6426bd30cd19716b35a466b1c15a45525ce65b9824acb33285"
+    Windows:
+      x86:
+        url: "https://go.dev/dl/go1.23.5.windows-386.zip"
+        sha256: "8441605a005ea74c28d8c02ca5f2708c17b4df7e91796148b9f8760caafb05c1"
+      x86_64:
+        url: "https://go.dev/dl/go1.23.5.windows-amd64.zip"
+        sha256: "96d74945d7daeeb98a7978d0cf099321d7eb821b45f5c510373d545162d39c20"
+      armv7:
+        url: "https://go.dev/dl/go1.23.5.windows-arm.zip"
+        sha256: "0005b31dcf9732c280a5cceb6aa1c5ab8284bc2541d0256c221256080acf2a09"
+      armv8:
+        url: "https://go.dev/dl/go1.23.5.windows-arm64.zip"
+        sha256: "4f20c2d8a5a387c227e3ef48c5506b22906139d8afd8d66a78ef3de8dda1d1c3"
+    FreeBSD:
+      x86:
+        url: "https://go.dev/dl/go1.23.5.freebsd-386.tar.gz"
+        sha256: "7204e7bc62913b12f18c61afe0bc1a92fd192c0e45a54125978592296cb84e49"
+      x86_64:
+        url: "https://go.dev/dl/go1.23.5.freebsd-amd64.tar.gz"
+        sha256: "90a119995ebc3e36082874df5fa8fe6da194946679d01ae8bef33c87aab99391"
+      armv7:
+        url: "https://go.dev/dl/go1.23.5.freebsd-arm.tar.gz"
+        sha256: "255d26d873e41ff2fc278013bb2e5f25cf2ebe8d0ec84c07e3bb1436216020d3"
+      armv8:
+        url: "https://go.dev/dl/go1.23.5.freebsd-arm64.tar.gz"
+        sha256: "2785d9122654980b59ca38305a11b34f2a1e12d9f7eb41d52efc137c1fc29e61"
+      riscv64:
+        url: "https://go.dev/dl/go1.23.5.freebsd-riscv64.tar.gz"
+        sha256: "8f66a94018ab666d56868f61c579aa81e549ac9700979ce6004445d315be2d37"
+    SunOS:
+      x86_64:
+        url: "https://go.dev/dl/go1.23.5.solaris-amd64.tar.gz"
+        sha256: "0496c9969f208bd597f3e63fb27068ce1c7ed776618da1007fcc1c8be83ca413"
+    AIX:
+      ppc64:
+        url: "https://go.dev/dl/go1.23.5.aix-ppc64.tar.gz"
+        sha256: "8d8bc7d1b362dd91426da9352741db298ff73e3e0a3ccbe6f607f80ba17647a4"
+  "1.16.15":
+    Linux:
+      x86:
+        url: "https://go.dev/dl/go1.16.15.linux-386.tar.gz"
+        sha256: "81bbff5e671de7e92fc899c7595b5ece4c4e5afa367e613a2aa40c40a0ce8bf1"
+      x86_64:
+        url: "https://go.dev/dl/go1.16.15.linux-amd64.tar.gz"
+        sha256: "77c782a633186d78c384f972fb113a43c24be0234c42fef22c2d8c4c4c8e7475"
+      armv8:
+        url: "https://go.dev/dl/go1.16.15.linux-arm64.tar.gz"
+        sha256: "c2f27f0ce5620a9bc2ff3446165d1974ef94e9b885ec12dbfa3c07e0e198b7ce"
+      armv6:
+        url: "https://go.dev/dl/go1.16.15.linux-armv6l.tar.gz"
+        sha256: "77d22e294ca4d0f1c4e65d7705902d73ec376e96da473023002333e087ab3106"
+      ppc64le:
+        url: "https://go.dev/dl/go1.16.15.linux-ppc64le.tar.gz"
+        sha256: "f01ce3d9f007dbc0212db477901402a1c313b00c47d07b55ec3ecf780f039a05"
+      s390x:
+        url: "https://go.dev/dl/go1.16.15.linux-s390x.tar.gz"
+        sha256: "bec2755dabc46b105d9eab9da7fc61ebd84eb0bd0bb715559dd5930b5a9ebf1a"
+    Macos:
+      x86_54:
+        url: "https://go.dev/dl/go1.16.15.darwin-amd64.tar.gz"
+        sha256: "4f16a427ea513892b7be6646ca26159223d404193ef28c5c45c5f2ec9a0f03d1"
+      arm64:
+        url: "https://go.dev/dl/go1.16.15.darwin-arm64.tar.gz"
+        sha256: "28365c5c252970c10f2627dc0aa63a2ec3df04a92df4d45ed83dbe464732c3e0"
+    Windows:
+      x86:
+        url: "https://go.dev/dl/go1.16.15.windows-386.zip"
+        sha256: "a36f8d529254d44cf069f26e8256441cb0c5151391759204332452bf6c3b207b"
+      x86_64:
+        url: "https://go.dev/dl/go1.16.15.windows-amd64.zip"
+        sha256: "0d6e551206b6d744d1286e62abf46aa2f17fed90f07ec4624a0448d71380407d"
+    FreeBSD:
+      x86:
+        url: "https://go.dev/dl/go1.16.15.freebsd-386.tar.gz"
+        sha256: "9b1fe38388e96b595f7ee81fa76ef515dd7f0cc8458efda39d422b3b25f3de06"
+      x86_64:
+        url: "https://go.dev/dl/go1.16.15.freebsd-amd64.tar.gz"
+        sha256: "b48cec10966aace87a845826446f158b10c985e1041ded2adcd9cf72ae64fccc"
