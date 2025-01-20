@@ -55,6 +55,13 @@ class BmxConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
 
     def validate(self):
+        # Supported platforms based on
+        # https://github.com/bbc/bmx/blob/v1.3/deps/libMXF/tools/MXFDump/MXFDump.cpp#L48-L327
+        if self.settings.arch == "armv8" and self.settings.os != "Macos":
+            raise ConanInvalidConfiguration(f"Unsupported platform: {self.settings.arch} {self.settings.os}")
+        elif self.settings.arch not in ["x86", "x86_64"] and not self.settings.arch.startswith("ppc") and not self.settings.arch.startswith("sparc"):
+            raise ConanInvalidConfiguration(f"Unsupported arch: {self.settings.arch}")
+
         check_min_cppstd(self, 11)
 
         # Symbol export is currently not working properly on Windows so shared
