@@ -1,13 +1,11 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, rm
-from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 class CurlppConan(ConanFile):
     name = "curlpp"
@@ -26,21 +24,10 @@ class CurlppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -50,12 +37,7 @@ class CurlppConan(ConanFile):
         self.requires("libcurl/8.9.1", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        else:
-            if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "6":
-                raise ConanInvalidConfiguration("${self.ref} requires C++11. Please set 'compiler.cppstd=11'.")
-            if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "14":
-                raise ConanInvalidConfiguration("${self.ref} requires C++11. Please set 'compiler.cppstd=11'.")
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
