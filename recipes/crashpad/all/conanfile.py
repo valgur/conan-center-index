@@ -55,10 +55,6 @@ class CrashpadConan(ConanFile):
         elif self.settings.os == "Android":
             self.options.http_transport = "socket"
 
-    def build_requirements(self):
-        self.tool_requires("ninja/1.10.2")
-        self.tool_requires("gn/cci.20210429")
-
     def requirements(self):
         # FIXME: use mini_chromium conan package instead of embedded package (if possible)
         self.requires("zlib/[>=1.2.12 <2]")
@@ -86,6 +82,11 @@ class CrashpadConan(ConanFile):
         else:
             self.output.warning("This recipe does not know about the current compiler and assumes it has sufficient c++14 supports.")
         check_min_cppstd(self, 14)
+
+    def build_requirements(self):
+        self.tool_requires("ninja/1.10.2")
+        self.tool_requires("gn/cci.20210429")
+        self.tool_requires("cpython/[~3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["crashpad"], strip_root=True)
