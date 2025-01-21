@@ -115,14 +115,10 @@ class CrashpadConan(ConanFile):
     def generate(self):
         VCVars(self).generate()
         env = Environment()
-        if self.settings.compiler == "gcc":
-            env.define("CC", "gcc")
-            env.define("CXX", "g++")
-            env.define("LD", "g++")
-        elif str(self.settings.compiler) in ("clang", "apple-clang"):
-            env.define("CC", "clang")
-            env.define("CXX", "clang++")
-            env.define("LD", "clang++")
+        tc_vars = AutotoolsToolchain(self).vars()
+        env.define("CC", tc_vars["CC"])
+        env.define("CXX", tc_vars["CXX"])
+        env.define("LD", tc_vars["CC"])
         env.vars(self).save_script("conanbuild_gn")
 
     @property
