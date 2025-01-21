@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rm
 from conan.tools.microsoft import is_msvc
@@ -26,10 +26,6 @@ class EmbagConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
 
     def export_sources(self):
         copy(self, "CMakeLists.txt",
@@ -56,7 +52,8 @@ class EmbagConan(ConanFile):
         self.requires("bzip2/1.0.8", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 14)
+        check_max_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
