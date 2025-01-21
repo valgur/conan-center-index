@@ -97,18 +97,11 @@ class GlfwConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        # Fix X11 transitive deps not being propagated via include dirs vars
-        if Version(self.version) >= "3.4":
-            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                            "find_package(X11 REQUIRED)",
-                            "find_package(X11 REQUIRED)\n"
-                            "target_link_libraries(glfw PRIVATE X11::Xrandr X11::Xinerama X11::Xkb X11::Xcursor X11::Xi)\n")
-        else:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "find_package(X11 REQUIRED)",
-                            "find_package(X11 REQUIRED)\n"
-                            "link_libraries(X11::Xrandr X11::Xinerama X11::Xkb X11::Xcursor X11::Xi)\n")
-
+        # Fix X11 transitive deps not being propagated via specific include dirs vars
+        cmakelists = os.path.join(self.source_folder, "src", "CMakeLists.txt")
+        if Version(self.version) < "3.4":
+            cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
+        replace_in_file(self, cmakelists, "${X11_X11_INCLUDE_PATH}", "${X11_INCLUDE_DIR}")
 
     def generate(self):
         tc = CMakeToolchain(self)
