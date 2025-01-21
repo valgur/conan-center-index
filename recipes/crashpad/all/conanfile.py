@@ -89,9 +89,9 @@ class CrashpadConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["crashpad"], strip_root=True)
-        apply_conandata_patches(self)
         get(self, **self.conan_data["sources"][self.version]["mini_chromium"],
             destination=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium"), strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _gn_os(self):
