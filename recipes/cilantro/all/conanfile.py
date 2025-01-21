@@ -5,9 +5,8 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class CilantroConan(ConanFile):
@@ -38,19 +37,6 @@ class CilantroConan(ConanFile):
         "with_pangolin": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "6",
-            "gcc": "7",
-            "msvc": "192",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
@@ -63,7 +49,6 @@ class CilantroConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.options["qhull/*"].shared = False
-        self.options["qhull/*"].cpp = True
         self.options["qhull/*"].reentrant = True
 
     def layout(self):
@@ -82,16 +67,10 @@ class CilantroConan(ConanFile):
             self.requires("pangolin/0.9.1", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
+        check_min_cppstd(self, 17)
         qhull = self.dependencies["qhull"].options
-        if qhull.shared or not qhull.reentrant or not qhull.cpp:
-            raise ConanInvalidConfiguration("qhull must be built with -o qhull/*:shared=False -o qhull/*:reentrant=True -o qhull/*:cpp=True")
+        if qhull.shared or not qhull.reentrant:
+            raise ConanInvalidConfiguration("qhull must be built with -o qhull/*:shared=False -o qhull/*:reentrant=True")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
