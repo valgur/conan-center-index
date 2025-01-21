@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches, replace_in_file
 
 required_conan_version = ">=2.4"
 
@@ -35,6 +35,7 @@ class ClipboardLiteConan(ConanFile):
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
+            self.requires("xorg-proto/2024.1")
             self.requires("xorg/system")
 
     def validate(self):
@@ -43,6 +44,12 @@ class ClipboardLiteConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Workaround for broken [replace_requires] transitive_headers for xorg-proto
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package(X11 REQUIRED)",
+                        "find_package(X11 REQUIRED)\n"
+                        "find_package(xorg-proto REQUIRED)\n"
+                        "include_directories(${xorg-proto_INCLUDE_DIRS})")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -64,7 +71,7 @@ class ClipboardLiteConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["clipboard_lite"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.requires.extend(["xorg::xcb", "xorg::x11", "xorg::xfixes"])
+            self.cpp_info.requires.extend(["xorg::xcb", "xorg::x11", "xorg::xfixes", "xorg-proto::xorg-proto"])
             self.cpp_info.system_libs.extend(["m", "pthread"])
         elif is_apple_os(self):
             self.cpp_info.frameworks = ["Cocoa", "Carbon", "CoreFoundation", "CoreGraphics", "Foundation", "AppKit"]
