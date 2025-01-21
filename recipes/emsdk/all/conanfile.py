@@ -28,13 +28,15 @@ class EmSDKConan(ConanFile):
         # self.requires("python")  # FIXME: Not available as Conan package
         # self.requires("wasm")  # FIXME: Not available as Conan package
 
+    def build_requirements(self):
+        self.tool_requires("tar/1.35")
+
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     @property
     def _relative_paths(self):
