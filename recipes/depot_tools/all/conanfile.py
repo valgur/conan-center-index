@@ -29,6 +29,10 @@ class DepotToolsConan(ConanFile):
     def package_id(self):
         self.info.clear()
 
+    def build_requirements(self):
+        # cit is a Python script
+        self.tool_requires("python/[~3]", visible=True)
+
     def _dereference_symlinks(self):
         """
         Windows 10 started to introduce support for symbolic links. Unfortunately
