@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-20:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-21:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -65,6 +65,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnsstk/14.3.0
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
+- go/1.16.15
+- go/1.23.5
 - gobject-introspection/1.82.0
 - gpu.cpp/0.1.0
 - gst-libav/1.24.11
@@ -162,6 +164,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
+- openvino/2024.5.0
 - osgearth/3.7
 - osrm/5.27.1
 - pangolin/0.9.1
@@ -184,6 +187,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.77.1
 - rust/1.81.0
 - rust/1.84.0
+- secsipidx/1.3.2
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/132
