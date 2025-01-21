@@ -1,9 +1,11 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
 import os
+
+from conan.tools.gnu import AutotoolsToolchain
 
 required_conan_version = ">=1.53.0"
 
@@ -43,10 +45,6 @@ class DiscountConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def validate(self):
-        if cross_building(self):
-            raise ConanInvalidConfiguration("discount doesn't support cross-build yet")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
@@ -61,10 +59,20 @@ class DiscountConan(ConanFile):
         # Relocatable shared lib on Macos
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         tc.generate()
+        if not can_run(self):
+            env = Environment()
+            env.prepend_path("PATH", self.build_folder)
+            env.vars(self).save_script("mktags_path")
 
     def build(self):
         cmake = CMake(self)
+        if not can_run(self):
+            replace_in_file(self, os.path.join(self.source_folder, "cmake", "CMakeLists.txt"),
+                            "add_executable(mktags", "message(TRACE ")
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "cmake"))
+        if not can_run(self):
+            cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD"]
+            self.run(f"{cc} {os.path.join(self.source_folder, 'mktags.c')} -o mktags", cwd=self.build_folder)
         cmake.build()
 
     def package(self):
