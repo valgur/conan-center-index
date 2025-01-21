@@ -119,17 +119,17 @@ class CycloneDDSConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "CycloneDDS::CycloneDDS")
         self.cpp_info.set_property("pkg_config_name", "CycloneDDS")
 
-        self.cpp_info.libs = ["ddsc"]
+        self.cpp_info.components["CycloneDDS"].libs = ["ddsc"]
         requires = []
         if self.options.with_shm:
             requires.append("iceoryx::iceoryx_binding_c")
         if self.options.with_ssl:
             requires.append("openssl::openssl")
-        self.cpp_info.requires = requires
+        self.cpp_info.components["CycloneDDS"].requires = requires
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["dl", "pthread"]
+            self.cpp_info.components["CycloneDDS"].system_libs = ["dl", "pthread"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = [
+            self.cpp_info.components["CycloneDDS"].system_libs = [
                 "ws2_32",
                 "dbghelp",
                 "bcrypt",
@@ -146,3 +146,9 @@ class CycloneDDSConan(ConanFile):
             os.path.join(self.package_folder, "lib", "cmake", "CycloneDDS", "idlc"),
         ]
         self.cpp_info.builddirs = build_dirs
+
+        self.cpp_info.components["CycloneDDS"].set_property("cmake_target_name", "CycloneDDS::ddsc")
+        self.cpp_info.components["CycloneDDS"].set_property("pkg_config_name", "CycloneDDS")
+        if self._has_idlc():
+            self.cpp_info.components["idl"].libs = ["cycloneddsidl"]
+            self.cpp_info.components["idl"].set_property("cmake_target_name", "CycloneDDS::idl")
