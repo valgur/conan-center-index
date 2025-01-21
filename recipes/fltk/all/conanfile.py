@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
 from conan.tools.microsoft import msvc_runtime_flag
 from conan.tools.scm import Version
 
@@ -115,7 +115,18 @@ class FltkConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
+    def _patch_sources(self):
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            # Fix relocated X11 and OpenGL not being linked against correctly
+            replace_in_file(self, os.path.join(self.source_folder, "CMake", "options.cmake"),
+                            "include (FindX11)" if Version(self.version) < "1.4.0" else "include(FindX11)",
+                            "find_package(X11 REQUIRED)\n"
+                            "link_libraries(X11::X11 X11::Xext)\n" +
+                            ("find_package(OpenGL REQUIRED)\n"
+                             "link_libraries(OpenGL::GLX)\n" if self.options.with_gl else ""))
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -175,4 +186,4 @@ class FltkConan(ConanFile):
             if self.options.with_xft:
                 self.cpp_info.requires.append("libxft::libxft")
             if self.options.with_gl:
-                self.cpp_info.requires.extend(["libglvnd::libglvnd", "glu::glu"])
+                self.cpp_info.requires.extend(["opengl::opengl", "glu::glu"])
