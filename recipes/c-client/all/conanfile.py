@@ -68,8 +68,7 @@ class CclientConan(ConanFile):
             tc.generate()
         else:
             tc = AutotoolsToolchain(self)
-            tc_vars = tc.environment().vars(self)
-            tc.make_args.append(f"CC={tc_vars['CC']}")
+            tc.make_args.append(f"CC={tc.vars()['CC']}")
             tc.generate()
             deps = AutotoolsDeps(self)
             deps.generate()

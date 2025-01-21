@@ -309,7 +309,7 @@ class BotanConan(ConanFile):
             'sun-cc': 'sunstudio',
         }[str(self.settings.compiler)]
 
-        tc_vars = AutotoolsToolchain(self).environment().vars(self)
+        tc_vars = AutotoolsToolchain(self).vars()
         cc_bin = tc_vars['CC']
 
         botan_abi_flags = []
