@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, save, chdir
@@ -70,7 +72,7 @@ class CrashpadConan(ConanFile):
     def validate(self):
         if is_msvc(self):
             if self.options.http_transport in ("libcurl", "socket"):
-                raise ConanInvalidConfiguration("http_transport={} is not valid when building with Visual Studio".format(self.options.http_transport))
+                raise ConanInvalidConfiguration(f"http_transport={self.options.http_transport} is not valid when building with Visual Studio")
         if self.options.http_transport == "libcurl":
             if not self.dependencies["libcurl"].options.shared:
                 # FIXME: is this true?
@@ -78,7 +80,7 @@ class CrashpadConan(ConanFile):
         min_compiler_version = self._minimum_compiler_cxx14()
         if min_compiler_version:
             if Version(self.settings.compiler.version) < min_compiler_version:
-                raise ConanInvalidConfiguration("crashpad needs a c++14 capable compiler, version >= {}".format(min_compiler_version))
+                raise ConanInvalidConfiguration(f"crashpad needs a c++14 capable compiler, version >= {min_compiler_version}")
         else:
             self.output.warning("This recipe does not know about the current compiler and assumes it has sufficient c++14 supports.")
         check_min_cppstd(self, 14)
@@ -93,6 +95,10 @@ class CrashpadConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version]["mini_chromium"],
             destination=os.path.join(self.source_folder, "third_party", "mini_chromium", "mini_chromium"), strip_root=True)
         apply_conandata_patches(self)
+        path = Path(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "base", "logging.h")
+        path.write_text("#include <cstdint>\n\n" + path.read_text())
+        path = Path(self.source_folder, "third_party", "mini_chromium", "mini_chromium", "base", "strings", "utf_string_conversion_utils.h")
+        path.write_text("#include <cstdint>\n\n" + path.read_text())
 
     @property
     def _gn_os(self):
