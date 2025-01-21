@@ -1,0 +1,24 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -62,16 +62,20 @@
+ 
+     if(BUILD_WSI_XCB_SUPPORT)
+         pkg_check_modules(XCB REQUIRED QUIET IMPORTED_TARGET xcb)
++        link_libraries(PkgConfig::XCB)
+         add_compile_definitions(VK_USE_PLATFORM_XCB_KHR)
+     endif()
+ 
+     if(BUILD_WSI_XLIB_SUPPORT)
+         pkg_check_modules(X11 REQUIRED QUIET IMPORTED_TARGET x11)
++        pkg_check_modules(XRANDR REQUIRED QUIET IMPORTED_TARGET xrandr)
++        link_libraries(PkgConfig::X11 PkgConfig::XRANDR)
+         add_compile_definitions(VK_USE_PLATFORM_XLIB_KHR VK_USE_PLATFORM_XLIB_XRANDR_EXT)
+     endif()
+ 
+     if(BUILD_WSI_WAYLAND_SUPPORT)
+-        pkg_check_modules(WAYlAND_CLIENT QUIET REQUIRED IMPORTED_TARGET wayland-client)
++        pkg_check_modules(WAYLAND_CLIENT QUIET REQUIRED IMPORTED_TARGET wayland-client)
++        link_libraries(PkgConfig::WAYLAND_CLIENT)
+         add_compile_definitions(VK_USE_PLATFORM_WAYLAND_KHR)
+     endif()
+ endif()

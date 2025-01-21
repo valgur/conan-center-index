@@ -4,7 +4,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, mkdir, rename, replace_in_file, rm
+from conan.tools.files import copy, get, mkdir, rename, replace_in_file, rm, apply_conandata_patches, export_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -57,6 +57,9 @@ class VulkanValidationLayersConan(ConanFile):
             "msvc": "191",
         }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_wsi_xcb
@@ -81,9 +84,9 @@ class VulkanValidationLayersConan(ConanFile):
 
         self.requires("robin-hood-hashing/3.11.5")
         if self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib"):
-            self.requires("xorg/system")
+            self.requires("xorg/system", libs=False)
         if self.options.get_safe("with_wsi_wayland"):
-            self.requires("wayland/1.22.0")
+            self.requires("wayland/1.22.0", libs=False)
 
         # TODO: add support for mimalloc
 
@@ -110,6 +113,7 @@ class VulkanValidationLayersConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         env = VirtualBuildEnv(self)
