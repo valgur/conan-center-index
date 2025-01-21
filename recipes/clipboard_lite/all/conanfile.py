@@ -1,13 +1,12 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.apple import is_apple_os
 import os
 
-required_conan_version = ">=1.53.0"
+from conan import ConanFile
+from conan.tools.apple import is_apple_os
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import get, copy, export_conandata_patches, apply_conandata_patches
+
+required_conan_version = ">=2.4"
 
 class ClipboardLiteConan(ConanFile):
     name = "clipboard_lite"
@@ -26,30 +25,10 @@ class ClipboardLiteConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -59,12 +38,7 @@ class ClipboardLiteConan(ConanFile):
             self.requires("xorg/system")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -74,7 +48,6 @@ class ClipboardLiteConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -90,12 +63,11 @@ class ClipboardLiteConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["clipboard_lite"]
-
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.requires.extend(["xorg::xcb", "xorg::x11", "xorg::xfixes"])
             self.cpp_info.system_libs.extend(["m", "pthread"])
         elif is_apple_os(self):
-            self.cpp_info.frameworks = ['Cocoa', 'Carbon', 'CoreFoundation', 'CoreGraphics', 'Foundation', 'AppKit']
+            self.cpp_info.frameworks = ["Cocoa", "Carbon", "CoreFoundation", "CoreGraphics", "Foundation", "AppKit"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.extend([
                 "shlwapi",
