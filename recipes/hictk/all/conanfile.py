@@ -1,13 +1,12 @@
 import os.path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.0"
 
 
 class HictkConan(ConanFile):
@@ -27,19 +26,6 @@ class HictkConan(ConanFile):
         "with_arrow": False,
         "with_eigen": True
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "11",
-            "clang": "7",
-            "gcc": "8",
-            "msvc": "192",
-        }
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -75,13 +61,7 @@ class HictkConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25 <4]")
@@ -109,15 +89,9 @@ class HictkConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
