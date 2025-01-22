@@ -51,9 +51,9 @@ class LibXpmConan(ConanFile):
     def requirements(self):
         if self.settings.os != "Windows":
             if self.options.use_xorg_system:
-                self.requires("xorg/system")
+                self.requires("xorg/system", transitive_headers=True)
             else:
-                self.requires("libx11/1.8.10")
+                self.requires("libx11/1.8.10", transitive_headers=True)
 
     def validate(self):
         if self.settings.os not in ("Windows", "Linux", "FreeBSD"):
