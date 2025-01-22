@@ -4,7 +4,8 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library, valid_min_cppstd, can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, save
+from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 
@@ -68,9 +69,6 @@ class JsonnetConan(ConanFile):
         if Version(self.version) == "0.17.0" and valid_min_cppstd(self, 17):
             raise ConanInvalidConfiguration(f"{self.ref} does not support C++{self.settings.compiler.cppstd}")
 
-        if not can_run(self):
-            raise ConanInvalidConfiguration(f"{self.ref} does not support cross building")
-
         if self.options.shared and is_msvc(self) and "d" in msvc_runtime_flag(self):
             raise ConanInvalidConfiguration(f"shared {self.ref} is not supported with MTd/MDd runtime")
 
@@ -106,6 +104,13 @@ class JsonnetConan(ConanFile):
         deps.generate()
 
     def build(self):
+        if not can_run(self):
+            # Bypass https://github.com/google/jsonnet/blob/v0.20.0/stdlib/CMakeLists.txt,
+            # which builds a simple native executable
+            cxx = AutotoolsToolchain(self).vars()["CXX_FOR_BUILD"]
+            self.run(f"{cxx} {os.path.join(self.source_folder, 'stdlib', 'to_c_array.cpp')} -o to_c_array")
+            self.run(f"./to_c_array {os.path.join(self.source_folder, 'stdlib', 'std.jsonnet')} {os.path.join(self.source_folder, 'core', 'std.jsonnet.h')}")
+            save(self, os.path.join(self.source_folder, "stdlib", "CMakeLists.txt"), "")
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
