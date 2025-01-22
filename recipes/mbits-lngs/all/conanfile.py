@@ -1,13 +1,10 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc
-from conan.tools.files import get, copy, save, rmdir
-from conan.tools.build import check_min_cppstd, cross_building
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 import textwrap
 
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd, cross_building
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import get, copy, save, rmdir
 
 required_conan_version = ">=1.53.0"
 
@@ -23,23 +20,12 @@ class MBitsLngsConan(ConanFile):
     package_type = "static-library"
     options = {
         "fPIC": [True, False],
+        "apps": [True, False],
     }
     default_options = {
         "fPIC": True,
+        "apps": False,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "11",
-            "clang": "12",
-            "msvc": "192",
-            "apple-clang": "11.0.3",
-        }
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -56,12 +42,7 @@ class MBitsLngsConan(ConanFile):
         self.requires("mbits-args/0.12.3")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        check_min_vs(self, 192)
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -72,6 +53,7 @@ class MBitsLngsConan(ConanFile):
         tc.variables["LNGS_LITE"] = False
         tc.variables["LNGS_LINKED_RESOURCES"] = True
         tc.variables["LNGS_NO_PKG_CONFIG"] = True
+        tc.variables["LNGS_APP"] = self.options.apps
         if cross_building(self):
             tc.variables["LNGS_REBUILD_RESOURCES"] = False
         tc.generate()
