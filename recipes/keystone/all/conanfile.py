@@ -54,7 +54,10 @@ class KeystoneConan(ConanFile):
         # INFO: include/llvm/ADT/STLExtras.h:54:34: error: no template named 'binary_function' in namespace 'std'
         # The std::binary_function was removed in C++17
         check_max_cppstd(self, 14)
-        
+
+    def build_requirements(self):
+        self.tool_requires("cpython/[~3.12]")
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["BUILD_LIBS_ONLY"] = True
