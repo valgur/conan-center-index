@@ -1,9 +1,11 @@
+import os
+import re
+import shutil
+import subprocess
+
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
-import os
-import subprocess
-import re
 
 
 class TestPackageConan(ConanFile):
@@ -32,6 +34,9 @@ class TestPackageConan(ConanFile):
             # We will dump information for the generated executable
             if self.settings.os in ["Android", "iOS"]:
                 # FIXME: Check output for these hosts
+                return
+
+            if not shutil.which("file"):
                 return
 
             output = subprocess.check_output(["file", self._test_executable]).decode()
