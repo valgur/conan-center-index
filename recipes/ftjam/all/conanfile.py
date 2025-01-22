@@ -85,8 +85,9 @@ class FtjamConan(ConanFile):
                     autotools.make(args=[f"JAM_TOOLSET={jam_toolset}", "-f", "builds/win32-gcc.mk"])
             else:
                 autotools = Autotools(self)
-                autotools.autoreconf(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
-                autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
+                with chdir(self, os.path.join(self.source_folder, "builds", "unix")):
+                    autotools.autoreconf(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
+                    autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
                 autotools.make()
 
     def _extract_license(self):
