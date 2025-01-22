@@ -2,9 +2,9 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
+from conan.tools.build import can_run, cross_building
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, replace_in_file, save
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsToolchain, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
 
@@ -54,8 +54,6 @@ class FtjamConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "jamgram.c"), "\n#line", "\n//#line")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()
@@ -88,7 +86,13 @@ class FtjamConan(ConanFile):
                 with chdir(self, os.path.join(self.source_folder, "builds", "unix")):
                     autotools.autoreconf(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
                     autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
-                autotools.make()
+                tc_vars = AutotoolsToolchain(self).vars()
+                cc_for_build = tc_vars["CC_FOR_BUILD"] if not can_run(self) else tc_vars["CC"]
+                autotools.make("jam0", [f"CC={cc_for_build}"])
+                self.run(f"./jam0 mkjambase CC={cc_for_build}")
+                if cross_building(self):
+                    replace_in_file(self, "Jamfile", "strip", GnuToolchain(self).extra_env.vars(self)["STRIP"])
+                self.run("./jam0")
 
     def _extract_license(self):
         txt = load(self, os.path.join(self.source_folder, "jam.c"))
