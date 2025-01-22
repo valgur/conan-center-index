@@ -27,25 +27,17 @@ class GlomapConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-        self.options["ceres-solver"].use_suitesparse = True
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
-        self.requires("ceres-solver/2.1.0", transitive_headers=True, transitive_libs=True)
+        self.requires("ceres-solver/2.1.0", transitive_headers=True, transitive_libs=True, options={"use_suitesparse": True})
         self.requires("colmap/3.10", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
