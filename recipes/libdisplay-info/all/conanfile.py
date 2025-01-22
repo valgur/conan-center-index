@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
+from conan.tools.env import VirtualBuildEnv, Environment
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -55,14 +55,19 @@ class LibdisplayInfoConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
-        if cross_building(self):
-            # https://mesonbuild.com/Builtin-options.html#specifying-options-per-machine
-            tc.project_options["build.pkg_config_path"] = self.generators_folder
         tc.generate()
 
         pkg_config_deps = PkgConfigDeps(self)
-        pkg_config_deps.build_context_activated = ["hwdata"]
+        pkg_config_deps.build_context_activated.append("hwdata")
         pkg_config_deps.generate()
+
+        if cross_building(self):
+            # required for dependency(..., native: true) in meson.build
+            env = Environment()
+            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
+            env.vars(self).save_script("pkg_config_for_build_env")
+
 
     def _patch_sources(self):
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('test')", "# subdir('test')")
