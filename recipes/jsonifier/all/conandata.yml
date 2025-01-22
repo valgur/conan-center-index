@@ -1,4 +1,7 @@
 sources:
+  "0.9.98":
+    url: "https://github.com/RealTimeChris/Jsonifier/archive/refs/tags/v0.9.98.tar.gz"
+    sha256: "1bc844c07afdcdd30761a7e6ea5a0964af4406818dcc912c7937959a85973e0e"
   "0.9.97":
     url: "https://github.com/RealTimeChris/Jsonifier/archive/refs/tags/v0.9.97.tar.gz"
     sha256: "859a90731c5623e4cb4200bfa7b5dcb32d75f019147b06f73b7ecc0eec31b231"
