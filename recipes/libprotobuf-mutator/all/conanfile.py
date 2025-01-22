@@ -4,8 +4,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
 import os
 
 required_conan_version = ">=1.54.0"
@@ -28,19 +26,6 @@ class LibProtobufMutatorConan(ConanFile):
         "shared": False,
         "fPIC": True
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "7",
-            "gcc": "5",
-            "msvc": "191",
-        }
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
@@ -66,10 +51,8 @@ class LibProtobufMutatorConan(ConanFile):
         self.requires("abseil/20240116.2")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+        # 17 is required for std::string_view from Abseil
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <4]")
@@ -78,21 +61,17 @@ class LibProtobufMutatorConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def _patch_sources(self):
+        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         # Preserves Conan as dependency manager
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-            "set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)",
-            "",
-        )
+        replace_in_file(self, cmakelists, "set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/external)", "")
         # Fix libprotobuf-mutator.pc installation origin path
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-            "${CMAKE_BINARY_DIR}/libprotobuf-mutator.pc",
-            "${CMAKE_CURRENT_BINARY_DIR}/libprotobuf-mutator.pc",
-        )
+        replace_in_file(self, cmakelists,
+                        "${CMAKE_BINARY_DIR}/libprotobuf-mutator.pc",
+                        "${CMAKE_CURRENT_BINARY_DIR}/libprotobuf-mutator.pc")
         # Do not include examples when running CMake configure to avoid more dependencies
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-            "add_subdirectory(examples EXCLUDE_FROM_ALL)",
-            "",
-        )
+        replace_in_file(self, cmakelists, "add_subdirectory(examples EXCLUDE_FROM_ALL)", "")
+        # Honor C++ standard from Conan
+        replace_in_file(self, cmakelists, "set(CMAKE_CXX_STANDARD 14)", "")
 
     def generate(self):
         tc = VirtualBuildEnv(self)
