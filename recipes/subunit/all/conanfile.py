@@ -4,7 +4,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -71,14 +71,14 @@ class SubunitConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
+        # Uses the removed 'imp' module
+        self.tool_requires("cpython/[<3.12]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -103,6 +103,7 @@ class SubunitConan(ConanFile):
             f"INSTALLSITEMAN1DIR={unix_path(self, os.path.join(self.build_folder, 'share', 'man', 'man1'))}",
             f"INSTALLSITEMAN3DIR={unix_path(self, os.path.join(self.build_folder, 'share', 'man', 'man3'))}",
         ]
+        tc.make_args.append("PYTHON=python")
         tc.generate()
 
         if is_msvc(self) or self._is_clang_cl:
