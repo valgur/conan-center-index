@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rm, rmdir, replace_in_file, export_conandata_patches, apply_conandata_patches
@@ -32,19 +32,6 @@ class LibiglConan(ConanFile):
         "fPIC": True,
         "header_only": False,
     }
-
-    @property
-    def _minimum_cpp_standard(self):
-        return 14
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "6",
-            "clang": "3.4",
-            "apple-clang": "5.1",
-        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -89,17 +76,9 @@ class LibiglConan(ConanFile):
             raise ConanInvalidConfiguration(f"Architecture {self.settings.arch} is not supported")
         if is_msvc_static_runtime(self) and not self.options.header_only:
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
-
-        def loose_lt_semver(v1, v2):
-            return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
-
-        check_min_cppstd(self, self._minimum_cpp_standard)
-        min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if min_version and loose_lt_semver(self.settings.compiler.version, min_version):
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
-                f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
-            )
+        check_min_cppstd(self, 14)
+        # v2.5.0 fails with WindingNumberTree.h:217:57: error: template-id not allowed for destructor
+        check_max_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
