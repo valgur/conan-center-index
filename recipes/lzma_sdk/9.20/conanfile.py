@@ -54,9 +54,9 @@ class LzmaSdkConan(ConanFile):
             tc = NMakeToolchain(self)
             tc.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             tc = AutotoolsToolchain(self)
+            for var, val in tc.vars().items():
+                tc.make_args.append(f"{var}={val}")
             tc.generate()
             deps = AutotoolsDeps(self)
             deps.generate()
