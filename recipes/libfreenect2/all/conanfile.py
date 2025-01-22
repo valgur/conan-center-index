@@ -80,6 +80,9 @@ class Libfreenect2Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # The CMake target for OpenGL works more reliably with libglvnd
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "${OPENGL_gl_LIBRARY}", "OpenGL::GL")
 
     def generate(self):
         tc = CMakeToolchain(self)
