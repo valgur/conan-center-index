@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-21:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-22:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -34,6 +34,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cpp-validator/2.1.1
 - cppserver/1.0.4.1
 - cub/2.7.0
 - cuda-samples/12.5
@@ -164,7 +165,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
-- openvino/2024.5.0
 - osgearth/3.7
 - osrm/5.27.1
 - pangolin/0.9.1
