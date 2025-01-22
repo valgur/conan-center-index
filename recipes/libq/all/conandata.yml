@@ -7,3 +7,6 @@ patches:
     - patch_file: "patches/0001-cmake-remove-hardcoded-flags.patch"
       patch_description: "Remove hardcoded flags from CMakeLists.txt"
       patch_type: "conan"
+    - patch_file: "patches/missing-include.patch"
+      patch_description: "Add missing #include <cstdint>"
+      patch_type: "portability"

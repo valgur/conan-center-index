@@ -1,0 +1,10 @@
+--- a/libs/q/include/q/stacktrace.hpp
++++ b/libs/q/include/q/stacktrace.hpp
+@@ -17,6 +17,7 @@
+ #ifndef LIBQ_STACKTRACE_HPP
+ #define LIBQ_STACKTRACE_HPP
+ 
++#include <cstdint>
+ #include <iosfwd>
+ #include <vector>
+ #include <string>
