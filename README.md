@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-22:
+Package versions that are available here but not yet on the main CCI repo as of 2025-01-23:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -49,7 +49,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fortran/cci.latest
 - freeglut/3.6.0
 - g2o/20230806
-- gdal/3.9.2
+- gdal/3.10.0
 - gdalcpp/1.3.0
 - gfortran/13.2.0
 - gici/cci.20240421
@@ -92,8 +92,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - icu4x/1.5.1
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
+- influxdb-cxx/0.7.3
 - iridescence/0.1.3
 - json-glib/1.10.6
+- jsonifier/0.9.98
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libbpf/1.4.6
