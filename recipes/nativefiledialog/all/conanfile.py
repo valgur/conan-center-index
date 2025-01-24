@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import chdir, copy, get, save
+from conan.tools.files import chdir, copy, get, save, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
@@ -103,6 +103,9 @@ class NativefiledialogConan(ConanFile):
 
     def build(self):
         with chdir(self, self._build_subdir):
+            # Use the correct pkg-config executable
+            replace_in_file(self, "premake5.lua",  "pkg-config", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+
             if is_msvc(self):
                 ide_year = self._vs_ide_year
                 # 2022 is not directly supported as of v116
