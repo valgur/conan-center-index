@@ -4,6 +4,7 @@ import shutil
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, rename, replace_in_file, rmdir, mkdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
@@ -107,7 +108,7 @@ class NsprConan(ConanFile):
 
         # For cross-compilation support
         buildenv_vars = VirtualBuildEnv(self).vars()
-        build_cc = unix_path(self, buildenv_vars.get("CC", str(self.settings_build.compiler)))
+        build_cc = tc.vars()["CC_FOR_BUILD" if cross_building(self) else "CC"]
         tc.configure_args.append(f"HOST_CC={build_cc}")
         compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
         strip = compilers_from_conf.get("strip", buildenv_vars.get("STRIP", "strip"))
