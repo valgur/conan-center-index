@@ -180,9 +180,9 @@ class NetpbmConan(ConanFile):
             shutil.copy("config.mk.in", "config.mk")
             autotools = Autotools(self)
             if not can_run(self):
-                # Build buildtools using any native C compiler
                 with chdir(self, os.path.join(self.source_folder, "buildtools")):
-                    autotools.make(args=["CC=cc"])
+                    cc = GnuToolchain(self).extra_env.vars(self)["CC_FOR_BUILD"]
+                    autotools.make(args=[f"CC={cc}"])
             autotools.make()
 
     def package(self):
