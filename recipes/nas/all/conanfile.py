@@ -2,7 +2,6 @@ from conan import ConanFile
 
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.layout import basic_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, get, export_conandata_patches, apply_conandata_patches, rm, copy, load, save
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 import os
@@ -63,10 +62,6 @@ class NasRecipe(ConanFile):
         get(self, **self.conan_data["sources"][self.version][0],  strip_root=True)
         apply_conandata_patches(self)
 
-    @property
-    def _user_info_build(self):
-        return getattr(self, "user_info_build", self.deps_user_info)
-
     def generate(self):
         autotools = AutotoolsToolchain(self)
         autotools.generate()
@@ -74,20 +69,17 @@ class NasRecipe(ConanFile):
         deps = AutotoolsDeps(self)
         deps.generate()
 
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
     @property
     def _imake_irulesrc(self):
         return self.conf.get("user.xorg-cf-files:config-path")
 
     @property
     def _imake_defines(self):
-        return "-DUsrLibDir={}".format(os.path.join(self.package_folder, "lib"))
+        return f"-DUsrLibDir={os.path.join(self.package_folder, 'lib')}"
 
     @property
     def _imake_make_args(self):
-        return ["IRULESRC={}".format(self._imake_irulesrc), "IMAKE_DEFINES={}".format(self._imake_defines)]
+        return [f"IRULESRC={self._imake_irulesrc}", f"IMAKE_DEFINES={self._imake_defines}"]
 
     def build(self):
         for gnu_config in [
@@ -99,7 +91,7 @@ class NasRecipe(ConanFile):
                 copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=config_folder)
 
         with chdir(self, self.source_folder):
-            self.run("imake -DUseInstalled -I{} {}".format(self._imake_irulesrc, self._imake_defines), env="conanbuild")
+            self.run(f"imake -DUseInstalled -I{self._imake_irulesrc} {self._imake_defines}", env="conanbuild")
             autotools = Autotools(self)
             # j1 avoids some errors while trying to run this target
             autotools.make(target="World", args=["-j1"] + self._imake_make_args)
@@ -118,7 +110,7 @@ class NasRecipe(ConanFile):
         tmp_install = os.path.join(self.build_folder, "prefix")
         self.output.warning(tmp_install)
         install_args = [
-                        "DESTDIR={}".format(tmp_install),
+                        f"DESTDIR={tmp_install}",
                         "INCDIR=/include",
                         "ETCDIR=/etc",
                         "USRLIBDIR=/lib",
