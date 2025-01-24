@@ -5,7 +5,6 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 
 required_conan_version = ">=1.47.0"
 
@@ -109,14 +108,12 @@ class MoldConan(ConanFile):
         tc.variables["MOLD_USE_SYSTEM_MIMALLOC"] = True
         tc.variables["MOLD_USE_SYSTEM_TBB"] = False # see https://github.com/conan-io/conan-center-index/pull/23575#issuecomment-2059154281
         tc.variables["CMAKE_INSTALL_LIBEXECDIR"] = "libexec"
+        tc.variables["HAVE_ZSTD_H"] = True
         tc.generate()
 
         cd = CMakeDeps(self)
         cd.set_property("zstd", "cmake_target_name", "zstd::zstd")
         cd.generate()
-
-        vbe = VirtualBuildEnv(self)
-        vbe.generate()
 
     def _patch_sources(self):
         # Make sure these have been unvendored correctly.
