@@ -642,11 +642,12 @@ class FFMpegConan(ConanFile):
         ranlib = compilers_from_conf.get("ranlib", buildenv_vars.get("RANLIB"))
         if ranlib:
             args.append(f"--ranlib={unix_path(self, ranlib)}")
-        # for some reason pkgconf from conan can't find .pc files on Linux in the context of ffmpeg configure...
-        if self.settings_build.os != "Linux":
-            pkg_config = self.conf.get("tools.gnu:pkg_config", default=buildenv_vars.get("PKG_CONFIG"), check_type=str)
-            if pkg_config:
-                args.append(f"--pkg-config={unix_path(self, pkg_config)}")
+        if cross_building(self):
+            build_cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD"]
+            args.append(f"--host-cc={unix_path(self, build_cc)}")
+        pkg_config = self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str)
+        if pkg_config:
+            args.append(f"--pkg-config={unix_path(self, pkg_config)}")
         if is_msvc(self):
             args.append("--toolchain=msvc")
             if not check_min_vs(self, "190", raise_invalid=False):
