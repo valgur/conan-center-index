@@ -18,7 +18,7 @@ from conan.tools.microsoft import is_msvc, unix_path
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class LibiconvConan(ConanFile):
@@ -84,22 +84,6 @@ class LibiconvConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            if self.settings.arch == "x86":
-                tc.update_configure_args({
-                    "--host": "i686-w64-mingw32",
-                    "RC": "windres --target=pe-i386",
-                    "WINDRES": "windres --target=pe-i386",
-                })
-            elif self.settings.arch == "x86_64":
-                tc.update_configure_args({
-                    "--host": "x86_64-w64-mingw32",
-                    "RC": "windres --target=pe-x86-64",
-                    "WINDRES": "windres --target=pe-x86-64",
-                })
-        if is_msvc(self) and Version(self.settings.compiler.version) >= "180":
-            # https://github.com/conan-io/conan/issues/6514
-            tc.extra_cflags.append("-FS")
         if cross_building(self) and is_msvc(self):
             triplet_arch_windows = {"x86_64": "x86_64", "x86": "i686", "armv8": "aarch64"}
             # ICU doesn't like GNU triplet of conan for msvc (see https://github.com/conan-io/conan/issues/12546)

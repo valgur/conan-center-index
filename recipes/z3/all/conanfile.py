@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, copy, rmdir
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2"
 
 
 class Z3Conan(ConanFile):
@@ -34,21 +34,6 @@ class Z3Conan(ConanFile):
         "use_gmp": False
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        # Z3 requires C++17, and it is recommended to use VS2019 or later
-        # Compiling z3 with GCC 7 results in a segfault
-        return {
-            "gcc": "8",
-            "clang": "5",
-            "apple-clang": "9",
-            "msvc": "192",
-        }
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -65,13 +50,10 @@ class Z3Conan(ConanFile):
             self.requires("gmp/6.3.0")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+    def validate_build(self):
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")

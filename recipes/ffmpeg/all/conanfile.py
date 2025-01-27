@@ -371,8 +371,9 @@ class FFMpegConan(ConanFile):
                 self.tool_requires("nasm/2.16.01")
             else:
                 self.tool_requires("yasm/1.3.0")
-        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.settings.os != "Linux" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            # See https://github.com/conan-io/conan-center-index/pull/26447#discussion_r1926682155
+            self.tool_requires("pkgconf/[>=2.1 <3]")
         if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -645,8 +646,11 @@ class FFMpegConan(ConanFile):
         if cross_building(self):
             build_cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD"]
             args.append(f"--host-cc={unix_path(self, build_cc)}")
-        pkg_config = self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str)
+        pkg_config = self.conf.get("tools.gnu:pkg_config", default=buildenv_vars.get("PKG_CONFIG"), check_type=str)
         if pkg_config:
+            # the ffmpeg configure script hardcodes the name of the executable,
+            # unlike other tools that use the PKG_CONFIG environment variable
+            # if we are aware the user has requested a specific pkg-config, we pass it to the configure script
             args.append(f"--pkg-config={unix_path(self, pkg_config)}")
         if is_msvc(self):
             args.append("--toolchain=msvc")
