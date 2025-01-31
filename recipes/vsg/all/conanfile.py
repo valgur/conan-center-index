@@ -1,13 +1,14 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
-from conan.tools.files import get, copy, rm, rmdir, collect_libs
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
 import os
 
-required_conan_version = ">=1.53.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
+from conan.tools.files import get, copy, rm, rmdir, collect_libs
+from conan.tools.gnu import PkgConfigDeps
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
+
+required_conan_version = ">=2.0.9"
 
 class VsgConan(ConanFile):
     name = "vsg"
@@ -20,7 +21,7 @@ class VsgConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
-        "max_devices": [1,2,3,4],
+        "max_devices": [1, 2, 3, 4],
         "fPIC": [True, False],
     }
     default_options = {
@@ -28,45 +29,25 @@ class VsgConan(ConanFile):
         "max_devices" : 1,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-        }
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def requirements(self):
         self.requires("vulkan-loader/1.3.290.0", transitive_headers=True)
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.requires("xorg/system")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        check_min_vs(self, 191)
+        check_min_cppstd(self, 17)
 
         if is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(f"{self.name} does not support MSVC static runtime (MT/MTd) configurations, only dynamic runtime (MD/MDd) is supported")
 
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-            if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
+    def build_requirements(self):
+        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -78,7 +59,9 @@ class VsgConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.generate()
 
+        deps = PkgConfigDeps(self)
         deps.generate()
 
     def build(self):
@@ -106,6 +89,8 @@ class VsgConan(ConanFile):
 
         self.cpp_info.set_property("cmake_file_name", "vsg")
         self.cpp_info.set_property("cmake_target_name", "vsg::vsg")
+        self.cpp_info.requires = ["vulkan-loader::vulkan-loader"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("pthread")
+            self.cpp_info.requires.append("xorg::xcb")
