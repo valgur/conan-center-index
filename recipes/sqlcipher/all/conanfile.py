@@ -4,14 +4,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, NMakeToolchain, NMakeDeps
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.58.0"
+required_conan_version = ">=2.0"
 
 
 class SqlcipherConan(ConanFile):
@@ -82,7 +82,6 @@ class SqlcipherConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-
     @property
     def _temp_store_nmake_value(self):
         return {
@@ -102,9 +101,6 @@ class SqlcipherConan(ConanFile):
         }.get(str(self.options.temporary_store))
 
     def _generate_msvc(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = NMakeToolchain(self)
         env = tc.environment()
         crypto_dep = self.dependencies[str(self.options.crypto_library)].cpp_info
@@ -136,9 +132,6 @@ class SqlcipherConan(ConanFile):
         return self.options.crypto_library == "commoncrypto" and is_apple_os(self)
 
     def _generate_unix(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -168,6 +161,9 @@ class SqlcipherConan(ConanFile):
             tc.configure_args.append("--with-crypto-lib=commoncrypto")
         else:
             tc.extra_defines.append("SQLCIPHER_CRYPTO_OPENSSL")
+        if cross_building(self):
+            build_cc = tc.vars().get("CC_FOR_BUILD", "cc")
+            tc.configure_args.append(f"BUILD_CC={build_cc}")
         tc.generate()
 
         deps = AutotoolsDeps(self)
