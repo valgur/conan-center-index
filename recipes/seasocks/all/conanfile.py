@@ -1,12 +1,13 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import get, copy, rmdir, replace_in_file
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=1.53.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import get, copy, rmdir, replace_in_file
+from conan.tools.scm import Version
+
+required_conan_version = ">=2.0"
 
 class SeasocksConan(ConanFile):
     name = "seasocks"
@@ -31,18 +32,6 @@ class SeasocksConan(ConanFile):
     def _min_cppstd(self):
         return 11 if Version(self.version) < "1.4.5" else 17
 
-    @property
-    def _compilers_minimum_version(self):
-        if Version(self.version) < "1.4.5":
-            return {}
-        else:
-            return {
-                "msvc": "191",
-                "gcc": "7",
-                "clang": "7",
-                "apple-clang": "10",
-            }
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -61,18 +50,13 @@ class SeasocksConan(ConanFile):
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support this os")
-
         check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+
+    def build_requirements(self):
+        self.tool_requires("cpython/[~3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def _patch_sources(self):
         # No warnings as errors
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, cmakelists, "-Werror", "")
@@ -90,7 +74,6 @@ class SeasocksConan(ConanFile):
         deps.generate()
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
