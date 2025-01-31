@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir, replace_in_file, mkdir
@@ -31,19 +30,6 @@ class OrcRecipe(ConanFile):
         "build_tools": False,
         "build_avx512": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-        }
 
     @property
     def _should_patch_thirdparty_toolchain(self):
@@ -76,19 +62,21 @@ class OrcRecipe(ConanFile):
         self.requires("zstd/[~1.5]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        self._patch_sources()
+        if self._should_patch_thirdparty_toolchain:
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "ThirdpartyToolchain",
+                            "ConanThirdpartyToolchain")
+        # Allow shared builds
+        replace_in_file(self, os.path.join(self.source_folder, "c++", "src", "CMakeLists.txt"),
+                        "add_library (orc STATIC ${SOURCE_FILES})",
+                        "add_library (orc ${SOURCE_FILES})")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -104,7 +92,7 @@ class OrcRecipe(ConanFile):
         tc.variables["STOP_BUILD_ON_WARNING"] = False
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
 
-        protoc_path = os.path.join(self.dependencies["protobuf"].cpp_info.bindir, "protoc")
+        protoc_path = os.path.join(self.dependencies.build["protobuf"].cpp_info.bindir, "protoc")
         tc.variables["PROTOBUF_EXECUTABLE"] = protoc_path.replace("\\", "/")
         tc.variables["HAS_POST_2038"] = self.settings.os != "Windows"
         tc.variables["HAS_PRE_1970"] = self.settings.os != "Windows"
@@ -112,14 +100,6 @@ class OrcRecipe(ConanFile):
 
         deps = CMakeDeps(self)
         deps.generate()
-
-    def _patch_sources(self):
-        if self._should_patch_thirdparty_toolchain:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "ThirdpartyToolchain", "ConanThirdpartyToolchain")
-        # Allow shared builds
-        replace_in_file(self, os.path.join(self.source_folder, "c++", "src", "CMakeLists.txt"),
-                        "add_library (orc STATIC ${SOURCE_FILES})", "add_library (orc ${SOURCE_FILES})")
 
     def build(self):
         cmake = CMake(self)
