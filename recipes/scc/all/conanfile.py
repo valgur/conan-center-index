@@ -4,7 +4,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc
@@ -79,11 +79,11 @@ class SystemcComponentsConan(ConanFile):
             #   src\sysc\tlm\scc\tlm_mm.h(31,20): error C2061: syntax error: identifier '__attribute__'
             raise ConanInvalidConfiguration(f"{self.ref} recipe is not supported on MSVC. Contributions are welcome!")
         check_min_cppstd(self, 11)
-            # C++20 fails with
-            # third_party/scv-tr/src/scv-tr/_scv_introspection.h:1613:39: error: expected unqualified-id before ‘)’ token
-            # and
-            # third_party/lwtr4sc/src/lwtr/lwtr_text.cpp:138:34: error: ‘format’ is not a constant expression
-            check_min_cppstd(self, 17)
+        # C++20 fails with
+        # third_party/scv-tr/src/scv-tr/_scv_introspection.h:1613:39: error: expected unqualified-id before ‘)’ token
+        # and
+        # third_party/lwtr4sc/src/lwtr/lwtr_text.cpp:138:34: error: ‘format’ is not a constant expression
+        check_max_cppstd(self, 17)
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration("GCC < version 7 is not supported")
 
