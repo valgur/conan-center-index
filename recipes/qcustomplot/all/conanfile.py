@@ -25,7 +25,7 @@ class QCustomPlotConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_opengl": False,
+        "with_opengl": True,
     }
 
     def export_sources(self):
@@ -46,7 +46,7 @@ class QCustomPlotConan(ConanFile):
             self.requires("qt/[>=6.4 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
         else:
             self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True, run=can_run(self))
-        if self.options.with_opengl and self.settings.os == "Windows":
+        if self.options.with_opengl:
             self.requires("opengl/system")
 
     def validate(self):
@@ -104,5 +104,4 @@ class QCustomPlotConan(ConanFile):
             self.cpp_info.defines.append("QCUSTOMPLOT_USE_LIBRARY")
         if self.options.with_opengl:
             self.cpp_info.defines.append("QCUSTOMPLOT_USE_OPENGL")
-            if self.settings.os == "Windows":
-                self.cpp_info.requires.append("opengl::opengl")
+            self.cpp_info.requires.append("opengl::opengl")
