@@ -63,6 +63,8 @@ class QwtConan(ConanFile):
 
     def requirements(self):
         self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        if self.options.opengl:
+            self.requires("opengl/system")
 
     def validate(self):
         qt_options = self.dependencies["qt"].options
@@ -130,6 +132,7 @@ class QwtConan(ConanFile):
         else:
             self.cpp_info.defines.append("NO_QWT_WIDGETS")
         if self.options.opengl:
+            self.cpp_info.requires.append("opengl::opengl")
             self.cpp_info.requires.append("qt::qtOpenGL")
             if Version(self.dependencies["qt"].ref.version).major >= "6":
                 self.cpp_info.requires.append("qt::qtOpenGLWidgets")
