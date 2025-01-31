@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
@@ -57,6 +58,10 @@ class YASMConan(ConanFile):
             "--disable-rpath",
             "--disable-nls",
         ])
+        if cross_building(self):
+            build_cc = tc.vars()["CC_FOR_BUILD"]
+            tc.configure_args.append(f"CC_FOR_BUILD={build_cc}")
+            tc.configure_args.append(f"CCLD_FOR_BUILD={build_cc}")
         tc.generate()
 
     def _generate_cmake(self):
