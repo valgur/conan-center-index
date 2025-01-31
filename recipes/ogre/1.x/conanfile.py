@@ -261,7 +261,7 @@ class OgreConanFile(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("zziplib/0.13.72")
         if self.options.get_safe("build_component_bites") or self.options.get_safe("build_rendersystem_tiny"):
-            self.requires("sdl/2.30.7")
+            self.requires("sdl/2.30.9")
         if self.options.get_safe("build_rendersystem_tiny") and self.options.with_openmp:
             self.requires("openmp/system")
         if self._build_opengl:

@@ -377,7 +377,7 @@ class VtkConan(ConanFile):
             self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
         if self.options.with_sdl2:
             # Used in public vtkSDL2OpenGLRenderWindow.h
-            self.requires("sdl/2.30.5", transitive_headers=True, transitive_libs=True)
+            self.requires("sdl/2.30.9", transitive_headers=True, transitive_libs=True)
         if self.options.with_sqlite:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_theora:

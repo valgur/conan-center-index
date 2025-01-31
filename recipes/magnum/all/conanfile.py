@@ -232,7 +232,7 @@ class MagnumConan(ConanFile):
             self.requires("glfw/3.3.7")
 
         if self.options.sdl2_application:
-            self.requires("sdl/2.0.20")
+            self.requires("sdl/2.30.9")
 
     def validate(self):
         tools.check_min_cppstd(self, 11)
