@@ -37,6 +37,7 @@ class QtAwesomeConan(ConanFile):
         self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
 
     def build_requirements(self):
+        self.tool_requires("cmake/[>=3.16 <4]")
         if not can_run(self):
             self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
 
