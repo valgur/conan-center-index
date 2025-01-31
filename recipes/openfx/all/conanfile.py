@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -55,6 +56,13 @@ class openfx(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
+
+        # https://github.com/AcademySoftwareFoundation/openfx/blob/OFX_Release_1.5/HostSupport/include/ofxhBinary.h#L9-L24
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            if self.settings.arch not in ["x86", "x86_64"]:
+                raise ConanInvalidConfiguration(f"{self.settings.arch} {self.settings.os} is not supported")
+        elif self.settings.os != "Windows" and not is_apple_os(self):
+            raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
