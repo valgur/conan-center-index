@@ -72,6 +72,7 @@ class PciUtilsConan(ConanFile):
     def generate(self):
         yes_no = lambda v: "yes" if v else "no"
         tc = GnuToolchain(self)
+        tc_vars = tc.extra_env.vars(self)
         tc.make_args["SHARED"] = yes_no(self.options.shared)
         tc.make_args["ZLIB"] = yes_no(self.options.with_zlib)
         tc.make_args["HWDB"] = yes_no(self.options.with_udev)
@@ -79,8 +80,9 @@ class PciUtilsConan(ConanFile):
         tc.make_args["PREFIX"] = "/"
         tc.make_args["DNS"] = "no"
         tc.make_args["HOST"] = self._host
+        tc.make_args["CC"] = tc_vars["CC"]
         if cross_building(self):
-            cross_compile_prefix = tc.extra_env.vars(self)["STRIP"].replace("-strip", "-")
+            cross_compile_prefix = tc_vars["STRIP"].replace("-strip", "-")
             tc.make_args["CROSS_COMPILE"] = cross_compile_prefix
         for dep in reversed(self.dependencies.host.topological_sort.values()):
             for lib in dep.cpp_info.aggregated_components().libs:
