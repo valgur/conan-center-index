@@ -60,7 +60,7 @@ class GlimPackage(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/4.9.0", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/4.2", transitive_headers=True, transitive_libs=True)
-        self.requires("gtsam_points/1.0.4", transitive_headers=True, transitive_libs=True, options={"cuda": self.options.cuda})
+        self.requires("gtsam_points/1.0.6", transitive_headers=True, transitive_libs=True, options={"cuda": self.options.cuda})
         self.requires("nlohmann_json/3.11.3", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
         self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
