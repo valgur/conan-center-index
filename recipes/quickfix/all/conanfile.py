@@ -3,11 +3,10 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, collect_libs
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class QuickfixConan(ConanFile):
@@ -76,14 +75,14 @@ class QuickfixConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["HAVE_SSL"] = self.options.with_ssl
         tc.variables["HAVE_POSTGRESQL"] = self.options.with_postgres
         tc.variables["HAVE_MYSQL"] = bool(self.options.with_mysql)
         if self.options.enable_boost_atomic_count:
             tc.preprocessor_definitions["ENABLE_BOOST_ATOMIC_COUNT"] = ""
+            inc = self.dependencies["boost"].cpp_info.includedir
+            tc.extra_cxxflags.append(f"-I{inc}")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
