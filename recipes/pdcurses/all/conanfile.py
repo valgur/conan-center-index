@@ -5,7 +5,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import chdir, copy, get, load, replace_in_file, rmdir, save, rename
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -85,8 +84,6 @@ class PDCursesConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()
@@ -94,7 +91,7 @@ class PDCursesConan(ConanFile):
             deps.generate()
         else:
             tc = AutotoolsToolchain(self)
-            tc.configure_args.append("--prefix={}".format(unix_path(self, self.package_folder)))
+            tc.configure_args.append(f"--prefix={unix_path(self, self.package_folder)}")
             tc.configure_args.append("--enable-widec" if self.options.enable_widec else "--disable-widec")
             if self.options.shared:
                 tc.make_args.append("DLL=Y")
@@ -112,10 +109,20 @@ class PDCursesConan(ConanFile):
                 if self.options.enable_widec:
                     tc.make_args.append("WIDE=Y")
 
-            # PDCurses insists on including X11 headers without an X11/ prefix.
-            x11_includedirs = AutotoolsDeps(self).environment.vars(self).get("CPPFLAGS", "").split(" ")
-            x11_includedirs = " ".join(f"{inc}/X11" for inc in x11_includedirs if inc.startswith("-I"))
-            tc.configure_args.append(f"MH_XINC_DIR={x11_includedirs}")
+            if self.options.get_safe("with_x11"):
+                # X11 handling in the autoconf macros is broken when using relocated X11 libs.
+                # Provide them via AutotoolsToolchain instead.
+                x11_includedirs = []
+                x11_libdirs = []
+                for _, dep in self.dependencies.items():
+                    for inc in dep.cpp_info.includedirs:
+                        if os.path.exists(os.path.join(inc, "X11")):
+                            x11_includedirs.append(unix_path(self, inc))
+                            # PDCurses insists on including some X11 headers without an X11/ prefix.
+                            x11_includedirs.append(unix_path(self, os.path.join(inc, "X11")))
+                            x11_libdirs.append(unix_path(self, os.path.join(dep.package_folder, "lib")))
+                tc.configure_args.append("MH_XINC_DIR=" + " ".join(f"-I{x}" for x in x11_includedirs))
+                tc.configure_args.append("MH_XLIB_DIR=" + " ".join(f"-L{x}" for x in x11_libdirs))
             tc.generate()
 
             deps = AutotoolsDeps(self)
@@ -125,7 +132,7 @@ class PDCursesConan(ConanFile):
         if is_msvc(self):
             replace_in_file(self, os.path.join(self.source_folder, "wincon", "Makefile.vc"),
                             "$(CFLAGS)",
-                            "$(CFLAGS) -{}".format(msvc_runtime_flag(self)))
+                            f"$(CFLAGS) -{msvc_runtime_flag(self)}")
         replace_in_file(self, os.path.join(self.source_folder, "x11", "Makefile.in"),
                         "$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a",
                         "-$(INSTALL) -c -m 644 $(osdir)/libXCurses.a $(libdir)/libXCurses.a")
@@ -133,11 +140,14 @@ class PDCursesConan(ConanFile):
                         "\nall:\t",
                         "\nall:\t{}\t#".format("@SHL_TARGETS@" if self.options.shared else "$(LIBCURSES)"))
 
-        # X11 handling in the autoconf macros is broken when using relocated X11 libs.
-        # Provide them via AutotoolsToolchain instead.
-        replace_in_file(self, os.path.join(self.source_folder, "x11", "configure.ac"),
-                        "MH_CHECK_X_INC",
-                        "AC_SUBST(MH_XINC_DIR)")
+        if self.options.get_safe("with_x11"):
+            # Provide X library paths via AutotoolsToolchain.
+            replace_in_file(self, os.path.join(self.source_folder, "x11", "configure.ac"),
+                            "MH_CHECK_X_INC",
+                            "AC_SUBST(MH_XINC_DIR)")
+            replace_in_file(self, os.path.join(self.source_folder, "x11", "configure.ac"),
+                            "MH_CHECK_X_LIB",
+                            "AC_SUBST(MH_XLIB_DIR)")
 
     def build(self):
         self._patch_sources()
