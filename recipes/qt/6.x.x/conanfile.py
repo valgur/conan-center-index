@@ -158,8 +158,6 @@ class QtConan(ConanFile):
     default_options.update({module: "auto" for module in _modules})
     # essential_modules, addon_modules, deprecated_modules, preview_modules:
     #    these are only provided for convenience, set to False by default
-    _module_statuses = ["essential", "addon", "deprecated", "preview"]
-    options.update({f"{status}_modules": [True, False] for status in _module_statuses})
     default_options.update({f"{status}_modules": False for status in _module_statuses})
 
     short_paths = True
@@ -300,15 +298,21 @@ class QtConan(ConanFile):
         return module in self._enabled_modules
 
     def validate(self):
-        if os.getenv("CONAN_CENTER_BUILD_SERVICE") is not None:
-            # https://github.com/conan-io/conan-center-index/issues/13472
-            if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) >= "11" or \
-                self.info.settings.compiler == "clang" and Version(self.info.settings.compiler.version) >= "12":
-                raise ConanInvalidConfiguration("qt is not supported on gcc11 and clang >= 12 on C3I until conan-io/conan-center-index#13472 is fixed")
+        skip_ci_reason = self.conf.get("user.conancenter:skip_ci_build", check_type=str)
+        if skip_ci_reason:
+            # Currently failing on CI for gcc11, see conan-io/conan-center-index#13472
+            raise ConanInvalidConfiguration(skip_ci_reason)
 
-        check_min_cppstd(self, 17)
+        if self.settings_target is None:
+            # Raise when consumed in the host context, but allow comaptible when
+            # in the build context
+            check_min_cppstd(self, 17)
 
-        if Version(self.version) >= "6.6.1" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "13.1":
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "12":
+            raise ConanInvalidConfiguration("apple-clang >= 12 required by qt >= 6.4.0")
+
+        if Version(self.version) >= "6.6.1" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "13":
+            # note: assuming that by now, any xcode 13 is updated to the latest 13.4.1
             # https://bugreports.qt.io/browse/QTBUG-119490
             raise ConanInvalidConfiguration("apple-clang >= 13.1 is required by qt >= 6.6.1 cf QTBUG-119490")
 
@@ -1588,6 +1592,8 @@ class QtConan(ConanFile):
             _add_build_modules_for_component(c)
 
         self.cpp_info.set_property("cmake_build_modules", build_modules_list)
+
+        self.conf_info.define("user.qt:tools_directory", os.path.join(self.package_folder, "bin" if self.settings.os == "Windows" else "libexec"))
 
 
 def _parse_gitmodules_file(qtmodules_path):
