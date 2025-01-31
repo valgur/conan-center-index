@@ -124,7 +124,8 @@ class OpenSceneGraphConanFile(ConanFile):
     def requirements(self):
         if self.options.enable_windowing_system and self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
-        self.requires("opengl/system")
+        # Used in osg/GL public header
+        self.requires("opengl/system", transitive_headers=True)
 
         if self.options.use_fontconfig:
             self.requires("fontconfig/2.14.2")
