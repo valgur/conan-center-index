@@ -54,12 +54,11 @@ class TkConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
-        self.requires(
-            f"tcl/{self.version}", transitive_headers=True, transitive_libs=True
-        )
+        self.requires(f"tcl/{self.version}", transitive_headers=True, transitive_libs=True)
         if self.settings.os == "Linux":
             self.requires("fontconfig/2.13.93")
-            self.requires("xorg/system")
+            # Used in public tk.h
+            self.requires("xorg/system", transitive_headers=True)
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -72,9 +71,7 @@ class TkConan(ConanFile):
 
     def validate(self):
         if self.dependencies["tcl"].options.shared != self.options.shared:
-            raise ConanInvalidConfiguration(
-                "The shared option of tcl and tk must have the same value"
-            )
+            raise ConanInvalidConfiguration("The shared option of tcl and tk must have the same value")
         if self.settings.os == "Macos" and cross_building(self):
             raise ConanInvalidConfiguration("The tk conan recipe does not currently support Macos cross-builds. A contribution to add this functionality would be welcome.")
 
@@ -82,12 +79,7 @@ class TkConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
