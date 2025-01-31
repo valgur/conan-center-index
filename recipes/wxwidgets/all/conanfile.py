@@ -441,7 +441,7 @@ class wxWidgetsConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.defines.append("UNICODE")
         if self.settings.os != "Windows":
-            self.cpp_info.defines.append("-D_FILE_OFFSET_BITS=64")
+            self.cpp_info.defines.append("_FILE_OFFSET_BITS=64")
         if self.options.shared:
             self.cpp_info.defines.append("WXUSINGDLL")
         # https://github.com/wxWidgets/wxWidgets/blob/v3.2.6/build/cmake/toolkit.cmake
