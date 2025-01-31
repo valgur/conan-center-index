@@ -82,7 +82,7 @@ class Perf(ConanFile):
     def generate(self):
         tc = GnuToolchain(self)
         tc_vars = tc.extra_env.vars(self)
-        deps_vars = AutotoolsDeps(self).environment.vars(self)
+        deps_vars = AutotoolsDeps(self).vars()
         tc.make_args["NO_LIBPYTHON"] = 1
         tc.make_args["NO_LIBPERL"] = 1
         tc.make_args["NO_LIBTRACEEVENT"] = 1
@@ -94,7 +94,7 @@ class Perf(ConanFile):
         tc.make_args["LDFLAGS"] = deps_vars["LDFLAGS"]
         tc.make_args["LIBS"] = deps_vars["LIBS"]
         if not can_run(self):
-            tc.make_args["HOSTCC"] = "cc"
+            tc.make_args["HOSTCC"] = tc_vars["CC_FOR_BUILD"]
             tc.make_args["LD"] = tc_vars["CC"]
             tc.make_args["STRIP"] = tc_vars["STRIP"]
             tc.make_args["OBJDUMP"] = tc.make_args["STRIP"].replace("strip", "objdump")
