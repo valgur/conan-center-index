@@ -1,11 +1,10 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, replace_in_file, chdir
-from conan.tools.layout import basic_layout
-from conan.tools.gnu import AutotoolsToolchain, Autotools
-from conan.tools.apple import is_apple_os, to_apple_arch
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, chdir
+from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.52.0"
 
@@ -41,31 +40,15 @@ class PSevenZipConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
+        tc_vars = tc.vars()
+        tc.make_args.extend([
+            f"CC={tc_vars['CC']}",
+            f"CXX={tc_vars['CXX']}",
+            f"OPTFLAGS={tc_vars['CFLAGS']}",
+        ])
         tc.generate()
 
-    def _patch_compiler(self):
-        optflags = ''
-        if is_apple_os(self):
-            optflags = '-arch ' + to_apple_arch(self)
-        cc = "clang" if "clang" in str(self.settings.compiler) else str(self.settings.compiler)
-        cxx = "clang++" if "clang" in str(self.settings.compiler) else str(self.settings.compiler)
-        if self.settings.compiler == "gcc":
-            cxx = "g++"
-        # Replace the hard-coded compilers instead of using the 40 different Makefile permutations
-        replace_in_file(self, os.path.join(self.source_folder, "makefile.machine"),
-                              "CC=gcc", f"CC={cc}")
-        replace_in_file(self, os.path.join(self.source_folder, "makefile.machine"),
-                              "CXX=g++", f"CXX={cxx}")
-        # Manually modify the -O flag here based on the build type
-        optflags += " -O2" if self.settings.build_type == "Release" else " -O0"
-        # Silence the warning about `-s` not being valid on clang
-        if cc != "clang":
-            optflags += ' -s'
-        replace_in_file(self, os.path.join(self.source_folder, "makefile.machine"),
-                            "OPTFLAGS=-O -s", "OPTFLAGS=" + optflags)
-
     def build(self):
-        self._patch_compiler()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.make()
