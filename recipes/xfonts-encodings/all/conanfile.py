@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rmdir
+from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 
@@ -37,6 +37,7 @@ class XFontsEncodingsConan(ConanFile):
     def generate(self):
         VirtualBuildEnv(self).generate()
         tc = MesonToolchain(self)
+        tc.project_options["datadir"] = "res"
         tc.generate()
 
     def build(self):
@@ -48,9 +49,6 @@ class XFontsEncodingsConan(ConanFile):
         copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
-        os.rename(os.path.join(self.package_folder, "usr", "share"),
-                  os.path.join(self.package_folder, "res"))
-        rmdir(self, os.path.join(self.package_folder, "usr"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
