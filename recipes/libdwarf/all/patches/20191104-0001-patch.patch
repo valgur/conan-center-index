@@ -176,3 +176,32 @@ index c610522..3a69533 100644
  if (DO_TESTING)
      set_source_group(TESTLEB "Source Files" dwarf_leb_test.c 
          dwarf_leb.c pro_encode_nm.c )
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -296,26 +296,6 @@
+       return 0;
+   } ]=]  HAVE_REGEX)
+ 
+-set(CMAKE_REQUIRED_LIBRARIES z)
+-check_c_source_compiles( [=[
+-  #include "zlib.h"
+-  int main()
+-  {
+-      Bytef dest[100];
+-      uLongf destlen = 100;
+-      Bytef *src = 0;
+-      uLong srclen = 3;
+-      int res = uncompress(dest,&destlen,src,srclen);
+-      if (res == Z_OK) {
+-           /* ALL IS WELL */
+-      }
+-      return 0;
+-  } ]=]  HAVE_ZLIB )
+-set(CMAKE_REQUIRED_LIBRARIES)
+-if (HAVE_ZLIB) 
+-  # For linking in libz
+-  set(DW_FZLIB "z")
+-endif()
+ 
+ check_c_source_compiles([=[
+ #include <stdint.h>
