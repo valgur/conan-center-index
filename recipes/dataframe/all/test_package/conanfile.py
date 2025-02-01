@@ -14,6 +14,10 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
 
+    def build_requirements(self):
+        # For C++23 support
+        self.tool_requires("cmake/[>=3.20 <4]")
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
