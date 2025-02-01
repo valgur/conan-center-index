@@ -38,7 +38,7 @@ class GFortranConan(ConanFile):
         self.requires("mpfr/4.2.1")
         self.requires("gmp/6.3.0")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("isl/0.26")
+        self.requires("isl/0.27")
 
     def validate_build(self):
         if is_msvc(self):
