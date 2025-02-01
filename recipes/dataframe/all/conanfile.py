@@ -108,6 +108,9 @@ class DataFrameConan(ConanFile):
             if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "14.0.0":
                 raise ConanInvalidConfiguration(f"{self.ref} doesn't support apple-clang < 14.0.0.")
 
+    def build_requirements(self):
+        # For C++23 support
+        self.tool_requires("cmake/[>=3.20 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
