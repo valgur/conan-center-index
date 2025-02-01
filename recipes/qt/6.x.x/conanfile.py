@@ -158,6 +158,8 @@ class QtConan(ConanFile):
     default_options.update({module: "auto" for module in _modules})
     # essential_modules, addon_modules, deprecated_modules, preview_modules:
     #    these are only provided for convenience, set to False by default
+    _module_statuses = ["essential", "addon", "deprecated", "preview"]
+    options.update({f"{status}_modules": [True, False] for status in _module_statuses})
     default_options.update({f"{status}_modules": False for status in _module_statuses})
 
     short_paths = True
