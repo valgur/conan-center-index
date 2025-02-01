@@ -69,12 +69,11 @@ class Cc65Conan(ConanFile):
             f"CC={cc}",
         ]
         if not can_run(self):
-            native_bin = os.path.join(self.dependencies.build["cc65"].package_folder, "bin")
             tc.make_args.extend([
-                "LD65=" + os.path.join(native_bin, "ld65"),
-                "AR65=" + os.path.join(native_bin, "ar65"),
-                "CA65=" + os.path.join(native_bin, "ca65"),
-                "CC65=" + os.path.join(native_bin, "cc65"),
+                "LD65=ld65",
+                "AR65=ar65",
+                "CA65=ca65",
+                "CC65=cc65",
             ])
         if self.settings.os == "Windows":
             tc.make_args.append("EXE_SUFFIX=.exe")
@@ -117,7 +116,8 @@ class Cc65Conan(ConanFile):
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
-                autotools.make()
+                # The build fails intermittently due to concurrency issues
+                autotools.make(args=["-j1"])
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
