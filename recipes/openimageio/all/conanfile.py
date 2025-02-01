@@ -105,7 +105,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_opencolorio:
             self.requires("opencolorio/2.4.1")
         if self.options.with_opencv:
-            self.requires("opencv/4.8.1")
+            self.requires("opencv/4.9.0")
         if self.options.with_tbb:
             self.requires("onetbb/2021.10.0")
         if self.options.with_dicom:
