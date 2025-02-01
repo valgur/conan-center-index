@@ -224,7 +224,8 @@ class G2oConan(ConanFile):
         self.cpp_info.components["g2o_ceres_ad"].set_property("cmake_target_name", "g2o::g2o_ceres_ad")
         _add_component("stuff", requires=["spdlog::spdlog", "eigen::eigen"])
         _add_component("core", requires=["stuff", "eigen::eigen", "g2o_ceres_ad"])
-        _add_component("opengl_helper", requires=["opengl::opengl", "freeglut::freeglut", "eigen::eigen"])
+        glu = "glu" if "glu" in self.dependencies else "mesa-glu"
+        _add_component("opengl_helper", requires=["opengl::opengl", "freeglut::freeglut", "eigen::eigen", f"{glu}::{glu}"])
 
         # Solvers
         _add_component("solver_dense", requires=["core"])
