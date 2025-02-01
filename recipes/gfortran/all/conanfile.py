@@ -4,13 +4,13 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import XCRun, is_apple_os
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir, rm, chdir, download, patch
-from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.0"
 
 
 class GFortranConan(ConanFile):
@@ -55,6 +55,7 @@ class GFortranConan(ConanFile):
             # binutils recipe is broken for Macos, and Windows uses tools
             # distributed with msys/mingw
             self.tool_requires("binutils/2.42")
+        self.tool_requires("libtool/2.4.7")
         self.tool_requires("flex/2.6.4")
 
     def source(self):
@@ -62,35 +63,31 @@ class GFortranConan(ConanFile):
         download(self, **self.conan_data["sources"][self.version]["homebrew-patches"], filename="homebrew.patch")
 
     def generate(self):
-        # Ensure binutils and flex are on the path.
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         runenv = VirtualRunEnv(self)
         runenv.generate(scope="build")
 
-        tc = AutotoolsToolchain(self)
-        tc.configure_args.append("--enable-languages=fortran")
-        tc.configure_args.append("--disable-nls")
-        tc.configure_args.append("--disable-multilib")
-        tc.configure_args.append("--disable-bootstrap")
-        tc.configure_args.append("--disable-fixincludes")
-        tc.configure_args.append(f"--with-zlib={self.dependencies['zlib'].package_folder}")
-        tc.configure_args.append(f"--with-isl={self.dependencies['isl'].package_folder}")
-        tc.configure_args.append(f"--with-gmp={self.dependencies['gmp'].package_folder}")
-        tc.configure_args.append(f"--with-mpc={self.dependencies['mpc'].package_folder}")
-        tc.configure_args.append(f"--with-mpfr={self.dependencies['mpfr'].package_folder}")
-        tc.configure_args.append(f"--with-pkgversion=ConanCenter gfortran {self.version}")
-        tc.configure_args.append(f"--program-suffix=-{self.version}")
-        tc.configure_args.append(f"--with-bugurl={self.url}/issues")
+        tc = GnuToolchain(self)
+        tc.configure_args["--enable-languages"] = "fortran"
+        tc.configure_args["--disable-nls"] = None
+        tc.configure_args["--disable-multilib"] = None
+        tc.configure_args["--disable-bootstrap"] = None
+        tc.configure_args["--disable-fixincludes"] = None
+        tc.configure_args["--with-zlib"] = self.dependencies['zlib'].package_folder
+        tc.configure_args["--with-isl"] = self.dependencies['isl'].package_folder
+        tc.configure_args["--with-gmp"] = self.dependencies['gmp'].package_folder
+        tc.configure_args["--with-mpc"] = self.dependencies['mpc'].package_folder
+        tc.configure_args["--with-mpfr"] = self.dependencies['mpfr'].package_folder
+        tc.configure_args["--with-pkgversion"] = f"ConanCenter gfortran {self.version}"
+        tc.configure_args["--program-suffix"] = f"-{self.version}"
+        tc.configure_args["--with-bugurl"] = f"{self.url}/issues"
 
         if self.settings.os == "Macos":
             xcrun = XCRun(self)
-            tc.configure_args.append(f"--with-sysroot={xcrun.sdk_path}")
+            tc.configure_args["--with-sysroot"] = xcrun.sdk_path
             # Set native system header dir to ${{sysroot}}/usr/include to
             # isolate installation from the system as much as possible
-            tc.configure_args.append("--with-native-system-header-dir=/usr/include")
-            tc.make_args.append("BOOT_LDFLAGS=-Wl,-headerpad_max_install_names")
+            tc.configure_args["--with-native-system-header-dir"] = "/usr/include"
+            tc.make_args["BOOT_LDFLAGS"] = "-Wl,-headerpad_max_install_names"
         tc.generate()
 
         # Don't use AutotoolsDeps here - deps are passed directly in configure_args.
@@ -104,8 +101,13 @@ class GFortranConan(ConanFile):
         # If building on x86_64, change the default directory name for 64-bit libraries to "lib":
         replace_in_file(self, os.path.join(self.source_folder, "gcc", "config", "i386", "t-linux64"),
                         "m64=../lib64", "m64=../lib", strict=False)
+        # Relax autoconf version check
+        replace_in_file(self, os.path.join(self.source_folder, "config", "override.m4"),
+                        "m4_fatal([Please use exactly Autoconf",
+                        "m4_warn([syntax], [Please use exactly Autoconf")
 
         autotools = Autotools(self)
+        autotools.autoreconf()
         autotools.configure()
         autotools.make()
 
