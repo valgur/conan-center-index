@@ -31,7 +31,7 @@ class DepotToolsConan(ConanFile):
 
     def build_requirements(self):
         # cit is a Python script
-        self.tool_requires("python/[~3]", visible=True)
+        self.tool_requires("cpython/[~3.12]", visible=True)
 
     def _dereference_symlinks(self):
         """
