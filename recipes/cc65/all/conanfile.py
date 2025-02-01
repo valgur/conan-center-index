@@ -40,11 +40,6 @@ class Cc65Conan(ConanFile):
         del self.info.settings.compiler
 
     def validate(self):
-        if not can_run(self):
-            raise ConanInvalidConfiguration(
-                f"Compiling for {self.settings.arch} is not supported. "
-                "cc65 needs to be able to run the built executables during the build process"
-            )
         if is_msvc(self):
             if self.settings.arch not in ["x86", "x86_64"]:
                 raise ConanInvalidConfiguration(f"{self.settings.arch} is not supported on MSVC")
@@ -52,8 +47,10 @@ class Cc65Conan(ConanFile):
                 self.output.info("This recipe will build x86 instead of x86_64 (the binaries are compatible)")
 
     def build_requirements(self):
-        if is_msvc(self):
-            self.tool_requires("make/4.4")
+        if is_msvc(self) and not self.conf.get("tools.gnu:make_program", check_type=str):
+            self.tool_requires("make/4.4.1")
+        if not can_run(self):
+            self.tool_requires(str(self.ref))
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -71,6 +68,14 @@ class Cc65Conan(ConanFile):
             "samplesdir=/samples",
             f"CC={cc}",
         ]
+        if not can_run(self):
+            native_bin = os.path.join(self.dependencies.build["cc65"].package_folder, "bin")
+            tc.make_args.extend([
+                "LD65=" + os.path.join(native_bin, "ld65"),
+                "AR65=" + os.path.join(native_bin, "ar65"),
+                "CA65=" + os.path.join(native_bin, "ca65"),
+                "CC65=" + os.path.join(native_bin, "cc65"),
+            ])
         if self.settings.os == "Windows":
             tc.make_args.append("EXE_SUFFIX=.exe")
         tc.generate()
