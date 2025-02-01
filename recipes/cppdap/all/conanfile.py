@@ -5,6 +5,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=1.53.0"
 
@@ -29,10 +30,6 @@ class PackageConan(ConanFile):
         "with_json": "nlohmann_json",
     }
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -56,8 +53,8 @@ class PackageConan(ConanFile):
             self.requires("nlohmann_json/3.11.2")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        if self.options.shared:
+        check_min_cppstd(self, 11)
+        if self.options.shared and is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
 
     def source(self):
