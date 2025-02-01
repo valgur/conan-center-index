@@ -3,7 +3,12 @@ project(test_package LANGUAGES CXX)
 
 find_package(cpp-validator REQUIRED CONFIG)
 
-add_executable(${PROJECT_NAME} test_package.cpp)
+add_executable(${PROJECT_NAME})
+if(cpp-validator_VERSION GREATER_EQUAL 2.1.1)
+    target_sources(${PROJECT_NAME} PRIVATE test_package_hatn.cpp)
+else()
+    target_sources(${PROJECT_NAME} PRIVATE test_package_dracosha.cpp)
+endif()
 target_link_libraries(${PROJECT_NAME} cpp-validator::cpp-validator)
 if(MSVC)
     target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
