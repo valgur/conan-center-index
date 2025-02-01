@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -44,19 +43,6 @@ class VulkanValidationLayersConan(ConanFile):
         return self.options.get_safe("with_wsi_xcb") or \
                self.options.get_safe("with_wsi_xlib")
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "9",
-            "clang": "6",
-            "gcc": "7",
-            "msvc": "191",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -91,19 +77,7 @@ class VulkanValidationLayersConan(ConanFile):
         # TODO: add support for mimalloc
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        def loose_lt_semver(v1, v2):
-            return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
-            )
-
-        if self.dependencies["spirv-tools"].options.shared:
-            raise ConanInvalidConfiguration("vulkan-validationlayers can't depend on shared spirv-tools")
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         if self._needs_pkg_config and not self.conf.get("tools.gnu:pkg_config", check_type=str):
