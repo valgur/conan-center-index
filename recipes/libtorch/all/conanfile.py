@@ -275,7 +275,7 @@ class LibtorchConan(ConanFile):
         if self.options.with_openmp:
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_fbgemm:
-            self.requires("fbgemm/0.8.0", transitive_headers=True, transitive_libs=True)
+            self.requires("fbgemm/1.1.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_gflags:
             self.requires("gflags/2.2.2")
         if self.options.with_glog:

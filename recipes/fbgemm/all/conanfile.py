@@ -1,14 +1,12 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.errors import ConanException, ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, export_conandata_patches, get, apply_conandata_patches, rmdir, replace_in_file
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 
 class FbgemmConan(ConanFile):
@@ -31,31 +29,11 @@ class FbgemmConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "7",
-            "gcc": "6",
-            "msvc": "191",
-        }
+    implements = ["auto_header_only"]
 
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -70,13 +48,7 @@ class FbgemmConan(ConanFile):
         # https://github.com/pytorch/FBGEMM/issues/2074
         if str(self.settings.arch).startswith("arm"):
             raise ConanInvalidConfiguration("FBGEMM does not yet support ARM architectures")
-
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25 <4]")
@@ -84,6 +56,8 @@ class FbgemmConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        rmdir(self, os.path.join(self.source_folder, "third_party"))
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-Werror", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -93,22 +67,13 @@ class FbgemmConan(ConanFile):
         tc.variables["FBGEMM_BUILD_TESTS"] = False
         tc.variables["FBGEMM_BUILD_BENCHMARKS"] = False
         tc.variables["FBGEMM_BUILD_DOCS"] = False
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.variables["CMAKE_C_STANDARD"] = 99
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.generate()
 
-        VirtualBuildEnv(self).generate()
-
-    def _patch_sources(self):
-        rmdir(self, os.path.join(self.source_folder, "third_party"))
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-Werror", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         try:
