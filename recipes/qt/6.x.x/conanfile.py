@@ -445,7 +445,7 @@ class QtConan(ConanFile):
             self.requires("egl/system")
         if self.options.get_safe("opengl", "no") != "no" and self.settings.os != "Windows":
             # https://github.com/qt/qtbase/blob/6.8.1/src/gui/opengl/qopengl.h#L105-L118
-            self.requires("opengl/system", transitive_headers=True)
+            self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_zstd:
             self.requires("zstd/1.5.5")
         if self._is_enabled("qtwayland"):
