@@ -64,10 +64,12 @@ class Cc65Conan(ConanFile):
             tc = MSBuildToolchain(self)
             tc.generate()
         tc = AutotoolsToolchain(self)
+        cc = tc.vars()["CC"]
         tc.make_args += [
             "PREFIX=/",
             "datadir=/bin/share/cc65",
             "samplesdir=/samples",
+            f"CC={cc}",
         ]
         if self.settings.os == "Windows":
             tc.make_args.append("EXE_SUFFIX=.exe")
