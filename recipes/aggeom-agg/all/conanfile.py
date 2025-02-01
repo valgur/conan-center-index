@@ -15,10 +15,9 @@ class AggConan(ConanFile):
     homepage = "https://github.com/aggeom"
     topics = ("graphics",)
 
-    package_type = "library"
+    package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "shared": [True, False],
         "fPIC": [True, False],
         "with_gpc": [True, False],
         "with_freetype": [True, False],
@@ -28,7 +27,6 @@ class AggConan(ConanFile):
         "with_controls": [True, False],
     }
     default_options = {
-        "shared": False,
         "fPIC": True,
         "with_gpc": True,
         "with_freetype": True,
@@ -57,8 +55,6 @@ class AggConan(ConanFile):
     def validate(self):
         if self.settings.os not in ("Windows", "Linux"):
             raise ConanInvalidConfiguration("OS is not supported")
-        if self.options.shared:
-            raise ConanInvalidConfiguration("Invalid configuration")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
