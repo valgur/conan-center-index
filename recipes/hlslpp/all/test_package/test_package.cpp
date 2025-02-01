@@ -1,3 +1,8 @@
+// Disable SIMD for this test
+// The user will need to set the appropriate defines and compiler flags in their code:
+// https://github.com/redorav/hlslpp/blob/3.6/hlsl%2B%2B.lua#L156-L235
+#define HLSLPP_SCALAR
+
 #include <hlsl++.h>
 
 int main() {
