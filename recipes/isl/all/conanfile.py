@@ -2,13 +2,11 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.build import cross_building
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag, check_min_vs, unix_path, is_msvc_static_runtime
-from conan.tools.scm import Version
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag, check_min_vs, unix_path
 
 required_conan_version = ">=1.58.0"
 
@@ -49,8 +47,6 @@ class IslConan(ConanFile):
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Cannot build shared isl library on Windows (due to libtool refusing to link to static/import libraries)")
-        if Version(self.version) < "0.25" and is_apple_os(self) and cross_building(self):
-            raise ConanInvalidConfiguration("Cross-building with Apple Clang is not supported yet")
         if msvc_runtime_flag(self) == "MDd" and not check_min_vs(self, 192, raise_invalid=False):
             # isl fails to link with this version of visual studio and MDd runtime:
             # gmp.lib(bdiv_dbm1c.obj) : fatal error LNK1318: Unexpected PDB error; OK (0)
@@ -68,8 +64,6 @@ class IslConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if self.options.autogen:
-            self.tool_requires("autoconf/2.72")
-            self.tool_requires("automake/1.16.5")
             self.tool_requires("libtool/2.4.7")
 
     def package_id(self):
@@ -93,9 +87,6 @@ class IslConan(ConanFile):
                 tc.extra_cflags = ["-Zf"]
             if check_min_vs(self, 180, raise_invalid=False):
                 tc.extra_cflags = ["-FS"]
-        if is_msvc(self) and self.version == "0.24" and not is_msvc_static_runtime(self):
-            # Pass BUILD flags to avoid confusion with GCC and mixing of runtime variants
-            tc.configure_args += ['CC_FOR_BUILD=cl -nologo', f'CFLAGS_FOR_BUILD=-{msvc_runtime_flag(self)}']
         env = tc.environment()
         if is_msvc(self):
             env.define("CC", "cl -nologo")
