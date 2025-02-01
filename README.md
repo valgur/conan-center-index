@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-01-31:
+Package versions that are available here but not yet on the main CCI repo as of 2025-02-01:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -172,7 +172,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pcl/1.14.1
 - pdal/2.7.2
 - perf/6.11
-- piex/0.2.7
+- piex/0.27
 - polyscope/2.3.0
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
@@ -256,4 +256,5 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xtrans/1.5.0
 - zenoh-c/0.11.0.3
 - zenoh-c/1.1.0
+- zenoh-c/1.2.0
 
