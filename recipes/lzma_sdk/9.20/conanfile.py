@@ -55,8 +55,9 @@ class LzmaSdkConan(ConanFile):
             tc.generate()
         else:
             tc = AutotoolsToolchain(self)
-            for var, val in tc.vars().items():
-                tc.make_args.append(f"{var}={val}")
+            tc_vars = tc.vars()
+            tc.make_args.append(f"CXX_C={tc_vars['CC']}")
+            tc.make_args.append(f"CXX={tc_vars['CXX']}")
             tc.generate()
             deps = AutotoolsDeps(self)
             deps.generate()
