@@ -27,10 +27,6 @@ class GFortranConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "compiler", "arch", "build_type"
 
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
     def package_id(self):
         del self.info.settings.compiler
 
