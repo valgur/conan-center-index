@@ -1,13 +1,14 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.files import copy, get, rm, rmdir, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, check_min_vs, unix_path, is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=1.58.0"
 
@@ -32,11 +33,8 @@ class IslConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_int": "gmp",
-        "autogen": False,
+        "autogen": True,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -105,10 +103,9 @@ class IslConan(ConanFile):
         tc.generate(env)
 
     def build(self):
-        if self.options.autogen:
-            apply_conandata_patches(self) # Currently, the only patch is for the autogen use case
-            self.run("./autogen.sh", cwd=self.source_folder)
         autotools = Autotools(self)
+        if self.options.autogen:
+            autotools.autoreconf()
         autotools.configure()
         autotools.make()
 
