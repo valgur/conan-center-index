@@ -8,7 +8,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class HscppConan(ConanFile):
@@ -52,6 +52,9 @@ class HscppConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
+
+    def build_requirements(self):
+        self.tool_requires("cmake/[^3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
