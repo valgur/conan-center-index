@@ -1,8 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, cmake_layout, CMake
 from conan.tools.files import copy, get, rmdir, rm, save, replace_in_file
 from conan.tools.scm import Version
@@ -30,19 +29,6 @@ class MatplotplusplusCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "7",
-            "clang": "6",
-            "apple-clang": "10",
-        }
 
     def export_sources(self):
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
@@ -82,12 +68,9 @@ class MatplotplusplusCppConan(ConanFile):
         # Matplot++ also requires gnuplot to run, which is not available on CCI
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
+        # u8 string literals break in C++20 as of v1.2.0
+        check_max_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
