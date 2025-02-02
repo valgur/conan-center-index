@@ -17,4 +17,4 @@ class TestPackageConan(ConanFile):
         env_vars = self.dependencies[self.tested_reference_str].runenv_info.vars(self)
         fontenc_dir = env_vars["FONT_ENCODINGS_DIRECTORY"]
         self.output.info(f"FONT_ENCODINGS_DIRECTORY: {fontenc_dir}")
-        assert os.path.isfile(fontenc_dir)
+        assert os.path.isdir(fontenc_dir)
