@@ -84,10 +84,11 @@ class ShadercConan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.set_property("glslang::glslang-core", "cmake_target_name", "glslang")
-        deps.set_property("glslang::osdependent", "cmake_target_name", "OSDependent")
         deps.set_property("glslang::oglcompiler", "cmake_target_name", "OGLCompiler")
         deps.set_property("glslang::hlsl", "cmake_target_name", "HLSL")
         deps.set_property("glslang::spirv", "cmake_target_name", "SPIRV")
+        if not self.dependencies["glslang"].options.shared:
+            deps.set_property("glslang::osdependent", "cmake_target_name", "OSDependent")
         deps.generate()
 
     def build(self):
