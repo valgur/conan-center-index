@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc
 import os
@@ -59,8 +58,6 @@ class Nghttp3Conan(ConanFile):
             tc.cache_variables["CMAKE_MACOSX_BUNDLE"] = False
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
-        tc = VirtualBuildEnv(self)
-        tc.generate(scope="build")
 
     def build(self):
         cmake = CMake(self)
