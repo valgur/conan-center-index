@@ -3,7 +3,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 import os
 
 required_conan_version = ">=1.54.0"
@@ -106,8 +105,6 @@ class LibAVIFConan(ConanFile):
         if Version(self.version) >= "1.1.0":
             deps.set_property("libyuv", "cmake_target_name", "yuv::yuv")
         deps.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate(scope="build")
 
 
     def _patch_sources(self):
