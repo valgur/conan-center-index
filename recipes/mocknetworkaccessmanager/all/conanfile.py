@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, save
 
@@ -37,14 +37,14 @@ class MockNetworkAccessManagerConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/[>=5.15 <7]", transitive_headers=True, run=can_run(self))
+        self.requires("qt/[>=5.15 <7]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
 
     def build_requirements(self):
-        if not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -53,10 +53,18 @@ class MockNetworkAccessManagerConan(ConanFile):
         save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
         save(self, os.path.join(self.source_folder, "doc", "CMakeLists.txt"), "")
 
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["FORCE_QT5"] = self.dependencies["qt"].ref.version.major == 5
+        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
