@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rmdir, replace_in_file
 from conan.tools.scm import Version
 import os
@@ -62,9 +61,6 @@ class FlacConan(ConanFile):
         tc.generate()
         cd = CMakeDeps(self)
         cd.generate()
-        if self.settings.arch in ["x86", "x86_64"]:
-            envbuild = VirtualBuildEnv(self)
-            envbuild.generate(scope="build")
 
     def _patch_sources(self):
         apply_conandata_patches(self)
