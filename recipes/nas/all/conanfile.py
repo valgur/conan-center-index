@@ -1,11 +1,11 @@
-from conan import ConanFile
-
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.layout import basic_layout
-from conan.tools.files import chdir, get, export_conandata_patches, apply_conandata_patches, rm, copy, load, save
-from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 import os
 
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import can_run
+from conan.tools.files import chdir, get, export_conandata_patches, apply_conandata_patches, rm, copy, load, save, replace_in_file
+from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=1.54.0"
 
@@ -63,11 +63,16 @@ class NasRecipe(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        autotools = AutotoolsToolchain(self)
-        autotools.generate()
-
-        deps = AutotoolsDeps(self)
-        deps.generate()
+        tc = AutotoolsToolchain(self)
+        env = tc.environment()
+        env.prepend_path("PATH", self.source_folder)
+        deps_vars = AutotoolsDeps(self).environment.vars(self)
+        tc_vars = tc.vars()
+        tc.make_args.append(f"CCOPTIONS={deps_vars['CPPFLAGS']} {tc_vars['CFLAGS']}")
+        tc.make_args.append(f"EXTRA_LDOPTIONS={deps_vars['LDFLAGS']} {deps_vars['LIBS']}")
+        tc.make_args.append(f"SHLIBGLOBALSFLAGS={deps_vars['LDFLAGS']} {deps_vars['LIBS']}")
+        tc.make_args.append("CDEBUGFLAGS=")
+        tc.generate(env)
 
     @property
     def _imake_irulesrc(self):
@@ -91,8 +96,26 @@ class NasRecipe(ConanFile):
                 copy(self, os.path.basename(gnu_config), src=os.path.dirname(gnu_config), dst=config_folder)
 
         with chdir(self, self.source_folder):
-            self.run(f"imake -DUseInstalled -I{self._imake_irulesrc} {self._imake_defines}", env="conanbuild")
             autotools = Autotools(self)
+
+            # imake is hard-coded to use gcc, so we need to alias it to the correct compiler instead
+            build_cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD" if not can_run(self) else "CC"]
+            save(self, "gcc", f'#!/bin/sh\nexec {build_cc} "$@"')
+            os.chmod("gcc", 0o755)
+
+            # generate Makefiles
+            configure_args = " ".join(AutotoolsToolchain(self).configure_args)
+            replace_in_file(self, os.path.join(self.source_folder, "config", "Imakefile"),
+                            '\tsh -c "unset CFLAGS LDFLAGS; ./configure"',
+                            f'\tsh -c "unset CFLAGS LDFLAGS LIBS; ./configure {configure_args} ac_cv_func_setpgrp_void=yes"')
+            self.run(f"CC={build_cc} imake -DUseInstalled -I{self._imake_irulesrc} {self._imake_defines}", shell=True)
+            autotools.make(target="Makefiles", args=["-j1"] + self._imake_make_args)
+            replace_in_file(self, os.path.join(self.source_folder, "Makefile"),
+                            "$(MAKE) $(MFLAGS) Makefiles", "")
+
+            # build using the correct CC
+            cc = AutotoolsToolchain(self).vars()["CC"]
+            save(self, "gcc", f'#!/bin/sh\nexec {cc} "$@"')
             # j1 avoids some errors while trying to run this target
             autotools.make(target="World", args=["-j1"] + self._imake_make_args)
 
