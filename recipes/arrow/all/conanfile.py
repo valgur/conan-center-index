@@ -80,7 +80,7 @@ class ArrowConan(ConanFile):
         "dataset_modules": False,
         "deprecated": True,
         "encryption": False,
-        "filesystem_layer": False,
+        "filesystem_layer": True,
         "hdfs_bridgs": False,
         "plasma": "deprecated",
         "simd_level": "default",
