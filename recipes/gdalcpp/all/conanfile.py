@@ -23,7 +23,7 @@ class GdalcppConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gdal/3.9.2")
+        self.requires("gdal/3.10.0")
 
     def package_id(self):
         self.info.clear()
