@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, check_min_cstd, cross_building, can_run
+from conan.tools.build import check_min_cppstd, check_min_cstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, rename
@@ -103,7 +103,7 @@ class PopplerConan(ConanFile):
             if self.options.with_introspection:
                 self.requires("gobject-introspection/1.78.1")
         if self.options.with_qt:
-            self.requires("qt/[>=6.6 <7]", run=can_run(self))
+            self.requires("qt/[>=6.6 <7]")
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/4.7.0")
         if self.options.with_openjpeg:
@@ -141,8 +141,8 @@ class PopplerConan(ConanFile):
             self.tool_requires("glib/<host_version>")
             if self.options.with_introspection:
                 self.tool_requires("gobject-introspection/<host_version>")
-        if self.options.with_qt and not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        if self.options.with_qt:
+            self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -153,6 +153,11 @@ class PopplerConan(ConanFile):
         if self.options.with_libjpeg:
             return str(self.options.with_libjpeg)
         return "none"
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -211,6 +216,11 @@ class PopplerConan(ConanFile):
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         else:
             tc.preprocessor_definitions["POPPLER_STATIC"] = ""
+
+        if self.options.with_qt:
+            tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+            tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+            tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
 
         tc.generate()
 
