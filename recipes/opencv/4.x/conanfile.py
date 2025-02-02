@@ -1066,7 +1066,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/[~3.24]")
         if self.options.get_safe("with_qt"):
-            self.requires("qt/[>=6.7 <7]", run=can_run(self))
+            self.requires("qt/[>=6.7 <7]")
         if self.options.get_safe("with_wayland"):
             self.requires("xkbcommon/1.6.0")
             self.requires("wayland/1.22.0")
@@ -1172,8 +1172,9 @@ class OpenCVConan(ConanFile):
             self.tool_requires("wayland/<host_version>")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self.options.get_safe("with_qt") and not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        if self.options.get_safe("with_qt"):
+            self.tool_requires("cmake/[>=3.21 <4]")
+            self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
@@ -1280,6 +1281,11 @@ class OpenCVConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "modules", "highgui", "CMakeLists.txt"),
                             "${Qt${QT_VERSION_MAJOR}${dt_dep}_LIBRARIES}",
                             "Qt${QT_VERSION_MAJOR}::${dt_dep}")
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -1494,6 +1500,11 @@ class OpenCVConan(ConanFile):
 
         if self.settings.os == "Android":
             tc.variables["BUILD_ANDROID_EXAMPLES"] = False
+
+        if self.options.get_safe("with_qt"):
+            tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+            tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+            tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
 
         tc.generate()
 
