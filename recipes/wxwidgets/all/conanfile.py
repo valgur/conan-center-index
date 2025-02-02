@@ -4,7 +4,6 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
@@ -141,7 +140,7 @@ class wxWidgetsConan(ConanFile):
             self.requires("gtk/4.15.6", transitive_headers=True, transitive_libs=True)
         elif self._toolkit == "qt":
             # Used in wx/qt/private/converter.h and other public headers
-            self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+            self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
 
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("libpng/[>=1.6 <2]")
@@ -202,8 +201,8 @@ class wxWidgetsConan(ConanFile):
         self.tool_requires("ninja/[>=1.10.2 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self._toolkit == "qt" and not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        if self._toolkit == "qt":
+            self.tool_requires("qt/<host_version>")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -219,6 +218,11 @@ class wxWidgetsConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                         "CMAKE_OSX_DEPLOYMENT_TARGET",
                         "CMAKE_OSX_DEPLOYMENT_TARGET_IGNORED")
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -282,6 +286,11 @@ class wxWidgetsConan(ConanFile):
 
         tc.cache_variables["CMAKE_CONFIGURATION_TYPES"] = "Debug;Release;RelWithDebInfo;MinSizeRel"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+
+        if self._toolkit == "qt":
+            tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+            tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+            tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
 
         for item in str(self.options.custom_enables).split(","):
             item = item.strip()
