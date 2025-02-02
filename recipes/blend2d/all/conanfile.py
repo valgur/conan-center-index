@@ -4,7 +4,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.scm import Version
 from conan.tools.microsoft import check_min_vs
-from conan.tools.env import VirtualBuildEnv
 import os
 
 required_conan_version = ">=1.53.0"
@@ -81,8 +80,6 @@ class Blend2dConan(ConanFile):
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate(scope="build")
 
     def build(self):
         cmake = CMake(self)
