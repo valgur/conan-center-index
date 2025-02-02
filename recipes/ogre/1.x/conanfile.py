@@ -475,6 +475,10 @@ class OgreConanFile(ConanFile):
                             "if(OGRE_BUILD_COMPONENT_OVERLAY_IMGUI)", "if(0)")
             replace_in_file(self, os.path.join(self.source_folder, "Components", "Overlay", "CMakeLists.txt"),
                             "list(REMOVE_ITEM SOURCE_FILES", "# list(REMOVE_ITEM SOURCE_FILES")
+        # Use a target for EGL to supported relocated EGL from libglvnd
+        replace_in_file(self, os.path.join(self.source_folder, "CMake", "Packages", "FindOpenGLES2.cmake"),
+                        "${OPENGL_egl_LIBRARY}",
+                        "OpenGL::EGL")
 
     def build(self):
         self._patch_sources()
