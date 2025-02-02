@@ -5,12 +5,12 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeToolchain, CMake
 from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load,  replace_in_file, rm, rmdir, save
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, msvc_runtime_flag, msvs_toolset, MSBuildDeps
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4"
 
 
 class ImageMagicConan(ConanFile):
@@ -70,17 +70,10 @@ class ImageMagicConan(ConanFile):
         "with_djvu": False,
         "utilities": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -228,6 +221,8 @@ class ImageMagicConan(ConanFile):
         def yes_no(o):
             return "yes" if o else "no"
 
+        gtc = GnuToolchain(self)
+
         tc = AutotoolsToolchain(self)
         tc.configure_args = [
             "--prefix=/",
@@ -257,6 +252,8 @@ class ImageMagicConan(ConanFile):
             "--with-freetype={}".format(yes_no(self.options.with_freetype)),
             "--with-djvu={}".format(yes_no(self.options.with_djvu)),
             "--with-utilities={}".format(yes_no(self.options.utilities)),
+            "--build={}".format(gtc.triplets_info["build"]["triplet"]),
+            "--host={}".format(gtc.triplets_info["host"]["triplet"]),
         ]
         tc.generate()
 
