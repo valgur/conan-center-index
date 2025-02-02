@@ -1,14 +1,15 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, rename
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir, \
+    rename
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=2.0.5"
 
@@ -98,7 +99,6 @@ class AtSpi2CoreConan(ConanFile):
                         "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
 
     def generate(self):
-        VirtualRunEnv(self).generate(scope="build")
         tc = MesonToolchain(self)
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.project_options["x11"] = "enabled" if self.options.get_safe("with_x11") else "disabled"
