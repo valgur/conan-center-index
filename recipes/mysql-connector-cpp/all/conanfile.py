@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import get, copy, rm, export_conandata_patches, apply_conandata_patches, replace_in_file
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
@@ -83,10 +82,6 @@ class MysqlConnectorCppConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-        if self.dependencies["protobuf"].options.shared:
-            VirtualRunEnv(self).generate(scope="build")
-
         tc = CMakeToolchain(self)
         tc.cache_variables["BUNDLE_DEPENDENCIES"] = False
         tc.cache_variables["BUILD_STATIC"] = not self.options.shared
