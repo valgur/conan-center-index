@@ -191,7 +191,7 @@ class GdalConan(ConanFile):
         if self.options.with_armadillo:
             self.requires("armadillo/12.6.4")
         if self.options.with_arrow:
-            self.requires("arrow/17.0.0")
+            self.requires("arrow/18.1.0")
         if self.options.with_basisu:
             self.requires("libbasisu/1.15.0")
         if self.options.with_blosc:
@@ -367,7 +367,11 @@ class GdalConan(ConanFile):
         tc.variables["GDAL_USE_ARCHIVE"] = self.options.with_libarchive
         tc.variables["GDAL_USE_ARMADILLO"] = self.options.with_armadillo
         tc.variables["GDAL_USE_ARROW"] = self.options.with_arrow
-        tc.variables["GDAL_USE_ARROWDATASET"] = self.options.with_arrow and self.dependencies["arrow"].options.dataset_modules
+        tc.variables["GDAL_USE_ARROWDATASET"] = (
+                self.options.with_arrow and
+                self.dependencies["arrow"].options.dataset_modules and
+                self.dependencies["arrow"].options.filesystem_layer
+        )
         tc.variables["GDAL_USE_BASISU"] = self.options.with_basisu
         tc.variables["GDAL_USE_BLOSC"] = self.options.with_blosc
         tc.variables["GDAL_USE_BRUNSLI"] = self.options.with_brunsli
