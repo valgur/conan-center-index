@@ -61,7 +61,7 @@ class PdalConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
-        self.requires("gdal/3.9.2", transitive_headers=True, transitive_libs=True)
+        self.requires("gdal/3.10.0", transitive_headers=True, transitive_libs=True)
         self.requires("h3/4.1.0")
         self.requires("json-schema-validator/2.3.0")
         self.requires("libcurl/[>=7.78 <9]") # for arbiter
@@ -69,7 +69,7 @@ class PdalConan(ConanFile):
         self.requires("nanoflann/1.6.0", transitive_headers=True, transitive_libs=True)
         self.requires("nlohmann_json/3.11.3", transitive_headers=True, transitive_libs=True)
         self.requires("openssl/[>=1.1 <4]") # for arbiter
-        self.requires("proj/9.3.1", transitive_headers=True, transitive_libs=True)
+        self.requires("proj/9.4.1", transitive_headers=True, transitive_libs=True)
         self.requires("rapidxml/1.13", transitive_headers=True) # for arbiter
         self.requires("utfcpp/4.0.5")
         self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True) # for arbiter
