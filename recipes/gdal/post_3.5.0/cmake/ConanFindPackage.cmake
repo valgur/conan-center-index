@@ -11,13 +11,7 @@ function(find_package2 pkgname)
         set(${key}_FOUND)
         return()
     endif()
-    find_package(${pkgname} ${ARGN}
-        QUIET
-        CONFIG
-        # Forbid the use of system libs entirely
-        NO_DEFAULT_PATH
-        PATHS ${CMAKE_PREFIX_PATH}
-    )
+    find_package(${pkgname} ${ARGN} QUIET)
     # Add variables with upper-case package name in addition to the default ones
     set(targets "")
     foreach(lib ${${pkgname}_LIBRARIES})
