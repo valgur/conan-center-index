@@ -5,7 +5,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.gnu import PkgConfigDeps
@@ -114,9 +113,6 @@ class PistacheConan(ConanFile):
 
             tc = PkgConfigDeps(self)
             tc.generate()
-
-            env = VirtualBuildEnv(self)
-            env.generate(scope="build")
 
     def build(self):
         if self.version != "cci.20201127":
