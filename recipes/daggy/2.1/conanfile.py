@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches
 
@@ -43,7 +43,7 @@ class DaggyConan(ConanFile):
 
     def requirements(self):
         # Qt is used in the public headers
-        self.requires("qt/[>=6.7 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires("qt/[>=6.7 <7]", transitive_headers=True, transitive_libs=True)
         self.requires("kainjow-mustache/4.1")
         if self.options.with_yaml:
             self.requires("yaml-cpp/0.8.0")
@@ -59,12 +59,16 @@ class DaggyConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.21 <4]")
-        if not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -79,6 +83,7 @@ class DaggyConan(ConanFile):
             tc.variables["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
             tc.variables["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
             tc.variables["CMAKE_VISIBILITY_INLINES_HIDDEN"] = 1
+        tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
