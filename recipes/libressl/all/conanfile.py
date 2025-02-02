@@ -52,6 +52,9 @@ class LibreSSLConan(ConanFile):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Static runtime linked into shared LibreSSL not supported")
 
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.15.6 <4]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
