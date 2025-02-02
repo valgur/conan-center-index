@@ -5,7 +5,6 @@ from conan.tools.files import get, copy, rmdir, replace_in_file, save
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
 
 import os
 import textwrap
@@ -243,9 +242,6 @@ class OpenTelemetryCppConan(ConanFile):
             return False
 
     def generate(self):
-        VirtualBuildEnv(self).generate(scope="build")
-        VirtualRunEnv(self).generate(scope="build")
-
         tc = CMakeToolchain(self)
         tc.cache_variables["BUILD_TESTING"] = False
         tc.cache_variables["BUILD_BENCHMARK"] = False
