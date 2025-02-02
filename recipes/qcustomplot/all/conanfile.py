@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, get, export_conandata_patches, replace_in_file
 from conan.tools.scm import Version
@@ -43,9 +43,9 @@ class QCustomPlotConan(ConanFile):
     def requirements(self):
         if Version(self.version) >= "2.0.0":
             # includes QtCore/qglobal.h in public headers
-            self.requires("qt/[>=6.4 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+            self.requires("qt/[>=6.4 <7]", transitive_headers=True, transitive_libs=True)
         else:
-            self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+            self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
         if self.options.with_opengl:
             self.requires("opengl/system")
 
@@ -57,8 +57,8 @@ class QCustomPlotConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} with opengl requires Qt with opengl enabled")
 
     def build_requirements(self):
-        if not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("qt/<host_version>")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -67,6 +67,11 @@ class QCustomPlotConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["QCUSTOMPLOT_SRC_DIR"] = self.source_folder.replace("\\", "/")
@@ -74,6 +79,9 @@ class QCustomPlotConan(ConanFile):
         tc.variables["QCUSTOMPLOT_VERSION_MAJOR"] = str(Version(self.version).major)
         tc.variables["QT_VERSION"] = self.dependencies["qt"].ref.version
         tc.variables["QCUSTOMPLOT_USE_OPENGL"] = self.options.with_opengl
+        tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+        tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+        tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
