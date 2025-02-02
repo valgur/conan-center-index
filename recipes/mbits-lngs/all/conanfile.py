@@ -4,7 +4,7 @@ import textwrap
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import get, copy, save, rmdir
+from conan.tools.files import get, copy, save, rmdir, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -24,7 +24,7 @@ class MBitsLngsConan(ConanFile):
     }
     default_options = {
         "fPIC": True,
-        "apps": False,
+        "apps": True,
     }
 
     def config_options(self):
@@ -46,6 +46,9 @@ class MBitsLngsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # CPack support is not needed by Conan and prepare_pack.cmake breaks when can_run() is False
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "include(prepare_pack)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
