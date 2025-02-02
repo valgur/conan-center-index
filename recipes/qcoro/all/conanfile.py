@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, get, rm
 
@@ -35,7 +35,7 @@ class QCoroConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/[>=6.6 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires("qt/[>=6.6 <7]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 20)
@@ -47,12 +47,16 @@ class QCoroConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.23 <4]")
-        if not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -60,6 +64,9 @@ class QCoroConan(ConanFile):
         tc.variables["QCORO_ENABLE_ASAN"] = self.options.asan
         tc.variables["BUILD_TESTING"] = False
         tc.variables["QCORO_WITH_QTDBUS"] = self.dependencies["qt"].options.with_dbus
+        tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+        tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+        tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
