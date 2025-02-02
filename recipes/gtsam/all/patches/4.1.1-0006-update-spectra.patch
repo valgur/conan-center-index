@@ -1,15 +1,6 @@
 diff --git a/gtsam/sfm/ShonanAveraging.cpp b/gtsam/sfm/ShonanAveraging.cpp
 --- a/gtsam/sfm/ShonanAveraging.cpp
 +++ b/gtsam/sfm/ShonanAveraging.cpp
-@@ -16,7 +16,7 @@
-  * @brief  Shonan Averaging algorithm
-  */
- 
--#include <SymEigsSolver.h>
-+#include <Spectra/SymEigsSolver.h>
- #include <cmath>
- #include <gtsam/linear/PCGSolver.h>
- #include <gtsam/linear/SubgraphPreconditioner.h>
 @@ -576,6 +576,8 @@
   * nontrivial function, perform_op(x,y), that computes and returns the product
   * y = (A + sigma*I) x */

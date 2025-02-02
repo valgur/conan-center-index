@@ -1,7 +1,7 @@
 sources:
-  "4.3-pre.20250110":
-    url: "https://github.com/borglab/gtsam/archive/89fbe4bd2ef69707ba874aa5ce21012855dbe750.tar.gz"
-    sha256: "8afdc74d9261af05eb5534bff4cd50c837828944c72b06a9d36a2489a2507c98"
+  "4.3-pre.20250201":
+    url: "https://github.com/borglab/gtsam/archive/c37eb4954700a7de40ed98ee2a0283c4553d72ce.tar.gz"
+    sha256: "ed8f9866f22d9a09123df568674f5355d648599b3968cb808b2cbeb29e0f8739"
   "4.2":
     url: "https://github.com/borglab/gtsam/archive/refs/tags/4.2.tar.gz"
     sha256: "9ff8846d0a83a245c284cb5760ec2d74535ef9b5885183ccfefd7ff122eba60e"
@@ -12,17 +12,13 @@ sources:
     url: "https://github.com/borglab/gtsam/archive/4.0.3.tar.gz"
     sha256: "eaa561749edf7a2d402981828253e28aed6c717dae35738301c5ab23e2595f25"
 patches:
-  "4.3-pre.20250110":
+  "4.3-pre.20250201":
     - patch_file: "patches/4.3.0-cmake-boost.patch"
       patch_description: "Use boost targets"
       patch_type: "conan"
     - patch_file: "patches/4.3.0-macos-rpath.patch"
       patch_description: "Relocatable shared libs on Apple OS"
       patch_type: "conan"
-    - patch_file: "patches/4.3.0-update-spectra.patch"
-      patch_description: "Update Spectra to v1.0 for C++20 support"
-      patch_type: "portability"
-      patch_source: "https://github.com/borglab/gtsam/pull/1871"
   "4.2":
     - patch_file: "patches/4.1.1-0001-cmake-boost.patch"
       patch_description: "Use boost targets"

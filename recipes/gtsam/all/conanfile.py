@@ -137,7 +137,7 @@ class GtsamConan(ConanFile):
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if Version(self.version) >= "4.1":
-            self.requires("spectra/1.0.1")
+            self.requires("spectra/1.1.0")
         if self.options.with_TBB:
             if Version(self.version) >= "4.1":
                 self.requires("onetbb/2021.12.0", transitive_headers=True, transitive_libs=True)
@@ -327,7 +327,15 @@ class GtsamConan(ConanFile):
                             "list(APPEND GTSAM_ADDITIONAL_LIBRARIES TBB::tbb TBB::tbbmalloc)")
 
         # Unvendor Spectra
-        rmdir(self, os.path.join(self.source_folder, "gtsam", "3rdparty", "Spectra"))
+        if Version(self.version) >= "4.1":
+            rmdir(self, os.path.join(self.source_folder, "gtsam", "3rdparty", "Spectra"))
+            replace_in_file(self, os.path.join(self.source_folder, "gtsam", "sfm", "ShonanAveraging.cpp"),
+                            "#include <SymEigsSolver.h>",
+                            "#include <Spectra/SymEigsSolver.h>")
+
+        if Version(self.version, qualifier=True) >= "4.3":
+            replace_in_file(self, os.path.join(self.source_folder, "cmake", "GtsamBuildTypes.cmake"),
+                            "-Werror ", "")
 
     def build(self):
         self._patch_sources()
