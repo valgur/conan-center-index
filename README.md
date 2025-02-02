@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-02-01:
+Package versions that are available here but not yet on the main CCI repo as of 2025-02-02:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -43,7 +43,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dpdk/24.07
 - f2c/20240312
 - faiss/1.8.0
-- fbgemm/0.8.0
+- fbgemm/1.1.0
 - fenster/0.0.0.cci.20240909
 - filament/1.5.3
 - fortran/cci.latest
@@ -94,6 +94,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imlib2/1.12.3
 - influxdb-cxx/0.7.3
 - iridescence/0.1.3
+- isl/0.27
 - json-glib/1.10.6
 - jsonifier/0.9.98
 - lapack/3.12.0
@@ -102,6 +103,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcaca/0.99.beta20
 - libcroco/0.6.13
 - libcudacxx/2.7.0
+- libdwarf/20191104
 - libecwj2/3.3
 - libelas/cci.20150630
 - libfontenc/1.1.8
