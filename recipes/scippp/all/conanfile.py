@@ -38,6 +38,9 @@ class ScipPlusPlus(ConanFile):
         scip_version = self.conan_data["scip_mapping"][self.version]
         self.requires(f"scip/{scip_version}", transitive_headers=True)
 
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.15.7 <4]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
