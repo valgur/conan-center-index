@@ -804,7 +804,7 @@ class GdalConan(ConanFile):
         if self.options.with_spatialite:
             self.cpp_info.requires.extend(["libspatialite::libspatialite"])
         if self.options.with_sqlite3:
-            self.cpp_info.requires.extend(["sqlite3::sqlite"])
+            self.cpp_info.requires.extend(["sqlite3::sqlite3"])
         if self.options.with_tiledb:
             self.cpp_info.requires.extend(["tiledb::tiledb"])
         if self.options.with_webp:
