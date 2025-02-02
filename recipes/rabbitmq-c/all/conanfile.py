@@ -2,10 +2,9 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class RabbitmqcConan(ConanFile):
@@ -50,8 +49,7 @@ class RabbitmqcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,10 +70,6 @@ class RabbitmqcConan(ConanFile):
         if self.options.ssl:
             deps = CMakeDeps(self)
             deps.generate()
-
-        if Version(self.version) >= "0.14.0":
-            venv = VirtualBuildEnv(self)
-            venv.generate(scope="build")
 
     def build(self):
         cmake = CMake(self)
