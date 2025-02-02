@@ -57,5 +57,5 @@ class XFontsEncodingsConan(ConanFile):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.resdirs = ["res"]
 
-        encodings_dir = os.path.join(self.package_folder, "res", "fonts", "X11", "encodings", "encodings.dir")
+        encodings_dir = os.path.join(self.package_folder, "res", "fonts", "X11", "encodings")
         self.runenv_info.define_path("FONT_ENCODINGS_DIRECTORY", encodings_dir)
