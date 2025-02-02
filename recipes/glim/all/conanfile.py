@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, copy, replace_in_file
-from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -31,19 +30,6 @@ class GlimPackage(ConanFile):
         "viewer": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "clang": "10",
-            "apple-clang": "12",
-            "msvc": "192",
-        }
-
     def configure(self):
         # Make OpenCV a bit more lightweight
         self.options["opencv"].with_ffmpeg = False
@@ -68,15 +54,13 @@ class GlimPackage(ConanFile):
             self.requires("iridescence/0.1.3", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if self.options.cuda and not self.dependencies["gtsam_points"].options.cuda:
             raise ConanInvalidConfiguration("-o glim/*:cuda=True requires -o gtsam_points/*:cuda=True")
+
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.16 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
