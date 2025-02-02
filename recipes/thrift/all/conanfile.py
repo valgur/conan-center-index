@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -71,7 +70,7 @@ class ThriftConan(ConanFile):
         if self.options.with_libevent:
             self.requires("libevent/2.1.12")
         if self.options.with_qt5:
-            self.requires("qt/[~5.15]", run=can_run(self))
+            self.requires("qt/[~5.15]")
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":
@@ -79,14 +78,20 @@ class ThriftConan(ConanFile):
         else:
             self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
-        if self.options.with_qt5 and not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        if self.options.with_qt5:
+            self.tool_requires("cmake/[>=3.21 <4]")
+            self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # No static code analysis (seems to trigger CMake warnings due to weird custom Find module file)
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(StaticCodeAnalysis)", "")
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -101,6 +106,9 @@ class ThriftConan(ConanFile):
         if is_msvc(self):
             tc.variables["WITH_MT"] = is_msvc_static_runtime(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0074"] = "NEW"
+        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
 
         cd = CMakeDeps(self)
