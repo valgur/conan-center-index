@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir, replace_in_file, load, save
 
@@ -71,7 +71,7 @@ class ColmapConan(ConanFile):
             self.requires("cgal/5.6.1")
         if self.options.gui:
             # Qt6 is not supported
-            self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+            self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
         if self.options.gui or self.options.cuda:
             self.requires("glew/2.2.0")
             self.requires("opengl/system")
@@ -82,13 +82,17 @@ class ColmapConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        if self.options.cuda:
-            self.tool_requires("cmake/[>=3.24 <4]")
-        if self.options.gui and not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        self.tool_requires("cmake/[>=3.24 <4]")
+        if self.options.gui:
+            self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -103,6 +107,10 @@ class ColmapConan(ConanFile):
         tc.cache_variables["TESTS_ENABLED"] = False
         tc.cache_variables["CMAKE_CUDA_ARCHITECTURES"] = self.options.get_safe("cuda_architectures", "")
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+        if self.options.gui:
+            tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+            tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+            tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
 
         deps = CMakeDeps(self)
