@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.microsoft import is_msvc
@@ -50,24 +50,32 @@ class QtADS(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/[>=6.0 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires("qt/[>=6.0 <7]", transitive_headers=True, transitive_libs=True)
         self.requires("libpng/[>=1.6 <2]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
 
     def build_requirements(self):
-        if not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["ADS_VERSION"] = self.version
         tc.variables["BUILD_EXAMPLES"] = "OFF"
         tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+        tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+        tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
