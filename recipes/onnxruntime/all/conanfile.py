@@ -5,7 +5,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
-from conan.tools.env import VirtualBuildEnv
 import os
 import sys
 
@@ -178,9 +177,6 @@ class OnnxRuntimeConan(ConanFile):
         deps.set_property("boost::headers", "cmake_target_name", "Boost::mp11")
         deps.set_property("flatbuffers", "cmake_target_name", "flatbuffers::flatbuffers")
         deps.generate()
-
-        vbe = VirtualBuildEnv(self)
-        vbe.generate(scope="build")
 
     def _patch_sources(self):
         copy(self, "onnxruntime_external_deps.cmake",
