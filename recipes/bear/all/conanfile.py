@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
@@ -83,9 +82,6 @@ class BearConan(ConanFile):
 
         pc = PkgConfigDeps(self)
         pc.generate()
-
-        tc = VirtualBuildEnv(self)
-        tc.generate(scope="build")
 
     def build(self):
         cmake = CMake(self)
