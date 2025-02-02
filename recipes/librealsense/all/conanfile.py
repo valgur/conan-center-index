@@ -4,7 +4,8 @@ import urllib
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, download, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, download, export_conandata_patches, get, rm, rmdir, replace_in_file
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -61,6 +62,11 @@ class LibrealsenseConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 14)
 
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.16 <4]")
+        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
+            self.tool_requires("pkgconf/[>=2.2 <3]")
+
     def source(self):
         sources = self.conan_data["sources"][self.version]
         get(self, **sources["source"], strip_root=True)
@@ -102,6 +108,9 @@ class LibrealsenseConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.generate()
+
+        deps = PkgConfigDeps(self)
         deps.generate()
 
     def build(self):
