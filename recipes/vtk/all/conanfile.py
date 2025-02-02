@@ -9,7 +9,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.files import export_conandata_patches, get, rmdir, rename, replace_in_file, load, save, copy, apply_conandata_patches
 from conan.tools.microsoft import is_msvc
@@ -374,7 +374,7 @@ class VtkConan(ConanFile):
             self.requires("libpq/15.5")
         if self.options.with_qt:
             # Used in public vtkQWidgetWidget.h
-            self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+            self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
         if self.options.with_sdl2:
             # Used in public vtkSDL2OpenGLRenderWindow.h
             self.requires("sdl/2.30.9", transitive_headers=True, transitive_libs=True)
@@ -415,8 +415,9 @@ class VtkConan(ConanFile):
         # zSpace | zSpace::zSpace
 
     def tool_requirements(self):
-        if self.options.with_qt and not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        if self.options.with_qt:
+            self.tool_requires("cmake/[>=3.21 <4]")
+            self.tool_requires("qt/<host_version>")
 
     def validate(self):
         if is_msvc(self) and not self.options.shared:
@@ -589,6 +590,11 @@ class VtkConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
+
     def generate(self):
         tc = CMakeToolchain(self)
 
@@ -687,6 +693,12 @@ class VtkConan(ConanFile):
         # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
         # Needed for try_compile() calls with MPI::MPI_CXX to work.
         tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
+
+        if self.options.with_qt:
+            tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+            tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+            tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
+
         tc.generate()
 
         deps = CMakeDeps(self)
