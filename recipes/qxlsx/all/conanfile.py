@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import export_conandata_patches, apply_conandata_patches, copy, get, rmdir
 from conan.tools.scm import Version
-from conan.tools.env import VirtualRunEnv
 from conan.tools.microsoft import is_msvc
 from conan.tools.build import check_min_cppstd
 from conan.errors import ConanInvalidConfiguration
@@ -52,22 +51,24 @@ class QXlsxConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")
-        # INFO: QXlsx use Qt automoc: https://github.com/QtExcel/QXlsx/blob/v1.4.9/QXlsx/CMakeLists.txt#L12
-        self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        # INFO: QXlsx uses Qt automoc: https://github.com/QtExcel/QXlsx/blob/v1.4.9/QXlsx/CMakeLists.txt#L12
+        self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def generate(self):
-        # INFO: In order to find Qt moc application
-        env = VirtualRunEnv(self)
-        env.generate(scope="build")
+    def _qt_tool(self, tool):
+        tools_dir = self.conf.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
+    def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["QT_VERSION_MAJOR"] = self._qt_version
         # INFO: QXlsx use cached CMAKE_CXX_STANDARD value:
         # https://github.com/QtExcel/QXlsx/blob/v1.4.9/QXlsx/CMakeLists.txt#L23
         tc.cache_variables["CMAKE_CXX_STANDARD"] = self.settings.get_safe("compiler.cppstd").replace("gnu", "")
+        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
