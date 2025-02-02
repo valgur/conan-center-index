@@ -127,9 +127,9 @@ class GStPluginsGoodConan(ConanFile):
             m = re.fullmatch("gstreamer-(.+)-1.0", req)
             if m:
                 if m[1] in _gstreamer_libs:
-                    reqs.append(f"gstreamer::{m[1]}")
+                    reqs.append(f"gstreamer::{m[0]}")
                 elif m[1] in _plugins_base_libs:
-                    reqs.append(f"gst-plugins-base::{m[1]}")
+                    reqs.append(f"gst-plugins-base::{m[0]}")
                 else:
                     raise ConanException(f"Unknown GStreamer library: {req}")
             else:

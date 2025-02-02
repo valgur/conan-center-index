@@ -91,9 +91,9 @@ class GStPluginsBadConan(ConanFile):
         for req in self._plugins[plugin]["requires"]:
             m = re.fullmatch("gstreamer-(.+)-1.0", req)
             if m and m[1] in _gstreamer_libs:
-                reqs.append(f"gstreamer::{m[1]}")
+                reqs.append(f"gstreamer::{m[0]}")
             elif m and m[1] in _plugins_base_libs:
-                reqs.append(f"gst-plugins-base::{m[1]}")
+                reqs.append(f"gst-plugins-base::{m[0]}")
             else:
                 reqs.append(req)
         return reqs
