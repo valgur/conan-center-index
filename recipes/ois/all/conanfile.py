@@ -1,13 +1,10 @@
-import os
 import glob
+import os
+
 from conan import ConanFile
-from conan.tools.files import (
-    apply_conandata_patches,
-    export_conandata_patches,
-    get, copy, rmdir, collect_libs
-    )
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, collect_libs, replace_in_file
 
 required_conan_version = ">=1.53.0"
 
@@ -58,6 +55,9 @@ class OisConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "target_link_libraries(OIS X11)",
+                        "target_link_libraries(OIS X11::X11)")
 
     def generate(self):
         tc = CMakeToolchain(self)
