@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy, rmdir, apply_conandata_patches, export_conandata_patches
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.microsoft import is_msvc
 import os
 
@@ -72,8 +72,6 @@ class PackageConan(ConanFile):
         envvars = env.vars(self, scope="build")
         envvars.save_script("asm_configuration")
 
-        env = VirtualBuildEnv(self)
-        env.generate(scope="build")
         tc = CMakeToolchain(self)
         # INFO: intel-ipsec-mb project forces shared by default.
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
