@@ -36,10 +36,12 @@ class TestPackageConan(ConanFile):
         for src in self.exports_sources:
             copy(self, src, self.source_folder, self.build_folder)
 
-        config_path = self.conf.get("user.xorg-cf-files:config-path")
-        self.run(f"imake -DUseInstalled -I{config_path}", env="conanbuild")
-        autotools = Autotools(self)
-        autotools.make(target="test_package")
+        # cross-compilation is not supported
+        if can_run(self):
+            config_path = self.conf.get("user.xorg-cf-files:config-path")
+            self.run(f"imake -DUseInstalled -I{config_path}", env="conanbuild")
+            autotools = Autotools(self)
+            autotools.make(target="test_package")
 
     def test(self):
         if can_run(self):
