@@ -2,7 +2,6 @@ from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.cmake import CMakeDeps, CMakeToolchain
-from conan.tools.env import VirtualBuildEnv
 import os
 
 
@@ -21,8 +20,6 @@ class TestPackageConan(ConanFile):
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
-        tc = VirtualBuildEnv(self)
-        tc.generate(scope="build")
 
     def build(self):
         cmake = CMake(self)
