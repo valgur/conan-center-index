@@ -4,11 +4,10 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import copy, get, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 
 class GameNetworkingSocketsConan(ConanFile):
@@ -31,14 +30,7 @@ class GameNetworkingSocketsConan(ConanFile):
         "fPIC": True,
         "encryption": "openssl",
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -65,11 +57,6 @@ class GameNetworkingSocketsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-        venv = VirtualRunEnv(self)
-        venv.generate(scope="build")
-
         tc = CMakeToolchain(self)
         tc.variables["GAMENETWORKINGSOCKETS_BUILD_EXAMPLES"] = False
         tc.variables["GAMENETWORKINGSOCKETS_BUILD_TESTS"] = False
@@ -92,10 +79,11 @@ class GameNetworkingSocketsConan(ConanFile):
             tc.variables["OPENSSL_HAS_25519_RAW"] = True
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
-        tc = PkgConfigDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
+
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def _patch_sources(self):
         # Disable MSVC runtime override
