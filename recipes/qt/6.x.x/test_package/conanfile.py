@@ -18,7 +18,7 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         if not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+            self.tool_requires("qt/<host_version>")
 
     def generate(self):
         path = self.dependencies["qt"].package_folder.replace("\\", "/")
