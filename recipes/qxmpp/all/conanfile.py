@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, rename, mkdir
 from conan.tools.microsoft import is_msvc
@@ -39,7 +39,7 @@ class QxmppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True, run=can_run(self))
+        self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
         if self.options.with_gstreamer:
             self.requires("gstreamer/1.24.11")
             self.requires("glib/2.78.3")
@@ -48,12 +48,17 @@ class QxmppConan(ConanFile):
         check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        if not can_run(self):
-            self.tool_requires("qt/<host_version>", options={"gui": False, "widgets": False})
+        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+
+    def _qt_tool(self, tool):
+        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
+        suffix = ".exe" if self.settings_build.os == "Windows" else ""
+        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -63,6 +68,9 @@ class QxmppConan(ConanFile):
         tc.variables["WITH_GSTREAMER"] = self.options.with_gstreamer
         tc.variables["BUILD_SHARED"] = self.options.get_safe("shared")
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
+        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
+        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
