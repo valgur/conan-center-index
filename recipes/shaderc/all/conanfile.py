@@ -87,8 +87,7 @@ class ShadercConan(ConanFile):
         deps.set_property("glslang::oglcompiler", "cmake_target_name", "OGLCompiler")
         deps.set_property("glslang::hlsl", "cmake_target_name", "HLSL")
         deps.set_property("glslang::spirv", "cmake_target_name", "SPIRV")
-        if not self.dependencies["glslang"].options.shared:
-            deps.set_property("glslang::osdependent", "cmake_target_name", "OSDependent")
+        deps.set_property("glslang::osdependent", "cmake_target_name", "OSDependent")
         deps.generate()
 
     def build(self):
@@ -118,11 +117,7 @@ class ShadercConan(ConanFile):
             self.cpp_info.system_libs.append("pthread")
 
         self.cpp_info.requires = [
-            "glslang::glslang-core",
-            "glslang::osdependent",
-            "glslang::oglcompiler",
-            "glslang::hlsl",
-            "glslang::spirv",
+            "glslang::glslang",
             "spirv-tools::spirv-tools-core",
             "spirv-tools::spirv-tools-opt",
             "spirv-headers::spirv-headers"
