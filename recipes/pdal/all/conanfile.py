@@ -6,6 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file, rm, rmdir, save, export_conandata_patches, apply_conandata_patches
+from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
@@ -217,13 +218,13 @@ class PdalConan(ConanFile):
         src_dir = os.path.join(self.source_folder, "dimbuilder")
         build_dir = os.path.join(self.build_folder, "src", "dimbuilder")
         cmake_vars = {}
-        native_executables = self.conf_build.get("tools.build:compiler_executables", default={}, check_type=dict)
-        if "cpp" in native_executables:
-            cmake_vars["CMAKE_CXX_COMPILER"] = native_executables["cpp"]
+        tc_vars = AutotoolsToolchain(self).vars()
+        cmake_vars["CMAKE_C_COMPILER"] = tc_vars["CC_FOR_BUILD"]
+        cmake_vars["CMAKE_CXX_COMPILER"] = tc_vars["CXX_FOR_BUILD"]
         cmake_vars["CMAKE_CXX_STANDARD"] = self._min_cppstd
         cmake_vars["CMAKE_BUILD_TYPE"] = "Release"
         cmake_vars["NLOHMANN_INCLUDE_DIR"] = os.path.join(self.dependencies["nlohmann_json"].package_folder, "include").replace("\\", "/")
-        cmake_vars["UTFCPP_INCLUDE_DIR"] = os.path.join(self.dependencies["utfcpp"].package_folder, "include").replace("\\", "/")
+        cmake_vars["UTFCPP_INCLUDE_DIR"] = os.path.join(self.dependencies["utfcpp"].package_folder, "include", "utf8cpp").replace("\\", "/")
         cmake_vars["CMAKE_RUNTIME_OUTPUT_DIRECTORY"] = os.path.join(self.build_folder, "bin").replace("\\", "/")
         replace_in_file(self, os.path.join(src_dir, "DimBuilder.hpp"), "NL::", "nlohmann::")
         replace_in_file(self, os.path.join(src_dir, "DimBuilder.cpp"), "NL::", "nlohmann::")
