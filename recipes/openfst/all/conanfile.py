@@ -1,15 +1,14 @@
 import os
-from itertools import product
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, can_run
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, rm, rmdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 
 class OpenFstConan(ConanFile):
@@ -54,42 +53,18 @@ class OpenFstConan(ConanFile):
         "enable_pdt": False,
         "enable_special": False,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("OpenFst is only supported on linux")
-
-        compilers = {
-            "gcc": "8",
-            "clang": "7",
-        }
-
+        if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
+            raise ConanInvalidConfiguration(f"OpenFst is only supported on Linux, FreeBSD, and Macos (got: {self.settings.os})")
         check_min_cppstd(self, 17)
-        minimum_compiler = compilers.get(str(self.settings.compiler))
-        if minimum_compiler:
-            if Version(self.settings.compiler.version) < minimum_compiler:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires c++17, which your compiler does not support."
-                )
-        else:
-            self.output.warning(
-                f"{self.name} requires c++17, but this compiler is unknown to this recipe."
-                f" Assuming your compiler supports c++17."
-            )
 
         # Check stdlib ABI compatibility
         if self.settings.compiler == "gcc" and self.settings.compiler.libcxx != "libstdc++11":
@@ -149,6 +124,7 @@ class OpenFstConan(ConanFile):
 
         autotools = Autotools(self)
         autotools.install()
+        fix_apple_shared_install_name(self)
 
         lib_dir = os.path.join(self.package_folder, "lib")
         lib_subdir = os.path.join(self.package_folder, "lib", "fst")
@@ -161,18 +137,6 @@ class OpenFstConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", lib_dir, recursive=True)
-
-    @property
-    def _get_const_fsts_libs(self):
-        return [f"const{n}-fst" for n in [8, 16, 64]]
-
-    @property
-    def _get_compact_fsts_libs(self):
-        return [f"compact{n}_{fst}-fst"
-                for n, fst in product(
-                    [8, 16, 64],
-                    ["acceptor", "string", "unweighted_acceptor", "unweighted", "weighted_string"]
-                )]
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenFst")
@@ -198,10 +162,6 @@ class OpenFstConan(ConanFile):
             self.cpp_info.libs.append("fstscript")
             if self.options.enable_compress:
                 self.cpp_info.libs.append("fstcompressscript")
-            if self.options.enable_compact_fsts:
-                self.cpp_info.libs.extend(self._get_compact_fsts_libs)
-            if self.options.enable_const_fsts:
-                self.cpp_info.libs.extend(self._get_const_fsts_libs)
             if self.options.enable_far or self.options.enable_grm:
                 self.cpp_info.libs.append("fstfarscript")
             if self.options.enable_linear_fsts:
