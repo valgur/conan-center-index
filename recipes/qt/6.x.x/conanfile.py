@@ -476,8 +476,6 @@ class QtConan(ConanFile):
         self.tool_requires("ninja/[>=1.12 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self.settings.os == "Windows":
-            self.tool_requires("strawberryperl/5.32.1.1")
         if self._is_enabled("qtwebengine"):
             self.tool_requires("gn/qt-20240924")
             self.tool_requires("nodejs/18.15.0")
@@ -668,9 +666,6 @@ class QtConan(ConanFile):
 
         for feature in str(self.options.disabled_features).split():
             tc.variables[f"FEATURE_{feature}"] = "OFF"
-
-        if self.settings.os == "Windows":
-            tc.variables["HOST_PERL"] = self.dependencies.build["strawberryperl"].conf_info.get("user.strawberryperl:perl", check_type=str)
 
         if self._is_enabled("qtwebengine"):
             # Use GN from Conan instead of having Qt build it

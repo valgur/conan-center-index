@@ -3,8 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, rmdir
-from conan.tools.microsoft import is_msvc
+from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.0.9"
@@ -18,7 +17,7 @@ class QtADS(ConanFile):
         "in many popular integrated development environments (IDEs) such as "
         "Visual Studio."
     )
-    license = "LGPL-2.1"
+    license = "LGPL-2.1-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System"
     topics = ("qt", "gui")
@@ -50,15 +49,14 @@ class QtADS(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("qt/[>=6.0 <7]", transitive_headers=True, transitive_libs=True)
-        self.requires("libpng/[>=1.6 <2]")
+        self.requires("qt/[>=5.15 <7]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.21 <4]")
         self.tool_requires("qt/<host_version>")
+        self.tool_requires("cmake/[>=3.27 <4]") # to be able to use CMAKE_AUTOMOC_EXECUTABLE
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -71,24 +69,20 @@ class QtADS(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["ADS_VERSION"] = self.version
-        tc.variables["BUILD_EXAMPLES"] = "OFF"
-        tc.variables["BUILD_STATIC"] = not self.options.shared
+        tc.cache_variables["BUILD_EXAMPLES"] = "OFF"
+        tc.cache_variables["BUILD_STATIC"] = not self.options.shared
+        # https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/blob/a16d17a8bf375127847ac8f40af1ebcdb841b13c/src/CMakeLists.txt#L12
+        # TODO: the upstream Qt recipe should expose this variable
+        qt_version = str(self.dependencies["qt"].ref.version)
+        qt_include_root = self.dependencies["qt"].cpp_info.includedirs[0]
+        tc.cache_variables[f"Qt{self._qt_major}Gui_PRIVATE_INCLUDE_DIRS"] = os.path.join(qt_include_root, "QtGui", qt_version, "QtGui")
         tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
         tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        qt_version = self.dependencies["qt"].ref.version
-        replace_in_file(self, os.path.join(self.source_folder, "src", "ads_globals.cpp"),
-                        "#include <qpa/qplatformnativeinterface.h>",
-                        f"#include <{qt_version}/QtGui/qpa/qplatformnativeinterface.h>",
-        )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -97,6 +91,7 @@ class QtADS(ConanFile):
         cmake = CMake(self)
         cmake.install()
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "gnu-lgpl-v2.1.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "license"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
@@ -108,12 +103,11 @@ class QtADS(ConanFile):
         else:
             lib_name = "qtadvanceddocking"
 
+        self.cpp_info.set_property("cmake_file_name", lib_name)
+        self.cpp_info.set_property("cmake_target_name", f"ads::{lib_name}")
+
         if self.options.shared:
             self.cpp_info.libs = [lib_name]
         else:
             self.cpp_info.defines.append("ADS_STATIC")
             self.cpp_info.libs = [f"{lib_name}_static"]
-
-        if is_msvc(self) and self._qt_major >= 6:
-            # Qt 6 requires C++17 and a valid __cplusplus value
-            self.cpp_info.cxxflags.append("/Zc:__cplusplus")
