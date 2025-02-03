@@ -520,7 +520,7 @@ class QtConan(ConanFile):
                 "with_dbus": self.options.with_dbus,
                 # Some tools are only built when shared=True
                 # https://github.com/qt/qtdeclarative/blob/v6.8.1/tools/CMakeLists.txt#L37
-                "shared": self.options.shared and self._is_enabled("qtdeclarative"),
+                "shared": self.options.shared,
             })
 
     def generate(self):
