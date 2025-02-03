@@ -227,6 +227,7 @@ class QtConan(ConanFile):
             self.options.qtwayland = False
         if not cross_building(self):
             del self.options.force_build_tools
+        self.options.qttools = True
 
     def configure(self):
         if self.options.shared:
