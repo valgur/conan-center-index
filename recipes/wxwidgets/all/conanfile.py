@@ -197,7 +197,7 @@ class wxWidgetsConan(ConanFile):
                 raise ConanInvalidConfiguration("The 'with_x11' option for the 'xkbcommon' package must be enabled")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.17 <4]")
+        self.tool_requires("cmake/[>=3.27 <4]")
         self.tool_requires("ninja/[>=1.10.2 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")

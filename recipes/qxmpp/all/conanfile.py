@@ -48,7 +48,7 @@ class QxmppConan(ConanFile):
         check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("cmake/[>=3.27 <4]")
         self.tool_requires("qt/<host_version>")
 
     def source(self):

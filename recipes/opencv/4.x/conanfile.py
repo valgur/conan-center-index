@@ -1173,7 +1173,7 @@ class OpenCVConan(ConanFile):
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_qt"):
-            self.tool_requires("cmake/[>=3.21 <4]")
+            self.tool_requires("cmake/[>=3.27 <4]")
             self.tool_requires("qt/<host_version>")
 
     def source(self):

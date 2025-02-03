@@ -82,7 +82,7 @@ class ColmapConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.24 <4]")
+        self.tool_requires("cmake/[>=3.27 <4]")
         if self.options.gui:
             self.tool_requires("qt/<host_version>")
 

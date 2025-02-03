@@ -50,7 +50,7 @@ class QXlsxConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires Qt with gui component. Use '-o qt/*:gui=True'")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[>=3.27 <4]")
         # INFO: QXlsx uses Qt automoc: https://github.com/QtExcel/QXlsx/blob/v1.4.9/QXlsx/CMakeLists.txt#L12
         self.tool_requires("qt/<host_version>")
 
