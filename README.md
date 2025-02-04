@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-02-02:
+Package versions that are available here but not yet on the main CCI repo as of 2025-02-04:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -82,7 +82,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtk/4.15.6
 - gtkmm/3.24.9
 - gtkmm/4.16.0
-- gtsam/4.3-pre.20250110
+- gtsam/4.3-pre.20250201
 - gtsam_points/1.0.6
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
@@ -171,6 +171,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - osgearth/3.7
 - osrm/5.27.1
 - pangolin/0.9.1
+- pangomm/2.46.4
+- pangomm/2.54.0
 - pcl/1.14.1
 - pdal/2.7.2
 - perf/6.11
@@ -181,8 +183,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - premake/5.0.0-beta2
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
-- qt-advanced-docking-system/3.8.4
-- qt-advanced-docking-system/4.2.0
 - qt/6.8.1
 - rosx_introspection/1.0.2
 - rust/1.72.1
@@ -256,7 +256,5 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xorg-macros/1.20.2
 - xorg/1.8.10
 - xtrans/1.5.0
-- zenoh-c/0.11.0.3
-- zenoh-c/1.1.0
 - zenoh-c/1.2.0
 
