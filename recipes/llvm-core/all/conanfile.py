@@ -319,7 +319,8 @@ class LLVMCoreConan(ConanFile):
             match_genex = re.compile(r"""\\\$<LINK_ONLY:(.+)>""")
             replacements = {
                 "LibXml2::LibXml2": "libxml2::libxml2",
-                "ZLIB::ZLIB": "zlib::zlib"
+                "ZLIB::ZLIB": "zlib::zlib",
+                "z3::libz3": "z3::z3",
             }
             for dep in deps_list.split(";"):
                 match = match_genex.search(dep)
