@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.cmake import CMake, cmake_layout
+from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 from conan.tools.files import copy, save
 
 
@@ -18,11 +18,19 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         if not can_run(self):
-            self.tool_requires("qt/<host_version>")
+            self.tool_requires(self.tested_reference_str)
+            self.tool_requires("cmake/[>=3.27 <4]")
 
     def generate(self):
         path = self.dependencies["qt"].package_folder.replace("\\", "/")
         save(self, "qt.conf", f"[Paths]\nPrefix = {path}\n")
+
+        tc = CMakeToolchain(self)
+        if 'qt' in self.dependencies.build:
+            qt_tools_rootdir = self.conf.get("user.qt:tools_directory", None)
+            for tool in ["moc", "rcc", "uic"]:
+                tc.cache_variables[f"CMAKE_AUTO{tool.upper()}_EXECUTABLE"] = os.path.join(qt_tools_rootdir, f"{tool}.exe" if self.settings_build.os == "Windows" else tool)
+        tc.generate()
 
     @property
     def _can_build(self):

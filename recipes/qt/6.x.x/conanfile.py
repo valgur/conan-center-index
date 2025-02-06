@@ -68,7 +68,6 @@ class QtConan(ConanFile):
         "unity_build": [True, False],
         "device": [None, "ANY"],
         "disabled_features": [None, "ANY"],
-        "force_build_tools": [True, False],
     }
     default_options = {
         "shared": False,
@@ -108,7 +107,6 @@ class QtConan(ConanFile):
         "unity_build": False,
         "device": None,
         "disabled_features": "",
-        "force_build_tools": False,
     }
     # All submodules are exposed as options as well
     _modules = [
@@ -225,8 +223,6 @@ class QtConan(ConanFile):
             del self.options.with_gssapi
         if self.settings.os != "Linux":
             self.options.qtwayland = False
-        if not cross_building(self):
-            del self.options.force_build_tools
         self.options.qttools = True
 
     def configure(self):
@@ -690,6 +686,13 @@ class QtConan(ConanFile):
             else:
                 self.output.warning(f"host not supported: {self.settings.os} {self.settings.compiler} {self.settings.compiler.version} {self.settings.arch}")
 
+        if cross_building(self):
+            host_path = self.dependencies.build["qt"].package_folder.replace("\\", "/")
+            tc.variables["QT_QMAKE_DEVICE_OPTIONS"] = f"CROSS_COMPILE={host_path}"
+            tc.variables["QT_HOST_PATH"] = host_path
+            tc.variables["QT_HOST_PATH_CMAKE_DIR"] = f"{host_path}/lib/cmake"
+            tc.variables["QT_FORCE_BUILD_TOOLS"] = True
+
         tc.variables["FEATURE_pkg_config"] = "ON"
         if self.settings.compiler == "gcc" and self.settings.build_type == "Debug" and not self.options.shared:
             tc.variables["BUILD_WITH_PCH"] = "OFF"  # disabling PCH to save disk space
@@ -707,15 +710,6 @@ class QtConan(ConanFile):
 
         tc.variables["QT_USE_VCPKG"] = False
         tc.cache_variables["QT_USE_VCPKG"] = False
-
-        if cross_building(self):
-            host_path = self.dependencies.build["qt"].package_folder.replace("\\", "/")
-            tc.variables["QT_QMAKE_DEVICE_OPTIONS"] = f"CROSS_COMPILE={host_path}"
-            tc.variables["QT_HOST_PATH"] = host_path
-            tc.variables["QT_HOST_PATH_CMAKE_DIR"] = f"{host_path}/lib/cmake"
-            # Tools are not built by default when cross compiling, and we won't build them by default either,
-            # since the Qt CMake macros will try to use them as build tools in consuming projects.
-            tc.variables["QT_FORCE_BUILD_TOOLS"] = self.options.force_build_tools
 
         # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
         # Required for several try_compile() tests against Conan packages at
