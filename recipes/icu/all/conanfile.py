@@ -9,14 +9,14 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building, stdcpp_library, check_min_cppstd
-from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, replace_in_file, rm, rmdir, save
+from conan.tools.env import Environment
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, replace_in_file, rm, rmdir, save, load
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
+from conan.tools.microsoft import is_msvc, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1.0"
 
 
 class ICUConan(ConanFile):
@@ -49,19 +49,6 @@ class ICUConan(ConanFile):
     }
 
     @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-            "msvc": "192",
-        }
-
-    @property
     def _enable_icu_tools(self):
         return self.settings.os not in ["iOS", "tvOS", "watchOS", "Emscripten"]
 
@@ -88,12 +75,7 @@ class ICUConan(ConanFile):
             if not os.path.exists(str(self.options.dat_package_file)):
                 raise ConanInvalidConfiguration("Non-existent dat_package_file specified")
         if Version(self.version) >= "75.1":
-            check_min_cppstd(self, self._min_cppstd)
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
+            check_min_cppstd(self, 17)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -124,13 +106,7 @@ class ICUConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
-        if check_min_vs(self, "180", raise_invalid=False):
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
         if not self.options.shared:
             tc.extra_defines.append("U_STATIC_IMPLEMENTATION")
         if is_apple_os(self):
