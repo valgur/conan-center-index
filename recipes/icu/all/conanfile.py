@@ -1,7 +1,9 @@
 import glob
 import hashlib
 import os
+import re
 import shutil
+import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -224,9 +226,12 @@ class ICUConan(ConanFile):
             autotools.make(target="check")
 
     @property
+    def _data_stem(self):
+        return f"icudt{Version(self.version).major}l"
+
+    @property
     def _data_filename(self):
-        vtag = Version(self.version).major
-        return f"icudt{vtag}l.dat"
+        return self._data_stem + ".dat"
 
     @property
     def _data_path(self):
@@ -264,12 +269,33 @@ class ICUConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
+    @property
+    def _unicode_version(self):
+        header = load(self, os.path.join(self.package_folder, "include", "unicode", "uchar.h"))
+        return re.search(r'U_UNICODE_VERSION "(.+?)"', header).group(1)
+
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "ICU")
 
         prefix = "s" if self.settings.os == "Windows" and not self.options.shared else ""
         suffix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+
+        # https://github.com/unicode-org/icu/blob/release-76-1/icu4c/source/config/icu.pc.in#L5-L32
+        # Assume that the build flags will be taken from the normal pkg-config Cflags etc.
+        pkg_config_extra = textwrap.dedent(f"""\
+            CFLAGS =
+            CXXFLAGS =
+            DEFS =
+            baselibs =
+            UNICODE_VERSION={self._unicode_version}
+            ICUPREFIX=icu
+            ICULIBSUFFIX={suffix}
+            LIBICU=libicu
+            pkglibdir=${{prefix}}/res
+            ICUDATA_NAME = {self._data_stem}
+            ICUDESC=International Components for Unicode
+        """)
 
         # icudata
         self.cpp_info.components["icu-data"].set_property("cmake_target_name", "ICU::data")
@@ -289,6 +315,7 @@ class ICUConan(ConanFile):
         # icuuc
         self.cpp_info.components["icu-uc"].set_property("cmake_target_name", "ICU::uc")
         self.cpp_info.components["icu-uc"].set_property("pkg_config_name", "icu-uc")
+        self.cpp_info.components["icu-uc"].set_property("pkg_config_custom_content", pkg_config_extra)
         self.cpp_info.components["icu-uc"].libs = [f"{prefix}icuuc{suffix}"]
         self.cpp_info.components["icu-uc"].requires = ["icu-data"]
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -301,6 +328,7 @@ class ICUConan(ConanFile):
         # icui18n
         self.cpp_info.components["icu-i18n"].set_property("cmake_target_name", "ICU::i18n")
         self.cpp_info.components["icu-i18n"].set_property("pkg_config_name", "icu-i18n")
+        self.cpp_info.components["icu-i18n"].set_property("pkg_config_custom_content", pkg_config_extra)
         icui18n_libname = "icuin" if self.settings.os == "Windows" else "icui18n"
         self.cpp_info.components["icu-i18n"].libs = [f"{prefix}{icui18n_libname}{suffix}"]
         self.cpp_info.components["icu-i18n"].requires = ["icu-uc"]
@@ -315,6 +343,7 @@ class ICUConan(ConanFile):
         if self.options.with_icuio:
             self.cpp_info.components["icu-io"].set_property("cmake_target_name", "ICU::io")
             self.cpp_info.components["icu-io"].set_property("pkg_config_name", "icu-io")
+            self.cpp_info.components["icu-io"].set_property("pkg_config_custom_content", pkg_config_extra)
             self.cpp_info.components["icu-io"].libs = [f"{prefix}icuio{suffix}"]
             self.cpp_info.components["icu-io"].requires = ["icu-i18n", "icu-uc"]
 
