@@ -1,9 +1,9 @@
-import glob
 import hashlib
 import os
 import re
 import shutil
 import textwrap
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -190,7 +190,7 @@ class ICUConan(ConanFile):
         save(self, os.path.join(self.build_folder, "data", "out", "tmp", "dirs.timestamp"), "")
 
         if self.options.dat_package_file:
-            dat_package_file = glob.glob(os.path.join(self.source_folder, "source", "data", "in", "*.dat"))
+            dat_package_file = list(Path(self.source_folder, "source", "data", "in").glob("*.dat"))
             if dat_package_file:
                 shutil.copy(str(self.options.dat_package_file), dat_package_file[0])
 
@@ -221,14 +221,11 @@ class ICUConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
-        dll_files = glob.glob(os.path.join(self.package_folder, "lib", "*.dll"))
-        if dll_files:
-            bin_dir = os.path.join(self.package_folder, "bin")
-            mkdir(self, bin_dir)
-            for dll in dll_files:
-                dll_name = os.path.basename(dll)
-                rm(self, dll_name, bin_dir)
-                rename(self, src=dll, dst=os.path.join(bin_dir, dll_name))
+        bin_dir = Path(self.package_folder, "bin")
+        for dll in Path(self.package_folder, "lib").glob("*.dll"):
+            bin_dir.mkdir(exist_ok=True)
+            rm(self, dll.name, bin_dir)
+            rename(self, dll, bin_dir / dll.name)
 
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
             mkdir(self, os.path.join(self.package_folder, "res"))
