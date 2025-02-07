@@ -864,8 +864,6 @@ class QtConan(ConanFile):
 
     @property
     def _built_tools(self):
-        if cross_building(self) and not self.options.force_build_tools:
-            return []
         targets = ["moc", "rcc", "tracegen", "cmake_automoc_parser", "qlalr", "qmake"]
         if self.options.with_dbus:
             targets.extend(["qdbuscpp2xml", "qdbusxml2cpp"])
