@@ -154,11 +154,6 @@ class PopplerConan(ConanFile):
             return str(self.options.with_libjpeg)
         return "none"
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_CPP_TESTS"] = False
@@ -216,11 +211,6 @@ class PopplerConan(ConanFile):
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         else:
             tc.preprocessor_definitions["POPPLER_STATIC"] = ""
-
-        if self.options.with_qt:
-            tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-            tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-            tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
 
         tc.generate()
 

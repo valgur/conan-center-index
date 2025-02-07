@@ -1501,11 +1501,6 @@ class OpenCVConan(ConanFile):
         if self.settings.os == "Android":
             tc.variables["BUILD_ANDROID_EXAMPLES"] = False
 
-        if self.options.get_safe("with_qt"):
-            tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-            tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-            tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
-
         tc.generate()
 
         CMakeDeps(self).generate()

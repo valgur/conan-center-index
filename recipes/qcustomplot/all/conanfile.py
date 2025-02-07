@@ -67,11 +67,6 @@ class QCustomPlotConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["QCUSTOMPLOT_SRC_DIR"] = self.source_folder.replace("\\", "/")
@@ -79,9 +74,6 @@ class QCustomPlotConan(ConanFile):
         tc.variables["QCUSTOMPLOT_VERSION_MAJOR"] = str(Version(self.version).major)
         tc.variables["QT_VERSION"] = self.dependencies["qt"].ref.version
         tc.variables["QCUSTOMPLOT_USE_OPENGL"] = self.options.with_opengl
-        tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-        tc.variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

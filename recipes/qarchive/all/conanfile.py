@@ -58,17 +58,9 @@ class QarchiveConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["QARCHIVE_QT_VERSION_MAJOR"] = self._qt_major
-        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
 
         cd = CMakeDeps(self)

@@ -53,18 +53,10 @@ class MockNetworkAccessManagerConan(ConanFile):
         save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
         save(self, os.path.join(self.source_folder, "doc", "CMakeLists.txt"), "")
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["FORCE_QT5"] = self.dependencies["qt"].ref.version.major == 5
-        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

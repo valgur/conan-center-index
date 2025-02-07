@@ -60,20 +60,12 @@ class QuaZIPConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["QUAZIP_QT_MAJOR_VERSION"] = self._qt_major
         if is_msvc(self):
             tc.variables["USE_MSVC_RUNTIME_LIBRARY_DLL"] = not is_msvc_static_runtime(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

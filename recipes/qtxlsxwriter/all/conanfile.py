@@ -52,19 +52,11 @@ class QtXlsxWriterConan(ConanFile):
         download(self, **self.conan_data["sources"][self.version]["license"], filename="LICENSE")
         apply_conandata_patches(self)
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["QTXLSXWRITER_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["QT_VERSION_MAJOR"] = str(Version(self.dependencies["qt"].ref.version).major)
         tc.variables["QT_ROOT"] = self.dependencies["qt"].package_folder.replace("\\", "/")
-        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

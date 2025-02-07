@@ -65,11 +65,6 @@ class DaggyConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["SSH2_SUPPORT"] = self.options.with_ssh2
@@ -83,7 +78,6 @@ class DaggyConan(ConanFile):
             tc.variables["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
             tc.variables["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
             tc.variables["CMAKE_VISIBILITY_INLINES_HIDDEN"] = 1
-        tc.variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

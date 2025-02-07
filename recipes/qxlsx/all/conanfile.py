@@ -57,18 +57,12 @@ class QXlsxConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _qt_tool(self, tool):
-        tools_dir = self.conf.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["QT_VERSION_MAJOR"] = self._qt_version
         # INFO: QXlsx use cached CMAKE_CXX_STANDARD value:
         # https://github.com/QtExcel/QXlsx/blob/v1.4.9/QXlsx/CMakeLists.txt#L23
         tc.cache_variables["CMAKE_CXX_STANDARD"] = self.settings.get_safe("compiler.cppstd").replace("gnu", "")
-        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

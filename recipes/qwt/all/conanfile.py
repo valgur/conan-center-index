@@ -85,11 +85,6 @@ class QwtConan(ConanFile):
         apply_conandata_patches(self)
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 11)", "")
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["QWT_DLL"] = self.options.shared
@@ -105,9 +100,6 @@ class QwtConan(ConanFile):
         tc.variables["QWT_BUILD_TESTS"] = False
         tc.variables["QWT_FRAMEWORK"] = False
         tc.variables["CMAKE_INSTALL_DATADIR"] = "res"
-        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
 
         deps = CMakeDeps(self)

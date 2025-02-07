@@ -68,11 +68,6 @@ class LimereportConan(ConanFile):
         # Avoid using vendorized zint
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(3rdparty)", "")
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["LIMEREPORT_STATIC"] = not self.options.shared
@@ -80,9 +75,6 @@ class LimereportConan(ConanFile):
             tc.cache_variables["WINDOWS_BUILD"] = True
         tc.cache_variables["USE_QT6"] = self._qt_version_major == 6
         tc.cache_variables["ENABLE_ZINT"] = self.options.with_zint
-        tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-        tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-        tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

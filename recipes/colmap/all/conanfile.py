@@ -89,11 +89,6 @@ class ColmapConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def _qt_tool(self, tool):
-        tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
-        suffix = ".exe" if self.settings_build.os == "Windows" else ""
-        return os.path.join(tools_dir, tool + suffix).replace("\\", "/")
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["CCACHE_ENABLED"] = False
@@ -107,10 +102,6 @@ class ColmapConan(ConanFile):
         tc.cache_variables["TESTS_ENABLED"] = False
         tc.cache_variables["CMAKE_CUDA_ARCHITECTURES"] = self.options.get_safe("cuda_architectures", "")
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        if self.options.gui:
-            tc.cache_variables["CMAKE_AUTOMOC_EXECUTABLE"] = self._qt_tool("moc")
-            tc.cache_variables["CMAKE_AUTOUIC_EXECUTABLE"] = self._qt_tool("uic")
-            tc.cache_variables["CMAKE_AUTORCC_EXECUTABLE"] = self._qt_tool("rcc")
         tc.generate()
 
         deps = CMakeDeps(self)
