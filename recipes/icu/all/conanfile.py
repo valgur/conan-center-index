@@ -22,7 +22,7 @@ required_conan_version = ">=2.1.0"
 class ICUConan(ConanFile):
     name = "icu"
     homepage = "http://site.icu-project.org"
-    license = "ICU"
+    license = "Unicode-3.0"
     description = "ICU is a mature, widely used set of C/C++ and Java libraries " \
                   "providing Unicode and Globalization support for software applications."
     url = "https://github.com/conan-io/conan-center-index"
@@ -67,8 +67,8 @@ class ICUConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if Version(self.version) >= "74.1":
-            self.license = "Unicode-3.0"
+        if Version(self.version) < "74.1":
+            self.license = "ICU"
 
     def validate(self):
         if self.options.dat_package_file:
