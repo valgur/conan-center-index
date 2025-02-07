@@ -838,6 +838,11 @@ class QtConan(ConanFile):
         if self.settings.os == "Macos":
             save(self, ".qmake.stash", "")
             save(self, ".qmake.super", "")
+
+        context = "build" if self.settings_target else "host"
+        enabled = (["gui"] if self.options.gui else []) + (["widgets"] if self.options.widgets else []) + sorted(self._enabled_modules)
+        self.output.info(f"Will build the following components for {context} context: {enabled}")
+
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
