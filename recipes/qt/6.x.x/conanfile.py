@@ -68,6 +68,7 @@ class QtConan(ConanFile):
         "unity_build": [True, False],
         "device": [None, "ANY"],
         "disabled_features": [None, "ANY"],
+        "force_build_tools": [True, False],
     }
     default_options = {
         "shared": False,
@@ -107,6 +108,7 @@ class QtConan(ConanFile):
         "unity_build": False,
         "device": None,
         "disabled_features": "",
+        "force_build_tools": False,
     }
     # All submodules are exposed as options as well
     _modules = [
@@ -223,6 +225,8 @@ class QtConan(ConanFile):
             del self.options.with_gssapi
         if self.settings.os != "Linux":
             self.options.qtwayland = False
+        if not cross_building(self):
+            del self.options.force_build_tools
 
         for module in self._modules:
             if module not in self._qtmodules_info:
@@ -701,7 +705,7 @@ class QtConan(ConanFile):
             tc.variables["QT_QMAKE_DEVICE_OPTIONS"] = f"CROSS_COMPILE={host_path}"
             tc.variables["QT_HOST_PATH"] = host_path
             tc.variables["QT_HOST_PATH_CMAKE_DIR"] = f"{host_path}/lib/cmake"
-            tc.variables["QT_FORCE_BUILD_TOOLS"] = True
+            tc.variables["QT_FORCE_BUILD_TOOLS"] = self.options.force_build_tools
 
         tc.variables["FEATURE_pkg_config"] = "ON"
         if self.settings.compiler == "gcc" and self.settings.build_type == "Debug" and not self.options.shared:
@@ -864,6 +868,8 @@ class QtConan(ConanFile):
 
     @property
     def _built_tools(self):
+        if cross_building(self) and not self.options.force_build_tools:
+            return []
         targets = ["moc", "rcc", "tracegen", "cmake_automoc_parser", "qlalr", "qmake"]
         if self.options.with_dbus:
             targets.extend(["qdbuscpp2xml", "qdbusxml2cpp"])
