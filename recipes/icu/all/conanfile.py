@@ -275,6 +275,7 @@ class ICUConan(ConanFile):
 
         # icudata
         self.cpp_info.components["icu-data"].set_property("cmake_target_name", "ICU::data")
+        self.cpp_info.components["icu-data"].set_property("cmake_target_aliases", ["ICU::dt"])
         icudata_libname = "icudt" if self.settings.os == "Windows" else "icudata"
         self.cpp_info.components["icu-data"].libs = [f"{prefix}{icudata_libname}{suffix}"]
         if not self.options.shared:
@@ -283,10 +284,6 @@ class ICUConan(ConanFile):
             libcxx = stdcpp_library(self)
             if libcxx:
                 self.cpp_info.components["icu-data"].system_libs.append(libcxx)
-
-        # Alias of data CMake component
-        self.cpp_info.components["icu-data-alias"].set_property("cmake_target_name", "ICU::dt")
-        self.cpp_info.components["icu-data-alias"].requires = ["icu-data"]
 
         # icuuc
         self.cpp_info.components["icu-uc"].set_property("cmake_target_name", "ICU::uc")
@@ -303,6 +300,7 @@ class ICUConan(ConanFile):
 
         # icui18n
         self.cpp_info.components["icu-i18n"].set_property("cmake_target_name", "ICU::i18n")
+        self.cpp_info.components["icu-i18n"].set_property("cmake_target_aliases", ["ICU::in"])
         self.cpp_info.components["icu-i18n"].set_property("pkg_config_name", "icu-i18n")
         self.cpp_info.components["icu-i18n"].set_property("pkg_config_custom_content", pkg_config_extra)
         icui18n_libname = "icuin" if self.settings.os == "Windows" else "icui18n"
@@ -310,10 +308,6 @@ class ICUConan(ConanFile):
         self.cpp_info.components["icu-i18n"].requires = ["icu-uc"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["icu-i18n"].system_libs = ["m"]
-
-        # Alias of i18n CMake component
-        self.cpp_info.components["icu-i18n-alias"].set_property("cmake_target_name", "ICU::in")
-        self.cpp_info.components["icu-i18n-alias"].requires = ["icu-i18n"]
 
         # icuio
         if self.options.with_icuio:
