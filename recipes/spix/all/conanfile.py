@@ -2,10 +2,8 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, copy, rm, rmdir, replace_in_file
 from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
-
 
 required_conan_version = ">=2.0.9"
 
@@ -32,16 +30,19 @@ class SpixConan(ConanFile):
     def _minimum_cpp_standard(self):
         return 14 if self.version == "0.4" else 17
 
-    def configure(self):
-        self.options["qt"].qtdeclarative = True
-        self.options["qt"].qtshadertools = True
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    @property
+    def _qt_options(self):
+        return {
+            "qtdeclarative": True,
+            "qtshadertools": True,
+        }
+
     def requirements(self):
         self.requires("anyrpc/1.0.2")
-        self.requires("qt/[>=6.6 <7]")
+        self.requires("qt/[>=6.6 <7]", options=self._qt_options)
 
     def validate(self):
         check_min_cppstd(self, self._minimum_cpp_standard)
@@ -51,15 +52,15 @@ class SpixConan(ConanFile):
         if not (qt.options.gui and qt.options.qtdeclarative):
             raise ConanInvalidConfiguration(f"{self.ref} requires qt:gui and qt:qtdeclarative to get the Quick module")
 
-    def _patch_sources(self):
-        rmdir(self, os.path.join(self.source_folder, "cmake", "modules"))
-        if self.version == "0.4" and Version(self.dependencies["qt"].ref.version).major == 6:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "set(CMAKE_CXX_STANDARD 14)", "set(CMAKE_CXX_STANDARD 17)")
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("qt/<host_version>", options=self._qt_options)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        self._patch_sources()
+        rmdir(self, os.path.join(self.source_folder, "cmake", "modules"))
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "set(CMAKE_CXX_STANDARD ", "# set(CMAKE_CXX_STANDARD ")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -79,16 +80,11 @@ class SpixConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.libs = ["Spix"]
