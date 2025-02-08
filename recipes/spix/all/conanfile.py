@@ -42,7 +42,8 @@ class SpixConan(ConanFile):
 
     def requirements(self):
         self.requires("anyrpc/1.0.2")
-        self.requires("qt/[>=6.6 <7]", options=self._qt_options)
+        # Uses #include <QObject> in the Spix/QtQmlBot.h public header
+        self.requires("qt/[>=6.6 <7]", transitive_headers=True, transitive_libs=True, options=self._qt_options)
 
     def validate(self):
         check_min_cppstd(self, self._minimum_cpp_standard)
