@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-02-07:
+Package versions that are available here but not yet on the main CCI repo as of 2025-02-08:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -145,6 +145,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxtst/1.2.5
 - libxv/1.0.12
 - libxxf86vm/1.1.5
+- lief/0.10.1
+- lief/0.12.2
+- lief/0.12.3
+- lief/0.13.0
+- llama-cpp/b3040
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
@@ -160,7 +165,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - nss/3.107
 - numpy/1.26.4
 - ogre/14.3.0
-- open62541pp/0.12.0
 - openblas/0.3.28
 - openmp/system
 - openmpi/5.0.5
@@ -184,7 +188,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - premake/5.0.0-beta2
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
-- qt/6.8.1
+- qt/6.8.2
 - rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.75.0
