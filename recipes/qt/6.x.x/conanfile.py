@@ -921,7 +921,6 @@ class QtConan(ConanFile):
         for module in set(self._modules) - self._enabled_modules:
             rmdir(self, package_path.joinpath("licenses", module))
 
-        rm(self, "*.la*", package_path.joinpath("lib"), recursive=True)
         rm(self, "*.pdb*", self.package_folder, recursive=True)
 
         cmake_dir = package_path.joinpath("lib", "cmake")
