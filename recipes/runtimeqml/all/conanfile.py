@@ -80,3 +80,4 @@ class RuntimeQml(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["runtimeqml"]
+        self.cpp_info.requires = ["qt::qtCore", "qt::qtQuick", "qt::qtWidgets"]
