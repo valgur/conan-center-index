@@ -38,20 +38,28 @@ class RuntimeQml(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    @property
+    def _qt_options(self):
+        return {
+            "qtdeclarative": True,
+            "qtshadertools": True,
+        }
+
     def requirements(self):
         if Version(self.version) <= "cci.20211220":
-            self.requires("qt/[~5.15]")
+            self.requires("qt/[~5.15]", options=self._qt_options)
         else:
-            self.requires("qt/[>=6.6 <7]")
+            self.requires("qt/[>=6.6 <7]", options=self._qt_options)
 
     def validate(self):
         check_min_cppstd(self, 17)
-        if not self.dependencies["qt"].options.qtdeclarative:
-            raise ConanInvalidConfiguration(f"{self.ref} requires option qt:qtdeclarative=True")
+        qt_opt = self.dependencies["qt"].options
+        if not (qt_opt.qtdeclarative and qt_opt.qtshadertools):
+            raise ConanInvalidConfiguration(f"{self.ref} requires options qt:qtdeclarative=True and qt:qtshadertools=True")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.27 <4]")
-        self.tool_requires("qt/<host_version>")
+        self.tool_requires("qt/<host_version>", options=self._qt_options)
 
     def source(self):
         get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
@@ -68,8 +76,7 @@ class RuntimeQml(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
