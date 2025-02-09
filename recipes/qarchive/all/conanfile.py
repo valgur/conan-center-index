@@ -60,9 +60,8 @@ class QarchiveConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.cache_variables["QARCHIVE_QT_VERSION_MAJOR"] = self._qt_major
+        tc.cache_variables["QARCHIVE_QT_VERSION_MAJOR"] = str(self._qt_major)
         tc.generate()
-
         cd = CMakeDeps(self)
         cd.generate()
 
