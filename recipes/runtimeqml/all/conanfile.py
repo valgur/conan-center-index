@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import get, copy
 from conan.tools.scm import Version
@@ -40,14 +40,18 @@ class RuntimeQml(ConanFile):
 
     def requirements(self):
         if Version(self.version) <= "cci.20211220":
-            self.requires("qt/[~5.15]", run=can_run(self))
+            self.requires("qt/[~5.15]")
         else:
-            self.requires("qt/[>=6.6 <7]", run=can_run(self))
+            self.requires("qt/[>=6.6 <7]")
 
     def validate(self):
         check_min_cppstd(self, 17)
         if not self.dependencies["qt"].options.qtdeclarative:
             raise ConanInvalidConfiguration(f"{self.ref} requires option qt:qtdeclarative=True")
+
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("qt/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][str(self.version)], strip_root=True)
