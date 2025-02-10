@@ -6,7 +6,6 @@ from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -41,16 +40,6 @@ class USearchConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "6",
-        }
-
     def export_sources(self):
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
@@ -83,13 +72,7 @@ class USearchConan(ConanFile):
         #     self.requires("llvm-openmp/17.0.6")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
+        check_min_cppstd(self, 11)
         if is_msvc(self) and not self.options.header_only and not self.options.shared:
             # test_package fails with STATUS_ACCESS_VIOLATION
             raise ConanInvalidConfiguration("usearch does not support static linkage with MSVC")
