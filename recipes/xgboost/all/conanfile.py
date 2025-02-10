@@ -7,7 +7,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -57,20 +56,6 @@ class XgboostConan(ConanFile):
         "plugin_sycl": "SYCL plugin (requires Intel icpx compiler)",
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        # https://github.com/dmlc/xgboost/blob/v2.0.3/CMakeLists.txt#L17-L35
-        return {
-            "apple-clang": "11",
-            "clang": "9",
-            "gcc": "8",
-            "msvc": "192",
-        }
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -82,6 +67,7 @@ class XgboostConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -96,13 +82,7 @@ class XgboostConan(ConanFile):
             self.requires("protobuf/3.21.12")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
+        check_min_cppstd(self, 17)
         # Checks from https://github.com/dmlc/xgboost/blob/v2.0.3/CMakeLists.txt#L92-L148
         if self.options.nccl and not self.options.cuda:
             raise ConanInvalidConfiguration("`nccl` must be enabled with `cuda` option.")
