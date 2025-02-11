@@ -10,7 +10,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuildToolchain, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4"
 
 
 class LuajitConan(ConanFile):
@@ -22,21 +22,19 @@ class LuajitConan(ConanFile):
     topics = ("lua", "jit")
     provides = "lua"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+    languages = ["C"]
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -72,13 +70,17 @@ class LuajitConan(ConanFile):
         else:
             tc = GnuToolchain(self)
             tc_vars = tc.extra_env.vars(self)
+            cc = tc_vars["CC"]
             if cross_building(self):
-                tc.make_args["HOST_CC"] = tc_vars["CC_FOR_BUILD"]
-                tc.make_args["CROSS"] = tc_vars["STRIP"].replace("-strip", "-")
+                tc.make_args["HOST_CC"] = tc_vars.get("CC_FOR_BUILD", "cc")
+                cross = tc_vars["STRIP"].replace("-strip", "-")
+                tc.make_args["CROSS"] = cross
+                # The makefile prepends the cross prefix to the CC variable
+                cc = cc.replace(cross, "")
+                cc = cc.replace(os.path.basename(cross), "")
                 if self.settings.os != self.settings_build.os:
                     tc.make_args["TARGET_SYS"] = self._target_sys
-            else:
-                tc.make_args["CC"] = tc_vars["CC"]
+            tc.make_args["CC"] = cc
             tc.generate()
 
     def _patch_sources(self):
