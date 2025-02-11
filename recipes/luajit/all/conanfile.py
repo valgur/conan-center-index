@@ -69,6 +69,8 @@ class LuajitConan(ConanFile):
             tc.generate()
         else:
             tc = GnuToolchain(self)
+            tc.make_args["PREFIX"] = unix_path(self, self.package_folder)
+            tc.make_args["BUILDMODE"] = "shared" if self.options.shared else "static"
             tc_vars = tc.extra_env.vars(self)
             cc = tc_vars["CC"]
             if cross_building(self):
@@ -81,15 +83,13 @@ class LuajitConan(ConanFile):
                 if self.settings.os != self.settings_build.os:
                     tc.make_args["TARGET_SYS"] = self._target_sys
             tc.make_args["CC"] = cc
+            if is_apple_os(self) and self.settings.get_safe("os.version"):
+                tc.make_args["MACOSX_DEPLOYMENT_TARGET"] = self.settings.os.version
             tc.generate()
 
     def _patch_sources(self):
         if not is_msvc(self):
-            buildmode = 'shared' if self.options.shared else 'static'
             makefile = os.path.join(self.source_folder, 'src', 'Makefile')
-            replace_in_file(self, makefile,
-                                  'BUILDMODE= mixed',
-                                  'BUILDMODE= %s' % buildmode)
             replace_in_file(self, makefile,
                                   'TARGET_DYLIBPATH= $(TARGET_LIBPATH)/$(TARGET_DYLIBNAME)',
                                   'TARGET_DYLIBPATH= $(TARGET_DYLIBNAME)')
@@ -105,19 +105,6 @@ class LuajitConan(ConanFile):
                 replace_in_file(self, makefile,
                                       'TARGET_O= $(LUAJIT_A)',
                                       'TARGET_O= $(LUAJIT_SO)')
-            if "clang" in str(self.settings.compiler):
-                replace_in_file(self, makefile, 'CC= $(DEFAULT_CC)', 'CC= clang')
-
-    @property
-    def _macosx_deployment_target(self):
-        return self.settings.get_safe("os.version")
-
-    @property
-    def _make_arguments(self):
-        args = [f"PREFIX={unix_path(self, self.package_folder)}"]
-        if is_apple_os(self) and self._macosx_deployment_target:
-            args.append(f"MACOSX_DEPLOYMENT_TARGET={self._macosx_deployment_target}")
-        return args
 
     @property
     def _luajit_include_folder(self):
@@ -135,7 +122,7 @@ class LuajitConan(ConanFile):
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
-                autotools.make(args=self._make_arguments)
+                autotools.make()
 
     def package(self):
         copy(self, "COPYRIGHT", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
@@ -153,7 +140,7 @@ class LuajitConan(ConanFile):
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
-                autotools.install(args=self._make_arguments + ["DESTDIR="])
+                autotools.install(args=["DESTDIR="])
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             rmdir(self, os.path.join(self.package_folder, "share"))
 
