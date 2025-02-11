@@ -44,6 +44,7 @@ class QtConan(ConanFile):
         "with_fontconfig": [True, False],
         "with_icu": [True, False],
         "with_harfbuzz": [True, False],
+        "with_libb2": [True, False],
         "with_libjpeg": ["libjpeg", "libjpeg-turbo", False],
         "with_libpng": [True, False],
         "with_sqlite3": [True, False],
@@ -84,6 +85,7 @@ class QtConan(ConanFile):
         "with_fontconfig": True,
         "with_icu": True,
         "with_harfbuzz": True,
+        "with_libb2": False,
         "with_libjpeg": False,
         "with_libpng": True,
         "with_sqlite3": True,
@@ -428,6 +430,8 @@ class QtConan(ConanFile):
             self.requires("icu/75.1")
         if self.options.get_safe("with_harfbuzz"):
             self.requires("harfbuzz/8.3.0")
+        if self.options.with_libb2:
+            self.requires("libb2/20190723")
         if self.options.get_safe("with_libjpeg") == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.get_safe("with_libjpeg") == "libjpeg-turbo":
@@ -540,6 +544,8 @@ class QtConan(ConanFile):
             vre.generate(scope="build")
 
         deps = CMakeDeps(self)
+        deps.set_property("libb2", "cmake_file_name", "Libb2")
+        deps.set_property("libb2", "cmake_target_name", "Libb2::Libb2")
         deps.set_property("libdrm", "cmake_file_name", "Libdrm")
         deps.set_property("libdrm::libdrm_libdrm", "cmake_target_name", "Libdrm::Libdrm")
         deps.set_property("wayland", "cmake_file_name", "Wayland")
@@ -667,6 +673,7 @@ class QtConan(ConanFile):
             ("with_doubleconversion", "doubleconversion"),
             ("with_freetype", "freetype"),
             ("with_harfbuzz", "harfbuzz"),
+            ("with_libb2", "libb2"),
             ("with_libjpeg", "libjpeg"),
             ("with_libpng", "libpng"),
             ("with_md4c", "libmd4c"),
