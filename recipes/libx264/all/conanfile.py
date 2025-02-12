@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os, XCRun, fix_apple_shared_install_name
-from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv
 from conan.tools.files import copy, rename, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, GnuToolchain
@@ -112,10 +111,6 @@ class LibX264Conan(ConanFile):
             suffix = ".exe" if self.settings.os == "Windows" else ""
             env.define("AS", unix_path(self, os.path.join(self.dependencies.build["nasm"].package_folder, "bin", f"nasm{suffix}")))
             env.vars(self).save_script("conanbuild_nasm")
-
-        if cross_building(self):
-            tc_vars = tc.extra_env.vars(self)
-            tc.configure_args["--cross-prefix"] = tc_vars["STRIP"].rsplit("strip", 1)[0]
 
         if is_msvc(self):
             env = Environment()
