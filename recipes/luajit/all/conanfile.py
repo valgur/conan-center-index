@@ -73,7 +73,7 @@ class LuajitConan(ConanFile):
             cc = tc_vars["CC"]
             if cross_building(self):
                 tc.make_args["HOST_CC"] = tc_vars.get("CC_FOR_BUILD", "cc")
-                cross = tc_vars["STRIP"].replace("-strip", "-")
+                cross = tc_vars["STRIP"].rsplit("strip", 1)[0]
                 tc.make_args["CROSS"] = cross
                 # The makefile prepends the cross prefix to the CC variable
                 cc = cc.replace(cross, "")
