@@ -85,9 +85,10 @@ class LibTomCryptConan(ConanFile):
         tc.make_args["CFLAGS"] = " ".join(cflags)
         tc.make_args["LDFLAGS"] = " ".join(ldflags)
         tc_vars = tc.extra_env.vars(self)
-        tc.make_args["CC"] = tc_vars["CC"]
+        if "CC" in tc_vars:
+            tc.make_args["CC"] = tc_vars["CC"]
         if cross_building(self):
-            tc.make_args["CROSS_COMPILE"] = tc_vars["STRIP"].replace("-strip", "-")
+            tc.make_args["CROSS_COMPILE"] = tc_vars["STRIP"].rsplit("strip", 1)[0]
         tc.extra_env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
         tc.generate()
 
