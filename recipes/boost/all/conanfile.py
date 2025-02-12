@@ -1185,6 +1185,9 @@ class BoostConan(ConanFile):
             (self.settings.compiler == "gcc" and Version(self.settings.compiler.version) == "10"):
             cxx_flags.append("-fcoroutines")
 
+        if self.version == "1.71.0" and self.settings.compiler in ["gcc", "clang", "apple-clang"]:
+            cxx_flags.append("-Wno-error=enum-constexpr-conversion")
+
         cxx_flags = f'cxxflags="{" ".join(cxx_flags)}"'
         flags.append(cxx_flags)
 
