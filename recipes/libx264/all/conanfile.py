@@ -109,38 +109,13 @@ class LibX264Conan(ConanFile):
 
         if self._with_nasm:
             env = Environment()
-            env.define("AS", unix_path(self, os.path.join(self.dependencies.build["nasm"].package_folder, "bin", "nasm{}".format(".exe" if self.settings.os == "Windows" else ""))))
+            suffix = ".exe" if self.settings.os == "Windows" else ""
+            env.define("AS", unix_path(self, os.path.join(self.dependencies.build["nasm"].package_folder, "bin", f"nasm{suffix}")))
             env.vars(self).save_script("conanbuild_nasm")
 
         if cross_building(self):
-            if self.settings.os == "Android":
-                buildenv_vars = VirtualBuildEnv(self).vars()
-                ndk_root = self.conf.get("tools.android:ndk_path", buildenv_vars.get("NDK_ROOT"))
-
-                # INFO: Conan package android-ndk does not expose toolchain path. Looks fragile but follows always same for Android NDK
-                build_os = {"Linux": "linux", "Macos": "darwin", "Windows": "windows"}.get(str(self.settings_build.os))
-                toolchain = os.path.join(ndk_root, "toolchains", "llvm", "prebuilt", f"{build_os}-{self.settings_build.arch}")
-
-                sysroot = self.conf.get("tools.build:sysroot", buildenv_vars.get("SYSROOT", f"{toolchain}/sysroot"))
-                # INFO: x264 will look for strings appended to the cross prefix
-                cross_prefix = os.path.join(toolchain, "bin", "llvm-")
-
-                compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
-
-                tc.configure_args["--build"] = None # --build is not recognized
-                tc.configure_args["--cross-prefix"] = cross_prefix
-                tc.configure_args["--sysroot"] = sysroot
-
-                # the as of ndk does not work well for building libx264
-                env = Environment()
-                cc_as = compilers_from_conf.get("c", buildenv_vars.get("AS", "clang"))
-                env.define("AS", cc_as)
-                env_vars = env.vars(self, scope="build")
-                env_vars.save_script("conanbuild_android")
-            else:
-                tc_vars = tc.extra_env.vars(self)
-                strip = tc_vars.get("STRIP", "strip")
-                tc.configure_args["--cross-prefix"] = strip.replace("strip", "")
+            tc_vars = tc.extra_env.vars(self)
+            tc.configure_args["--cross-prefix"] = tc_vars["STRIP"].rsplit("strip", 1)[0]
 
         if is_msvc(self):
             env = Environment()
