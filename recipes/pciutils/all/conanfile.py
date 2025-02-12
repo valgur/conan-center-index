@@ -80,10 +80,10 @@ class PciUtilsConan(ConanFile):
         tc.make_args["PREFIX"] = "/"
         tc.make_args["DNS"] = "no"
         tc.make_args["HOST"] = self._host
-        tc.make_args["CC"] = tc_vars["CC"]
+        if "CC" in tc_vars:
+            tc.make_args["CC"] = tc_vars["CC"]
         if cross_building(self):
-            cross_compile_prefix = tc_vars["STRIP"].replace("-strip", "-")
-            tc.make_args["CROSS_COMPILE"] = cross_compile_prefix
+            tc.make_args["CROSS_COMPILE"] = tc_vars["STRIP"].rsplit("strip", 1)[0]
         for dep in reversed(self.dependencies.host.topological_sort.values()):
             for lib in dep.cpp_info.aggregated_components().libs:
                 tc.extra_ldflags.append(f"-l{lib}")
