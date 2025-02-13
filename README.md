@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-02-12:
+Package versions that are available here but not yet on the main CCI repo as of 2025-02-13:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -21,6 +21,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
+- boost/1.71.0
 - cargo-c/0.10.8
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -70,14 +71,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - go/1.23.5
 - gobject-introspection/1.82.0
 - gpu.cpp/0.1.0
-- gst-libav/1.24.11
+- gst-libav/1.24.12
 - gst-orc/0.4.40
-- gst-plugins-bad/1.24.11
-- gst-plugins-base/1.24.11
-- gst-plugins-good/1.24.11
+- gst-plugins-bad/1.24.12
+- gst-plugins-base/1.24.12
+- gst-plugins-good/1.24.12
 - gst-plugins-rs/0.14.0-alpha.1
-- gst-plugins-ugly/1.24.11
-- gstreamer/1.24.11
+- gst-plugins-ugly/1.24.12
+- gstreamer/1.24.12
 - gtk/3.24.43
 - gtk/4.15.6
 - gtkmm/3.24.9
