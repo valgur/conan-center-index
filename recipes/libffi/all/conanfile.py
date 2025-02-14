@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -11,7 +10,7 @@ import glob
 import os
 import shutil
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.0"
 
 
 class LibffiConan(ConanFile):
@@ -57,7 +56,7 @@ class LibffiConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", default=False, check_type=str):
                 self.tool_requires("msys2/cci.latest")
-        if is_msvc(self):
+        if self.settings_build.os == "Windows" and self.settings.get_safe("compiler.runtime"):
             self.tool_requires("automake/1.16.5")
 
     def source(self):
@@ -65,8 +64,6 @@ class LibffiConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
 
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
@@ -87,7 +84,7 @@ class LibffiConan(ConanFile):
             tc.extra_defines.append("FFI_STATIC_BUILD")
 
         env = tc.environment()
-        if self.settings_build.os == "Windows" and (is_msvc(self) or self.settings.compiler == "clang"):
+        if self.settings_build.os == "Windows" and self.settings.get_safe("compiler.runtime"):
             build = "{}-{}-{}".format(
                 "x86_64" if self.settings_build.arch == "x86_64" else "i686",
                 "pc" if self.settings_build.arch == "x86" else "win64",
