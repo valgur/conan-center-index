@@ -59,7 +59,7 @@ class YASMConan(ConanFile):
             "--disable-nls",
         ])
         if cross_building(self):
-            build_cc = tc.vars()["CC_FOR_BUILD"]
+            build_cc = tc.vars().get("CC_FOR_BUILD", "cc")
             tc.configure_args.append(f"CC_FOR_BUILD={build_cc}")
             tc.configure_args.append(f"CCLD_FOR_BUILD={build_cc}")
         tc.generate()

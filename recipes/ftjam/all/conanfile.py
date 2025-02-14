@@ -87,7 +87,7 @@ class FtjamConan(ConanFile):
                     autotools.autoreconf(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
                     autotools.configure(build_script_folder=os.path.join(self.source_folder, "builds", "unix"))
                 tc_vars = AutotoolsToolchain(self).vars()
-                cc_for_build = tc_vars["CC_FOR_BUILD"] if not can_run(self) else tc_vars["CC"]
+                cc_for_build = tc_vars.get("CC_FOR_BUILD" if not can_run(self) else "CC", "cc")
                 autotools.make("jam0", [f"CC={cc_for_build}"])
                 self.run(f"./jam0 mkjambase CC={cc_for_build}")
                 if cross_building(self):

@@ -74,7 +74,7 @@ class FlexConan(ConanFile):
         env = tc.extra_env
         env_vars = env.vars(self)
         # flex looks for build-context CC even if not cross-compiling
-        env.define_path("CC_FOR_BUILD", env_vars.get("CC_FOR_BUILD", env_vars["CC"]))
+        env.define_path("CC_FOR_BUILD", env_vars.get("CC_FOR_BUILD", env_vars.get("CC", "cc")))
         tc.generate()
 
     def build(self):

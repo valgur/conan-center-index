@@ -181,7 +181,7 @@ class NetpbmConan(ConanFile):
             autotools = Autotools(self)
             if not can_run(self):
                 with chdir(self, os.path.join(self.source_folder, "buildtools")):
-                    cc = GnuToolchain(self).extra_env.vars(self)["CC_FOR_BUILD"]
+                    cc = GnuToolchain(self).extra_env.vars(self).get("CC_FOR_BUILD", "cc")
                     autotools.make(args=[f"CC={cc}"])
             autotools.make()
 

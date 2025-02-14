@@ -40,7 +40,7 @@ class TzConan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
-        build_cc = unix_path(self, tc.vars()["CC_FOR_BUILD" if cross_building(self) else "CC"])
+        build_cc = unix_path(self, tc.vars().get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc"))
         awk_path = unix_path(self, os.path.join(self.dependencies.direct_build["mawk"].package_folder, "bin", "mawk"))
         tc.make_args.extend([
             f"cc={build_cc}",

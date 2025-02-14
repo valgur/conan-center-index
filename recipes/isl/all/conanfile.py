@@ -90,7 +90,7 @@ class IslConan(ConanFile):
                 tc.extra_cflags = ["-FS"]
         # ./configure tries to find a more specific compiler executable with
         # a triplet in its name and can fail if CC_FOR_BUILD is not set.
-        build_cc = tc.vars()["CC_FOR_BUILD" if cross_building(self) else "CC"]
+        build_cc = tc.vars().get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc")
         tc.configure_args.append(f"CC_FOR_BUILD={build_cc}")
         env = tc.environment()
         if is_msvc(self):

@@ -40,7 +40,7 @@ class LinuxHeadersGenericConan(ConanFile):
         tc = GnuToolchain(self)
         tc_vars = tc.extra_env.vars(self)
         # HOSTCC  scripts/basic/fixdep
-        tc.make_args["HOSTCC"] = tc_vars["CC_FOR_BUILD"]
+        tc.make_args["HOSTCC"] = tc_vars.get("CC_FOR_BUILD", "cc")
         tc.generate()
 
     def build(self):

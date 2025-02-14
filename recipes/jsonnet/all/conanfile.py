@@ -107,7 +107,7 @@ class JsonnetConan(ConanFile):
         if not can_run(self):
             # Bypass https://github.com/google/jsonnet/blob/v0.20.0/stdlib/CMakeLists.txt,
             # which builds a simple native executable
-            cxx = AutotoolsToolchain(self).vars()["CXX_FOR_BUILD"]
+            cxx = AutotoolsToolchain(self).vars().get("CXX_FOR_BUILD", "c++")
             self.run(f"{cxx} {os.path.join(self.source_folder, 'stdlib', 'to_c_array.cpp')} -o to_c_array")
             self.run(f"./to_c_array {os.path.join(self.source_folder, 'stdlib', 'std.jsonnet')} {os.path.join(self.source_folder, 'core', 'std.jsonnet.h')}")
             save(self, os.path.join(self.source_folder, "stdlib", "CMakeLists.txt"), "")

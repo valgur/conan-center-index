@@ -99,7 +99,7 @@ class NasRecipe(ConanFile):
             autotools = Autotools(self)
 
             # imake is hard-coded to use gcc, so we need to alias it to the correct compiler instead
-            build_cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD" if not can_run(self) else "CC"]
+            build_cc = AutotoolsToolchain(self).vars().get("CC_FOR_BUILD" if not can_run(self) else "CC", "cc")
             save(self, "gcc", f'#!/bin/sh\nexec {build_cc} "$@"')
             os.chmod("gcc", 0o755)
 

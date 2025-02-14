@@ -71,7 +71,7 @@ class DiscountConan(ConanFile):
                             "add_executable(mktags", "message(TRACE ")
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "cmake"))
         if not can_run(self):
-            cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD"]
+            cc = AutotoolsToolchain(self).vars().get("CC_FOR_BUILD", "cc")
             self.run(f"{cc} {os.path.join(self.source_folder, 'mktags.c')} -o mktags", cwd=self.build_folder)
         cmake.build()
 

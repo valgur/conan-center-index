@@ -94,7 +94,7 @@ class Perf(ConanFile):
         tc.make_args["LDFLAGS"] = deps_vars["LDFLAGS"]
         tc.make_args["LIBS"] = deps_vars["LIBS"]
         if not can_run(self):
-            tc.make_args["HOSTCC"] = tc_vars["CC_FOR_BUILD"]
+            tc.make_args["HOSTCC"] = tc_vars.get("CC_FOR_BUILD", "cc")
             tc.make_args["LD"] = tc_vars["CC"]
             tc.make_args["STRIP"] = tc_vars["STRIP"]
             tc.make_args["OBJDUMP"] = tc.make_args["STRIP"].replace("strip", "objdump")

@@ -643,7 +643,7 @@ class FFMpegConan(ConanFile):
         if ranlib:
             args.append(f"--ranlib={unix_path(self, ranlib)}")
         if cross_building(self):
-            build_cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD"]
+            build_cc = AutotoolsToolchain(self).vars().get("CC_FOR_BUILD", "c++")
             args.append(f"--host-cc={unix_path(self, build_cc)}")
         pkg_config = self.conf.get("tools.gnu:pkg_config", default=buildenv_vars.get("PKG_CONFIG", "pkgconf"), check_type=str)
         if pkg_config:

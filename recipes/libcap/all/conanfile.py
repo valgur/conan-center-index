@@ -67,7 +67,7 @@ class LibcapConan(ConanFile):
         if cross_building(self):
             # libcap needs to run an executable that is compiled from sources
             # during the build - so it needs a native compiler (it doesn't matter which)
-            tc.extra_env.define_path("BUILD_CC", tc.extra_env.vars(self)["CC_FOR_BUILD"])
+            tc.extra_env.define_path("BUILD_CC", tc.extra_env.vars(self).get("CC_FOR_BUILD", "cc")
             triplet = self.dependencies.build["binutils"].conf_info.get("user.binutils:gnu_triplet", check_type=str)
             binutils_dir = os.path.join(self.dependencies.build["binutils"].package_folder, "bin")
             tc.extra_env.define_path("OBJCOPY", unix_path(self, os.path.join(binutils_dir, f"{triplet}-objcopy")))

@@ -108,7 +108,7 @@ class NsprConan(ConanFile):
 
         # For cross-compilation support
         buildenv_vars = VirtualBuildEnv(self).vars()
-        build_cc = tc.vars()["CC_FOR_BUILD" if cross_building(self) else "CC"]
+        build_cc = tc.vars().get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc")
         tc.configure_args.append(f"HOST_CC={build_cc}")
         compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
         strip = compilers_from_conf.get("strip", buildenv_vars.get("STRIP", "strip"))

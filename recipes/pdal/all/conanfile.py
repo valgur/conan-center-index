@@ -219,8 +219,8 @@ class PdalConan(ConanFile):
         build_dir = os.path.join(self.build_folder, "src", "dimbuilder")
         cmake_vars = {}
         tc_vars = AutotoolsToolchain(self).vars()
-        cmake_vars["CMAKE_C_COMPILER"] = tc_vars["CC_FOR_BUILD"]
-        cmake_vars["CMAKE_CXX_COMPILER"] = tc_vars["CXX_FOR_BUILD"]
+        cmake_vars["CMAKE_C_COMPILER"] = tc_vars.get("CC_FOR_BUILD", "cc")
+        cmake_vars["CMAKE_CXX_COMPILER"] = tc_vars.get("CXX_FOR_BUILD", "c++")
         cmake_vars["CMAKE_CXX_STANDARD"] = self._min_cppstd
         cmake_vars["CMAKE_BUILD_TYPE"] = "Release"
         cmake_vars["NLOHMANN_INCLUDE_DIR"] = os.path.join(self.dependencies["nlohmann_json"].package_folder, "include").replace("\\", "/")

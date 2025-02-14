@@ -45,7 +45,7 @@ class PackageConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         if cross_building(self):
-            cc = tc.vars()["CC_FOR_BUILD"]
+            cc = tc.vars().get("CC_FOR_BUILD", "cc")
             tc.configure_args.append(f"--with-build-cc={cc}")
         tc.generate()
 

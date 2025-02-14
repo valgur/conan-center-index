@@ -295,8 +295,8 @@ class LLVMCoreConan(ConanFile):
             ])
             # CC/CXX env vars are used by LLVM to build native build tools
             env = Environment()
-            env.define_path("CC", gtc_vars["CC_FOR_BUILD"])
-            env.define_path("CXX", gtc_vars["CXX_FOR_BUILD"])
+            env.define_path("CC", gtc_vars.get("CC_FOR_BUILD", "cc"))
+            env.define_path("CXX", gtc_vars.get("CXX_FOR_BUILD", "c++"))
             env.vars(self).save_script("native_compiler_env")
 
         tc.cache_variables.update(cmake_variables)
