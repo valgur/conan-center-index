@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import cross_building
 from conan.tools.files import chdir, copy, get
 from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
@@ -40,7 +41,7 @@ class LinuxHeadersGenericConan(ConanFile):
         tc = GnuToolchain(self)
         tc_vars = tc.extra_env.vars(self)
         # HOSTCC  scripts/basic/fixdep
-        tc.make_args["HOSTCC"] = tc_vars.get("CC_FOR_BUILD", "cc")
+        tc.make_args["HOSTCC"] = tc_vars.get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc")
         tc.generate()
 
     def build(self):
