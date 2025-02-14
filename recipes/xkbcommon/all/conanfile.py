@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.build import cross_building
 from conan.tools.env import Environment
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
@@ -109,12 +108,11 @@ class XkbcommonConan(ConanFile):
             pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
         pkg_config_deps.generate()
 
-        if cross_building(self):
-            # required for dependency(..., native: true) in meson.build
-            env = Environment()
-            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
-            env.vars(self).save_script("pkg_config_for_build_env.sh")
+        # required for dependency(..., native: true) in meson.build
+        env = Environment()
+        env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+        env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
+        env.vars(self).save_script("pkg_config_for_build_env.sh")
 
     def _patch_sources(self):
         if self.options.get_safe("with_wayland"):
