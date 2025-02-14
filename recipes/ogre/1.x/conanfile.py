@@ -11,6 +11,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, rmdir, save, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=1.53.0"
 
@@ -250,6 +251,7 @@ class OgreConanFile(ConanFile):
             self.options.rm_safe("config_enable_gles2_glsl_optimiser")
         if not self._build_opengl:
             self.options.rm_safe("config_enable_gl_state_cache_support")
+            self.options.rm_safe("glsupport_use_egl")
         if not self.options.get_safe("build_rendersystem_tiny"):
             self.options.rm_safe("with_openmp")
 
@@ -269,6 +271,8 @@ class OgreConanFile(ConanFile):
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
             self.requires("glad/0.1.36", transitive_headers=True, transitive_libs=True)
             self.requires("khrplatform/cci.20200529", transitive_headers=True)
+            if self.options.glsupport_use_egl:
+                self.requires("egl/system")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.use_wayland:
                 self.requires("wayland/1.22.0")
@@ -296,8 +300,6 @@ class OgreConanFile(ConanFile):
         if self.options.build_rendersystem_vulkan:
             self.requires("vulkan-headers/1.3.268.0")
             self.requires("volk/1.3.268.0", transitive_headers=True, transitive_libs=True)
-        if self.options.glsupport_use_egl:
-            self.requires("egl/system")
 
         # TODO: Qt support in OgreBites
         # TODO: add support for DirectX, DirectX11, Softimage, GLSLOptimizer, HLSL2GLSL
@@ -317,7 +319,7 @@ class OgreConanFile(ConanFile):
         _missing_dep_warning("config_enable_quad_buffer_stereo", "NVAPI")
         _missing_dep_warning("build_xsiexporter", "Softimage")
 
-        if self.options.get_safe("use_wayland") and not self.options.glsupport_use_egl:
+        if self.options.get_safe("use_wayland") and not self.options.get_safe("glsupport_use_egl"):
             raise ConanInvalidConfiguration("-o use_wayland=True requires -o glsupport_use_egl=True")
 
     def build_requirements(self):
@@ -457,13 +459,15 @@ class OgreConanFile(ConanFile):
         # Fix assimp CMake target
         replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "Assimp", "CMakeLists.txt"),
                         "fix::assimp", "assimp::assimp")
-        # Use CMake targets instead of plain libs for glslang and SPIRV-Tools
-        replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "GLSLang", "CMakeLists.txt"),
-                        " glslang OSDependent SPIRV ", " glslang::glslang ")
-        # Make sure OpenMP is enabled/disabled correctly
-        replace_in_file(self, os.path.join(self.source_folder, "RenderSystems", "Tiny", "CMakeLists.txt"),
-                        "find_package(OpenMP QUIET)",
-                        "find_package(OpenMP REQUIRED)" if self.options.get_safe("with_openmp") else "set(OpenMP_CXX_FOUND FALSE)")
+        if Version(self.version) >= "13.0":
+            # Use CMake targets instead of plain libs for glslang and SPIRV-Tools
+            replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "GLSLang", "CMakeLists.txt"),
+                            " glslang OSDependent SPIRV ", " glslang::glslang ")
+        if Version(self.version) >= "1.12.11":
+            # Make sure OpenMP is enabled/disabled correctly
+            replace_in_file(self, os.path.join(self.source_folder, "RenderSystems", "Tiny", "CMakeLists.txt"),
+                            "find_package(OpenMP QUIET)",
+                            "find_package(OpenMP REQUIRED)" if self.options.get_safe("with_openmp") else "set(OpenMP_CXX_FOUND FALSE)")
         # Unvendor stb in Plugin_STBI
         rmdir(self, os.path.join(self.source_folder, "PlugIns", "STBICodec", "src", "stbi"))
         replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "STBICodec", "src", "OgreSTBICodec.cpp"),
@@ -476,9 +480,10 @@ class OgreConanFile(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "Components", "Overlay", "CMakeLists.txt"),
                             "list(REMOVE_ITEM SOURCE_FILES", "# list(REMOVE_ITEM SOURCE_FILES")
         # Use a target for EGL to supported relocated EGL from libglvnd
-        replace_in_file(self, os.path.join(self.source_folder, "CMake", "Packages", "FindOpenGLES2.cmake"),
-                        "${OPENGL_egl_LIBRARY}",
-                        "OpenGL::EGL")
+        find_opengles2 = os.path.join(self.source_folder, "CMake", "Packages", "FindOpenGLES2.cmake")
+        replace_in_file(self, find_opengles2, "${EGL_egl_LIBRARY}", "OpenGL::EGL")
+        if Version(self.version) >= "13.2.2":
+            replace_in_file(self, find_opengles2, "${OPENGL_egl_LIBRARY}", "OpenGL::EGL")
 
     def build(self):
         self._patch_sources()
@@ -630,9 +635,9 @@ class OgreConanFile(ConanFile):
             _add_core_component("Volume")
 
         opengl_reqs = ["opengl::opengl", "glad::glad", "khrplatform::khrplatform"]
-        if self.options.glsupport_use_egl:
-            opengl_reqs.append("egl::egl")
         if self._build_opengl:
+            if self.options.glsupport_use_egl:
+                opengl_reqs.append("egl::egl")
             if not self.options.shared:
                 _add_core_component("GLSupport", requires=opengl_reqs, extra_includedirs=[])
             else:

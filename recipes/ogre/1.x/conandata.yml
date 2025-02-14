@@ -2,3 +2,6 @@ sources:
   "14.3.0":
     url: "https://github.com/OGRECave/ogre/archive/refs/tags/v14.3.0.tar.gz"
     sha256: "40c20797f4c21bae0d80df7ffd6fe92af26c0cdd666c2db4f005da02dfcc4d5b"
+  "1.12.10":
+    url: "https://github.com/OGRECave/ogre/archive/refs/tags/v1.12.10.tar.gz"
+    sha256: "d4f791e6c4df9307efb8e4e92652233f948ea06d5e22e065f299c9ab8fc5cfa4"
