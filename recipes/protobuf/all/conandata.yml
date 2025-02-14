@@ -18,6 +18,9 @@ sources:
   "3.20.3":
     url: "https://github.com/protocolbuffers/protobuf/archive/v3.20.3.tar.gz"
     sha256: "9c0fd39c7a08dff543c643f0f4baf081988129a411b977a07c46221793605638"
+  "3.12.4":
+    url: "https://github.com/protocolbuffers/protobuf/archive/v3.12.4.tar.gz"
+    sha256: "512e5a674bf31f8b7928a64d8adf73ee67b8fe88339ad29adaa3b84dbaa570d8"
 patches:
   "3.21.12":
     - patch_file: "patches/protobuf-3.21.12-upstream-macos-macros.patch"
@@ -29,6 +32,11 @@ patches:
       patch_description: "Handle case where macOS SDK macros may conflict with protobuf message types"
       patch_type: "bugfix"
       patch_source: "https://github.com/protocolbuffers/protobuf/pull/10103"
+  "3.12.4":
+    - patch_file: "patches/upstream-pr-7761-cmake-regex-fix.patch"
+    - patch_file: "patches/upstream-issue-7567-no-export-template-define.patch"
+    - patch_file: "patches/upstream-pr-7288-android-log.patch"
+    - patch_file: "patches/upstream-pr-8301-bundle-destination.patch"
 absl_deps:
   "5.27.0":
     - absl_absl_check
