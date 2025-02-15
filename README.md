@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-02-14:
+Package versions that are available here but not yet on the main CCI repo as of 2025-02-15:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -22,6 +22,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - azure-sdk-for-cpp/1.13.0
 - blis/0.9.0
 - boost/1.71.0
+- boost/1.74.0
 - cargo-c/0.10.8
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -160,15 +161,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - netpbm/11.6.0
 - nss/3.107
 - numpy/1.26.4
+- ogre/1.12.10
 - ogre/14.3.0
 - openblas/0.3.28
+- opencv/4.5.4
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
-- openssl/3.0.15
 - or-tools/9.10
 - osgearth/3.7
 - osrm/5.27.1
@@ -183,6 +185,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta2
+- protobuf/3.12.4
+- protobuf/4.23.4
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
 - qt/6.8.2
