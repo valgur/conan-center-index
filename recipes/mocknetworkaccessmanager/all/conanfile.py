@@ -64,6 +64,7 @@ class MockNetworkAccessManagerConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         cmake.configure()
+        # cmake.install() fails without the explicit target
         cmake.build(target="MockNetworkAccessManager")
 
     def package(self):
@@ -73,3 +74,7 @@ class MockNetworkAccessManagerConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["MockNetworkAccessManager"]
+        self.cpp_info.requires = ["qt::qtCore", "qt::qtNetwork"]
+        qt = self.dependencies["qt"]
+        if qt.ref.version.major == 6 and qt.options.qt5compat:
+            self.cpp_info.requires.append("qt::qtCore5Compat")
