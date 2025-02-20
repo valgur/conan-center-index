@@ -202,7 +202,7 @@ class freeglutConan(ConanFile):
                 "xorg::x11",
                 "xorg::xrandr",
                 "xorg::xxf86vm",
-                "xorg::xinput",
+                "xorg::xi",
             ])
         if self.options.get_safe("with_wayland"):
             self.cpp_info.requires.extend(["wayland::wayland-client", "wayland::wayland-cursor", "wayland::wayland-egl", "xkbcommon::xkbcommon"])
