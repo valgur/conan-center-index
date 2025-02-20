@@ -1,16 +1,14 @@
+import os
+
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, replace_in_file, rm, rmdir, copy
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.files import get, replace_in_file, copy
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.env import Environment
 
-import os
-
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.0"
 
 # Subsystems, CMakeLists.txt#L234
 _subsystems = [
@@ -182,6 +180,11 @@ class SDLConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Fix handling of potentially relocated X11 libs
+        replace_in_file(self, os.path.join(self.source_folder, "cmake", "sdlchecks.cmake"),
+                        "${X11_LIB}", "${X11_LIBRARIES}")
+        replace_in_file(self, os.path.join(self.source_folder, "cmake", "sdlchecks.cmake"),
+                        "${X11_INCLUDEDIR}", "${X11_INCLUDE_DIR};${X11_Xext_INCLUDE_PATH}")
 
     @property
     def _is_unix_sys(self):
@@ -213,6 +216,14 @@ class SDLConan(ConanFile):
     def _supports_dbus(self):
         # CMakeLists.txt#292
         return self.options.get_safe("dbus") and self._is_unix_sys
+
+    @property
+    def _xorg_is_shared(self):
+        # In case non-system xorg is used
+        xorg = self.dependencies["xorg"]
+        xorg_is_shared = xorg.options.get_safe("shared", True)
+        xorg_deps_are_shared = all(dep.options.get_safe("shared", True) for _, dep in xorg.dependencies.direct_host.items())
+        return xorg_is_shared and xorg_deps_are_shared
 
     def requirements(self):
         # TODO: understand if we want to make this an option
@@ -249,14 +260,14 @@ class SDLConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["SDL_SHARED"] = self.options.shared
         tc.cache_variables["SDL_STATIC"] = not self.options.shared
-        # Todo: Remove after recipe develop is finished
-        tc.cache_variables["SDL_TEST_LIBRARY"] = True
-        tc.cache_variables["SDL_TESTS"] = True
-        tc.cache_variables["SDL_EXAMPLES"] = True
-        tc.cache_variables["SDL_INSTALL_EXAMPLES"] = True
         tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.cache_variables["SDL_SYSTEM_ICONV_DEFAULT"] = True
         tc.cache_variables["SDL_LIBICONV"] = True
+        # Todo: Remove after recipe develop is finished
+        tc.cache_variables["SDL_TEST_LIBRARY"] = False
+        tc.cache_variables["SDL_TESTS"] = False
+        tc.cache_variables["SDL_EXAMPLES"] = False
+        tc.cache_variables["SDL_INSTALL_EXAMPLES"] = False
 
         tc.cache_variables["SDL_JACK"] = False # Jack is not available in CCI
 
@@ -291,7 +302,7 @@ class SDLConan(ConanFile):
         # X11 and wayland configuration
         with_x11 = self.options.get_safe("x11", False)
         tc.cache_variables["SDL_X11"] = with_x11
-        tc.cache_variables["SDL_X11_SHARED"] = True
+        tc.cache_variables["SDL_X11_SHARED"] = self._xorg_is_shared
         if with_x11:
             # See https://github.com/bincrafters/community/issues/696
             tc.cache_variables["SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS"] = 1
