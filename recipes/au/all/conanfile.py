@@ -1,13 +1,12 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
-from conan.tools.scm import Version
 import os
 
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import apply_conandata_patches, copy, get, rmdir
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
+
 
 class PackageConan(ConanFile):
     name = "au"
@@ -15,25 +14,9 @@ class PackageConan(ConanFile):
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/aurora-opensource/au"
-    topics = ("units", "C++14")
+    topics = ("units", "C++14", "header-only")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "7",
-            "gcc": "7",
-            "msvc": "191",
-        }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -42,12 +25,7 @@ class PackageConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <4]")
@@ -58,8 +36,8 @@ class PackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["AU_EXCLUDE_GTEST_DEPENDENCY"] = "ON"
-        tc.variables["AU_ENABLE_TESTING"] = "OFF"
+        tc.variables["AU_ENABLE_TESTING"] = False
+        tc.variables["AU_EXCLUDE_GTEST_DEPENDENCY"] = True
         tc.generate()
 
     def build(self):
