@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-02-27:
+Package versions that are available here but not yet on the main CCI repo as of 2025-02-28:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -93,6 +93,20 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - icu4x/1.4.1
 - icu4x/1.5.1
 - imagemagick/7.1.1.38
+- imgui/1.90.6
+- imgui/1.90.6-docking
+- imgui/1.90.7
+- imgui/1.90.7-docking
+- imgui/1.90.8
+- imgui/1.90.8-docking
+- imgui/1.91.0
+- imgui/1.91.0-docking
+- imgui/1.91.2
+- imgui/1.91.2-docking
+- imgui/1.91.3
+- imgui/1.91.3-docking
+- imgui/1.91.4
+- imgui/1.91.4-docking
 - imlib2/1.12.3
 - influxdb-cxx/0.7.3
 - iridescence/0.1.3
