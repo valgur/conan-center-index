@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-02-28:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-01:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -112,6 +112,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - iridescence/0.1.3
 - isl/0.27
 - json-glib/1.10.6
+- jsoncons/0.171.1
+- jsoncons/0.172.0
+- jsoncons/0.172.1
+- jsoncons/0.173.0
+- jsoncons/0.173.2
+- jsoncons/0.173.3
+- jsoncons/0.173.4
+- jsoncons/0.174.0
+- jsoncons/0.175.0
 - jsonifier/0.9.98
 - lapack/3.12.0
 - libbasisu/1.16.4
