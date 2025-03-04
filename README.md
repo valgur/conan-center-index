@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-03:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-04:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -226,6 +226,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.84.0
 - sdl/3.2.4
 - secsipidx/1.3.2
+- sentry-native/0.5.4
+- sentry-native/0.7.15
+- sentry-native/0.7.17
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/132
