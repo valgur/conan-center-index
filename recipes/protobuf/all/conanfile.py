@@ -1,13 +1,13 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, rename, get, apply_conandata_patches, export_conandata_patches, replace_in_file, rmdir, rm, save
-from conan.tools.microsoft import check_min_vs, msvc_runtime_flag, is_msvc, is_msvc_static_runtime
+from conan.tools.microsoft import msvc_runtime_flag, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-
-import os
 
 required_conan_version = ">=1.53"
 
@@ -77,10 +77,8 @@ class ProtobufConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
 
-        if self._protobuf_release >= "24.0":
-            self.requires("abseil/20240116.2", transitive_headers=True)
-        elif self._protobuf_release >= "22.0":
-            self.requires("abseil/20230802.1", transitive_headers=True)
+        if self._protobuf_release >= "22.0":
+            self.requires("abseil/[>=20230802.1 <=20240722.0]", transitive_headers=True)
 
     @property
     def _compilers_minimum_version(self):
@@ -102,8 +100,6 @@ class ProtobufConan(ConanFile):
 
         if self._protobuf_release >= "22.0":
             check_min_cppstd(self, 14)
-
-        check_min_vs(self, "190")
 
         if self.settings.compiler == "clang":
             if Version(self.settings.compiler.version) < "4":

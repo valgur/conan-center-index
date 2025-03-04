@@ -1,16 +1,12 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import get, copy, rm, export_conandata_patches, apply_conandata_patches, replace_in_file
 from conan.tools.microsoft import is_msvc_static_runtime
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.55.0"
-
+required_conan_version = ">=2.0.9"
 
 class MysqlConnectorCppConan(ConanFile):
     name = "mysql-connector-cpp"
@@ -30,30 +26,11 @@ class MysqlConnectorCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "10",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
+        copy(self, "conan_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -68,10 +45,7 @@ class MysqlConnectorCppConan(ConanFile):
         self.requires("zstd/[~1.5]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires {self.settings.compiler} {minimum_version} or newer")
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <4]")
@@ -79,10 +53,11 @@ class MysqlConnectorCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        self._patch_sources()
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables["CMAKE_PROJECT_MySQL_CONCPP_INCLUDE"] = os.path.join(self.source_folder, "conan_project_include.cmake")
         tc.cache_variables["BUNDLE_DEPENDENCIES"] = False
         tc.cache_variables["BUILD_STATIC"] = not self.options.shared
         tc.cache_variables["STATIC_MSVCRT"] = is_msvc_static_runtime(self)
@@ -91,6 +66,7 @@ class MysqlConnectorCppConan(ConanFile):
         tc.cache_variables["WITH_SSL"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
         tc.cache_variables["CMAKE_PREFIX_PATH"] = self.generators_folder.replace("\\", "/")
         tc.cache_variables["IS64BIT"] = True
+        tc.cache_variables["use_full_protobuf"] = not self.dependencies["protobuf"].options.lite
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -103,13 +79,13 @@ class MysqlConnectorCppConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
+        apply_conandata_patches(self)
         # Disable boostrap(), which is unnecessary and fragile with variables set by Conan
         # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/CMakeLists.txt#L69-L71
         # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/cdk/cmake/bootstrap.cmake#L55
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "bootstrap()", "")
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -144,19 +120,15 @@ class MysqlConnectorCppConan(ConanFile):
         self.cpp_info.libs = [lib]
 
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs.append("dnsapi")
-            self.cpp_info.system_libs.append("ws2_32")
-        elif self.settings.os != "FreeBSD":
-            self.cpp_info.system_libs.append("resolv")
+            self.cpp_info.libdirs = [os.path.join("lib", "vs14")]
+            self.cpp_info.bindirs = ["lib"]
+            self.cpp_info.system_libs.extend(["dnsapi", "ws2_32"])
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
         if self.settings.os == "SunOS":
-            self.cpp_info.system_libs.append("socket")
-            self.cpp_info.system_libs.append("nsl")
+            self.cpp_info.system_libs.append(["socket", "nsl"])
+        if self.settings.os not in ["Windows", "FreeBSD"]:
+            self.cpp_info.system_libs.append("resolv")
 
         if not self.options.shared:
             self.cpp_info.defines = ["MYSQL_STATIC", "STATIC_CONCPP"]
-
-
-        if is_apple_os(self) or self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["resolv"])
-            if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.system_libs.extend(["m", "pthread"])

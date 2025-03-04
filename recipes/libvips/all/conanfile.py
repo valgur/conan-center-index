@@ -156,7 +156,7 @@ class LibvipsConan(ConanFile):
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.5")
         if self.options.with_jpeg_xl:
-            self.requires("libjxl/0.6.1")
+            self.requires("libjxl/0.11.1")
         if self.options.with_lcms:
             self.requires("lcms/2.16")
         if self.options.with_magick:

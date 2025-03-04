@@ -1,6 +1,5 @@
 import os
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, copy
@@ -36,27 +35,12 @@ class RotorConan(ConanFile):
         "enable_fltk": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) < "0.26":
-            del self.options.enable_ev
         if Version(self.version) < "0.30":
             del self.options.enable_fltk
 
@@ -76,36 +60,28 @@ class RotorConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_BOOST_ASIO"] = self.options.enable_asio
-        tc.variables["BUILD_THREAD"] = self.options.enable_thread
-        tc.variables["BUILD_THREAD_UNSAFE"] = not self.options.multithreading
-        tc.variables["BUILD_TESTING"] = False
-        if Version(self.version) >= "0.26":
-            tc.variables["BUILD_EV"] = self.options.enable_ev
+        tc.cache_variables["BUILD_BOOST_ASIO"] = self.options.enable_asio
+        tc.cache_variables["BUILD_THREAD"] = self.options.enable_thread
+        tc.cache_variables["BUILD_THREAD_UNSAFE"] = not self.options.multithreading
+        tc.cache_variables["BUILD_TESTING"] = False
+        tc.cache_variables["BUILD_EV"] = self.options.enable_ev
         if Version(self.version) >= "0.30":
-            tc.variables["BUILD_FLTK"] = self.options.enable_fltk
+            tc.cache_variables["BUILD_FLTK"] = self.options.enable_fltk
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+        check_min_cppstd(self, 17)
 
-        if self.options.shared and Version(self.version) < "0.23":
-            raise ConanInvalidConfiguration("shared option is available from v0.23")
-
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def package(self):
         copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -123,6 +99,8 @@ class RotorConan(ConanFile):
         if self.options.enable_asio:
             self.cpp_info.components["asio"].libs = ["rotor_asio"]
             self.cpp_info.components["asio"].requires = ["core"]
+            if self.settings.os == "Windows":
+                self.cpp_info.components["asio"].system_libs = ["ws2_32"]
 
         if self.options.enable_thread:
             self.cpp_info.components["thread"].libs = ["rotor_thread"]

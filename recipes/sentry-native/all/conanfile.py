@@ -47,7 +47,6 @@ class SentryNativeConan(ConanFile):
         "with_breakpad": "sentry",
         "wer": False,
     }
-    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -57,7 +56,10 @@ class SentryNativeConan(ConanFile):
             return "17"
 
     def config_options(self):
-        if self.settings.os != "Windows" or Version(self.version) < "0.6.0":
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+        if self.settings.os != "Windows":
             del self.options.wer
 
         # Configure default transport
@@ -77,6 +79,8 @@ class SentryNativeConan(ConanFile):
             del self.options.crashpad_with_tls
 
     def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         if self.options.backend != "crashpad":
             self.options.rm_safe("with_crashpad")
         if self.options.backend != "breakpad":

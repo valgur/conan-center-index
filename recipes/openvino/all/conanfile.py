@@ -111,15 +111,6 @@ class OpenvinoConan(ConanFile):
     def _preprocessing_available(self):
         return "ade" in self._dependencies_versions
 
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "9",
-            "apple-clang": "11",
-            "msvc": "192",
-        }
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["openvino"], strip_root=True)
         get(self, **self.conan_data["sources"][self.version]["onednn_cpu"], strip_root=True,
@@ -185,7 +176,6 @@ class OpenvinoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def generate(self):
-
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -245,14 +235,8 @@ class OpenvinoConan(ConanFile):
         toolchain.generate()
 
     def validate_build(self):
-        check_min_cppstd(self, "11")
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        compiler_version = Version(self.settings.compiler.version)
-        if minimum_version and compiler_version < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires {self.settings.compiler} ver. {minimum_version}, provided ver. {compiler_version}.",
-            )
+        min_cppstd = "17" if Version(self.version) >= "2025.0.0" else "11"
+        check_min_cppstd(self, min_cppstd)
 
         # OpenVINO has unresolved symbols, when clang is used with libc++
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libc++":
