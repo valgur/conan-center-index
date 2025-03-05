@@ -143,7 +143,6 @@ class WolfSSLConan(ConanFile):
             tc.configure_args.append("--enable-fastmath")
             # INFO: Inject HAVE_PK_CALLBACKS, WOLFSSL_USER_IO, NO_WRITEV and TIME_T_NOT_64BIT
             tc.extra_defines.extend(self._defines)
-        env = tc.environment()
         if is_msvc(self):
             tc.extra_ldflags.append("-ladvapi32")
         env = tc.environment()
