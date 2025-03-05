@@ -135,6 +135,8 @@ class WolfSSLConan(ConanFile):
         if self.settings.os == "baremetal":
             tc.configure_args.append("--disable-filesystem")
             tc.configure_args.append("--enable-fastmath")
+        tc.extra_defines.extend(self._defines)
+        env = tc.environment()
         if is_msvc(self):
             tc.extra_ldflags.append("-ladvapi32")
         env = tc.environment()
@@ -146,9 +148,7 @@ class WolfSSLConan(ConanFile):
             env.define("CXX", f"{compile_wrapper} cl -nologo")
             env.define("LD", "link -nologo")
             env.define("AR", f"{ar_wrapper} lib")
-        tc.extra_defines.extend(self._defines)
         tc.generate(env)
-        tc.generate()
 
     def build(self):
         autotools = Autotools(self)
