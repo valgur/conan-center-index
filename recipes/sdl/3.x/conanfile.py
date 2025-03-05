@@ -1,16 +1,15 @@
-import os
-
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import get, replace_in_file, copy
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 
-required_conan_version = ">=2.0"
+import os
 
-# Subsystems, CMakeLists.txt#L234
+required_conan_version = ">=2"
+
 _subsystems = [
     ("audio", []),
     ("video", []),
@@ -63,13 +62,14 @@ class SDLConan(ConanFile):
             "libudev": [True, False],
             "dbus": [True, False],
             "libusb": [True, False],
+            "libiconv": [True, False],
         }
     }
 
     default_options = {
         **{
             "shared": False,
-            "fPIC": False,
+            "fPIC": True,
         },
         **{subsystem: True for subsystem, _ in _subsystems},
         **{
@@ -79,7 +79,7 @@ class SDLConan(ConanFile):
             "pulseaudio": True,
             "sndio": True,
             ## Video
-            "opengl": True,  # TODO: Off by default in apple_os
+            "opengl": True,
             "opengles": True,
             "x11": True,
             "xcursor": True,
@@ -99,6 +99,7 @@ class SDLConan(ConanFile):
             ## Other
             "libudev": True,
             "dbus": True,
+            "libiconv": False,
         }
     }
 
@@ -106,20 +107,21 @@ class SDLConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-        if self.settings.os != "Linux":
+        if not self._is_unix_sys:
             del self.options.pulseaudio
             del self.options.alsa
             del self.options.sndio
             del self.options.libudev
-            del self.options.dbus # TODO: maybe use _is_unix_sys
+            del self.options.dbus
             del self.options.x11
             del self.options.xcursor
-            del self.options.xinerama
+            del self.options.xdbe
             del self.options.xinput
+            del self.options.xfixes
             del self.options.xrandr
             del self.options.xscrnsaver
             del self.options.xshape
-            del self.options.xvm
+            del self.options.xsync
             del self.options.wayland
 
         if not is_apple_os(self):
@@ -171,63 +173,49 @@ class SDLConan(ConanFile):
                         raise ConanInvalidConfiguration(f'-o="&:{subsystem}=True" subsystem requires -o="&:{dependency}=True"')
 
     def validate_build(self):
-        if conan_version > "2.10" and self._needs_libusb and self.dependencies["libusb"].options.get_safe("shared", True)\
-                and not self.conf.get("tools.cmake.cmakedeps:new"):
+        # TODO: Remove this one new CMakeDeps is default
+        if conan_version >= "2.12" and self._needs_libusb and self.dependencies["libusb"].options.get_safe("shared", True)\
+            and not self.conf.get("tools.cmake.cmakedeps:new"):
             raise ConanInvalidConfiguration("SDL with shared libusb requires new CMakeDeps generator")
+
+        if self.settings.os == "Android" and not self.conf.get("user.sdl:android", False):
+            raise ConanInvalidConfiguration("SDL builds on android require extra configuration on the user's side. "
+                                            "Set -c user.sdl:android=True if you understand it and want to build it")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # Fix handling of potentially relocated X11 libs
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "sdlchecks.cmake"),
-                        "${X11_LIB}", "${X11_LIBRARIES}")
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "sdlchecks.cmake"),
-                        "${X11_INCLUDEDIR}", "${X11_INCLUDE_DIR};${X11_Xext_INCLUDE_PATH}")
 
     @property
     def _is_unix_sys(self):
         """ True for UNIX but not Macos/Android"""
-        # CMakeLists.txt#L110
         return self.settings.os in ("Linux", "FreeBSD")
 
     @property
     def _needs_libusb(self):
-        # CMakeLists.txt#L134
         return (self.options.get_safe("libusb") and
                 (not is_apple_os(self) or self.settings.os == "Macos") and
                 self.settings.os != "Android")
 
     @property
     def _supports_opengl(self):
-        # CMakeLists.txt#L331
         return (self.options.get_safe("opengl")
                 and self.settings.os not in ("iOS", "visionOS", "tvOS", "watchOS"))
 
     @property
     def _supports_opengles(self):
-        # CMakeLists.txt#L332
         return (self.options.get_safe("opengles")
-                # and self.settings.os not in ("visionOS", "tvOS", "watchOS"))
-                and self.settings.os == "Android")
+                and self.settings.os in ("Android", "iOS", "visionOS", "tvOS", "watchOS"))
 
     @property
     def _supports_dbus(self):
-        # CMakeLists.txt#292
         return self.options.get_safe("dbus") and self._is_unix_sys
 
-    @property
-    def _xorg_is_shared(self):
-        # In case non-system xorg is used
-        xorg = self.dependencies["xorg"]
-        xorg_is_shared = xorg.options.get_safe("shared", True)
-        xorg_deps_are_shared = all(dep.options.get_safe("shared", True) for _, dep in xorg.dependencies.direct_host.items())
-        return xorg_is_shared and xorg_deps_are_shared
-
     def requirements(self):
-        # TODO: understand if we want to make this an option
-        self.requires("libiconv/1.17")
+        if self.options.get_safe("libiconv"):
+            self.requires("libiconv/1.17")
         if self._needs_libusb:
             self.requires("libusb/1.0.26")
         if self._supports_opengl:
@@ -251,7 +239,7 @@ class SDLConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <4]")
-        if self.settings.os == "Linux" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
+        if self._is_unix_sys and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("wayland"):
             self.tool_requires("wayland/<host_version>")  # Provides wayland-scanner
@@ -260,14 +248,13 @@ class SDLConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["SDL_SHARED"] = self.options.shared
         tc.cache_variables["SDL_STATIC"] = not self.options.shared
-        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
-        tc.cache_variables["SDL_SYSTEM_ICONV_DEFAULT"] = True
-        tc.cache_variables["SDL_LIBICONV"] = True
-        # Todo: Remove after recipe develop is finished
         tc.cache_variables["SDL_TEST_LIBRARY"] = False
         tc.cache_variables["SDL_TESTS"] = False
         tc.cache_variables["SDL_EXAMPLES"] = False
         tc.cache_variables["SDL_INSTALL_EXAMPLES"] = False
+        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
+        tc.cache_variables["SDL_SYSTEM_ICONV_DEFAULT"] = True
+        tc.cache_variables["SDL_LIBICONV"] = self.options.libiconv
 
         tc.cache_variables["SDL_JACK"] = False # Jack is not available in CCI
 
@@ -278,8 +265,9 @@ class SDLConan(ConanFile):
             tc.cache_variables["SDL_OPENGL"] = True
         if self._supports_opengles:
             tc.cache_variables["SDL_OPENGLES"] = True
+
+        tc.cache_variables["SDL_HIDAPI_LIBUSB"] = self._needs_libusb
         if self._needs_libusb:
-            tc.cache_variables["SDL_HIDAPI_LIBUSB"] = True
             # TODO: This is a supported configuration in upstream
             tc.cache_variables["SDL_HIDAPI_LIBUSB_SHARED"] = self.dependencies["libusb"].options.get_safe("shared", True)
 
@@ -298,11 +286,10 @@ class SDLConan(ConanFile):
             tc.cache_variables["SDL_SNDIO_SHARED"] = True  # sndio is always shared
         tc.cache_variables["SDL_LIBUDEV"] = self.options.get_safe("libudev", False)
 
-
         # X11 and wayland configuration
         with_x11 = self.options.get_safe("x11", False)
         tc.cache_variables["SDL_X11"] = with_x11
-        tc.cache_variables["SDL_X11_SHARED"] = self._xorg_is_shared
+        tc.cache_variables["SDL_X11_SHARED"] = True
         if with_x11:
             # See https://github.com/bincrafters/community/issues/696
             tc.cache_variables["SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS"] = 1
@@ -322,7 +309,7 @@ class SDLConan(ConanFile):
         if not with_x11 and not with_wayland:
             # Disable windowing support:
             # https://github.com/libsdl-org/SDL/blob/main/docs/README-cmake.md#cmake-fails-to-build-without-x11-or-wayland-support
-            tc.cache_variables["SDL_UNIX_CONSOLE_BUILD=ON"] = True
+            tc.cache_variables["SDL_UNIX_CONSOLE_BUILD"] = True
 
         tc.generate()
         deps = CMakeDeps(self)
@@ -334,10 +321,13 @@ class SDLConan(ConanFile):
 
     def _patch_sources(self):
         # TODO: Once new CMakeDeps is default, remove this
-        if not self.conf.get("tools.cmake.cmakedeps:new"):
+        # Right now this would fail at runtime for shared libusb, but we're
+        # validating it out for now. The new incubating cmakedeps in 2.12 is required
+        # to build that configuration, else remove the failing line in the old one
+        if conan_version < "2.12" or not self.conf.get("tools.cmake.cmakedeps:new"):
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "sdlchecks.cmake"),
-                            "target_get_dynamic_library(dynamic_libusb LibUSB::LibUSB)",
-                            "")
+                        "target_get_dynamic_library(dynamic_libusb LibUSB::LibUSB)",
+                        "")
 
     def build(self):
         self._patch_sources()
@@ -356,109 +346,118 @@ class SDLConan(ConanFile):
             self.settings.compiler.get_safe("runtime")
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "SDL3")
+
         sdl_lib_name = "SDL3"
         if (is_msvc(self) or self._is_clang_cl) and not self.options.shared:
             sdl_lib_name = f"{sdl_lib_name}-static"
-        self.cpp_info.libs = [sdl_lib_name]
-        self.cpp_info.set_property("cmake_file_name", "SDL3")
-        self.cpp_info.set_property("cmake_target_name", "SDL3::SDL3")
-        self.cpp_info.set_property("cmake_target_aliases", ["SDL3::SDL3-shared" if self.options.shared else "SDL3::SDL3-static"])
-        # CMakeLists.txt#L120
+        self.cpp_info.components["sdl3"].libs = [sdl_lib_name]
+        self.cpp_info.components["sdl3"].set_property("cmake_target_name", "SDL3::SDL3")
+        self.cpp_info.components["sdl3"].set_property("cmake_target_aliases", [
+            "SDL3::SDL3-shared" if self.options.shared else "SDL3::SDL3-static",
+        ])
+
+        # Target that only contains the include directories
+        self.cpp_info.components["headers"].set_property("cmake_target_name", "SDL3::Headers")
+        self.cpp_info.components["headers"].libdirs = []
+
+        self.cpp_info.components["sdl3"].requires.append("headers")
+
         if self.settings.os in ("Linux", "FreeBSD", "Macos"):
-            self.cpp_info.system_libs.append("pthread")
+            self.cpp_info.components["sdl3"].system_libs.append("pthread")
 
-        # TODO: dl support in Unix/Macos, CMakeLists.txt#L1209
-        # TODO: Android support of opengles if video is enabled, CMakeLists.txt#L1349
+        if self.options.get_safe("libiconv"):
+            self.cpp_info.components["sdl3"].requires.append("libiconv::libiconv")
 
-        # CMakeLists.txt#L327
-        self.cpp_info.requires.append("libiconv::libiconv")
-
-        # TODO: check conditions
         if self.options.get_safe("libudev"):
-            self.cpp_info.requires.append("libudev::libudev")
+            self.cpp_info.components["sdl3"].requires.append("libudev::libudev")
 
         if self._needs_libusb:
-            self.cpp_info.requires.append("libusb::libusb")
+            self.cpp_info.components["sdl3"].requires.append("libusb::libusb")
 
         if self.options.get_safe("dbus"):
-            self.cpp_info.requires.append("dbus::dbus")
+            self.cpp_info.components["sdl3"].requires.append("dbus::dbus")
 
         if self.options.get_safe("opengl"):
-            self.cpp_info.requires.append("opengl::opengl")
+            self.cpp_info.components["sdl3"].requires.append("opengl::opengl")
 
         if self.options.get_safe("wayland"):
-            self.cpp_info.requires.extend(["wayland::wayland", "xkbcommon::xkbcommon", "egl::egl"])
+            self.cpp_info.components["sdl3"].requires.extend(["wayland::wayland", "xkbcommon::xkbcommon", "egl::egl"])
 
         if self.options.get_safe("x11"):
-            self.cpp_info.requires.extend(["xorg::x11", "xorg::xext"])
+            self.cpp_info.components["sdl3"].requires.extend(["xorg::x11", "xorg::xext"])
             # xdbe, xshape and xsync are covered by x11 and xext
             if self.options.xcursor:
-                self.cpp_info.requires.append("xorg::xcursor")
+                self.cpp_info.components["sdl3"].requires.append("xorg::xcursor")
             if self.options.xinput:
-                self.cpp_info.requires.append("xorg::xi")
+                self.cpp_info.components["sdl3"].requires.append("xorg::xi")
             if self.options.xfixes:
-                self.cpp_info.requires.append("xorg::xfixes")
+                self.cpp_info.components["sdl3"].requires.append("xorg::xfixes")
             if self.options.xrandr:
-                self.cpp_info.requires.append("xorg::xrandr")
+                self.cpp_info.components["sdl3"].requires.append("xorg::xrandr")
             if self.options.xscrnsaver:
-                self.cpp_info.requires.append("xorg::xscrnsaver")
-
-        # TODO: Link opengles
-        if self._supports_opengles:
-            self.cpp_info.system_libs.extend(["GLESv1_CM", "GLESv2", "OpenSLES"])
+                self.cpp_info.components["sdl3"].requires.append("xorg::xscrnsaver")
 
         if self.options.get_safe("audio"):
             if self.options.get_safe("alsa"):
-                self.cpp_info.requires.append("libalsa::libalsa")
+                self.cpp_info.components["sdl3"].requires.append("libalsa::libalsa")
             if self.options.get_safe("pulseaudio"):
-                self.cpp_info.requires.append("pulseaudio::pulseaudio")
+                self.cpp_info.components["sdl3"].requires.append("pulseaudio::pulseaudio")
             if self.options.get_safe("sndio"):
-                self.cpp_info.requires.append("libsndio::libsndio")
+                self.cpp_info.components["sdl3"].requires.append("libsndio::libsndio")
 
-        # TODO: could it work with shared?
+        if self.settings.os == "Android":
+            if self.options.get_safe("video"):
+                self.cpp_info.components["sdl3"].system_libs.extend(["dl", "log", "android"])
+            if self.options.get_safe("opengles"):
+                self.cpp_info.components["sdl3"].system_libs.extend(["GLESv1_CM", "GLESv2"])
+            if self.options.get_safe("audio"):
+                self.cpp_info.components["sdl3"].system_libs.append("OpenSLES")
+
+        # TODO(conan client): when shared, SDL do not need to link against its dependencies but conan will complain about it
         if is_apple_os(self) and not self.options.shared:
-            self.cpp_info.frameworks = ["CoreVideo", "Foundation"]
+            self.cpp_info.components["sdl3"].frameworks = ["CoreVideo", "Foundation"]
 
             if self.settings.os == "Macos":
-                self.cpp_info.frameworks.extend(["Cocoa", "Carbon"])
+                self.cpp_info.components["sdl3"].frameworks.extend(["Cocoa", "Carbon"])
 
             if self.options.get_safe("audio"):
-                self.cpp_info.frameworks.extend(["CoreAudio", "AudioToolbox", "AVFoundation"])
+                self.cpp_info.components["sdl3"].frameworks.extend(["CoreAudio", "AudioToolbox", "AVFoundation"])
 
             if self.options.get_safe("video"):
                 if self.settings.os in ("iOS", "tvOS", "visionOS", "watchOS"):
-                    self.cpp_info.frameworks.extend(["CoreGraphics", "QuartzCore", "UIKit"])
+                    self.cpp_info.components["sdl3"].frameworks.extend(["CoreGraphics", "QuartzCore", "UIKit"])
                 else:
-                    self.cpp_info.frameworks.append("UniformTypeIdentifiers")
+                    self.cpp_info.components["sdl3"].frameworks.append("UniformTypeIdentifiers")
 
             if self.options.get_safe("camera") and self.settings.os in ("Macos", "iOS"):
-                self.cpp_info.frameworks.append("CoreMedia")
+                self.cpp_info.components["sdl3"].frameworks.append("CoreMedia")
 
             if self.options.get_safe("joystick"):
-                self.cpp_info.frameworks.append("GameController")
-                self.cpp_info.sharedlinkflags.append("-Wl,-weak_framework,CoreHaptics")
-                self.cpp_info.exelinkflags.append("-Wl,-weak_framework,CoreHaptics")
+                self.cpp_info.components["sdl3"].frameworks.append("GameController")
+                self.cpp_info.components["sdl3"].sharedlinkflags.append("-Wl,-weak_framework,CoreHaptics")
+                self.cpp_info.components["sdl3"].exelinkflags.append("-Wl,-weak_framework,CoreHaptics")
                 if self.settings.os == "Macos":
                     # Mind that ForceFeedback is also added in haptic system, but haptic depends on joystick
-                    self.cpp_info.frameworks.extend(["ForceFeedback", "IOKit"])
+                    self.cpp_info.components["sdl3"].frameworks.extend(["ForceFeedback", "IOKit"])
                 elif self.settings.os in ("iOS", "visionOS", "watchOS"):
-                    self.cpp_info.frameworks.append("CoreMotion")
+                    self.cpp_info.components["sdl3"].frameworks.append("CoreMotion")
 
             if self.options.get_safe("hidapi") and self.settings.os in ("iOS", "tvOS"):
-                self.cpp_info.frameworks.append("CoreBluetooth")
+                self.cpp_info.components["sdl3"].frameworks.append("CoreBluetooth")
 
             if self.options.get_safe("power") and self.settings.os == "Macos":
-                self.cpp_info.frameworks.append("IOKit")
+                self.cpp_info.components["sdl3"].frameworks.append("IOKit")
 
             if self.options.get_safe("opengles") and self.settings.os in ("iOS", "tvOS", "visionOS", "watchOS"):
-                self.cpp_info.frameworks.append("OpenGLES")
+                self.cpp_info.components["sdl3"].frameworks.append("OpenGLES")
 
             if self.options.get_safe("metal"):
-                self.cpp_info.frameworks.extend(["Metal", "QuartzCore"])
+                self.cpp_info.components["sdl3"].frameworks.extend(["Metal", "QuartzCore"])
 
         # Windows links with all libs by default
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(
+            self.cpp_info.components["sdl3"].system_libs.extend(
                 [
                     "kernel32",
                     "user32",
