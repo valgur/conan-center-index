@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-04:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-05:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -43,6 +43,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
+- etl/20.38.10
+- etl/20.38.11
+- etl/20.38.13
+- etl/20.38.14
+- etl/20.38.15
+- etl/20.38.16
+- etl/20.39.3
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
@@ -93,34 +100,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - icu4x/1.4.1
 - icu4x/1.5.1
 - imagemagick/7.1.1.38
-- imgui/1.90.6
-- imgui/1.90.6-docking
-- imgui/1.90.7
-- imgui/1.90.7-docking
-- imgui/1.90.8
-- imgui/1.90.8-docking
-- imgui/1.91.0
-- imgui/1.91.0-docking
-- imgui/1.91.2
-- imgui/1.91.2-docking
-- imgui/1.91.3
-- imgui/1.91.3-docking
-- imgui/1.91.4
-- imgui/1.91.4-docking
 - imlib2/1.12.3
 - influxdb-cxx/0.7.3
 - iridescence/0.1.3
 - isl/0.27
 - json-glib/1.10.6
-- jsoncons/0.171.1
-- jsoncons/0.172.0
-- jsoncons/0.172.1
-- jsoncons/0.173.0
-- jsoncons/0.173.2
-- jsoncons/0.173.3
-- jsoncons/0.173.4
-- jsoncons/0.174.0
-- jsoncons/0.175.0
 - jsonifier/0.9.98
 - lapack/3.12.0
 - libbasisu/1.16.4
@@ -179,7 +163,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - meson/1.6.1
 - mkfontscale/1.2.3
 - mrcal/2.4.1
-- mysql-connector-cpp/9.0.0
 - nanobind/2.4.0
 - netpbm/11.6.0
 - nss/3.107
@@ -214,11 +197,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qscintilla/2.14.1
 - qt/6.8.2
 - rosx_introspection/1.0.2
-- rotor/0.21
-- rotor/0.23
-- rotor/0.24
-- rotor/0.25
-- rotor/0.28
 - rust/1.72.1
 - rust/1.75.0
 - rust/1.77.1
@@ -226,9 +204,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.84.0
 - sdl/3.2.4
 - secsipidx/1.3.2
-- sentry-native/0.5.4
-- sentry-native/0.7.15
-- sentry-native/0.7.17
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/132
