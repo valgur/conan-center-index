@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-05:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-06:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -43,13 +43,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
-- etl/20.38.10
-- etl/20.38.11
-- etl/20.38.13
-- etl/20.38.14
-- etl/20.38.15
-- etl/20.38.16
-- etl/20.39.3
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
@@ -202,7 +195,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.77.1
 - rust/1.81.0
 - rust/1.84.0
-- sdl/3.2.4
 - secsipidx/1.3.2
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
