@@ -161,7 +161,7 @@ class CImgConan(ConanFile):
             self.requires("ffmpeg/7.0.1")
         if self.options.enable_opencv:
             # FIXME: OpenCV 4.x fails to link ffmpeg libraries correctly
-            self.requires("opencv/3.4.20")
+            self.requires("opencv/4.11.0")
         if self.options.enable_magick:
             self.requires("imagemagick/7.0.11-14")
         if self.settings.os in ["Linux", "FreeBSD"] and self.options.enable_display:

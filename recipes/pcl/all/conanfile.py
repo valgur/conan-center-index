@@ -396,7 +396,7 @@ class PclConan(ConanFile):
             else:
                 self.requires("mesa-glu/9.0.3", transitive_headers=True)
         if self._is_enabled("opencv"):
-            self.requires("opencv/4.9.0", transitive_headers=True)
+            self.requires("opencv/4.11.0", transitive_headers=True)
         if self._is_enabled("zlib"):
             self.requires("zlib/[>=1.2.11 <2]")
         if self._is_enabled("openmp"):

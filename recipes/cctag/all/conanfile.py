@@ -67,7 +67,7 @@ class CCTagConan(ConanFile):
             self.requires("onetbb/2021.10.0")
         else:
             self.requires("onetbb/2020.3.3")
-        self.requires("opencv/4.9.0", transitive_headers=True, transitive_libs=True)
+        self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
 
     @property
     def _required_boost_components(self):

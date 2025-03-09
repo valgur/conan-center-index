@@ -61,7 +61,7 @@ class StellaCvFbowConan(ConanFile):
 
     def requirements(self):
         # https://github.com/stella-cv/FBoW/blob/master/include/fbow/vocabulary.h#L35
-        self.requires("opencv/4.9.0", transitive_headers=True, transitive_libs=True)
+        self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
 
     def validate(self):
