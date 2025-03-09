@@ -76,6 +76,9 @@ class MetavisionSdkConan(ConanFile):
         replace_in_file(self, "CMakeLists.txt", "check_language(CUDA)", "")
         # Only used for Python bindings
         rmdir(self, os.path.join("sdk", "modules", "core_ml", "models"))
+        # Add C++20 support: https://github.com/prophesee-ai/openeb/pull/146
+        replace_in_file(self, os.path.join("sdk", "modules", "stream", "cpp", "include", "metavision", "sdk", "stream", "camera_stream_slicer.h"),
+                        "Slice() = default;", "// Slice() = default;")
 
     @property
     def _enabled_modules(self):
