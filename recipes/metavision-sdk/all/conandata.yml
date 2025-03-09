@@ -1,0 +1,8 @@
+sources:
+  "5.1.0":
+    openeb:
+      url: "https://github.com/prophesee-ai/openeb/archive/refs/tags/5.1.0.tar.gz"
+      sha256: "72e9558adfd73169be91f38844eea3babc8b5ac4cc8462fed7e979a236830f40"
+    hdf5_ecf:
+      url: "https://github.com/prophesee-ai/hdf5_ecf/archive/b982d908a0bc0afd9104d226607bedb1a11b2a95.tar.gz"
+      sha256: "e8123663080e0d39beb8ef3e230a93850d86bb6ac186a0295693dc9081eedcaf"
