@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-09:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-10:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -43,16 +43,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - daggy/2.1.3
 - dawn/cci.20240726
 - dpdk/24.07
-- drogon/1.9.0
-- drogon/1.9.1
-- drogon/1.9.2
-- drogon/1.9.3
-- drogon/1.9.4
-- drogon/1.9.5
-- drogon/1.9.6
-- drogon/1.9.7
-- drogon/1.9.8
-- drogon/1.9.9
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
@@ -164,6 +154,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
 - meson/1.6.1
+- metavision-sdk/5.1.0
 - mkfontscale/1.2.3
 - mrcal/2.4.1
 - nanobind/2.4.0
@@ -173,6 +164,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/1.12.10
 - ogre/14.3.0
 - openblas/0.3.28
+- opencv/4.11.0
 - opencv/4.5.4
 - openmp/system
 - openmpi/5.0.5
