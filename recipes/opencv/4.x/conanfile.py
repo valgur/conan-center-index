@@ -1289,12 +1289,6 @@ class OpenCVConan(ConanFile):
             replace_in_file(self, freetype_cmake, "ocv_check_modules(HARFBUZZ harfbuzz)", "find_package(harfbuzz REQUIRED CONFIG)")
             replace_in_file(self, freetype_cmake, "HARFBUZZ_", "harfbuzz_")
 
-        if self.options.get_safe("with_qt"):
-            # Use proper CMake targets for Qt. Fails due to headers not being found otherwise.
-            replace_in_file(self, os.path.join(self.source_folder, "modules", "highgui", "CMakeLists.txt"),
-                            "${Qt${QT_VERSION_MAJOR}${dt_dep}_LIBRARIES}",
-                            "Qt${QT_VERSION_MAJOR}::${dt_dep}")
-
     def _qt_tool(self, tool):
         tools_dir = self.dependencies.build["qt"].conf_info.get("user.qt:tools_directory")
         suffix = ".exe" if self.settings_build.os == "Windows" else ""
