@@ -1,9 +1,12 @@
 import os
+from pathlib import Path
+from urllib.parse import urljoin
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, rmdir, rename, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import copy, get, replace_in_file, rmdir, rename, export_conandata_patches, apply_conandata_patches, unzip, download
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.0"
@@ -19,12 +22,14 @@ class MetavisionSdkConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "advanced_sdk_repo_url": [None, "ANY"],
         "with_hdf5": [True, False],
         # modules
         "stream": [True, False],
         "ui": [True, False],
     }
     default_options = {
+        "advanced_sdk_repo_url": None,
         "with_hdf5": True,
         # modules
         "stream": True,
@@ -68,11 +73,18 @@ class MetavisionSdkConan(ConanFile):
             self.requires("glew/2.2.0", transitive_headers=True)
             self.requires("glfw/3.4", transitive_headers=True)
 
+        # if self.options.advanced_sdk_repo_url:
+        #     self.requires("boost/1.74.0", force=True)
+        #     self.requires("opencv/4.5.4", force=True)
+        #     self.requires("protobuf/3.12.4", force=True)
+
     def build_requirements(self):
         if self.options.stream:
             self.tool_requires("protobuf/<host_version>")
 
     def validate(self):
+        if self.options.advanced_sdk_repo_url and not self.conan_data["advanced-sdk"].get(self.version):
+            raise ConanInvalidConfiguration(f"This recipe does not support the advanced SDK for version {self.version}")
         check_min_cppstd(self, 17)
 
     def source(self):
@@ -116,12 +128,31 @@ class MetavisionSdkConan(ConanFile):
         deps.set_property("libusb", "cmake_target_name", "libusb-1.0")
         deps.generate()
 
+    def _download_advanced_sdk(self):
+        for pkg_info in self.conan_data["advanced-sdk"][self.version]:
+            filename = pkg_info["filename"]
+            url = urljoin(str(self.options.advanced_sdk_repo_url), pkg_info["filename"])
+            download(self, url, filename, sha256=pkg_info["sha256"])
+            self._extract_deb(filename, os.path.join(self.build_folder, "advanced-sdk"))
+
+    def _extract_deb(self, deb_file, dst):
+        deb = Path(deb_file)
+        content = deb.read_bytes()
+        pos = content.find(b"data.tar.gz") + 60
+        tgz = deb.with_suffix(".tar.gz")
+        tgz.write_bytes(content[pos:-1])
+        unzip(self, str(tgz), dst)
+
     def build(self):
+        if self.options.advanced_sdk_repo_url:
+            self._download_advanced_sdk()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
+        if self.options.advanced_sdk_repo_url:
+            copy(self, "*", os.path.join(self.build_folder, "advanced-sdk", "usr"), self.package_folder, keep_path=True)
         copy(self, "LICENSE_OPEN", os.path.join(self.source_folder, "licensing"), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
@@ -202,4 +233,46 @@ class MetavisionSdkConan(ConanFile):
                 "opengl::opengl",
                 "glfw::glfw",
                 "glew::glew",
+            ]
+
+        if self.options.advanced_sdk_repo_url:
+            self.cpp_info.components["analytics"].set_property("cmake_target_name", "Metavision::analytics")
+            self.cpp_info.components["analytics"].libs = ["metavision_sdk_analytics"]
+            self.cpp_info.components["analytics"].requires = [
+                "cv",
+                "boost::filesystem",
+                "opencv::opencv_videoio",
+            ]
+
+            self.cpp_info.components["calibration"].set_property("cmake_target_name", "Metavision::calibration")
+            self.cpp_info.components["calibration"].libs = ["metavision_sdk_calibration"]
+            self.cpp_info.components["calibration"].requires = [
+                "cv",
+                "opencv::opencv_calib3d",
+            ]
+
+            self.cpp_info.components["cv"].set_property("cmake_target_name", "Metavision::cv")
+            self.cpp_info.components["cv"].libs = ["metavision_sdk_cv"]
+            self.cpp_info.components["cv"].requires = [
+                "base",
+                "core",
+                "opencv::opencv_imgproc",
+                "opencv::opencv_core",
+            ]
+
+            self.cpp_info.components["cv3d"].set_property("cmake_target_name", "Metavision::cv3d")
+            self.cpp_info.components["cv3d"].libs = ["metavision_sdk_cv3d"]
+            self.cpp_info.components["cv3d"].requires = [
+                "cv",
+                "opencv::opencv_calib3d",
+            ]
+
+            # Header-only component
+            self.cpp_info.components["ml"].set_property("cmake_target_name", "Metavision::ml")
+            self.cpp_info.components["ml"].requires = [
+                "base",
+                "core",
+                "cv",
+                self._stream_module,
+                # libtorch
             ]
