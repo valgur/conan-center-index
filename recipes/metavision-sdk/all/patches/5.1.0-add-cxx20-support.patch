@@ -1,0 +1,33 @@
+From 63fb9a329991e12107462b451606ee8cbcb75bbb Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Sun, 9 Mar 2025 22:53:15 +0200
+Subject: [PATCH] camera_stream_slicer.h: drop default constructor to add C++20
+ support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+C++20 removed support for aggregate initialization with an initializer list when a constructor is defined, even a `= default` one.
+
+Otherwise fails with
+
+sdk/modules/stream/cpp/src/camera_stream_slicer.cpp:105:53: error: cannot convert ‘<brace-enclosed initializer list>’ to ‘Metavision::Slice&&’
+  105 |         const bool new_slice_added = queue_->emplace({status, t, nevents, curt_event_buffer_, curt_trigger_buffer_});
+---
+ .../cpp/include/metavision/sdk/stream/camera_stream_slicer.h   | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/sdk/modules/stream/cpp/include/metavision/sdk/stream/camera_stream_slicer.h b/sdk/modules/stream/cpp/include/metavision/sdk/stream/camera_stream_slicer.h
+index 9b9ac85a8..4b5bc8aea 100644
+--- a/sdk/modules/stream/cpp/include/metavision/sdk/stream/camera_stream_slicer.h
++++ b/sdk/modules/stream/cpp/include/metavision/sdk/stream/camera_stream_slicer.h
+@@ -29,9 +29,6 @@ using TriggerBuffer = std::vector<EventExtTrigger>;
+ struct Slice {
+     using ConditionStatus = EventBufferReslicerAlgorithm::ConditionStatus;
+ 
+-    /// @brief Default constructor
+-    Slice() = default;
+-
+     /// @brief Comparison operator
+     /// @param other Slice to compare with
+     /// @return True if the two slices are equal, false otherwise
