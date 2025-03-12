@@ -53,15 +53,15 @@ class MetavisionSdkConan(ConanFile):
         # metavision/psee_hw_layer/boards/utils/psee_libusb.h
         self.requires("libusb/1.0.26", transitive_headers=True)
         # several headers, e.g. metavision/sdk/core/preprocessors/json_parser.h
-        self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/1.86.0", transitive_headers=True)
         # used in many public headers
-        self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
+        self.requires("opencv/4.11.0", transitive_headers=True)
         if self.options.stream:
             # newer version conflicts with opencv
             self.requires("protobuf/3.21.12")
             if self.options.get_safe("with_hdf5"):
                 # hdf5_ecf/ecf_h5filter.h
-                self.requires("hdf5/1.14.5", transitive_headers=True, transitive_libs=True)
+                self.requires("hdf5/1.14.5", transitive_headers=True)
         if self.options.ui:
             # metavision/sdk/ui/utils/opengl_api.h
             self.requires("opengl/system", transitive_headers=True)
@@ -192,7 +192,6 @@ class MetavisionSdkConan(ConanFile):
                 "HAL",
                 "HAL_discovery",
                 "protobuf::libprotobuf",
-                "hdf5::hdf5",
                 "hdf5_ecf_codec",
             ]
             if self.options.get_safe("with_hdf5"):

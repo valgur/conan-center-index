@@ -1,5 +1,5 @@
-#include <metavision/sdk/core/utils/index_manager.h>
+#include <metavision/sdk/core/utils/video_writer.h>
 
 int main() {
-    Metavision::IndexManager{};
+    Metavision::VideoWriter{};
 }
