@@ -6,3 +6,15 @@ sources:
     hdf5_ecf:
       url: "https://github.com/prophesee-ai/hdf5_ecf/archive/b982d908a0bc0afd9104d226607bedb1a11b2a95.tar.gz"
       sha256: "e8123663080e0d39beb8ef3e230a93850d86bb6ac186a0295693dc9081eedcaf"
+  "4.6.2":
+    openeb:
+      url: "https://github.com/prophesee-ai/openeb/archive/refs/tags/4.6.2.tar.gz"
+      sha256: "0b8430564bc2ccc7fdb7cf53f91a33728d86ad32466c0de574b13e6b2b3e9c56"
+    hdf5_ecf:
+      url: "https://github.com/prophesee-ai/hdf5_ecf/archive/b982d908a0bc0afd9104d226607bedb1a11b2a95.tar.gz"
+      sha256: "e8123663080e0d39beb8ef3e230a93850d86bb6ac186a0295693dc9081eedcaf"
+patches:
+  "4.6.2":
+    - patch_file: "patches/4.6.2-replace-boost-filesystem.patch"
+      patch_description: "Replace deprecated boost::filesystem functions with std::filesystem"
+      patch_type: "portability"

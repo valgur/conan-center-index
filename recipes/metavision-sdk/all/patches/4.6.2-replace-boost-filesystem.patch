@@ -1,0 +1,120 @@
+--- a/sdk/modules/driver/cpp/src/biases.cpp
++++ b/sdk/modules/driver/cpp/src/biases.cpp
+@@ -13,7 +13,7 @@
+ #include <sstream>
+ #include <algorithm>
+ #include <iomanip>
+-#include <boost/filesystem.hpp>
++#include <filesystem>
+ 
+ #include "metavision/hal/utils/hal_exception.h"
+ #include "metavision/sdk/driver/biases.h"
+@@ -31,7 +31,7 @@
+ 
+ void Biases::set_from_file(const std::string &biases_filename) {
+     // Check extension
+-    const auto extension = boost::filesystem::extension(biases_filename);
++    const std::string extension = std::filesystem::path(biases_filename).extension();
+     if (extension != ".bias") {
+         throw CameraException(CameraErrorCode::WrongExtension,
+                               "For bias file '" + biases_filename +
+@@ -106,7 +106,7 @@
+ }
+ 
+ void Biases::save_to_file(const std::string &dest_file) const {
+-    const auto extension = boost::filesystem::extension(dest_file);
++    const std::string extension = std::filesystem::path(dest_file).extension();
+     if (extension != ".bias") {
+         throw CameraException(CameraErrorCode::WrongExtension,
+                               "For bias file '" + dest_file +
+--- a/sdk/modules/driver/cpp/src/camera.cpp
++++ b/sdk/modules/driver/cpp/src/camera.cpp
+@@ -9,7 +9,7 @@
+  * See the License for the specific language governing permissions and limitations under the License.                 *
+  **********************************************************************************************************************/
+ 
+-#include <boost/filesystem.hpp>
++#include <filesystem>
+ 
+ #include "metavision/hal/device/device_discovery.h"
+ #include "metavision/hal/utils/hal_connection_exception.h"
+@@ -298,7 +298,7 @@
+ }
+ 
+ bool Camera::Private::start_recording_impl(const std::string &file_path) {
+-    std::string ext = boost::filesystem::extension(file_path);
++    std::string ext = std::filesystem::path(file_path).extension();
+     std::shared_ptr<Metavision::EventFileWriter> writer;
+     if (ext == ".raw") {
+         writer = std::make_shared<Metavision::RAWEventFileWriter>(file_path);
+@@ -570,24 +570,24 @@
+ }
+ 
+ Camera Camera::from_file(const std::string &file_path, const FileConfigHints &hints) {
+-    if (boost::filesystem::extension(file_path) != "") {
+-        if (!boost::filesystem::exists(file_path)) {
++    if (std::filesystem::path(file_path).extension() != "") {
++        if (!std::filesystem::exists(file_path)) {
+             throw CameraException(CameraErrorCode::FileDoesNotExist,
+                                   "Opening file at " + file_path + ": not an existing file.");
+         }
+ 
+-        if (!boost::filesystem::is_regular_file(file_path)) {
++        if (!std::filesystem::is_regular_file(file_path)) {
+             throw CameraException(CameraErrorCode::NotARegularFile);
+         }
+     }
+ 
+-    if (boost::filesystem::extension(file_path) == ".raw") {
++    if (std::filesystem::path(file_path).extension() == ".raw") {
+         return Camera(new detail::OfflineRawPrivate(file_path, hints));
+-    } else if (boost::filesystem::extension(file_path) == ".hdf5") {
++    } else if (std::filesystem::path(file_path).extension() == ".hdf5") {
+ #if defined HAS_HDF5
+         return Camera(new detail::OfflineGenericPrivate(file_path, hints));
+ #endif
+-    } else if (boost::filesystem::extension(file_path) == ".dat" || boost::filesystem::extension(file_path) == "") {
++    } else if (std::filesystem::path(file_path).extension() == ".dat" || std::filesystem::path(file_path).extension() == "") {
+         return Camera(new detail::OfflineGenericPrivate(file_path, hints));
+     }
+ 
+--- a/sdk/modules/driver/cpp/src/camera_live.cpp
++++ b/sdk/modules/driver/cpp/src/camera_live.cpp
+@@ -9,7 +9,7 @@
+  * See the License for the specific language governing permissions and limitations under the License.                 *
+  **********************************************************************************************************************/
+ 
+-#include <boost/filesystem.hpp>
++#include <filesystem>
+ 
+ #include "metavision/hal/device/device_discovery.h"
+ #include "metavision/hal/facilities/i_camera_synchronization.h"
+@@ -206,7 +206,7 @@
+ }
+ 
+ bool LivePrivate::start_recording_impl(const std::string &file_path) {
+-    std::string base_path = boost::filesystem::change_extension(file_path, "").string();
++    std::string base_path = std::filesystem::path(file_path).replace_extension("");
+     if (biases_) {
+         biases_->save_to_file(base_path + ".bias");
+     }
+--- a/sdk/modules/driver/cpp/src/camera_offline_generic.cpp
++++ b/sdk/modules/driver/cpp/src/camera_offline_generic.cpp
+@@ -11,7 +11,7 @@
+ 
+ #include <regex>
+ 
+-#include <boost/filesystem.hpp>
++#include <filesystem>
+ 
+ #include "metavision/sdk/base/utils/get_time.h"
+ #include "metavision/sdk/driver/internal/callback_tag_ids.h"
+@@ -43,7 +43,7 @@
+     Private(detail::Config()) {
+     // clang-format off
+     try {
+-        if (boost::filesystem::extension(file_path) == ".hdf5") {
++        if (std::filesystem::path(file_path).extension() == ".hdf5") {
+             file_reader_ = std::make_unique<HDF5EventFileReader>(file_path, hints.time_shift());
+         } else {
+             file_reader_ = std::make_unique<DATEventFileReader>(file_path);

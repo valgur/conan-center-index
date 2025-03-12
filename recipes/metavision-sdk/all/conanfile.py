@@ -3,7 +3,8 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, rmdir, rename
+from conan.tools.files import copy, get, replace_in_file, rmdir, rename, export_conandata_patches, apply_conandata_patches
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.0"
 
@@ -29,6 +30,13 @@ class MetavisionSdkConan(ConanFile):
         "stream": True,
         "ui": True,
     }
+
+    @property
+    def _stream_module(self):
+        return "stream" if Version(self.version).major >= 5 else "driver"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Android":
@@ -70,7 +78,8 @@ class MetavisionSdkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["openeb"], strip_root=True)
         get(self, **self.conan_data["sources"][self.version]["hdf5_ecf"], strip_root=True,
-            destination=os.path.join("sdk", "modules", "stream", "cpp", "3rdparty", "hdf5_ecf"))
+            destination=os.path.join("sdk", "modules", self._stream_module, "cpp", "3rdparty", "hdf5_ecf"))
+        apply_conandata_patches(self)
         # Let Conan set the C++ version
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
         # Unvendor nlohmann_json
@@ -81,14 +90,19 @@ class MetavisionSdkConan(ConanFile):
         replace_in_file(self, "CMakeLists.txt", "check_language(CUDA)", "")
         # Only used for Python bindings
         rmdir(self, os.path.join("sdk", "modules", "core_ml", "models"))
-        # Add C++20 support: https://github.com/prophesee-ai/openeb/pull/146
-        replace_in_file(self, os.path.join("sdk", "modules", "stream", "cpp", "include", "metavision", "sdk", "stream", "camera_stream_slicer.h"),
-                        "Slice() = default;", "// Slice() = default;")
+        if Version(self.version) >= "5.0":
+            # Add C++20 support: https://github.com/prophesee-ai/openeb/pull/146
+            replace_in_file(self, os.path.join("sdk", "modules", "stream", "cpp", "include", "metavision", "sdk", "stream", "camera_stream_slicer.h"),
+                            "Slice() = default;", "// Slice() = default;")
 
     @property
     def _enabled_modules(self):
-        opt_modules = ["stream", "ui"]
-        return ["base", "core"] + [module for module in opt_modules if self.options.get_safe(module)]
+        modules = ["base", "core"]
+        if self.options.stream:
+            modules.append(self._stream_module)
+        if self.options.ui:
+            modules.append("ui")
+        return modules
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -168,9 +182,11 @@ class MetavisionSdkConan(ConanFile):
             self.cpp_info.components["hdf5_ecf_codec"].libs = ["hdf5_ecf_codec"]
             self.runenv_info.append("HDF5_PLUGIN_PATH", os.path.join(self.package_folder, "lib", "hdf5", "plugin"))
 
-            self.cpp_info.components["stream"].set_property("cmake_target_name", "Metavision::stream")
-            self.cpp_info.components["stream"].libs = ["metavision_sdk_stream"]
-            self.cpp_info.components["stream"].requires = [
+            self.cpp_info.components[self._stream_module].set_property("cmake_target_name", f"Metavision::{self._stream_module}")
+            if Version(self.version) < "5.0":
+                self.cpp_info.components[self._stream_module].set_property("cmake_target_aliases", ["Metavision::stream"])
+            self.cpp_info.components[self._stream_module].libs = [f"metavision_sdk_{self._stream_module}"]
+            self.cpp_info.components[self._stream_module].requires = [
                 "base",
                 "core",
                 "HAL",
