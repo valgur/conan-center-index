@@ -42,18 +42,23 @@ class MetavisionSdkConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
-        self.requires("boost/1.86.0")
-        self.requires("opencv/4.11.0")
+        # metavision/psee_hw_layer/boards/utils/psee_libusb.h
+        self.requires("libusb/1.0.26", transitive_headers=True)
+        # several headers, e.g. metavision/sdk/core/preprocessors/json_parser.h
+        self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
+        # used in many public headers
+        self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
         if self.options.stream:
             # newer version conflicts with opencv
             self.requires("protobuf/3.21.12")
             if self.options.get_safe("with_hdf5"):
-                self.requires("hdf5/1.14.5")
+                # hdf5_ecf/ecf_h5filter.h
+                self.requires("hdf5/1.14.5", transitive_headers=True, transitive_libs=True)
         if self.options.ui:
-            self.requires("opengl/system")
-            self.requires("glew/2.2.0")
-            self.requires("glfw/3.4")
+            # metavision/sdk/ui/utils/opengl_api.h
+            self.requires("opengl/system", transitive_headers=True)
+            self.requires("glew/2.2.0", transitive_headers=True)
+            self.requires("glfw/3.4", transitive_headers=True)
 
     def build_requirements(self):
         if self.options.stream:
