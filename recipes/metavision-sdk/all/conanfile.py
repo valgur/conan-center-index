@@ -75,17 +75,19 @@ class MetavisionSdkConan(ConanFile):
 
         # if self.options.advanced_sdk_repo_url:
         #     self.requires("boost/1.74.0", force=True)
-        #     self.requires("opencv/4.5.4", force=True)
+        #     self.requires("opencv/4.5.5", force=True)
         #     self.requires("protobuf/3.12.4", force=True)
-
-    def build_requirements(self):
-        if self.options.stream:
-            self.tool_requires("protobuf/<host_version>")
 
     def validate(self):
         if self.options.advanced_sdk_repo_url and not self.conan_data["advanced-sdk"].get(self.version):
             raise ConanInvalidConfiguration(f"This recipe does not support the advanced SDK for version {self.version}")
         check_min_cppstd(self, 17)
+
+    def build_requirements(self):
+        if self.options.stream:
+            self.tool_requires("protobuf/<host_version>")
+        if self.options.advanced_sdk_repo_url:
+            self.build_requires("patchelf/[*]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["openeb"], strip_root=True)
@@ -150,9 +152,21 @@ class MetavisionSdkConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _fix_opencv_dep_soname(self):
+        # Use patchelf to replace opencv v4.5d dynamic dependencies with v4.5.x in the advanced SDK binaries.
+        # 4.5d is a soname used by Ubuntu only.
+        opencv_version = self.dependencies["opencv"].ref.version
+        replacements = [
+            f"--replace-needed libopencv_{mod}.so.4.5d libopencv_{mod}.so.{opencv_version}"
+            for mod in ["calib3d", "core", "imgproc", "videoio"]
+        ]
+        for lib in Path(self.package_folder, "lib").rglob("*.so"):
+            self.run(f"patchelf {' '.join(replacements)} {lib}")
+
     def package(self):
         if self.options.advanced_sdk_repo_url:
             copy(self, "*", os.path.join(self.build_folder, "advanced-sdk", "usr"), self.package_folder, keep_path=True)
+            self._fix_opencv_dep_soname()
         copy(self, "LICENSE_OPEN", os.path.join(self.source_folder, "licensing"), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
