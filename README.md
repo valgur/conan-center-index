@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-12:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-13:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -154,6 +154,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
 - meson/1.6.1
+- metavision-sdk/4.6.2
 - metavision-sdk/5.1.0
 - mkfontscale/1.2.3
 - mrcal/2.4.1
