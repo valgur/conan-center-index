@@ -76,10 +76,11 @@ class MetavisionSdkConan(ConanFile):
             self.requires("glew/2.2.0", transitive_headers=True)
             self.requires("glfw/3.4", transitive_headers=True)
 
-        # if self.options.advanced_sdk_repo_url:
-        #     self.requires("boost/1.74.0", force=True)
-        #     self.requires("opencv/4.5.5", force=True)
-        #     self.requires("protobuf/3.12.4", force=True)
+        if self.options.advanced_sdk_repo_url:
+            self.requires("eigen/3.4.0", transitive_headers=True)
+            # self.requires("boost/1.74.0", force=True)
+            # self.requires("opencv/4.5.5", force=True)
+            # self.requires("protobuf/3.12.4", force=True)
 
     def validate(self):
         if self.options.advanced_sdk_repo_url and not self.conan_data["advanced-sdk"].get(self.version):
@@ -260,6 +261,7 @@ class MetavisionSdkConan(ConanFile):
                 "cv",
                 "boost::filesystem",
                 "opencv::opencv_videoio",
+                "opencv::opencv_highgui",
             ]
 
             self.cpp_info.components["calibration"].set_property("cmake_target_name", "Metavision::calibration")
@@ -276,6 +278,7 @@ class MetavisionSdkConan(ConanFile):
                 "core",
                 "opencv::opencv_imgproc",
                 "opencv::opencv_core",
+                "eigen::eigen",
             ]
 
             self.cpp_info.components["cv3d"].set_property("cmake_target_name", "Metavision::cv3d")
@@ -283,6 +286,7 @@ class MetavisionSdkConan(ConanFile):
             self.cpp_info.components["cv3d"].requires = [
                 "cv",
                 "opencv::opencv_calib3d",
+                "eigen::eigen",
             ]
 
             # Header-only component
@@ -292,5 +296,7 @@ class MetavisionSdkConan(ConanFile):
                 "core",
                 "cv",
                 self._stream_module,
+                "opencv::opencv_objdetect",
+                "opencv::opencv_highgui",
                 # libtorch
             ]
