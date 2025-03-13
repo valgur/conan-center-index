@@ -181,7 +181,7 @@ patches:
     - patch_file: "patches/4.1.2-0007-android-install-layout.patch"
       patch_description: "Honor install layout from conan if Android"
       patch_type: "conan"
-    - patch_file: "patches/4.5.5-dont-use-openmp-flags-var.patch"
+    - patch_file: "patches/4.1.2-dont-use-openmp-flags-var.patch"
       patch_description: "Use an OpenMP target instead of flags"
       patch_type: "portability"
   "4.5.4":
