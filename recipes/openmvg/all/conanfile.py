@@ -235,6 +235,7 @@ class OpenmvgConan(ConanFile):
                 "target": "openMVG_features",
                 "libs": ["openMVG_features"],
                 "requires": ["openmvg_fast", "openmvg_stlplus", "eigen::eigen", "cereal::cereal"],
+                "add_library_name_prefix_to_include_dirs": True,
             },
             "openmvg_geodesy": {
                 "target": "openMVG_geodesy",
@@ -269,6 +270,7 @@ class OpenmvgConan(ConanFile):
                 "libs": ["openMVG_matching"],
                 "requires": ["openmvg_features", "openmvg_stlplus", "cereal::cereal", "flann::flann"],
                 "system_libs": pthread(),
+                "add_library_name_prefix_to_include_dirs": True,
             },
             "openmvg_kvld": {
                 "target": "openMVG_kvld",
@@ -279,6 +281,7 @@ class OpenmvgConan(ConanFile):
                 "target": "openMVG_matching_image_collection",
                 "libs": ["openMVG_matching_image_collection"],
                 "requires": ["openmvg_matching", "openmvg_multiview"],
+                "add_library_name_prefix_to_include_dirs": True,
             },
             "openmvg_multiview": {
                 "target": "openMVG_multiview",
@@ -295,6 +298,7 @@ class OpenmvgConan(ConanFile):
                 "target": "openMVG_robust_estimation",
                 "libs": ["openMVG_robust_estimation"],
                 "requires": ["openmvg_numeric"],
+                "add_library_name_prefix_to_include_dirs": True,
             },
             "openmvg_sfm": {
                 "target": "openMVG_sfm",
@@ -304,6 +308,7 @@ class OpenmvgConan(ConanFile):
                     "openmvg_multiview", "openmvg_image", "openmvg_linftycomputervision",
                     "openmvg_system", "openmvg_stlplus", "cereal::cereal", "ceres-solver::ceres-solver",
                 ],
+                "add_library_name_prefix_to_include_dirs": True,
             },
             "openmvg_system": {
                 "target": "openMVG_system",
@@ -350,6 +355,9 @@ class OpenmvgConan(ConanFile):
             self.cpp_info.components[component].requires = values.get("requires", [])
             self.cpp_info.components[component].system_libs = values.get("system_libs", [])
             self.cpp_info.components[component].resdirs = ["res"]
+
+            if values.get("add_library_name_prefix_to_include_dirs", False):
+                self.cpp_info.components[component].includedirs.append(os.path.join("include", "openMVG"))
 
         if self.options.with_openmp:
             for component_name in ["cameras", "features", "image", "matching", "matching_image_collection", "robust_estimation", "sfm", "vlsift"]:

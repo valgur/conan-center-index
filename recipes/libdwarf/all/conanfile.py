@@ -53,8 +53,6 @@ class LibdwarfConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.with_dwarfgen or self.version == "20191104":
-            self.requires("libelf/0.8.13")
         self.requires("zlib/[>=1.2.11 <2]")
         if  Version(self.version) >= Version("0.9.0"):
             self.requires("zstd/[~1.5]")
@@ -80,20 +78,23 @@ class LibdwarfConan(ConanFile):
         dpes.generate()
 
     def build(self):
+        # Headers patches only makes sense for Windows, and CMake ones
+        # were solved since https://github.com/davea42/libdwarf-code/commit/6ffd41d39ba8e5db8651a35ac4f975baf786de4c (v0.9.2)
+        if Version(self.version) < "0.9.2" or self.settings.os == "Windows":
+            apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        if self.version == "20191104":
-            copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "libdwarf"))
-            if self.options.with_dwarfgen:
-                copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "dwarfgen"))
         copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "src", "lib", "libdwarf"))
         rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING-libdwarf"))
         if self.options.with_dwarfgen:
             copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "src", "bin", "dwarfgen"))
             rename(self, os.path.join(self.package_folder, "licenses", "COPYING"), os.path.join(self.package_folder, "licenses", "COPYING-dwarfgen"))
+        if self.options.with_dwarfdump:
+            copy(self, pattern="GPL.txt", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "src", "bin", "dwarfdump"))
+            rename(self, os.path.join(self.package_folder, "licenses", "GPL.txt"), os.path.join(self.package_folder, "licenses", "COPYING-dwarfdump"))
         copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         cmake = CMake(self)
@@ -104,7 +105,6 @@ class LibdwarfConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["dwarf"]
-        if self.options.with_dwarfgen and self.version != "20191104":
+
+        if self.options.with_dwarfgen:
             self.cpp_info.libs.append("dwarfp")
-        if Version(self.version) < "0.9":
-            self.cpp_info.includedirs.append(os.path.join("include", "libdwarf"))
