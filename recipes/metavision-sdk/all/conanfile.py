@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from urllib.parse import urljoin
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -22,18 +21,22 @@ class MetavisionSdkConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "advanced_sdk_repo_url": [None, "ANY"],
         "with_hdf5": [True, False],
         # modules
         "stream": [True, False],
         "ui": [True, False],
+        # Advanced SDK options
+        "advanced_sdk_repo_url": [None, "ANY"],
+        "ubuntu_version": ["ANY"],
     }
     default_options = {
-        "advanced_sdk_repo_url": None,
         "with_hdf5": True,
         # modules
         "stream": True,
         "ui": True,
+        # Advanced SDK options
+        "advanced_sdk_repo_url": None,
+        "ubuntu_version": "jammy",
     }
 
     @property
@@ -131,10 +134,11 @@ class MetavisionSdkConan(ConanFile):
         deps.generate()
 
     def _download_advanced_sdk(self):
+        base_url = str(self.options.advanced_sdk_repo_url).split("ubuntu")[0]
+        base_url += f"ubuntu/dists/{self.options.ubuntu_version}/sdk/binary-amd64/"
         for pkg_info in self.conan_data["advanced-sdk"][self.version]:
             filename = pkg_info["filename"]
-            url = urljoin(str(self.options.advanced_sdk_repo_url), pkg_info["filename"])
-            download(self, url, filename, sha256=pkg_info["sha256"])
+            download(self, base_url + filename, filename, sha256=pkg_info["sha256"])
             self._extract_deb(filename, os.path.join(self.build_folder, "advanced-sdk"))
 
     def _extract_deb(self, deb_file, dst):
