@@ -5,12 +5,13 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import Environment
 from conan.tools.files import copy, get, replace_in_file, rmdir
+from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.60.0 <2 || >=2.0.5"
+required_conan_version = ">=2.0.5"
 
 
 class XkbcommonConan(ConanFile):
@@ -38,6 +39,7 @@ class XkbcommonConan(ConanFile):
         "xkbregistry": True,
         "use_xorg_system": True,
     }
+    languages = ["C"]
 
     @property
     def _has_xkbregistry_option(self):
@@ -46,14 +48,12 @@ class XkbcommonConan(ConanFile):
     def config_options(self):
         if not self._has_xkbregistry_option:
             del self.options.xkbregistry
-        if self.settings.os != "Linux":
+        if self.settings.os not in ("Linux", "Android"):
             del self.options.with_wayland
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
         if not self.options.with_x11:
             del self.options.use_xorg_system
 
@@ -65,7 +65,7 @@ class XkbcommonConan(ConanFile):
             self.requires("xkeyboard-config/system")
         else:
             self.requires("xkeyboard-config/2.43")
-        if self.options.with_x11:
+        if self.options.get_safe("with_x11"):
             if self.options.use_xorg_system:
                 self.requires("xorg/system")
             else:
@@ -76,8 +76,8 @@ class XkbcommonConan(ConanFile):
             self.requires("wayland/1.22.0")
 
     def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration(f"{self.ref} is only compatible with Linux and FreeBSD")
+        if self.settings.os not in ["Linux", "FreeBSD", "Android"]:
+            raise ConanInvalidConfiguration(f"{self.ref} is only compatible with Linux, FreeBSD and Android")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -97,9 +97,11 @@ class XkbcommonConan(ConanFile):
             tc.project_options["enable-bash-completion"] = False
         tc.project_options["enable-docs"] = False
         tc.project_options["enable-wayland"] = self.options.get_safe("with_wayland", False)
-        tc.project_options["enable-x11"] = self.options.with_x11
+        tc.project_options["enable-x11"] = self.options.get_safe("with_x11", False)
         if self._has_xkbregistry_option:
             tc.project_options["enable-xkbregistry"] = self.options.xkbregistry
+        if self.settings.os == "Android":
+            tc.project_options["enable-tools"] = False
         tc.generate()
 
         pkg_config_deps = PkgConfigDeps(self)
@@ -146,7 +148,7 @@ class XkbcommonConan(ConanFile):
         self.cpp_info.components["libxkbcommon"].requires = ["xkeyboard-config::xkeyboard-config"]
         self.cpp_info.components["libxkbcommon"].resdirs = ["res"]
 
-        if self.options.with_x11:
+        if self.options.get_safe("with_x11"):
             self.cpp_info.components["libxkbcommon-x11"].set_property("pkg_config_name", "xkbcommon-x11")
             self.cpp_info.components["libxkbcommon-x11"].set_property("cmake_target_aliases", ["X11::xkbcommon_X11"])
             self.cpp_info.components["libxkbcommon-x11"].libs = ["xkbcommon-x11"]

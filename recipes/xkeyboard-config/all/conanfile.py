@@ -24,6 +24,10 @@ class XkeyboardConfigConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def validate(self):
+        if self.settings.os not in ["Linux", "FreeBSD", "Android"]:
+            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
+
     def package_id(self):
         self.info.clear()
 
