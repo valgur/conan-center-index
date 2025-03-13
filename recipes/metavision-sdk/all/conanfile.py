@@ -172,7 +172,16 @@ class MetavisionSdkConan(ConanFile):
         if self.options.advanced_sdk_repo_url:
             copy(self, "*", os.path.join(self.build_folder, "advanced-sdk", "usr"), self.package_folder, keep_path=True)
             self._fix_opencv_dep_soname()
-        copy(self, "LICENSE_OPEN", os.path.join(self.source_folder, "licensing"), os.path.join(self.package_folder, "licenses"))
+            copy(self, "LICENSE_METAVISION_SDK",
+                 os.path.join(self.build_folder, "advanced-sdk", "usr", "share", "metavision", "licensing"),
+                 os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE_OPEN",
+             os.path.join(self.source_folder, "licensing"),
+             os.path.join(self.package_folder, "licenses"))
+        if self.options.stream:
+            copy(self, "LICENSE",
+                 os.path.join(self.source_folder, "sdk", "modules", self._stream_module, "cpp", "3rdparty", "hdf5_ecf"),
+                 os.path.join(self.package_folder, "licenses", "hdf5_ecf"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share", "cmake"))

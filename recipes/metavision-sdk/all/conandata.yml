@@ -25,6 +25,8 @@ patches:
       patch_type: "portability"
 advanced-sdk:
   "4.6.2":
+    - filename: "metavision-sdk-base-lib-4.6.2.deb"
+      sha256: "db4d47afabeea4f8d71933d185596e9eb2cc3eb597ba2681297720514e8befb4"
     - filename: "metavision-sdk-advanced-dev-4.6.2.deb"
       sha256: "7a7e25b7fbe1adff92cb5f1fed1c51748e82fe287037344457720ad5509eaf02"
     - filename: "metavision-sdk-analytics-dev-4.6.2.deb"
