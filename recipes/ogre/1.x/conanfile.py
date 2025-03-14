@@ -459,10 +459,13 @@ class OgreConanFile(ConanFile):
         # Fix assimp CMake target
         replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "Assimp", "CMakeLists.txt"),
                         "fix::assimp", "assimp::assimp")
-        if Version(self.version) >= "13.0":
+        if Version(self.version) >= "14.3.2":
             # Use CMake targets instead of plain libs for glslang and SPIRV-Tools
             replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "GLSLang", "CMakeLists.txt"),
-                            " glslang OSDependent SPIRV ", " glslang::glslang ")
+                            "set(GLSLANG_LIBS glslang SPIRV SPIRV-Tools-opt SPIRV-Tools)",
+                            "set(GLSLANG_LIBS glslang::glslang)")
+            replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "GLSLang", "CMakeLists.txt"),
+                            "find_library(GLSLANG_OSDependent OSDependent)", "")
         if Version(self.version) >= "1.12.11":
             # Make sure OpenMP is enabled/disabled correctly
             replace_in_file(self, os.path.join(self.source_folder, "RenderSystems", "Tiny", "CMakeLists.txt"),
