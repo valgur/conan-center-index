@@ -49,7 +49,7 @@ class NcbiCxxToolkit(ConanFile):
         "UV":           "libuv/1.42.0",
         "Z":            "zlib/1.2.11",
         "OpenSSL":      "openssl/1.1.1l",
-        "ZSTD":         "zstd/1.5.2"
+        "ZSTD":         "zstd/[~1.5]"
     }
 
 #----------------------------------------------------------------------------

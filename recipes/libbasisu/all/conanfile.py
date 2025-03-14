@@ -74,7 +74,7 @@ class LibBasisUniversalConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
         if self.options.get_safe("with_opencl"):
             self.requires("opencl-icd-loader/2023.12.14")
 

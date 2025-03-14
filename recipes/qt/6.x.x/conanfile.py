@@ -460,7 +460,7 @@ class QtConan(ConanFile):
             # https://github.com/qt/qtbase/blob/6.8.1/src/gui/opengl/qopengl.h#L105-L118
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
         if self.options.get_safe("qtwayland"):
             self.requires("wayland/1.22.0")
         if self.options.with_brotli:

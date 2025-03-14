@@ -69,7 +69,7 @@ class LibrdkafkaConan(ConanFile):
         if self.options.zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
         if self.options.ssl:
             self.requires("openssl/[>=1.1 <4]")
         if self._depends_on_cyrus_sasl:

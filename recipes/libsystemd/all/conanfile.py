@@ -73,7 +73,7 @@ class LibsystemdConan(ConanFile):
         if self.options.with_xz:
             self.requires("xz_utils/5.4.5")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
 
     def validate(self):
         if self.settings.os != "Linux":

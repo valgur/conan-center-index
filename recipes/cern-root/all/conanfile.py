@@ -96,7 +96,7 @@ class CernRootConan(ConanFile):
         self.requires("xorg/system")
         self.requires("xxhash/0.8.0")
         self.requires("xz_utils/5.2.5")
-        self.requires("zstd/1.5.0")
+        self.requires("zstd/[~1.5]")
 
     def validate(self):
         self._enforce_minimum_compiler_version()

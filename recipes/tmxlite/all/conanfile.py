@@ -47,7 +47,7 @@ class TmxliteConan(ConanFile):
             self.requires("miniz/3.0.2")
         else:
             self.requires("zlib/[>=1.2.11 <2]")
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
         self.requires("pugixml/1.14")
 
     def validate(self):

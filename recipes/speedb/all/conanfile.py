@@ -73,7 +73,7 @@ class SpeedbConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
         if self.options.with_core_tools:
             self.requires("gflags/2.2.2")
             self.requires("readline/8.2")

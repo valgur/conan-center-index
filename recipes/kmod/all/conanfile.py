@@ -45,7 +45,7 @@ class KModConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
         if self.options.with_xz:
             self.requires("xz_utils/5.4.4")
         if self.options.with_zlib:

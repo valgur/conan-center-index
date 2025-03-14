@@ -64,7 +64,7 @@ class MariadbConnectorcConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
         if Version(self.version) >= "3.3":
             # INFO: https://mariadb.com/kb/en/mariadb-connector-c-330-release-notes
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
 
     def validate(self):
         if self.settings.os != "Windows" and self.options.with_ssl == "schannel":

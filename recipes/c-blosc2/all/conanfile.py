@@ -72,7 +72,7 @@ class CBlosc2Conan(ConanFile):
         elif self.options.with_zlib == "zlib":
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
 
     def validate(self):
         if Version(self.version) < "2.11.0" \
