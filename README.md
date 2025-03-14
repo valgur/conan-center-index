@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-13:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-14:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -105,7 +105,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcaca/0.99.beta20
 - libcroco/0.6.13
 - libcudacxx/2.7.0
-- libdwarf/20191104
 - libecwj2/3.3
 - libelas/cci.20150630
 - libfontenc/1.1.8
