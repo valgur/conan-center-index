@@ -80,9 +80,10 @@ class FreeImageConan(ConanFile):
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_webp:
             self.requires("libwebp/1.3.2")
+        if self.options.with_openexr:
+            self.requires("openexr/3.3.2")
         if self.options.with_tiff or self.options.with_openexr:
-            # can't upgrade to openexr/3.x.x because plugin tiff requires openexr/2.x.x header files
-            self.requires("openexr/2.5.7")
+            self.requires("imath/3.1.9")
         if self.options.with_raw:
             # can't upgrade to libraw >= 0.21 (error: no member named 'shot_select' in 'libraw_output_params_t')
             self.requires("libraw/0.20.2")
@@ -151,7 +152,7 @@ class FreeImageConan(ConanFile):
             if self.options.with_webp:
                 components.append("libwebp::libwebp")
             if self.options.with_openexr or self.options.with_tiff:
-                components.append("openexr::openexr")
+                components.extend(["openexr::openexr", "imath::imath"])
             if self.options.with_raw:
                 components.append("libraw::libraw")
             if self.options.with_jxr:
