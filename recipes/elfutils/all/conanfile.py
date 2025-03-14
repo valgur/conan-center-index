@@ -212,4 +212,4 @@ class ElfutilsConan(ConanFile):
             ("STRIP", "strip"),
             ("UNSTRIP", "unstrip"),
         ]:
-            self.runenv_info.define_path(envvar, os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
+            self.buildenv_info.define_path(envvar, os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
