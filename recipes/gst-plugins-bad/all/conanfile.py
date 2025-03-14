@@ -251,8 +251,7 @@ class GStPluginsBadConan(ConanFile):
             # Only < 3.5.0 is supported. 'contrib' is required for opencv_tracking.
             self.requires("opencv/3.4.20", options={"contrib": True})
         if "openexr" in reqs:
-            # 3.x is not supported
-            self.requires("openexr/2.5.7")
+            self.requires("openexr/3.3.2")
         if "opengl" in reqs:
             self.requires("opengl/system")
         if "openh264" in reqs:
