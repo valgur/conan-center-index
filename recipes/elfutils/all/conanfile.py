@@ -192,24 +192,25 @@ class ElfutilsConan(ConanFile):
             self.cpp_info.components["libdebuginfod"].requires = ["libcurl::curl"]
             self.cpp_info.components["libdebuginfod"].set_property("pkg_config_name", "libdebuginfod")
 
-        bin_ext = ".exe" if self.settings.os == "Windows" else ""
-        for envvar, tool in [
-            ("ADDR2LINE", "addr2line"),
-            ("AR", "ar"),
-            ("ELFCLASSIFY", "elfclassify"),
-            ("ELFCMP", "elfcmp"),
-            ("ELFCOMPRESS", "elfcompress"),
-            ("ELFLINT", "elflint"),
-            ("FINDTEXTREL", "findtextrel"),
-            ("MAKE_DEBUG_ARCHIVE", "make-debug-archive"),
-            ("NM", "nm"),
-            ("OBJDUMP", "objdump"),
-            ("RANLIB", "ranlib"),
-            ("READELF", "readelf"),
-            ("SIZE", "size"),
-            ("STACK", "stack"),
-            ("STRINGS", "strings"),
-            ("STRIP", "strip"),
-            ("UNSTRIP", "unstrip"),
-        ]:
-            self.buildenv_info.define_path(envvar, os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
+        if self.settings_target is not None:
+            bin_ext = ".exe" if self.settings.os == "Windows" else ""
+            for envvar, tool in [
+                ("ADDR2LINE", "addr2line"),
+                ("AR", "ar"),
+                ("ELFCLASSIFY", "elfclassify"),
+                ("ELFCMP", "elfcmp"),
+                ("ELFCOMPRESS", "elfcompress"),
+                ("ELFLINT", "elflint"),
+                ("FINDTEXTREL", "findtextrel"),
+                ("MAKE_DEBUG_ARCHIVE", "make-debug-archive"),
+                ("NM", "nm"),
+                ("OBJDUMP", "objdump"),
+                ("RANLIB", "ranlib"),
+                ("READELF", "readelf"),
+                ("SIZE", "size"),
+                ("STACK", "stack"),
+                ("STRINGS", "strings"),
+                ("STRIP", "strip"),
+                ("UNSTRIP", "unstrip"),
+            ]:
+                self.buildenv_info.define_path(envvar, os.path.join(self.package_folder, "bin", "eu-addr2line" + bin_ext))
