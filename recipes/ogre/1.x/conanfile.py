@@ -558,10 +558,10 @@ class OgreConanFile(ConanFile):
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
 
         def _add_component(comp, *, requires=None, libs=None, extra_includedirs=None, libdirs=None):
-            self.cpp_info.components[comp].set_property("cmake_target_name", comp)
-            self.cpp_info.components[comp].set_property("pkg_config_name", "OGRE" if comp == "OgreMain" else f"OGRE-{comp}")
-            if comp != "OgreMain":
-                self.cpp_info.components[comp].requires = ["OgreMain"]
+            self.cpp_info.components[comp].set_property("cmake_target_name", f"Ogre{comp}")
+            self.cpp_info.components[comp].set_property("pkg_config_name", "OGRE" if comp == "Main" else f"OGRE-{comp}")
+            if comp != "Main":
+                self.cpp_info.components[comp].requires = ["Main"]
             self.cpp_info.components[comp].requires += requires or []
             self.cpp_info.components[comp].libs = libs or []
             self.cpp_info.components[comp].includedirs = ["include", self._include_dir] + (extra_includedirs or [])
@@ -602,19 +602,19 @@ class OgreConanFile(ConanFile):
                 self.cpp_info.components["Bites"].requires.append(comp)
 
         _add_component(
-            "OgreMain",
+            "Main",
             libs=[self._core_libname("OgreMain")],
             libdirs=["lib"],
             requires=["pugixml::pugixml", "zlib::zlib", "zziplib::zziplib"],
         )
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.use_wayland:
-                self.cpp_info.components["OgreMain"].requires.extend([
+                self.cpp_info.components["Main"].requires.extend([
                     "wayland::wayland-client",
                     "wayland::wayland-egl",
                 ])
             else:
-                self.cpp_info.components["OgreMain"].requires.extend(["xorg::x11", "xorg::xrandr"])
+                self.cpp_info.components["Main"].requires.extend(["xorg::x11", "xorg::xrandr"])
 
         if self.options.get_safe("build_component_bites"):
             _add_core_component("Bites", requires=["Overlay", "sdl::sdl", "xorg::xaw7", "xorg::xt"])
@@ -644,7 +644,7 @@ class OgreConanFile(ConanFile):
             if not self.options.shared:
                 _add_core_component("GLSupport", requires=opengl_reqs, extra_includedirs=[])
             else:
-                self.cpp_info.components["OgreMain"].requires.extend(opengl_reqs)
+                self.cpp_info.components["Main"].requires.extend(opengl_reqs)
 
         if self.options.build_plugin_assimp:
             _add_plugin_component(
