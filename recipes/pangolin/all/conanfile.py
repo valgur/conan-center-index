@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, replace_in_file, rmdir, rm
+from conan.tools.files import copy, get, replace_in_file, rmdir, rm, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime
 
@@ -92,6 +92,7 @@ class PangolinConan(ConanFile):
 
     def export_sources(self):
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -136,7 +137,8 @@ class PangolinConan(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/1.9.4")
         if self.options.with_openexr:
-            self.requires("openexr/2.5.7")
+            self.requires("openexr/3.3.2")
+
         if self.options.with_openni2:
             self.requires("openni2/2.2.0.33")
         if self.options.with_png:
@@ -184,6 +186,7 @@ class PangolinConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " -Werror", "")
         rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))
         # Unvendor sigslot
