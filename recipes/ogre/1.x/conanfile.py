@@ -632,6 +632,7 @@ class OgreConanFile(ConanFile):
             _add_core_component("Property")
         if self.options.build_component_rtshadersystem:
             _add_core_component("RTShaderSystem")
+            self.cpp_info.components["Bites"].requires.append("RTShaderSystem")
         if self.options.build_component_terrain:
             _add_core_component("Terrain")
         if self.options.build_component_volume:
