@@ -120,8 +120,7 @@ class PangolinConan(ConanFile):
             self.requires("libepoxy/1.5.10", transitive_headers=True, transitive_libs=True)
             self.requires("egl/system", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_wayland"):
-            # Wayland 1.20+ is not compatible as of v0.9.1
-            self.requires("wayland/1.19.0")
+            self.requires("wayland/1.22.0")
             self.requires("xkbcommon/1.6.0")
         if self.options.get_safe("with_x11"):
             # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_windowing/include/pangolin/windowing/X11Window.h#L35
@@ -160,7 +159,7 @@ class PangolinConan(ConanFile):
             self.requires("libuvc/0.0.7", transitive_headers=True, transitive_libs=True)
             self.requires("libusb/1.0.26")
         if self.options.with_zstd:
-            self.requires("zstd/1.5.5")
+            self.requires("zstd/[~1.5]")
 
         # Unvendored
         # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_core/include/pangolin/utils/signal_slot.h
@@ -182,13 +181,21 @@ class PangolinConan(ConanFile):
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_wayland"):
-            self.requires("wayland-protocols/1.33")
+            self.tool_requires("wayland/<host_version>")
+            self.tool_requires("wayland-protocols/1.36")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " -Werror", "")
         rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " -Werror", "")
+        # Use build-context wayland-scanner
+        replace_in_file(self, os.path.join(self.source_folder, "components", "pango_windowing", "CMakeLists.txt"),
+                        "pkg_get_variable(WAYLAND_SCANNER wayland-scanner wayland_scanner)",
+                        "set(WAYLAND_SCANNER wayland-scanner)")
+        # Rely on conan_deps.cmake for Wayland
+        replace_in_file(self, os.path.join(self.source_folder, "components", "pango_windowing", "CMakeLists.txt"),
+                        "pkg_check_modules(WAYLAND_CLIENT wayland-client QUIET)", "")
         # Unvendor sigslot
         rmdir(self, os.path.join(self.source_folder, "components", "pango_core", "include", "sigslot"))
         # Unvendor tinyobjloader
@@ -227,6 +234,7 @@ class PangolinConan(ConanFile):
         tc.cache_variables["BUILD_TOOLS"] = self.options.tools
         tc.cache_variables["MSVC_USE_STATIC_CRT"] = is_msvc_static_runtime(self)
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_X11"] = not self.options.get_safe("with_x11", False)
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Wayland"] = not self.options.get_safe("with_wayland", False)
         tc.cache_variables["CMAKE_PROJECT_Pangolin_INCLUDE"] = "conan_deps.cmake"
         tc.generate()
 
@@ -240,6 +248,7 @@ class PangolinConan(ConanFile):
         deps.set_property("lz4", "cmake_file_name", "Lz4")
         deps.set_property("openni2", "cmake_file_name", "OpenNI2")
         deps.set_property("tinyobjloader", "cmake_target_name", "tinyobj")
+        deps.set_property("wayland", "cmake_file_name", "Wayland")
         # deps.set_property("depthsense", "cmake_file_name", "DepthSense")
         # deps.set_property("mediafoundation", "cmake_file_name", "MediaFoundation")
         # deps.set_property("pleora", "cmake_file_name", "Pleora")
@@ -251,14 +260,7 @@ class PangolinConan(ConanFile):
             deps.build_context_activated.append("wayland-protocols")
             deps.generate()
 
-    def _patch_sources(self):
-        # Disable Wayland if not enabled
-        if not self.options.get_safe("with_wayland"):
-            replace_in_file(self, os.path.join(self.source_folder, "components", "pango_windowing", "CMakeLists.txt"),
-                            "WAYLAND_CLIENT_FOUND", "FALSE")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

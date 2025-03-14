@@ -34,6 +34,15 @@ custom_find_package(TIFF)
 custom_find_package(uvc)
 custom_find_package(X11)
 custom_find_package(zstd CONFIG)
+custom_find_package(Wayland CONFIG)
+
+if(Wayland_FOUND)
+    find_package(xkbcommon REQUIRED CONFIG)
+    set(WAYLAND_CLIENT_FOUND TRUE)
+    set(WAYLAND_CLIENT_LIBRARIES wayland::wayland-client xkbcommon::xkbcommon)
+    set(WAYLAND_EGL_LIBRARIES wayland::wayland-egl)
+    set(WAYLAND_CURSOR_LIBRARIES wayland::wayland-cursor)
+endif()
 
 # Unvendored dependencies
 find_package(PalSigslot REQUIRED CONFIG)
