@@ -25,6 +25,8 @@ patches:
       patch_type: "portability"
 advanced-sdk:
   "4.6.2":
+    - filename: "metavision-hal-prophesee-hw-layer-dev-4.6.2.deb"
+      sha256: "5380e5382581bcf0ee935b71e1199555b34677ccac2dce7b69a6c4e2451171b4"
     - filename: "metavision-sdk-base-lib-4.6.2.deb"
       sha256: "db4d47afabeea4f8d71933d185596e9eb2cc3eb597ba2681297720514e8befb4"
     - filename: "metavision-sdk-advanced-dev-4.6.2.deb"
