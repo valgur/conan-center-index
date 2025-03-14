@@ -196,9 +196,6 @@ class MetavisionSdkConan(ConanFile):
         # which cannot be reproduced by Conan
         self.cpp_info.set_property("cmake_file_name", "MetavisionSDK")
 
-        self.cpp_info.components["base"].set_property("cmake_target_name", "Metavision::base")
-        self.cpp_info.components["base"].libs = ["metavision_sdk_base"]
-
         self.cpp_info.components["HAL"].set_property("cmake_target_name", "Metavision::HAL")
         self.cpp_info.components["HAL"].libs = ["metavision_hal"]
         self.cpp_info.components["HAL"].requires = ["base"]
@@ -219,7 +216,10 @@ class MetavisionSdkConan(ConanFile):
             "libusb::libusb",
         ]
 
-        self.cpp_info.components["core"].set_property("cmake_target_name", "Metavision::core")
+        self.cpp_info.components["base"].set_property("cmake_target_name", "MetavisionSDK::base")
+        self.cpp_info.components["base"].libs = ["metavision_sdk_base"]
+
+        self.cpp_info.components["core"].set_property("cmake_target_name", "MetavisionSDK::core")
         self.cpp_info.components["core"].libs = ["metavision_sdk_core"]
         self.cpp_info.components["core"].requires = [
             "base",
@@ -237,9 +237,9 @@ class MetavisionSdkConan(ConanFile):
             self.cpp_info.components["hdf5_ecf_codec"].libs = ["hdf5_ecf_codec"]
             self.runenv_info.append("HDF5_PLUGIN_PATH", os.path.join(self.package_folder, "lib", "hdf5", "plugin"))
 
-            self.cpp_info.components[self._stream_module].set_property("cmake_target_name", f"Metavision::{self._stream_module}")
+            self.cpp_info.components[self._stream_module].set_property("cmake_target_name", f"MetavisionSDK::{self._stream_module}")
             if Version(self.version) < "5.0":
-                self.cpp_info.components[self._stream_module].set_property("cmake_target_aliases", ["Metavision::stream"])
+                self.cpp_info.components[self._stream_module].set_property("cmake_target_aliases", ["MetavisionSDK::stream"])
             self.cpp_info.components[self._stream_module].libs = [f"metavision_sdk_{self._stream_module}"]
             self.cpp_info.components[self._stream_module].requires = [
                 "base",
@@ -253,7 +253,7 @@ class MetavisionSdkConan(ConanFile):
                 self.cpp_info.components["stream"].requires.append("hdf5::hdf5_cpp")
 
         if self.options.ui:
-            self.cpp_info.components["ui"].set_property("cmake_target_name", "Metavision::ui")
+            self.cpp_info.components["ui"].set_property("cmake_target_name", "MetavisionSDK::ui")
             self.cpp_info.components["ui"].libs = ["metavision_sdk_ui"]
             self.cpp_info.components["ui"].requires = [
                 "core",
@@ -264,7 +264,7 @@ class MetavisionSdkConan(ConanFile):
             ]
 
         if self.options.advanced_sdk_repo_url:
-            self.cpp_info.components["analytics"].set_property("cmake_target_name", "Metavision::analytics")
+            self.cpp_info.components["analytics"].set_property("cmake_target_name", "MetavisionSDK::analytics")
             self.cpp_info.components["analytics"].libs = ["metavision_sdk_analytics"]
             self.cpp_info.components["analytics"].requires = [
                 "cv",
@@ -273,14 +273,14 @@ class MetavisionSdkConan(ConanFile):
                 "opencv::opencv_highgui",
             ]
 
-            self.cpp_info.components["calibration"].set_property("cmake_target_name", "Metavision::calibration")
+            self.cpp_info.components["calibration"].set_property("cmake_target_name", "MetavisionSDK::calibration")
             self.cpp_info.components["calibration"].libs = ["metavision_sdk_calibration"]
             self.cpp_info.components["calibration"].requires = [
                 "cv",
                 "opencv::opencv_calib3d",
             ]
 
-            self.cpp_info.components["cv"].set_property("cmake_target_name", "Metavision::cv")
+            self.cpp_info.components["cv"].set_property("cmake_target_name", "MetavisionSDK::cv")
             self.cpp_info.components["cv"].libs = ["metavision_sdk_cv"]
             self.cpp_info.components["cv"].requires = [
                 "base",
@@ -290,7 +290,7 @@ class MetavisionSdkConan(ConanFile):
                 "eigen::eigen",
             ]
 
-            self.cpp_info.components["cv3d"].set_property("cmake_target_name", "Metavision::cv3d")
+            self.cpp_info.components["cv3d"].set_property("cmake_target_name", "MetavisionSDK::cv3d")
             self.cpp_info.components["cv3d"].libs = ["metavision_sdk_cv3d"]
             self.cpp_info.components["cv3d"].requires = [
                 "cv",
@@ -299,7 +299,7 @@ class MetavisionSdkConan(ConanFile):
             ]
 
             # Header-only component
-            self.cpp_info.components["ml"].set_property("cmake_target_name", "Metavision::ml")
+            self.cpp_info.components["ml"].set_property("cmake_target_name", "MetavisionSDK::ml")
             self.cpp_info.components["ml"].requires = [
                 "base",
                 "core",
