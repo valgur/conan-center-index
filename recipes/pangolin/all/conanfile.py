@@ -5,13 +5,11 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, replace_in_file, rmdir, rm
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime
-from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class PangolinConan(ConanFile):
@@ -92,19 +90,6 @@ class PangolinConan(ConanFile):
         "with_zstd": "Support Zstd compression",
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
     def export_sources(self):
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
@@ -131,6 +116,7 @@ class PangolinConan(ConanFile):
         self.requires("glew/2.2.0", transitive_headers=True, transitive_libs=True)
         self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
+            self.requires("libepoxy/1.5.10", transitive_headers=True, transitive_libs=True)
             self.requires("egl/system", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_wayland"):
             # Wayland 1.20+ is not compatible as of v0.9.1
@@ -181,16 +167,7 @@ class PangolinConan(ConanFile):
         # TODO: dynalo, NaturalSort
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
-        if self.settings.os == "Windows" and self.options.shared:
-            # Fails with linker errors for internal symbols
-            raise ConanInvalidConfiguration("Shared library is not supported on Windows")
+        check_min_cppstd(self, 17)
 
         if self.options.with_ffmpeg:
             ffmpeg_opts = self.dependencies["ffmpeg"].options
@@ -198,6 +175,7 @@ class PangolinConan(ConanFile):
                 raise ConanInvalidConfiguration("Ffmpeg with avdevice and avformat options enabled is required")
 
     def build_requirements(self):
+        self.tool_requires("cmake/[>=3.16 <4]")
         if self.options.get_safe("with_wayland"):
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
@@ -206,39 +184,51 @@ class PangolinConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " -Werror", "")
+        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))
+        # Unvendor sigslot
+        rmdir(self, os.path.join(self.source_folder, "components", "pango_core", "include", "sigslot"))
+        # Unvendor tinyobjloader
+        rmdir(self, os.path.join(self.source_folder, "components", "tinyobj"))
+        replace_in_file(self, os.path.join(self.source_folder, "components", "pango_geometry", "src", "geometry_obj.cpp"),
+                        "#include <tinyobj/tiny_obj_loader.h>", "#include <tiny_obj_loader.h>")
+        # Fix a buggy application of a macro when TooN is enabled
+        # TODO: submit a patch upstream
+        replace_in_file(self, os.path.join(self.source_folder, "components", "pango_opengl", "include", "pangolin", "gl", "opengl_render_state.h"),
+                        "PANGOLIN_DEPRECATED\n", 'PANGOLIN_DEPRECATED("")\n')
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_EXAMPLES"] = False
-        tc.variables["BUILD_PANGOLIN_DEPTHSENSE"] = False
-        tc.variables["BUILD_PANGOLIN_FFMPEG"] = self.options.with_ffmpeg
-        tc.variables["BUILD_PANGOLIN_LIBDC1394"] = self.options.with_dc1394
-        tc.variables["BUILD_PANGOLIN_LIBJPEG"] = self.options.with_jpeg
-        tc.variables["BUILD_PANGOLIN_LIBOPENEXR"] = self.options.with_openexr
-        tc.variables["BUILD_PANGOLIN_LIBPNG"] = self.options.with_png
-        tc.variables["BUILD_PANGOLIN_LIBRAW"] = self.options.with_raw
-        tc.variables["BUILD_PANGOLIN_LIBTIFF"] = self.options.with_tiff
-        tc.variables["BUILD_PANGOLIN_LIBUVC"] = self.options.with_uvc
-        tc.variables["BUILD_PANGOLIN_LZ4"] = self.options.with_lz4
-        tc.variables["BUILD_PANGOLIN_OPENNI"] = False
-        tc.variables["BUILD_PANGOLIN_OPENNI2"] = self.options.with_openni2
-        tc.variables["BUILD_PANGOLIN_PLEORA"] = False
-        tc.variables["BUILD_PANGOLIN_PYTHON"] = self.options.python_bindings
-        tc.variables["BUILD_PANGOLIN_REALSENSE"] = False
-        tc.variables["BUILD_PANGOLIN_REALSENSE2"] = self.options.with_realsense
-        tc.variables["BUILD_PANGOLIN_TELICAM"] = False
-        tc.variables["BUILD_PANGOLIN_UVC_MEDIAFOUNDATION"] = False
-        tc.variables["BUILD_PANGOLIN_V4L"] = self.options.get_safe("with_v4l", False)
-        tc.variables["BUILD_PANGOLIN_ZSTD"] = self.options.with_zstd
-        tc.variables["BUILD_TESTS"] = False
-        tc.variables["BUILD_TOOLS"] = self.options.tools
-        tc.variables["MSVC_USE_STATIC_CRT"] = is_msvc_static_runtime(self)
-        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_X11"] = not self.options.get_safe("with_x11", False)
+        tc.cache_variables["BUILD_EXAMPLES"] = False
+        tc.cache_variables["BUILD_PANGOLIN_DEPTHSENSE"] = False
+        tc.cache_variables["BUILD_PANGOLIN_FFMPEG"] = self.options.with_ffmpeg
+        tc.cache_variables["BUILD_PANGOLIN_LIBDC1394"] = self.options.with_dc1394
+        tc.cache_variables["BUILD_PANGOLIN_LIBJPEG"] = self.options.with_jpeg
+        tc.cache_variables["BUILD_PANGOLIN_LIBOPENEXR"] = self.options.with_openexr
+        tc.cache_variables["BUILD_PANGOLIN_LIBPNG"] = self.options.with_png
+        tc.cache_variables["BUILD_PANGOLIN_LIBRAW"] = self.options.with_raw
+        tc.cache_variables["BUILD_PANGOLIN_LIBTIFF"] = self.options.with_tiff
+        tc.cache_variables["BUILD_PANGOLIN_LIBUVC"] = self.options.with_uvc
+        tc.cache_variables["BUILD_PANGOLIN_LZ4"] = self.options.with_lz4
+        tc.cache_variables["BUILD_PANGOLIN_OPENNI"] = False
+        tc.cache_variables["BUILD_PANGOLIN_OPENNI2"] = self.options.with_openni2
+        tc.cache_variables["BUILD_PANGOLIN_PLEORA"] = False
+        tc.cache_variables["BUILD_PANGOLIN_PYTHON"] = self.options.python_bindings
+        tc.cache_variables["BUILD_PANGOLIN_REALSENSE"] = False
+        tc.cache_variables["BUILD_PANGOLIN_REALSENSE2"] = self.options.with_realsense
+        tc.cache_variables["BUILD_PANGOLIN_TELICAM"] = False
+        tc.cache_variables["BUILD_PANGOLIN_UVC_MEDIAFOUNDATION"] = False
+        tc.cache_variables["BUILD_PANGOLIN_V4L"] = self.options.get_safe("with_v4l", False)
+        tc.cache_variables["BUILD_PANGOLIN_ZSTD"] = self.options.with_zstd
+        tc.cache_variables["BUILD_TESTS"] = False
+        tc.cache_variables["BUILD_TOOLS"] = self.options.tools
+        tc.cache_variables["MSVC_USE_STATIC_CRT"] = is_msvc_static_runtime(self)
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_X11"] = not self.options.get_safe("with_x11", False)
         tc.cache_variables["CMAKE_PROJECT_Pangolin_INCLUDE"] = "conan_deps.cmake"
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.set_property("libepoxy", "cmake_file_name", "epoxy")
         deps.set_property("ffmpeg", "cmake_file_name", "FFMPEG")
         deps.set_property("libdc1394", "cmake_file_name", "DC1394")
         deps.set_property("librealsense", "cmake_file_name", "RealSense2")
@@ -259,25 +249,10 @@ class PangolinConan(ConanFile):
             deps.generate()
 
     def _patch_sources(self):
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))
-
-        # Unvendor sigslot
-        rmdir(self, os.path.join(self.source_folder, "components", "pango_core", "include", "sigslot"))
-
-        # Unvendor tinyobjloader
-        rmdir(self, os.path.join(self.source_folder, "components", "tinyobj"))
-        replace_in_file(self, os.path.join(self.source_folder, "components", "pango_geometry", "src", "geometry_obj.cpp"),
-                        "#include <tinyobj/tiny_obj_loader.h>", "#include <tiny_obj_loader.h>")
-
         # Disable Wayland if not enabled
         if not self.options.get_safe("with_wayland"):
             replace_in_file(self, os.path.join(self.source_folder, "components", "pango_windowing", "CMakeLists.txt"),
                             "WAYLAND_CLIENT_FOUND", "FALSE")
-
-        # Fix a buggy application of a macro when TooN is enabled
-        # TODO: submit a patch upstream
-        replace_in_file(self, os.path.join(self.source_folder, "components", "pango_opengl", "include", "pangolin", "gl", "opengl_render_state.h"),
-                        "PANGOLIN_DEPRECATED\n", 'PANGOLIN_DEPRECATED("")\n')
 
     def build(self):
         self._patch_sources()
@@ -329,6 +304,8 @@ class PangolinConan(ConanFile):
         _add_component("pango_vars", requires=["pango_core"])
 
         pango_opengl = _add_component("pango_opengl", requires=["pango_core", "pango_image", "opengl::opengl", "glew::glew"])
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            pango_opengl.requires.append("libepoxy::libepoxy")
         if self.options.with_toon:
             pango_opengl.requires.append("toon::toon")
             pango_opengl.defines.append("HAVE_TOON")
