@@ -111,8 +111,8 @@ class OgreConanFile(ConanFile):
         "build_plugin_assimp": True,
         "build_plugin_bsp": True,
         "build_plugin_dot_scene": True,
-        "build_plugin_exrcodec": True,
-        "build_plugin_freeimage": False, # FIXME: set to true after https://github.com/conan-io/conan-center-index/pull/23138 is merged
+        "build_plugin_exrcodec": False,  # Rely on FreeImage plugin instead: https://github.com/OGRECave/ogre/issues/2179
+        "build_plugin_freeimage": True,
         "build_plugin_glslang": True,
         "build_plugin_octree": True,
         "build_plugin_pcz": True,
