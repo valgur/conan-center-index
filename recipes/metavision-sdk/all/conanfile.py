@@ -184,6 +184,8 @@ class MetavisionSdkConan(ConanFile):
                  os.path.join(self.package_folder, "licenses", "hdf5_ecf"))
         cmake = CMake(self)
         cmake.install()
+        if self.options.advanced_sdk_repo_url:
+            copy(self, "*/libmetavision_psee_hw_layer.so", os.path.join(self.build_folder, "advanced-sdk", "usr"), self.package_folder, keep_path=True)
         rmdir(self, os.path.join(self.package_folder, "share", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share", "hdf5_ecf"))
         rmdir(self, os.path.join(self.package_folder, "share", "metavision", "hal_psee_plugins"))
