@@ -521,6 +521,9 @@ class OgreConanFile(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "OGRE", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake", "OGRE"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
+        # Avoid hard-coded paths in config files
+        replace_in_file(self, os.path.join(self.package_folder, "res", "plugins.cfg"), self.package_folder, "..")
+        replace_in_file(self, os.path.join(self.package_folder, "res", "resources.cfg"), os.path.join(self.package_folder, "res"), ".")
 
     @property
     def _module_file_rel_dir(self):
