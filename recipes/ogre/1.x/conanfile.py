@@ -557,6 +557,10 @@ class OgreConanFile(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "OGRE")
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
 
+        self.runenv_info.define_path("OGRE_PLUGIN_DIR", os.path.join(self.package_folder, self._plugins_dir))
+        self.runenv_info.define_path("OGRE_CONFIG_DIR", os.path.join(self.package_folder, self._config_dir))
+        self.runenv_info.define_path("OGRE_MEDIA_DIR", os.path.join(self.package_folder, self._media_dir))
+
         def _add_component(comp, *, requires=None, libs=None, extra_includedirs=None, libdirs=None):
             self.cpp_info.components[comp].set_property("cmake_target_name", f"Ogre{comp}")
             self.cpp_info.components[comp].set_property("pkg_config_name", "OGRE" if comp == "Main" else f"OGRE-{comp}")
