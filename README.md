@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-17:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-18:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
