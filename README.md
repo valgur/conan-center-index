@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-18:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-19:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -172,10 +172,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
-- openssl/3.1.7
-- openssl/3.2.3
-- openssl/3.3.2
-- openssl/3.4.0
 - or-tools/9.10
 - osgearth/3.7
 - osrm/5.27.1
