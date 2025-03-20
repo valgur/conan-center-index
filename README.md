@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-19:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-20:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -179,6 +179,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangomm/2.46.4
 - pangomm/2.54.0
 - pcl/1.14.1
+- pcre/8.41
+- pcre/8.44
 - pdal/2.7.2
 - perf/6.11
 - piex/0.27
