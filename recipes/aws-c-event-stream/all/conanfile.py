@@ -1,10 +1,10 @@
-import os
-
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
+from conan.tools.files import get, copy, rmdir
+from conan.tools.scm import Version
+import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4"
 
 
 class AwsCEventStream(ConanFile):
@@ -25,23 +25,17 @@ class AwsCEventStream(ConanFile):
         "fPIC": True,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = "C"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        if self.version == "0.5.1":
+            self.requires("aws-c-common/0.11.0", transitive_headers=True, transitive_libs=True)
+            self.requires("aws-checksums/0.2.3")
+            self.requires("aws-c-io/0.15.4")
         if self.version == "0.4.2":
             self.requires("aws-c-common/0.9.15", transitive_headers=True, transitive_libs=True)
             self.requires("aws-checksums/0.1.18")
@@ -53,12 +47,13 @@ class AwsCEventStream(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_BINARIES"] = False
         tc.variables["BUILD_TESTING"] = False
+        if Version(self.version) < "0.5.1":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -74,6 +69,7 @@ class AwsCEventStream(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-event-stream"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-event-stream")

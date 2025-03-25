@@ -1,9 +1,11 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rmdir
+from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+
+required_conan_version = ">=2.4"
 
 
 class AwsCIO(ConanFile):
@@ -24,15 +26,8 @@ class AwsCIO(ConanFile):
         "fPIC": True,
     }
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = "C"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -40,6 +35,11 @@ class AwsCIO(ConanFile):
     def requirements(self):
         # These versions come from aws-sdl-cpp prefetch_crt_dependency.sh file,
         # dont bump them independently, check the file and update all the dependencies at once
+        if self.version == "0.15.4":
+            self.requires("aws-c-common/0.11.0", transitive_headers=True, transitive_libs=True)
+            self.requires("aws-c-cal/0.8.3")
+            if self.settings.os in ["Linux", "FreeBSD", "Android"]:
+                self.requires("s2n/1.5.9")
         if self.version == "0.14.7":
             self.requires("aws-c-common/0.9.15", transitive_headers=True, transitive_libs=True)
             self.requires("aws-c-cal/0.6.14")
@@ -57,6 +57,8 @@ class AwsCIO(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
+        if Version(self.version) < "0.15.4":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -72,6 +74,7 @@ class AwsCIO(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-io"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-io")
@@ -81,5 +84,7 @@ class AwsCIO(ConanFile):
             self.cpp_info.defines.append("AWS_IO_USE_IMPORT_EXPORT")
         if self.settings.os == "Macos":
             self.cpp_info.frameworks.append("Security")
+            if Version(self.version) >= "0.15.4":
+                self.cpp_info.frameworks.append("Network")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["crypt32", "secur32", "shlwapi"]

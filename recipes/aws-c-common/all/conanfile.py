@@ -1,14 +1,12 @@
-import os
-
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
+import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.4"
 
 
 class AwsCCommon(ConanFile):
@@ -35,29 +33,14 @@ class AwsCCommon(ConanFile):
         "cpu_extensions": True,
     }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = "C"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def validate(self):
-        if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Static runtime + shared is not working for more recent releases")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -66,6 +49,8 @@ class AwsCCommon(ConanFile):
         tc.variables["AWS_WARNINGS_ARE_ERRORS"] = False
         if is_msvc(self):
             tc.variables["STATIC_CRT"] = is_msvc_static_runtime(self)
+        if Version(self.version) < "0.11.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         tc.variables["USE_CPU_EXTENSIONS"] = self.options.get_safe("cpu_extensions", False)
         tc.generate()
 
@@ -78,7 +63,6 @@ class AwsCCommon(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "aws-c-common"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "aws-c-common")
@@ -89,10 +73,15 @@ class AwsCCommon(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "m", "pthread", "rt"]
         elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["bcrypt", "ws2_32"]
+            self.cpp_info.system_libs = ["bcrypt", "ws2_32", "kernel32"]
             if Version(self.version) >= "0.6.13":
                 self.cpp_info.system_libs.append("shlwapi")
+            if Version(self.version) >= "0.9.15":
+                self.cpp_info.system_libs.append("psapi")
         if not self.options.shared:
             if is_apple_os(self):
                 self.cpp_info.frameworks = ["CoreFoundation"]
-        self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
+        if Version(self.version) >= "0.11.0":
+            self.cpp_info.builddirs.append(os.path.join("lib", "cmake", "aws-c-common", "modules"))
+        else:
+            self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))

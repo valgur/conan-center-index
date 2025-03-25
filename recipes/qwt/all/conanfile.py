@@ -6,12 +6,12 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.0.5"
 
 
 class QwtConan(ConanFile):
     name = "qwt"
-    license = "LGPL-2.1-or-later"
+    license = "LGPL-2.1+ WITH Qwt-exception-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://qwt.sourceforge.io/"
     topics = ("chart", "data-visualization", "graph", "plot", "qt")
@@ -42,12 +42,17 @@ class QwtConan(ConanFile):
         "designer": False,
         "polar": True,
     }
-    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         if self.options.widgets:
             self.options["qt"].widgets = True
         if self.options.svg:
@@ -62,10 +67,12 @@ class QwtConan(ConanFile):
 
     def requirements(self):
         self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
-        if self.options.opengl:
-            self.requires("opengl/system")
+        self.tool_requires("cmake/[>=3.27 <4]") #For CMAKE_AUTOMOC_EXECUTABLE
 
     def validate(self):
+        qt_version = self.dependencies["qt"].ref.version
+        check_min_cppstd(self, 11 if qt_version.major == 5 else 17)
+
         qt_options = self.dependencies["qt"].options
         if self.options.widgets and not qt_options.widgets:
             raise ConanInvalidConfiguration("qwt:widgets=True requires qt:widgets=True")
@@ -87,6 +94,8 @@ class QwtConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        qt_version = Version(self.dependencies["qt"].ref.version)
+        tc.variables["QWT_QT_VERSION_MAJOR"] = qt_version.major
         tc.variables["QWT_DLL"] = self.options.shared
         tc.variables["QWT_STATIC"] = not self.options.shared
         tc.variables["QWT_PLOT"] = self.options.plot

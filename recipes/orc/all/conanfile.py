@@ -112,7 +112,8 @@ class OrcRecipe(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
-        if self.settings.os == "Windows" and self.options.shared:
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        if self.settings.os == "Windows" and self.options.shared and Version(self.version) < "2.1.1":
             mkdir(self, os.path.join(self.package_folder, "bin"))
             os.rename(os.path.join(self.package_folder, "lib", "orc.dll"),
                       os.path.join(self.package_folder, "bin", "orc.dll"))
