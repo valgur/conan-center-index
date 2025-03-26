@@ -78,7 +78,7 @@ class LibinputConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.33")
+            self.tool_requires("wayland-protocols/1.42")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

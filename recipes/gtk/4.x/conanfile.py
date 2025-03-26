@@ -205,7 +205,7 @@ class GtkConan(ConanFile):
             self.tool_requires("shaderc/2024.1")  # for glslc
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.36")
+            self.tool_requires("wayland-protocols/1.42")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/<host_version>")
 

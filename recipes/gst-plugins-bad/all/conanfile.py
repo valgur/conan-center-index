@@ -352,7 +352,7 @@ class GStPluginsBadConan(ConanFile):
             self.tool_requires("shaderc/2024.1")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.33")
+            self.tool_requires("wayland-protocols/1.42")
         if self._is_enabled("qt6d3d11") and not can_run(self):
             self.tool_requires("qt/<host_version>", options={
                 "qtdeclarative": True,
