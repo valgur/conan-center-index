@@ -6,7 +6,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class ClhepConan(ConanFile):
@@ -57,6 +57,7 @@ class ClhepConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CLHEP_SINGLE_THREAD"] = False
         tc.variables["CLHEP_BUILD_DOCS"] = False
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):
