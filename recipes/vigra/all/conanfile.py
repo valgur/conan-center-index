@@ -70,7 +70,7 @@ class VigraConan(ConanFile):
             self.requires("hdf5/1.14.5")
 
         if self.options.with_openexr:
-            self.requires("openexr/3.3.2")
+            self.requires("openexr/3.3.3")
             self.requires("imath/3.1.9")
 
         if self.options.with_boost_graph:

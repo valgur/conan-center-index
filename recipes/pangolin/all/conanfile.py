@@ -136,7 +136,7 @@ class PangolinConan(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/1.9.4")
         if self.options.with_openexr:
-            self.requires("openexr/3.3.2")
+            self.requires("openexr/3.3.3")
 
         if self.options.with_openni2:
             self.requires("openni2/2.2.0.33")

@@ -205,7 +205,7 @@ class GdalConan(ConanFile):
         if self.options.with_expat:
             self.requires("expat/[>=2.6.2 <3]")
         if self.options.with_exr:
-            self.requires("openexr/3.3.2")
+            self.requires("openexr/3.3.3")
             self.requires("imath/3.1.9")
         if self.options.with_freexl:
             self.requires("freexl/2.0.0")
