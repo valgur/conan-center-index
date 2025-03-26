@@ -6,7 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, rename, get, apply_conandata_patches, export_conandata_patches, replace_in_file, rmdir, rm, save
-from conan.tools.microsoft import msvc_runtime_flag, is_msvc, is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=1.53"
@@ -78,7 +78,7 @@ class ProtobufConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
 
         if self._protobuf_release >= "22.0":
-            self.requires("abseil/[>=20230802.1 <=20240722.0]", transitive_headers=True)
+            self.requires("abseil/[>=20230802.1 <=20250127.0]", transitive_headers=True)
 
     @property
     def _compilers_minimum_version(self):
@@ -98,6 +98,8 @@ class ProtobufConan(ConanFile):
             raise ConanInvalidConfiguration("When building protobuf as a shared library on Windows, "
                                             "abseil needs to be a shared library too")
 
+        if self._protobuf_release >= "30.1":
+            check_min_cppstd(self, 17)
         if self._protobuf_release >= "22.0":
             check_min_cppstd(self, 14)
 
@@ -109,12 +111,18 @@ class ProtobufConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+    def build_requirements(self):
+        if self._protobuf_release >= "30.1":
+            self.tool_requires("cmake/[>=3.16 <4]")
+
     @property
     def _cmake_install_base_path(self):
         return os.path.join("lib", "cmake", "protobuf")
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if self._protobuf_release >= "30.1":
+            tc.cache_variables["protobuf_LOCAL_DEPENDENCIES_ONLY"] = True
         tc.cache_variables["CMAKE_INSTALL_CMAKEDIR"] = self._cmake_install_base_path.replace("\\", "/")
         tc.cache_variables["protobuf_WITH_ZLIB"] = self.options.with_zlib
         tc.cache_variables["protobuf_BUILD_TESTS"] = False
@@ -127,10 +135,7 @@ class ProtobufConan(ConanFile):
         if self._protobuf_release >= "22.0":
             tc.cache_variables["protobuf_ABSL_PROVIDER"] = "package"
         if is_msvc(self) or self._is_clang_cl:
-            runtime = msvc_runtime_flag(self)
-            if not runtime:
-                runtime = self.settings.get_safe("compiler.runtime")
-            tc.cache_variables["protobuf_MSVC_STATIC_RUNTIME"] = "MT" in runtime
+            tc.cache_variables["protobuf_MSVC_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
         if is_apple_os(self) and self.options.shared:
             # Workaround against SIP on macOS for consumers while invoking protoc when protobuf lib is shared
             tc.variables["CMAKE_INSTALL_RPATH"] = "@loader_path/../lib"
@@ -227,9 +232,14 @@ class ProtobufConan(ConanFile):
             # it's a private dependency and unconditionally built as a static library, should only
             # be exposed when protobuf itself is static (or if upb is being built)
             self.cpp_info.components["utf8_range"].set_property("cmake_target_name", "utf8_range::utf8_range")
-            self.cpp_info.components["utf8_range"].libs = ["utf8_range"]
             self.cpp_info.components["utf8_validity"].set_property("cmake_target_name", "utf8_range::utf8_validity")
-            self.cpp_info.components["utf8_validity"].libs = ["utf8_validity"]
+            # https://github.com/protocolbuffers/protobuf/blob/0d815c5b74281f081c1ee4b431a4d5bbb1615c97/third_party/utf8_range/CMakeLists.txt#L24
+            if self._protobuf_release >= "30.1" and self.settings.os == "Windows":
+                self.cpp_info.components["utf8_range"].libs = ["libutf8_range"]
+                self.cpp_info.components["utf8_validity"].libs = ["libutf8_validity"]
+            else:
+                self.cpp_info.components["utf8_range"].libs = ["utf8_range"]
+                self.cpp_info.components["utf8_validity"].libs = ["utf8_validity"]
             self.cpp_info.components["utf8_validity"].requires = ["abseil::absl_strings"]
 
         if self.options.get_safe("upb"):

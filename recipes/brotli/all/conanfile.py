@@ -10,7 +10,7 @@ required_conan_version = ">=1.53.0"
 class BrotliConan(ConanFile):
     name = "brotli"
     description = "Brotli compression format"
-    license = "MIT",
+    license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/google/brotli"
     topics = ("brotli", "compression")
@@ -80,8 +80,7 @@ class BrotliConan(ConanFile):
         if self.options.enable_log:
             tc.preprocessor_definitions["BROTLI_ENABLE_LOG"] = 1
         if Version(self.version) < "1.1.0":
-            # To install relocatable shared libs on Macos
-            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):
