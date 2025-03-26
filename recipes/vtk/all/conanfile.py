@@ -307,7 +307,7 @@ class VtkConan(ConanFile):
         if self.options.with_expat:
             self.requires("expat/[>=2.6.2 <3]")
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/7.0.1")
+            self.requires("ffmpeg/7.1.1")
         if self.options.with_fontconfig:
             self.requires("fontconfig/2.15.0")
         if self.options.with_freetype:

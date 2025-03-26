@@ -1113,7 +1113,7 @@ class OpenCVConan(ConanFile):
             self.requires("quirc/1.2")
         # videoio module dependencies
         if self.options.get_safe("with_ffmpeg"):
-            self.requires("ffmpeg/7.0.1")
+            self.requires("ffmpeg/7.1.1")
         # freetype module dependencies
         if self.options.freetype:
             self.requires("freetype/2.13.2")

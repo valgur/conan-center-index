@@ -158,7 +158,7 @@ class CImgConan(ConanFile):
         if self.options.enable_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.enable_ffmpeg:
-            self.requires("ffmpeg/7.0.1")
+            self.requires("ffmpeg/7.1.1")
         if self.options.enable_opencv:
             # FIXME: OpenCV 4.x fails to link ffmpeg libraries correctly
             self.requires("opencv/4.11.0")
