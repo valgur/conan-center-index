@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-25:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-26:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -164,7 +164,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/1.12.10
 - ogre/14.3.4
 - openblas/0.3.28
-- opencv/4.11.0
 - opencv/4.5.4
 - openmp/system
 - openmpi/5.0.5
@@ -172,7 +171,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
-- opentrackio-cpp/1.0.0
 - or-tools/9.10
 - osgearth/3.7
 - osrm/5.27.1
@@ -180,8 +178,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangomm/2.46.4
 - pangomm/2.54.0
 - pcl/1.14.1
-- pcre/8.41
-- pcre/8.44
 - pdal/2.7.2
 - perf/6.11
 - piex/0.27
@@ -247,7 +243,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
 - vulkan-utility-libraries/1.3.290.0
-- vulkan-validationlayers/1.3.243.0
 - vulkan-validationlayers/1.3.268.0
 - vulkan-validationlayers/1.3.290.0
 - wuffs/0.3.4
