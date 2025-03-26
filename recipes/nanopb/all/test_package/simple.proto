@@ -1,0 +1,5 @@
+syntax = "proto2";
+
+message Message {
+    required int32 hello = 1;
+}
