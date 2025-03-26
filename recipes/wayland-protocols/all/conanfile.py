@@ -1,13 +1,13 @@
+import os
+
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, replace_in_file, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-import os
 
-required_conan_version = ">=1.64.0 <2 || >=2.2.0"
+required_conan_version = ">=2.2.0"
 
 
 class WaylandProtocolsConan(ConanFile):
@@ -34,8 +34,7 @@ class WaylandProtocolsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = MesonToolchain(self)
