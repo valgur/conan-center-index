@@ -1,0 +1,24 @@
+From f77f4101dea1f63fbd0d8dffc839dcedc401cc5c Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Mon, 17 Mar 2025 09:05:58 +0200
+Subject: [PATCH 1/6] also look for configs in res/ dir
+
+---
+ OgreMain/src/GLX/OgreFileSystemLayer.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/OgreMain/src/GLX/OgreFileSystemLayer.cpp b/OgreMain/src/GLX/OgreFileSystemLayer.cpp
+index b17c02f..6a0ef8b 100644
+--- a/OgreMain/src/GLX/OgreFileSystemLayer.cpp
++++ b/OgreMain/src/GLX/OgreFileSystemLayer.cpp
+@@ -126,6 +126,7 @@ namespace Ogre
+             String dirname = StringUtil::format("OGRE-%d.%d/", OGRE_VERSION_MAJOR, OGRE_VERSION_MINOR);
+             // search inside ../share/OGRE-X.Y
+             mConfigPaths.push_back(StringUtil::normalizeFilePath(base + "/../share/"+dirname, false));
++            mConfigPaths.push_back(StringUtil::normalizeFilePath(base + "/../res/"+dirname, false));
+             // then look relative to PIP structure
+             mConfigPaths.push_back(StringUtil::normalizeFilePath(base+"/../../../../share/"+dirname));
+         }
+-- 
+2.43.0
+

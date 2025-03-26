@@ -1,0 +1,34 @@
+From 7f3408c6716d36b5d30a215abb92854b003b14db Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Mon, 17 Mar 2025 09:31:31 +0200
+Subject: [PATCH 5/6] unvendor stb
+
+---
+ PlugIns/STBICodec/src/OgreSTBICodec.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/PlugIns/STBICodec/src/OgreSTBICodec.cpp b/PlugIns/STBICodec/src/OgreSTBICodec.cpp
+index c5a4d4b..4e827ca 100644
+--- a/PlugIns/STBICodec/src/OgreSTBICodec.cpp
++++ b/PlugIns/STBICodec/src/OgreSTBICodec.cpp
+@@ -40,7 +40,7 @@ THE SOFTWARE.
+ #define STBI_NO_STDIO
+ #define STB_IMAGE_IMPLEMENTATION
+ #define STB_IMAGE_STATIC
+-#include "stbi/stb_image.h"
++#include "stb_image.h"
+ 
+ #ifdef HAVE_ZLIB
+ #include <zlib.h>
+@@ -63,7 +63,7 @@ static Ogre::uchar* custom_zlib_compress(Ogre::uchar* data, int data_len, int* o
+ 
+ #define STB_IMAGE_WRITE_IMPLEMENTATION
+ #define STBI_WRITE_NO_STDIO
+-#include "stbi/stb_image_write.h"
++#include "stb_image_write.h"
+ 
+ namespace Ogre {
+ 
+-- 
+2.43.0
+

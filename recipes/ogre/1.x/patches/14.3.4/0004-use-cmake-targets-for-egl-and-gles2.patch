@@ -1,0 +1,32 @@
+From 51ea7e221c397052404a79d3e7c8f2bf1422b7fd Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Mon, 17 Mar 2025 09:07:02 +0200
+Subject: [PATCH 4/6] use CMake targets for EGL and GLES2
+
+---
+ CMake/Dependencies.cmake | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/CMake/Dependencies.cmake b/CMake/Dependencies.cmake
+index a581f8c..5493d64 100644
+--- a/CMake/Dependencies.cmake
++++ b/CMake/Dependencies.cmake
+@@ -246,7 +246,14 @@ if(NOT ANDROID AND NOT EMSCRIPTEN)
+ endif()
+ 
+ # Find OpenGL ES 2.x
+-find_package(OpenGLES2)
++find_package(OpenGL COMPONENTS EGL GLES2)
++if(TARGET OpenGL::EGL AND TARGET OpenGL::GLES2)
++  set(OPENGLES2_FOUND TRUE)
++  set(EGL_LIBRARIES OpenGL::EGL)
++  set(OPENGLES2_LIBRARIES OpenGL::GLES2)
++else()
++  set(OPENGLES2_FOUND FALSE)
++endif()
+ macro_log_feature(OPENGLES2_FOUND "OpenGL ES 2.x" "Support for the OpenGL ES 2.x render system" "http://www.khronos.org/opengles/")
+ 
+ # Find DirectX
+-- 
+2.43.0
+

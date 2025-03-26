@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.27)
 project(OGRE)
 
 macro(custom_find_package name)
@@ -13,11 +13,6 @@ macro(custom_find_package name)
     unset(name_upper)
 endmacro()
 
-# Do not allow system Qt to be used by accident
-set(CMAKE_DISABLE_FIND_PACKAGE_QT TRUE)
-set(CMAKE_DISABLE_FIND_PACKAGE_Qt5 TRUE)
-set(CMAKE_DISABLE_FIND_PACKAGE_Qt6 TRUE)
-
 custom_find_package(FreeImage QUIET CONFIG)
 custom_find_package(Freetype QUIET CONFIG)
 custom_find_package(OpenEXR QUIET CONFIG)
@@ -31,20 +26,10 @@ if(OGRE_BUILD_RENDERSYSTEM_GL OR OGRE_BUILD_RENDERSYSTEM_GL3PLUS OR OGRE_BUILD_R
     link_libraries(glad::glad)
 endif()
 
-if(OGRE_BUILD_PLUGIN_GLSLANG)
-    # https://github.com/OGRECave/ogre/blob/v14.2.6/PlugIns/GLSLang/CMakeLists.txt#L22-L35
-    find_package(glslang REQUIRED CONFIG)
-    find_package(SPIRV-Tools REQUIRED CONFIG)
-endif()
 
 add_subdirectory(src)
 
-if(TARGET OgreOverlay AND OGRE_BUILD_COMPONENT_OVERLAY_IMGUI)
-    find_package(imgui REQUIRED CONFIG)
-    target_sources(OgreOverlay PRIVATE ${CONAN_IMGUI_SRC}/misc/freetype/imgui_freetype.cpp)
-    target_include_directories(OgreOverlay PRIVATE ${CONAN_IMGUI_SRC}/misc/freetype)
-    target_link_libraries(OgreOverlay PUBLIC imgui::imgui)
-endif()
+
 if(TARGET Codec_FreeImage)
     target_link_libraries(Codec_FreeImage PUBLIC freeimage::freeimage)
 endif()

@@ -13,7 +13,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0"
 
 
 class OgreConanFile(ConanFile):
@@ -324,6 +324,8 @@ class OgreConanFile(ConanFile):
             raise ConanInvalidConfiguration("-o use_wayland=True requires -o glsupport_use_egl=True")
 
     def build_requirements(self):
+        # For OpenGL::GLES2 support in FindOpenGL.cmake
+        self.tool_requires("cmake/[>=3.27 <4]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
@@ -339,10 +341,6 @@ class OgreConanFile(ConanFile):
     def _plugins_dir(self):
         # Match https://github.com/OGRECave/ogre/blob/v14.3.0/CMake/InstallResources.cmake#L33-L43
         return "lib" if self.settings.os == "Windows" else os.path.join("lib", "OGRE")
-
-    @property
-    def _media_dir(self):
-        return os.path.join("res", "Media")
 
     @property
     def _config_dir(self):
@@ -442,9 +440,16 @@ class OgreConanFile(ConanFile):
         # https://github.com/OGRECave/ogre/blob/v14.3.0/RenderSystems/GLSupport/CMakeLists.txt#L15-L16
         tc.cache_variables["OGRE_GLSUPPORT_USE_EGL"] = self.options.get_safe("glsupport_use_egl", False)
         tc.cache_variables["OGRE_USE_WAYLAND"] = self.options.get_safe("use_wayland", False)
+        tc.cache_variables["CMAKE_REQUIRE_FIND_PACKAGE_OpenMP"] = self.options.get_safe("with_openmp", False)
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_OpenMP"] = not self.options.get_safe("with_openmp", False)
+        # Do not allow system Qt to be used by accident
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_QT"] = True
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Qt5"] = True
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Qt6"] = True
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.set_property("assimp", "cmake_target_name", "fix::assimp")
         deps.set_property("openexr", "cmake_file_name", "OpenEXR")
         deps.set_property("freeimage", "cmake_file_name", "FreeImage")
         deps.set_property("freetype", "cmake_file_name", "Freetype")
@@ -462,41 +467,7 @@ class OgreConanFile(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Fix assimp CMake target
-        replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "Assimp", "CMakeLists.txt"),
-                        "fix::assimp", "assimp::assimp")
-        if Version(self.version) >= "14.3.2":
-            # Use CMake targets instead of plain libs for glslang and SPIRV-Tools
-            replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "GLSLang", "CMakeLists.txt"),
-                            "set(GLSLANG_LIBS glslang SPIRV SPIRV-Tools-opt SPIRV-Tools)",
-                            "set(GLSLANG_LIBS glslang::glslang)")
-            replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "GLSLang", "CMakeLists.txt"),
-                            "find_library(GLSLANG_OSDependent OSDependent)", "")
-        if Version(self.version) >= "1.12.11":
-            # Make sure OpenMP is enabled/disabled correctly
-            replace_in_file(self, os.path.join(self.source_folder, "RenderSystems", "Tiny", "CMakeLists.txt"),
-                            "find_package(OpenMP QUIET)",
-                            "find_package(OpenMP REQUIRED)" if self.options.get_safe("with_openmp") else "set(OpenMP_CXX_FOUND FALSE)")
-        # Unvendor stb in Plugin_STBI
-        rmdir(self, os.path.join(self.source_folder, "PlugIns", "STBICodec", "src", "stbi"))
-        replace_in_file(self, os.path.join(self.source_folder, "PlugIns", "STBICodec", "src", "OgreSTBICodec.cpp"),
-                        '#include "stbi/', '#include "')
-        # Unvendor imgui in Overlay
-        # https://github.com/OGRECave/ogre/blob/v14.3.0/Components/Overlay/CMakeLists.txt#L21-L43
-        if self.options.get_safe("build_component_overlay_imgui"):
-            replace_in_file(self, os.path.join(self.source_folder, "Components", "Overlay", "CMakeLists.txt"),
-                            "if(OGRE_BUILD_COMPONENT_OVERLAY_IMGUI)", "if(0)")
-            replace_in_file(self, os.path.join(self.source_folder, "Components", "Overlay", "CMakeLists.txt"),
-                            "list(REMOVE_ITEM SOURCE_FILES", "# list(REMOVE_ITEM SOURCE_FILES")
-        # Use a target for EGL to supported relocated EGL from libglvnd
-        find_opengles2 = os.path.join(self.source_folder, "CMake", "Packages", "FindOpenGLES2.cmake")
-        replace_in_file(self, find_opengles2, "${EGL_egl_LIBRARY}", "OpenGL::EGL")
-        if Version(self.version) >= "13.2.2":
-            replace_in_file(self, find_opengles2, "${OPENGL_egl_LIBRARY}", "OpenGL::EGL")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()

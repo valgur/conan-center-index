@@ -1,0 +1,25 @@
+From 8a586573972a4c77534efe77c4ae596e2a0056c5 Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Mon, 17 Mar 2025 09:46:59 +0200
+Subject: [PATCH 3/6] drop custom assimp target
+
+---
+ CMake/Dependencies.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMake/Dependencies.cmake b/CMake/Dependencies.cmake
+index dd74419..a581f8c 100644
+--- a/CMake/Dependencies.cmake
++++ b/CMake/Dependencies.cmake
+@@ -310,7 +310,7 @@ macro_log_feature(assimp_FOUND "Assimp" "Needed for the AssimpLoader Plugin" "ht
+ find_package(Bullet QUIET)
+ macro_log_feature(BULLET_FOUND "Bullet" "Bullet physics" "https://pybullet.org")
+ 
+-if(assimp_FOUND)
++if(0)
+   # workaround horribly broken assimp cmake, fixed with assimp 5.1
+   add_library(fix::assimp INTERFACE IMPORTED)
+   set_target_properties(fix::assimp PROPERTIES
+-- 
+2.43.0
+
