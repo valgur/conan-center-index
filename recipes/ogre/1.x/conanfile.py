@@ -8,7 +8,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rmdir, save, replace_in_file
+from conan.tools.files import copy, get, rmdir, save, replace_in_file, export_conandata_patches, apply_conandata_patches
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 from conan.tools.scm import Version
@@ -201,6 +201,7 @@ class OgreConanFile(ConanFile):
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        export_conandata_patches(self)
 
     @property
     def _build_opengl(self):
@@ -328,6 +329,7 @@ class OgreConanFile(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _include_dir(self):
@@ -344,7 +346,12 @@ class OgreConanFile(ConanFile):
 
     @property
     def _config_dir(self):
-        return "res"
+        ver = Version(self.version)
+        return os.path.join("res", f"OGRE-{ver.major}.{ver.minor}")
+
+    @property
+    def _media_dir(self):
+        return os.path.join(self._config_dir, "Media")
 
     @staticmethod
     def _to_cmake_path(path):
@@ -522,8 +529,8 @@ class OgreConanFile(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake", "OGRE"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_file_rel_path))
         # Avoid hard-coded paths in config files
-        replace_in_file(self, os.path.join(self.package_folder, "res", "plugins.cfg"), self.package_folder, "..")
-        replace_in_file(self, os.path.join(self.package_folder, "res", "resources.cfg"), os.path.join(self.package_folder, "res"), ".")
+        replace_in_file(self, os.path.join(self.package_folder, self._config_dir, "plugins.cfg"), self.package_folder, os.path.join("..", ".."))
+        replace_in_file(self, os.path.join(self.package_folder, self._config_dir, "resources.cfg"), os.path.join(self.package_folder, self._config_dir), ".")
 
     @property
     def _module_file_rel_dir(self):
