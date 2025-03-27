@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-26:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-27:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -47,6 +47,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - faiss/1.8.0
 - fbgemm/1.1.0
 - fenster/0.0.0.cci.20240909
+- ffmpeg/7.1.1
 - filament/1.5.3
 - fortran/cci.latest
 - freeglut/3.6.0
@@ -158,10 +159,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mkfontscale/1.2.3
 - mrcal/2.4.1
 - nanobind/2.4.0
+- nanopb/0.4.9.1
 - netpbm/11.6.0
 - nss/3.107
 - numpy/1.26.4
-- ogre/1.12.10
 - ogre/14.3.4
 - openblas/0.3.28
 - opencv/4.5.4
