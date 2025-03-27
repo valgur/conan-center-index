@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
-from conan.tools.build import stdcpp_library
+from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
@@ -55,6 +55,9 @@ class ProjConan(ConanFile):
         if Version(self.version) >= "9.4.0":
             self.tool_requires("cmake/[>=3.16 <5]")
         self.tool_requires("sqlite3/<host_version>")
+
+    def validate(self):
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
