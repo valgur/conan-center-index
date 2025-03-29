@@ -5,12 +5,12 @@ import textwrap
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import (
-    apply_conandata_patches, collect_libs, copy, export_conandata_patches, load,
+    collect_libs, copy, load,
     get, rename, replace_in_file, rmdir, save
 )
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class FreetypeConan(ConanFile):
@@ -40,9 +40,6 @@ class FreetypeConan(ConanFile):
         "with_brotli": True,
         "subpixel": False,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -97,6 +94,8 @@ class FreetypeConan(ConanFile):
             tc.variables["FT_WITH_BROTLI"] = self.options.with_brotli
         # Generate a relocatable shared lib on Macos
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        if Version(self.version) < "2.13.3":  # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def _patch_sources(self):
@@ -231,3 +230,7 @@ class FreetypeConan(ConanFile):
         libtool_version = load(self, self._libtool_version_txt).strip()
         self.conf_info.define("user.freetype:libtool_version", libtool_version)
         self.cpp_info.set_property("system_package_version", libtool_version)
+
+        self.cpp_info.set_property("component_version", libtool_version)
+        freetype_config = os.path.join(self.package_folder, "bin", "freetype-config")
+        self._chmod_plus_x(freetype_config)

@@ -9,7 +9,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import copy, get, rmdir, apply_conandata_patches, export_conandata_patches, save
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class ArmadilloConan(ConanFile):
@@ -218,6 +218,8 @@ class ArmadilloConan(ConanFile):
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_SMOKE_TEST"] = False
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
+        if Version(self.version) < "14.0.0": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support{
         tc.generate()
 
         deps = CMakeDeps(self)

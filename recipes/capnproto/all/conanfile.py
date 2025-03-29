@@ -13,7 +13,7 @@ import glob
 import os
 import textwrap
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class CapnprotoConan(ConanFile):
@@ -111,6 +111,8 @@ class CapnprotoConan(ConanFile):
             tc.variables["EXTERNAL_CAPNP"] = False
             tc.variables["CAPNP_LITE"] = False
             tc.variables["WITH_OPENSSL"] = self.options.with_openssl
+            if Version(self.version) < "2": # pylint: disable=conan-condition-evals-to-constant
+                tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support (v2 branch does not need this)
             tc.generate()
             deps = CMakeDeps(self)
             deps.generate()

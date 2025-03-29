@@ -15,7 +15,7 @@ from conan.tools.files import (
 from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class EastlConan(ConanFile):
@@ -91,6 +91,8 @@ class EastlConan(ConanFile):
         tc.variables["EASTL_BUILD_BENCHMARK"] = False
         tc.variables["EASTL_BUILD_TESTS"] = False
         tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
+        if Version(self.version) < "3.21.23": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
         CMakeDeps(self).generate()
 

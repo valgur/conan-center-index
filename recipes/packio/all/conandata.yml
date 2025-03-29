@@ -1,45 +1,10 @@
 sources:
+  "2.6.0":
+    url: "https://github.com/qchateau/packio/archive/2.6.0.tar.gz"
+    sha256: "7cfbb51f2be0fbade2552ee32069d3a717ce6f5868d978a53532d0437679a375"
   "2.5.0":
-    url: "https://github.com/qchateau/packio/archive/refs/tags/2.5.0.tar.gz"
+    url: "https://github.com/qchateau/packio/archive/2.5.0.tar.gz"
     sha256: "5aa29313ac37be2fb66ff01af9413d9f9931cd4566f1400b00fac107552558ae"
   "2.4.1":
-    url: "https://github.com/qchateau/packio/archive/refs/tags/2.4.1.tar.gz"
+    url: "https://github.com/qchateau/packio/archive/2.4.1.tar.gz"
     sha256: "c115548146d6da432048265037b30f77ba6ad7a39350693c4fb36fd896bc7a4b"
-  "2.3.0":
-    url: "https://github.com/qchateau/packio/archive/refs/tags/2.3.0.tar.gz"
-    sha256: "4ef3bc76934855cc1a17eb00311bb42f5f14f616c75d4d1cc35151efcc988358"
-  "2.2.0":
-    url: "https://github.com/qchateau/packio/archive/refs/tags/2.2.0.tar.gz"
-    sha256: "ac9f33d5e8dd92bd3cdec106e10453424060bae9c4cd97281aa5d20fb20476f7"
-  "2.1.0":
-    url: "https://github.com/qchateau/packio/archive/refs/tags/2.1.0.tar.gz"
-    sha256: "d13be083cd5a133b02fdd1da0d89fb75988c16109ccdcd631d53f9ca2457ad42"
-patches:
-  "2.4.1":
-    - patch_file: "patches/0001-fix-boost-json-namespace.patch"
-      patch_description: "Replace BOOST_JSON_NS_BEGIN for Boost 1.82+ compatibility"
-      patch_type: "backport"
-      patch_source: "https://github.com/qchateau/packio/commit/6ed35ba444dc22a5bc4c3c84989f7b8357a28e5b"
-  "2.3.0":
-    - patch_file: "patches/0001-fix-boost-json-namespace.patch"
-      patch_description: "Replace BOOST_JSON_NS_BEGIN for Boost 1.82+ compatibility"
-      patch_type: "backport"
-      patch_source: "https://github.com/qchateau/packio/commit/6ed35ba444dc22a5bc4c3c84989f7b8357a28e5b"
-  "2.2.0":
-    - patch_file: "patches/0001-fix-boost-json-namespace.patch"
-      patch_description: "Replace BOOST_JSON_NS_BEGIN for Boost 1.82+ compatibility"
-      patch_type: "backport"
-      patch_source: "https://github.com/qchateau/packio/commit/6ed35ba444dc22a5bc4c3c84989f7b8357a28e5b"
-    - patch_file: "patches/0002-fix-boost-json-value-regression.patch"
-      patch_description: "Fix std::hash<boost::json::value>"
-      patch_type: "backport"
-      patch_source: "https://github.com/qchateau/packio/commit/d1e0b30378ccafc96da039cf5fc9ffa754e4c2fe"
-  "2.1.0":
-    - patch_file: "patches/0001-fix-boost-json-namespace.patch"
-      patch_description: "Fix std::hash<boost::json::value>"
-      patch_type: "backport"
-      patch_source: "https://github.com/qchateau/packio/commit/d1e0b30378ccafc96da039cf5fc9ffa754e4c2fe"
-    - patch_file: "patches/0002-fix-boost-json-value-regression.patch"
-      patch_description: "Fix std::hash<boost::json::value>"
-      patch_type: "backport"
-      patch_source: "https://github.com/qchateau/packio/commit/d1e0b30378ccafc96da039cf5fc9ffa754e4c2fe"

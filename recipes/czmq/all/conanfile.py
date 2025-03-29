@@ -1,14 +1,14 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class CzmqConan(ConanFile):
@@ -99,6 +99,9 @@ class CzmqConan(ConanFile):
             tc.preprocessor_definitions["_NOEXCEPT"] = "noexcept"
         # Relocatable shared libs on macOS
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        if Version(self.version) > "4.2.1": # pylint: disable=conan-unreachable-upper-version
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -128,6 +131,7 @@ class CzmqConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "czmq")
         self.cpp_info.set_property("cmake_target_name", self._czmq_target)
         self.cpp_info.set_property("pkg_config_name", "libczmq")
+
         prefix = "lib" if is_msvc(self) and not self.options.shared else ""
         self.cpp_info.libs = [f"{prefix}czmq"]
         if not self.options.shared:
