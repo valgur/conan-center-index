@@ -18,7 +18,8 @@ class NanopbConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     def package_id(self):
-        self.info.clear()
+        del self.settings.compiler
+        del self.settings.build_type
 
     def build_requirements(self):
         self.tool_requires("cpython/[*]", visible=True)
