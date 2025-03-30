@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-29:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-30:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -23,7 +23,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - blis/0.9.0
 - boost/1.71.0
 - boost/1.74.0
-- brotli/1.0.7
 - cargo-c/0.10.8
 - casadi/3.6.6
 - cilantro/cci.20230816
@@ -112,8 +111,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libgudev/238
 - libhdfs3/cci.20191105
 - libice/1.1.1
-- libnfs/5.0.1
-- libnfs/5.0.2
 - libosmium/2.20.0
 - libraw1394/2.1.2
 - librsvg/2.40.21
@@ -177,9 +174,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - or-tools/9.10
 - osgearth/3.7
 - osrm/5.27.1
-- packio/2.1.0
-- packio/2.2.0
-- packio/2.3.0
 - pangolin/0.9.3
 - pangomm/2.46.4
 - pangomm/2.54.0
