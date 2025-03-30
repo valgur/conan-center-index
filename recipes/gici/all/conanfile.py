@@ -3,12 +3,11 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm
-from conan.tools.scm import Version
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.0.9"
 
 
 class GiciConan(ConanFile):
@@ -31,32 +30,11 @@ class GiciConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        # For std::index_sequence in ceres
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "6",
-            "clang": "5",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -73,26 +51,12 @@ class GiciConan(ConanFile):
         # gici/imu/imu_error.h
         self.requires("ceres-solver/2.1.0", transitive_headers=True, transitive_libs=True)  # 2.2.0 is not compatible
 
-        # The vendored rtklib in the project is modified and cannot be unvendored
-        # TODO: add CCI recipes and unvendor
-        # libcvd
-        # rpg_vikit
-        # rpg_svo
-
     def validate(self):
-        if self.settings.arch not in ["x86", "x86_64"]:
-            # FAST detector uses x86 SIMD instructions
-            raise ConanInvalidConfiguration(f"{self.settings.arch} is not supported")
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
         if self.settings.os != "Linux":
             # stream/streamer.cpp includes linux/videodev2.h
             raise ConanInvalidConfiguration(f"{self.name} only supports Linux")
+        # code_bias.h fails with unordered_map constructor errors on C++17
+        check_min_cppstd(self, 20)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -101,10 +65,7 @@ class GiciConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -117,10 +78,9 @@ class GiciConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        # The project does not export any CMake config or a pkg-config files.
+        # The project does not export any CMake config or pkg-config files.
         self.cpp_info.libs = ["gici"]
         self.cpp_info.resdirs = ["res"]
 
