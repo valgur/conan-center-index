@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-03-30:
+Package versions that are available here but not yet on the main CCI repo as of 2025-03-31:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -54,7 +54,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gdal/3.10.0
 - gdalcpp/1.3.0
 - gfortran/13.2.0
-- gici/cci.20240421
+- gici/cci.20250127
 - gl2ps/1.4.2
 - glib/2.81.2
 - glib/2.82.4
@@ -165,6 +165,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/14.3.4
 - openblas/0.3.28
 - opencv/4.5.4
+- openexr/3.3.3
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
