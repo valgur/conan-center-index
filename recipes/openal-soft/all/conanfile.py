@@ -8,7 +8,7 @@ from conan.tools.scm import Version
 import os
 import textwrap
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class OpenALSoftConan(ConanFile):
@@ -65,6 +65,8 @@ class OpenALSoftConan(ConanFile):
         tc.variables["ALSOFT_EXAMPLES"] = False
         tc.variables["ALSOFT_TESTS"] = False
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SoundIO"] = True
+        if Version(self.version) < "1.24.0": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):

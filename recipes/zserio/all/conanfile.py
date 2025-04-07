@@ -7,13 +7,13 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 class ZserioConanFile(ConanFile):
     name = "zserio"
     description = "Zserio C++ Runtime Library"
     license = "BSD-3-Clause"
-    url = "https://github.com/conan-io/conan-center-index/"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://zserio.org"
     topics = ("zserio", "cpp", "c++", "serialization")
     package_type = "static-library"
@@ -75,6 +75,8 @@ class ZserioConanFile(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if Version(self.version) < "2.14.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):

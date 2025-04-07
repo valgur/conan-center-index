@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, rmdir, replace_in_file
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 class SeasocksConan(ConanFile):
     name = "seasocks"
@@ -16,6 +16,7 @@ class SeasocksConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mattgodbolt/seasocks"
     topics = ("embeddable", "webserver", "websockets")
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -68,6 +69,8 @@ class SeasocksConan(ConanFile):
         tc.variables["SEASOCKS_SHARED"] = self.options.shared
         tc.variables["SEASOCKS_EXAMPLE_APP"] = False
         tc.variables["UNITTESTS"] = False
+        if Version(self.version) < "1.4.6":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)

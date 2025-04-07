@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import (
@@ -9,12 +9,12 @@ from conan.tools.files import (
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibmediainfoConan(ConanFile):
     name = "libmediainfo"
-    license = ("BSD-2-Clause", "Apache-2.0", "GLPL-2.1+", "GPL-2.0-or-later", "MPL-2.0")
+    license = ("BSD-2-Clause", "Apache-2.0", "LGPL-2.1+", "GPL-2.0-or-later", "MPL-2.0")
     homepage = "https://mediaarea.net/en/MediaInfo"
     url = "https://github.com/conan-io/conan-center-index"
     description = (
@@ -68,6 +68,9 @@ class LibmediainfoConan(ConanFile):
         if Version(self.version) < "22.03":
             # Generate a relocatable shared lib on Macos
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        if Version(self.version) > "22.03": # pylint: disable=conan-unreachable-upper-version
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

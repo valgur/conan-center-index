@@ -7,7 +7,7 @@ from conan.tools.scm import Version
 from conan.tools.build import check_min_cppstd
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class OctomapConan(ConanFile):
     name = "octomap"
@@ -70,8 +70,8 @@ class OctomapConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         if is_msvc(self) and self.options.shared:
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        if Version(self.version) >= "1.10.0":
-            tc.variables["CMAKE_CXX_STANDARD"] = str(self.settings.compiler.cppstd).replace("gnu", "")
+        if Version(self.version) < "1.10.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

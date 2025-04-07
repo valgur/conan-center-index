@@ -7,7 +7,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class PodofoConan(ConanFile):
@@ -16,8 +16,8 @@ class PodofoConan(ConanFile):
     homepage = "http://podofo.sourceforge.net"
     url = "https://github.com/conan-io/conan-center-index"
     description = "PoDoFo is a library to work with the PDF file format."
-    topics = ("pdf")
-
+    topics = ("pdf",)
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -97,8 +97,6 @@ class PodofoConan(ConanFile):
         tc.variables["PODOFO_BUILD_STATIC"] = not self.options.shared
         if not self.options.threadsafe:
             tc.variables["PODOFO_NO_MULTITHREAD"] = True
-        if Version(self.version) >= "0.9.7" and not valid_min_cppstd(self, 11):
-            tc.cache_variables["CMAKE_CXX_STANDARD"] = 11
 
         # To install relocatable shared lib on Macos
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
@@ -113,6 +111,8 @@ class PodofoConan(ConanFile):
         tc.variables["PODOFO_HAVE_OPENSSL_1_1"] = Version(self.dependencies["openssl"].ref.version) >= "1.1"
         if self.options.with_openssl and ("no_rc4" in self.dependencies["openssl"].options):
             tc.variables["PODOFO_HAVE_OPENSSL_NO_RC4"] = self.dependencies["openssl"].options.no_rc4
+        if Version(self.version) < "0.10.0": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)

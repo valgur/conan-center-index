@@ -5,7 +5,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class Iir1Conan(ConanFile):
@@ -33,10 +33,6 @@ class Iir1Conan(ConanFile):
         "noexceptions": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        return "11"
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -54,7 +50,7 @@ class Iir1Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -64,6 +60,8 @@ class Iir1Conan(ConanFile):
         tc = CMakeToolchain(self)
         if self.options.get_safe("noexceptions"):
             tc.preprocessor_definitions["IIR1_NO_EXCEPTIONS"] = "1"
+        if Version(self.version) < "1.9.4":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def _patch_sources(self):

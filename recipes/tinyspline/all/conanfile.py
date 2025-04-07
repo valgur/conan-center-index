@@ -6,7 +6,7 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class TinysplineConan(ConanFile):
     name = "tinyspline"
@@ -16,7 +16,7 @@ class TinysplineConan(ConanFile):
     topics = ("tinyspline ", "nurbs", "b-splines", "bezier")
     homepage = "https://github.com/msteinbeck/tinyspline"
     url = "https://github.com/conan-io/conan-center-index"
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -76,6 +76,7 @@ class TinysplineConan(ConanFile):
             tc.variables["TINYSPLINE_DISABLE_PYTHON"] = True
             tc.variables["TINYSPLINE_DISABLE_R"] = True
             tc.variables["TINYSPLINE_DISABLE_RUBY"] = True
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         else:
             tc.variables["TINYSPLINE_WARNINGS_AS_ERRORS"] = False
             tc.variables["TINYSPLINE_ENABLE_CXX"] = self.options.cxx

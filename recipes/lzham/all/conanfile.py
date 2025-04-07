@@ -15,7 +15,7 @@ from conan.tools.microsoft import (
     MSBuild, MSBuildDeps, MSBuildToolchain, is_msvc, vs_layout
 )
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 SLN_FILE = "lzham.sln"
 
@@ -105,6 +105,7 @@ class PackageConan(ConanFile):
 
             # Build relocatable shared libraries on Apple OSs
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
             tc.generate()
 
     def build(self):

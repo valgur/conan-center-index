@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, rm
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class KcovConan(ConanFile):
@@ -64,9 +64,8 @@ class KcovConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_PROJECT_kcov_INCLUDE"] = "conan_deps.cmake"
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            tc.variables["DL_LIBRARY"] = "dl"
-            tc.variables["M_LIBRARY"] = "m"
+        if Version(self.version) < "43": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         # Match Find*.cmake module names used by the project

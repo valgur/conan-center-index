@@ -2,9 +2,10 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, apply_conandata_patches, copy, export_conandata_patches, get, rmdir
+from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class CppUTestConan(ConanFile):
@@ -56,6 +57,8 @@ class CppUTestConan(ConanFile):
         tc.variables["LONGLONG"] = True
         tc.variables["COVERAGE"] = False
         tc.variables["TESTS"] = False
+        if Version(self.version) <= "4.0": # Master branch already support CMake 4 (not yet released)
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):

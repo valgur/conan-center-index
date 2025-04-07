@@ -1,10 +1,12 @@
 from conan import ConanFile
+from conan.errors import ConanException
 from conan.tools.files import get, copy, rm, rmdir
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.scm import Version
 import os
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class NanomsgConan(ConanFile):
     name = "nanomsg"
@@ -54,6 +56,9 @@ class NanomsgConan(ConanFile):
         tc.variables["NN_ENABLE_DOC"] = False
         tc.variables["NN_TESTS"] = False
         tc.variables["NN_TOOLS"] = self.options.enable_tools
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        if Version(self.version) > "1.2.1": # pylint: disable=conan-unreachable-upper-version
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

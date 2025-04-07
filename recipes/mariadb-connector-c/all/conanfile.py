@@ -5,7 +5,7 @@ from conan.tools.files import apply_conandata_patches, collect_libs, copy, expor
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class MariadbConnectorcConan(ConanFile):
@@ -98,6 +98,8 @@ class MariadbConnectorcConan(ConanFile):
         tc.variables["ZLIB_LIBRARY"] = "ZLIB::ZLIB"
         # To install relocatable shared libs on Macos
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        if Version(self.version) < "3.4.4": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         if Version(self.version) >= "3.3":

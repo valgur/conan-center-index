@@ -1,12 +1,15 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
 from conan.tools.microsoft import is_msvc
-import os
+from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class SystemcConan(ConanFile):
@@ -61,10 +64,15 @@ class SystemcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        if is_apple_os(self):
+        if is_apple_os(self) and Version(self.version) < "3.0.1":
             raise ConanInvalidConfiguration("Macos build not supported")
 
-        if self.settings.os == "Windows" and self.options.shared:
+        if Version(self.version) >= "3.0.0":
+            # INFO: Starting from SystemC 3.0.0, C++17 is required
+            # https://github.com/accellera-official/systemc/blob/3.0.0/src/CMakeLists.txt#L65
+            check_min_cppstd(self, "17")
+
+        if self.settings.os == "Windows" and self.options.shared and Version(self.version) < 3:
             raise ConanInvalidConfiguration(
                 "Building SystemC as a shared library on Windows is currently not supported"
             )
@@ -83,6 +91,8 @@ class SystemcConan(ConanFile):
         tc.variables["ENABLE_PTHREADS"] = self.options.get_safe("enable_pthreads", False)
         tc.variables["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe("enable_phase_callbacks", False)
         tc.variables["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe("enable_phase_callbacks_tracing", False)
+        if Version(self.version) < "3.0.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):

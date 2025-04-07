@@ -6,7 +6,7 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class UncrustifyConan(ConanFile):
@@ -36,6 +36,8 @@ class UncrustifyConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["NoGitVersionString"] = True
         tc.variables["BUILD_TESTING"] = False
+        if Version(self.version) < "0.78.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def _patch_sources(self):

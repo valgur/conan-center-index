@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir, save
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rm, rmdir
 from conan.tools.build import stdcpp_library, check_min_cppstd
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -72,8 +72,7 @@ class LASlibConan(ConanFile):
             )
 
     def build(self):
-        save(self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(LASlib/src)")
-        save(self, os.path.join(self.source_folder, "LASlib", "example", "CMakeLists.txt"), "")
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

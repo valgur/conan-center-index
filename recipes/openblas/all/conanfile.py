@@ -8,7 +8,7 @@ from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 # Maps Conan's settings.arch to the corresponding OpenBLAS TARGET:
 conan_arch_to_openblas_target = {
@@ -221,6 +221,8 @@ class OpenblasConan(ConanFile):
             tc.cache_variables["TARGET"] = self.options.target
 
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+        if Version(self.version) < "0.3.29": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)

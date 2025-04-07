@@ -5,7 +5,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class SnappyConan(ConanFile):
@@ -72,6 +72,8 @@ class SnappyConan(ConanFile):
                 tc.variables["SNAPPY_HAVE_BMI2"] = self.options.with_bmi2
             if self.options.with_ssse3 != "auto":
                 tc.variables["SNAPPY_HAVE_SSSE3"] = self.options.with_ssse3
+        if Version(self.version) < "1.2.2": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):
