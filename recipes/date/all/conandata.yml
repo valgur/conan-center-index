@@ -15,11 +15,21 @@ sources:
     url: "https://github.com/HowardHinnant/date/archive/refs/tags/v2.4.1.tar.gz"
     sha256: "98907d243397483bd7ad889bf6c66746db0d7d2a39cc9aacc041834c40b65b98"
 patches:
+  "3.0.3":
+    - patch_file: "patches/load-tzdb-from-envvar-3.0.2.patch"
+      patch_description: "Allow TZDB to be loaded from the TZDATA environment variable"
+      patch_type: "portability"
+      patch_source: "https://github.com/HowardHinnant/date/pull/807"
+  "3.0.2":
+    - patch_file: "patches/load-tzdb-from-envvar-3.0.2.patch"
+      patch_description: "Allow TZDB to be loaded from the TZDATA environment variable"
+      patch_type: "portability"
+      patch_source: "https://github.com/HowardHinnant/date/pull/807"
   "3.0.1":
     - patch_file: "patches/cmake-3.0.1.patch"
       patch_description: "Disable string view to workaround clang 5 not having it"
       patch_type: "portability"
-    - patch_file: "patches/load-tzdb-from-envvar-3.0.x.patch"
+    - patch_file: "patches/load-tzdb-from-envvar-3.0.1.patch"
       patch_description: "Allow TZDB to be loaded from the TZDATA environment variable"
       patch_type: "portability"
       patch_source: "https://github.com/HowardHinnant/date/pull/807"
