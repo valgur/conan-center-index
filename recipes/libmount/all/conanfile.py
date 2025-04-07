@@ -25,10 +25,12 @@ class LibmountConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "year2038": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "year2038": True,
     }
 
     def configure(self):
@@ -54,6 +56,8 @@ class LibmountConan(ConanFile):
             "--enable-libmount",
             "--enable-libblkid",
         ])
+        if not self.options.year2038:
+            tc.configure_args.append("--disable-year2038")
         tc.generate()
 
     def build(self):
