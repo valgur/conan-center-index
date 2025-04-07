@@ -33,9 +33,7 @@ class TzConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
-        del self.info.settings.compiler
-        if not self.info.options.with_binary_db:
-            self.info.clear()
+        self.info.clear()
 
     def build_requirements(self):
         if self.options.with_binary_db:
