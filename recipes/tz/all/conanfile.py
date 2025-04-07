@@ -22,7 +22,7 @@ class TzConan(ConanFile):
         "with_binary_db": [True, False],
     }
     default_options = {
-        "with_binary_db": False,
+        "with_binary_db": True,
     }
 
     def configure(self):
@@ -50,14 +50,15 @@ class TzConan(ConanFile):
         download(self, **self.conan_data["sources"][self.version]["windows_zones"], filename="windowsZones.xml")
 
     def generate(self):
-        tc = AutotoolsToolchain(self)
-        build_cc = unix_path(self, tc.vars().get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc"))
-        awk_path = unix_path(self, os.path.join(self.dependencies.direct_build["mawk"].package_folder, "bin", "mawk"))
-        tc.make_args.extend([
-            f"cc={build_cc}",
-            f"AWK={awk_path}",
-        ])
-        tc.generate()
+        if self.options.with_binary_db:
+            tc = AutotoolsToolchain(self)
+            build_cc = unix_path(self, tc.vars().get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc"))
+            awk_path = unix_path(self, os.path.join(self.dependencies.direct_build["mawk"].package_folder, "bin", "mawk"))
+            tc.make_args.extend([
+                f"cc={build_cc}",
+                f"AWK={awk_path}",
+            ])
+            tc.generate()
 
     def build(self):
         if self.options.with_binary_db:
