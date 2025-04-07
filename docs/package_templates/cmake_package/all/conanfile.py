@@ -7,7 +7,7 @@ from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 import os
 
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 #
 # INFO: Please, remove all comments before pushing your PR!

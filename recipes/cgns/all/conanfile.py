@@ -5,7 +5,7 @@ from conan.tools.files import apply_conandata_patches, export_conandata_patches,
 import os
 
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 class CgnsConan(ConanFile):
     name = "cgns"

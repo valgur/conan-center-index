@@ -8,7 +8,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class OpenFstConan(ConanFile):

@@ -7,7 +7,7 @@ from conan.tools.scm import Version
 import os
 import textwrap
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class JasperConan(ConanFile):

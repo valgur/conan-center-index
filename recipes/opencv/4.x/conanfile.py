@@ -12,7 +12,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import msvc_runtime_flag
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.5"
+required_conan_version = ">=2.1"
 
 
 OPENCV_MAIN_MODULES_OPTIONS = (

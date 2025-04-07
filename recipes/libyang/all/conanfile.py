@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import get, rmdir, copy
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibYangConan(ConanFile):

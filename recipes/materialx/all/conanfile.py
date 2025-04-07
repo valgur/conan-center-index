@@ -7,7 +7,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class MaterialXConan(ConanFile):
     name = "materialx"

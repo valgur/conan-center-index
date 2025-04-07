@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, load, save
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class EazylzmaConan(ConanFile):

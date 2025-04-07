@@ -9,7 +9,7 @@ from conan.tools.files import copy, get, rm, rmdir, replace_in_file
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=2.1"
 
 
 class LibphonenumberConan(ConanFile):

@@ -8,7 +8,7 @@ from conan.tools.scm import Version
 from os.path import join
 import textwrap
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class TensorflowLiteConan(ConanFile):

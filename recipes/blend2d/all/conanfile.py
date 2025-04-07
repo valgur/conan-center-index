@@ -6,7 +6,7 @@ from conan.tools.scm import Version
 from conan.tools.microsoft import check_min_vs
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class Blend2dConan(ConanFile):

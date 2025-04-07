@@ -16,7 +16,7 @@ import os
 import textwrap
 import shutil
 
-required_conan_version = ">=1.60.0 <2 || >=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class QtConan(ConanFile):

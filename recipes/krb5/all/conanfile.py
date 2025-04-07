@@ -8,7 +8,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 class Krb5Conan(ConanFile):
     name = "krb5"

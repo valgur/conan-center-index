@@ -10,7 +10,7 @@ from conan.tools.files import get, rm, rmdir, patch, mkdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=2.1"
 
 
 class PackageConan(ConanFile):

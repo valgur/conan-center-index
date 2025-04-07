@@ -9,7 +9,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import rm, get, rmdir, collect_libs, export_conandata_patches, copy, apply_conandata_patches, save, replace_in_file
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class DiligentCoreConan(ConanFile):

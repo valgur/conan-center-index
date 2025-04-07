@@ -3,7 +3,7 @@ from conan.tools.files import copy, download, get
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 class JomInstallerConan(ConanFile):
     name = "jom"

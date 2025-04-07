@@ -6,7 +6,7 @@ from conan.tools.files import apply_conandata_patches, export_conandata_patches,
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class PSevenZipConan(ConanFile):

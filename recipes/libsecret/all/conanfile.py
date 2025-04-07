@@ -9,7 +9,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=2.0.6"
+required_conan_version = ">=2.1"
 
 
 class LibsecretConan(ConanFile):

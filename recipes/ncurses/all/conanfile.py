@@ -12,7 +12,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class NCursesConan(ConanFile):

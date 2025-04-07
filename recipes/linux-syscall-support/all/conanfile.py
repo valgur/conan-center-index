@@ -4,7 +4,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, save
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 
 class LinuxSyscallSupportConan(ConanFile):

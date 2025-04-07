@@ -9,7 +9,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, check_min_vs, unix_path
 
-required_conan_version = ">=1.58.0"
+required_conan_version = ">=2.1"
 
 
 class IslConan(ConanFile):

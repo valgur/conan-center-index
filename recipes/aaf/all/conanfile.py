@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class AafConan(ConanFile):

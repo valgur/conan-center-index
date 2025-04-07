@@ -12,7 +12,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class GlibmmConan(ConanFile):

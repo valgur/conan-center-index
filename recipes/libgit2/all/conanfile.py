@@ -8,7 +8,7 @@ from conan.tools.apple import is_apple_os
 import os
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibGit2Conan(ConanFile):

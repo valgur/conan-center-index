@@ -7,7 +7,7 @@ import os
 
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class UnleashConan(ConanFile):
     name = "unleash-client-cpp"

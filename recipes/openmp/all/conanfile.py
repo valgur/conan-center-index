@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class PackageConan(ConanFile):

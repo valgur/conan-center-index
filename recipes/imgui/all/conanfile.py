@@ -10,7 +10,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, replace_in_file
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class ImguiConan(ConanFile):

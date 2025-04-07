@@ -4,7 +4,7 @@ from conan.tools.files import get, copy, apply_conandata_patches, export_conanda
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 class JwtCppConan(ConanFile):
     name = "jwt-cpp"

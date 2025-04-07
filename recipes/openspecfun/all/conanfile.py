@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class OpenSpecfunConan(ConanFile):

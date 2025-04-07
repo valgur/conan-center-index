@@ -9,7 +9,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import save, copy, get, rmdir, apply_conandata_patches, export_conandata_patches
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class LlamaCppConan(ConanFile):

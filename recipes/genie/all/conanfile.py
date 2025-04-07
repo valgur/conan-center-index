@@ -8,7 +8,7 @@ from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import VCVars, is_msvc
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=2.1"
 
 class GenieConan(ConanFile):
     name = "genie"

@@ -10,7 +10,7 @@ from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeDe
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class LibxsltConan(ConanFile):

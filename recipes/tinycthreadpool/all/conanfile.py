@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.files import get, copy
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class TinyCThreadPoolConan(ConanFile):

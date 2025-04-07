@@ -4,7 +4,7 @@ from conan.tools.files import apply_conandata_patches, get, export_conandata_pat
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class TinyObjLoaderConan(ConanFile):

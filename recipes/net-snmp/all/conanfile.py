@@ -11,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, NMakeToolchain
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class NetSnmpConan(ConanFile):

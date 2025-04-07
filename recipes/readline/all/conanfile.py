@@ -9,7 +9,7 @@ from conan.tools.env import VirtualRunEnv
 from conan.tools.gnu import AutotoolsToolchain, AutotoolsDeps, Autotools
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class ReadLineConan(ConanFile):

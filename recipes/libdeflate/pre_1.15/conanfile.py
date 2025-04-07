@@ -6,7 +6,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, NMakeToolchain
 import os
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class LibdeflateConan(ConanFile):

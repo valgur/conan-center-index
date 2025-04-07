@@ -11,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.6"
+required_conan_version = ">=2.1"
 
 
 class NSSConan(ConanFile):

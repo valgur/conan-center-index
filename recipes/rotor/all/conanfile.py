@@ -5,7 +5,7 @@ from conan.tools.scm import Version
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, rmdir, copy
 from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 class RotorConan(ConanFile):
     name = "rotor"

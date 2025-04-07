@@ -8,7 +8,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 
 class XorgCfFilesConan(ConanFile):

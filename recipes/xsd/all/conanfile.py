@@ -7,7 +7,7 @@ from conan.tools.files import apply_conandata_patches, chdir, copy, export_conan
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class ConanXqilla(ConanFile):

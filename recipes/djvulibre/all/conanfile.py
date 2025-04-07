@@ -10,7 +10,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, check_min_vs
 import os
 
-required_conan_version = ">=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class DjVuLibreConan(ConanFile):

@@ -4,7 +4,7 @@ from conan.tools.files import get, copy
 import os
 
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 class STTreeConan(ConanFile):
     name = "st_tree"

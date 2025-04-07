@@ -11,7 +11,7 @@ from conan.tools.gnu import PkgConfigDeps
 
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class PistacheConan(ConanFile):
     name = "pistache"

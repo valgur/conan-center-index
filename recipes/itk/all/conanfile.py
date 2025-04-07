@@ -10,7 +10,7 @@ from conan.errors import ConanInvalidConfiguration
 import glob
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class ITKConan(ConanFile):
@@ -490,13 +490,13 @@ class ITKConan(ConanFile):
             },
             "ITKVideoCore": {"requires": ["ITKCommon"]},
         }
-        
+
         if self.options.with_opencv:
             components.update({
                 "ITKVideoIO": {"requires": ["ITKVideoCore", "ITKIOImageBase"]},
                 "ITKVideoBridgeOpenCV": {"requires": ["ITKVideoIO", "opencv::opencv_core"]},
             })
-        
+
         return components
 
     def _create_cmake_module_variables(self):

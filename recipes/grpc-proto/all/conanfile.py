@@ -9,7 +9,7 @@ from conan.tools.files import get, collect_libs, copy
 
 from helpers import parse_proto_libraries
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class GRPCProto(ConanFile):

@@ -10,7 +10,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, MSBuild, MSBuildToolchain
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class Argon2Conan(ConanFile):

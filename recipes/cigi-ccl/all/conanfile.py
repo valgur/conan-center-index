@@ -6,7 +6,7 @@ from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.apple import is_apple_os
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class CigiClConan(ConanFile):
     name = "cigi-ccl"

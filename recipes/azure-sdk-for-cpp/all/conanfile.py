@@ -6,7 +6,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
 from conan.tools.files import get, copy, rmdir
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class AzureSDKForCppConan(ConanFile):

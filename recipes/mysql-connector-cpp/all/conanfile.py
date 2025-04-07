@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import get, copy, rm, export_conandata_patches, apply_conandata_patches, replace_in_file
 from conan.tools.microsoft import is_msvc_static_runtime
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 class MysqlConnectorCppConan(ConanFile):
     name = "mysql-connector-cpp"

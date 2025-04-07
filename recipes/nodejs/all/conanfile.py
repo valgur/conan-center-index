@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get
 
-required_conan_version = ">=1.59.0"
+required_conan_version = ">=2.1"
 
 
 class NodejsConan(ConanFile):

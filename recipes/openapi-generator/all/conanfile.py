@@ -4,7 +4,7 @@ import os
 import stat
 
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class OpenApiGeneratorConan(ConanFile):

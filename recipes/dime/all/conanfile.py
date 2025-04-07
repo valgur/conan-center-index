@@ -7,7 +7,7 @@ from conan.tools.files import copy, get, replace_in_file, rm, rmdir
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class DimeConan(ConanFile):

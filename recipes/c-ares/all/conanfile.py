@@ -5,7 +5,7 @@ from conan.tools.files import collect_libs, copy, get, rm, rmdir, apply_conandat
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class CAresConan(ConanFile):

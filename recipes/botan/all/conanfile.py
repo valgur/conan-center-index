@@ -15,7 +15,7 @@ from conan.tools.microsoft import unix_path
 from conan.tools.scm import Version
 
 
-required_conan_version = ">=1.55"
+required_conan_version = ">=2.1"
 
 
 class BotanConan(ConanFile):

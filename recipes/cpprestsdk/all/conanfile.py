@@ -72,7 +72,7 @@ class CppRestSDKConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         # upstream CMakeLists.txt sets BUILD_SHARED_LIBS as a CACHE variable
-        # TODO: remove if required_conan_version = ">=1.54.0"
+        # TODO: remove if required_conan_version = ">=2.1"
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_SAMPLES"] = False

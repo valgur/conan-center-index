@@ -5,7 +5,7 @@ from conan.tools.files import copy, get, rmdir, apply_conandata_patches, export_
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class SVTAV1Conan(ConanFile):

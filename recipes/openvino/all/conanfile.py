@@ -8,7 +8,7 @@ import functools
 import os
 import yaml
 
-required_conan_version = ">=1.60.0 <2.0 || >=2.0.8"
+required_conan_version = ">=2.1"
 
 
 class OpenvinoConan(ConanFile):

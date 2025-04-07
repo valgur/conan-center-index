@@ -6,7 +6,7 @@ from conan.tools.scm import Version
 from conan.tools.build import check_min_cppstd
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class GlogConan(ConanFile):

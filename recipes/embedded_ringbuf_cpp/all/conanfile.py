@@ -5,7 +5,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 class EmbeddedRingbufcppConan(ConanFile):
     name = "embedded_ringbuf_cpp"
@@ -14,7 +14,7 @@ class EmbeddedRingbufcppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/wizard97/Embedded_RingBuf_CPP/"
     topics = ("ring buffer", "circular buffer", "queue", "data-structures", "header-only")
-    
+
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True

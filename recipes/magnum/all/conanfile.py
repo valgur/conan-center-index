@@ -5,7 +5,7 @@ import os
 import re
 import textwrap
 
-required_conan_version = ">=1.43.0"
+required_conan_version = ">=2.1"
 
 
 class MagnumConan(ConanFile):

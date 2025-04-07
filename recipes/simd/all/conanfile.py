@@ -8,7 +8,7 @@ from conan.tools.files import get, copy, rmdir, replace_in_file, collect_libs
 from conan.tools.microsoft import is_msvc, MSBuild, MSBuildToolchain, is_msvc_static_runtime, msvs_toolset
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.59.0"
+required_conan_version = ">=2.1"
 
 
 class SimdConan(ConanFile):

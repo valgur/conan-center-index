@@ -7,7 +7,7 @@ from conan.tools.scm import Version
 from conan.tools.build import cross_building
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibsndioConan(ConanFile):

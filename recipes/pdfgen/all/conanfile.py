@@ -3,7 +3,7 @@ from conan.tools.files import get, copy
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class PdfgenConan(ConanFile):
     name = "pdfgen"

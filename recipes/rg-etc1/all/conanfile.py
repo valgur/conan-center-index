@@ -5,7 +5,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, save
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class RgEtc1Conan(ConanFile):

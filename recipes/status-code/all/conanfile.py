@@ -5,7 +5,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, copy
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=2.1"
 
 class StatusCodeConan(ConanFile):
     name = "status-code"

@@ -6,7 +6,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.files import get, rmdir, rm, collect_libs, patches, export_conandata_patches
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 class DiligentToolsConan(ConanFile):
     name = "diligent-tools"

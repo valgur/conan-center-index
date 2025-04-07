@@ -14,7 +14,7 @@ from conan.tools.gnu import AutotoolsDeps, AutotoolsToolchain
 import os
 import textwrap
 
-required_conan_version = ">=1.64.0"
+required_conan_version = ">=2.1"
 
 
 class CrashpadConan(ConanFile):

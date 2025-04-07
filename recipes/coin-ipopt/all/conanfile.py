@@ -9,7 +9,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 
 class CoinClpConan(ConanFile):

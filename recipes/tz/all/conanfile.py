@@ -7,7 +7,7 @@ from conan.tools.files import get, copy, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class TzConan(ConanFile):
     name = "tz"

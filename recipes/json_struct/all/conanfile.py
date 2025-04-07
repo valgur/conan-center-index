@@ -4,7 +4,7 @@ from conan.tools.files import get, copy
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 class JsonStructConan(ConanFile):
     name = "json_struct"
@@ -24,10 +24,10 @@ class JsonStructConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
-    
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-    
+
     def package_id(self):
         self.info.clear()
 

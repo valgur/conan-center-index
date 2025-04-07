@@ -3,7 +3,7 @@ from conan.tools.build import can_run
 from conan.tools.cmake import CMake, cmake_layout
 import os
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=2.1"
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"

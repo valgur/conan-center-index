@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import get, copy
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class RuntimeQml(ConanFile):

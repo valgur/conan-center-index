@@ -6,7 +6,7 @@ from conan.tools.files import copy, get, rm, rmdir, export_conandata_patches, ap
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class PackageConan(ConanFile):
     name = "velodyne_decoder"

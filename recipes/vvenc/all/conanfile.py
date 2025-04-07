@@ -10,7 +10,7 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import get, copy, rmdir, rm
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.60.1"
+required_conan_version = ">=2.1"
 
 
 class vvencRecipe(ConanFile):

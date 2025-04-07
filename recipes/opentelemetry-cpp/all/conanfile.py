@@ -9,7 +9,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 import textwrap
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=2.1"
 
 class OpenTelemetryCppConan(ConanFile):
     name = "opentelemetry-cpp"

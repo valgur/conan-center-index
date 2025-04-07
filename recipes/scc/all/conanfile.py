@@ -10,7 +10,7 @@ from conan.tools.files import copy, get, export_conandata_patches, apply_conanda
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class SystemcComponentsConan(ConanFile):

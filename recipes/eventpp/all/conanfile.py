@@ -4,7 +4,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.51.1"
+required_conan_version = ">=2.1"
 
 class EventppConan(ConanFile):
     name = "eventpp"

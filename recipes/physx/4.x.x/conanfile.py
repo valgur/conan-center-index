@@ -6,7 +6,7 @@ from conan.tools.build import valid_min_cppstd
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class PhysXConan(ConanFile):
     name = "physx"

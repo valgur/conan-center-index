@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.tools.files import copy, get, save
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class WafConan(ConanFile):

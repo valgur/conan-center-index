@@ -4,7 +4,7 @@ from conan.tools.files import get, copy, rmdir
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.build import check_min_cppstd
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 class NodeEditorConan(ConanFile):
     name = "nodeeditor"

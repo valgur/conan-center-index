@@ -5,7 +5,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.files import copy, export_conandata_patches, get
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class FensterConan(ConanFile):

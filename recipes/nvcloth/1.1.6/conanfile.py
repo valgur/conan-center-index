@@ -10,7 +10,7 @@ from conan.tools.env import Environment
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class NvclothConan(ConanFile):

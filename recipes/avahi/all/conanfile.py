@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgCon
 from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class AvahiConan(ConanFile):

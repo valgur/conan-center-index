@@ -4,7 +4,7 @@ from conan.tools.files import copy, get, rmdir, rm
 from conan.tools.microsoft import check_min_vs
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class DoubleConversionConan(ConanFile):

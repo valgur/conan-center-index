@@ -5,7 +5,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import check_min_vs, is_msvc
 import os
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class BlissConan(ConanFile):

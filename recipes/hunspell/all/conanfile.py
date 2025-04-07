@@ -5,7 +5,7 @@ from conan.tools.files import copy, get, export_conandata_patches, apply_conanda
 import os
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class HunspellConan(ConanFile):

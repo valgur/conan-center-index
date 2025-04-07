@@ -8,7 +8,7 @@ from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, MSBuildDeps
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class GoogleGuetzliConan(ConanFile):

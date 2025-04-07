@@ -8,7 +8,7 @@ from conan.tools.apple import is_apple_os
 from conan.errors import ConanInvalidConfiguration
 
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class WatcherConan(ConanFile):

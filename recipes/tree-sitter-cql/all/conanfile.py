@@ -4,7 +4,7 @@ from conan.tools.files import get, copy
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class TreeSitterCQLConan(ConanFile):

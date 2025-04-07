@@ -10,7 +10,7 @@ from conan.tools.microsoft import is_msvc, unix_path, MSBuild, MSBuildToolchain
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 
 class PcapplusplusConan(ConanFile):

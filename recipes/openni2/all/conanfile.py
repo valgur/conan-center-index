@@ -11,7 +11,7 @@ from conan.tools.files import apply_conandata_patches, chdir, copy, export_conan
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class Openni2Conan(ConanFile):

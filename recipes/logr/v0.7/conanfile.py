@@ -7,7 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.microsoft import check_min_vs
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 
 class LogrConan(ConanFile):

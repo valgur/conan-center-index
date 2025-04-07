@@ -7,7 +7,7 @@ from conan.tools.scm import Version
 import os
 import platform
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 
 class MetallConan(ConanFile):

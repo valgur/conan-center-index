@@ -9,7 +9,7 @@ from conan.tools.env import Environment
 
 import os
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class SDLConan(ConanFile):

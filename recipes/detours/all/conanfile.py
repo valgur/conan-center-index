@@ -8,7 +8,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import chdir, copy, get, replace_in_file
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, VCVars
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class DetoursConan(ConanFile):

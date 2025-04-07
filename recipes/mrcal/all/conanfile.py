@@ -9,7 +9,7 @@ from conan.tools.files import copy, get, chdir, replace_in_file
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class MrcalConan(ConanFile):

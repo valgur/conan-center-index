@@ -7,7 +7,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 
 class XsimdConan(ConanFile):

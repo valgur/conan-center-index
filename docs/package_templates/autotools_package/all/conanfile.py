@@ -10,7 +10,7 @@ from conan.tools.microsoft import is_msvc, unix_path
 import os
 
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 #
 # INFO: Please, remove all comments before pushing your PR!

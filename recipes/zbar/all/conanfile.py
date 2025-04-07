@@ -9,7 +9,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgCon
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class ZbarConan(ConanFile):

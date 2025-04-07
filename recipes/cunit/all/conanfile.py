@@ -10,7 +10,7 @@ import glob
 import os
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 
 class CunitConan(ConanFile):

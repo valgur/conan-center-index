@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain, PkgConfigDep
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibTomCryptConan(ConanFile):

@@ -6,7 +6,7 @@ from conan.tools.scm import Version
 from conan.errors import ConanException
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class BaicalP7Conan(ConanFile):

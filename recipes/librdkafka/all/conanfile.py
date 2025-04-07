@@ -6,7 +6,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 import os
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class LibrdkafkaConan(ConanFile):

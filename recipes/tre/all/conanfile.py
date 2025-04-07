@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class TreConan(ConanFile):

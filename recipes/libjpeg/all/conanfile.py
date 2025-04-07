@@ -10,7 +10,7 @@ import os
 import re
 
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class LibjpegConan(ConanFile):

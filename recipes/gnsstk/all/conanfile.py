@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain
 from conan.tools.files import get, copy, rmdir, save, replace_in_file, export_conandata_patches, apply_conandata_patches, mkdir, rename
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class GNSSTkConan(ConanFile):

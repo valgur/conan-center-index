@@ -9,7 +9,7 @@ from conan.tools.files import copy, get, rm, rmdir
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class ResiprocateConan(ConanFile):

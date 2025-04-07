@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain, CMakeDeps
 from conan.tools.files import copy, get, save, replace_in_file
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class SamariumConan(ConanFile):

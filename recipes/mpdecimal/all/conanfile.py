@@ -11,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps, NMakeToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class MpdecimalConan(ConanFile):

@@ -4,7 +4,7 @@ from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 
 class OpenJDK(ConanFile):

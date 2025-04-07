@@ -6,7 +6,7 @@ from conan.tools.files import copy, get, rm, rmdir, replace_in_file
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.61.0"
+required_conan_version = ">=2.1"
 
 class CycloneDDSCXXConan(ConanFile):
     name = "cyclonedds-cxx"

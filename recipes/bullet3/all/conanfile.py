@@ -8,7 +8,7 @@ import glob
 import os
 import textwrap
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class Bullet3Conan(ConanFile):

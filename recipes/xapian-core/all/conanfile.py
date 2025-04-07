@@ -11,7 +11,7 @@ from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
 import os
 import textwrap
 
-required_conan_version = ">=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class XapianCoreConan(ConanFile):

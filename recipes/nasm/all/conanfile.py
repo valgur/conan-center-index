@@ -7,7 +7,7 @@ from conan.tools.microsoft import NMakeToolchain, is_msvc
 import os
 import shutil
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class NASMConan(ConanFile):

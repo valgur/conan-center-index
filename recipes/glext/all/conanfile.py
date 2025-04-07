@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.files import copy, download, load, save
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class GlextConan(ConanFile):

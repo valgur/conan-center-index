@@ -4,7 +4,7 @@ from conan.tools.files import apply_conandata_patches, collect_libs, copy, expor
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class UriparserConan(ConanFile):

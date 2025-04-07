@@ -6,7 +6,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class CassandraCppDriverConan(ConanFile):
     name = "cassandra-cpp-driver"

@@ -6,7 +6,7 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 from conan.tools.files import copy, get
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class GodotCppConan(ConanFile):

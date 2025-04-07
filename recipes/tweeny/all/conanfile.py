@@ -6,7 +6,7 @@ from conan.tools.scm import Version
 import os
 
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 class TweenyConan(ConanFile):
     name = "tweeny"

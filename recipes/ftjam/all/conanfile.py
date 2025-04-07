@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class FtjamConan(ConanFile):

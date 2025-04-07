@@ -7,7 +7,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 class CgalConan(ConanFile):
     name = "cgal"

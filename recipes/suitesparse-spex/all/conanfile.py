@@ -6,7 +6,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, rm, rmdir, copy
 from conan.tools.files.files import replace_in_file
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class SuiteSparseSpexConan(ConanFile):

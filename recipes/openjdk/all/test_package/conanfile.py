@@ -3,7 +3,7 @@ from conan.tools.build import can_run
 from conan.errors import ConanException
 from io import StringIO
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class TestPackage(ConanFile):

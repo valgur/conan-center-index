@@ -7,7 +7,7 @@ from conan.tools.scm import Version
 from conan.errors import ConanInvalidConfiguration
 
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class PcapplusplusConan(ConanFile):

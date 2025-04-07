@@ -12,7 +12,7 @@ import os
 import itertools
 import textwrap
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class Libxml2Conan(ConanFile):

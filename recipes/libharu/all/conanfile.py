@@ -7,7 +7,7 @@ import os
 import re
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 

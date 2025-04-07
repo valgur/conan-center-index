@@ -5,7 +5,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class SpixConan(ConanFile):

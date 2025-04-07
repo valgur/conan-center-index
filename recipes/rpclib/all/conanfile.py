@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, mkdir, rename, rmdir
 from conan.tools.microsoft import is_msvc_static_runtime
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class rpclibConan(ConanFile):

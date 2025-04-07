@@ -9,7 +9,7 @@ import os
 import sys
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class OnnxRuntimeConan(ConanFile):

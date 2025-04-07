@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps, GnuToo
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class NativefiledialogConan(ConanFile):

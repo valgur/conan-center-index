@@ -6,7 +6,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, check_min_vs, unix_path
 import os
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 
 class GperfConan(ConanFile):

@@ -8,7 +8,7 @@ from conan.tools.files import get, load, save, rmdir, rm, export_conandata_patch
 from conan.tools.build import check_min_cppstd
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LoguruConan(ConanFile):

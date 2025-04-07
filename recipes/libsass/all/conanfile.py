@@ -7,7 +7,7 @@ from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc
 import os
 import re
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibsassConan(ConanFile):

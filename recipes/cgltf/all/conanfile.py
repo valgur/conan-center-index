@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, export_conandata_patches, get, load, replace_in_file, save, rename
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class CgltfConan(ConanFile):

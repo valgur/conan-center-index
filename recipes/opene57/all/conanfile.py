@@ -9,7 +9,7 @@ from conan.tools.files import copy, export_conandata_patches, get, replace_in_fi
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class Opene57Conan(ConanFile):

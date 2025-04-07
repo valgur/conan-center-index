@@ -14,7 +14,7 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from conan.tools.system.package_manager import Apt
 
-required_conan_version = ">=2.0.6"
+required_conan_version = ">=2.1"
 
 
 class GtkConan(ConanFile):

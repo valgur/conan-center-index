@@ -10,7 +10,7 @@ from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class TclConan(ConanFile):

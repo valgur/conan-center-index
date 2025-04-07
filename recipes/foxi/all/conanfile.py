@@ -4,7 +4,7 @@ from conan.tools.files import apply_conandata_patches, copy, get, rename, replac
 import glob
 import os
 
-required_conan_version = ">=1.46.0"
+required_conan_version = ">=2.1"
 
 
 class FoxiConan(ConanFile):

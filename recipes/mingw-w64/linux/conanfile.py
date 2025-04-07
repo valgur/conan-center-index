@@ -8,7 +8,7 @@ from conan.tools.files import chdir, copy, get, mkdir, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class MingwConan(ConanFile):

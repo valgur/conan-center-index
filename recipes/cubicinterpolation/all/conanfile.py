@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import is_msvc, check_min_vs
 import os
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 
 class CubicInterpolationConan(ConanFile):

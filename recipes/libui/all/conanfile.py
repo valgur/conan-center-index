@@ -6,7 +6,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get
 from conan.tools.gnu import PkgConfigDeps
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class libuiConan(ConanFile):

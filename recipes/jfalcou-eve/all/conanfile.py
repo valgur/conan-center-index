@@ -8,7 +8,7 @@ from conan.errors import ConanInvalidConfiguration
 import os
 
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 
 class JfalcouEveConan(ConanFile):

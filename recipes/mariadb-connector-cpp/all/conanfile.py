@@ -6,7 +6,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 import os
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 class MariadbConnectorCppRecipe (ConanFile):
     name = "mariadb-connector-cpp"

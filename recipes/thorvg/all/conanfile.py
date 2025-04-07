@@ -12,7 +12,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.64.0 <2 || >=2.2.0"
+required_conan_version = ">=2.1"
 
 
 class ThorvgConan(ConanFile):

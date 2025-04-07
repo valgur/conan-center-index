@@ -3,7 +3,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.gnu import PkgConfig
 from conan.tools.system import package_manager
 
-required_conan_version = ">=1.51.3"
+required_conan_version = ">=2.1"
 
 
 class SysConfigGLUConan(ConanFile):

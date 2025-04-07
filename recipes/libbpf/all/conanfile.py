@@ -7,7 +7,7 @@ from conan.tools.files import copy, get, rm, rmdir, chdir
 from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 class LibbpfConan(ConanFile):
     name = "libbpf"

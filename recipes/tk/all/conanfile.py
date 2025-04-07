@@ -19,7 +19,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import NMakeDeps, NMakeToolchain, is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class TkConan(ConanFile):

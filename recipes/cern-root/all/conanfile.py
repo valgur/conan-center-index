@@ -18,7 +18,7 @@ class PythonOption:
     ALL = [OFF, SYSTEM]
 
 
-required_conan_version = ">=1.33.0"
+required_conan_version = ">=2.1"
 
 
 class CernRootConan(ConanFile):

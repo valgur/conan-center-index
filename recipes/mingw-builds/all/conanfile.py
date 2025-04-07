@@ -5,7 +5,7 @@ from conan.tools.files import copy, download, rmdir
 from conan.tools.scm import Version
 
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 class MingwConan(ConanFile):
     name = "mingw-builds"

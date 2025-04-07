@@ -10,7 +10,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeToolchain, NMakeDeps
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class PDCursesConan(ConanFile):

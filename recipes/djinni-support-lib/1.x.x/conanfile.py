@@ -9,7 +9,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import collect_libs, copy, get, export_conandata_patches, apply_conandata_patches
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class DjinniSupportLib(ConanFile):

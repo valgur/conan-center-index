@@ -4,7 +4,7 @@ from conan.tools.files import copy, get, rm, rmdir
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.54"
+required_conan_version = ">=2.1"
 
 class FreeAlutConan(ConanFile):
     name = "freealut"
@@ -69,7 +69,7 @@ class FreeAlutConan(ConanFile):
         # INFO: CMakeDeps generates CamelCase variables
         tc.variables["OPENAL_LIB_DIR"] = os.path.join(self.dependencies["openal-soft"].package_folder, "lib")
         tc.variables["OPENAL_INCLUDE_DIR"] = os.path.join(self.dependencies["openal-soft"].package_folder, "include")
-        if self.settings.os == "Windows":            
+        if self.settings.os == "Windows":
             tc.variables["OPENAL_INCLUDE_DIR"] += ";" + os.path.join(self.dependencies["openal-soft"].package_folder, "include", "AL")
             tc.variables["OPENAL_LIB_DIR"] = tc.variables["OPENAL_LIB_DIR"].replace("\\","/")
             tc.variables["OPENAL_INCLUDE_DIR"] = tc.variables["OPENAL_INCLUDE_DIR"].replace("\\","/")

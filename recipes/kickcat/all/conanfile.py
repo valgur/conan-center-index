@@ -6,7 +6,7 @@ from conan.tools.files import get, copy
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.55"
+required_conan_version = ">=2.1"
 
 
 class KickCATRecipe(ConanFile):

@@ -16,7 +16,7 @@ from conan.tools.layout import basic_layout
 import os
 import shutil
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LiunwindConan(ConanFile):

@@ -7,7 +7,7 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class ZlibNgConan(ConanFile):
@@ -41,7 +41,7 @@ class ZlibNgConan(ConanFile):
         "with_reduced_mem": False,
         "with_runtime_cpu_detection": True,
     }
-    
+
     @property
     def _is_windows(self):
         return self.settings.os in ["Windows", "WindowsStore"]

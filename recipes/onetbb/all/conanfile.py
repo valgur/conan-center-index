@@ -10,7 +10,7 @@ from conan.tools.scm import Version
 import os
 import re
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class OneTBBConan(ConanFile):
@@ -221,7 +221,7 @@ class OneTBBConan(ConanFile):
                 tbbproxy = self.cpp_info.components["tbbmalloc_proxy"]
 
                 tbbproxy.set_property("cmake_target_name", "TBB::tbbmalloc_proxy")
-                
+
                 if self.options.get_safe("build_apple_frameworks"):
                     tbbproxy.frameworkdirs.append(os.path.join(self.package_folder, "lib"))
                     tbbproxy.frameworks.append("tbbmalloc_proxy")

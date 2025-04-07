@@ -6,7 +6,7 @@ from conan.tools.files import copy, get, rm, rmdir, download, replace_in_file, s
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class LibTomMathConan(ConanFile):

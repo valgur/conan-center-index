@@ -7,7 +7,7 @@ from conan.tools.files import apply_conandata_patches, chdir, copy, export_conan
 from conan.tools.gnu import Autotools, GnuToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class Perf(ConanFile):

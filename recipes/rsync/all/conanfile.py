@@ -6,7 +6,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.apple import is_apple_os
 import os
 
-required_conan_version = ">=1.60.0"
+required_conan_version = ">=2.1"
 
 class RsyncConan(ConanFile):
     name = "rsync"

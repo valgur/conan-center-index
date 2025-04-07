@@ -4,7 +4,7 @@ from conan.tools.files import copy, get, rmdir
 import os
 
 
-required_conan_version = ">=1.56.0"
+required_conan_version = ">=2.1"
 
 
 class dnetConan(ConanFile):
@@ -54,7 +54,7 @@ class dnetConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-    
+
     def package(self):
         copy(self,"LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -65,6 +65,6 @@ class dnetConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs.append("dnet")
         self.cpp_info.includedirs.append(os.path.join("include", "dnet"))
- 
+
         if self.settings.os == 'Windows':
             self.cpp_info.system_libs = ['Iphlpapi', 'wsock32']

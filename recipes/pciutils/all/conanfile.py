@@ -8,7 +8,7 @@ from conan.tools.files import chdir, copy, get, rmdir
 from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class PciUtilsConan(ConanFile):

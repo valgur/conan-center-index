@@ -11,7 +11,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc
 
-required_conan_version = ">=1.60.0 <2 || >=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class LibtoolConan(ConanFile):

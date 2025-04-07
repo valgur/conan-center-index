@@ -5,7 +5,7 @@ from conan.tools.files import get, replace_in_file, apply_conandata_patches, cop
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class TreeSitterCConan(ConanFile):

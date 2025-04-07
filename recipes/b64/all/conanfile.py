@@ -4,7 +4,7 @@ from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
 import os
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class B64Conan(ConanFile):

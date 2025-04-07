@@ -6,7 +6,7 @@ from conan.tools.microsoft import is_msvc, NMakeToolchain
 from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 class Pthreads4WConan(ConanFile):
     name = "pthreads4w"

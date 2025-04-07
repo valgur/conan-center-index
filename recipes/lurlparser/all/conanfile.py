@@ -4,7 +4,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 class PackageConan(ConanFile):
     name = "lurlparser"

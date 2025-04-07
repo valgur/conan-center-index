@@ -9,7 +9,7 @@ from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 class LibmemcachedConan(ConanFile):
     name = "libmemcached"

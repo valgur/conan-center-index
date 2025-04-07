@@ -4,7 +4,7 @@ from conan.tools.files import apply_conandata_patches, copy, get, rmdir, export_
 import os
 
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class Atomic_opsConan(ConanFile):

@@ -6,7 +6,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, export_conandata_patches, get, apply_conandata_patches, rmdir, replace_in_file
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class FbgemmConan(ConanFile):

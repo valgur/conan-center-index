@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, get, download
 import os
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class PackageConan(ConanFile):

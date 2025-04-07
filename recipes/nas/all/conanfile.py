@@ -7,7 +7,7 @@ from conan.tools.files import chdir, get, export_conandata_patches, apply_conand
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class NasRecipe(ConanFile):

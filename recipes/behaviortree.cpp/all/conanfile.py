@@ -9,7 +9,7 @@ from conan.tools.files import export_conandata_patches, apply_conandata_patches
 
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class BehaviorTreeCPPConan(ConanFile):
     name = "behaviortree.cpp"

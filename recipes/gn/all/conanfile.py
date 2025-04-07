@@ -13,7 +13,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class GnConan(ConanFile):

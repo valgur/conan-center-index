@@ -11,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class XkbcommonConan(ConanFile):

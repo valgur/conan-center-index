@@ -8,7 +8,7 @@ from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.56.0 <2 || >=2.0.6"
+required_conan_version = ">=2.1"
 
 
 class XgboostConan(ConanFile):

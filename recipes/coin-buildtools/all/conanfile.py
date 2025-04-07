@@ -5,7 +5,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class CoinBuildtoolsConan(ConanFile):

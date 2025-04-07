@@ -7,7 +7,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
 import os
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class Argtable2Conan(ConanFile):

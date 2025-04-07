@@ -6,7 +6,7 @@ from conan.tools.files import get, replace_in_file, copy, export_conandata_patch
 import os
 
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class RmluiConan(ConanFile):
     name = "rmlui"

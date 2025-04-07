@@ -11,7 +11,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import copy, get, mkdir, rmdir, replace_in_file, save
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class SundialsConan(ConanFile):

@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import get, rm, rmdir, copy, replace_in_file
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class yomm2Recipe(ConanFile):

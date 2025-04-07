@@ -7,7 +7,7 @@ from conan.tools.scm import Version
 from conan.tools.microsoft import check_min_vs, is_msvc
 import os
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class CcacheConan(ConanFile):

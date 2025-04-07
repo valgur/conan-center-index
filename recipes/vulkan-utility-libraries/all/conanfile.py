@@ -10,7 +10,7 @@ from conan.tools.files import copy, get, rm, rmdir, replace_in_file
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.55.0"
+required_conan_version = ">=2.1"
 
 
 class VulkanUtilityLibrariesConan(ConanFile):

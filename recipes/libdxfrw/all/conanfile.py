@@ -5,7 +5,7 @@ from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class LibdxfrwConan(ConanFile):
     name = "libdxfrw"

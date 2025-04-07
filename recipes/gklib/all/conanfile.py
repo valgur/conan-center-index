@@ -6,7 +6,7 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, replace_in_file
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class GKlibConan(ConanFile):

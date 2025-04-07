@@ -3,7 +3,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import get, copy, load, save
 import os
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 class TinycthreadConan(ConanFile):
     name = "tinycthread"

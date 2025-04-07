@@ -4,7 +4,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class MiniaudioConan(ConanFile):
     name = "miniaudio"

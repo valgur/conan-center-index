@@ -13,7 +13,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import VCVars, msvs_toolset, msvc_runtime_flag, is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class OneTBBConan(ConanFile):

@@ -7,7 +7,7 @@ from conan.tools.files import apply_conandata_patches, export_conandata_patches,
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class QuaZIPConan(ConanFile):

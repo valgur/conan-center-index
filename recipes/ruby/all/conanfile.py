@@ -14,7 +14,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53"
+required_conan_version = ">=2.1"
 
 
 class RubyConan(ConanFile):

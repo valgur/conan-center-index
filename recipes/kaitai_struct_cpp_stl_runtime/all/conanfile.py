@@ -3,7 +3,7 @@ from conan.tools.files import get, copy, export_conandata_patches, apply_conanda
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class KaitaiStructCppStlRuntimeConan(ConanFile):
     name = "kaitai_struct_cpp_stl_runtime"

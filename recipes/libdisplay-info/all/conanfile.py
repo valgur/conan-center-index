@@ -9,7 +9,7 @@ from conan.tools.meson import Meson, MesonToolchain
 import os
 
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class LibdisplayInfoConan(ConanFile):

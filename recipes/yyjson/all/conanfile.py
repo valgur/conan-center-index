@@ -4,7 +4,7 @@ from conan.tools.files import copy, get, rmdir
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class YyjsonConan(ConanFile):

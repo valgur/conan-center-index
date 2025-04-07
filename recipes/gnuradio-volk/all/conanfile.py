@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv, Environment
 from conan.tools.files import copy, get, rm, save, rmdir
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class GnuradioVolkConan(ConanFile):

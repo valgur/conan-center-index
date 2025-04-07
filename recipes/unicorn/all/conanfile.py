@@ -9,7 +9,7 @@ import os
 import stat
 import textwrap
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class UnicornConan(ConanFile):

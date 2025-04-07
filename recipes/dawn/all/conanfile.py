@@ -6,7 +6,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rmdir, export_conandata_patches, apply_conandata_patches, save
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class DawnConan(ConanFile):

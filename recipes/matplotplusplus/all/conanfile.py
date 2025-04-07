@@ -6,7 +6,7 @@ from conan.tools.cmake import CMakeToolchain, CMakeDeps, cmake_layout, CMake
 from conan.tools.files import copy, get, rmdir, rm, save, replace_in_file
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class MatplotplusplusCppConan(ConanFile):

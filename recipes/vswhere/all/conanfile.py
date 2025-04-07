@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import copy, download
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class VswhereConan(ConanFile):

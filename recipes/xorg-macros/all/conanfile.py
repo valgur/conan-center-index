@@ -6,7 +6,7 @@ from conan.tools.layout import basic_layout
 import os
 import textwrap
 
-required_conan_version = ">=1.57"
+required_conan_version = ">=2.1"
 
 
 class XorgMacrosConan(ConanFile):

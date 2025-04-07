@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, Environment
 from conan.tools.files import copy, get, rm, rmdir
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class SuiteSparseGraphBlasConan(ConanFile):

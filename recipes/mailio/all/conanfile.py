@@ -6,7 +6,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 class MailioConan(ConanFile):
     name = "mailio"

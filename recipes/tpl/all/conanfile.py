@@ -5,7 +5,7 @@ from conan.tools.cmake import CMakeToolchain, CMake
 from conan.tools.files import copy, get
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class PackageConan(ConanFile):

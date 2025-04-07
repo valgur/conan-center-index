@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools import files
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 
-required_conan_version = ">=1.45.0"
+required_conan_version = ">=2.1"
 
 
 class Tixi3Conan(ConanFile):

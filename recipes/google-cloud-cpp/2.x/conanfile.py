@@ -23,7 +23,7 @@ import components_2_15_1
 import components_2_19_0
 import components_2_28_0
 
-required_conan_version = ">=1.56.0"
+required_conan_version = ">=2.1"
 
 
 class GoogleCloudCppConan(ConanFile):

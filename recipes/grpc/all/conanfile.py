@@ -10,7 +10,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class GrpcConan(ConanFile):

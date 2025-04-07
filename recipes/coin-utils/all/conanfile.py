@@ -11,7 +11,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgCon
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
 
-required_conan_version = ">=2.0.5"
+required_conan_version = ">=2.1"
 
 
 class CoinUtilsConan(ConanFile):

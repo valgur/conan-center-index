@@ -6,7 +6,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 # INFO: In order to prevent OneTBB missing package error, we build only shared library for hwloc.
 

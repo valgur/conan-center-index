@@ -5,7 +5,7 @@ from conan.tools.files import get, copy
 import os
 
 
-required_conan_version = ">=1.50.0"
+required_conan_version = ">=2.1"
 
 
 class ItoaConan(ConanFile):

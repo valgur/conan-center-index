@@ -9,7 +9,7 @@ from conan.tools.files import apply_conandata_patches, copy, export_conandata_pa
 from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 
 class IceoryxConan(ConanFile):

@@ -4,7 +4,7 @@ from conan.tools.files import apply_conandata_patches, collect_libs, copy, expor
 import glob
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 class ZstdConan(ConanFile):
     name = "zstd"

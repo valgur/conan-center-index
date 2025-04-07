@@ -8,7 +8,7 @@ from conan.tools.microsoft import check_min_vs, is_msvc, msvc_runtime_flag, unix
 import os
 import shutil
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.1"
 
 
 class CoinCglConan(ConanFile):

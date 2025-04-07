@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import get, collect_libs, export_conandata_patches, apply_conandata_patches, rename
 import shutil
 
-required_conan_version = ">=1.52.0"
+required_conan_version = ">=2.1"
 
 class DiligentFxConan(ConanFile):
     name = "diligent-fx"

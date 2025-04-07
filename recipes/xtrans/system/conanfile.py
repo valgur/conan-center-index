@@ -3,7 +3,7 @@ from conan.tools.gnu import PkgConfig
 from conan.tools.system import package_manager
 from conan.errors import ConanInvalidConfiguration
 
-required_conan_version = ">=1.47"
+required_conan_version = ">=2.1"
 
 
 class XtransConan(ConanFile):

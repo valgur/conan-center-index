@@ -6,7 +6,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import get, rm, rmdir, copy
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class SuiteSparseCxsparseConan(ConanFile):

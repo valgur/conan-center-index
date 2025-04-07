@@ -11,7 +11,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path, is_msvc, MSBuildDeps, MSBuildToolchain, MSBuild
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class CyrusSaslConan(ConanFile):

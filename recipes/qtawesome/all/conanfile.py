@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 class QtAwesomeConan(ConanFile):
     name = "qtawesome"

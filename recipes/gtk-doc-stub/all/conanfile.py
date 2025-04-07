@@ -7,7 +7,7 @@ from conan.tools.microsoft import unix_path_package_info_legacy
 
 import os
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class GtkDocStubConan(ConanFile):

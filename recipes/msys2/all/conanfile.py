@@ -9,7 +9,7 @@ import subprocess
 import errno
 import ctypes
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class lock:

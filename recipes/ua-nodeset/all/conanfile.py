@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.files import copy, get, load, save
 
-required_conan_version = ">=1.47.0"
+required_conan_version = ">=2.1"
 
 
 class UaNodeSetConan(ConanFile):

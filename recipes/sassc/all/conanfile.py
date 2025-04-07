@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain, MSBuildDeps
 
-required_conan_version = ">=1.53.0"
+required_conan_version = ">=2.1"
 
 
 class SasscConan(ConanFile):

@@ -5,7 +5,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import copy, get
 
-required_conan_version = ">=2.0.9"
+required_conan_version = ">=2.1"
 
 
 class ScipPlusPlus(ConanFile):
