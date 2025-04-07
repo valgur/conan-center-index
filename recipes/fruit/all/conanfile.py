@@ -100,7 +100,7 @@ class FruitConan(ConanFile):
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0091"] = "NEW"
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "3.7.1": # pylint: disable=conan-unreachable-upper-version
+        if Version(self.version) > "3.7.1":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         tc = CMakeDeps(self)

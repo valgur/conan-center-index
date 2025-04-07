@@ -79,7 +79,7 @@ class DevilConan(ConanFile):
         tc.variables["IL_NO_LCMS"] = not self.options.with_lcms
         tc.variables["IL_USE_DXTC_SQUISH"] = self.options.with_squish
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "1.8.0": # pylint: disable=conan-unreachable-upper-version
+        if Version(self.version) > "1.8.0":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 

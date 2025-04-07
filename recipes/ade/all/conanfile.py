@@ -43,7 +43,7 @@ class AdeConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "0.1.2d": # pylint: disable=conan-unreachable-upper-version
+        if Version(self.version) > "0.1.2d":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 

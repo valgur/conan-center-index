@@ -71,7 +71,7 @@ class LibeventConan(ConanFile):
         if is_msvc(self):
             tc.variables["EVENT__MSVC_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "2.1.12": # pylint: disable=conan-unreachable-upper-version
+        if Version(self.version) > "2.1.12":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         deps = CMakeDeps(self)

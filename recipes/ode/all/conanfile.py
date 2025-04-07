@@ -82,7 +82,7 @@ class OdeConan(ConanFile):
         # Avoid a warning
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0075"] = "NEW"
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "0.16.4": # pylint: disable=conan-unreachable-upper-version
+        if Version(self.version) > "0.16.4":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 

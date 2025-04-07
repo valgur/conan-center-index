@@ -79,7 +79,7 @@ class OpenvrConan(ConanFile):
         # Let Conan handle the stdlib setting, even if we are using libc++
         tc.cache_variables["USE_LIBCXX"] = False
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "1.16.8": # pylint: disable=conan-unreachable-upper-version
+        if Version(self.version) > "1.16.8":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         tc = CMakeDeps(self)
