@@ -1,3 +1,5 @@
 versions:
   "2023c":
     folder: all
+  "2024b":
+    folder: all

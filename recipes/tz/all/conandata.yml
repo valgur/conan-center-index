@@ -1,4 +1,11 @@
 sources:
+  "2024b":
+    "sources":
+      url: "https://github.com/eggert/tz/archive/refs/tags/2024b.tar.gz"
+      sha256: "557c41d8eb5c29387a9d496db87c4aeb4f2ac8a2b6d5f60e869a8cade26e679c"
+    "windows_zones":
+      url: "https://raw.githubusercontent.com/unicode-org/cldr/44c96edc061612a71d4b215152464d1ded1f8134/common/supplemental/windowsZones.xml"
+      sha256: "39714d7a5a276508aeca2289a490dddb8424dea0063f3f5fbc8bd8520dcbfcba"
   "2023c":
     "sources":
       url: "https://github.com/eggert/tz/archive/refs/tags/2023c.tar.gz"
