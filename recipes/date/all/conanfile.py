@@ -55,7 +55,7 @@ class DateConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("tz/2023c")
+        self.requires("tz/[*]")
 
     def package_id(self):
         if self.info.options.header_only:
