@@ -1,11 +1,11 @@
+import os
+
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import get, rmdir, apply_conandata_patches, export_conandata_patches, copy
 from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
-
-import os
 
 required_conan_version = ">=2.1"
 
@@ -23,9 +23,7 @@ class DateConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "header_only": [True, False],
-        "use_system_tz_db": [True, False, "deprecated"],
-        "with_tzdb": [False, "system", "download", "manual", "tz"],
-        "with_db_format": ["source", "binary"],
+        "use_system_tz_db": [True, False],
         "use_tz_db_in_dot": [True, False],
     }
     default_options = {
@@ -33,8 +31,6 @@ class DateConan(ConanFile):
         "fPIC": True,
         "header_only": False,
         "use_system_tz_db": False,
-        "with_tzdb": "tz",
-        "with_db_format": "source",
         "use_tz_db_in_dot": False,
     }
 
@@ -44,6 +40,7 @@ class DateConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+            self.options["tz"].with_binary_db = False
         if self.settings.os in ["iOS", "tvOS", "watchOS", "Android"]:
             self.options.use_system_tz_db = True
 
@@ -58,10 +55,7 @@ class DateConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if not self.options.header_only and not self.options.use_system_tz_db and self.options.with_tzdb == "download":
-            self.requires("libcurl/[>=7.78 <9]")
-        if self.options.with_tzdb == "tz":
-            self.requires("tz/2023c", options={"with_binary_db": self.options.with_db_format == "binary"})
+        self.requires("tz/2023c")
 
     def package_id(self):
         if self.info.options.header_only:
@@ -69,14 +63,12 @@ class DateConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
-        if self.options.with_tzdb != "download" and self.options.use_tz_db_in_dot:
-            raise ConanInvalidConfiguration("'use_tz_db_in_dot=True' is only valid when 'with_tzdb=\"download\"'")
-        if self.options.use_system_tz_db and (self.options.with_tzdb not in [False, "system"]):
-            raise ConanInvalidConfiguration("'use_system_tz_db' is deprecated. You must set 'with_tzdb=system'")
-        if (self.options.use_system_tz_db or self.options.with_tzdb == "system") and not self.options.with_db_format == "binary":
-            raise ConanInvalidConfiguration("date only supports using the operating system database in a binary format. You must set 'with_db_format=binary'")
-        if self.settings.os == "Windows" and self.options.with_db_format == "binary":
-            raise ConanInvalidConfiguration("date does not currently support parsing the binary tzdb on Windows. An attempt has been made to introduce this in https://github.com/HowardHinnant/date/pull/611, so if this is functionality you would like please feel free to adapt this to a conan patch.")
+        if self.settings.os == "Windows" and self.dependencies["tz"].options.with_binary_db:
+            raise ConanInvalidConfiguration(
+                "date does not currently support parsing the binary tzdb on Windows. "
+                "An attempt has been made to introduce this in https://github.com/HowardHinnant/date/pull/611, "
+                "so if this is functionality you would like please feel free to adapt this to a conan patch."
+            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -85,15 +77,16 @@ class DateConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_DATE_TESTING"] = False
-        tc.variables["USE_SYSTEM_TZ_DB"] = (self.options.use_system_tz_db or self.options.with_tzdb in ["system", "tz"]) and self.options.with_db_format == "binary"
+        tc.variables["USE_SYSTEM_TZ_DB"] = self.options.use_system_tz_db
         tc.variables["USE_TZ_DB_IN_DOT"] = self.options.use_tz_db_in_dot
         tc.variables["BUILD_TZ_LIB"] = not self.options.header_only
-        tc.variables["MANUAL_TZ_DB"] = self.options.with_tzdb in ["manual", "tz"] and not self.options.with_db_format == "binary"
+        tc.variables["MANUAL_TZ_DB"] = not self.options.use_system_tz_db
         # workaround for gcc 7 and clang 5 not having string_view
         if Version(self.version) >= "3.0.0" and \
-            ((self.settings.compiler == "gcc" and Version(self.settings.compiler.version) <= "7.0") or \
+            ((self.settings.compiler == "gcc" and Version(self.settings.compiler.version) <= "7.0") or
              (self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "5.0")):
-            tc.cache_variables["DISABLE_STRING_VIEW"] = True
+            tc.preprocessor_definitions["HAS_STRING_VIEW"] = 0
+            tc.preprocessor_definitions["HAS_DEDUCTION_GUIDES"] = 0
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -121,9 +114,9 @@ class DateConan(ConanFile):
 
         # date-tz
         if self.options.header_only:
-            self.cpp_info.bindirs = []
-            self.cpp_info.defines.append("DATE_HEADER_ONLY")
-            self.cpp_info.libdirs = []
+            self.cpp_info.components["date-tz"].bindirs = []
+            self.cpp_info.components["date-tz"].defines.append("DATE_HEADER_ONLY")
+            self.cpp_info.components["date-tz"].libdirs = []
         else:
             self.cpp_info.components["date-tz"].set_property("cmake_target_name", "date::date-tz")
             lib_name = "{}tz".format("date-" if Version(self.version) >= "3.0.0" else "")
@@ -131,12 +124,8 @@ class DateConan(ConanFile):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["date-tz"].system_libs.extend(["m", "pthread"])
 
-            if self.options.with_tzdb == "download":
-                self.cpp_info.components["date-tz"].requires.append("libcurl::libcurl")
-
-            use_os_tzdb = 1 if (self.options.use_system_tz_db or self.options.with_tzdb in ["system", "tz"]) and self.options.with_db_format == "binary" else 0
-            defines = [f"USE_OS_TZDB={use_os_tzdb}"]
+            use_os_tzdb = 1 if self.options.use_system_tz_db else 0
+            self.cpp_info.components["date-tz"].defines.append(f"USE_OS_TZDB={use_os_tzdb}")
             if self.settings.os == "Windows" and self.options.shared:
-                defines.append("DATE_USE_DLL=1")
+                self.cpp_info.components["date-tz"].defines.append("DATE_USE_DLL=1")
 
-            self.cpp_info.components["date-tz"].defines.extend(defines)
