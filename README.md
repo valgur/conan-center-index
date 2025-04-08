@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-07:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-08:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -164,8 +164,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - numpy/1.26.4
 - ogre/14.3.4
 - openblas/0.3.28
-- opencolorio/2.1.0
-- opencolorio/2.4.0
 - opencv/4.5.4
 - openmp/system
 - openmpi/5.0.5
@@ -180,7 +178,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangomm/2.46.4
 - pangomm/2.54.0
 - pcl/1.14.1
-- pcre2/10.32
 - pdal/2.7.2
 - perf/6.11
 - piex/0.27
@@ -235,6 +232,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/7.1.1
 - thrust/2.7.0
 - tpl/cci.20210302
+- tz/2024b
 - usearch/2.9.1
 - vilib/cci.20210625
 - vlfeat/0.9.21
