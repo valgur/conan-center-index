@@ -17,7 +17,7 @@ class SociConan(ConanFile):
     description = "The C++ Database Access Library "
     topics = ("mysql", "odbc", "postgresql", "sqlite3")
     license = "BSL-1.0"
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared":           [True, False],
@@ -124,6 +124,8 @@ class SociConan(ConanFile):
         tc.variables["WITH_MYSQL"] = self.options.with_mysql
         tc.variables["WITH_POSTGRESQL"] = self.options.with_postgresql
         tc.variables["WITH_BOOST"] = self.options.with_boost
+        if Version(self.version) < "4.1.0": # pylint: disable=conan-condition-evals-to-constant
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -157,7 +159,7 @@ class SociConan(ConanFile):
         self.cpp_info.components["soci_core"].set_property("cmake_target_name", "SOCI::soci_core{}".format(target_suffix))
         self.cpp_info.components["soci_core"].libs = ["{}soci_core{}".format(lib_prefix, lib_suffix)]
         if self.options.with_boost:
-            self.cpp_info.components["soci_core"].requires.append("boost::boost")
+            self.cpp_info.components["soci_core"].requires.append("boost::headers")
 
         # soci_empty
         if self.options.empty:
