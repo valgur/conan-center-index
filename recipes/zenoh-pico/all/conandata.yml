@@ -1,0 +1,4 @@
+sources:
+  "1.3.2":
+    url: "https://github.com/eclipse-zenoh/zenoh-pico/archive/refs/tags/1.3.2.tar.gz"
+    sha256: "33092a6418ad3a40000333309d0af759c872024bbca408a8df7f1da871ab7aba"
