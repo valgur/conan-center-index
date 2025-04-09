@@ -1,6 +1,6 @@
 #!/bin/env python
 # Usage: ./add_urls.py <rust_version>
-# The output is written to urls-<rust_version>.yml
+# The output is written to urls/<rust_version>.yml
 
 import sys
 from pathlib import Path
