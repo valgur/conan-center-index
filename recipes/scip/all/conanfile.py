@@ -60,7 +60,7 @@ class SCIPConan(ConanFile):
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
         if self.options.shared and self.options.with_sym == "bliss":
             raise ConanInvalidConfiguration("Bliss is not supported in shared mode.")
         comp = self.settings.compiler
@@ -70,7 +70,7 @@ class SCIPConan(ConanFile):
             raise ConanInvalidConfiguration("The options 'with_gmp' should be aligned with 'soplex:with_gmp' too.")
         if Version(self.version) >= "9.0.1" and is_msvc(self) and self.settings.build_type == "Debug":
             # lpi_spx2.cpp : error C1128: number of sections exceeded object file format limit: compile with /bigobj
-            raise ConanInvalidConfiguration(f"{self.ref} can not be build in Debug with MSVC.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be build in Debug with MSVC.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -73,7 +73,7 @@ class PackageConan(ConanFile):
         if self.options.get_safe("with_glx") and not self.options.get_safe("with_x11"):
             raise ConanInvalidConfiguration(f"{self.ref} requires x11 when glx is enabled")
         if not self.options.get_safe("with_drm") and not self.options.get_safe("with_x11") and not self.options.get_safe("with_wayland") and not self.options.get_safe("with_win32"):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built without at least one backend dev files.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built without at least one backend dev files.")
 
     def build_requirements(self):
         if self.options.get_safe("with_wayland"):

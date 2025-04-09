@@ -65,7 +65,7 @@ class BearConan(ConanFile):
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built on windows.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built on windows.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

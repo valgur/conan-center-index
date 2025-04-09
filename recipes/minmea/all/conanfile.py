@@ -46,7 +46,7 @@ class MinmeaConan(ConanFile):
         # INFO: Windows mingw supported: https://github.com/kosma/minmea?tab=readme-ov-file#compatibility
         # INFO: MSVC fails with error C2011: 'timespec': 'struct' type redefinition
         if is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc. Use mingw instead or similar.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built on Visual Studio and msvc. Use mingw instead or similar.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

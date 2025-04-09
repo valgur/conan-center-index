@@ -54,7 +54,7 @@ class libb2Conan(ConanFile):
         if self.options.use_neon and not "arm" in self.settings.arch:
             raise ConanInvalidConfiguration("Neon sources only supported on arm-based CPUs")
         if self.options.use_neon and self.options.use_sse:
-            raise ConanInvalidConfiguration("Neon and SSE can not be used together.")
+            raise ConanInvalidConfiguration("Neon and SSE cannot be used together.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

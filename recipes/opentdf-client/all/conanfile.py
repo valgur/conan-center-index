@@ -91,7 +91,7 @@ class OpenTDFConan(ConanFile):
                 )
         # Disallow MT and MTd
         if is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration(f"{self.name} can not be built with MT or MTd at this time")
+            raise ConanInvalidConfiguration(f"{self.name} cannot be built with MT or MTd at this time")
 
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.name} does not currently support shared library on Windows")

@@ -63,7 +63,7 @@ class VerySimpleSmtpsConan(ConanFile):
             raise ConanInvalidConfiguration("very-simple-smtps is only supported by Linux")
 
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libc++":
-            raise ConanInvalidConfiguration("very-simple-smtps can not use libc++")
+            raise ConanInvalidConfiguration("very-simple-smtps cannot use libc++")
 
         check_min_cppstd(self, self._min_cppstd)
         check_min_vs(self, 191)
@@ -74,7 +74,7 @@ class VerySimpleSmtpsConan(ConanFile):
                     f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
                 )
         if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")

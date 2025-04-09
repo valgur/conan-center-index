@@ -43,7 +43,7 @@ class ZoeConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, "11")
         if self.info.settings.compiler == "apple-clang" and Version(self.info.settings.compiler.version) < "12.0":
-            raise ConanInvalidConfiguration(f"{self.ref} can not build on apple-clang < 12.0.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot build on apple-clang < 12.0.")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")

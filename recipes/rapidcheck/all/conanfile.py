@@ -64,7 +64,7 @@ class RapidcheckConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
         if self.options.enable_gmock and not self.dependencies["gtest"].options.build_gmock:
             raise ConanInvalidConfiguration("The option `rapidcheck:enable_gmock` requires `gtest/*:build_gmock=True`")
 

@@ -77,7 +77,7 @@ class CzmqConan(ConanFile):
 
     def validate(self):
         if is_apple_os(self) and self.options.shared and self.settings.build_type == "Debug":
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared and debug on apple-clang.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared and debug on apple-clang.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

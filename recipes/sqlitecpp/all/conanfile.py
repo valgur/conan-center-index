@@ -48,7 +48,7 @@ class SQLiteCppConan(ConanFile):
         if Version(self.version) >= "3.0.0":
             check_min_cppstd(self, 11)
         if self.info.settings.os == "Windows" and self.info.options.shared:
-            raise ConanInvalidConfiguration("SQLiteCpp can not be built as shared lib on Windows")
+            raise ConanInvalidConfiguration("SQLiteCpp cannot be built as shared lib on Windows")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

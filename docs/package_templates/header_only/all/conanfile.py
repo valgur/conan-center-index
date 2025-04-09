@@ -50,7 +50,7 @@ class PackageConan(ConanFile):
         # in case it does not work in another configuration, it should be validated here. Always comment the reason including the upstream issue.
         # INFO: Upstream does not support DLL: See <URL>
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(f"{self.ref} can not be used on Windows.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be used on Windows.")
 
     def source(self):
         # Download source package and extract to source folder

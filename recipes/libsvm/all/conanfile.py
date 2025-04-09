@@ -46,7 +46,7 @@ class libsvmConan(ConanFile):
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built as shared library with Visual Studio and static runtime"
+                f"{self.ref} cannot be built as shared library with Visual Studio and static runtime"
             )
 
     def source(self):

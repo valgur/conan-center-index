@@ -48,7 +48,7 @@ class QuickJSConan(ConanFile):
     def validate(self):
         # TODO: there are forked repository to support MSVC. (https://github.com/c-smile/quickjspp)
         if is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built on Visual Studio and msvc.")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

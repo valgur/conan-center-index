@@ -46,7 +46,7 @@ class KcovConan(ConanFile):
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("kcov can not be built on windows.")
+            raise ConanInvalidConfiguration("kcov cannot be built on windows.")
         if is_apple_os(self):
             if Version(self.version) < 42:
                 # MachO support was added in v42

@@ -39,7 +39,7 @@ class PiexConan(ConanFile):
         check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.options.shared:
             # No symbols exported
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Windows.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Windows.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -76,7 +76,7 @@ class PackageConan(ConanFile):
         # Always comment the reason including the upstream issue.
         # INFO: Upstream does not support DLL: See <URL>
         if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
 
     # if another tool than the compiler or Meson is required to build the project (pkgconf, bison, flex etc)
     def build_requirements(self):

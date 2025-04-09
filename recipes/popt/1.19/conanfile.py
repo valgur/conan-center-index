@@ -47,7 +47,7 @@ class PoptConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built with shared on Visual Studio and msvc, use mingw.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built with shared on Visual Studio and msvc, use mingw.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

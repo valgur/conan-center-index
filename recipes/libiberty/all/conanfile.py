@@ -43,7 +43,7 @@ class LibibertyConan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration("libiberty can not be built by Visual Studio.")
+            raise ConanInvalidConfiguration("libiberty cannot be built by Visual Studio.")
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":

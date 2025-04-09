@@ -61,7 +61,7 @@ class MoldConan(ConanFile):
         if self.settings.compiler in ["gcc", "clang", "intel-cc"] and self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration('Mold can only be built with libstdc++11; specify mold:compiler.libcxx=libstdc++11 in your build profile')
         if self.settings.compiler == "msvc":
-            raise ConanInvalidConfiguration(f'{self.name} can not be built on {self.settings.os}.')
+            raise ConanInvalidConfiguration(f'{self.name} cannot be built on {self.settings.os}.')
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "10":
             raise ConanInvalidConfiguration("GCC version 10 or higher required")
         if self.settings.compiler in ('clang', 'apple-clang') and Version(self.settings.compiler.version) < "12":

@@ -76,7 +76,7 @@ class UniAlgoConan(ConanFile):
             )
 
         if is_msvc(self) and self.options.get_safe("shared"):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared with msvc")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared with msvc")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

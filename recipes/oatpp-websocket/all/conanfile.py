@@ -50,7 +50,7 @@ class OatppWebSocketConan(ConanFile):
         check_min_cppstd(self, 11)
 
         if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared library with msvc")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared library with msvc")
 
         if self.info.settings.compiler == "gcc" and Version(self.info.settings.compiler.version) < "5":
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >=5")

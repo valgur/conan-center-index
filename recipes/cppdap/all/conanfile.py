@@ -55,7 +55,7 @@ class PackageConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 11)
         if self.options.shared and is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

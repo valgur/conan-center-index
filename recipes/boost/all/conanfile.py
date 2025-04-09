@@ -483,11 +483,11 @@ class BoostConan(ConanFile):
                     raise ConanInvalidConfiguration(f"Boost '{lib}' library requires multi threading")
 
         if is_msvc(self) and self._shared and is_msvc_static_runtime(self):
-            raise ConanInvalidConfiguration("Boost can not be built as shared library with MT runtime.")
+            raise ConanInvalidConfiguration("Boost cannot be built as shared library with MT runtime.")
 
         # FIXME: In 1.84.0, there are compilation errors on msvc shared build for boost.fiber. https://github.com/boostorg/fiber/issues/314
         if Version(self.version) >= "1.84.0" and is_msvc(self) and self._shared and not self.options.without_fiber:
-            raise ConanInvalidConfiguration("Boost.fiber can not be built as shared library on MSVC.")
+            raise ConanInvalidConfiguration("Boost.fiber cannot be built as shared library on MSVC.")
 
         if not self.options.without_locale and self.options.i18n_backend_iconv == "off" and \
            not self.options.i18n_backend_icu and not self._is_windows_platform:

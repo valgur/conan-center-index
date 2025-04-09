@@ -70,7 +70,7 @@ class AnyRPCConan(ConanFile):
 
         if self.options.with_log4cplus and self.options.with_wchar:
             raise ConanInvalidConfiguration(
-                f"{self.ref} can not be built with both log4cplus and wchar, see"
+                f"{self.ref} cannot be built with both log4cplus and wchar, see"
                 " https://github.com/sgieseking/anyrpc/issues/25"
             )
 

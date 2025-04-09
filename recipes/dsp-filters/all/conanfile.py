@@ -30,7 +30,7 @@ class DSPFiltersConan(ConanFile):
     def validate(self):
         # in case it does not work in another configuration, it should validated here too
         if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} can not be built as shared on Visual Studio and msvc.")
+            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
 
     def export_sources(self):
         export_conandata_patches(self)

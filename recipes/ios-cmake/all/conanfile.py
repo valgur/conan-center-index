@@ -63,7 +63,7 @@ class IosCMakeConan(ConanFile):
                 return "TVOS"
             else:
                 return "SIMULATOR_TVOS"
-        raise ConanInvalidConfiguration("Can not guess toolchain_target. Please set the option explicit (or check our os settings)")
+        raise ConanInvalidConfiguration("cannot guess toolchain_target. Please set the option explicit (or check our os settings)")
 
 
     def source(self):
