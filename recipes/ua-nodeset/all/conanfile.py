@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.files import copy, get, load, save
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

@@ -1,10 +1,9 @@
-from conan import ConanFile
-from conan.tools.files import copy, get
-from conan.tools.layout import basic_layout
-from conan.tools.build import check_min_cppstd
-
-
 import os
+
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import *
+from conan.tools.layout import basic_layout
 
 
 class NanoRTConan(ConanFile):

@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, replace_in_file, copy
+from conan.tools.files import *
 from conan.tools.gnu import AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import VCVars, is_msvc

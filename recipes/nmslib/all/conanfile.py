@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 

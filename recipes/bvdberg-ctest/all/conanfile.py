@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import copy, get
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 import os
 

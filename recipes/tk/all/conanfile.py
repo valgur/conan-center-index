@@ -5,15 +5,7 @@ from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-    rmdir,
-)
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import NMakeDeps, NMakeToolchain, is_msvc

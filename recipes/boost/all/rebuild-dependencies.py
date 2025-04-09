@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 import yaml
-from conan.tools.files import chdir
+from conan.tools.files import *
 
 log = logging.Logger("boost-dependency-builder")
 log.parent = logging.root

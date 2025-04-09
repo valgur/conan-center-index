@@ -1,8 +1,8 @@
+from pathlib import Path
+
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.files import save
-
-from pathlib import Path
+from conan.tools.files import *
 
 required_conan_version = ">=2.8.0"
 
@@ -28,7 +28,7 @@ class hello_conanRecipe(ConanFile):
 
     def layout(self):
         cmake_layout(self)
-    
+
     def generate(self):
         deps = CMakeDeps(self)
         deps.generate()

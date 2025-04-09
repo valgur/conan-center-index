@@ -1,9 +1,10 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
 import functools
 import os
 import re
 import textwrap
+
+from conans import ConanFile, CMake, tools
+from conans.errors import ConanInvalidConfiguration
 
 required_conan_version = ">=2.1"
 

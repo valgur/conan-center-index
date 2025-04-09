@@ -1,7 +1,8 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.microsoft import unix_path
-import os
 
 
 class TestPackageConan(ConanFile):

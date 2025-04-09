@@ -2,8 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import symlinks, rmdir, get, replace_in_file, rename, chdir, patch, mkdir, copy, \
-    apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, is_msvc, MSBuildToolchain

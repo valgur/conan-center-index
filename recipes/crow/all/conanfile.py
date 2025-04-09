@@ -1,6 +1,8 @@
+import os
+
 from conans import ConanFile, tools, CMake
 from conans.errors import ConanInvalidConfiguration
-import os
+
 
 class CrowConan(ConanFile):
     name = "crow"

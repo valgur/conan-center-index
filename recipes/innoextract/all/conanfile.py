@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.build import check_max_cppstd
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, rmdir, copy, apply_conandata_patches, export_conandata_patches, rm
+from conan.tools.files import *
 
 required_conan_version = ">=2.0"
 

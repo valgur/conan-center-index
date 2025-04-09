@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
-from conan.tools.files import get, rmdir, export_conandata_patches, apply_conandata_patches, copy, replace_in_file, rm, save
+from conan.tools.files import *
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path, is_msvc

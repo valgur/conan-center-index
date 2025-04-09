@@ -7,7 +7,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, move_folder_contents, rmdir, load, save
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 

@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rm, rmdir, replace_in_file
+from conan.tools.files import *
 from conan.tools.microsoft import msvc_runtime_flag
 from conan.tools.scm import Version
 

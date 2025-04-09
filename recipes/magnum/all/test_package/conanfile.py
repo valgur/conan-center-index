@@ -1,6 +1,7 @@
+import os
+
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanException
-import os
 
 
 class TestPackageConan(ConanFile):

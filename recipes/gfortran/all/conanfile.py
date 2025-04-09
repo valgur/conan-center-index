@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import XCRun, is_apple_os
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import copy, get, replace_in_file, rmdir, rm, chdir, download, patch
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc

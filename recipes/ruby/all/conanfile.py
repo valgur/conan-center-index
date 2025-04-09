@@ -8,7 +8,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, to_apple_arch
 from conan.tools.build import cross_building, can_run
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, get, rm, rmdir, export_conandata_patches
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path

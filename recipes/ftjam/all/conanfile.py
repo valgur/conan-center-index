@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import can_run, cross_building
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, load, replace_in_file, save
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain

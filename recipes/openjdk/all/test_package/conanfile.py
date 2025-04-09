@@ -1,7 +1,8 @@
-from conan import ConanFile
-from conan.tools.build import can_run
-from conan.errors import ConanException
 from io import StringIO
+
+from conan import ConanFile
+from conan.errors import ConanException
+from conan.tools.build import can_run
 
 required_conan_version = ">=2.1"
 

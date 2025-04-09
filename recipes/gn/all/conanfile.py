@@ -8,7 +8,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import check_min_cppstd
 from conan.tools.env import VirtualBuildEnv, Environment
-from conan.tools.files import chdir, copy, get, load, save, replace_in_file, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars
 from conan.tools.scm import Version

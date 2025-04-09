@@ -1,10 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.tools.files import copy
 from conan.tools.build import check_min_cppstd
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.files import get
 
 required_conan_version = ">=2.0"
 

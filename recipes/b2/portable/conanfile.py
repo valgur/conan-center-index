@@ -6,7 +6,7 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, check_min_cppstd
 from conan.tools.env import VirtualBuildEnv, Environment
-from conan.tools.files import copy, get, save, load, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import VCVars, is_msvc, MSBuildToolchain

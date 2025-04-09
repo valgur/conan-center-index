@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import download, copy
+from conan.tools.files import *
 from conan.errors import ConanInvalidConfiguration
 import os
 

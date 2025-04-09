@@ -1,9 +1,10 @@
+import os
+
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.files import get, rmdir, copy, replace_in_file, rm
-from conan.errors import ConanInvalidConfiguration
-import os
 
 
 class Libpfm4Conan(ConanFile):

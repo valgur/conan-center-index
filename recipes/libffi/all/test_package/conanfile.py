@@ -1,9 +1,10 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
 from conan.tools.env import VirtualRunEnv
 from conan.tools.microsoft import msvc_runtime_flag
-import os
 
 
 class TestPackageConan(ConanFile):

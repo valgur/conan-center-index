@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain
-from conan.tools.files import get, copy, rmdir, save, replace_in_file, export_conandata_patches, apply_conandata_patches, mkdir, rename
+from conan.tools.files import *
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"

@@ -6,7 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv, Environment, VirtualRunEnv
-from conan.tools.files import copy, get, replace_in_file, export_conandata_patches, apply_conandata_patches, rmdir, save, load, collect_libs
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars, unix_path
 from conan.tools.scm import Version

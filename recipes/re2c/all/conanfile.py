@@ -2,9 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir, replace_in_file
-from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

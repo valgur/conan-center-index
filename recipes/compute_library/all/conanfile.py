@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import get, copy, rm, chdir
+from conan.tools.files import *
 from conan.tools.build import check_min_cppstd, cross_building, build_jobs
 from conan.tools.scm import Version
 from conan.tools.gnu import AutotoolsDeps, AutotoolsToolchain

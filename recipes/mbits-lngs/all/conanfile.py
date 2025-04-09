@@ -4,7 +4,7 @@ import textwrap
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import get, copy, save, rmdir, replace_in_file
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

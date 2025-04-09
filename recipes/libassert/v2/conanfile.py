@@ -1,12 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
-from conan.tools.files import get, copy, rmdir
 from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches
-import os
+from conan.tools.files import *
+from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 

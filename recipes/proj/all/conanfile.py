@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import export_conandata_patches, get, copy, rmdir, replace_in_file, collect_libs, rename
+from conan.tools.files import *
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"

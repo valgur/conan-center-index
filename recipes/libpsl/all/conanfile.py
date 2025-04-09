@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -113,7 +113,7 @@ class LibPslConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    from conan.tools.files import rename
+    from conan.tools.files import *
     import glob
     if not conanfile.settings.get_safe("compiler.runtime"):
         return

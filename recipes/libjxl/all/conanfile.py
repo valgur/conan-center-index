@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.build import cross_building, stdcpp_library, check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rmdir, save, rm, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version

@@ -1,11 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import copy
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
-import os
 
 
 class TestPackageConan(ConanFile):

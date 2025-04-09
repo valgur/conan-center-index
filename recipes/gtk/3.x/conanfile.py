@@ -6,7 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.env import VirtualRunEnv, Environment
-from conan.tools.files import copy, get, rm, rmdir, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson

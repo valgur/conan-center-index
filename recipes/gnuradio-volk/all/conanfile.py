@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, Environment
-from conan.tools.files import copy, get, rm, save, rmdir
+from conan.tools.files import *
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"

@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import can_run
-from conan.tools.files import chdir, get, export_conandata_patches, apply_conandata_patches, rm, copy, load, save, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 from conan.tools.layout import basic_layout
 

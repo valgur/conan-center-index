@@ -2,8 +2,8 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import cross_building
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.files import get, copy, rmdir, download
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
 

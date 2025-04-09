@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import chdir, copy, get, mkdir, rm, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 

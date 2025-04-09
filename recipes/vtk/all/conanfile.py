@@ -11,7 +11,7 @@ from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
-from conan.tools.files import export_conandata_patches, get, rmdir, rename, replace_in_file, load, save, copy, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 

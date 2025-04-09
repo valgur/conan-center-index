@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 

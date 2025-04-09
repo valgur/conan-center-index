@@ -4,7 +4,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rename
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, VCVars

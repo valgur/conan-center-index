@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import get, copy
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 import os
 

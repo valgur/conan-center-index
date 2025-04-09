@@ -7,7 +7,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, save, replace_in_file, chdir, rmdir, rm, rename, copy
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 

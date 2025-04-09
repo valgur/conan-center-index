@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, replace_in_file, rm, rmdir
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

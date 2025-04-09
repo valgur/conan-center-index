@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building, check_max_cppstd
 from conan.tools.env import VirtualRunEnv
-from conan.tools.files import copy, get, rm, rmdir, chdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 

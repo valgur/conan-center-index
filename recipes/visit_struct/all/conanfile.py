@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import get, copy
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 import os
 

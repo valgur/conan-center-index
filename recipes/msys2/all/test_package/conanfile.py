@@ -1,6 +1,7 @@
+from io import StringIO
+
 from conan import ConanFile
 from conan.tools.env import Environment
-from io import StringIO
 
 
 class TestPackageConan(ConanFile):

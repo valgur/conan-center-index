@@ -1,14 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches, chdir, copy, export_conandata_patches, get, mkdir,
-    rename, replace_in_file, rm, rmdir
-)
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, MSBuild, MSBuildToolchain
-import os
 
 required_conan_version = ">=2.1"
 

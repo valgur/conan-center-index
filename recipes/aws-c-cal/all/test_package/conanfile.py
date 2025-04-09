@@ -1,9 +1,10 @@
+import io
+import os
+
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, cmake_layout
-import os
-import io
 
 
 class TestPackageConan(ConanFile):

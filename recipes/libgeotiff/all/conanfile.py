@@ -1,9 +1,9 @@
+import os
 import textwrap
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, rmdir, save
-import os
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

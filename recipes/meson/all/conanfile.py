@@ -2,7 +2,7 @@ import os
 import textwrap
 
 from conan import ConanFile
-from conan.tools.files import copy, get, rmdir, save, replace_in_file
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"

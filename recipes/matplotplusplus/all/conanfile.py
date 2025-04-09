@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, cmake_layout, CMake
-from conan.tools.files import copy, get, rmdir, rm, save, replace_in_file
+from conan.tools.files import *
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"

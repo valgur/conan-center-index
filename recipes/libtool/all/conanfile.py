@@ -6,7 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.env import Environment
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rename, replace_in_file, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import check_min_vs, is_msvc

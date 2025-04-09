@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.files import chdir, copy, get
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 

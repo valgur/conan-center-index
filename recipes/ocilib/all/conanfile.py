@@ -1,9 +1,10 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import copy, get, rm, rmdir, chdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
-import os
 
 required_conan_version = ">=2.1"
 

@@ -1,10 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import copy, get, rmdir, rm
-from conan.tools.layout import basic_layout
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import *
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.4.0" # for attribute languages
 
@@ -34,7 +34,7 @@ class LibnftnlConan(ConanFile):
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             raise ConanInvalidConfiguration("libnftnl is only supported on Linux/FreeBSD")
-    
+
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.generate()

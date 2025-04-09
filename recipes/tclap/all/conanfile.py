@@ -1,7 +1,8 @@
-from conan import ConanFile
-from conan.tools.files import get, copy
-from conan.tools.layout import basic_layout
 import os
+
+from conan import ConanFile
+from conan.tools.files import *
+from conan.tools.layout import basic_layout
 
 
 class TclapConan(ConanFile):

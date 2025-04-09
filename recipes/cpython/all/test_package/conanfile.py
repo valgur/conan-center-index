@@ -11,6 +11,7 @@ from conan.tools.gnu import AutotoolsDeps
 from conan.tools.microsoft import is_msvc, VCVars
 from conan.tools.scm import Version
 
+
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 

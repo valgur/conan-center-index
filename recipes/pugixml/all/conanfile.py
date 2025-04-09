@@ -1,9 +1,10 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy, get, load, replace_in_file, rmdir, save
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
-import os
 
 required_conan_version = ">=2.1"
 

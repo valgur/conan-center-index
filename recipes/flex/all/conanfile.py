@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.files import get, rmdir, copy, rm, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 

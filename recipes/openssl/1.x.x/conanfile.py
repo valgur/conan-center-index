@@ -1,20 +1,18 @@
+import fnmatch
+import json
+import os
+import textwrap
+from contextlib import contextmanager
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import (
-    apply_conandata_patches, chdir, copy, export_conandata_patches,
-    get, load, replace_in_file, rm, rmdir, save
-)
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path
-from contextlib import contextmanager
-import fnmatch
-import json
-import os
-import textwrap
 
 required_conan_version = ">=2.1"
 

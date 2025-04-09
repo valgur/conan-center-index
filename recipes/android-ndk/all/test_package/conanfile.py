@@ -1,8 +1,9 @@
+import os
+import platform
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.scm import Version
-import os
-import platform
 
 
 class TestPackgeConan(ConanFile):

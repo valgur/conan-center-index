@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.files import get, copy
+from conan.tools.files import *
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 
 required_conan_version = ">=2.1"

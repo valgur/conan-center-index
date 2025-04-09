@@ -1,7 +1,8 @@
 import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, copy, replace_in_file, rmdir, rm
+from conan.tools.files import *
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -43,9 +44,9 @@ class Libiec61850Conan(ConanFile):
 
     def build(self):
         target_type = "-shared" if self.options.get_safe("shared") else ""
-        replace_in_file(self, os.path.join(self.source_folder, "hal", "CMakeLists.txt"), 
+        replace_in_file(self, os.path.join(self.source_folder, "hal", "CMakeLists.txt"),
                        "install (TARGETS hal hal-shared", f"install (TARGETS hal{target_type}")
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"), 
+        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
                        "install (TARGETS iec61850 iec61850-shared", f"install (TARGETS iec61850{target_type}")
         cmake = CMake(self)
         cmake.configure()
@@ -58,7 +59,7 @@ class Libiec61850Conan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
         for dll_pattern_to_remove in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
-            rm(self, pattern=dll_pattern_to_remove, folder=os.path.join(self.package_folder, "bin"), 
+            rm(self, pattern=dll_pattern_to_remove, folder=os.path.join(self.package_folder, "bin"),
                recursive=True)
 
         if Version(self.version) == "1.6.0":

@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
-from conan.tools.files import get, copy, rmdir, export_conandata_patches, apply_conandata_patches, replace_in_file
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 

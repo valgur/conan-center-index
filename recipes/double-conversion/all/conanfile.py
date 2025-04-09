@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir, rm
+from conan.tools.files import *
 from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
 import os

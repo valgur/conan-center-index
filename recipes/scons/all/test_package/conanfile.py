@@ -1,8 +1,9 @@
+import os
+from io import StringIO
+
 from conan import ConanFile
 from conan.tools.build import build_jobs, cross_building
 from conan.tools.layout import basic_layout
-from io import StringIO
-import os
 
 
 class TestPackageConan(ConanFile):

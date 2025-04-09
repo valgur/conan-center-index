@@ -4,10 +4,7 @@ import textwrap
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
-from conan.tools.files import (
-    collect_libs, copy, load,
-    get, rename, replace_in_file, rmdir, save
-)
+from conan.tools.files import *
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"

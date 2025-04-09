@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, copy, rmdir, load, save, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 
 required_conan_version = ">=2.1"

@@ -1,7 +1,8 @@
-from conan import ConanFile
-from conan.tools.files import copy, download, get
-from conan.errors import ConanInvalidConfiguration
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

@@ -1,12 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import copy, chdir, download, get, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
 from conan.tools.scm import Version
-
-import os
 
 required_conan_version = ">=2.1"
 

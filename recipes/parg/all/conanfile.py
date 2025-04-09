@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get
+from conan.tools.files import *
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"

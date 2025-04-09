@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"

@@ -6,7 +6,7 @@ from conan.tools import CppInfo
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building, stdcpp_library
 from conan.tools.env import Environment
-from conan.tools.files import copy, get, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, unix_path

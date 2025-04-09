@@ -5,7 +5,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import copy, get, rm, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 
 required_conan_version = ">=2.1"

@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout
-from conan.tools.files import chdir, load
+from conan.tools.files import *
 
 
 class TestPackageConan(ConanFile):

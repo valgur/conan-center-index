@@ -1,14 +1,14 @@
+import glob
+import os
 from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.microsoft import is_msvc, unix_path, check_min_vs
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir, chdir, rename, rm
-from conan.tools.gnu import Autotools, AutotoolsToolchain
-from conan.tools.env import VirtualBuildEnv
 from conan.errors import ConanInvalidConfiguration
-import glob
-import os
+from conan.tools.env import VirtualBuildEnv
+from conan.tools.files import *
+from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, unix_path, check_min_vs
 
 required_conan_version = ">=2.1"
 

@@ -7,7 +7,7 @@ from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, rmdir, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.microsoft import is_msvc
 

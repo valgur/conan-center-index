@@ -8,10 +8,7 @@ from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import (
-    apply_conandata_patches, copy, export_conandata_patches, get, load,
-    replace_in_file, rm, rmdir, save
-)
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, check_min_vs, unix_path

@@ -4,7 +4,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import can_run
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, is_msvc, msvs_toolset, MSBuildToolchain

@@ -4,7 +4,7 @@ import shutil
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import Environment, VirtualBuildEnv
-from conan.tools.files import chdir, copy, get, rename, replace_in_file, rm, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path

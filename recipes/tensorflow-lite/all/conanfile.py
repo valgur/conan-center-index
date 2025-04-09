@@ -3,7 +3,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, save, copy, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.scm import Version
 from os.path import join
 import textwrap

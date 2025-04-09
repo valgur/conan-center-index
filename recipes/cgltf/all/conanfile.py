@@ -3,7 +3,7 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, export_conandata_patches, get, load, replace_in_file, save, rename
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

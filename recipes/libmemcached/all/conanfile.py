@@ -1,13 +1,13 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
-from conan.tools.build import cross_building
-from conan.tools.files import apply_conandata_patches, get, copy, export_conandata_patches, rm, rmdir, save
-from conan.tools.layout import basic_layout
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-
-import os
+from conan.tools.build import cross_building
+from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import *
+from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
 

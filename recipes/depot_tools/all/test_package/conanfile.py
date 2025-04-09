@@ -1,7 +1,8 @@
+import os
+
 from conan import ConanFile
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
-import os
 
 
 class TestPackageConan(ConanFile):

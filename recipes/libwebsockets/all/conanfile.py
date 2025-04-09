@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
-from conan.tools.files import get, replace_in_file, rmdir, copy, save, collect_libs
+from conan.tools.files import *
 from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 import os

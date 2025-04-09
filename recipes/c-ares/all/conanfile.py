@@ -1,9 +1,10 @@
+import os
+
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy, get, rm, rmdir, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import *
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=2.1"
 

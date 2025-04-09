@@ -3,7 +3,7 @@ import textwrap
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir, save
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

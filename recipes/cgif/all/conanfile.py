@@ -1,12 +1,13 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rmdir
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
-import os
 
 required_conan_version = ">=2.1"
 
@@ -78,7 +79,7 @@ class CgifConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    from conan.tools.files import rename
+    from conan.tools.files import *
     import glob
     if not conanfile.settings.get_safe("compiler.runtime"):
         return

@@ -1,7 +1,8 @@
-from conan import ConanFile
-from conan.tools.files import get, download, copy, collect_libs
-from conan.errors import ConanInvalidConfiguration
 from os.path import join
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import *
 
 
 class NpcapConan(ConanFile):

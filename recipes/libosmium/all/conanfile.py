@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import cmake_layout
-from conan.tools.files import copy, get
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"

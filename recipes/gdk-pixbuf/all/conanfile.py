@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import can_run
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -262,7 +262,7 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
-    from conan.tools.files import rename
+    from conan.tools.files import *
     import glob
     libdirs = getattr(conanfile.cpp.package, "libdirs")
     for libdir in libdirs:

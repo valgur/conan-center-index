@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.microsoft import is_msvc
-from conan.tools.files import get, rmdir, copy, apply_conandata_patches, export_conandata_patches
+from conan.tools.files import *
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.apple import is_apple_os
 from conan.tools.layout import basic_layout

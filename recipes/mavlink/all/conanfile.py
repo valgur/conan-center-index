@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout
 from conan.tools.env import Environment
-from conan.tools.files import copy, get
+from conan.tools.files import *
 
 required_conan_version = ">=2.4"
 

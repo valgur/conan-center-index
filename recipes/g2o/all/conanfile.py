@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rm, rmdir, save, export_conandata_patches, apply_conandata_patches, replace_in_file
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

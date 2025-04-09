@@ -1,8 +1,9 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, get, rename, replace_in_file
 import glob
 import os
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 

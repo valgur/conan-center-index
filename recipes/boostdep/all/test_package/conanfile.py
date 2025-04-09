@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.env import Environment
-from conan.tools.files import mkdir, save
+from conan.tools.files import *
 
 
 class TestPackageConan(ConanFile):

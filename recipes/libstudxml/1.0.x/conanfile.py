@@ -1,8 +1,9 @@
+import os
+
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, chdir, collect_libs, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 from conans import AutoToolsBuildEnvironment, MSBuild, tools
-import os
 
 required_conan_version = ">=2.1"
 

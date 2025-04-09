@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import copy, get, rename, rm
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path, check_min_vs

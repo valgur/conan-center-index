@@ -9,7 +9,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
 from conan.tools.env import Environment
-from conan.tools.files import copy, get, rm, rmdir, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson

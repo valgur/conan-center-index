@@ -1,7 +1,9 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-import os
+
 
 # testsrc.mp4 generated with:
 # ffmpeg -f lavfi -i testsrc=duration=10:size=1920x1080:rate=30 -c:v libx265 testsrc.mp4

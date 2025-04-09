@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.files import get, chdir, replace_in_file, copy, rmdir, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, MSBuildToolchain, unix_path

@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain
-from conan.tools.files import get, copy, replace_in_file, rm, rmdir
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 

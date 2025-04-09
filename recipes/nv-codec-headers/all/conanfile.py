@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.files import chdir, get, load, rmdir, save
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 

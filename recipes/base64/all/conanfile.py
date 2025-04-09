@@ -1,13 +1,13 @@
+import os
+
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, apply_conandata_patches, chdir, export_conandata_patches, rmdir
 from conan.tools.env import Environment
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-
-import os
 
 required_conan_version = ">=2.1"
 

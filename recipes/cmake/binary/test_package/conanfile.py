@@ -1,6 +1,7 @@
-from six import StringIO
-from conan import ConanFile
 import re
+
+from conan import ConanFile
+from six import StringIO
 
 
 class TestPackageConan(ConanFile):

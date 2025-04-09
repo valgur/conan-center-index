@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.files import chdir, copy, get, load, replace_in_file, rmdir, save, rename
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, unix_path, NMakeToolchain, NMakeDeps

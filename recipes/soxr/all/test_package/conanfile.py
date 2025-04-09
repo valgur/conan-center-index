@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.build import build_jobs, can_run
 from conan.tools.cmake import CMake, cmake_layout
-from conan.tools.files import chdir
+from conan.tools.files import *
 
 
 class TestPackageConan(ConanFile):

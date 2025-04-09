@@ -1,16 +1,16 @@
+import os
+import shutil
+
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
-from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.gnu import PkgConfigDeps
-from conan.tools.scm import Version
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.microsoft import is_msvc
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, rmdir, rename, get, rm, replace_in_file
+from conan.tools.files import *
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
-import shutil
-import os
-
+from conan.tools.meson import Meson, MesonToolchain
+from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 

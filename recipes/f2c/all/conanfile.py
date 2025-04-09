@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMakeToolchain, CMake
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, copy, download, export_conandata_patches, apply_conandata_patches, chdir, mkdir, rename, replace_in_file, load, save
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain, unix_path

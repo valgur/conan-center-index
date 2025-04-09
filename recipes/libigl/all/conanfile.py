@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rm, rmdir, replace_in_file, export_conandata_patches, apply_conandata_patches
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 

@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import copy, download
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"

@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.files import copy, download, save
+from conan.tools.files import *
 import os
 import stat
 

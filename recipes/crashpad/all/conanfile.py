@@ -1,18 +1,16 @@
+import os
+import textwrap
 from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rename, replace_in_file, rm, save, chdir
-from conan.tools.scm import Version
-from conan.tools.build import check_min_cppstd
 from conan.tools.apple import is_apple_os
+from conan.tools.build import check_min_cppstd
 from conan.tools.env import Environment
-from conan.tools.microsoft import VCVars, is_msvc
+from conan.tools.files import *
 from conan.tools.gnu import AutotoolsDeps, AutotoolsToolchain
-
-
-import os
-import textwrap
+from conan.tools.microsoft import VCVars, is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 

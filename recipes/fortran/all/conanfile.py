@@ -5,7 +5,7 @@ import tempfile
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import load, copy
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 

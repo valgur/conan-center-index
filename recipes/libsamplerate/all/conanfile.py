@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, replace_in_file, rmdir
+from conan.tools.files import *
 from conan.tools.scm import Version
 import os
 

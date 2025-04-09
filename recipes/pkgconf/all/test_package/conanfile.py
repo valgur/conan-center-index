@@ -1,7 +1,7 @@
-from io import StringIO
 import os
-from pathlib import Path
 import re
+from io import StringIO
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.build import can_run

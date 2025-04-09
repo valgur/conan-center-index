@@ -2,28 +2,17 @@
 <definitions name="calc"
  targetNamespace="http://websrv.cs.fsu.edu/~engelen/calc.wsdl"
  xmlns:tns="http://websrv.cs.fsu.edu/~engelen/calc.wsdl"
- xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
- xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xmlns:xsd="http://www.w3.org/2001/XMLSchema"
- xmlns:ns="urn:calc"
- xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/"
- xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
- xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
- xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/"
- xmlns="http://schemas.xmlsoap.org/wsdl/">
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns="http://schemas.xmlsoap.org/wsdl/">
 
 <types>
 
- <schema targetNamespace="urn:calc"
-  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
-  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:ns="urn:calc"
-  xmlns="http://www.w3.org/2001/XMLSchema"
-  elementFormDefault="unqualified"
-  attributeFormDefault="unqualified">
+    <schema targetNamespace="urn:calc"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="unqualified"
+            attributeFormDefault="unqualified">
   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
  </schema>
 

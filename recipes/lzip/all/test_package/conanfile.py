@@ -1,9 +1,11 @@
+import os
+from io import StringIO
+
 from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.build import can_run
-from conan.tools.files import rm, save, check_sha256
-import os
-from io import StringIO
+from conan.tools.files import *
+
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"

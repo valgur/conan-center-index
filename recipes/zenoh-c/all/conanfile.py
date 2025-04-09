@@ -6,7 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment
-from conan.tools.files import get, copy, save
+from conan.tools.files import *
 from conan.tools.gnu import GnuToolchain
 
 required_conan_version = ">=2.3.0"

@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rm, rmdir, chdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 

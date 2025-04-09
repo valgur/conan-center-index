@@ -9,7 +9,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run, stdcpp_library, check_min_cppstd
-from conan.tools.files import copy, get, rm, rmdir, rename, export_conandata_patches, apply_conandata_patches, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.build import stdcpp_library
-from conan.tools.files import copy, get, rm, rmdir, rename, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson

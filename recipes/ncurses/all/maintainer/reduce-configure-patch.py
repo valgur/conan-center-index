@@ -5,8 +5,9 @@
 # This script is very crude in that it only checks whether a number is changed.
 
 import argparse
-import patch_ng
 import string
+
+import patch_ng
 
 
 def hunk_contains_only_line_diff(hunk: patch_ng.Hunk):

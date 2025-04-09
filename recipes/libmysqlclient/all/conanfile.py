@@ -4,7 +4,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, can_run, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.env import VirtualRunEnv, VirtualBuildEnv
-from conan.tools.files import rename, get, apply_conandata_patches, replace_in_file, rmdir, rm, export_conandata_patches, mkdir
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version

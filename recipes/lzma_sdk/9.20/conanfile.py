@@ -1,10 +1,10 @@
+import os
+
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import get, chdir, copy, replace_in_file, rm
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
-import os
 
 required_conan_version = ">=2.1"
 

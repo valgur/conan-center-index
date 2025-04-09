@@ -1,11 +1,12 @@
+import os
+import shutil
+
 from conan import ConanFile
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import NMakeToolchain, is_msvc
-import os
-import shutil
 
 required_conan_version = ">=2.1"
 

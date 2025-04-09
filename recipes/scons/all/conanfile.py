@@ -1,9 +1,10 @@
-from conan import ConanFile
-from conan.tools.files import copy, get, save
-from conan.tools.scm import Version
 import os
 import shutil
 import textwrap
+
+from conan import ConanFile
+from conan.tools.files import *
+from conan.tools.scm import Version
 
 
 class SConsConan(ConanFile):

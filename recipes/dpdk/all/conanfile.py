@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.env import Environment
-from conan.tools.files import copy, get, export_conandata_patches, apply_conandata_patches, collect_libs, rm, rmdir, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain

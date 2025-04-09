@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import copy, get, rmdir, replace_in_file, rename
+from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"

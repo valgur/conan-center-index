@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.files import copy, get, rm, rmdir
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import is_msvc

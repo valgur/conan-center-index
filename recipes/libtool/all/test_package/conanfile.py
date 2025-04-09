@@ -1,16 +1,16 @@
-from conan import ConanFile
-from conan.tools.build import cross_building, can_run
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import chdir, mkdir, rmdir
-from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
-from conan.tools.layout import basic_layout
-from conan.tools.gnu import AutotoolsToolchain, Autotools
-from conan.tools.microsoft import is_msvc, unix_path
-from conan.tools.apple import is_apple_os
-
 import glob
 import os
 import shutil
+
+from conan import ConanFile
+from conan.tools.apple import is_apple_os
+from conan.tools.build import cross_building, can_run
+from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake
+from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.files import *
+from conan.tools.gnu import AutotoolsToolchain, Autotools
+from conan.tools.layout import basic_layout
+from conan.tools.microsoft import is_msvc, unix_path
 
 
 class TestPackageConan(ConanFile):

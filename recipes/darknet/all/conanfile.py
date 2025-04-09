@@ -4,14 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
-from conan.tools.files import (
-    apply_conandata_patches,
-    chdir,
-    copy,
-    export_conandata_patches,
-    get,
-    replace_in_file,
-)
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 

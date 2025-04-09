@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import copy, rm, rmdir, get
+from conan.tools.files import *
 from conan.tools.gnu import GnuToolchain
 
 target_map = {

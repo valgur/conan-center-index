@@ -4,7 +4,7 @@ import re
 import shutil
 
 from conan import ConanFile
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, check_min_vs

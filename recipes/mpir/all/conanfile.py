@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.apple import XCRun, to_apple_arch
 from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import apply_conandata_patches, chdir, copy, export_conandata_patches, get, replace_in_file, rm, rmdir
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain, is_msvc, is_msvc_static_runtime, msvc_runtime_flag

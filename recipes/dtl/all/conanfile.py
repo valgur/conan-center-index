@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.tools.files import copy, get, replace_in_file
+from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
