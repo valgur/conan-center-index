@@ -1,4 +1,7 @@
 sources:
+  "1.3.2":
+    url: "https://github.com/eclipse-zenoh/zenoh-c/archive/refs/tags/1.3.2.tar.gz"
+    sha256: "d2b4c643e509b468f6a516f3f96cc54b0af6d8c6ffa532efddd43991fe5fc731"
   "1.2.0":
     url: "https://github.com/eclipse-zenoh/zenoh-c/archive/refs/tags/1.2.0.tar.gz"
     sha256: "d087883adb11458a43fd85d6df86800409cc8cad2812bcdf97d2aaadf771181e"

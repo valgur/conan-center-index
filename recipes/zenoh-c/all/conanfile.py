@@ -8,6 +8,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import GnuToolchain
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.3.0"
 
@@ -15,7 +16,7 @@ required_conan_version = ">=2.3.0"
 class ZenohCConan(ConanFile):
     name = "zenoh-c"
     description = "C API for Zenoh: a pub/sub/query protocol unifying data in motion, data at rest and computations"
-    license = "EPL-2.0 OR Apache-2.0"
+    license = "Apache-2.0 OR EPL-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/eclipse-zenoh/zenoh-c"
     topics = ("networking", "pub-sub", "messaging", "robotics", "ros2", "iot", "edge-computing", "micro-controllers")
@@ -46,7 +47,6 @@ class ZenohCConan(ConanFile):
         "extra_cargo_flags": "Extra flags to pass to Cargo"
     }
 
-
     def config_options(self):
         # The library is always built as PIC
         del self.options.fPIC
@@ -74,13 +74,19 @@ class ZenohCConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[^4]")
         # Match the upstream Rust version:
-        # https://github.com/eclipse-zenoh/zenoh-c/blob/1.1.0/rust-toolchain.toml
-        self.tool_requires("rust/1.75.0")
+        # https://github.com/eclipse-zenoh/zenoh-c/blob/1.3.2/rust-toolchain.toml
+        if Version(self.version) >= "1.3.0":
+            self.tool_requires("rust/1.85.1")
+        else:
+            self.tool_requires("rust/1.75.0")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Disable building of examples and tests
+        save(self, os.path.join(self.source_folder, "examples", "CMakeLists.txt"), "")
+        save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
 
     def _define_rust_env(self, env, scope="host", cflags=None):
         target = self.conf.get(f"user.rust:target_{scope}", check_type=str).replace("-", "_")
@@ -106,13 +112,7 @@ class ZenohCConan(ConanFile):
         env.define_path("CARGO_HOME", os.path.join(self.build_folder, "cargo"))
         env.vars(self).save_script("cargo_paths")
 
-    def _patch_sources(self):
-        # Disable building of examples and tests
-        save(self, os.path.join(self.source_folder, "examples", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -155,5 +155,5 @@ class ZenohCConan(ConanFile):
             self.cpp_info.frameworks.extend(["Foundation", "Security"])
 
         # The .so file built by Rust does not set the SONAME field
-        # Match https://github.com/eclipse-zenoh/zenoh-c/blob/1.1.0/CMakeLists.txt#L292
+        # Match https://github.com/eclipse-zenoh/zenoh-c/blob/1.3.2/CMakeLists.txt#L293
         self.cpp_info.set_property("nosoname", True)
