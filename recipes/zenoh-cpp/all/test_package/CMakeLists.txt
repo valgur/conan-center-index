@@ -4,4 +4,7 @@ project(test_package LANGUAGES CXX)
 find_package(zenohcxx REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE zenohcxx::zenohc)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    $<TARGET_NAME_IF_EXISTS:zenohcxx::zenohc>
+    $<TARGET_NAME_IF_EXISTS:zenohcxx::zenohpico>
+)

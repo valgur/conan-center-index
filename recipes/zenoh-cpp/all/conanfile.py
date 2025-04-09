@@ -18,15 +18,21 @@ class ZenohCppConan(ConanFile):
     topics = ("networking", "pub-sub", "messaging", "robotics", "ros2", "iot", "edge-computing", "micro-controllers")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-
-    def export_sources(self):
-        export_conandata_patches(self)
+    options = {
+        "backend": [None, "c", "pico"],
+    }
+    default_options = {
+        "backend": "c",
+    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"zenoh-c/{self.version}")
+        if self.options.backend == "c":
+            self.requires(f"zenoh-c/{self.version}")
+        elif self.options.backend == "pico":
+            self.requires(f"zenoh-pico/{self.version}")
 
     def package_id(self):
         self.info.clear()
@@ -42,8 +48,8 @@ class ZenohCppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.cache_variables["ZENOHCXX_ZENOHC"] = True
-        tc.cache_variables["ZENOHCXX_ZENOHPICO"] = False
+        tc.cache_variables["ZENOHCXX_ZENOHC"] = self.options.backend == "c"
+        tc.cache_variables["ZENOHCXX_ZENOHPICO"] = self.options.backend == "pico"
         tc.cache_variables["ZENOHCXX_EXAMPLES_PROTOBUF"] = False
         tc.cache_variables["ZENOHCXX_ENABLE_TESTS"] = False
         tc.cache_variables["ZENOHCXX_ENABLE_EXAMPLES"] = False
@@ -67,8 +73,15 @@ class ZenohCppConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "zenohcxx")
         self.cpp_info.set_property("pkg_config_name", "zenohcxx")
 
-        self.cpp_info.components["zenohc"].set_property("cmake_target_name", "zenohcxx::zenohc")
-        self.cpp_info.components["zenohc"].bindirs = []
-        self.cpp_info.components["zenohc"].libdirs = []
-        self.cpp_info.components["zenohc"].requires = ["zenoh-c::zenoh-c"]
-        self.cpp_info.components["zenohc"].defines = ["ZENOHCXX_ZENOHC"]
+        if self.options.backend == "c":
+            self.cpp_info.components["zenohc"].set_property("cmake_target_name", "zenohcxx::zenohc")
+            self.cpp_info.components["zenohc"].bindirs = []
+            self.cpp_info.components["zenohc"].libdirs = []
+            self.cpp_info.components["zenohc"].requires = ["zenoh-c::zenoh-c"]
+            self.cpp_info.components["zenohc"].defines = ["ZENOHCXX_ZENOHC"]
+        elif self.options.backend == "pico":
+            self.cpp_info.components["zenohpico"].set_property("cmake_target_name", "zenohcxx::zenohpico")
+            self.cpp_info.components["zenohpico"].bindirs = []
+            self.cpp_info.components["zenohpico"].libdirs = []
+            self.cpp_info.components["zenohpico"].requires = ["zenoh-pico::zenoh-pico"]
+            self.cpp_info.components["zenohpico"].defines = ["ZENOHCXX_ZENOHPICO"]
