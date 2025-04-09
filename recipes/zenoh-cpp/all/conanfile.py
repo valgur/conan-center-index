@@ -71,6 +71,7 @@ class ZenohCppConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "zenohcxx")
+        self.cpp_info.set_property("cmake_target_name", "zenohcxx::zenohcxx")  # unofficial
         self.cpp_info.set_property("pkg_config_name", "zenohcxx")
 
         if self.options.backend == "c":
