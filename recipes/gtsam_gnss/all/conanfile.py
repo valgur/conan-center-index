@@ -13,7 +13,7 @@ class GtsamGnssPackage(ConanFile):
     description = "Factor graph optimization library for GNSS positioning"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/project/package"
+    homepage = "https://github.com/taroz/gtsam_gnss"
     topics = ("gps", "gnss", "fgo", "factor-graph", "robotics", "gtsam")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
