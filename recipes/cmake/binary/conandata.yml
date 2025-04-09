@@ -1,23 +1,23 @@
 sources:
-  "4.0.0-rc4":
+  "4.0.0":
     Linux:
       armv8:
-        url: "https://cmake.org/files/ReleaseCandidate/cmake-4.0.0-rc4-linux-aarch64.tar.gz"
-        sha256: "d14560f4e96f6bc1525c9867d8d8989291b2ac0adb538705d24aa61b9390d38b"
+        url: "https://cmake.org/files/v4.0/cmake-4.0.0-linux-aarch64.tar.gz"
+        sha256: "3727d7a6ca900331447a55c08404cc11248b2e8d2709a6b3ed85b01189bb16af"
       x86_64:
-        url: "https://cmake.org/files/ReleaseCandidate/cmake-4.0.0-rc4-linux-x86_64.tar.gz"
-        sha256: "763b2a3e13c8a824ef2db5ce051efdbddbc3777e79e13d9c73613d99b6d229e0"
+        url: "https://cmake.org/files/v4.0/cmake-4.0.0-linux-x86_64.tar.gz"
+        sha256: "a06e6e32da747e569162bc0442a3fd400fadd9db7d4f185c9e4464ab299a294b"
     Macos:
       universal:
-        url: "https://cmake.org/files/ReleaseCandidate/cmake-4.0.0-rc4-macos-universal.tar.gz"
-        sha256: "2f352ef0469454e7fb270f39373d9869a7290b9ebd1cf8904512c6bfb85d717d"
+        url: "https://cmake.org/files/v4.0/cmake-4.0.0-macos10.10-universal.tar.gz"
+        sha256: "94c92c76ac861da7e450d44805be828a8c9b2c3c5dd75144c91248fe1d177eea"
     Windows:
       armv8:
-        url: "https://cmake.org/files/ReleaseCandidate/cmake-4.0.0-rc4-windows-arm64.zip"
-        sha256: "57769269273d95f7f7370c9cfe3acc1eca231c141908f046090e08cf443681af"
+        url: "https://cmake.org/files/v4.0/cmake-4.0.0-windows-arm64.zip"
+        sha256: "6a24f1ea0965a10a2508b16db1ec8b62c83d5323ac33a1aa7d201797ba147302"
       x86_64:
-        url: "https://cmake.org/files/ReleaseCandidate/cmake-4.0.0-rc4-windows-x86_64.zip"
-        sha256: "71ec6d8f2096ef735681beb514aae523fecbd05b8129d65d907bb86222407c12"
+        url: "https://cmake.org/files/v4.0/cmake-4.0.0-windows-x86_64.zip"
+        sha256: "89e87f3e297b70f1349ee7c5f90783ca96efb986b70c558c799c3c9b1b716456"
   "3.31.6":
     Linux:
       armv8:
