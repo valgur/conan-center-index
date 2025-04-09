@@ -1,5 +1,6 @@
-#include "date/date.h"
-#include "date/tz.h"
+#include <date/date.h>
+#include <date/tz.h>
+
 #include <iostream>
 
 int main() {
@@ -9,6 +10,10 @@ int main() {
 #ifndef DATE_HEADER_ONLY
     try {
         const date::time_zone* tz = date::current_zone();
+        std::cout << "Current time zone: " << tz->name() << std::endl;
+        for (const date::tzdb& tzdb : date::get_tzdb_list()) {
+            std::cout << "tzdb version: " << tzdb.version << std::endl;
+        }
     }
     catch (const std::exception & e) {
     }
