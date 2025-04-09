@@ -1,6 +1,7 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, collect_libs, copy, export_conandata_patches, get, replace_in_file, rmdir, rm
+from conan.tools.scm import Version
 import glob
 import os
 
@@ -58,6 +59,8 @@ class ZstdConan(ConanFile):
         tc.variables["ZSTD_BUILD_STATIC"] = not self.options.shared or self.options.build_programs
         tc.variables["ZSTD_BUILD_SHARED"] = self.options.shared
         tc.variables["ZSTD_MULTITHREAD_SUPPORT"] = self.options.threading
+        if Version(self.version) < "1.5.6":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):

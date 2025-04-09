@@ -1,9 +1,11 @@
+import os
+
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rmdir
-import os
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -49,6 +51,8 @@ class EasyhttpcppConan(ConanFile):
 
     def requirements(self):
         self.requires("poco/1.12.4", transitive_headers=True, transitive_libs=True)
+        if self.settings.os != "Windows":
+            self.requires("openssl/[>=1.1 <4]")
 
     @property
     def _required_poco_components(self):
@@ -60,7 +64,7 @@ class EasyhttpcppConan(ConanFile):
         return comps
 
     def validate(self):
-        if any([not self.dependencies["poco"].options.get_safe(comp, False) for comp in self._required_poco_components]):
+        if any(not self.dependencies["poco"].options.get_safe(comp, False) for comp in self._required_poco_components):
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires the following poco options enabled: {', '.join(self._required_poco_components)}"
             )
@@ -78,6 +82,9 @@ class EasyhttpcppConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             tc.preprocessor_definitions["EASYHTTPCPP_DLL"] = "1"
             tc.preprocessor_definitions["EASYHTTPCPP_API_EXPORTS"] = "1"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        if Version(self.version) > "2.1.0": # pylint: disable=conan-unreachable-upper-version
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -111,4 +118,4 @@ class EasyhttpcppConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.requires.append("poco::poco_netsslwin")
         else:
-            self.cpp_info.requires.append("poco::poco_netssl")
+            self.cpp_info.requires.extend(["poco::poco_netssl", "openssl::ssl"])

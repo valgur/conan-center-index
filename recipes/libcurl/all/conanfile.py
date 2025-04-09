@@ -188,6 +188,9 @@ class LibcurlConan(ConanFile):
             self.requires("c-ares/[>=1.27 <2]")
         if self.options.get_safe("with_libpsl"):
             self.requires("libpsl/0.21.1")
+        if self.options.with_libidn:
+            self.requires("libidn2/2.3.0")
+
 
     def validate(self):
         if self.options.with_ssl == "schannel" and self.settings.os != "Windows":
@@ -204,7 +207,7 @@ class LibcurlConan(ConanFile):
     def build_requirements(self):
         if self._is_using_cmake_build:
             if self._is_win_x_android:
-                self.tool_requires("ninja/1.11.1")
+                self.tool_requires("ninja/[>=1.10.2 <2]")
         else:
             self.tool_requires("libtool/2.4.7")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -552,6 +555,12 @@ class LibcurlConan(ConanFile):
             else:
                 tc.configure_args.append("--disable-websockets")
 
+        if self.options.with_libidn:
+            path = unix_path(self, self.dependencies["libidn2"].package_folder)
+            tc.configure_args.append(f"--with-libidn2={path}")
+        else:
+            tc.configure_args.append("--without-libidn2")
+
         # Cross building flags
         if cross_building(self):
             if self.settings.os == "Linux" and "arm" in self.settings.arch:
@@ -616,6 +625,7 @@ class LibcurlConan(ConanFile):
         tc.variables["ENABLE_UNICODE"] = True
         tc.variables["BUILD_TESTING"] = False
         tc.variables["BUILD_CURL_EXE"] = False
+        tc.cache_variables["ENABLE_CURL_MANUAL"] = False
         tc.variables["CURL_DISABLE_LDAP"] = not self.options.with_ldap
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["CURL_STATICLIB"] = not self.options.shared
@@ -636,6 +646,11 @@ class LibcurlConan(ConanFile):
         tc.variables["CURL_DISABLE_PROXY"] = not self.options.with_proxy
         tc.variables["USE_LIBRTMP"] = self.options.with_librtmp
         tc.variables["USE_LIBIDN2"] = self.options.with_libidn
+        if self.options.with_libidn:
+            # Conan won't generate this variable as we're setting prefixes,
+            # and CMake might not either as it's looking for Libidn2
+            # Ensure it's there
+            tc.cache_variables["LIBIDN2_FOUND"] = True
         tc.variables["CURL_DISABLE_RTSP"] = not self.options.with_rtsp
         tc.variables["CURL_DISABLE_CRYPTO_AUTH"] = not self.options.with_crypto_auth
         tc.variables["CURL_DISABLE_VERBOSE_STRINGS"] = not self.options.with_verbose_strings
@@ -676,6 +691,10 @@ class LibcurlConan(ConanFile):
         deps = CMakeDeps(self)
         deps.set_property("wolfssl", "cmake_additional_variables_prefixes", ["WolfSSL", "WOLFSSL"])
         deps.set_property("wolfssl", "cmake_file_name", "WolfSSL")
+
+        if self.options.with_libidn:
+            deps.set_property("libidn2", "cmake_file_name", "Libidn2")
+            deps.set_property("libidn2", "cmake_additional_variables_prefixes", ["LIBIDN2"])
         deps.generate()
 
     def package(self):
@@ -710,8 +729,6 @@ class LibcurlConan(ConanFile):
         else:
             self.cpp_info.components["curl"].libs = ["curl"]
             if self.settings.os in ["Linux", "FreeBSD"]:
-                if self.options.with_libidn:
-                    self.cpp_info.components["curl"].libs.append("idn")
                 if self.options.with_librtmp:
                     self.cpp_info.components["curl"].libs.append("rtmp")
 
@@ -719,7 +736,7 @@ class LibcurlConan(ConanFile):
             self.cpp_info.components["curl"].system_libs = ["rt", "pthread"]
         elif self.settings.os == "Windows":
             # used on Windows for VS build, native and cross mingw build
-            self.cpp_info.components["curl"].system_libs = ["ws2_32"]
+            self.cpp_info.components["curl"].system_libs = ["ws2_32", "bcrypt"]
             if self.options.with_ldap:
                 self.cpp_info.components["curl"].system_libs.append("wldap32")
             if self.options.with_ssl == "schannel":
@@ -762,6 +779,8 @@ class LibcurlConan(ConanFile):
             self.cpp_info.components["curl"].requires.append("c-ares::c-ares")
         if self.options.get_safe("with_libpsl"):
             self.cpp_info.components["curl"].requires.append("libpsl::libpsl")
+        if self.options.with_libidn:
+            self.cpp_info.components["curl"].requires.append("libidn2::libidn2")
 
         self.cpp_info.components["curl"].set_property("cmake_target_name", "CURL::libcurl")
         self.cpp_info.components["curl"].set_property("pkg_config_name", "libcurl")

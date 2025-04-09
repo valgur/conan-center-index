@@ -1,9 +1,11 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import is_msvc
-from conan.tools.files import get, copy
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-import os
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy
+from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -35,6 +37,9 @@ class LexborConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
@@ -54,6 +59,7 @@ class LexborConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -62,6 +68,10 @@ class LexborConan(ConanFile):
         tc.variables["LEXBOR_TESTS_CPP"] = False
         tc.variables["LEXBOR_BUILD_SEPARATELY"] = self.options.build_separately
         tc.variables["LEXBOR_INSTALL_HEADERS"] = True
+        if Version(self.version) < "2.3.0":
+            # To install relocatable shared lib on Macos by default
+            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):
@@ -76,7 +86,6 @@ class LexborConan(ConanFile):
 
     def package_info(self):
         target = "lexbor" if self.options.shared else "lexbor_static"
-
         self.cpp_info.set_property("cmake_target_name", f"lexbor::{target}")
 
         self.cpp_info.libs = [target]
