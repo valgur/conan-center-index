@@ -1,10 +1,11 @@
 import glob
+import io
 import os
 import re
 import shutil
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools import CppInfo
 from conan.tools.apple import is_apple_os
 from conan.tools.build import cross_building
@@ -459,6 +460,17 @@ class FFMpegConan(ConanFile):
         })
         return tc
 
+    def _get_system_pkg_config_paths(self):
+        # Global PKG_CONFIG_PATH is generally not filled by default, so ask for the default paths from pkg-config instead.
+        # Assumes that pkg-config is installed system-wide.
+        pkg_config = self.conf.get("tools.gnu:pkg_config", default="pkg-config", check_type=str)
+        output = io.StringIO()
+        try:
+            self.run(f"{pkg_config} --variable pc_path pkg-config", output, scope=None)
+            return output.getvalue().strip()
+        except ConanException:
+            return None
+
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
@@ -647,13 +659,10 @@ class FFMpegConan(ConanFile):
         if ranlib:
             args.append(f"--ranlib={unix_path(self, ranlib)}")
         if cross_building(self):
-            build_cc = AutotoolsToolchain(self).vars().get("CC_FOR_BUILD", "c++")
+            build_cc = AutotoolsToolchain(self).vars()["CC_FOR_BUILD"]
             args.append(f"--host-cc={unix_path(self, build_cc)}")
         pkg_config = self.conf.get("tools.gnu:pkg_config", default=buildenv_vars.get("PKG_CONFIG", "pkgconf"), check_type=str)
         if pkg_config:
-            # the ffmpeg configure script hardcodes the name of the executable,
-            # unlike other tools that use the PKG_CONFIG environment variable
-            # if we are aware the user has requested a specific pkg-config, we pass it to the configure script
             args.append(f"--pkg-config={unix_path(self, pkg_config)}")
         if is_msvc(self):
             args.append("--toolchain=msvc")
@@ -692,6 +701,15 @@ class FFMpegConan(ConanFile):
         else:
             deps = AutotoolsDeps(self)
             deps.generate()
+
+        using_system_deps = any(dep.ref.version == "system" for dep, _ in self.dependencies.items())
+        if using_system_deps:
+            system_pkg_config_path = self._get_system_pkg_config_paths()
+            if system_pkg_config_path:
+                env = Environment()
+                env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
+                env.append_path("PKG_CONFIG_PATH", system_pkg_config_path)
+                env.vars(self).save("system_pkg_config_path")
 
         deps = PkgConfigDeps(self)
         deps.generate()
