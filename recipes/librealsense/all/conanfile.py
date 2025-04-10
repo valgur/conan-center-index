@@ -2,6 +2,7 @@ import os
 import urllib
 
 from conan import ConanFile
+from conan.errors import ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -105,6 +106,9 @@ class LibrealsenseConan(ConanFile):
         tc.variables["BUILD_CV_KINFU_EXAMPLE"] = False
         if self.settings.os == "Windows":
             tc.variables["FORCE_RSUSB_BACKEND"] = self.options.rsusb_backend
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        if Version(self.version) > "2.53.1": # pylint: disable=conan-unreachable-upper-version
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 
         deps = CMakeDeps(self)
