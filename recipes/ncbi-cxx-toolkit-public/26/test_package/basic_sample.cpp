@@ -28,31 +28,27 @@
  *
  */
 
-#include <ncbi_pch.hpp>
 #include <corelib/ncbiapp.hpp>
-#include <corelib/ncbienv.hpp>
 #include <corelib/ncbiargs.hpp>
+#include <corelib/ncbienv.hpp>
+#include <ncbi_pch.hpp>
 
 USING_NCBI_SCOPE;
-
 
 /////////////////////////////////////////////////////////////////////////////
 //  CSampleBasicApplication::
 
-class CSampleBasicApplication : public CNcbiApplication
-{
-private:
+class CSampleBasicApplication : public CNcbiApplication {
+  private:
     virtual void Init(void);
-    virtual int  Run(void);
+    virtual int Run(void);
     virtual void Exit(void);
 };
-
 
 /////////////////////////////////////////////////////////////////////////////
 //  Init test for all different types of arguments
 
-void CSampleBasicApplication::Init(void)
-{
+void CSampleBasicApplication::Init(void) {
     // // Set error posting and tracing on maximum
     // SetDiagTrace(eDT_Enable);
     // SetDiagPostFlag(eDPF_All);
@@ -62,37 +58,30 @@ void CSampleBasicApplication::Init(void)
     unique_ptr<CArgDescriptions> arg_desc(new CArgDescriptions);
 
     // Specify USAGE context
-    arg_desc->SetUsageContext(GetArguments().GetProgramBasename(),
-                              "Basic sample demo program");
+    arg_desc->SetUsageContext(GetArguments().GetProgramBasename(), "Basic sample demo program");
     // Setup arg.descriptions for this application
     SetupArgDescriptions(arg_desc.release());
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 //  Run test (printout arguments obtained from command-line)
 
-int CSampleBasicApplication::Run(void)
-{
+int CSampleBasicApplication::Run(void) {
     cout << "NCBI C++ Toolkit ready" << endl;
     return 0;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////
 //  Cleanup
 
-void CSampleBasicApplication::Exit(void)
-{
+void CSampleBasicApplication::Exit(void) {
     // Do your after-Run() cleanup here
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 //  MAIN
 
-int NcbiSys_main(int argc, ncbi::TXChar* argv[])
-{
+int NcbiSys_main(int argc, ncbi::TXChar *argv[]) {
     // Execute main application function; change argument list to
     // (argc, argv, 0, eDS_Default, 0) if there's no point in trying
     // to look for an application-specific configuration file.
