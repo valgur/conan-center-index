@@ -48,6 +48,16 @@ class XlntConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Remove unvendored third party libs
+        for third_party in ("libstudxml", "miniz", "utfcpp"):
+            rmdir(self, os.path.join(self.source_folder, "third-party", third_party))
+        for path in [
+            Path(self.source_folder, "include", "xlnt", "cell", "phonetic_run.hpp"),
+            Path(self.source_folder, "include", "xlnt", "utils", "variant.hpp"),
+            Path(self.source_folder, "source", "utils", "time.cpp"),
+            Path(self.source_folder, "source", "utils", "timedelta.cpp"),
+        ]:
+            path.write_text("#include <cstdint>\n" + path.read_text())
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -63,21 +73,7 @@ class XlntConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Remove unvendored third party libs
-        for third_party in ("libstudxml", "miniz", "utfcpp"):
-            rmdir(self, os.path.join(self.source_folder, "third-party", third_party))
-        path = Path(self.source_folder, "include", "xlnt", "cell", "phonetic_run.hpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "source", "utils", "timedelta.cpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "source", "utils", "time.cpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "include", "xlnt", "utils", "variant.hpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
