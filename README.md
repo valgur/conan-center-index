@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-09:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-10:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -27,6 +27,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - casadi/3.6.6
 - cilantro/cci.20230816
 - cimg/3.3.5
+- cmake/4.0.0
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -85,9 +86,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtkmm/3.24.9
 - gtkmm/4.16.0
 - gtsam/4.3-pre.20250201
+- gtsam_gnss/0.0.0.cci.20250213
 - gtsam_points/1.0.6
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
+- highs/1.5.3
+- highs/1.6.0
+- highs/1.7.0
+- highs/1.8.0
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
@@ -196,6 +202,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.77.1
 - rust/1.81.0
 - rust/1.84.0
+- rust/1.85.1
 - secsipidx/1.3.2
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
@@ -263,4 +270,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xorg/1.8.10
 - xtrans/1.5.0
 - zenoh-c/1.2.0
+- zenoh-c/1.3.2
+- zenoh-cpp/1.3.2
+- zenoh-pico/1.3.2
 
