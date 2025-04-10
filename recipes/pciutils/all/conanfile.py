@@ -80,7 +80,7 @@ class PciUtilsConan(ConanFile):
         tc.make_args["PREFIX"] = "/"
         tc.make_args["DNS"] = "no"
         tc.make_args["HOST"] = self._host
-        if "CC" in tc_vars:
+        if "CC" in tc_vars.keys():
             tc.make_args["CC"] = tc_vars["CC"]
         if cross_building(self):
             tc.make_args["CROSS_COMPILE"] = tc_vars["STRIP"].rsplit("strip", 1)[0]

@@ -85,7 +85,7 @@ class LibTomCryptConan(ConanFile):
         tc.make_args["CFLAGS"] = " ".join(cflags)
         tc.make_args["LDFLAGS"] = " ".join(ldflags)
         tc_vars = tc.extra_env.vars(self)
-        if "CC" in tc_vars:
+        if "CC" in tc_vars.keys():
             tc.make_args["CC"] = tc_vars["CC"]
         if cross_building(self):
             tc.make_args["CROSS_COMPILE"] = tc_vars["STRIP"].rsplit("strip", 1)[0]

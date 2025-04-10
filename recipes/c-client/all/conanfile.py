@@ -66,7 +66,7 @@ class CclientConan(ConanFile):
     @property
     def _cc(self):
         tc_vars = AutotoolsToolchain(self).vars()
-        if "CC" in tc_vars:
+        if "CC" in tc_vars.keys():
             return tc_vars["CC"]
         compiler = str(self.settings.compiler)
         return compiler if compiler in ["gcc", "clang"] else "cc"
