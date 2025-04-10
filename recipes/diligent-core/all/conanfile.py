@@ -26,16 +26,14 @@ class DiligentCoreConan(ConanFile):
         "with_glslang": [True, False],
     }
     default_options = {
-        "shared": False	,
+        "shared": False,
         "fPIC": True,
-        "with_glslang": True
+        "with_glslang": False,
     }
-    short_paths = True
     implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
-        export_conandata_patches(self)
 
     def package_id(self):
         if is_msvc(self.info):
@@ -74,12 +72,11 @@ class DiligentCoreConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.24 <4]")
+        self.tool_requires("cmake/[^4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         save(self, os.path.join("ThirdParty", "CMakeLists.txt"), "")
-        apply_conandata_patches(self)
 
     def _diligent_platform(self):
         if self.settings.os == "Windows":
@@ -99,18 +96,21 @@ class DiligentCoreConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_PROJECT_DiligentCore_INCLUDE"] = "conan_deps.cmake"
-        tc.variables["DILIGENT_BUILD_SAMPLES"] = False
-        tc.variables["DILIGENT_NO_FORMAT_VALIDATION"] = True
-        tc.variables["DILIGENT_BUILD_TESTS"] = False
-        tc.variables["DILIGENT_NO_DXC"] = True
-        tc.variables["DILIGENT_NO_GLSLANG"] = not self.options.with_glslang
-        tc.variables["SPIRV_CROSS_NAMESPACE_OVERRIDE"] = self.dependencies["spirv-cross"].options.namespace
-        tc.variables["DILIGENT_CLANG_COMPILE_OPTIONS"] = ""
-        tc.variables["DILIGENT_MSVC_COMPILE_OPTIONS"] = ""
-        tc.variables["ENABLE_RTTI"] = True
-        tc.variables["ENABLE_EXCEPTIONS"] = True
-        tc.variables[self._diligent_platform()] = True
+        tc.cache_variables["CMAKE_PROJECT_DiligentCore_INCLUDE"] = "conan_deps.cmake"
+        tc.cache_variables["DILIGENT_BUILD_SAMPLES"] = False
+        tc.cache_variables["DILIGENT_NO_FORMAT_VALIDATION"] = True
+        tc.cache_variables["DILIGENT_BUILD_TESTS"] = False
+        tc.cache_variables["DILIGENT_NO_DXC"] = True
+        tc.cache_variables["DILIGENT_NO_GLSLANG"] = not self.options.with_glslang
+        tc.cache_variables["DILIGENT_CLANG_COMPILE_OPTIONS"] = ""
+        tc.cache_variables["DILIGENT_MSVC_COMPILE_OPTIONS"] = ""
+        tc.cache_variables["ENABLE_RTTI"] = True
+        tc.cache_variables["ENABLE_EXCEPTIONS"] = True
+        tc.cache_variables[self._diligent_platform()] = True
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.19"
+        tc.cache_variables["SPIRV_CROSS_NAMESPACE_OVERRIDE"] = self.dependencies["spirv-cross"].options.namespace
+        # FIXME: should not be necessary, Archiver_GL.cpp fails otherwise
+        tc.preprocessor_definitions["diligent_spirv_cross"] = self.dependencies["spirv-cross"].options.namespace
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -119,14 +119,7 @@ class DiligentCoreConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        # By default, Diligent builds static and shared versions of every main library. We select the one we
-        # want based on options.shared in package(). To avoid building every intermediate library as SHARED,
-        # we have to disable BUILD_SHARED_LIBS.
-        # However, BUILD_SHARED_LIBS cannot be disabled normally (in the toolchain in configure()), because
-        # Conan outputs that override after the standard line that enables BUILD_SHARED_LIBS. Since the latter
-        # is a CACHE variable that cannot be overwritten with another set(), we have to specify it on the
-        # command-line, so it takes effect before the toolchain is parsed.
-        cmake.configure(variables={"BUILD_SHARED_LIBS": "OFF"})
+        cmake.configure()
         cmake.build()
 
     def package(self):
@@ -198,12 +191,12 @@ class DiligentCoreConan(ConanFile):
             self.cpp_info.includedirs.append(os.path.join("include", "Graphics", "GraphicsEngineD3D11", "interface"))
             self.cpp_info.includedirs.append(os.path.join("include", "Graphics", "GraphicsEngineD3D12", "interface"))
 
-        self.cpp_info.defines.append(f"SPIRV_CROSS_NAMESPACE_OVERRIDE={self.dependencies['spirv-cross'].options.namespace}")
+        self.cpp_info.defines.append(f"DILIGENT_SPIRV_CROSS_NAMESPACE={self.dependencies['spirv-cross'].options.namespace}")
         self.cpp_info.defines.append(f"{self._diligent_platform()}=1")
 
-        if self.settings.os in ["Macos", "Linux"]:
+        if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "pthread"]
-        if self.settings.os == "Macos":
+        elif self.settings.os == "Macos":
             self.cpp_info.frameworks = ["CoreFoundation", "Cocoa", "AppKit"]
-        if self.settings.os == "Windows":
+        elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["dxgi", "shlwapi"]

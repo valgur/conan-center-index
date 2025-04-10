@@ -21,4 +21,3 @@ endif()
 
 add_library(SPIRV-Headers ALIAS SPIRV-Headers::SPIRV-Headers)
 add_library(spirv-tools-core ALIAS spirv-tools::spirv-tools)
-add_library(GLEW::glew ALIAS GLEW::GLEW)
