@@ -26,49 +26,35 @@ class AsioGrpcConan(ConanFile):
     }
     default_options = {
         "backend": "boost",
-        # local_allocator default handled in config_options
+        "local_allocator": "memory_resource",
     }
     no_copy_source = True
 
-    def configure(self):
-        self._local_allocator_option = self.options.local_allocator
-        if self._local_allocator_option == "auto":
-            libcxx = self.settings.compiler.get_safe("libcxx")
-            compiler_version = Version(self.settings.compiler.version)
-            prefer_boost_container = libcxx and str(libcxx) == "libc++" or \
-                                     (self.settings.compiler == "gcc" and compiler_version < "9") or \
-                                     (self.settings.compiler == "clang" and compiler_version < "12" and libcxx and str(libcxx) == "libstdc++")
-            self.options.local_allocator = "boost_container" if prefer_boost_container else "memory_resource"
+    def config_options(self):
+        libcxx = str(self.settings.compiler.libcxx)
+        compiler_version = Version(self.settings.compiler.version)
+        if (libcxx == "libc++" or
+                (self.settings.compiler == "gcc" and compiler_version < "9") or
+                (self.settings.compiler == "clang" and compiler_version < "12" and libcxx == "libstdc++")):
+            self.options.local_allocator = "boost_container"
 
     def requirements(self):
         self.requires("grpc/1.67.1", transitive_headers=True, transitive_libs=True)
         if (self.options.get_safe("local_allocator") == "boost_container" and Version(self.version) < "3.0.0") or self.options.backend == "boost":
-            self.requires(f"boost/1.86.0", transitive_headers=True)
+            self.requires("boost/1.86.0", transitive_headers=True)
         if self.options.backend == "asio":
-            version = "1.32.0" if use_latest else "1.29.0"
-            self.requires(f"asio/{version}", transitive_headers=True)
+            self.requires("asio/1.32.0", transitive_headers=True)
         if self.options.backend == "unifex":
             self.requires("libunifex/0.4.0", transitive_headers=True, transitive_libs=True)
 
     def package_id(self):
-        local_allocator = None
-        if "local_allocator" in self.info.options:
-            local_allocator = self.info.options.local_allocator
         self.info.clear()
-        if local_allocator is not None:
-            # Keep the local_allocator option in the package_id
-            self.info.options.local_allocator = local_allocator
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
         check_min_cppstd(self, 17)
-        compiler_version = Version(self.settings.compiler.version)
-        if Version(self.version) == "2.7.0" and self.settings.compiler == "gcc" and compiler_version.major == "11" and \
-                compiler_version < "11.3":
-            raise ConanInvalidConfiguration(f"{self.ref} does not support gcc 11.0-11.2")
-
         if self.options.get_safe("local_allocator") == "recycling_allocator" and self.options.backend == "unifex":
             raise ConanInvalidConfiguration(f'{self.name} -o="&:local_allocator=recycling_allocator" cannot be used in combination with the -o="&:backend=unifex" backend.')
 
