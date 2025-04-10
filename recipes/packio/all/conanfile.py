@@ -5,6 +5,8 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 
+required_conan_version = ">=2.1"
+
 
 class PackioConan(ConanFile):
     name = "packio"
@@ -20,19 +22,14 @@ class PackioConan(ConanFile):
         "standalone_asio": [True, False],
         "msgpack": [True, False],
         "nlohmann_json": [True, False],
-        "boost_json": [True, False],
+        "boost_json": [True, False, "default"],
     }
     default_options = {
         "standalone_asio": False,
         "msgpack": True,
         "nlohmann_json": True,
-        # boost_json no default value for boost_json, if not defined, derive from standalone_asio
+        "boost_json": "default",
     }
-
-    def configure(self):
-        # defaults to True if using boost.asio, False if using asio
-        if self.options.get_safe("boost_json") is None:
-            self.options.boost_json = not self.options.get_safe("standalone_asio", False)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -40,15 +37,22 @@ class PackioConan(ConanFile):
     def package_id(self):
         self.info.clear()
 
+    @property
+    def _use_boost_json(self):
+        # defaults to True if using boost.asio, False if using asio
+        if self.options.boost_json == "default":
+            return not self.options.standalone_asio
+        return self.options.boost_json
+
     def requirements(self):
-        if self.options.get_safe("msgpack"):
+        if self.options.msgpack:
             self.requires("msgpack-cxx/7.0.0")
-        if self.options.get_safe("nlohmann_json"):
+        if self.options.nlohmann_json:
             self.requires("nlohmann_json/3.11.3")
-        if self.options.get_safe("boost_json") or not self.options.get_safe("standalone_asio"):
-            self.requires("boost/1.83.0")
-        if self.options.get_safe("standalone_asio"):
-            self.requires("asio/1.18.1")
+        if self._use_boost_json or not self.options.standalone_asio:
+            self.requires("boost/1.86.0")
+        if self.options.standalone_asio:
+            self.requires("asio/1.32.0")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -58,10 +62,15 @@ class PackioConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "include"),dst=os.path.join(self.package_folder, "include"))
+        copy(self, "*.h", src=os.path.join(self.source_folder, "include"), dst=os.path.join(self.package_folder, "include"))
 
     def package_info(self):
-        self.cpp_info.defines.append(f"PACKIO_STANDALONE_ASIO={1 if self.options.get_safe('standalone_asio') else 0}")
-        self.cpp_info.defines.append(f"PACKIO_HAS_MSGPACK={1 if self.options.get_safe('msgpack') else 0}")
-        self.cpp_info.defines.append(f"PACKIO_HAS_NLOHMANN_JSON={1 if self.options.get_safe('nlohmann_json') else 0}")
-        self.cpp_info.defines.append(f"PACKIO_HAS_BOOST_JSON={1 if self.options.get_safe('boost_json') else 0}")
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+        # Preprocessor defines can be defined to 0 to force-disable
+        self.cpp_info.defines = [
+            f"PACKIO_STANDALONE_ASIO={1 if self.options.standalone_asio else 0}",
+            f"PACKIO_HAS_MSGPACK={1 if self.options.msgpack else 0}",
+            f"PACKIO_HAS_NLOHMANN_JSON={1 if self.options.nlohmann_json else 0}",
+            f"PACKIO_HAS_BOOST_JSON={1 if self._use_boost_json else 0}",
+        ]
