@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain, PkgConfigDep
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibTomCryptConan(ConanFile):
@@ -31,6 +31,8 @@ class LibTomCryptConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -38,28 +40,18 @@ class LibTomCryptConan(ConanFile):
              self.recipe_folder,
              os.path.join(self.export_sources_folder, "src"))
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libtommath/1.2.1")
+        self.requires("libtommath/1.3.0")
 
     def build_requirements(self):
         if not is_msvc(self):
             if self.options.shared:
                 self.tool_requires("libtool/2.4.7")
             if self.settings_build.os == "Windows":
-                self.tool_requires("make/4.4")
+                self.tool_requires("make/4.4.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
