@@ -33,19 +33,6 @@ class IgnitionMathConan(ConanFile):
         "enable_swig": True,
     }
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 17
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "5",
-            "apple-clang": "10",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -67,12 +54,7 @@ class IgnitionMathConan(ConanFile):
             self.requires("swig/4.2.1")
 
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
-        min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if min_version and Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires c++17 support. "
-                f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("ignition-cmake/2.17.1")
