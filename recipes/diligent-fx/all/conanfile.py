@@ -1,76 +1,48 @@
 import os
 import shutil
+from pathlib import Path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import is_apple_os
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conans import CMake
 
 required_conan_version = ">=2.1"
 
 class DiligentFxConan(ConanFile):
     name = "diligent-fx"
+    description = "DiligentFX is the Diligent Engine's high-level rendering framework."
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/DiligentGraphics/DiligentFx/"
-    description = "DiligentFX is the Diligent Engine's high-level rendering framework."
-    license = ("Apache-2.0")
     topics = ("graphics", "game-engine", "renderer", "graphics-library")
-    settings = "os", "compiler", "build_type", "arch"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-    }
-    generators = "cmake_find_package", "cmake"
-    _cmake = None
-    short_paths = True
 
-    @property
-    def _source_subfolder(self):
-        return "source_subfolder"
-
-    @property
-    def _build_subfolder(self):
-        return "build_subfolder"
+    package_type = "static-library"
+    settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
         export_conandata_patches(self)
-        self.copy("CMakeLists.txt")
-        self.copy("BuildUtils.cmake")
-        self.copy("script.py")
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "BuildUtils.cmake", self.recipe_folder, self.export_sources_folder)
+        copy(self, "script.py", self.recipe_folder, self.export_sources_folder)
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._source_subfolder)
-        apply_conandata_patches(self)
-
-    def validate(self):
-        if self.options.shared:
-            raise ConanInvalidConfiguration("Can't build as a shared lib")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            del self.options.fPIC
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.version == "cci.20220219" or self.version == "cci.20211112":
-            self.requires("diligent-tools/2.5.2")
-        else:
-            self.requires("diligent-tools/{}".format(self.version))
+        self.requires(f"diligent-tools/{self.version}")
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     @property
     def _diligent_platform(self):
         if self.settings.os == "Windows":
             return "PLATFORM_WIN32"
-        elif self.settings.os == "Macos":
+        elif is_apple_os(self):
             return "PLATFORM_MACOS"
-        elif self.settings.os == "Linux":
+        elif self.settings.os in ["Linux", "FreeBSD"]:
             return "PLATFORM_LINUX"
         elif self.settings.os == "Android":
             return "PLATFORM_ANDROID"
@@ -81,34 +53,30 @@ class DiligentFxConan(ConanFile):
         elif self.settings.os == "watchOS":
             return "PLATFORM_TVOS"
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
-        self._cmake = CMake(self)
-        self._cmake.definitions["DILIGENT_NO_FORMAT_VALIDATION"] = True
-        self._cmake.definitions["DILIGENT_BUILD_TESTS"] = False
-
-        self._cmake.definitions[self._diligent_platform] = True
-        self._cmake.configure(build_folder=self._build_subfolder)
-        return self._cmake
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["DILIGENT_NO_FORMAT_VALIDATION"] = True
+        tc.variables["DILIGENT_BUILD_TESTS"] = False
+        tc.variables[self._diligent_platform] = True
+        tc.generate()
+        tc = CMakeDeps(self)
+        tc.generate()
 
     def build(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
+        cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
+        cmake = CMake(self)
         cmake.install()
-        self.copy("License.txt", dst="licenses", src=self._source_subfolder)
-        rename(self, src=os.path.join(self.package_folder, "include", "source_subfolder"),
-                     dst=os.path.join(self.package_folder, "include", "DiligentFx"))
-        shutil.move(os.path.join(self.package_folder, "Shaders"),
-                    os.path.join(self.package_folder, "res", "Shaders"))
+        copy(self, "License.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        rename(self, os.path.join(self.package_folder, "include", "source_subfolder"), os.path.join(self.package_folder, "include", "DiligentFx"))
+        shutil.move(os.path.join(self.package_folder, "Shaders"), os.path.join(self.package_folder, "res", "Shaders"))
 
-        self.copy(pattern="*.dll", src=self._build_subfolder, dst="bin", keep_path=False)
-        self.copy(pattern="*.dylib", src=self._build_subfolder, dst="lib", keep_path=False)
-        self.copy(pattern="*.lib", src=self._build_subfolder, dst="lib", keep_path=False)
-        self.copy(pattern="*.a", src=self._build_subfolder, dst="lib", keep_path=False)
+        copy(self, "*.dll", self.build_folder, os.path.join(self.package_folder, "bin"), keep_path=False)
+        for pattern in ["*.lib", "*.a", "*.so", "*.dylib"]:
+            copy(self, pattern, self.build_folder, os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
@@ -117,5 +85,3 @@ class DiligentFxConan(ConanFile):
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentFx", "GLTF_PBR_Renderer", "interface"))
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentFx", "PostProcess", "EpipolarLightScattering", "interface"))
         self.cpp_info.includedirs.append(os.path.join("res"))
-
-
