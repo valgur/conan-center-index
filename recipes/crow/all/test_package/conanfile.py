@@ -17,7 +17,8 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CROW_AMALGAMATION"] = self.dependencies["crowcpp-crow"].options.amalgamation
+        if self.dependencies["crow"].options.amalgamation:
+            tc.preprocessor_definitions["CROW_AMALGAMATION"] = "1"
         tc.generate()
 
     def build(self):
