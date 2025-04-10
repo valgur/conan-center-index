@@ -32,9 +32,6 @@ class RuntimeQml(ConanFile):
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=os.path.join(self.export_sources_folder, "src"))
 
-    def configure(self):
-        self.options["qt"].qtdeclarative = True
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
