@@ -17,10 +17,8 @@ class TestPackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-
         tc.variables["OPENASSETIOTEST_GLIBCXX_USE_CXX11_ABI"] = self.settings.get_safe("compiler.libcxx") == "libstdc++11"
-        tc.variables["OPENASSETIOTEST_ENABLE_PYTHON"] = False # self.dependencies["openassetio"].options.with_python
-
+        tc.variables["OPENASSETIOTEST_ENABLE_PYTHON"] = False
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

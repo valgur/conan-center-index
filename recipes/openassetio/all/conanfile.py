@@ -8,7 +8,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -32,19 +31,6 @@ class PackageConan(ConanFile):
     }
     short_paths = True
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "clang": "12",
-            "apple-clang": "12",
-            "msvc": "191",
-        }
-
     def configure(self):
         if self.options.with_python and is_msvc(self):
             # Required to create import .lib for building extension module.
@@ -63,13 +49,7 @@ class PackageConan(ConanFile):
         if is_apple_os(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support MacOS at this time")
 
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if is_msvc(self) and not self.dependencies["cpython"].options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} requires cpython:shared=True when using MSVC compiler")
