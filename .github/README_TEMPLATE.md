@@ -1,4 +1,4 @@
-This is a fork of Conan Center Index containing [recipes and changes by @valgur](https://github.com/conan-io/conan-center-index/pulls?q=is%3Aopen+is%3Apr+author%3Avalgur+sort%3Aupdated-desc) not yet merged to the main Conan Center Index.
+This is a fork of Conan Center Index containing [recipes and changes by @valgur](https://github.com/conan-io/conan-center-index/pulls?q=is%3Apr+author%3Avalgur+sort%3Aupdated-desc) not yet merged to the main Conan Center Index.
 
 ## Setup
 
