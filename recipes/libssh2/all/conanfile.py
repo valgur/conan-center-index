@@ -64,6 +64,10 @@ class Libssh2Conan(ConanFile):
         tc.cache_variables['BUILD_TESTING'] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
         tc.cache_variables["BUILD_STATIC_LIBS"] = not self.options.shared
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
+        # Ensure DLL symbols are exported correctly
+        tc.cache_variables["HIDE_SYMBOLS"] = True # sets -DLIBSSH2_EXPORTS
+        if Version(self.version) < "1.11" and self.options.shared:
+            tc.preprocessor_definitions["LIBSSH2_EXPORTS"] = ""
         # To install relocatable shared lib on Macos by default
         tc.variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         if Version(self.version) < "1.11.1":
@@ -129,8 +133,12 @@ class Libssh2Conan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "Libssh2")
         self.cpp_info.set_property("cmake_target_name", "Libssh2::libssh2")
         self.cpp_info.set_property("pkg_config_name", "libssh2")
+
         self.cpp_info.libs = collect_libs(self)
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("ws2_32")
         elif self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["pthread", "dl"])
+
+        if self.options.shared:
+            self.cpp_info.defines.append("LIBSSH2_EXPORTS")
