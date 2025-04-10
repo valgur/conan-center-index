@@ -30,23 +30,9 @@ class AsioGrpcConan(ConanFile):
     }
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "msvc": "191",
-            "clang": "6",
-            "apple-clang": "11",
-        }
-
-    def config_options(self):
-        if Version(self.version) >= "3.0.0":
-            del self.options.local_allocator
-        else:
+    def configure(self):
+        self._local_allocator_option = self.options.local_allocator
+        if self._local_allocator_option == "auto":
             libcxx = self.settings.compiler.get_safe("libcxx")
             compiler_version = Version(self.settings.compiler.version)
             prefer_boost_container = libcxx and str(libcxx) == "libc++" or \
@@ -77,14 +63,8 @@ class AsioGrpcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 17)
         compiler_version = Version(self.settings.compiler.version)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version:
-            if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
         if Version(self.version) == "2.7.0" and self.settings.compiler == "gcc" and compiler_version.major == "11" and \
                 compiler_version < "11.3":
             raise ConanInvalidConfiguration(f"{self.ref} does not support gcc 11.0-11.2")
