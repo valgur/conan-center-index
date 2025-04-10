@@ -4,12 +4,12 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
-from conan.tools.files import copy, get, chdir, replace_in_file, rmdir
+from conan.tools.env import VirtualRunEnv
+from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.1"
 
 
 class FirebirdConan(ConanFile):
@@ -19,31 +19,24 @@ class FirebirdConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/FirebirdSQL/firebird"
     topics = ("sql", "database")
-
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("icu/74.2")
+        self.requires("icu/75.1")
         self.requires("termcap/1.3.1")
         self.requires("zlib/[>=1.2.11 <2]")
 
         # Newer versions of re2 add abseil as a transitive dependency,
         # which makes ./configure unusably slow for some reason
-        self.requires("re2/20231101")
-        # self.requires("abseil/20240116.1")  # only absl_int128 is used
+        self.requires("re2/20240702")
+        # self.requires("abseil/20250127.0")  # only absl_int128 is used
 
-        # TODO: enable when merged
-        # https://github.com/conan-io/conan-center-index/pull/18852
-        # self.requires("libtommath/1.2.0")
-        # https://github.com/conan-io/conan-center-index/pull/22113
+        # TODO: unvendor
+        # self.requires("libtommath/1.3.0")
         # self.requires("libtomcrypt/1.18.2")
 
     def validate(self):
@@ -55,15 +48,20 @@ class FirebirdConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/2.1.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, os.path.join(self.source_folder, "extern", "cloop", "Makefile"),
+                        "$(LIBS)", "$(LDFLAGS) $(LIBS)")
+        # Enable only specific vendored libraries
+        # TODO: unvendor
+        allow_vendored = ["absl", "cloop", "decNumber", "icu", "ttmath"]
+        for subdir in self.source_path.joinpath("extern").iterdir():
+            if subdir.name not in allow_vendored:
+                rmdir(self, subdir)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -84,18 +82,7 @@ class FirebirdConan(ConanFile):
         deps = AutotoolsDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "extern", "cloop", "Makefile"),
-                        "$(LIBS)", "$(LDFLAGS) $(LIBS)")
-        # Enable only specific vendored libraries
-        # TODO: unvendor
-        allow_vendored = ["absl", "cloop", "decNumber", "icu", "libtomcrypt", "libtommath", "ttmath"]
-        for subdir in self.source_path.joinpath("extern").iterdir():
-            if subdir.name not in allow_vendored:
-                rmdir(self, subdir)
-
     def build(self):
-        self._patch_sources()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.autoreconf()
