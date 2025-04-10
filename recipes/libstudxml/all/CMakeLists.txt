@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.15)
 project(libstudxml LANGUAGES C CXX)
 
-find_package(EXPAT REQUIRED MODULE)
+find_package(expat REQUIRED CONFIG)
 
 add_library(studxml
-    ${LIBSTUDXML_SRC_DIR}/libstudxml/parser.cxx
-    ${LIBSTUDXML_SRC_DIR}/libstudxml/qname.cxx
-    ${LIBSTUDXML_SRC_DIR}/libstudxml/serializer.cxx
-    ${LIBSTUDXML_SRC_DIR}/libstudxml/value-traits.cxx
-    ${LIBSTUDXML_SRC_DIR}/libstudxml/details/genx/char-props.c
-    ${LIBSTUDXML_SRC_DIR}/libstudxml/details/genx/genx.c
+    libstudxml/parser.cxx
+    libstudxml/qname.cxx
+    libstudxml/serializer.cxx
+    libstudxml/value-traits.cxx
+    libstudxml/details/genx/char-props.c
+    libstudxml/details/genx/genx.c
 )
-target_include_directories(studxml PUBLIC ${LIBSTUDXML_SRC_DIR})
-target_link_libraries(studxml PUBLIC EXPAT::EXPAT)
+target_include_directories(studxml PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(studxml PUBLIC expat::expat)
 
 if(BUILD_SHARED_LIBS)
     target_compile_definitions(studxml
@@ -34,7 +34,7 @@ install(
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 install(
-    DIRECTORY ${LIBSTUDXML_SRC_DIR}/libstudxml
+    DIRECTORY libstudxml
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING REGEX "(.*).(h|hxx|ixx|txx)$"
 )

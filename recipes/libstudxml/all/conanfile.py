@@ -24,16 +24,10 @@ class LibStudXmlConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
-    exports_sources = "CMakeLists.txt"
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -42,34 +36,26 @@ class LibStudXmlConan(ConanFile):
         self.requires("expat/[>=2.6.2 <3]", transitive_headers=True, transitive_libs=True)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # unvendor expat
+        rmdir(self, os.path.join(self.source_folder, "libstudxml", "details", "expat"))
+        replace_in_file(self, os.path.join(self.source_folder, "libstudxml", "parser.hxx"),
+                        "#ifndef LIBSTUDXML_EXTERNAL_EXPAT",
+                        "#if 0")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["LIBSTUDXML_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # unvendor expat
-        rmdir(self, os.path.join(self.source_folder, "libstudxml", "details", "expat"))
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "libstudxml", "parser.hxx"),
-            "#ifndef LIBSTUDXML_EXTERNAL_EXPAT",
-            "#if 0",
-        )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
