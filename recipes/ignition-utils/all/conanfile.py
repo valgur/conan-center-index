@@ -32,27 +32,7 @@ class IgnitionUtilsConan(ConanFile):
         "fPIC": True,
         "ign_utils_vendor_cli11": True,
     }
-
-    @property
-    def _minimum_cpp_standard(self):
-        return 17
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "5",
-            "apple-clang": "10",
-        }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -63,13 +43,7 @@ class IgnitionUtilsConan(ConanFile):
             self.requires("cli11/2.4.2")
 
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
-        min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if min_version and Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires c++17 support. "
-                f"The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("ignition-cmake/2.17.1")
