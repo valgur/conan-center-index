@@ -6,6 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -16,7 +17,7 @@ class LibSigCppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-3.0-only"
     description = "libsigc++ implements a typesafe callback system for standard C++."
-    topics = ("callback")
+    topics = ("callback",)
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -27,6 +28,7 @@ class LibSigCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -44,28 +46,13 @@ class LibSigCppConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
-
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
         minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
             )

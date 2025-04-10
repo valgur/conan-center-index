@@ -28,18 +28,11 @@ class SeasocksConan(ConanFile):
         "fPIC": True,
         "with_zlib": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
         return 11 if Version(self.version) < "1.4.5" else 17
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

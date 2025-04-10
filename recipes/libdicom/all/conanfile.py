@@ -8,7 +8,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibdicomConan(ConanFile):
@@ -29,16 +29,8 @@ class LibdicomConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def requirements(self):
         self.requires("uthash/2.3.0")

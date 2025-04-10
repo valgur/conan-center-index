@@ -28,7 +28,7 @@ class OhNetConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
+    implements = ["auto_shared_fpic"]
 
     def _fill_openhome_architecture(self, args):
         if is_apple_os(self):
@@ -36,14 +36,6 @@ class OhNetConan(ConanFile):
                 openhome_architecture = "arm64"
                 args.extend([f"openhome_architecture={openhome_architecture}", f"detected_openhome_architecture={openhome_architecture}"])
         return args
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")

@@ -10,7 +10,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildToolchain
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibjpegConan(ConanFile):
@@ -30,6 +30,8 @@ class LibjpegConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     @property
     def _is_cl_like(self):
@@ -37,16 +39,6 @@ class LibjpegConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def validate(self):
         if self.version == "9d" and self.settings.os == "Windows" and self.settings.arch == "armv8":

@@ -8,7 +8,6 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -35,38 +34,14 @@ class AeronConan(ConanFile):
         "build_aeron_driver": True,
         "build_aeron_archive_api": True,
     }
+    implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return "11"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "5",
-        }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
+        check_min_cppstd(self, 11)
         if self.settings.os == "Macos" and self.settings.arch == "armv8":
             raise ConanInvalidConfiguration("This platform (os=Macos arch=armv8) is not yet supported by this recipe")
 

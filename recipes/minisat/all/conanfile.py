@@ -15,6 +15,7 @@ class MiniSatConan(ConanFile):
     homepage = "http://minisat.se"
     topics = ("satisfiability", "solver")
     settings = "os", "arch", "compiler", "build_type"
+    package_type = "library"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -23,19 +24,11 @@ class MiniSatConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    package_type = "library"
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

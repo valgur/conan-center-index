@@ -26,6 +26,7 @@ class SeadexGenesisConan(ConanFile):
         "shared": False,
         "fPIC": True
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -39,14 +40,6 @@ class SeadexGenesisConan(ConanFile):
             "msvc": "192",
             "apple-clang": "10"
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def requirements(self):
         # Exposes headers and symbols: https://github.com/SeadexGmbH/genesis/blob/master/genesis/source/version.cpp

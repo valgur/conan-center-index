@@ -25,22 +25,10 @@ class LibavrocppConan(ConanFile):
         "shared": False,
         "fPIC": True
     }
-    short_paths = True
-
-    @property
-    def _min_cppstd(self):
-        return 11
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -51,7 +39,7 @@ class LibavrocppConan(ConanFile):
         self.requires("snappy/1.1.9")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

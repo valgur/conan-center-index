@@ -6,7 +6,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import check_min_vs, is_msvc
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -32,22 +32,7 @@ class GoogleCloudCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
-
-    @property
-    def _minimum_compiler_versions(self):
-        return {
-            "gcc": "5.4",
-            "clang": "6",
-        }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -73,19 +58,12 @@ class GoogleCloudCppConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Fails to compile for Windows as a DLL")
 
-        if hasattr(self, "settings_build") and cross_building(self):
+        if cross_building(self):
             raise ConanInvalidConfiguration("Recipe not prepared for cross-building (yet)")
 
-        if self.settings.compiler.get_safe("cppstd"):
-            if self.settings.compiler == "msvc":
-                check_min_cppstd(self, 20)
-            check_min_cppstd(self, 11)
-
-        check_min_vs(self, "192")
-
-        minimum_version = self._minimum_compiler_versions.get(str(self.settings.compiler))
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.name} requires {self.settings.compiler} >= {minimum_version}")
+        if is_msvc(self):
+            check_min_cppstd(self, 20)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

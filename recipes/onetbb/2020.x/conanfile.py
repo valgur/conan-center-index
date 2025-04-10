@@ -42,6 +42,7 @@ class OneTBBConan(ConanFile):
         "tbbmalloc": False,
         "tbbproxy": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _base_compiler(self):
@@ -53,14 +54,6 @@ class OneTBBConan(ConanFile):
     @property
     def _is_clang_cl(self):
         return self.settings.os == "Windows" and self.settings.compiler == "clang"
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")

@@ -28,18 +28,11 @@ class QCustomPlotConan(ConanFile):
         "fPIC": True,
         "with_opengl": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if Version(self.version) >= "2.0.0":

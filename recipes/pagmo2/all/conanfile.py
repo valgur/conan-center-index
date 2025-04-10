@@ -35,6 +35,7 @@ class Pagmo2Conan(ConanFile):
         "with_nlopt": False,
         "with_ipopt": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _compilers_minimum_version(self):
@@ -44,14 +45,6 @@ class Pagmo2Conan(ConanFile):
             "clang": "5.0",
             "apple-clang": "9",
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

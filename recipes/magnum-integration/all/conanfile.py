@@ -38,14 +38,7 @@ class MagnumIntegrationConan(ConanFile):
         "with_imgui": True,
         "with_ovr": False,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")

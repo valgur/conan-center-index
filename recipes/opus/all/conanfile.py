@@ -8,7 +8,7 @@ from conan.tools.files import *
 from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class OpusConan(ConanFile):
@@ -32,6 +32,8 @@ class OpusConan(ConanFile):
         "fixed_point": False,
         "stack_protector": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def build_requirements(self):
         if Version(self.version) >= "1.5.2":
@@ -39,16 +41,6 @@ class OpusConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

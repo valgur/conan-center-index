@@ -7,8 +7,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
-from conan.tools.scm import Version
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -31,35 +30,15 @@ class AzureStorageCppConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     # Use azure-sdk-for-cpp::azure-storage-blobs-cpp instead
     # https://github.com/Azure/azure-sdk-for-cpp/blob/main/sdk/storage/MigrationGuide.md
     deprecated = "azure-sdk-for-cpp"
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 11
-
-    @property
-    def _minimum_compiler_version(self):
-        return {
-            "gcc": "6",
-            "msvc": "190",
-            "clang": "3.4",
-            "apple-clang": "5.1",
-        }
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -77,23 +56,8 @@ class AzureStorageCppConan(ConanFile):
             self.requires("libgettext/0.22")
 
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
-        min_version = self._minimum_compiler_version.get(str(self.settings.compiler))
-        if not min_version:
-            self.output.warning(
-                f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support."
-            )
-        else:
-            if Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires C++{self._minimum_cpp_standard} support. The current compiler"
-                    f" {self.settings.compiler} {self.settings.compiler.version} does not support it."
-                )
+        check_min_cppstd(self, 11)
 
-        # FIXME: Visual Studio 2015 & 2017 are supported but CI of CCI lacks several Win SDK components
-        # https://github.com/conan-io/conan-center-index/issues/4195
-        if not check_min_vs(self, 192, raise_invalid=False):
-            raise ConanInvalidConfiguration("Visual Studio < 2019 not yet supported in this recipe")
         if self.options.shared and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
 

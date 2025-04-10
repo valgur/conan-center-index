@@ -1,12 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import *
 from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
-import os
-
 
 required_conan_version = ">=2.1"
 
@@ -19,6 +19,8 @@ class FoxgloveSchemasProtobufConan(ConanFile):
     license = "MIT"
     topics = ("foxglove", "protobuf", "schemas")
 
+    settings = "os", "arch", "compiler", "build_type"
+    package_type = "library"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -27,10 +29,7 @@ class FoxgloveSchemasProtobufConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps"
-    package_type = "library"
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -76,14 +75,8 @@ class FoxgloveSchemasProtobufConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.generate()
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)

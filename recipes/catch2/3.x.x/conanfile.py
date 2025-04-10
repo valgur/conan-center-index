@@ -35,6 +35,8 @@ class Catch2Conan(ConanFile):
         "console_width": "80",
         "no_posix_signals": False,
     }
+    implements = ["auto_shared_fpic"]
+
     # disallow cppstd compatibility, as it affects the ABI in this library
     # see https://github.com/conan-io/conan-center-index/issues/19008
     extension_properties = {"compatibility_cppstd": False}
@@ -47,14 +49,6 @@ class Catch2Conan(ConanFile):
     @property
     def _default_reporter_str(self):
         return str(self.options.default_reporter).strip('"')
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

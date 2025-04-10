@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class Id3v2libConan(ConanFile):
@@ -17,34 +17,23 @@ class Id3v2libConan(ConanFile):
     homepage = "https://github.com/larsbs/id3v2lib"
     license = "BSD-2-Clause"
     package_type = "library"
-
     settings = "os", "arch", "compiler", "build_type"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def validate(self):
         # An issue has been opened to discuss supporting MSVC:
         # https://github.com/larsbs/id3v2lib/issues/48
         if is_msvc(self):
             raise ConanInvalidConfiguration("id3v2lib does not support Visual Studio.")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

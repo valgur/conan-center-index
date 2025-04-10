@@ -32,18 +32,11 @@ class LibFDKAACConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _use_cmake(self):
         return Version(self.version) >= "2.0.2"
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def validate_build(self):
         if cross_building(self) and self.settings.os == "Android":

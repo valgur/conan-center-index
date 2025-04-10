@@ -10,7 +10,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class PackageConan(ConanFile):
@@ -44,21 +44,13 @@ class PackageConan(ConanFile):
         "with_openmp": True,
         "with_pthread": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     @property
     def _fortran_compiler(self):
         executables = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
         return executables.get("fortran")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")

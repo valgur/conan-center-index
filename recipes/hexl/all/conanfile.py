@@ -35,6 +35,7 @@ class HexlConan(ConanFile):
         "fpga_compatibility_dyadic_multiply": False,
         "fpga_compatibility_keyswitch": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _compilers_minimum_version(self):
@@ -44,14 +45,6 @@ class HexlConan(ConanFile):
             "clang": "7",
             "apple-clang": "11",
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

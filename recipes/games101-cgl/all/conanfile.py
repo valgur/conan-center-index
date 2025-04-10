@@ -24,18 +24,7 @@ class Games101CglConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -46,7 +35,7 @@ class Games101CglConan(ConanFile):
         self.requires("glfw/3.4", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25 <4.0.0]")

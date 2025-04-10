@@ -32,6 +32,7 @@ class PistacheConan(ConanFile):
         "fPIC": True,
         "with_ssl": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -46,14 +47,6 @@ class PistacheConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         if self.version == "cci.20201127":

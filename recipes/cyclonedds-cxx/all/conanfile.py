@@ -28,6 +28,7 @@ class CycloneDDSCXXConan(ConanFile):
         "fPIC": True,
         "with_shm": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -49,14 +50,6 @@ class CycloneDDSCXXConan(ConanFile):
 
     def export_sources(self):
         copy(self, os.path.join("cmake", "Generate.cmake"), self.recipe_folder, self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

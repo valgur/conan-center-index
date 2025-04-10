@@ -42,21 +42,10 @@ class AnyRPCConan(ConanFile):
         "with_protocol_xml": True,
         "with_protocol_messagepack": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -66,7 +55,7 @@ class AnyRPCConan(ConanFile):
             self.requires("log4cplus/2.0.7")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
         if self.options.with_log4cplus and self.options.with_wchar:
             raise ConanInvalidConfiguration(

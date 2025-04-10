@@ -1,9 +1,9 @@
+import os
+
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
 from conan.tools.files import *
-from conan.tools.build import check_min_cppstd
-import os
 
 required_conan_version = ">=2.1"
 
@@ -28,15 +28,7 @@ class MicroserviceEssentials(ConanFile):
         "with_tests": False,
         "with_examples": False
     }
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
+    implements = ["auto_shared_fpic"]
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16.3 <4]")
@@ -50,6 +42,9 @@ class MicroserviceEssentials(ConanFile):
         if self.options.with_tests:
             self.requires("catch2/3.4.0")
             self.requires("nlohmann_json/3.11.2")
+
+    def validate(self):
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -67,29 +62,6 @@ class MicroserviceEssentials(ConanFile):
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
-
-    def validate(self):
-        check_min_cppstd(self, "17")
-
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration(
-                "{} requires C++17, which your compiler does not support.".format(self.name)
-            )
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

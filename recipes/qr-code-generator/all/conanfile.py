@@ -25,41 +25,20 @@ class QrCodeGeneratorConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
-        copy(
-            self,
-            "CMakeLists.txt",
-            src=self.recipe_folder,
-            dst=self.export_sources_folder,
-        )
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            destination=self.source_folder,
-            strip_root=True
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):

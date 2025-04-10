@@ -31,6 +31,7 @@ class OatppConan(ConanFile):
         "fPIC": True,
         "with_test_library": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _version(self):
@@ -38,14 +39,6 @@ class OatppConan(ConanFile):
         if version.endswith(".latest"):
             version = version[:-len(".latest")]
         return version
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -1,12 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -31,27 +29,13 @@ class PrimesieveConan(ConanFile):
         "with_multiarch": True,
         "with_msvc_crt_static": False,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) <= "5":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support GCC<=5 currently. Contributions with fixes are welcome.")
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

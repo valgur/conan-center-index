@@ -13,7 +13,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, check_min_vs, unix_path
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class MpfrConan(ConanFile):
@@ -36,20 +36,12 @@ class MpfrConan(ConanFile):
         "fPIC": True,
         "exact_int": "gmp",
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         copy(self, "CMakeLists.txt.in", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         if self.settings.os == "Windows":

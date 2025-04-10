@@ -28,6 +28,7 @@ class TreeGenConan(ConanFile):
         "shared": False,
         "fPIC": True
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _should_build_test(self):
@@ -45,14 +46,6 @@ class TreeGenConan(ConanFile):
             "apple-clang": "14",
             "msvc": "192"
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
