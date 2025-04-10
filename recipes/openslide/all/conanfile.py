@@ -35,19 +35,11 @@ class OpenSlideConan(ConanFile):
         "fPIC": True,
         "jpeg": "libjpeg",
     }
+    languages = ["C"]
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -90,6 +82,7 @@ class OpenSlideConan(ConanFile):
         tc.project_options["doc"] = "disabled"
         tc.generate()
         if cross_building(self):
+            # A native C compiler needs to be defined
             MesonToolchain(self, native=True).generate()
         deps = PkgConfigDeps(self)
         deps.generate()
