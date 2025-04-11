@@ -58,6 +58,10 @@ class LibTomCryptConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "makefile_include.mk"),
+                        "PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config",
+                        self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+
 
     def generate(self):
         if not cross_building(self):
@@ -92,10 +96,6 @@ class LibTomCryptConan(ConanFile):
             deps.generate()
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "makefile_include.mk"),
-                        "PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config",
-                        self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-
         with chdir(self, self.source_folder):
             if is_msvc(self):
                 if self.options.shared:
