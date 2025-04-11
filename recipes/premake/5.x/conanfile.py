@@ -48,7 +48,7 @@ class PremakeConan(ConanFile):
 
     def requirements(self):
         if self.settings.os != "Windows":
-            self.requires("util-linux-libuuid/2.39.2")
+            self.requires("util-linux-libuuid/2.39.3")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

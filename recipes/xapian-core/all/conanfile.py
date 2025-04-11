@@ -47,7 +47,7 @@ class XapianCoreConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
         if self.settings.os != "Windows":
-            self.requires("util-linux-libuuid/2.39.2")
+            self.requires("util-linux-libuuid/2.39.3")
 
     def validate(self):
         if self.options.shared and self.settings.os == "Windows":

@@ -50,7 +50,7 @@ class AzureStorageCppConan(ConanFile):
             # Boost.Asio is used in a public header here:
             # https://github.com/Azure/azure-storage-cpp/blob/v7.5.0/Microsoft.WindowsAzure.Storage/includes/wascore/timer_handler.h#L27
             self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
-            self.requires("util-linux-libuuid/2.39.2", transitive_headers=True, transitive_libs=True)
+            self.requires("util-linux-libuuid/2.39.3", transitive_headers=True, transitive_libs=True)
             self.requires("openssl/[>=1.1 <4]")
         if is_apple_os(self):
             self.requires("libgettext/0.22")
