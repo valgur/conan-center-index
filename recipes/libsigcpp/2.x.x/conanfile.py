@@ -8,6 +8,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -85,10 +86,6 @@ class LibSigCppConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib"""
-    from conan.tools.files import *
-    from conan.tools.microsoft import is_msvc
-    import glob
-    import os
     if not is_msvc(conanfile):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")

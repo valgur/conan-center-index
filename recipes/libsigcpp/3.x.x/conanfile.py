@@ -2,11 +2,9 @@ import glob
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -30,19 +28,6 @@ class LibSigCppConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return "17"
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "191",
-            "gcc": "7",
-            "clang": "6",
-            "apple-clang": "10",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -50,16 +35,23 @@ class LibSigCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Avoid 'short_paths=True required' warning due to an unused folder
+        rmdir(self, os.path.join(self.source_folder, "untracked"))
+        # Disable subdirs
+        save(self, os.path.join(self.source_folder, "examples", "CMakeLists.txt"), "")
+        save(self, os.path.join(self.source_folder, "tests", "CMakeLists.txt"), "")
+        # Enable static builds
+        cmakelists = os.path.join(self.source_folder, "sigc++", "CMakeLists.txt")
+        replace_in_file(self, cmakelists, " SHARED ", " ")
+        # Fix install paths
+        replace_in_file(self, cmakelists,
+                        'LIBRARY DESTINATION "lib"',
+                        "LIBRARY DESTINATION lib ARCHIVE DESTINATION lib RUNTIME DESTINATION bin")
 
     def generate(self):
         tc = CMakeToolchain(self)
