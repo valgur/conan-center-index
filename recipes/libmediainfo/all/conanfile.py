@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
@@ -40,11 +41,14 @@ class LibmediainfoConan(ConanFile):
 
     def requirements(self):
         self.requires("libcurl/[>=7.78.0 <9]")
-        self.requires("libzen/0.4.38", transitive_headers=True, transitive_libs=True)
-        self.requires("tinyxml2/9.0.0")
+        self.requires("libzen/0.4.41", transitive_headers=True, transitive_libs=True)
+        self.requires("tinyxml2/10.0.0")
         self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
+        if Version(self.version) >= "23.11":
+            # https://github.com/MediaArea/MediaInfoLib/commit/3bc1fa4c1ea4f15abe053d620b6b585cd8c01998
+            check_min_cppstd(self, 11)
         if not self.dependencies["libzen"].options.enable_unicode:
             raise ConanInvalidConfiguration("This package requires libzen with unicode support")
 
@@ -56,14 +60,18 @@ class LibmediainfoConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_ZENLIB"] = False
         tc.variables["BUILD_ZLIB"] = False
+        tc.variables["ZenLib_LIBRARY"] = "zen::zen"
         if Version(self.version) < "22.03":
             # Generate a relocatable shared lib on Macos
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         if Version(self.version) > "22.03":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         deps = CMakeDeps(self)
+        deps.set_property("tinyxml2", "cmake_file_name", "TinyXML")
+        deps.set_property("libzen", "cmake_target_name", "zen::zen")
         deps.generate()
 
     def _patch_sources(self):
@@ -98,6 +106,7 @@ class LibmediainfoConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "MediaInfoLib")
         self.cpp_info.set_property("cmake_target_name", "mediainfo")
         self.cpp_info.set_property("pkg_config_name", "libmediainfo")
+
         postfix = ""
         if self.settings.build_type == "Debug":
             if self.settings.os == "Windows":
@@ -107,3 +116,6 @@ class LibmediainfoConan(ConanFile):
         self.cpp_info.libs = [f"mediainfo{postfix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m", "pthread"])
+
+        if self.options.shared:
+            self.cpp_info.defines.append("LIBMEDIAINFO_SHARED")
