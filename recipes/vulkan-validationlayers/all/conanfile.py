@@ -1,15 +1,14 @@
+import glob
+import os
+import shutil
+
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
-import glob
-import os
-import shutil
 
 required_conan_version = ">=2.1"
 
@@ -21,7 +20,7 @@ class VulkanValidationLayersConan(ConanFile):
     topics = ("vulkan", "validation-layers")
     homepage = "https://github.com/KhronosGroup/Vulkan-ValidationLayers"
     url = "https://github.com/conan-io/conan-center-index"
-    package_type = "static-library"
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -35,8 +34,6 @@ class VulkanValidationLayersConan(ConanFile):
         "with_wsi_xlib": True,
         "with_wsi_wayland": True,
     }
-
-    short_paths = True
 
     @property
     def _needs_pkg_config(self):
@@ -65,8 +62,7 @@ class VulkanValidationLayersConan(ConanFile):
         self.requires(f"spirv-headers/{self._vulkan_sdk_version}")
         self.requires(f"spirv-tools/{self._vulkan_sdk_version}", visible=False)
         self.requires(f"vulkan-headers/{self._vulkan_sdk_version}", transitive_headers=True)
-        if Version(self.version) >= "1.3.268.0":
-            self.requires(f"vulkan-utility-libraries/{self._vulkan_sdk_version}")
+        self.requires(f"vulkan-utility-libraries/{self._vulkan_sdk_version}")
 
         self.requires("robin-hood-hashing/3.11.5")
         if self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib"):
@@ -82,22 +78,15 @@ class VulkanValidationLayersConan(ConanFile):
     def build_requirements(self):
         if self._needs_pkg_config and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if Version(self.version) >= "1.3.239":
-            self.tool_requires("cmake/[>=3.17.2 <4]")
+        self.tool_requires("cmake/[>=3.17.2 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = CMakeToolchain(self)
-        if Version(self.version) >= "1.3.239":
-            tc.cache_variables["VVL_CLANG_TIDY"] = False
-        if Version(self.version) < "1.3.234":
-            tc.variables["VULKAN_HEADERS_INSTALL_DIR"] = self.dependencies["vulkan-headers"].package_folder.replace("\\", "/")
+        tc.cache_variables["VVL_CLANG_TIDY"] = False
         tc.variables["USE_CCACHE"] = False
         if self.settings.os in ["Linux", "FreeBSD"]:
             tc.variables["BUILD_WSI_XCB_SUPPORT"] = self.options.get_safe("with_wsi_xcb")
@@ -131,9 +120,6 @@ class VulkanValidationLayersConan(ConanFile):
                 os.path.join(self.generators_folder, "SPIRV-ToolsConfig.cmake"),
                 os.path.join(self.generators_folder, "SPIRV-Tools-optConfig.cmake"),
             )
-        if Version(self.version) < "1.3.250.0":
-            replace_in_file(self, os.path.join(self.source_folder, "layers", "CMakeLists.txt"),
-                            "find_package(PythonInterp 3 QUIET)", "")
         if self.settings.os == "Android":
             # INFO: libVkLayer_utils.a: error: undefined symbol: __android_log_print
             # https://github.com/KhronosGroup/Vulkan-ValidationLayers/commit/a26638ae9fdd8c40b56d4c7b72859a5b9a0952c9
@@ -142,7 +128,6 @@ class VulkanValidationLayersConan(ConanFile):
         if not self.options.get_safe("fPIC"):
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                             "CMAKE_POSITION_INDEPENDENT_CODE ON", "CMAKE_POSITION_INDEPENDENT_CODE OFF")
-
 
     def build(self):
         self._patch_sources()
@@ -174,18 +159,9 @@ class VulkanValidationLayersConan(ConanFile):
 
     def package_info(self):
         # The output of the package is a VkLayer_khronos_validation runtime library.
-
-        if Version(self.version) >= "1.3.268.0":
-            # v1.3.268+ links the VkLayer_utils library statically into the VkLayer_khronos_validation library.
-            # Headers have been moved to vulkan-utility-libraries.
-            self.cpp_info.includedirs = []
-            if is_msvc(self):
-                self.cpp_info.libdirs = []
-        else:
-            self.cpp_info.libs.append("VkLayer_utils")
-
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["dl"]
+        self.cpp_info.includedirs = []
+        if is_msvc(self):
+            self.cpp_info.libdirs = []
 
         if self.settings.os == "Windows":
             manifest_subfolder = "bin"
@@ -210,8 +186,7 @@ class VulkanValidationLayersConan(ConanFile):
 
         self.cpp_info.requires.append("spirv-headers::spirv-headers")
         self.cpp_info.requires.append("vulkan-headers::vulkan-headers")
-        if Version(self.version) >= "1.3.268.0":
-            self.cpp_info.requires.append("vulkan-utility-libraries::vulkan-utility-libraries")
+        self.cpp_info.requires.append("vulkan-utility-libraries::vulkan-utility-libraries")
         self.cpp_info.requires.append("robin-hood-hashing::robin-hood-hashing")
         if self.options.get_safe("with_wsi_xlib"):
             self.cpp_info.requires.append("xorg::x11")
