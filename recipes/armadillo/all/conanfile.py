@@ -120,17 +120,11 @@ class ArmadilloConan(ConanFile):
             )
 
         for value, options in self._co_dependencies.items():
-            options_without_value = [
-                x for x in options if self.options.get_safe(x) != value
-            ]
+            options_without_value = [x for x in options if self.options.get_safe(x) != value]
             if options_without_value and (len(options) != len(options_without_value)):
                 raise ConanInvalidConfiguration(
-                    "Options {} must all be set to '{}' to use this feature. To fix this, set option {} to '{}'.".format(
-                        ", ".join(options),
-                        value,
-                        ", ".join(options_without_value),
-                        value,
-                    )
+                    f"Options {', '.join(options)} must all be set to '{value}' to use this feature. "
+                    f"To fix this, set option {', '.join(options_without_value)} to '{value}'."
                 )
 
         if (
