@@ -1,13 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -30,19 +27,6 @@ class VulkanUtilityLibrariesConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "9",
-            "clang": "7",
-            "gcc": "8",
-            "msvc": "191",
-        }
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -54,16 +38,7 @@ class VulkanUtilityLibrariesConan(ConanFile):
         self.requires(f"vulkan-headers/{self.version}", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        def loose_lt_semver(v1, v2):
-            return all(int(p1) < int(p2) for p1, p2 in zip(v1.split("."), v2.split(".")))
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.17.2 <4]")
@@ -72,8 +47,6 @@ class VulkanUtilityLibrariesConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTS"] = False
         tc.generate()
@@ -92,40 +65,10 @@ class VulkanUtilityLibrariesConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "Apache-2.0.txt", os.path.join(self.source_folder, "LICENSES"), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        fix_apple_shared_install_name(self)
-
-    @property
-    def _exported_cxxflags(self):
-        # https://github.com/KhronosGroup/Vulkan-Utility-Libraries/blob/vulkan-sdk-1.3.268.0/src/CMakeLists.txt#L9-L40
-        cxxflags = []
-        if self.settings.compiler in ["gcc", "clang", "apple-clang"]:
-            cxxflags += [
-                "-Wpedantic",
-                "-Wunreachable-code",
-                "-Wunused-function",
-                "-Wall",
-                "-Wextra",
-                "-Wpointer-arith",
-                "-Wextra-semi",
-            ]
-            if self.settings.compiler != "gcc":
-                cxxflags += [
-                    "-Wunreachable-code-return",
-                    "-Wconversion",
-                    "-Wimplicit-fallthrough",
-                    "-Wstring-conversion",
-                ]
-        elif is_msvc(self):
-            cxxflags += [
-                "/W4",
-                "/we5038",
-                "/permissive-",
-            ]
-        return cxxflags
 
     @property
     def _exported_defines(self):
@@ -158,7 +101,7 @@ class VulkanUtilityLibrariesConan(ConanFile):
 
         # Vulkan::LayerSettings
         self.cpp_info.components["LayerSettings"].set_property("cmake_target_name", "Vulkan::LayerSettings")
-        self.cpp_info.components["LayerSettings"].requires = ["vulkan-headers::vulkanheaders", "UtilityHeaders"]
+        self.cpp_info.components["LayerSettings"].requires = ["vulkan-headers::vulkanheaders"]
         self.cpp_info.components["LayerSettings"].libs = ["VulkanLayerSettings"]
         self.cpp_info.components["LayerSettings"].bindirs = []
 
@@ -166,8 +109,6 @@ class VulkanUtilityLibrariesConan(ConanFile):
         if Version(self.version) >= "1.3.265":
             self.cpp_info.components["CompilerConfiguration"].set_property("cmake_target_name", "Vulkan::CompilerConfiguration")
             self.cpp_info.components["CompilerConfiguration"].requires = ["vulkan-headers::vulkanheaders"]
-            self.cpp_info.components["CompilerConfiguration"].cxxflags = self._exported_cxxflags
-            self.cpp_info.components["CompilerConfiguration"].defines = self._exported_defines
             self.cpp_info.components["CompilerConfiguration"].includedirs = []
             self.cpp_info.components["CompilerConfiguration"].libdirs = []
             self.cpp_info.components["CompilerConfiguration"].bindirs = []
