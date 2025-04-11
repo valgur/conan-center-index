@@ -5,6 +5,7 @@ from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -29,7 +30,7 @@ class FbgemmConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    implements = ["auto_header_only"]
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -57,7 +58,11 @@ class FbgemmConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         rmdir(self, os.path.join(self.source_folder, "third_party"))
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-Werror", "")
+        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
+        replace_in_file(self, cmakelists, "-Werror", "")
+        # asmjit has been unvendored
+        replace_in_file(self, cmakelists, "$<TARGET_PDB_FILE:asmjit>", "")
+        replace_in_file(self, cmakelists, "install(TARGETS asmjit", "# install(TARGETS asmjit")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,7 +72,14 @@ class FbgemmConan(ConanFile):
         tc.variables["FBGEMM_BUILD_TESTS"] = False
         tc.variables["FBGEMM_BUILD_BENCHMARKS"] = False
         tc.variables["FBGEMM_BUILD_DOCS"] = False
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_OpenMP"] = True
         tc.variables["CMAKE_C_STANDARD"] = 99
+        if is_msvc(self) and self.settings.build_type == "Debug":
+            # Avoid "fatal error C1128: number of sections exceeded object file format limit: compile with /bigobj"
+            tc.blocks["cmake_flags_init"].template += (
+                'string(APPEND CMAKE_CXX_FLAGS_INIT " /bigobj")\n'
+                'string(APPEND CMAKE_C_FLAGS_INIT " /bigobj")\n'
+            )
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -79,7 +91,6 @@ class FbgemmConan(ConanFile):
         try:
             cmake.build()
         except ConanException:
-            # Workaround for C3I running out of memory during build
             self.conf.define("tools.build:jobs", 1)
             cmake.build()
 
@@ -88,6 +99,7 @@ class FbgemmConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
+        rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "fbgemmLibrary")
