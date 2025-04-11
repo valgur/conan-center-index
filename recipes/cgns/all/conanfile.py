@@ -28,28 +28,11 @@ class CgnsConan(ConanFile):
         "with_hdf5": True,
         "parallel": False,
     }
+    languages = ["C"]
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -67,6 +50,8 @@ class CgnsConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Disable tools subdir
+        save(self, os.path.join(self.source_folder, "src", "tools", "CMakeLists.txt"), "")
 
     def generate(self):
         cmake = CMakeDeps(self)
@@ -88,7 +73,17 @@ class CgnsConan(ConanFile):
         # CGNS_ENABLE_SCOPING:BOOL=OFF   --- disabled in VTK's bundle
         # HDF5_NEED_ZLIB:BOOL=ON -- should be dealt with by cmake auto dependency management or something?
 
+    def _patch_sources(self):
+        # Install only the relevant target
+        if self.options.shared:
+            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+                            "set (install_targets cgns_static)", "")
+        else:
+            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+                            "set(install_targets ${install_targets} cgns_shared)", "")
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build(target="cgns_shared" if self.options.shared else "cgns_static")
