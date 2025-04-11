@@ -16,8 +16,14 @@ class TheoraConan(ConanFile):
     topics = "video", "video-compressor", "video-format"
 
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
     languages = ["C"]
     implements = ["auto_header_only"]
 
@@ -28,7 +34,7 @@ class TheoraConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # Used in theora/codec.h, theora/theoraenc.h, theora/theoradec.h
+        # ogg_packet* and integer types are used in the public headers
         self.requires("ogg/1.3.5", transitive_headers=True)
 
     def source(self):
@@ -57,9 +63,9 @@ class TheoraConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "theora_full_package_do_not_use")    # to avoid conflicts with theora component
 
-        self.cpp_info.components["theora"].set_property("pkg_config_name", "theora")
-        self.cpp_info.components["theora"].libs = ["theora"]
-        self.cpp_info.components["theora"].requires = ["ogg::ogg"]
+        self.cpp_info.components["theora_"].set_property("pkg_config_name", "theora")
+        self.cpp_info.components["theora_"].libs = ["theora"]
+        self.cpp_info.components["theora_"].requires = ["ogg::ogg"]
 
         self.cpp_info.components["theoradec"].set_property("pkg_config_name", "theoradec")
         self.cpp_info.components["theoradec"].libs = ["theoradec"]
