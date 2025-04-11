@@ -1,4 +1,4 @@
-This is a fork of Conan Center Index containing [recipes and changes by @valgur](https://github.com/conan-io/conan-center-index/pulls?q=is%3Aopen+is%3Apr+author%3Avalgur+sort%3Aupdated-desc) not yet merged to the main Conan Center Index.
+This is a fork of Conan Center Index containing [recipes and changes by @valgur](https://github.com/conan-io/conan-center-index/pulls?q=is%3Apr+author%3Avalgur+sort%3Aupdated-desc) not yet merged to the main Conan Center Index.
 
 ## Setup
 
@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-10:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-11:
 
 - arbiter/cci.20231122
 - armadillo/12.6.7
@@ -37,18 +37,24 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cose-c/cci.20200603
 - cpp-validator/2.1.1
 - cppserver/1.0.4.1
+- crashpad/cci.20231107
+- crow/1.1.0
+- crow/1.2.0
 - cub/2.7.0
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
+- diligent-core/2.5.6
 - dpdk/24.07
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
 - fenster/0.0.0.cci.20240909
 - filament/1.5.3
+- firebird/5.0.0
 - fortran/cci.latest
 - freeglut/3.6.0
 - g2o/20230806
@@ -90,10 +96,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_points/1.0.6
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
-- highs/1.5.3
-- highs/1.6.0
-- highs/1.7.0
-- highs/1.8.0
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
@@ -101,6 +103,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
 - influxdb-cxx/0.7.3
+- ios-cmake/4.4.1
 - iridescence/0.1.3
 - isl/0.27
 - json-glib/1.10.6
@@ -124,8 +127,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libsm/1.2.4
 - libsolv/0.7.29
 - libsoup/3.6.1
+- libstudxml/1.1.0
 - libtomcrypt/1.18.2
-- libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
 - libudev/255.13
@@ -193,9 +196,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - premake/5.0.0-beta2
 - protobuf/3.12.4
 - protobuf/4.23.4
+- qcoro/0.10.0
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
 - qt/6.8.2
+- rmlui/5.1
 - rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.75.0
