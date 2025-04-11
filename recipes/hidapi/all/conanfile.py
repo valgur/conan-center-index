@@ -18,7 +18,7 @@ class HidapiConan(ConanFile):
     topics = ("libusb", "hid-class", "bluetooth")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/libusb/hidapi"
-    license = "GPL-3-or-later", "BSD-3-Clause"
+    license = "GPL-3-or-later OR BSD-3-Clause"
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
