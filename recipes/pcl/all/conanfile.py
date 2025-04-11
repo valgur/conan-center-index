@@ -323,19 +323,6 @@ class PclConan(ConanFile):
             all_deps.update(self._external_optional_deps.get(component, []))
         return all_deps
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -436,12 +423,7 @@ class PclConan(ConanFile):
                         f"'{dep}=True' is required when '{component}' is enabled."
                     )
 
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
