@@ -9,7 +9,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class MrcalConan(ConanFile):
@@ -29,10 +29,7 @@ class MrcalConan(ConanFile):
         # Disabled by default due to being GPL-licensed
         "with_libelas": False,
     }
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
