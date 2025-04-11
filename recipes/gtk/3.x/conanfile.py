@@ -4,7 +4,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import can_run
+from conan.tools.build import can_run, cross_building
 from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -203,9 +203,10 @@ class GtkConan(ConanFile):
         tc.pkg_config_path = None
         env = Environment()
         env.define_path("PKG_CONFIG_PATH", self.generators_folder)
-        env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
-        env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-        env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
+        if cross_building(self):
+            env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
+            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
         env.vars(self).save_script("conan_pkg_config_path")
 
         tc.generate()
