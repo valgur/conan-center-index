@@ -1,13 +1,13 @@
 sources:
   "0.22.5":
-    url: "https://ftp.gnu.org/pub/gnu/gettext/gettext-0.22.5.tar.gz"
-    sha256: "ec1705b1e969b83a9f073144ec806151db88127f5e40fe5a94cb6c8fa48996a0"
+    url: "https://ftpmirror.gnu.org/gettext/gettext-0.22.5.tar.xz"
+    sha256: "fe10c37353213d78a5b83d48af231e005c4da84db5ce88037d88355938259640"
   "0.21":
-    url: "https://ftp.gnu.org/pub/gnu/gettext/gettext-0.21.tar.gz"
-    sha256: "c77d0da3102aec9c07f43671e60611ebff89a996ef159497ce8e59d075786b12"
+    url: "https://ftpmirror.gnu.org/gettext/gettext-0.21.tar.xz"
+    sha256: "d20fcbb537e02dcf1383197ba05bd0734ef7bf5db06bdb241eb69b7d16b73192"
   "0.20.1":
-    url: "https://ftp.gnu.org/pub/gnu/gettext/gettext-0.20.1.tar.gz"
-    sha256: "66415634c6e8c3fa8b71362879ec7575e27da43da562c798a8a2f223e6e47f5c"
+    url: "https://ftpmirror.gnu.org/gettext/gettext-0.20.1.tar.xz"
+    sha256: "53f02fbbec9e798b0faaf7c73272f83608e835c6288dd58be6c9bb54624a3800"
 patches:
   "0.22.5":
     - patch_file: "patches/0004-autopoint-relocatable.patch"
