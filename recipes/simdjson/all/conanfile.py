@@ -13,7 +13,7 @@ required_conan_version = ">=2.1"
 class SimdjsonConan(ConanFile):
     name = "simdjson"
     description = "Parsing gigabytes of JSON per second"
-    license = ("Apache-2.0", "MIT")
+    license = "Apache-2.0 OR MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lemire/simdjson"
     topics = ("json", "parser", "simd", "format")
