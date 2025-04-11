@@ -28,10 +28,6 @@ class PackageConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 14
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -47,7 +43,7 @@ class PackageConan(ConanFile):
             self.requires("tinyxml/2.6.2", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
