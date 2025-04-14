@@ -341,7 +341,8 @@ class GrpcConan(ConanFile):
             self.cpp_info.components[component].libs = [lib]
             self.cpp_info.components[component].requires = values.get("requires", [])
             self.cpp_info.components[component].system_libs = values.get("system_libs", [])
-            self.cpp_info.components[component].frameworks = values.get("frameworks", [])
+            if is_apple_os(self):
+                self.cpp_info.components[component].frameworks = values.get("frameworks", [])
 
         # Executable imported targets are added through custom CMake module files,
         # since conan generators don't know how to emulate these kind of targets.
