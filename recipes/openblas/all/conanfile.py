@@ -232,7 +232,7 @@ class OpenblasConan(ConanFile):
 
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         if Version(self.version) < "0.3.29": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
 
         # Fix a fatal compiler warning on GCC 14
         # https://github.com/OpenMathLib/OpenBLAS/pull/4894

@@ -61,7 +61,7 @@ class OctomapConan(ConanFile):
         if is_msvc(self) and self.options.shared:
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         if Version(self.version) < "1.10.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

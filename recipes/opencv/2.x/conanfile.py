@@ -508,7 +508,7 @@ class OpenCVConan(ConanFile):
         tc.variables["ENABLE_CCACHE"] = False
         if is_msvc(self):
             tc.variables["BUILD_WITH_STATIC_CRT"] = is_msvc_static_runtime(self)
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         CMakeDeps(self).generate()

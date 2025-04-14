@@ -413,7 +413,7 @@ class LibwebsocketsConan(ConanFile):
         tc.variables["LWS_WITH_SYS_SMD"] = self.settings.os != "Windows"
         tc.variables["DISABLE_WERROR"] = True
 
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

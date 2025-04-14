@@ -49,7 +49,7 @@ class SbpConan(ConanFile):
         tc.variables["libsbp_ENABLE_TESTS"] = False
         tc.variables["libsbp_ENABLE_DOCS"] = False
         if Version(self.version) < "4.0.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()

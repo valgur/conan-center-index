@@ -86,7 +86,7 @@ class LunaSVGConan(ConanFile):
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         if Version(self.version) < "2.4.1":
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.variables["LUNASVG_BUILD_EXAMPLES"] = False
         tc.generate()
         deps = CMakeDeps(self)

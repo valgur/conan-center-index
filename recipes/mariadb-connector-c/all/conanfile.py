@@ -97,7 +97,7 @@ class MariadbConnectorcConan(ConanFile):
         # To install relocatable shared libs on Macos
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         if Version(self.version) < "3.4.4": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_GSSAPI"] = True  # TODO: add as an option
         tc.generate()
         deps = CMakeDeps(self)

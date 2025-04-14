@@ -59,7 +59,7 @@ class AwsCCal(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.variables["USE_OPENSSL"] = self._needs_openssl
         if Version(self.version) < "0.8.3":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

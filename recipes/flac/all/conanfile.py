@@ -53,7 +53,7 @@ class FlacConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         if Version(self.version) < "1.3.4":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         cd = CMakeDeps(self)
         cd.generate()

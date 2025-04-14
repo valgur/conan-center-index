@@ -102,7 +102,7 @@ class OpenALConan(ConanFile):
         tc.variables["ALSOFT_TESTS"] = False
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SoundIO"] = True
         # Version 1.24.0 already support CMake 4 but this recipe is deprecated in favor to openal-soft
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

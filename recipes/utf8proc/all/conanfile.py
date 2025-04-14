@@ -39,7 +39,7 @@ class Utf8ProcConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         if Version(self.version) < "2.10.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

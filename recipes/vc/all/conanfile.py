@@ -64,7 +64,7 @@ class VcConan(ConanFile):
         tc.variables["TARGET_ARCHITECTURE"] = self.options.get_safe("cpu_architecture", "none")
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         if Version(self.version) < "1.4.5": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         if self.settings.os == "Macos" and self.settings.arch == "x86_64":
             # set a compatible baseline with macs from 2015 onwards
             tc.cache_variables["TARGET_ARCHITECTURE"] = "broadwell"

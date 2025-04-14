@@ -4,7 +4,7 @@
 -if(NOT MSVC)
 -    set(CMAKE_CXX_COMPILER_NAMES g++ clang++ icpc c++ cxx)
 -endif()
-+cmake_minimum_required(VERSION 3.8)
++cmake_minimum_required(VERSION 3.15)
  project(reckless LANGUAGES CXX)
 -CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
  

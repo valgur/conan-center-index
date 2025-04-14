@@ -38,7 +38,7 @@ class UncrustifyConan(ConanFile):
         tc.variables["NoGitVersionString"] = True
         tc.variables["BUILD_TESTING"] = False
         if Version(self.version) < "0.78.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def _patch_sources(self):

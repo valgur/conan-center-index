@@ -47,7 +47,7 @@ class BaicalP7Conan(ConanFile):
         tc.variables["P7_TESTS_BUILD"] = False
         tc.cache_variables["P7_BUILD_SHARED"] = self.options.shared
         tc.variables["P7_EXAMPLES_BUILD"] = False
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         if Version(self.version) > "5.6":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()

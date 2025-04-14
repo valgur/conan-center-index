@@ -63,7 +63,7 @@ class IttApiConan(ConanFile):
         toolchain = CMakeToolchain(self)
         toolchain.variables["ITT_API_IPT_SUPPORT"] = self.options.ptmark
         if Version(self.version) < "3.25.1":
-            toolchain.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
+            toolchain.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
         toolchain.generate()
 
     def build(self):

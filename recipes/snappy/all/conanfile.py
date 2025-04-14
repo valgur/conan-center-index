@@ -74,7 +74,7 @@ class SnappyConan(ConanFile):
             if self.options.with_ssse3 != "auto":
                 tc.variables["SNAPPY_HAVE_SSSE3"] = self.options.with_ssse3
         if Version(self.version) < "1.2.2": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

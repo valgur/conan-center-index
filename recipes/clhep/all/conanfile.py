@@ -49,7 +49,7 @@ class ClhepConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["CLHEP_SINGLE_THREAD"] = False
         tc.variables["CLHEP_BUILD_DOCS"] = False
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

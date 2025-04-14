@@ -94,7 +94,7 @@ class ZeroMQConan(ConanFile):
             tc.variables["POLLER"] = self.options.poller
         if is_msvc(self):
             tc.preprocessor_definitions["_NOEXCEPT"] = "noexcept"
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         if Version(self.version) > "4.3.5":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()

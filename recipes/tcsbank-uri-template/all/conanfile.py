@@ -68,7 +68,7 @@ class TCSBankUriTemplateConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["URITEMPLATE_BUILD_TESTING"] = False
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

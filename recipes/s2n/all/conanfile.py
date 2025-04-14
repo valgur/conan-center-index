@@ -51,7 +51,7 @@ class S2nConan(ConanFile):
         tc.variables["UNSAFE_TREAT_WARNINGS_AS_ERRORS"] = False
         tc.variables["SEARCH_LIBCRYPTO"] = False # see CMakeLists wrapper
         # When adding new version, check if they updated their minimum CMake version and make this conditional
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

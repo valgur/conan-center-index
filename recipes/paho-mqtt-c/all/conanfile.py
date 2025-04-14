@@ -66,7 +66,7 @@ class PahoMqttcConan(ConanFile):
         tc.variables["PAHO_HIGH_PERFORMANCE"] = self.options.high_performance
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         if Version(self.version) < "1.3.14": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)

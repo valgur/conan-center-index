@@ -58,7 +58,7 @@ class CppUTestConan(ConanFile):
         tc.variables["COVERAGE"] = False
         tc.variables["TESTS"] = False
         if Version(self.version) <= "4.0": # Master branch already support CMake 4 (not yet released)
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

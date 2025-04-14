@@ -88,7 +88,7 @@ class AwsCrtCpp(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.cache_variables["BUILD_DEPS"] = False
         if Version(self.version) < "0.31.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
         tc.generate()
 
         deps = CMakeDeps(self)

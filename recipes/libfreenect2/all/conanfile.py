@@ -102,7 +102,7 @@ class Libfreenect2Conan(ConanFile):
             tc.variables["NVCUDASAMPLES_ROOT"] = os.path.join(self.dependencies["cuda-samples"].package_folder, "include")
             # Required for deprecated FindCUDA support
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0146"] = "OLD"
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         if Version(self.version) > "0.2.1":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()

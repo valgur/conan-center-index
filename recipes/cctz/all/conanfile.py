@@ -55,7 +55,7 @@ class CCTZConan(ConanFile):
         # Relocatable shared lib on Macos
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         if Version(self.version) <= "2.4":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support (master branch already has 3.16)
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support (master branch already has 3.16)
         tc.generate()
 
     def build(self):

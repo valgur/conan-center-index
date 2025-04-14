@@ -67,7 +67,7 @@ class OpenALSoftConan(ConanFile):
         tc.variables["ALSOFT_TESTS"] = False
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SoundIO"] = True
         if Version(self.version) < "1.24.0": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

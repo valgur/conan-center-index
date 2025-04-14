@@ -53,7 +53,7 @@ class GflagsConan(ConanFile):
         tc.variables["REGISTER_BUILD_DIR"] = False
         tc.variables["REGISTER_INSTALL_PREFIX"] = False
         tc.variables["GFLAGS_NAMESPACE"] = self.options.namespace
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         if Version(self.version) > "2.2.2":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()

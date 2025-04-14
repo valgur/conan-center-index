@@ -4,7 +4,7 @@
  # $Id: //main/2019/qhull/CMakeLists.txt#5 $$Change: 2711 $
  # $DateTime: 2019/06/27 22:34:56 $$Author: bbarber $
  
-+cmake_minimum_required(VERSION 3.5)
++cmake_minimum_required(VERSION 3.15)
  project(qhull)
 -cmake_minimum_required(VERSION 3.0)
  

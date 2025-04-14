@@ -62,7 +62,7 @@ class Iir1Conan(ConanFile):
         if self.options.get_safe("noexceptions"):
             tc.preprocessor_definitions["IIR1_NO_EXCEPTIONS"] = "1"
         if Version(self.version) < "1.9.4":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def _patch_sources(self):

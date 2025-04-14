@@ -63,7 +63,7 @@ class SeasocksConan(ConanFile):
         tc.variables["SEASOCKS_EXAMPLE_APP"] = False
         tc.variables["UNITTESTS"] = False
         if Version(self.version) < "1.4.6":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)

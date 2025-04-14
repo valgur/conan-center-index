@@ -5,7 +5,7 @@
  # By Nguyen Anh Quynh, 2016
  
 -cmake_minimum_required(VERSION 2.8.7)
-+cmake_minimum_required(VERSION 3.5)
++cmake_minimum_required(VERSION 3.15)
  project(keystone)
  
  set(KEYSTONE_VERSION_MAJOR 0)
@@ -24,7 +24,7 @@
  # See docs/CMake.html for instructions about how to build LLVM with CMake.
  
 -cmake_minimum_required(VERSION 2.8.7)
-+cmake_minimum_required(VERSION 3.5)
++cmake_minimum_required(VERSION 3.15)
  
  set(LLVM_INSTALL_TOOLCHAIN_ONLY ON)
  

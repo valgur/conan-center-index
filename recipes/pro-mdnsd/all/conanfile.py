@@ -56,7 +56,7 @@ class mdnsdConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["MDNSD_ENABLE_SANITIZERS"] = False
         tc.variables["MDNSD_COMPILE_AS_CXX"] = self.options.compile_as_cpp
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         if Version(self.version) > "0.8.4":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
 

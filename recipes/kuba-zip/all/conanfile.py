@@ -41,7 +41,7 @@ class ZipConan(ConanFile):
         tc.variables["ZIP_STATIC_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["ZIP_BUILD_DOCS"] = False
         if Version(self.version) < "0.2.3":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def _patch_sources(self):

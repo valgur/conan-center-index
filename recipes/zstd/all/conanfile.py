@@ -53,7 +53,7 @@ class ZstdConan(ConanFile):
         tc.variables["ZSTD_BUILD_SHARED"] = self.options.shared
         tc.variables["ZSTD_MULTITHREAD_SUPPORT"] = self.options.threading
         if Version(self.version) < "1.5.6":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

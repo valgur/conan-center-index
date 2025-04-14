@@ -32,7 +32,7 @@ class TweenyConan(ConanFile):
         tc = CMakeToolchain(self)
         if Version(self.version) == "3.2.0":
             # already fixed in master, assuming it is fixed in upcoming release
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
         tc.generate()
 
     def build(self):

@@ -92,7 +92,7 @@ class SystemcConan(ConanFile):
         tc.variables["ENABLE_PHASE_CALLBACKS"] = self.options.get_safe("enable_phase_callbacks", False)
         tc.variables["ENABLE_PHASE_CALLBACKS_TRACING"] = self.options.get_safe("enable_phase_callbacks_tracing", False)
         if Version(self.version) < "3.0.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

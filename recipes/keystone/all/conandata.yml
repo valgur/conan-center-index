@@ -7,5 +7,5 @@ patches:
   "0.9.2":
     - patch_file: "patches/0.9.2-cmake4-support.patch"
       patch_type: "portability"
-      patch_description: "Remove OLD behavior in CMP0051 and use CMake 3.5 minimum"
+      patch_description: "Remove OLD behavior in CMP0051 and use CMake 3.15 minimum"
 

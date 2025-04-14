@@ -49,7 +49,7 @@ class AwsChecksums(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         if Version(self.version) < "0.2.3":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

@@ -73,7 +73,7 @@ class LibdwarfConan(ConanFile):
             tc.variables["HAVE_UNUSED_ATTRIBUTE_EXITCODE"] = "0"
             tc.variables["HAVE_UNUSED_ATTRIBUTE_EXITCODE__TRYRUN_OUTPUT"] = ""
         if Version(self.version) < "0.9.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         dpes = CMakeDeps(self)

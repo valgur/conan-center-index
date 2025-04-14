@@ -131,7 +131,7 @@ class MimallocConan(ConanFile):
         tc.variables["MI_INSTALL_TOPLEVEL"] = "ON"
         tc.variables["MI_GUARDED"] = self.options.get_safe("guarded", False)
         if Version(self.version) <= "1.7.6":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         venv = VirtualBuildEnv(self)
         venv.generate(scope="build")

@@ -122,7 +122,7 @@ class LibjpegTurboConan(ConanFile):
         if Version(self.version) <= "2.1.0":
             tc.variables["CMAKE_MACOSX_BUNDLE"] = False # avoid configuration error if building for iOS/tvOS/watchOS
         if Version(self.version) < "3.0.2":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def _patch_sources(self):

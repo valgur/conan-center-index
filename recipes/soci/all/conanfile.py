@@ -126,7 +126,7 @@ class SociConan(ConanFile):
         tc.variables["WITH_POSTGRESQL"] = self.options.with_postgresql
         tc.variables["WITH_BOOST"] = self.options.with_boost
         if Version(self.version) < "4.1.0": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)

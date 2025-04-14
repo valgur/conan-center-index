@@ -114,7 +114,7 @@ class LibcoroConan(ConanFile):
             tc.variables["LIBCORO_BUILD_SHARED_LIBS"] = self.options.shared
             tc.variables["LIBCORO_FEATURE_TLS"] = self.options.get_safe("with_ssl", False)
         if Version(self.version) < "0.10":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

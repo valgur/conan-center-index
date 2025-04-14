@@ -213,7 +213,7 @@ class ArmadilloConan(ConanFile):
         tc.variables["BUILD_SMOKE_TEST"] = False
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         if Version(self.version) < "14.0.0": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support{
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support{
         tc.generate()
 
         deps = CMakeDeps(self)

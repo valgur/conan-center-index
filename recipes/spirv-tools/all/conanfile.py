@@ -89,7 +89,7 @@ class SpirvtoolsConan(ConanFile):
         # To install relocatable shared libs on Macos
         if Version(self.version) < "1.3.239":
             tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         # For iOS/tvOS/watchOS
         tc.variables["CMAKE_MACOSX_BUNDLE"] = False
         tc.generate()

@@ -113,7 +113,7 @@ class CapnprotoConan(ConanFile):
             tc.variables["CAPNP_LITE"] = False
             tc.variables["WITH_OPENSSL"] = self.options.with_openssl
             if Version(self.version) < "2": # pylint: disable=conan-condition-evals-to-constant
-                tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support (v2 branch does not need this)
+                tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support (v2 branch does not need this)
             tc.generate()
             deps = CMakeDeps(self)
             deps.generate()

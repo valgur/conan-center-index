@@ -213,7 +213,7 @@ class JerryScriptStackConan(ConanFile):
         tc.variables["JERRY_MEM_GC_BEFORE_EACH_ALLOC"] = self.options.gc_before_each_alloc
         tc.variables["JERRY_VM_EXEC_STOP"] = self.options.vm_exec_stop
         if Version(self.version) < "3.0.0": # pylint: disable=conan-condition-evals-to-constant
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         tc = CMakeDeps(self)
