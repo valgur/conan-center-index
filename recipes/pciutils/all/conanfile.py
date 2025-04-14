@@ -8,7 +8,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class PciUtilsConan(ConanFile):
@@ -33,16 +33,8 @@ class PciUtilsConan(ConanFile):
         "with_zlib": True,
         "with_udev": True,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -80,7 +72,7 @@ class PciUtilsConan(ConanFile):
         tc.make_args["PREFIX"] = "/"
         tc.make_args["DNS"] = "no"
         tc.make_args["HOST"] = self._host
-        if "CC" in tc_vars:
+        if "CC" in tc_vars.keys():
             tc.make_args["CC"] = tc_vars["CC"]
         if cross_building(self):
             tc.make_args["CROSS_COMPILE"] = tc_vars["STRIP"].rsplit("strip", 1)[0]

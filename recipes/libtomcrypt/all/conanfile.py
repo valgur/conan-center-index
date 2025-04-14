@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, GnuToolchain, PkgConfigDep
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeDeps
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibTomCryptConan(ConanFile):
@@ -31,6 +31,8 @@ class LibTomCryptConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -38,34 +40,28 @@ class LibTomCryptConan(ConanFile):
              self.recipe_folder,
              os.path.join(self.export_sources_folder, "src"))
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libtommath/1.2.1")
+        self.requires("libtommath/1.3.0")
 
     def build_requirements(self):
         if not is_msvc(self):
             if self.options.shared:
                 self.tool_requires("libtool/2.4.7")
             if self.settings_build.os == "Windows":
-                self.tool_requires("make/4.4")
+                self.tool_requires("make/4.4.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "makefile_include.mk"),
+                        "PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config",
+                        self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+
 
     def generate(self):
         if not cross_building(self):
@@ -85,7 +81,7 @@ class LibTomCryptConan(ConanFile):
         tc.make_args["CFLAGS"] = " ".join(cflags)
         tc.make_args["LDFLAGS"] = " ".join(ldflags)
         tc_vars = tc.extra_env.vars(self)
-        if "CC" in tc_vars:
+        if "CC" in tc_vars.keys():
             tc.make_args["CC"] = tc_vars["CC"]
         if cross_building(self):
             tc.make_args["CROSS_COMPILE"] = tc_vars["STRIP"].rsplit("strip", 1)[0]
@@ -100,10 +96,6 @@ class LibTomCryptConan(ConanFile):
             deps.generate()
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "makefile_include.mk"),
-                        "PKG_CONFIG_PATH=$(LIBPATH)/pkgconfig pkg-config",
-                        self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-
         with chdir(self, self.source_folder):
             if is_msvc(self):
                 if self.options.shared:

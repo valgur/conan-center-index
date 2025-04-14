@@ -26,24 +26,16 @@ class PackageConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.options["brotli"].shared = False
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("brotli/1.0.9", transitive_libs=True)
+        self.requires("brotli/1.0.9", transitive_libs=True, options={"shared": True})
 
     def validate(self):
         check_min_cppstd(self, 11)

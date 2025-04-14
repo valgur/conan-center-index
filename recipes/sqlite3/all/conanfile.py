@@ -6,7 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class Sqlite3Conan(ConanFile):
@@ -82,18 +82,10 @@ class Sqlite3Conan(ConanFile):
         "enable_default_vfs": True,
         "enable_dbpage_vtab": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     exports_sources = "CMakeLists.txt"
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

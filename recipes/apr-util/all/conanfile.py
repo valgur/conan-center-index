@@ -119,6 +119,7 @@ class AprUtilConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " SHARED ", " ")
 
     @property
     def _with_crypto(self):
@@ -130,8 +131,13 @@ class AprUtilConan(ConanFile):
             tc.variables["INSTALL_PDB"] = False
             tc.variables["APU_HAVE_CRYPTO"] = self._with_crypto
             tc.variables["APR_HAS_LDAP"] = self.options.with_ldap
+            apr_info = self.dependencies["apr"].cpp_info.aggregated_components()
+            tc.variables["APR_INCLUDE_DIR"] = apr_info.includedir.replace("\\", "/")
+            libdir = apr_info.libdir.replace("\\", "/")
+            tc.variables["APR_LIBRARIES"] = ";".join(f"{libdir}/{lib}.lib" for lib in apr_info.libs)
             tc.generate()
             deps = CMakeDeps(self)
+            deps.set_property("expat", "cmake_find_mode", "module")
             deps.generate()
         else:
             if not cross_building(self):

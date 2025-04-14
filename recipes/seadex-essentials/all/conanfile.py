@@ -28,6 +28,7 @@ class SeadexEssentialsConan(ConanFile):
         "shared": False,
         "fPIC": True
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _compilers_minimum_version(self):
@@ -37,14 +38,6 @@ class SeadexEssentialsConan(ConanFile):
             "msvc": "192",
             "apple-clang": "10"
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def requirements(self):
         # Headers are exposed https://github.com/SeadexGmbH/essentials/blob/622a07dc1530f5668f5dde0ce18007d420c371cd/essentials/include/essentials/log/log_level.hpp#L15

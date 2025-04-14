@@ -28,6 +28,7 @@ class QarchiveConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _qt_major(self):
@@ -35,14 +36,6 @@ class QarchiveConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -52,7 +45,7 @@ class QarchiveConan(ConanFile):
         self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.17 <4]")
+        self.tool_requires("cmake/[>=3.27 <4]")
         self.tool_requires("qt/<host_version>")
 
     def source(self):

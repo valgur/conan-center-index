@@ -14,24 +14,28 @@ class FensterConan(ConanFile):
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/zserge/fenster"
-    topics = ("gui", "minimal")
+    topics = ("gui", "audio", "minimal")
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    options = {
+        "enable_graphics": [True, False],
+        "enable_audio": [True, False],
+    }
+    default_options = {
+        "enable_graphics": True,
+        "enable_audio": False,
+    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("xorg/system")
+            if self.options.enable_graphics:
+                self.requires("xorg/system")
+            if self.options.enable_audio:
+                self.requires("libalsa/1.2.12")
 
     def package_id(self):
         self.info.clear()
@@ -41,18 +45,24 @@ class FensterConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        copy(self, "fenster.h", self.source_folder, os.path.join(self.package_folder, "include"))
+        copy(self, "*.h", self.source_folder, os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
 
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.requires.append("xorg::x11")
-            # Also has an optional dependency on "asound" if fenster_audio.h is used.
-            # It can be provided either as a system lib or via libalsa Conan package.
-            # I'll leave it for the consumer to handle to keep the recipe simple.
-        elif is_apple_os(self):
-            self.cpp_info.frameworks = ["Cocoa", "AudioToolbox"]
-        elif self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["gdi32", "winmm"]
+        if self.options.enable_graphics:
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                self.cpp_info.requires.append("xorg::x11")
+            elif is_apple_os(self):
+                self.cpp_info.frameworks.append("Cocoa")
+            elif self.settings.os == "Windows":
+                self.cpp_info.system_libs.append("gdi32")
+
+        if self.options.enable_audio:
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                self.cpp_info.requires.append("libalsa::libalsa")
+            elif is_apple_os(self):
+                self.cpp_info.frameworks.append("AudioToolbox")
+            elif self.settings.os == "Windows":
+                self.cpp_info.system_libs.append("winmm")

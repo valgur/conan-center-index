@@ -1,15 +1,16 @@
 import os
 
 from conan import ConanFile
+from conan.tools import CppInfo
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path, check_min_vs
+from conan.tools.microsoft import is_msvc, unix_path
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class GlpkConan(ConanFile):
@@ -31,16 +32,8 @@ class GlpkConan(ConanFile):
         "fPIC": True,
         "with_gmp": True,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -62,9 +55,6 @@ class GlpkConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -73,8 +63,6 @@ class GlpkConan(ConanFile):
         tc.configure_args.append("--with-gmp" if self.options.with_gmp else "--without-gmp")
         if is_msvc(self):
             tc.extra_defines.append("__WOE__")
-            if check_min_vs(self, 180, raise_invalid=False):
-                tc.extra_cflags.append("-FS")
         tc.generate()
 
         if is_msvc(self):
@@ -92,8 +80,22 @@ class GlpkConan(ConanFile):
             env.define("STRIP", ":")
             env.vars(self).save_script("conanbuild_msvc")
 
-        deps = AutotoolsDeps(self)
-        deps.generate()
+        if is_msvc(self):
+            # Custom AutotoolsDeps for cl like compilers
+            # workaround for https://github.com/conan-io/conan/issues/12784
+            cpp_info = CppInfo(self)
+            for dependency in self.dependencies.values():
+                cpp_info.merge(dependency.cpp_info.aggregated_components())
+            env = Environment()
+            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in cpp_info.includedirs] + [f"-D{d}" for d in cpp_info.defines])
+            env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in cpp_info.libs])
+            env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in cpp_info.libdirs] + cpp_info.sharedlinkflags + cpp_info.exelinkflags)
+            env.append("CXXFLAGS", cpp_info.cxxflags)
+            env.append("CFLAGS", cpp_info.cflags)
+            env.vars(self).save_script("conanautotoolsdeps_cl_workaround")
+        else:
+            deps = AutotoolsDeps(self)
+            deps.generate()
 
     def build(self):
         autotools = Autotools(self)

@@ -187,19 +187,6 @@ class VtkConan(ConanFile):
     # Note that only YES/NO values are validated in the Conan recipe,
     # WANT/DONT_WANT are only checked in the CMake configure step.
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "msvc": "191",
-            "clang": "7",
-            "apple-clang": "11",
-        }
-
     def export(self):
         copy(self, "*.json", self.recipe_folder, self.export_folder)
 
@@ -426,12 +413,7 @@ class VtkConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "-o shared=False is currently not supported on MSVC due to linker errors. Contributions are welcome!"
             )
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-        if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if self.dependencies["pugixml"].options.wchar_mode:
             raise ConanInvalidConfiguration(f"{self.ref} requires pugixml/*:wchar_mode=False")

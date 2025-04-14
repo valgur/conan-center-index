@@ -51,14 +51,34 @@ class QCoroConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+
+    @property
+    def _with_qml(self):
+        return self.dependencies["qt"].options.get_safe("qtdeclarative", False)
+
+    @property
+    def _with_dbus(self):
+        return self.dependencies["qt"].options.get_safe("with_dbus", False)
+
+    @property
+    def _with_quick(self):
+        return (self.dependencies["qt"].options.get_safe("gui", False) and
+                self.dependencies["qt"].options.get_safe("qtshadertools", False))
+
+    @property
+    def _with_websockets(self):
+        return self.dependencies["qt"].options.get_safe("qtwebsockets", False)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["QCORO_BUILD_EXAMPLES"] = False
         tc.variables["QCORO_ENABLE_ASAN"] = self.options.asan
         tc.variables["BUILD_TESTING"] = False
-        tc.variables["QCORO_WITH_QTDBUS"] = self.dependencies["qt"].options.with_dbus
+        tc.variables["USE_QT_VERSION"] = str(self.dependencies["qt"].ref.version.major)
+        tc.variables["QCORO_WITH_QML"] = self._with_qml
+        tc.variables["QCORO_WITH_QTDBUS"] = self._with_qml
+        tc.variables["QCORO_WITH_QTQUICK"] = self._with_quick
+        tc.variables["QCORO_WITH_QTWEBSOCKETS"] = self._with_websockets
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -70,32 +90,43 @@ class QCoroConan(ConanFile):
 
     def package(self):
         copy(self, "*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=os.path.join(self.source_folder, "LICENSES"))
+             src=os.path.join(self.source_folder, "LICENSES"),
+             dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "mkspecs"))
         for mask in ["Find*.cmake", "*Config*.cmake", "*-config.cmake", "*Targets*.cmake"]:
             rm(self, mask, self.package_folder, recursive=True)
 
     def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "QCoro6")
+        qt_major = self.dependencies["qt"].ref.version.major
+        name = f"QCoro{qt_major}"
+        self.cpp_info.set_property("cmake_file_name", name)
+        self.cpp_info.set_property("cmake_target_name", f"{name}::{name}")
 
-        self.cpp_info.builddirs.append(os.path.join("lib", "cmake", "QCoro6Coro"))
-        macros_cmake_path = os.path.join("lib", "cmake", "QCoro6Coro", "QCoroMacros.cmake")
-        self.cpp_info.set_property("cmake_build_modules", [macros_cmake_path])
+        def _add_module(module_name, requires=None, interface=False):
+            component = self.cpp_info.components[module_name.lower()]
+            component.set_property("cmake_target_name", f"{name}::{module_name}")
+            if not interface:
+                component.libs = [f"{name}{module_name}"]
+            component.includedirs.append(os.path.join("include", f"qcoro{qt_major}", "qcoro"))
+            component.requires = requires or []
 
-        self.cpp_info.components["qcoro-core"].set_property("cmake_target_name", "QCoro::Core")
-        self.cpp_info.components["qcoro-core"].libs = ["QCoro6Core"]
-        self.cpp_info.components["qcoro-core"].includedirs.append(os.path.join("include", "qcoro6", "qcoro"))
-        self.cpp_info.components["qcoro-core"].requires = ["qt::qtCore"]
-
-        self.cpp_info.components["qcoro-network"].set_property("cmake_target_name", "QCoro::Network")
-        self.cpp_info.components["qcoro-network"].libs = ["QCoro6Network"]
-        self.cpp_info.components["qcoro-network"].requires = ["qt::qtNetwork"]
+        _add_module("Coro", interface=True)
+        _add_module("Core", requires=["coro", "qt::qtCore"])
+        _add_module("Network", requires=["coro", "core", "qt::qtCore", "qt::qtNetwork"])
         if is_apple_os(self):
-            self.cpp_info.components["qcoro-network"].frameworks = ["CFNetwork"]
+            self.cpp_info.components["network"].frameworks = ["CFNetwork"]
+        _add_module("Test", requires=["qt::qtTest"], interface=True)
+        if self._with_dbus:
+            _add_module("DBus", requires=["coro", "core", "qt::qtCore", "qt::qtDBus"])
+        if self._with_qml:
+            _add_module("Qml", requires=["coro", "qt::qtCore", "qt::qtQml"])
+        if self._with_quick:
+            _add_module("Quick", requires=["coro", "core", "qt::qtCore", "qt::qtGui", "qt::qtQuick"])
+        if self._with_websockets:
+            _add_module("WebSockets", requires=["coro", "core", "qt::qtCore", "qt::qtNetwork", "qt::qtWebSockets"])
 
-        if self.dependencies["qt"].options.with_dbus:
-            self.cpp_info.components["qcoro-dbus"].set_property("cmake_target_name", "QCoro::DBus")
-            self.cpp_info.components["qcoro-dbus"].libs = ["QCoroDBus"]
-            self.cpp_info.components["qcoro-core"].requires = ["qt::qtDBus"]
+        self.cpp_info.builddirs.append(os.path.join("lib", "cmake", f"{name}Coro"))
+        macros_cmake_path = os.path.join("lib", "cmake", f"{name}Coro", "QCoroMacros.cmake")
+        self.cpp_info.set_property("cmake_build_modules", [macros_cmake_path])

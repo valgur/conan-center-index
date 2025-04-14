@@ -38,12 +38,25 @@ class PSevenZipConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+    @property
+    def _compiler_executables(self):
+        compiler = str(self.settings.compiler)
+        cc = "clang" if "clang" in compiler else compiler
+        cxx = "clang++" if "clang" in compiler else compiler
+        if compiler == "gcc":
+            cxx = "g++"
+        tc_vars = AutotoolsToolchain(self).vars()
+        cc = tc_vars.get("CC", cc)
+        cxx = tc_vars.get("CXX", cxx)
+        return cc, cxx
+
     def generate(self):
+        cc, cxx = self._compiler_executables
         tc = AutotoolsToolchain(self)
         tc_vars = tc.vars()
         tc.make_args.extend([
-            f"CC={tc_vars['CC']}",
-            f"CXX={tc_vars['CXX']}",
+            f"CC={cc}",
+            f"CXX={cxx}",
             f"OPTFLAGS={tc_vars['CFLAGS']}",
         ])
         tc.generate()

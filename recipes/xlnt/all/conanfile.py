@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.errors import ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -29,36 +29,35 @@ class XlntConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libstudxml/1.1.0-b.10+1")
+        self.requires("libstudxml/1.1.0")
         self.requires("miniz/3.0.2")
         self.requires("utfcpp/3.2.3")
 
     def validate(self):
         check_min_cppstd(self, 11)
-        libstudxml_version = Version(self.dependencies["libstudxml"].ref.version)
-        libstudxml_major_minor = f"{libstudxml_version.major}.{libstudxml_version.minor}"
-        if Version(libstudxml_major_minor) < "1.1":
-            raise ConanInvalidConfiguration(f"{self.ref} not compatible with libstudxml < 1.1")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Remove unvendored third party libs
+        for third_party in ("libstudxml", "miniz", "utfcpp"):
+            rmdir(self, os.path.join(self.source_folder, "third-party", third_party))
+        for path in [
+            Path(self.source_folder, "include", "xlnt", "cell", "phonetic_run.hpp"),
+            Path(self.source_folder, "include", "xlnt", "utils", "variant.hpp"),
+            Path(self.source_folder, "source", "utils", "time.cpp"),
+            Path(self.source_folder, "source", "utils", "timedelta.cpp"),
+        ]:
+            path.write_text("#include <cstdint>\n" + path.read_text())
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -74,21 +73,7 @@ class XlntConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Remove unvendored third party libs
-        for third_party in ("libstudxml", "miniz", "utfcpp"):
-            rmdir(self, os.path.join(self.source_folder, "third-party", third_party))
-        path = Path(self.source_folder, "include", "xlnt", "cell", "phonetic_run.hpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "source", "utils", "timedelta.cpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "source", "utils", "time.cpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "include", "xlnt", "utils", "variant.hpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

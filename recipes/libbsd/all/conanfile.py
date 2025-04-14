@@ -3,18 +3,19 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
+
 
 class LibBsdConan(ConanFile):
     name = "libbsd"
     description = "This library provides useful functions commonly found on BSD systems, and lacking on others like GNU systems, " \
                   "thus making it easier to port projects with strong BSD origins, without needing to embed the same code over and over again on each project."
-    topics = ("conan", "libbsd", "useful", "functions", "bsd", "GNU")
+    topics = ("bsd", "compatibility")
     license = ("ISC", "MIT", "Beerware", "BSD-2-clause", "BSD-3-clause", "BSD-4-clause")
     homepage = "https://libbsd.freedesktop.org/wiki/"
     url = "https://github.com/conan-io/conan-center-index"
@@ -28,22 +29,19 @@ class LibBsdConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def configure(self):
-        if self.options.shared:
-           self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    def requirements(self):
+        if Version(self.version) > "0.10":
+            self.requires("libmd/1.1.0")
+
+    def build_requirements(self):
+        self.tool_requires("libtool/2.4.7")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
         if is_apple_os(self):
             tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
@@ -74,6 +72,15 @@ class LibBsdConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
+        if Version(self.version) > "0.10" and self.settings.os in ["Linux", "FreeBSD"]:
+            # Fix a broken ($MD5_LIBS is empty) and unnecessary linker script:
+            # https://gitlab.freedesktop.org/libbsd/libbsd/-/blob/0.12.2/src/Makefile.am#L388
+            # echo "GROUP($(runtimelibdir)/$$soname AS_NEEDED($(MD5_LIBS)))";
+            with chdir(self, os.path.join(self.package_folder, "lib")):
+                os.unlink("libbsd.so")
+                if self.options.shared:
+                    os.symlink(f"libbsd.so.{self.version}", "libbsd.so")
+
         os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libbsd.la")))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -82,6 +89,8 @@ class LibBsdConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["bsd"].libs = ["bsd"]
         self.cpp_info.components["bsd"].set_property("pkg_config_name", "libbsd")
+        if Version(self.version) > "0.10":
+            self.cpp_info.components["bsd"].requires = ["libmd::libmd"]
 
         self.cpp_info.components["libbsd-overlay"].libs = []
         self.cpp_info.components["libbsd-overlay"].requires = ["bsd"]

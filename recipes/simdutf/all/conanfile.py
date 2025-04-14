@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -26,29 +25,13 @@ class SimdutfConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "9.0":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support gcc < 9.")
-        if self.settings.compiler == "gcc" and self.settings.build_type == "Debug" and \
-            Version(self.settings.compiler.version) < "10.0":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support gcc < 10 with debug build")
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

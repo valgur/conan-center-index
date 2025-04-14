@@ -859,7 +859,7 @@ class BoostConan(ConanFile):
         if not can_run(self):
             # When cross building, do not attempt to run the test-executable (assume they work)
             replace_in_file(self, stacktrace_jamfile, "$(>) > $(<)", "echo \"\" > $(<)", strict=False)
-        if self._with_stacktrace_backtrace and self.settings.os != "Windows" and not cross_building(self):
+        if self._with_stacktrace_backtrace and self.settings.os != "Windows" and can_run(self):
             # When libbacktrace is shared, give extra help to the test-executable
             linker_var = "DYLD_LIBRARY_PATH" if self.settings.os == "Macos" else "LD_LIBRARY_PATH"
             libbacktrace_libdir = self.dependencies["libbacktrace"].cpp_info.aggregated_components().libdirs[0]
@@ -1085,8 +1085,8 @@ class BoostConan(ConanFile):
 
         flags.append(f"toolset={self._toolset}")
 
-        cxxstd = cppstd_flag(self)[-2:]
-        flags.append(f"cxxstd={cxxstd}")
+        cppstd_flag_year = cppstd_flag(self)[-2:]
+        flags.append(f"cxxstd={cppstd_flag_year}")
         if "gnu" in self.settings.compiler.cppstd:
             flags.append("cxxstd-dialect=gnu")
 

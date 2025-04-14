@@ -30,30 +30,10 @@ class IridescenceConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "clang": "9",
-            "apple-clang": "11",
-            "msvc": "192",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -76,12 +56,7 @@ class IridescenceConan(ConanFile):
         self.requires("khrplatform/cci.20200529", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if is_msvc(self):
             # Build fails with several compilation errors

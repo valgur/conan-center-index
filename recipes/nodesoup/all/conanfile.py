@@ -1,11 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 
 class NodesoupConan(ConanFile):
@@ -25,27 +23,13 @@ class NodesoupConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        if self.settings.compiler == "clang":
-            if Version(self.settings.compiler.version) < "5.0" and self.settings.compiler.libcxx in ("libstdc++", "libstdc++11"):
-                raise ConanInvalidConfiguration("The version of libstdc++(11) of the current compiler does not support building nodesoup")
+        check_min_cppstd(self, 14)
 
     def export_sources(self):
         export_conandata_patches(self)

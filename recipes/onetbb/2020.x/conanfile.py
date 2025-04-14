@@ -42,6 +42,7 @@ class OneTBBConan(ConanFile):
         "tbbmalloc": False,
         "tbbproxy": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _base_compiler(self):
@@ -53,14 +54,6 @@ class OneTBBConan(ConanFile):
     @property
     def _is_clang_cl(self):
         return self.settings.os == "Windows" and self.settings.compiler == "clang"
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -192,15 +185,23 @@ class OneTBBConan(ConanFile):
             vcvars.generate()
 
     def _patch_sources(self):
-        # Fix LDFLAGS getting incorrectly applied to ar command
-        linux_include = os.path.join(self.source_folder, "build", "common_rules.inc")
-        replace_in_file(self, linux_include, "LIB_LINK_FLAGS += $(LDFLAGS)", "")
+        if not self.options.shared:
+            # Fix LDFLAGS getting incorrectly applied to ar command
+            for makefile in ["Makefile.tbb", "Makefile.tbbmalloc", "Makefile.rml"]:
+                replace_in_file(self, os.path.join(self.source_folder, "build", makefile),
+                                "$(LIB_LINK_FLAGS)", "")
         # Get the version of the current compiler instead of gcc
         linux_include = os.path.join(self.source_folder, "build", "linux.inc")
         replace_in_file(self, linux_include, "shell gcc", "shell $(CC)")
         replace_in_file(self, linux_include, "= gcc", "= $(CC)")
         if self.version != "2019_u9" and self.settings.build_type == "Debug":
             replace_in_file(self, os.path.join(self.source_folder, "Makefile"), "release", "debug")
+        # Remove -Werror and /WX from
+        #   WARNING_AS_ERROR_KEY = -Werror
+        for compiler in ["cl", "clang", "gcc", "icc", "icl"]:
+            for inc_file in self.source_path.joinpath("build").glob(f"*.{compiler}.inc"):
+                if inc_file.stem not in ["ios.clang", "OpenBSD.clang", "FreeBSD.clang"]:
+                    replace_in_file(self, inc_file, "WARNING_AS_ERROR_KEY = ", "WARNING_AS_ERROR_KEY = #", strict=False)
 
     def build(self):
         self._patch_sources()

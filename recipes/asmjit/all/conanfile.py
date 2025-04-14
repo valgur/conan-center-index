@@ -27,30 +27,13 @@ class AsmjitConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-        }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
         if self.version >= "cci.20240531":
             minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)

@@ -4,10 +4,12 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
+from conan.tools.files import copy, get, rmdir
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -178,6 +180,13 @@ class OpenblasConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Disable test subdirs.
+        # ctest also otherwise fails to compile on Android API 22 and earlier due to incomplete complex support.
+        save(self, os.path.join(self.source_folder, "cpp_thread_test", "CMakeLists.txt"), "")
+        save(self, os.path.join(self.source_folder, "ctest", "CMakeLists.txt"), "")
+        save(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"), "")
+        save(self, os.path.join(self.source_folder, "utest", "CMakeLists.txt"), "")
+        save(self, os.path.join(self.source_folder, "lapack-netlib", "TESTING", "CMakeLists.txt"), "")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -224,22 +233,17 @@ class OpenblasConan(ConanFile):
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         if Version(self.version) < "0.3.29": # pylint: disable=conan-condition-evals-to-constant
             tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+
+        # Fix a fatal compiler warning on GCC 14
+        # https://github.com/OpenMathLib/OpenBLAS/pull/4894
+        tc.extra_cflags.append("-Wno-error=incompatible-pointer-types")
+
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Disable test subdirs.
-        # ctest also otherwise fails to compile on Android API 22 and earlier due to incomplete complex support.
-        save(self, os.path.join(self.source_folder, "cpp_thread_test", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "ctest", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "utest", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "lapack-netlib", "TESTING", "CMakeLists.txt"), "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

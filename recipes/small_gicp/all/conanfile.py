@@ -1,12 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -33,27 +30,7 @@ class IridescenceConan(ConanFile):
         "with_openmp": True,
         "with_tbb": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -68,12 +45,7 @@ class IridescenceConan(ConanFile):
             self.requires("onetbb/2021.12.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")
@@ -84,15 +56,11 @@ class IridescenceConan(ConanFile):
         download(self, "https://github.com/strasdat/Sophus/blob/593db47500ea1a2de5f0e6579c86147991509c59/LICENSE.txt", "LICENSE.sophus")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_HELPER"] = True
         tc.variables["BUILD_WITH_OPENMP"] = self.options.with_openmp
         tc.variables["BUILD_WITH_TBB"] = self.options.with_tbb
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 

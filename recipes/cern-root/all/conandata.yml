@@ -1,10 +1,24 @@
 sources:
+  # version format is intentional, ROOT does not follow strict SemVer.
+  # see: https://root.cern/about/versioning/
   "v6-22-06":
     url: "https://github.com/root-project/root/archive/v6-22-06.zip"
     sha256: "125e056f315fb280b13e154d4b73d3b302ac1f5775062e89681edb86c1447a62"
 patches:
   "v6-22-06":
     - patch_file: "patches/0001-add-missing-includes.patch"
-      base_path: "source_subfolder"
     - patch_file: "patches/0002-cmake-missing-link-libraries.patch"
-      base_path: "source_subfolder"
+    - patch_file: "patches/0003-backport-empty-define-filtering.patch"
+      patch_description: "Backport filtering of empty -D flags"
+      patch_type: "portability"
+      patch_source: "https://github.com/root-project/root/blob/798b9b079f7b6c136bdaaf6787729a1bef865429/cmake/modules/RootMacros.cmake"
+    - patch_file: "patches/0004-use-glibc-strlcpy.patch"
+      patch_description: "Use strlcpy and strlcat from glibc if v2.38 or newer"
+      patch_type: "portability"
+      patch_source: "https://github.com/root-project/root/pull/13393"
+    - patch_file: "patches/0005-Add-missing-RLogger.cxx.patch"
+      patch_description: "Add a missing .cxx file to build"
+      patch_type: "bugfix"
+    - patch_file: "patches/0006-add-missing-include.patch"
+      patch_description: "Add a missing include"
+      patch_type: "bugfix"

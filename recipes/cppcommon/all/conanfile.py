@@ -30,6 +30,7 @@ class CppCommon(ConanFile):
         "fPIC": True,
         "shared": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -47,14 +48,6 @@ class CppCommon(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -64,7 +57,7 @@ class CppCommon(ConanFile):
         else:
             self.requires("fmt/10.2.0", transitive_headers=True, transitive_libs=True)
         if self.settings.os == "Linux":
-            self.requires("util-linux-libuuid/2.39.2", transitive_headers=True)
+            self.requires("util-linux-libuuid/2.39.3", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

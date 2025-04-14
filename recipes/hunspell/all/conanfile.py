@@ -11,10 +11,11 @@ required_conan_version = ">=2.1"
 class HunspellConan(ConanFile):
     name = "hunspell"
     description = "Hunspell is a free spell checker and morphological analyzer library"
+    license = "LGPL-2.1-or-later OR GPL-2.0-or-later OR MPL-1.1"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://hunspell.github.io/"
-    topics = "spell", "spell-check"
-    license = "MPL-1.1", "GPL-2.0-or-later", "LGPL-2.1-or-later"
+    topics = ("spell", "spell-check")
+
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -25,19 +26,13 @@ class HunspellConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    no_copy_source = True
 
     def export_sources(self):
         export_conandata_patches(self)
         # TODO: Remove once PR is merged: https://github.com/hunspell/hunspell/pull/704/
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

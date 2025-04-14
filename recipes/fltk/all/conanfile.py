@@ -96,6 +96,15 @@ class FltkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            # Fix relocated X11 and OpenGL not being linked against correctly
+            replace_in_file(self, os.path.join(self.source_folder, "CMake", "options.cmake"),
+                            "include (FindX11)" if Version(self.version) < "1.4.0" else "include(FindX11)",
+                            "find_package(X11 REQUIRED)\n"
+                            "link_libraries(X11::X11 X11::Xext)\n" +
+                            ("find_package(OpenGL REQUIRED)\n"
+                             "link_libraries(OpenGL::GLX)\n" if self.options.with_gl else ""))
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -132,18 +141,7 @@ class FltkConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            # Fix relocated X11 and OpenGL not being linked against correctly
-            replace_in_file(self, os.path.join(self.source_folder, "CMake", "options.cmake"),
-                            "include (FindX11)" if Version(self.version) < "1.4.0" else "include(FindX11)",
-                            "find_package(X11 REQUIRED)\n"
-                            "link_libraries(X11::X11 X11::Xext)\n" +
-                            ("find_package(OpenGL REQUIRED)\n"
-                             "link_libraries(OpenGL::GLX)\n" if self.options.with_gl else ""))
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

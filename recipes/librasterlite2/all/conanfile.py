@@ -42,19 +42,11 @@ class Librasterlite2Conan(ConanFile):
         "with_lz4": True,
         "with_zstd": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -78,7 +70,7 @@ class Librasterlite2Conan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/1.3.2")
         if self.options.with_lzma:
-            self.requires("xz_utils/5.4.5")
+            self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.with_lz4:
             self.requires("lz4/1.9.4")
         if self.options.with_zstd:
@@ -86,7 +78,7 @@ class Librasterlite2Conan(ConanFile):
 
     def validate(self):
         if is_msvc(self):
-            raise ConanInvalidConfiguration("Visual Studio not supported yet")
+            raise ConanInvalidConfiguration("MSVC is not yet supported")
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
@@ -100,10 +92,17 @@ class Librasterlite2Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Disable tests, tools and examples
+        replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"),
+                        "SUBDIRS = headers src test tools examples",
+                        "SUBDIRS = headers src")
+        # fix MinGW
+        zlib_lib = self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
+        replace_in_file(self, os.path.join(self.source_folder, "configure.ac"),
+                        "AC_CHECK_LIB(z,",
+                        f"AC_CHECK_LIB({zlib_lib},")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -118,6 +117,9 @@ class Librasterlite2Conan(ConanFile):
             f"--enable-lz4={yes_no(self.options.with_lz4)}",
             f"--enable-zstd={yes_no(self.options.with_zstd)}",
         ])
+        if is_apple_os(self):
+            tc.extra_cflags.append(f"-arch {to_apple_arch(self)}")
+            tc.extra_ldflags.append(f"-arch {to_apple_arch(self)}")
         tc.generate()
 
         deps = AutotoolsDeps(self)
@@ -125,27 +127,14 @@ class Librasterlite2Conan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Disable tests, tools and examples
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"),
-                              "SUBDIRS = headers src test tools examples",
-                              "SUBDIRS = headers src")
-        # fix MinGW
-        replace_in_file(
-            self, os.path.join(self.source_folder, "configure.ac"),
-            "AC_CHECK_LIB(z,",
-            "AC_CHECK_LIB({},".format(self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]),
-        )
-
     def build(self):
-        self._patch_sources()
         autotools = Autotools(self)
         autotools.autoreconf()
         autotools.configure()
         autotools.make()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))

@@ -30,6 +30,7 @@ class VerySimpleSmtpsConan(ConanFile):
         "shared": False,
         "fPIC": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -42,14 +43,6 @@ class VerySimpleSmtpsConan(ConanFile):
             "clang": "9",
             "apple-clang": "10",
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")

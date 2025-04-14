@@ -30,19 +30,6 @@ class GnuradioVolkConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "6",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -61,7 +48,7 @@ class GnuradioVolkConan(ConanFile):
         # TODO: add recipe for gstreamer-orc https://github.com/GStreamer/orc
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 17)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -69,7 +56,7 @@ class GnuradioVolkConan(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("cpython/3.12.7")
+        self.tool_requires("cpython/[~3.12]")
         # To avoid a conflict with CMake installed via pip on the system Python
         self.tool_requires("cmake/[>=3.15 <4]")
 

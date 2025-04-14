@@ -35,8 +35,7 @@ class CycloneDDSConan(ConanFile):
         "enable_security": False,
         "enable_discovery": True,
     }
-
-    short_paths = True
+    implements = ["auto_shared_fpic"]
 
     def _has_idlc(self, info=False):
         # don't build idlc when it makes little sense or not supported
@@ -46,14 +45,6 @@ class CycloneDDSConan(ConanFile):
     def export_sources(self):
         copy(self, os.path.join("cmake", "CycloneDDS_idlc.cmake"), self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self,src_folder="src")

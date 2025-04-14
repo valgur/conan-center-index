@@ -9,7 +9,7 @@ from conan.tools.gnu import PkgConfigDeps, AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibSmConan(ConanFile):
@@ -30,16 +30,8 @@ class LibSmConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -48,7 +40,7 @@ class LibSmConan(ConanFile):
         self.requires("libice/1.1.1", transitive_headers=True)
         self.requires("xorg-proto/2024.1", transitive_headers=True)
         self.requires("xtrans/1.5.0")
-        self.requires("util-linux-libuuid/2.39.2")
+        self.requires("util-linux-libuuid/2.39.3")
 
     def validate(self):
         if is_msvc(self):

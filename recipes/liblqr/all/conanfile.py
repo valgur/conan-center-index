@@ -8,7 +8,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibLqrConan(ConanFile):
@@ -31,6 +31,8 @@ class LibLqrConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     @property
     def _is_cl_like(self):
@@ -38,16 +40,6 @@ class LibLqrConan(ConanFile):
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         if self._is_cl_like:

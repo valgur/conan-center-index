@@ -8,7 +8,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
-from conan.tools.microsoft import check_min_vs, is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -33,32 +32,11 @@ class ITKConan(ConanFile):
         "fPIC": True,
         "with_opencv": False,
     }
-
-    short_paths = True
-
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "4.8.1",
-            "clang": "3.3",
-            "apple-clang": "9",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_cmake_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -89,19 +67,13 @@ class ITKConan(ConanFile):
             self.tool_requires("cmake/[>=3.16.3 <4]")
 
     def validate(self):
-        if Version(self.version) < "5.2" and is_apple_os(self) and self.settings.arch == "armv8":
-            # https://discourse.itk.org/t/error-building-v5-1-1-for-mac-big-sur-11-2-3/3959
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported on on Apple armv8 architecture.")
-        check_min_cppstd(self, self._min_cppstd)
-        check_min_vs(self, 190)
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
-        if Version(self.version) < "5.2" and self.settings.os == "Macos":
-            raise ConanInvalidConfiguration(f"{self.ref} fails to compile in {self.settings.os}, fixed in 5.2.0")
+        check_min_cppstd(self, 11)
+        if Version(self.version) < "5.2":
+            if is_apple_os(self) and self.settings.arch == "armv8":
+                # https://discourse.itk.org/t/error-building-v5-1-1-for-mac-big-sur-11-2-3/3959
+                raise ConanInvalidConfiguration(f"{self.ref} is not supported on on Apple armv8 architecture.")
+            if self.settings.os == "Macos":
+                raise ConanInvalidConfiguration(f"{self.ref} fails to compile in {self.settings.os}, fixed in 5.2.0")
 
 
     def source(self):

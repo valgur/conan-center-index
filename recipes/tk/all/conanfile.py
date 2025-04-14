@@ -4,14 +4,14 @@ from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import NMakeDeps, NMakeToolchain, is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class TkConan(ConanFile):
@@ -31,19 +31,11 @@ class TkConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
         self.requires(f"tcl/{self.version}", transitive_headers=True, transitive_libs=True)
@@ -53,6 +45,7 @@ class TkConan(ConanFile):
             self.requires("xorg/system", transitive_headers=True)
 
     def build_requirements(self):
+        self.tool_requires("automake/1.16.5")
         if not is_msvc(self):
             if (
                 self.settings_build.os == "Windows"
@@ -73,11 +66,15 @@ class TkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        makefile = os.path.join(self.source_folder, "unix", "Makefile.in")
+        replace_in_file(self, makefile, "LDFLAGS			= @LDFLAGS_DEFAULT@ @LDFLAGS@", "")
+        replace_in_file(self, makefile, " ${CFLAGS}", " ${CFLAGS} ${CPPFLAGS}")
+        configure = os.path.join(self.source_folder, "unix", "configure")
+        replace_in_file(self, configure,
+                        "case 1: case (sizeof(${tcl_type_64bit})==sizeof(long)): ;",
+                        "case 1: case (sizeof(${tcl_type_64bit})!=sizeof(long)): ;")
 
     def generate(self):
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()
@@ -127,7 +124,7 @@ class TkConan(ConanFile):
 
     def _get_default_build_system(self):
         if is_apple_os(self):
-            return "macosx"
+            return "unix"
         elif self.settings.os in ("Linux", "FreeBSD"):
             return "unix"
         elif self.settings.os == "Windows":
@@ -182,10 +179,8 @@ class TkConan(ConanFile):
         }
         config_dir = self._get_configure_folder("win")
         with chdir(self, config_dir):
-            self.run(
-                f"""nmake -nologo -f makefile.vc {' '.join([f'{k}="{v}"' for k, v in flags.items()])} {target}""",
-                env="conanbuild",
-            )
+            args = " ".join(f'{k}="{v}"' for k, v in flags.items())
+            self.run(f"nmake -nologo -f makefile.vc {args} {target}")
 
     def build(self):
         if is_msvc(self):
@@ -240,6 +235,10 @@ class TkConan(ConanFile):
         self.cpp_info.libs = [f"tk{lib_infix}{tk_suffix}", f"tkstub{lib_infix}"]
         if self.settings.os == "Macos":
             self.cpp_info.frameworks = ["CoreFoundation", "Cocoa", "Carbon", "IOKit"]
+            if Version(self.version) >= "8.6.13":
+                self.cpp_info.frameworks += ["QuartzCore", "UniformTypeIdentifiers"]
+                self.cpp_info.exelinkflags = ["-ObjC"]
+                self.cpp_info.sharedlinkflags = ["-ObjC"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = [
                 "netapi32",

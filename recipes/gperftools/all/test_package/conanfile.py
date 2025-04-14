@@ -1,3 +1,4 @@
+import io
 import os
 
 from conan import ConanFile
@@ -20,7 +21,16 @@ class TestPackageConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _test(self, executable):
+        bin_path = os.path.join(self.cpp.build.bindir, executable)
+        stderr = io.StringIO()
+        self.run(bin_path, env="conanrun", stderr=stderr)
+        stderr = stderr.getvalue()
+        self.output.info(stderr)
+        assert "MALLOC: " in stderr, "MALLOCSTATS was not successfully enabled: " + stderr
+
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
-            self.run(bin_path, env="conanrun")
+            os.environ["MALLOCSTATS"] = "1"
+            self._test("test_package_indirect")
+            self._test("test_package_direct")

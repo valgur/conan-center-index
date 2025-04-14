@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -61,6 +62,9 @@ class QtAwesomeConan(ConanFile):
         copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.libs = ["QtAwesome"]
+        if Version(self.version) >= "6.5":
+            self.cpp_info.includedirs.append(os.path.join("include", "QtAwesome"))

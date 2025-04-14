@@ -3,13 +3,15 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.build import check_min_cstd
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibTasn1Conan(ConanFile):
@@ -30,19 +32,8 @@ class LibTasn1Conan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    languages = ["C"]
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -50,13 +41,14 @@ class LibTasn1Conan(ConanFile):
     def validate(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support Visual Studio")
+        if self.settings.get_safe("compiler.cstd"):
+            check_min_cstd(self, 99)
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.25")
         else:
             self.tool_requires("bison/3.8.2")
-
         if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -65,6 +57,14 @@ class LibTasn1Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        if Version(self.version) >= "4.19.0":
+            replace_in_file(self, os.path.join(self.source_folder, "config.h.in"),
+                            "# define _GL_EXTERN_INLINE _GL_UNUSED static",
+                            "# define _GL_EXTERN_INLINE _GL_UNUSED")
+        else:
+            replace_in_file(self, os.path.join(self.source_folder, "config.h.in"),
+                            "# define _GL_EXTERN_INLINE static _GL_UNUSED",
+                            "# define _GL_EXTERN_INLINE _GL_UNUSED")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -73,6 +73,8 @@ class LibTasn1Conan(ConanFile):
         tc = AutotoolsToolchain(self)
         if not is_msvc(self):
             tc.extra_cflags.append("-std=c99")
+        else:
+            tc.extra_cflags.append("-std=gnu99")
         tc.configure_args.append("--disable-doc")
         # Workaround against SIP on macOS
         if self.settings.os == "Macos" and self.options.shared:

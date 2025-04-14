@@ -8,7 +8,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class TcpWrappersConan(ConanFile):
@@ -29,19 +29,11 @@ class TcpWrappersConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")

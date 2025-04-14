@@ -6,6 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -43,6 +44,7 @@ class G2oConan(ConanFile):
         "with_openmp": [True, False],
         "with_cholmod": [True, False],
         "with_csparse": [True, False],
+        "with_opengl": [True, False],
     }
     default_options = {
         "shared": False,
@@ -69,19 +71,13 @@ class G2oConan(ConanFile):
         "with_openmp": True,
         "with_cholmod": False,
         "with_csparse": False,
+        "with_opengl": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "FindSuiteSparse.cmake", self.recipe_folder, self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -108,13 +104,14 @@ class G2oConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         # Used in stuff/logger.h
         self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
-        # Used in stuff/opengl_wrapper.h
-        self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
-        self.requires("freeglut/3.4.0", transitive_headers=True, transitive_libs=True)
-        if is_apple_os(self) or self.settings.os == "Windows":
-            self.requires("glu/system")
-        else:
-            self.requires("mesa-glu/9.0.3")
+        if self.options.with_opengl:
+            # Used in stuff/opengl_wrapper.h
+            self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
+            self.requires("freeglut/3.4.0", transitive_headers=True, transitive_libs=True)
+            if is_apple_os(self) or self.settings.os == "Windows":
+                self.requires("glu/system")
+            else:
+                self.requires("mesa-glu/9.0.3")
         if self.options.with_openmp:
             # Used in core/openmp_mutex.h, also '#pragma omp' is used in several core public headers
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
@@ -128,10 +125,11 @@ class G2oConan(ConanFile):
         # self.requires("libqglviewer/x.y.z")
 
     def validate(self):
-        check_min_cppstd(self, 17)
-        # C++20 fails with
-        # error: call to non-‘constexpr’ function ‘void fmt::v10::detail::throw_format_error(const char*)’
-        check_max_cppstd(self, 17)
+        if self.settings.compiler.cppstd:
+            check_min_cppstd(self, 17)
+            # C++20 fails with
+            # error: call to non-‘constexpr’ function ‘void fmt::v10::detail::throw_format_error(const char*)’
+            check_max_cppstd(self, 17)
 
         if self.settings.os == "Windows" and self.options.shared:
             # Build fails with "unresolved external symbol "public: __cdecl g2o::internal::LoggerInterface::LoggerInterface(void)"
@@ -140,6 +138,22 @@ class G2oConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        copy(self, "FindSuiteSparse.cmake", self.export_sources_folder, os.path.join(self.source_folder, "cmake_modules"))
+        save(self, os.path.join(self.source_folder, "g2o", "EXTERNAL", "CMakeLists.txt"), "")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package(CSparse)", "find_package(CSPARSE)")
+        replace_in_file(self, os.path.join(self.source_folder, "g2o", "solvers", "csparse", "CMakeLists.txt"),
+                        "$<BUILD_INTERFACE:${CSPARSE_INCLUDE_DIR}>",
+                        '"$<BUILD_INTERFACE:${CSPARSE_INCLUDE_DIR}>"')
+        replace_in_file(self, os.path.join(self.source_folder, "g2o", "solvers", "csparse", "CMakeLists.txt"),
+                        "${CSPARSE_LIBRARY}", "${CSPARSE_LIBRARIES}")
+        # Ensure GLU from Conan is used
+        glu = "glu" if "glu" in self.dependencies else "mesa-glu"
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "find_package(OpenGL)",
+                        f"find_package(OpenGL)\nfind_package({glu})")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "OpenGL::GLU", f"{glu}::{glu}")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -148,7 +162,7 @@ class G2oConan(ConanFile):
         tc.variables["G2O_USE_OPENMP"] = self.options.with_openmp
         tc.variables["G2O_USE_CHOLMOD"] = self.options.with_cholmod
         tc.variables["G2O_USE_CSPARSE"] = self.options.with_csparse
-        tc.variables["G2O_USE_OPENGL"] = True
+        tc.variables["G2O_USE_OPENGL"] = self.options.with_opengl
         tc.variables["G2O_USE_LOGGING"] = True
         tc.variables["G2O_BUILD_SLAM2D_TYPES"] = self.options.build_slam2d_types
         tc.variables["G2O_BUILD_SLAM2D_ADDON_TYPES"] = self.options.build_slam2d_addon_types
@@ -176,26 +190,7 @@ class G2oConan(ConanFile):
         deps.set_property("suitesparse-cxsparse", "cmake_file_name", "CSPARSE")
         deps.generate()
 
-    def _patch_sources(self):
-        copy(self, "FindSuiteSparse.cmake", self.export_sources_folder, os.path.join(self.source_folder, "cmake_modules"))
-        save(self, os.path.join(self.source_folder, "g2o", "EXTERNAL", "CMakeLists.txt"), "")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(CSparse)", "find_package(CSPARSE)")
-        replace_in_file(self, os.path.join(self.source_folder, "g2o", "solvers", "csparse", "CMakeLists.txt"),
-                        "$<BUILD_INTERFACE:${CSPARSE_INCLUDE_DIR}>",
-                        '"$<BUILD_INTERFACE:${CSPARSE_INCLUDE_DIR}>"')
-        replace_in_file(self, os.path.join(self.source_folder, "g2o", "solvers", "csparse", "CMakeLists.txt"),
-                        "${CSPARSE_LIBRARY}", "${CSPARSE_LIBRARIES}")
-        # Ensure GLU from Conan is used
-        glu = "glu" if "glu" in self.dependencies else "mesa-glu"
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(OpenGL)",
-                        f"find_package(OpenGL)\nfind_package({glu})")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "OpenGL::GLU", f"{glu}::{glu}")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -216,6 +211,8 @@ class G2oConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "g2o")
 
         def _add_component(name, requires=None):
+            if not self.options.with_opengl and "opengl_helper" in requires:
+                requires.remove("opengl_helper")
             self.cpp_info.components[name].set_property("cmake_target_name", f"g2o::{name}")
             self.cpp_info.components[name].libs = [f"g2o_{name}"]
             self.cpp_info.components[name].requires = requires or []
@@ -224,8 +221,9 @@ class G2oConan(ConanFile):
         self.cpp_info.components["g2o_ceres_ad"].set_property("cmake_target_name", "g2o::g2o_ceres_ad")
         _add_component("stuff", requires=["spdlog::spdlog", "eigen::eigen"])
         _add_component("core", requires=["stuff", "eigen::eigen", "g2o_ceres_ad"])
-        glu = "glu" if "glu" in self.dependencies else "mesa-glu"
-        _add_component("opengl_helper", requires=["opengl::opengl", "freeglut::freeglut", "eigen::eigen", f"{glu}::{glu}"])
+        if self.options.with_opengl:
+            glu = "glu" if "glu" in self.dependencies else "mesa-glu"
+            _add_component("opengl_helper", requires=["opengl::opengl", "freeglut::freeglut", "eigen::eigen", f"{glu}::{glu}"])
 
         # Solvers
         _add_component("solver_dense", requires=["core"])

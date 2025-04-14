@@ -83,7 +83,7 @@ class OpenldapConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "configure"),
                         "WITH_SYSTEMD=no\nsystemdsystemunitdir=", "WITH_SYSTEMD=no")
         # Disable docs and avoid a dependency on soelim tool
-        save(self, os.path.join(self.source_folder, "doc", "Makefile.in"), "all:\n\t\ninstall:\n\t\n")
+        save(self, os.path.join(self.source_folder, "doc", "Makefile.in"), "all:\ninstall:\n")
 
     def build(self):
         self._patch_sources()

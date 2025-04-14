@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -54,7 +54,7 @@ class CyrusSaslConan(ConanFile):
         "with_scram": True,
         "with_otp": True,
         "with_krb4": True,
-        "with_gssapi": False, # FIXME: should be True
+        "with_gssapi": True,
         "with_plain": True,
         "with_anon": True,
         "with_postgresql": False,
@@ -92,6 +92,8 @@ class CyrusSaslConan(ConanFile):
     def requirements(self):
         if is_msvc(self) or self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
+        if self.options.get_safe("with_gssapi"):
+            self.requires("krb5/1.21.2")
         if self.options.get_safe("with_postgresql"):
             self.requires("libpq/15.4")
         if self.options.get_safe("with_mysql"):
@@ -104,22 +106,19 @@ class CyrusSaslConan(ConanFile):
     def validate(self):
         if is_msvc(self) and not self.options.shared:
             raise ConanInvalidConfiguration("Static library output is not supported when building with MSVC")
-        if self.options.with_gssapi:
-            raise ConanInvalidConfiguration(
-                f"{self.name}:with_gssapi=True requires krb5 recipe, not yet available in conan-center",
-            )
+        if is_msvc(self) and self.options.with_gssapi:
+            raise ConanInvalidConfiguration("GSSAPI is currently not supported when building with MSVC. Contributions welcome!")
 
     def build_requirements(self):
         if not is_msvc(self):
             self.tool_requires("gnu-config/cci.20210814")
+            self.tool_requires("libtool/2.4.7")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def _generate_autotools(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -168,6 +167,7 @@ class CyrusSaslConan(ConanFile):
     def _build_autotools(self):
         self._patch_sources_autotools()
         autotools = Autotools(self)
+        autotools.autoreconf()
         autotools.configure()
         autotools.make()
 

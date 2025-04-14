@@ -36,19 +36,6 @@ class PdalConan(ConanFile):
         "with_zstd": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12.0",
-        }
-
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
         export_conandata_patches(self)
@@ -102,13 +89,7 @@ class PdalConan(ConanFile):
         # TODO: add postgresql support
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("pdal shared build doesn't support MT runtime with Visual Studio")
@@ -219,8 +200,8 @@ class PdalConan(ConanFile):
         build_dir = os.path.join(self.build_folder, "src", "dimbuilder")
         cmake_vars = {}
         tc_vars = AutotoolsToolchain(self).vars()
-        cmake_vars["CMAKE_C_COMPILER"] = tc_vars.get("CC_FOR_BUILD", "cc")
-        cmake_vars["CMAKE_CXX_COMPILER"] = tc_vars.get("CXX_FOR_BUILD", "c++")
+        cmake_vars["CMAKE_C_COMPILER"] = tc_vars["CC_FOR_BUILD"]
+        cmake_vars["CMAKE_CXX_COMPILER"] = tc_vars["CXX_FOR_BUILD"]
         cmake_vars["CMAKE_CXX_STANDARD"] = self._min_cppstd
         cmake_vars["CMAKE_BUILD_TYPE"] = "Release"
         cmake_vars["NLOHMANN_INCLUDE_DIR"] = os.path.join(self.dependencies["nlohmann_json"].package_folder, "include").replace("\\", "/")

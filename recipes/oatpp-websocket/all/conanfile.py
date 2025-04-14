@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -5,7 +7,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=2.1"
 
@@ -28,17 +29,7 @@ class OatppWebSocketConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            try:
-                del self.options.fPIC
-            except Exception:
-                pass
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")

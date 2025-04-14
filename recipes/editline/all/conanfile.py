@@ -9,7 +9,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class EditlineConan(ConanFile):
@@ -31,16 +31,8 @@ class EditlineConan(ConanFile):
         "fPIC": True,
         "terminal_db": "termcap",
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")

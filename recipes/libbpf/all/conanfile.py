@@ -2,12 +2,11 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, PkgConfigDeps, GnuToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 class LibbpfConan(ConanFile):
     name = "libbpf"
@@ -29,16 +28,8 @@ class LibbpfConan(ConanFile):
         "fPIC": True,
         "with_uapi_headers": False
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -61,8 +52,6 @@ class LibbpfConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = GnuToolchain(self)
         tc_vars = tc.extra_env.vars(self)
         tc.make_args["PREFIX"] = "/"

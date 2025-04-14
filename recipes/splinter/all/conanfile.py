@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -37,7 +38,11 @@ class SplinterConan(ConanFile):
             del self.options.fPIC
 
     def configure(self):
-        if self.options.shared:
+        if is_msvc(self):
+            # The project does not export the necessary symbols for building as a shared library on Windows
+            del self.options.shared
+            self.package_type = "static-library"
+        if self.options.get_safe("shared"):
             self.options.rm_safe("fPIC")
 
     def layout(self):
@@ -73,7 +78,7 @@ class SplinterConan(ConanFile):
 
     def package_info(self):
         # The project does not install any CMake config or pkg-config files
-        suffix = "" if self.options.shared else "-static"
+        suffix = "" if self.options.get_safe("shared") else "-static"
         version = Version(self.version)
         self.cpp_info.libs = [f"splinter{suffix}-{version.major}-{version.minor}"]
         self.cpp_info.includedirs.append(os.path.join("include", "SPLINTER"))

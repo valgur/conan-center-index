@@ -9,25 +9,22 @@ from conan.tools.gnu import PkgConfigDeps
 
 class KeychainConan(ConanFile):
     name = "keychain"
-    description = (
-        "A cross-platform wrapper for the operating system's credential storage"
-    )
+    description = "A cross-platform wrapper for the operating system's credential storage"
     license = "MIT"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/hrantzsch/keychain"
     topics = ("keychain", "security", "credentials", "password", "cpp11")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [False, True], "fPIC": [False, True]}
-    default_options = {"shared": False, "fPIC": True}
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    options = {
+        "shared": [False, True],
+        "fPIC": [False, True],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")

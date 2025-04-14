@@ -42,9 +42,10 @@ class EigenConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         if Version(self.version) <= "3.4.0":
-            # Backport latest DisableStupidWarnings.h to disable warnings from newer compiler versions
-            download(self, **self.conan_data["disable_stupid_warnings_h"],
-                     filename=os.path.join("Eigen", "src", "Core", "util", "DisableStupidWarnings.h"))
+            self.output.info("Patching DisableStupidWarnings.h to the latest version to avoid warnings from newer compiler versions")
+            path = os.path.join("Eigen", "src", "Core", "util", "DisableStupidWarnings.h")
+            assert os.path.isfile(path)
+            download(self, **self.conan_data["disable_stupid_warnings_h"], filename=path)
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -15,7 +15,6 @@ class VigraConan(ConanFile):
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     topics = "image-processing", "computer-vision"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -24,7 +23,6 @@ class VigraConan(ConanFile):
         "with_boost_graph": [True, False],
         "with_lemon": [True, False],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -33,14 +31,13 @@ class VigraConan(ConanFile):
         "with_boost_graph": True,
         "with_lemon": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         replace_in_file(
             self,
@@ -51,14 +48,6 @@ class VigraConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def requirements(self):
         self.requires("libtiff/[>=4.5 <5]")

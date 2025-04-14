@@ -22,6 +22,9 @@ class IndicatorsConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -42,6 +45,7 @@ class IndicatorsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def package(self):
         copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

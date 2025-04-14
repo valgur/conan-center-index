@@ -1,13 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -81,19 +79,6 @@ class OsgearthConan(ConanFile):
         "enable_wininet_for_http": False,
     }
     short_paths = True
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "191",
-            "gcc": "5",
-            "clang": "5",
-            "apple-clang": "5",
-        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -171,12 +156,7 @@ class OsgearthConan(ConanFile):
         # https://github.com/gwaldron/osgearth/commit/dae4c9115d80eb3e655496471bbe8cdd5d6a9969
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.20 <4]")
@@ -226,7 +206,7 @@ class OsgearthConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         if self.options.install_shaders:

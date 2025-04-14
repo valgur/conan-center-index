@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class TinkerforgeBindingsConan(ConanFile):
@@ -28,19 +28,11 @@ class TinkerforgeBindingsConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

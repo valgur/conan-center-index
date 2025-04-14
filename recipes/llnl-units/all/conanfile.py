@@ -34,6 +34,7 @@ class UnitsConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -47,14 +48,6 @@ class UnitsConan(ConanFile):
             "gcc": "7",
             "msvc": "191",
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

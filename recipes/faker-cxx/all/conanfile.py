@@ -28,6 +28,7 @@ class FakerCXXConan(ConanFile):
         "fPIC": True,
         "with_std_format": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -41,14 +42,6 @@ class FakerCXXConan(ConanFile):
             "apple-clang": "16",
             "msvc": "193",
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def requirements(self):
         if not self.options.with_std_format:

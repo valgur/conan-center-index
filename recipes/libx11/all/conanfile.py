@@ -10,7 +10,7 @@ from conan.tools.gnu import PkgConfigDeps, AutotoolsToolchain, Autotools
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibX11Conan(ConanFile):
@@ -41,19 +41,11 @@ class LibX11Conan(ConanFile):
         "enable_specs": True,
         "enable_year2038": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         copy(self, "conan-findx11.cmake", self.recipe_folder, self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")

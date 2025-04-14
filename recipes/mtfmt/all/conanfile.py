@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class MtFmtConan(ConanFile):
@@ -40,16 +40,8 @@ class MtFmtConan(ConanFile):
         "use_fp32": False,
         "use_fp64": False,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)

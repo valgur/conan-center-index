@@ -30,50 +30,19 @@ class ICCConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    @property
-    def _minimum_cpp_standard(self):
-        return 11
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "191",
-            "apple-clang": "9.4",
-            "clang": "3.3",
-            "gcc": "4.9.4",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, 11)
 
         if is_apple_os(self):
             raise ConanInvalidConfiguration(f"OS {self.settings.os} is not supported")
-
-        def lazy_lt_semver(v1, v2):
-            # To allow version "9" >= "9.4" for apple-clang
-            return all(int(p1) < int(p2) for p1, p2 in zip(str(v1).split("."), str(v2).split(".")))
-
-        compiler = self.settings.compiler
-        min_version = self._minimum_compilers_version.get(str(compiler))
-        if min_version and lazy_lt_semver(compiler.version, min_version):
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires C++{self._minimum_cpp_standard} features "
-                f"which are not supported by compiler {compiler} {compiler.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

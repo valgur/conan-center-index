@@ -5,7 +5,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -76,7 +75,7 @@ class Log4cxxConan(ConanFile):
     def requirements(self):
         self.requires("apr/1.7.4")
         self.requires("apr-util/1.6.1")
-        self.requires("expat/2.6.4")
+        self.requires("expat/[>=2.6.2 <3]")
         if self.options.get_safe("with_odbc_appender") and self.settings.os != "Windows":
             self.requires("odbc/2.3.11")
         if self.options.get_safe("with_smtp_appender"):
@@ -129,7 +128,7 @@ class Log4cxxConan(ConanFile):
         deps.generate()
 
     def build(self):
-        if self.options.with_qt and Version(self.dependencies["qt"].ref.version).major == 6:
+        if self.options.with_qt and self.dependencies["qt"].ref.version.major == 6:
             replace_in_file(self, os.path.join(self.source_folder, "src", "main", "cpp-qt", "CMakeLists.txt"), "Qt5", "Qt6")
         cmake = CMake(self)
         cmake.configure()

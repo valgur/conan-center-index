@@ -29,6 +29,7 @@ class LibvaultConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _mac_os_minimum_required_version(self):
@@ -46,14 +47,6 @@ class LibvaultConan(ConanFile):
             "clang": "7.0",
             "apple-clang": "12",
         }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

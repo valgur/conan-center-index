@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.apple import is_apple_os
@@ -28,14 +29,7 @@ class CoseCConan(ConanFile):
         "fPIC": True,
         "with_ssl": "openssl",
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -88,6 +82,8 @@ class CoseCConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        for dll in Path(self.package_folder, "lib").glob("*.dll"):
+            rename(self, dll, Path(self.package_folder, "bin", dll.name))
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)

@@ -32,6 +32,7 @@ class SoPlexConan(ConanFile):
         "with_boost": True,
         "with_gmp": True,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -53,14 +54,6 @@ class SoPlexConan(ConanFile):
             return "soplex-pic"
         else:
             return "soplex"
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -32,7 +32,7 @@ class AbseilConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-    short_paths = True
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -52,14 +52,6 @@ class AbseilConan(ConanFile):
     def export_sources(self):
         copy(self, "abi_trick/*", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

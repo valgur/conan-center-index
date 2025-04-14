@@ -1,4 +1,4 @@
-This is a fork of Conan Center Index containing [recipes and changes by @valgur](https://github.com/conan-io/conan-center-index/pulls?q=is%3Aopen+is%3Apr+author%3Avalgur+sort%3Aupdated-desc) not yet merged to the main Conan Center Index.
+This is a fork of Conan Center Index containing [recipes and changes by @valgur](https://github.com/conan-io/conan-center-index/pulls?q=is%3Apr+author%3Avalgur+sort%3Aupdated-desc) not yet merged to the main Conan Center Index.
 
 ## Setup
 
@@ -13,20 +13,26 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-09:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-14:
 
+- aeron/1.43.0
+- apr-util/1.6.3
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
+- bear/3.1.4
 - blis/0.9.0
 - boost/1.71.0
 - boost/1.74.0
+- capnproto/1.0.1.1
 - cargo-c/0.10.8
 - casadi/3.6.6
+- cgns/4.4.0
 - cilantro/cci.20230816
 - cimg/3.3.5
+- cmake/4.0.0
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -36,18 +42,24 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- cose-c/cci.20200603
 - cpp-validator/2.1.1
 - cppserver/1.0.4.1
+- crashpad/cci.20231107
+- crow/1.1.0
+- crow/1.2.0
 - cub/2.7.0
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
+- diligent-core/2.5.6
 - dpdk/24.07
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
-- fenster/0.0.0.cci.20240909
+- fenster/0.1.0
 - filament/1.5.3
+- firebird/5.0.0
 - fortran/cci.latest
 - freeglut/3.6.0
 - g2o/20230806
@@ -85,6 +97,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtkmm/3.24.9
 - gtkmm/4.16.0
 - gtsam/4.3-pre.20250201
+- gtsam_gnss/0.0.0.cci.20250213
 - gtsam_points/1.0.6
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
@@ -95,13 +108,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imagemagick/7.1.1.38
 - imlib2/1.12.3
 - influxdb-cxx/0.7.3
+- ios-cmake/4.4.1
 - iridescence/0.1.3
 - isl/0.27
 - json-glib/1.10.6
 - jsonifier/0.9.98
+- kokkos/4.3.1
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libbpf/1.4.6
+- libbsd/0.12.2
 - libcaca/0.99.beta20
 - libcroco/0.6.13
 - libcudacxx/2.7.0
@@ -111,15 +127,21 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libgudev/238
 - libhdfs3/cci.20191105
 - libice/1.1.1
+- libmediainfo/23.11
+- libmysqlclient/8.2.0
 - libosmium/2.20.0
+- libpq/17.0
 - libraw1394/2.1.2
 - librsvg/2.40.21
 - librsvg/2.57.0
+- libsigcpp/2.12.1
+- libsigcpp/3.6.0
 - libsm/1.2.4
 - libsolv/0.7.29
 - libsoup/3.6.1
+- libstudxml/1.1.0
+- libtasn1/4.19.0
 - libtomcrypt/1.18.2
-- libtommath/1.2.1
 - libtommath/1.3.0
 - libtorch/2.4.0
 - libudev/255.13
@@ -146,6 +168,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxtst/1.2.5
 - libxv/1.0.12
 - libxxf86vm/1.1.5
+- linux-pam/1.6.1
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
@@ -156,12 +179,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.0
 - mkfontscale/1.2.3
+- moltenvk/1.2.7
 - mrcal/2.4.1
 - nanobind/2.4.0
 - nanopb/0.4.9.1
 - netpbm/11.6.0
 - nss/3.107
 - numpy/1.26.4
+- odbc/2.3.12
 - ogre/14.3.4
 - openblas/0.3.28
 - opencv/4.5.4
@@ -174,6 +199,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - or-tools/9.10
 - osgearth/3.7
 - osrm/5.27.1
+- ozz-animation/0.14.3
+- ozz-animation/0.15.0
 - pangolin/0.9.3
 - pangomm/2.46.4
 - pangomm/2.54.0
@@ -181,22 +208,28 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pdal/2.7.2
 - perf/6.11
 - piex/0.27
+- plf_list/2.77
 - polyscope/2.3.0
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
-- premake/5.0.0-beta2
+- premake/5.0.0-beta6
 - protobuf/3.12.4
 - protobuf/4.23.4
+- qcoro/0.10.0
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
 - qt/6.8.2
+- qtawesome/6.5.1
+- rmlui/5.1
 - rosx_introspection/1.0.2
 - rust/1.72.1
 - rust/1.75.0
 - rust/1.77.1
 - rust/1.81.0
 - rust/1.84.0
+- rust/1.85.1
 - secsipidx/1.3.2
+- serf/1.3.10
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
 - skia/132
@@ -231,10 +264,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/6.7.0
 - sundials/7.1.1
 - thrust/2.7.0
+- tk/8.6.13
 - tpl/cci.20210302
 - tz/2024b
 - usearch/2.9.1
+- util-linux-libuuid/2.39.3
+- vc/1.4.5
 - vilib/cci.20210625
+- vk-bootstrap/1.3.268
 - vlfeat/0.9.21
 - volk/1.3.290.0
 - vswhere/3.1.7
@@ -244,6 +281,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
 - vulkan-utility-libraries/1.3.290.0
+- vulkan-utility-libraries/1.3.296.0
 - vulkan-validationlayers/1.3.268.0
 - vulkan-validationlayers/1.3.290.0
 - wuffs/0.3.4
@@ -263,4 +301,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xorg/1.8.10
 - xtrans/1.5.0
 - zenoh-c/1.2.0
+- zenoh-c/1.3.2
+- zenoh-cpp/1.3.2
+- zenoh-pico/1.3.2
+- zint/2.13.0
 

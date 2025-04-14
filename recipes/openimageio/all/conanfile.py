@@ -5,8 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.scm import Version
+from conan.tools.microsoft import is_msvc_static_runtime
 
 required_conan_version = ">=2.1"
 
@@ -19,11 +18,12 @@ class OpenImageIOConan(ConanFile):
         "particular emphasis on formats and functionality used in "
         "professional, large-scale animation and visual effects work for film."
     )
-    topics = ("vfx", "image", "picture")
-    license = "Apache-2.0", "BSD-3-Clause"
-    homepage = "http://www.openimageio.org/"
+    license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
+    homepage = "http://www.openimageio.org/"
+    topics = ("vfx", "image", "picture")
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -50,38 +50,35 @@ class OpenImageIOConan(ConanFile):
         "fPIC": True,
         "with_libjpeg": "libjpeg",
         "with_libpng": True,
-        "with_freetype": True,
-        "with_hdf5": True,
+        "with_freetype": False,
+        "with_hdf5": False,
         "with_opencolorio": True,
         "with_opencv": False,
         "with_tbb": False,
-        "with_dicom": False,  # Heavy dependency, disabled by default
-        "with_ffmpeg": True,
+        "with_dicom": False,
+        "with_ffmpeg": False,
         "with_giflib": True,
-        "with_libheif": True,
+        "with_libheif": False,
         "with_raw": False,  # libraw is available under CDDL-1.0 or LGPL-2.1, for this reason it is disabled by default
         "with_openjpeg": True,
-        "with_openvdb": False,  # FIXME: broken on M1
-        "with_ptex": True,
+        "with_openvdb": False,
+        "with_ptex": False,
         "with_libwebp": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # Required libraries
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("boost/1.86.0")
         self.requires("libtiff/[>=4.5 <5]")
+        # INFO: https://github.com/AcademySoftwareFoundation/OpenImageIO/blob/v2.5.4.0/src/libOpenImageIO/CMakeLists.txt#L126
         self.requires("imath/3.1.9", transitive_headers=True)
         self.requires("openexr/3.3.3")
         if self.options.with_libjpeg == "libjpeg":
@@ -91,10 +88,8 @@ class OpenImageIOConan(ConanFile):
         self.requires("pugixml/1.14")
         self.requires("libsquish/1.15")
         self.requires("tsl-robin-map/1.2.1")
-        if Version(self.version) >= "2.4.17.0":
-            self.requires("fmt/10.2.1", transitive_headers=True)
-        else:
-            self.requires("fmt/9.1.0", transitive_headers=True)
+        self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("bzip2/1.0.8")
 
         # Optional libraries
         if self.options.with_libpng:
@@ -106,7 +101,8 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_opencolorio:
             self.requires("opencolorio/2.4.1")
         if self.options.with_opencv:
-            self.requires("opencv/4.11.0")
+            # INFO: https://github.com/AcademySoftwareFoundation/OpenImageIO/blob/v2.5.4.0/src/libOpenImageIO/CMakeLists.txt#L131
+            self.requires("opencv/4.11.0", transitive_headers=True)
         if self.options.with_tbb:
             self.requires("onetbb/2021.10.0")
         if self.options.with_dicom:
@@ -133,13 +129,10 @@ class OpenImageIOConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 14)
-        if is_msvc(self) and is_msvc_static_runtime(self) and self.options.shared:
+        if is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration(
                 "Building shared library with static runtime is not supported!"
             )
-
-    def layout(self):
-        cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -164,13 +157,11 @@ class OpenImageIOConan(ConanFile):
         # Conan is normally not used for testing, so fixing this option to not build the tests
         tc.variables["BUILD_TESTING"] = False
 
+        # Configure optional dependencies
         # OIIO CMake files are patched to check USE_* flags to require or not use dependencies
-        tc.variables["USE_JPEGTURBO"] = (
-            self.options.with_libjpeg == "libjpeg-turbo"
-        )
-        tc.variables[
-            "USE_JPEG"
-        ] = True  # Needed for jpeg.imageio plugin, libjpeg/libjpeg-turbo selection still works
+        # https://github.com/AcademySoftwareFoundation/OpenImageIO/blob/v2.5.4.0/src/cmake/check_is_enabled.cmake
+        tc.variables["USE_JPEGTURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
+        tc.variables["USE_JPEG"] = True  # Needed for jpeg.imageio plugin, libjpeg/libjpeg-turbo selection still works
         tc.variables["USE_HDF5"] = self.options.with_hdf5
         tc.variables["USE_OPENCOLORIO"] = self.options.with_opencolorio
         tc.variables["USE_OPENCV"] = self.options.with_opencv
@@ -191,10 +182,10 @@ class OpenImageIOConan(ConanFile):
         tc.variables["USE_FREETYPE"] = self.options.with_freetype
         tc.variables["USE_LIBWEBP"] = self.options.with_libwebp
         tc.variables["USE_OPENJPEG"] = self.options.with_openjpeg
-
         tc.generate()
-        cd = CMakeDeps(self)
-        cd.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -212,22 +203,13 @@ class OpenImageIOConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
-    @staticmethod
-    def _conan_comp(name):
-        return f"openimageio_{name.lower()}"
-
-    def _add_component(self, name):
-        component = self.cpp_info.components[self._conan_comp(name)]
-        component.set_property("cmake_target_name", f"OpenImageIO::{name}")
-        return component
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "OpenImageIO")
         self.cpp_info.set_property("pkg_config_name", "OpenImageIO")
 
-
         # OpenImageIO::OpenImageIO_Util
-        open_image_io_util = self._add_component("OpenImageIO_Util")
+        open_image_io_util = self.cpp_info.components["openimageio_util"]
+        open_image_io_util.set_property("cmake_target_name", "OpenImageIO::OpenImageIO_Util")
         open_image_io_util.libs = ["OpenImageIO_Util"]
         open_image_io_util.requires = [
             "boost::filesystem",
@@ -238,17 +220,16 @@ class OpenImageIOConan(ConanFile):
             "openexr::openexr",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            open_image_io_util.system_libs.extend(
-                ["dl", "m", "pthread"]
-            )
+            open_image_io_util.system_libs.extend(["dl", "m", "pthread"])
         if self.options.with_tbb:
             open_image_io_util.requires.append("onetbb::onetbb")
 
         # OpenImageIO::OpenImageIO
-        open_image_io = self._add_component("OpenImageIO")
+        open_image_io = self.cpp_info.components["openimageio_"]
+        open_image_io.set_property("cmake_target_name", "OpenImageIO::OpenImageIO")
         open_image_io.libs = ["OpenImageIO"]
         open_image_io.requires = [
-            "openimageio_openimageio_util",
+            "openimageio_util",
             "zlib::zlib",
             "boost::thread",
             "boost::system",
@@ -261,6 +242,7 @@ class OpenImageIOConan(ConanFile):
             "fmt::fmt",
             "imath::imath",
             "openexr::openexr",
+            "bzip2::bzip2",
         ]
 
         if self.options.with_libjpeg == "libjpeg":

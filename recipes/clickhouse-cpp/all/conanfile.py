@@ -27,6 +27,7 @@ class ClickHouseCppConan(ConanFile):
         "fPIC": True,
         "with_openssl": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -45,14 +46,6 @@ class ClickHouseCppConan(ConanFile):
         return self.settings.compiler == "clang" and \
             ((self.settings.compiler.libcxx in ["libstdc++", "libstdc++11"] and not self.options.shared) or \
              self.settings.compiler.libcxx == "libc++")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -18,8 +18,7 @@ class ReboundConan(ConanFile):
     homepage = "https://github.com/hannorein/rebound"
     topics = ("physics", "simulation", "n-body", "gravity", "integrator")
     package_type = "shared-library"
-    # Scripts always compile with optimizations enabled
-    settings = "os", "arch", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -27,6 +26,11 @@ class ReboundConan(ConanFile):
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+
+    def package_id(self):
+        # Always compiled with optimizations enabled
+        if self.info.settings.build_type == "Debug":
+            self.info.settings.build_type = "RelWithDebInfo"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -54,12 +58,10 @@ class ReboundConan(ConanFile):
 
         copy(self, "*.h", os.path.join(self.source_folder, "src"), os.path.join(self.package_folder, "include"))
 
-        # some files extensions and folders are not allowed. Please, read the FAQs to get informed.
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        # In shared lib/executable files, autotools set install_name (macOS) to lib dir absolute path instead of @rpath, it's not relocatable, so fix it
         fix_apple_shared_install_name(self)
 
     def package_info(self):

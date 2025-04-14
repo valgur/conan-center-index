@@ -30,19 +30,10 @@ class FoonathanMemoryConan(ConanFile):
         "with_tools": True,
         "with_sizecheck": True,
     }
-
-    short_paths = True
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def validate_build(self):
         # Versions older than 0.7.2 require to compile and run an executable
@@ -87,7 +78,7 @@ class FoonathanMemoryConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder,
-              "lib", "foonathan_memory", "cmake"))
+                                 "lib", "foonathan_memory", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
 

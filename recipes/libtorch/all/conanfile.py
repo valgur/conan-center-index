@@ -9,7 +9,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv, Environment
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -149,19 +148,6 @@ class LibtorchConan(ConanFile):
     }
     no_copy_source = True
     provides = ["miniz", "pocketfft", "kineto", "nnpack", "qnnpack"]
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "9",
-            "msvc": "191",
-        }
 
     @property
     def _is_mobile_os(self):
@@ -316,12 +302,7 @@ class LibtorchConan(ConanFile):
         # - tensorpipe
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if self.options.get_safe("with_numa") and not self.dependencies["libnuma"].options.shared:
             raise ConanInvalidConfiguration(

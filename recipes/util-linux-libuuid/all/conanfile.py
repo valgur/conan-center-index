@@ -7,7 +7,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 import os
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class UtilLinuxLibuuidConan(ConanFile):
@@ -30,20 +30,12 @@ class UtilLinuxLibuuidConan(ConanFile):
         "fPIC": True,
         "with_python_bindings": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     @property
     def _has_sys_file_header(self):
         return self.settings.os in ["FreeBSD", "Linux", "Macos"]
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")

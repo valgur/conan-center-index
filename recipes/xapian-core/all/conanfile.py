@@ -36,17 +36,10 @@ class XapianCoreConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -54,7 +47,7 @@ class XapianCoreConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
         if self.settings.os != "Windows":
-            self.requires("util-linux-libuuid/2.39.2")
+            self.requires("util-linux-libuuid/2.39.3")
 
     def validate(self):
         if self.options.shared and self.settings.os == "Windows":

@@ -31,18 +31,10 @@ class SymengineConan(ConanFile):
         "fPIC": True,
         "integer_class": "gmp",
     }
-    short_paths = True
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def validate(self):
         min_cppstd = "11"

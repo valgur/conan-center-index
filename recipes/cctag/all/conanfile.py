@@ -40,17 +40,10 @@ class CCTagConan(ConanFile):
         "with_cuda": False,
         "cuda_cc_list": None, # e.g. "5.2;7.5;8.2", builds all up to 7.5 by default
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def package_id(self):
         if not self.info.options.with_cuda:

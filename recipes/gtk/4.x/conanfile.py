@@ -4,7 +4,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple.apple import is_apple_os
-from conan.tools.build import can_run
+from conan.tools.build import can_run, cross_building
 from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -231,6 +231,12 @@ class GtkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+        if "4.6.2" <= Version(self.version) < "4.9.2":
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                            "dependency(is_msvc_like ? ",
+                            "dependency(false ? ",
+                            strict=not self.no_copy_source)
+
     def generate(self):
         # Required for glib-compile-resources
         if can_run(self):
@@ -273,9 +279,10 @@ class GtkConan(ConanFile):
         tc.pkg_config_path = None
         env = Environment()
         env.define_path("PKG_CONFIG_PATH", self.generators_folder)
-        env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
-        env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-        env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
+        if cross_building(self):
+            env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
+            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
         if self._apt_packages:
             env.append_path("PKG_CONFIG_PATH", self._get_system_pkg_config_paths())
         env.vars(self).save_script("conan_pkg_config_path")

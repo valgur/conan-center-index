@@ -31,18 +31,7 @@ class CoostConan(ConanFile):
         "with_libcurl": False,
         "with_openssl": False,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def requirements(self):
         if self.options.with_libcurl:
@@ -53,7 +42,7 @@ class CoostConan(ConanFile):
             self.requires("libbacktrace/cci.20210118")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
         if Version(self.version) >= "3.0.2" and is_msvc(self) and self.options.shared:
             # INFO: src\include\co\thread.h: error C2492: 'g_tid': data with thread storage duration may not have dll interface
             raise ConanInvalidConfiguration(f"{self.ref} Conan recipe does not support -o shared=True with Visual Studio. Contributions are welcome.")

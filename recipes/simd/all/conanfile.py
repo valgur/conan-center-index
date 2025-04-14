@@ -28,24 +28,13 @@ class SimdConan(ConanFile):
         "shared": False,
         "fPIC": True
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
         if self.settings.os == "Windows" and self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration("Windows only supports x86/x64 architectures.")
         if is_msvc(self) and self.settings.arch == "armv8":

@@ -7,7 +7,7 @@ from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, check_min_vs
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibaecConan(ConanFile):
@@ -28,19 +28,11 @@ class LibaecConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         copy(self, "set_runtime_output_dir.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, cmake_layout
+from conan.tools.env import VirtualRunEnv
 
 
 class TestPackageConan(ConanFile):
@@ -11,9 +12,16 @@ class TestPackageConan(ConanFile):
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+        # Needed for asio_grpc_protobuf_generate()
+        self.requires("protobuf/3.21.12")
 
     def layout(self):
         cmake_layout(self)
+
+    def generate(self):
+        # Avoid "libgrpc_plugin_support.so.1.54: cannot open shared object file: No such file or directory"
+        VirtualRunEnv(self).generate(scope="build")
+        VirtualRunEnv(self).generate(scope="run")
 
     def build(self):
         cmake = CMake(self)

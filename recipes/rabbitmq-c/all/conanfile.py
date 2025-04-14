@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.4"
 
 
 class RabbitmqcConan(ConanFile):
@@ -27,16 +27,8 @@ class RabbitmqcConan(ConanFile):
         "fPIC": True,
         "ssl": False,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def requirements(self):
         if self.options.ssl:
@@ -66,6 +58,9 @@ class RabbitmqcConan(ConanFile):
         tc.variables["ENABLE_SSL_SUPPORT"] = self.options.ssl
         tc.variables["BUILD_API_DOCS"] = False
         tc.variables["RUN_SYSTEM_TESTS"] = False
+        # Required for https://github.com/alanxz/rabbitmq-c/blob/v0.14.0/CMakeLists.txt#L132-L133
+        # Otherwise fails with "CheckSymbolExists.c:(.text+0x1f): undefined reference to `ENGINE_new'"
+        tc.variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.generate()
 
         if self.options.ssl:

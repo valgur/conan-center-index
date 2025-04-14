@@ -44,19 +44,6 @@ class OsrmConan(ConanFile):
         "enable_lto": "Use LTO if available",
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-            "msvc": "192",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
@@ -101,7 +88,7 @@ class OsrmConan(ConanFile):
         # self.requires("vtzero/0")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 17)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
@@ -117,6 +104,36 @@ class OsrmConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+
+        # Disable subdirs
+        save(self, os.path.join(self.source_folder, "unit_tests", "CMakeLists.txt"), "")
+        save(self, os.path.join(self.source_folder, "src", "benchmarks", "CMakeLists.txt"), "")
+
+        # Fix an irrelevant generator expression error during .pc file generation
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        '"$<TARGET_LINKER_FILE:${engine_lib}>"', '"${engine_lib}"')
+
+        # Disable vendored deps
+        for subdir in Path(self.source_folder, "third_party").iterdir():
+            if subdir.name not in ["vtzero", "microtar"] and not subdir.name.startswith("cheap-ruler"):
+                rmdir(self, subdir)
+                save(self, subdir.joinpath("CMakeLists.txt"), "")
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " $<TARGET_OBJECTS:MICROTAR>", "")
+
+        # Add missing includes.
+        # TODO: submit upstream
+        for path in [
+            Path(self.source_folder, "include", "extractor", "suffix_table.hpp"),
+            Path(self.source_folder, "include", "util", "coordinate.hpp"),
+            Path(self.source_folder, "include", "util", "query_heap.hpp"),
+            Path(self.source_folder, "src", "util", "opening_hours.cpp"),
+        ]:
+            path.write_text("#include <vector>\n" + path.read_text())
+
+        if self.dependencies["boost"].ref.version >= "1.85":
+            # The header has been removed from Boost
+            replace_in_file(self, os.path.join(self.source_folder, "include", "util", "lua_util.hpp"),
+                            "#include <boost/filesystem/convenience.hpp>", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -139,40 +156,7 @@ class OsrmConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_source(self):
-        # Disable subdirs
-        save(self, os.path.join(self.source_folder, "unit_tests", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "src", "benchmarks", "CMakeLists.txt"), "")
-
-        # Fix an irrelevant generator expression error during .pc file generation
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        '"$<TARGET_LINKER_FILE:${engine_lib}>"', '"${engine_lib}"')
-
-        # Disable vendored deps
-        for subdir in Path(self.source_folder, "third_party").iterdir():
-            if subdir.name not in ["vtzero", "microtar"] and not subdir.name.startswith("cheap-ruler"):
-                rmdir(self, subdir)
-                save(self, subdir.joinpath("CMakeLists.txt"), "")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " $<TARGET_OBJECTS:MICROTAR>", "")
-
-        # Add missing includes.
-        # TODO: submit upstream
-        path = Path(self.source_folder, "include", "util", "coordinate.hpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "src", "util", "opening_hours.cpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "include", "util", "query_heap.hpp")
-        path.write_text("#include <cstdint>\n" + path.read_text())
-        path = Path(self.source_folder, "include", "extractor", "suffix_table.hpp")
-        path.write_text("#include <vector>\n" + path.read_text())
-
-        if Version(self.dependencies["boost"].ref.version) >= "1.85":
-            # The header has been removed from Boost
-            replace_in_file(self, os.path.join(self.source_folder, "include", "util", "lua_util.hpp"),
-                            "#include <boost/filesystem/convenience.hpp>", "")
-
     def build(self):
-        self._patch_source()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
