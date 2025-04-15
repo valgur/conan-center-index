@@ -92,8 +92,10 @@ class mFASTConan(ConanFile):
         tc.variables["BUILD_SQLITE3"] = self.options.with_sqlite3
         if not valid_min_cppstd(self, self._min_cppstd):
             tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
-        # Relocatable shared libs on macOS
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        if Version(self.version) <= "1.2.2":
+            # Relocatable shared libs on macOS
+            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
