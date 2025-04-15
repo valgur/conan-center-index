@@ -1,8 +1,9 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-import os
 
 required_conan_version = ">=2.1"
 
@@ -18,10 +19,6 @@ class NlohmannJsonConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 11
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -29,16 +26,10 @@ class NlohmannJsonConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def generate(self):
-        pass
-
-    def build(self):
-        pass
 
     def package(self):
         copy(self, "LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
