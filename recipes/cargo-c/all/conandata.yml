@@ -1,4 +1,31 @@
 sources:
+  "0.10.12":
+    Linux:
+      x86_64:
+        url: "https://github.com/lu-zero/cargo-c/releases/download/v0.10.12/cargo-c-x86_64-unknown-linux-musl.tar.gz"
+        sha256: "97a85d648f4eece3e8033513cc60c12a3725380ca5899372c7212c841ac79e34"
+      x86:
+        url: "https://github.com/lu-zero/cargo-c/releases/download/v0.10.12/cargo-c-i686-unknown-linux-musl.tar.gz"
+        sha256: "2f11cad3048ee396afe9fc23970f09fa750fb49606fd0717aa9047ff9af726c8"
+      armv8:
+        url: "https://github.com/lu-zero/cargo-c/releases/download/v0.10.12/cargo-c-aarch64-unknown-linux-musl.tar.gz"
+        sha256: "f101e3cfeb32cbfe3449c67d86849d9a54d27fb0b60c6f04ee84989fdedf4807"
+      ppc64le:
+        url: "https://github.com/lu-zero/cargo-c/releases/download/v0.10.12/cargo-c-powerpc64le-unknown-linux-gnu.tar.gz"
+        sha256: "5a9d71b0eda7e9d6e4e59242c3ae9e9acdae733fafd25680ca68ed02c95dca68"
+    Windows:
+      gcc:
+        url: "https://github.com/lu-zero/cargo-c/releases/download/v0.10.12/cargo-c-windows-gnu.zip"
+        sha256: "77ce3c1891683e08113f041461ac45f8178bbd73c42219552a73a0dee564fda4"
+      msvc:
+        url: "https://github.com/lu-zero/cargo-c/releases/download/v0.10.12/cargo-c-windows-msvc.zip"
+        sha256: "9bbd7b4c2d50aabbd47228b9c0c811d4120e64e8afe16b7207e0a2e0fd568812"
+    Macos:
+      url: "https://github.com/lu-zero/cargo-c/releases/download/v0.10.12/cargo-c-macos.zip"
+      sha256: "9660ec09138706ffbf70f9135cbc19691c44b915f4459868e88579fd1b610a96"
+    License:
+      url: "https://raw.githubusercontent.com/lu-zero/cargo-c/refs/tags/v0.10.12/LICENSE"
+      sha256: "d69f24ad84ec2ade64c0b68bdb31b41170e997b158370342056918329cc9af1e"
   "0.10.8":
     Linux:
       x86_64:
