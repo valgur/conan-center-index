@@ -2,11 +2,10 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.4"
 
@@ -50,12 +49,7 @@ class LibsmackerConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
-        if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
-            tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
             env.define("CC", "cl -nologo")

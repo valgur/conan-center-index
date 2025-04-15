@@ -6,11 +6,11 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools import CppInfo
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=2.1"
 
@@ -66,8 +66,6 @@ class XapianCoreConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -75,9 +73,6 @@ class XapianCoreConan(ConanFile):
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
-            if check_min_vs(self, "180", raise_invalid=False):
-                tc.extra_cflags.append("-FS")
-                tc.extra_cxxflags.append("-FS")
         tc.configure_args.extend([
             "--datarootdir=${prefix}/res",
             "--disable-documentation",

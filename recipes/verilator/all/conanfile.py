@@ -3,7 +3,7 @@ import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -66,14 +66,11 @@ class VerilatorConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = AutotoolsToolchain(self)
         if self.settings.get_safe("compiler.libcxx") == "libc++":
             tc.extra_cxxflags.append("-lc++")
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
-            tc.extra_cxxflags.append("-FS")
             tc.defines.append("YY_NO_UNISTD_H")
         tc.configure_args += ["--datarootdir=${prefix}/bin/share"]
 

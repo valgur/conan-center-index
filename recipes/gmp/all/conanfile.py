@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=2.1"
 
@@ -106,9 +106,6 @@ class GmpConan(ConanFile):
                 "lt_cv_sys_global_symbol_pipe=cat",  # added to get further in shared MSVC build, but it gets stuck later
             ])
             tc.extra_cxxflags.append("-EHsc")
-            if check_min_vs(self, "180", raise_invalid=False):
-                tc.extra_cflags.append("-FS")
-                tc.extra_cxxflags.append("-FS")
         env = tc.environment() # Environment must be captured *after* setting extra_cflags, etc. to pick up changes
         if is_msvc(self):
             yasm_wrapper = unix_path(self, os.path.join(self.source_folder, "yasm_wrapper.sh"))

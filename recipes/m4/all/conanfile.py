@@ -3,7 +3,6 @@ import shutil
 
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -43,12 +42,8 @@ class M4Conan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            tc.extra_cflags.append("-FS")
             # Avoid a `Assertion Failed Dialog Box` during configure with build_type=Debug
             # Visual Studio does not support the %n format flag:
             # https://docs.microsoft.com/en-us/cpp/c-runtime-library/format-specification-syntax-printf-and-wprintf-functions

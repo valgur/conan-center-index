@@ -7,7 +7,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path, msvc_runtime_flag
+from conan.tools.microsoft import is_msvc, unix_path, msvc_runtime_flag
 
 required_conan_version = ">=2.1"
 
@@ -103,9 +103,6 @@ class CoinClpConan(ConanFile):
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
             tc.configure_args.append(f"--enable-msvc={msvc_runtime_flag(self)}")
-            if check_min_vs(self, "180", raise_invalid=False):
-                tc.extra_cflags.append("-FS")
-                tc.extra_cxxflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
             compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper", check_type=str))

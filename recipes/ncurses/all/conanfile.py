@@ -158,8 +158,6 @@ class NCursesConan(ConanFile):
             # The env vars below are used by ./configure, but not during make
             tc.make_args["CC"] = "cl -nologo"
             tc.make_args["CPP"] = "cl -nologo -E"
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
             tc.extra_cxxflags.append("-EHsc")
             if self.options.get_safe("with_extended_colors"):
                 tc.extra_cflags.append(" ".join(f"-I{dir}" for dir in self.dependencies["naive-tsearch"].cpp_info.includedirs))

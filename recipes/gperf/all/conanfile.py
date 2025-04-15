@@ -1,11 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, check_min_vs, unix_path
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=2.1"
 
@@ -45,13 +45,7 @@ class GperfConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
-        if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
         tc.generate()
 
         if is_msvc(self):

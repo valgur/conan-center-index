@@ -87,7 +87,6 @@ class BisonConan(ConanFile):
                 "gl_cv_func_snprintf_directive_n=no",
                 "gl_cv_func_snprintf_directive_n=no",
             ])
-            tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
             automake_conf = self.dependencies.build["automake"].conf_info

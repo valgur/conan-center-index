@@ -10,7 +10,6 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -112,9 +111,6 @@ class GetTextConan(ConanFile):
 
             if target is not None:
                 tc.configure_args += [f"--host={target}", f"--build={target}"]
-
-            if is_msvc(self) and Version(self.settings.compiler.version) >= "180":
-                tc.extra_cflags += ["-FS"]
 
             if self.settings.build_type == "Debug":
                 # Skip checking for the 'n' printf format directly

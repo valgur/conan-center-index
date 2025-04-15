@@ -99,8 +99,6 @@ class MpfrConan(ConanFile):
 
         if self.options.exact_int == "mpir":
             tc.extra_cflags.append(f"-I{self.build_folder}")
-        if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
-            tc.extra_cflags.append("-FS")
 
         env = tc.environment()
         if is_msvc(self):

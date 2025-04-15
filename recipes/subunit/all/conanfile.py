@@ -78,8 +78,6 @@ class SubunitConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
         if is_msvc(self):
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
             tc.extra_cxxflags.append("-EHsc")
         tc.configure_args.append("CHECK_CFLAGS= ")
         tc.configure_args.append("CHECK_LIBS= ")

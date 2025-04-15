@@ -8,7 +8,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path, check_min_vs
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=2.4"
 
@@ -85,9 +85,6 @@ class CunitConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
         tc.configure_args.append("--datarootdir=${prefix}/bin/share")
         tc.configure_args.append("--enable-debug" if self.settings.build_type == "Debug" else "--disable-debug")
         tc.configure_args.append("--enable-automated" if self.options.enable_automated else "--disable-automated")

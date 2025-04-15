@@ -121,8 +121,6 @@ class GfCompleteConan(ConanFile):
             if self.options.shared:
                 tc.extra_ldflags.append("-no-undefined")
                 tc.extra_ldflags.append("-Wl,--export-all-symbols")
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
         tc.generate()
 
         if is_msvc(self):

@@ -74,9 +74,6 @@ class LibIdnConan(ConanFile):
             "--disable-nls",
             "--disable-rpath",
         ]
-        if is_msvc(self):
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
         tc.generate()
 
         if is_msvc(self):

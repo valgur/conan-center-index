@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -43,13 +43,7 @@ class LibMDConan(ConanFile):
             self.tool_requires("automake/1.16.5")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = AutotoolsToolchain(self)
-        if is_msvc(self):
-            tc.extra_cflags.append("-FS")
-            tc.extra_cxxflags.append("-FS")
         tc.generate()
 
         if is_msvc(self):

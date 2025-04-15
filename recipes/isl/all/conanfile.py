@@ -77,9 +77,7 @@ class IslConan(ConanFile):
             tc.configure_args.append(f'--with-gmp-prefix={unix_path(self, self.dependencies["gmp"].package_folder)}')
         if is_msvc(self):
             if check_min_vs(self, 191, raise_invalid=False):
-                tc.extra_cflags = ["-Zf"]
-            if check_min_vs(self, 180, raise_invalid=False):
-                tc.extra_cflags = ["-FS"]
+                tc.extra_cflags.append("-Zf")
         # ./configure tries to find a more specific compiler executable with
         # a triplet in its name and can fail if CC_FOR_BUILD is not set.
         build_cc = tc.vars().get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc")

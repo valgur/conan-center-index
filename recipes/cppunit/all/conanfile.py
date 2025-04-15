@@ -7,7 +7,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, unix_path
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=2.1"
 
@@ -57,9 +57,6 @@ class CppunitConan(ConanFile):
             tc.extra_defines.append("CPPUNIT_BUILD_DLL")
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
-            if check_min_vs(self, "180", raise_invalid=False):
-                tc.extra_cflags.append("-FS")
-                tc.extra_cxxflags.append("-FS")
         if is_apple_os(self):
             # https://github.com/conan-io/conan-center-index/pull/15759#issuecomment-1419046535
             tc.extra_ldflags.append("-headerpad_max_install_names")

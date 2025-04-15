@@ -60,9 +60,6 @@ class LibbacktraceConan(ConanFile):
         env.generate()
 
         tc = AutotoolsToolchain(self)
-        if is_msvc(self):
-            # https://github.com/conan-io/conan/issues/6514
-            tc.extra_cflags.append("-FS")
         env = tc.environment()
         if is_msvc(self):
             compile_wrapper = unix_path(self, self.conf.get("user.automake:compile-wrapper"))

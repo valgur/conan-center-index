@@ -8,7 +8,7 @@ from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs, is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, msvc_runtime_flag, unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.0"
@@ -98,10 +98,6 @@ class LibffiConan(ConanFile):
                 "--build": build,
                 "--host": host
                 })
-
-            if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
-                # https://github.com/conan-io/conan/issues/6514
-                tc.extra_cflags.append("-FS")
 
             if is_msvc_static_runtime(self):
                 tc.extra_defines.append("USE_STATIC_RTL")

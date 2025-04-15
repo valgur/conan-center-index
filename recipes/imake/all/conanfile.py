@@ -6,7 +6,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path, check_min_vs
+from conan.tools.microsoft import is_msvc, unix_path
 
 required_conan_version = ">=2.1"
 
@@ -89,9 +89,6 @@ class ImakeConan(ConanFile):
                 "_CRT_SECURE_NO_WARNINGS",
                 "CROSSCOMPILE_CPP",
             ])
-            if check_min_vs(self, "180", raise_invalid=False):
-                tc.extra_cflags.append("-FS")
-                tc.extra_cxxflags.append("-FS")
 
         yes_no = lambda v: "yes" if v else "no"
         conf_args = [

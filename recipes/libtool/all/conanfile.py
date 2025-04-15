@@ -80,9 +80,6 @@ class LibtoolConan(ConanFile):
 
         tc = AutotoolsToolchain(self)
 
-        if is_msvc(self) and check_min_vs(self, "180", raise_invalid=False):
-            tc.extra_cflags.append("-FS")
-
         tc.configure_args.extend([
             "--datarootdir=${prefix}/res",
             "--enable-shared",
