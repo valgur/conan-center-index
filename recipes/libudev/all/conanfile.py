@@ -43,7 +43,7 @@ class LibUdevConan(ConanFile):
     def requirements(self):
         self.requires("libcap/2.69")
         # These are not actually linked into the final library.
-        self.requires("libmount/2.39.2", libs=False)
+        self.requires("libmount/2.41", libs=False)
         self.requires("libxcrypt/4.4.36", libs=False)
 
     def validate(self):

@@ -211,7 +211,7 @@ class LibwebsocketsConan(ConanFile):
             self.requires("miniz/3.0.2")
 
         if self.options.with_libmount:
-            self.requires("libmount/2.39.2")
+            self.requires("libmount/2.41")
 
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
