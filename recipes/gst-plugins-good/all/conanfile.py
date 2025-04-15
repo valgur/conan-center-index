@@ -187,7 +187,7 @@ class GStPluginsGoodConan(ConanFile):
         if "gst-plugins-base" in reqs:
             self.requires(f"gst-plugins-base/{self.version}", transitive_headers=True, transitive_libs=True)
         if "gst-orc" in reqs:
-            self.requires("gst-orc/0.4.40")
+            self.requires("gst-orc/0.4.41")
 
         if "zlib" in reqs:
             self.requires("zlib/[>=1.2.11 <2]")

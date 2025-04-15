@@ -197,7 +197,7 @@ class GStPluginsBadConan(ConanFile):
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
         self.requires(f"gst-plugins-base/{self.version}", transitive_headers=True, transitive_libs=True)
         if "gst-orc" in reqs:
-            self.requires("gst-orc/0.4.40")
+            self.requires("gst-orc/0.4.41")
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1")
 

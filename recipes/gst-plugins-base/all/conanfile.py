@@ -156,7 +156,7 @@ class GStPluginsBaseConan(ConanFile):
         reqs = self._all_reqs
         self.requires(f"gstreamer/{self.version}", transitive_headers=True, transitive_libs=True)
         self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
-        self.requires("gst-orc/0.4.40")
+        self.requires("gst-orc/0.4.41")
 
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1", libs=False)
