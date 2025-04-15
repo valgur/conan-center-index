@@ -6,7 +6,7 @@ from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class SvtJpegXsConan(ConanFile):
@@ -27,15 +27,10 @@ class SvtJpegXsConan(ConanFile):
         "fPIC": True,
     }
     implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -45,7 +40,7 @@ class SvtJpegXsConan(ConanFile):
 
     def validate(self):
         if self.settings.arch not in ["x86", "x86_64"]:
-            # INFO: The upstream mention about only supporting x86, SSE and AVX
+            # INFO: The upstream only mentions support for x86, SSE and AVX
             # https://github.com/OpenVisualCloud/SVT-JPEG-XS/tree/v0.9.0?tab=readme-ov-file#environment-and-requirements
             raise ConanInvalidConfiguration(f"{self.ref} does not support {self.settings.arch}. Only x86 and x86_64 are supported.")
 
@@ -67,7 +62,7 @@ class SvtJpegXsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.configure()
         cmake.install()
@@ -76,6 +71,7 @@ class SvtJpegXsConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["SvtJpegxs"]
         self.cpp_info.set_property("pkg_config_name", "SvtJpegxs")
+        self.cpp_info.includedirs.append(os.path.join("include", "svt-jpegxs"))
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "pthread"]
