@@ -22,6 +22,34 @@ class LinuxHeadersGenericConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
+    @property
+    def _linux_arch(self):
+        arch = str(self.settings.arch)
+        if arch in ["armv8", "armv8.3", "arm64ec"]:
+            return "arm64"
+        if arch.startswith("arm"):
+            return "arm"
+        return {
+            "mips": "mips",
+            "mips64": "mips",
+            "ppc32": "powerpc",
+            "ppc32be": "powerpc",
+            "ppc64": "powerpc",
+            "ppc64le": "powerpc",
+            "riscv32": "riscv",
+            "riscv64": "riscv",
+            "s390": "s390",
+            "s390x": "s390",
+            "sh4le": "sh",
+            "sparc": "sparc",
+            "sparcv9": "sparc",
+            "x86": "x86",
+            "x86_64": "x86",
+            "xtensalx106": "xtensa",
+            "xtensalx6": "xtensa",
+            "xtensalx7": "xtensa",
+        }.get(arch)
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -33,6 +61,8 @@ class LinuxHeadersGenericConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux" or self.settings_build.os != "Linux":
             raise ConanInvalidConfiguration("linux-headers-generic supports only Linux")
+        if not self._linux_arch:
+            raise ConanInvalidConfiguration(f"Unsupported architecture {self.settings.arch}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -40,14 +70,15 @@ class LinuxHeadersGenericConan(ConanFile):
     def generate(self):
         tc = GnuToolchain(self)
         tc_vars = tc.extra_env.vars(self)
+        tc.make_args["ARCH"] = self._linux_arch
         # HOSTCC  scripts/basic/fixdep
         tc.make_args["HOSTCC"] = tc_vars.get("CC_FOR_BUILD" if cross_building(self) else "CC", "cc")
         tc.generate()
 
     def build(self):
-        with chdir(self, self.source_folder):
+        with chdir(self, self.build_folder):
             autotools = Autotools(self)
-            autotools.make(target="headers")
+            autotools.make(target="headers", args=["-f", os.path.join(self.source_folder, "Makefile")])
 
     def package(self):
         copy(self, "COPYING",
@@ -55,7 +86,7 @@ class LinuxHeadersGenericConan(ConanFile):
              src=self.source_folder)
         copy(self, "include/*.h",
              dst=self.package_folder,
-             src=os.path.join(self.source_folder, "usr"))
+             src=os.path.join(self.build_folder, "usr"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
