@@ -110,7 +110,7 @@ class LibSELinuxConan(ConanFile):
         copy(self, "LICENSE", self._selinux_source_folder, os.path.join(self.package_folder, "licenses"))
         rename(self, os.path.join(self.package_folder, "licenses", "LICENSE"),
                os.path.join(self.package_folder, "licenses", "LICENSE-libselinux"))
-        if Version(self.version) >= "3.15":
+        if Version(self.version) >= "3.5":
             copy(self, "LICENSE", self._sepol_source_folder, os.path.join(self.package_folder, "licenses"))
             rename(self, os.path.join(self.package_folder, "licenses", "LICENSE"),
                    os.path.join(self.package_folder, "licenses", "LICENSE-libsepol"))
