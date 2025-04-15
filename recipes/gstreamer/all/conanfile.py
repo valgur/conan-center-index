@@ -56,7 +56,7 @@ class GStreamerConan(ConanFile):
         if self.options.get_safe("enable_backtrace"):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.requires("libunwind/1.8.1")
-                self.requires("elfutils/0.190")
+                self.requires("elfutils/0.191")
 
     def validate(self):
         if not self.dependencies.direct_host["glib"].options.shared and self.options.shared:

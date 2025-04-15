@@ -85,7 +85,7 @@ class BackwardCppConan(ConanFile):
             if self._has_stack_details("dw"):
                 # transitive_headers: backward.hpp:215 Requires elfuleils/libdw.h elfutils/libdwfl.h and dwarf.h
                 # transitive_libs: backward.hpp:1547 consumes dwarf_ranges() from libdw directly
-                self.requires("elfutils/0.190", transitive_headers=True, transitive_libs=True)
+                self.requires("elfutils/0.191", transitive_headers=True, transitive_libs=True)
             if self._has_stack_details("bfd"):
                 # transitive_headers: backward.hpp:205 Requires bfd.h
                 self.requires("binutils/2.42", transitive_headers=True)

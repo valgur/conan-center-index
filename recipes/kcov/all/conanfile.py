@@ -38,7 +38,7 @@ class KcovConan(ConanFile):
         if is_apple_os(self):
             self.requires("libdwarf/0.8.0")
         else:
-            self.requires("elfutils/0.190")
+            self.requires("elfutils/0.191")
 
     def package_id(self):
         del self.info.settings.compiler

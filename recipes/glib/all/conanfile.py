@@ -72,7 +72,7 @@ class GLibConan(ConanFile):
         self.requires("libffi/3.4.4")
         self.requires("pcre2/10.42")
         if self.options.get_safe("with_elf"):
-            self.requires("elfutils/0.190")
+            self.requires("elfutils/0.191")
         if self.options.get_safe("with_mount"):
             self.requires("libmount/2.41")
         if self.options.get_safe("with_selinux"):
