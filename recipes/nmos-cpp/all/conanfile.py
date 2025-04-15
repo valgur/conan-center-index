@@ -58,7 +58,7 @@ class NmosCppConan(ConanFile):
         self.requires("websocketpp/0.8.2")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("json-schema-validator/2.3.0")
-        self.requires("nlohmann_json/3.11.3")
+        self.requires("nlohmann_json/[^3]")
         if Version(self.version) >= "cci.20240222":
             self.requires("jwt-cpp/0.7.0")
 

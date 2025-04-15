@@ -31,7 +31,7 @@ class XpropertyConan(ConanFile):
         if Version(self.version) < "0.12.0":
             self.requires("xtl/0.7.4", transitive_headers=True, transitive_libs=True)
         else:
-            self.requires("nlohmann_json/3.11.3")
+            self.requires("nlohmann_json/[^3]")
 
     def package_id(self):
         self.info.clear()

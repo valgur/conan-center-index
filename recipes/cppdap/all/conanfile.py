@@ -43,7 +43,7 @@ class PackageConan(ConanFile):
         elif self.options.with_json == "rapidjson":
             self.requires("rapidjson/cci.20220822")
         elif self.options.with_json == "nlohmann_json":
-            self.requires("nlohmann_json/3.11.2")
+            self.requires("nlohmann_json/[^3]")
 
     def validate(self):
         check_min_cppstd(self, 11)

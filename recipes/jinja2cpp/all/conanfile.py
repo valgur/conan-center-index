@@ -69,7 +69,7 @@ class Jinja2cppConan(ConanFile):
         if self.version == "1.1.0":
             self.requires("fmt/6.2.1") # not compatible with fmt >= 7.0.0
         else:
-            self.requires("nlohmann_json/3.11.2")
+            self.requires("nlohmann_json/[^3]")
             self.requires("fmt/10.2.0")
 
     def validate(self):

@@ -35,7 +35,7 @@ class TinygltfConan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        self.requires("nlohmann_json/3.11.3")
+        self.requires("nlohmann_json/[^3]")
         if self.options.draco:
             self.requires("draco/1.5.6")
         if self.options.stb_image or self.options.stb_image_write:

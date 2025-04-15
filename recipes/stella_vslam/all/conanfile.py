@@ -72,7 +72,7 @@ class StellaVslamConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("g2o/20230806", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
-        self.requires("nlohmann_json/3.11.3", transitive_headers=True, transitive_libs=True)
+        self.requires("nlohmann_json/[^3]", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
         self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
         self.requires("sqlite3/[>=3.45.0 <4]", transitive_headers=True, transitive_libs=True)

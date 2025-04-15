@@ -47,7 +47,7 @@ class UnleashConan(ConanFile):
 
     def requirements(self):
         self.requires("cpr/1.10.5")
-        self.requires("nlohmann_json/3.11.3")
+        self.requires("nlohmann_json/[^3]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

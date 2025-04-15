@@ -66,7 +66,7 @@ class SerdeppConan(ConanFile):
         if self.options.with_fmt:
             self.requires("fmt/10.2.1")
         if self.options.with_nlohmann_json:
-            self.requires("nlohmann_json/3.11.3")
+            self.requires("nlohmann_json/[^3]")
 
     def package_id(self):
         self.info.clear()

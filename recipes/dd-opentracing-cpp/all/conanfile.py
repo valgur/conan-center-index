@@ -50,7 +50,7 @@ class DatadogOpenTracingConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("msgpack-cxx/6.1.0")
-        self.requires("nlohmann_json/3.11.2")
+        self.requires("nlohmann_json/[^3]")
 
     @property
     def _min_cppstd(self):

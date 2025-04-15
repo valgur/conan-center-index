@@ -61,9 +61,9 @@ class JsonSchemaValidatorConan(ConanFile):
         # to support latest compilers, we have to downgrade nlohmann_json.
         # https://github.com/pboettch/json-schema-validator/pull/276
         if Version(self.version) < "2.3.0":
-            self.requires("nlohmann_json/3.10.5", transitive_headers=True)
+            self.requires("nlohmann_json/[^3]", transitive_headers=True)
         else:
-            self.requires("nlohmann_json/3.11.3", transitive_headers=True)
+            self.requires("nlohmann_json/[^3]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

@@ -48,7 +48,7 @@ class PackioConan(ConanFile):
         if self.options.msgpack:
             self.requires("msgpack-cxx/7.0.0")
         if self.options.nlohmann_json:
-            self.requires("nlohmann_json/3.11.3")
+            self.requires("nlohmann_json/[^3]")
         if self._use_boost_json or not self.options.standalone_asio:
             self.requires("boost/1.86.0")
         if self.options.standalone_asio:

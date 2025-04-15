@@ -158,7 +158,7 @@ class OpenTelemetryCppConan(ConanFile):
            self.options.get_safe("with_etw") or
            self.options.get_safe("with_otlp_file")
         ):
-            self.requires("nlohmann_json/3.11.3")
+            self.requires("nlohmann_json/[^3]")
             self.requires("openssl/[>=1.1 <4]")
 
         if (self.options.with_zipkin or

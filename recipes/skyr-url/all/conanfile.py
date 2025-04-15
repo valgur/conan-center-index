@@ -59,7 +59,7 @@ class SkyrUrlConan(ConanFile):
         self.requires("tl-expected/1.1.0", transitive_headers=True)
         self.requires("range-v3/0.12.0", transitive_headers=True)
         if self.options.with_json:
-            self.requires("nlohmann_json/3.11.3")
+            self.requires("nlohmann_json/[^3]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

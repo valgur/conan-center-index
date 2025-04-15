@@ -67,7 +67,7 @@ class LiefConan(ConanFile):
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("tcb-span/cci.20220616", transitive_headers=True)
         if self.options.with_json:
-            self.requires("nlohmann_json/3.11.2")
+            self.requires("nlohmann_json/[^3]")
         if self.options.with_frozen:
             self.requires("frozen/1.1.1")
         if Version(self.version) >= "0.15.1":

@@ -58,7 +58,7 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("nlohmann_json/3.11.3", transitive_headers=True)
+        self.requires("nlohmann_json/[^3]", transitive_headers=True)
 
     def build_requirements(self):
         # Min required is 3.15 in the file, but 3.20 in the README.

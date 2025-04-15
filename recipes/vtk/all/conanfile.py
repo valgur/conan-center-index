@@ -334,7 +334,7 @@ class VtkConan(ConanFile):
             is_public = bool(self.options.with_exodusII)
             self.requires("netcdf/4.8.1", transitive_headers=is_public, transitive_libs=is_public)
         if self.options.with_nlohmannjson:
-            self.requires("nlohmann_json/3.11.3")
+            self.requires("nlohmann_json/[^3]")
         if self.options.with_odbc and self.settings.os != "Windows":
             # odbc is a system lib on Windows
             self.requires("odbc/2.3.11")
