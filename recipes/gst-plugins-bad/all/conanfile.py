@@ -59,6 +59,12 @@ class GStPluginsBadConan(ConanFile):
     def export(self):
         copy(self, "plugins/*.yml", self.recipe_folder, self.export_folder)
 
+    @staticmethod
+    def _is_external_dep(dep):
+        if "::" not in dep:
+            return False
+        return dep.split("::")[0] not in ["glib", "gst-orc"]
+
     def init(self):
         options_defaults = {}
         prev_count = 0
@@ -67,7 +73,7 @@ class GStPluginsBadConan(ConanFile):
                 plugins_info = yaml.safe_load(plugins_yml.read_text())
                 for plugin, info in plugins_info.items():
                     main_opt = info.get("options", [plugin])[0]
-                    has_ext_deps = any("::" in r for r in info["requires"] if r != "gst-orc::gst-orc")
+                    has_ext_deps = any(self._is_external_dep(r) for r in info["requires"])
                     all_opts = all(options_defaults.get(opt, True) for opt in info.get("options", [plugin]))
                     options_defaults[main_opt] = not has_ext_deps and all_opts
             count = sum(1 for value in options_defaults.values() if value)
@@ -205,6 +211,8 @@ class GStPluginsBadConan(ConanFile):
             self.requires("libaom-av1/3.8.0")
         if "bzip2" in reqs:
             self.requires("bzip2/1.0.8")
+        if "cairo" in reqs:
+            self.requires("cairo/1.18.0")
         if "directx-headers" in reqs:
             self.requires("directx-headers/1.614.0")
         if "faac" in reqs:
@@ -234,7 +242,7 @@ class GStPluginsBadConan(ConanFile):
         if "libgudev" in reqs or (self._is_enabled("va") and self.options.get_safe("with_libudev")):
             self.requires("libgudev/238")
         if self._is_enabled("va"):
-            self.requires("libva/2.21.0")
+            self.requires("libva/2.22.0")
         if "libxml2" in reqs:
             self.requires("libxml2/[>=2.12.5 <3]")
         if "lcms" in reqs:
@@ -282,6 +290,8 @@ class GStPluginsBadConan(ConanFile):
             self.requires("srt/1.5.3")
         if "libsrtp" in reqs:
             self.requires("libsrtp/2.6.0")
+        if "svtjpegxs" in reqs:
+            self.requires("svtjpegxs/0.9.0")
         if "openssl" in reqs:
             self.requires("openssl/[>=1.1 <4]")
         if "libsvtav1" in reqs:
@@ -313,6 +323,14 @@ class GStPluginsBadConan(ConanFile):
         if "zxing-cpp" in reqs:
             self.requires("zxing-cpp/2.2.1")
 
+    def validate_build(self):
+        if self._is_enabled("qt6d3d11") or self._is_enabled("zxing"):
+            check_min_cppstd(self, 17)
+        elif self._is_enabled("nvcodec") or self._is_enabled("soundtouch"):
+            check_min_cppstd(self, 14)
+        elif self._is_enabled("opencv") or self._is_enabled("applemedia"):
+            check_min_cppstd(self, 11)
+
     def validate(self):
         if (self.options.shared != self.dependencies["gstreamer"].options.shared or
             self.options.shared != self.dependencies["glib"].options.shared or
@@ -331,12 +349,6 @@ class GStPluginsBadConan(ConanFile):
                 raise ConanInvalidConfiguration("libssh2 must be built as a shared library")
         if self._is_enabled("directshow") and not is_msvc(self):
             raise ConanInvalidConfiguration("directshow plugin can only be built with MSVC")
-        if self._is_enabled("qt6d3d11") or self._is_enabled("zxing"):
-            check_min_cppstd(self, 17)
-        elif self._is_enabled("nvcodec"):
-            check_min_cppstd(self, 14)
-        elif self._is_enabled("opencv") or self._is_enabled("applemedia"):
-            check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -364,9 +376,12 @@ class GStPluginsBadConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # Adjust OpenCV data dir path for Conan
-        replace_in_file(self, os.path.join(self.source_folder, "gst-libs", "gst", "opencv", "meson.build"),
-                        "'/share/opencv'",
-                        "'/res'")
+        if Version(self.version) >= "1.26":
+            replace_in_file(self, os.path.join(self.source_folder, "gst-libs", "gst", "opencv", "meson.build"),
+                            "/ 'share' /", "/ 'res' /")
+        else:
+            replace_in_file(self, os.path.join(self.source_folder, "gst-libs", "gst", "opencv", "meson.build"),
+                            "'/share/opencv'", "'/res'")
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -404,6 +419,9 @@ class GStPluginsBadConan(ConanFile):
         tc.project_options["ladspa"] = "disabled"  # ladspa-sdk
         tc.project_options["ladspa-rdf"] = "disabled"
         tc.project_options["lc3"] = "disabled"  # lc3
+        if Version(self.version) >= "1.26":
+            tc.project_options["lcevcdecoder"] = "disabled"  # lcevc
+            tc.project_options["lcevcencoder"] = "disabled"  # lcevc
         tc.project_options["ldac"] = "disabled"  # ldacbt
         tc.project_options["lv2"] = "disabled"  # lilv
         tc.project_options["magicleap"] = "disabled"  # proprietary
@@ -413,6 +431,9 @@ class GStPluginsBadConan(ConanFile):
         tc.project_options["msdk"] = "disabled"  # Intel Media SDK or oneVPL SDK
         tc.project_options["musepack"] = "disabled"  # libmpcdec
         tc.project_options["neon"] = "disabled"  # libneon27
+        if Version(self.version) >= "1.26":
+            tc.project_options["nvcomp"] = "disabled" # NVIDIA nvCOMP
+            tc.project_options["nvdswrapper"] = "disabled" # NVIDIA DeepStream SDK
         tc.project_options["openaptx"] = "disabled"  # openaptx
         tc.project_options["openmpt"] = "disabled"  # openmpt
         tc.project_options["opensles"] = "disabled"  # opensles
@@ -424,6 +445,7 @@ class GStPluginsBadConan(ConanFile):
         tc.project_options["teletext"] = "disabled"  # zvbi
         tc.project_options["voaacenc"] = "disabled"  # vo-aacenc
         tc.project_options["webrtcdsp"] = "disabled"  # webrtc-audio-processing-1
+        tc.project_options["webview2"] = "disabled"  # WebView2 Windows system lib
         tc.project_options["wpe"] = "disabled"  # wpe-webkit
 
         # D3D11 plugin options
@@ -578,13 +600,14 @@ class GStPluginsBadConan(ConanFile):
             gst_cuda = _define_library("cuda", [
                 "gst-plugins-base::gstreamer-video-1.0",
                 "gst-plugins-base::gstreamer-gl-prototypes-1.0",
-                "glib::gmodule-2.0",
+                "glib::gmodule-no-export-2.0",
                 "opengl::opengl",
             ])
             if self.settings.os == "Linux" and self.settings.arch not in ["x86", "x86_64"]:
                 gst_cuda.system_libs.append("atomic")
             elif self.settings.os == "Windows":
                 gst_cuda.system_libs.append("advapi32")
+            # Also links against nvbufsurface on Jetson, if found
         # d3d11
         if self._is_enabled("d3d11"):
             gst_d3d11 = _define_library("d3d11", [
@@ -593,6 +616,25 @@ class GStPluginsBadConan(ConanFile):
             gst_d3d11.includedirs.append(os.path.join("lib", "gstreamer-1.0", "include"))
             gst_d3d11.system_libs.extend([
                 "d3d11", "dxgi", "d3dcompiler", "runtimeobject",
+            ])
+            if Version(self.version) >= "1.26":
+                gst_d3d11.requires.append("gstreamer-d3dshader-1.0")
+        # d3d11
+        if self._is_enabled("d3d12") and Version(self.version) >= "1.26":
+            gst_d3d11 = _define_library("d3d12", [
+                "gst-plugins-base::gstreamer-video-1.0",
+                "gstreamer-d3dshader-1.0",
+                "directx-headers::directx-headers",
+                "glib::gmodule-no-export-2.0",
+            ])
+            gst_d3d11.includedirs.append(os.path.join("lib", "gstreamer-1.0", "include"))
+            gst_d3d11.system_libs.extend([
+                "d3d12", "dxgi", "directxmath",
+            ])
+        if self.settings.os == "Windows" and Version(self.version) >= "1.26":
+            _define_library("d3dshader", [
+                "gst-plugins-base::gstreamer-video-1.0",
+                "glib::gmodule-no-export-2.0",
             ])
         # downloader
         _define_library("downloader", [], lib="gsturidownloader-1.0")
@@ -680,13 +722,13 @@ class GStPluginsBadConan(ConanFile):
                 ], interface=True)
             if is_apple_os(self):
                 gst_vulkan.requires.append("moltenvk::moltenvk")
-                gst_vulkan.frameworks.extend([
-                    "Foundation", "QuartzCore", "CoreFoundation",
-                ])
+                gst_vulkan.frameworks.extend(["Foundation", "QuartzCore", "CoreFoundation"])
                 if self.settings.os == "Macos":
                     gst_vulkan.frameworks.append("Cocoa")
-                else:
+                elif self.settings.os == "iOS":
                     gst_vulkan.frameworks.append("UIKit")
+                    if Version(self.version) >= "1.26":
+                        gst_vulkan.frameworks.extend(["IOSurface", "CoreGraphics", "Metal"])
             elif self.settings.os == "Windows":
                 gst_vulkan.system_libs.append("gdi32")
         # wayland
@@ -762,7 +804,12 @@ class GStPluginsBadConan(ConanFile):
         # d3d12
         if self._is_enabled("d3d12") and not self.options.shared:
             gst_d3d12 = self.cpp_info.components["gstd3d12"]
-            gst_d3d12.system_libs.extend(["d3d12", "d3d11", "d2d1", "dxgi"])
+            if Version(self.version) >= "1.26":
+                gst_d3d12.system_libs.extend(["d3d11", "d2d1", "dwmapi", "directxmath"])
+                if self._is_enabled("d3d11"):
+                    gst_d3d12.requires.append("gstreamer-d3d11-1.0")
+            else:
+                gst_d3d12.system_libs.extend(["d3d12", "d3d11", "d2d1", "dxgi"])
         # decklink
         if self._is_enabled("decklink"):
             gst_decklink = self.cpp_info.components["gstdecklink"]
@@ -786,6 +833,8 @@ class GStPluginsBadConan(ConanFile):
         if self._is_enabled("dwrite") and self._is_enabled("d3d11") and not self.options.shared:
             gst_dwrite = self.cpp_info.components["gstdwrite"]
             gst_dwrite.system_libs.extend(["d2d1", "dwrite", "windowscodecs"])
+            if self._is_enabled("d3d12") and Version(self.version) >= "1.26":
+                gst_dwrite.requires.append("gstreamer-d3d12-1.0")
         # kms
         if self._is_enabled("kms") and self.options.get_safe("with_libdrm"):
             gst_kms = self.cpp_info.components["gstkms"]
@@ -803,6 +852,8 @@ class GStPluginsBadConan(ConanFile):
         if self._is_enabled("nvcodec") and self.settings.os == "Windows":
             gst_nvcodec = self.cpp_info.components["gstnvcodec"]
             gst_nvcodec.requires.append("gstreamer-d3d11-1.0")
+            if Version(self.version) >= "1.26" and self._is_enabled("d3d12"):
+                gst_nvcodec.requires.append("gstreamer-d3d12-1.0")
         # onnx
         if self._is_enabled("onnx") and self.settings.os in ["Linux", "Windows"]:
             gst_onnx = self.cpp_info.components["gstonnx"]
@@ -818,6 +869,8 @@ class GStPluginsBadConan(ConanFile):
                 gst_qsv.system_libs.extend(["pthread", "dl"])
             elif self.settings.os == "Windows":
                 gst_qsv.requires.append("gstreamer-d3d11-1.0")
+                if Version(self.version) >= "1.26" and self._is_enabled("d3d12"):
+                    gst_qsv.requires.append("gstreamer-d3d12-1.0")
         # va
         if self._is_enabled("va") and self.options.get_safe("with_libudev"):
             gst_va = self.cpp_info.components["gstva"]

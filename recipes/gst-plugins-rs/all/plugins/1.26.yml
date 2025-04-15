@@ -39,6 +39,9 @@ gtk4:
 hlssink3:
   requires:
     - gstreamer-app-1.0
+hlsmultivariantsink:
+  requires:
+    - gstreamer-pbutils-1.0
 hsv:
   requires:
     - gstreamer-video-1.0
@@ -168,6 +171,21 @@ togglerecord:
     - gstreamer-video-1.0
 uriplaylistbin:
   requires: [ ]
+vvdec:
+  requires:
+    - gstreamer-audio-1.0
+    - gstreamer-video-1.0
+    - vvdec::vvdec
+webrtc:
+  requires:
+    - gstreamer-audio-1.0
+    - gstreamer-video-1.0
+    - gstreamer-app-1.0
+    - gstreamer-net-1.0
+    - gstreamer-rtp-1.0
+    - gstreamer-sdp-1.0
+    - gstreamer-webrtc-1.0
+    - openssl::openssl
 webrtchttp:
   requires:
     - gstreamer-webrtc-1.0

@@ -1,7 +1,12 @@
 sources:
+  "1.26.0":
+    url: "https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.26.0.tar.xz"
+    sha256: "f8287a84c5f66368a5a50da5f969994a02c47f20220ffe1ca3154193e65af216"
   "1.24.12":
     url: "https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.24.12.tar.xz"
     sha256: "3d386af3d1dbd1a06c74a6251250c269b481e703f0e3255ba89ef6c1e063afea"
 patches:
+  "1.26.0":
+    - patch_file: "patches/1.26/001-use-conan-deps.patch"
   "1.24.12":
-    - patch_file: "patches/001-use-conan-deps.patch"
+    - patch_file: "patches/1.24/001-use-conan-deps.patch"

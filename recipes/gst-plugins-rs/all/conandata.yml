@@ -1,4 +1,4 @@
 sources:
-  "0.14.0-alpha.1":
-    url: "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/archive/d4e76dfdc8e46a3aa622281271310db14dd0037d/gst-plugins-rs-d4e76dfdc8e46a3aa622281271310db14dd0037d.tar.bz2"
-    sha256: "556fef400423c6b39940977e00d54f0be8f873d9c8d52553e20fe2f80d8d5958"
+  "1.26.0":
+    url: "https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/archive/gstreamer-1.26.0/gst-plugins-rs-gstreamer-1.26.0.tar.bz2"
+    sha256: "808d8baa2d556117d3fea28cc461260739866383241318daf18353a6007162c6"

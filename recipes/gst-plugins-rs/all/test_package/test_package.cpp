@@ -4,7 +4,7 @@
 #ifdef GST_PLUGINS_RS_STATIC
 extern "C"
 {
-    GST_PLUGIN_STATIC_DECLARE(rswebrtc);
+    GST_PLUGIN_STATIC_DECLARE(rsrtp);
 }
 #endif
 
@@ -37,18 +37,18 @@ int main(int argc, char * argv[])
     gst_init(&argc, &argv);
 
 #ifdef GST_PLUGINS_RS_STATIC
-    GST_PLUGIN_STATIC_REGISTER(rswebrtc);
+    GST_PLUGIN_STATIC_REGISTER(rsrtp);
 #endif
 
     list_plugins();
 
-    GstElement * rswebrtc = gst_element_factory_make("rswebrtc", NULL);
-    if (!rswebrtc) {
-        std::cerr << "failed to create rswebrtc element" << std::endl;
+    GstElement * rsrtp = gst_element_factory_make("rsrtp", NULL);
+    if (!rsrtp) {
+        std::cerr << "failed to create rsrtp element" << std::endl;
         return -1;
     } else {
-        std::cout << "rswebrtc has been created successfully" << std::endl;
+        std::cout << "rsrtp has been created successfully" << std::endl;
     }
-    gst_object_unref(GST_OBJECT(rswebrtc));
+    gst_object_unref(GST_OBJECT(rsrtp));
     return 0;
 }

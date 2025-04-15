@@ -1,8 +1,14 @@
 sources:
+  "1.26.0":
+    url: "https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.26.0.tar.xz"
+    sha256: "e23189fbed2ec486690382d1055c19eeaf5aae3e95e2576fc4c884d96a90e69e"
   "1.24.12":
     url: "https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.24.12.tar.xz"
     sha256: "f6efbaa8fea8d00bc380bccca76a530527b1f083e8523eafb3e9b1e18bc653d3"
 patches:
+  "1.26.0":
+    - patch_file: "patches/1.26/001-windows-gl-dep.patch"
+    - patch_file: "patches/1.26/002-gl-internal-transitive-dep.patch"
   "1.24.12":
-    - patch_file: "patches/001-windows-gl-dep.patch"
-    - patch_file: "patches/002-gl-internal-transitive-dep.patch"
+    - patch_file: "patches/1.24/001-windows-gl-dep.patch"
+    - patch_file: "patches/1.24/002-gl-internal-transitive-dep.patch"

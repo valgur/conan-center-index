@@ -57,6 +57,12 @@ class GStPluginsGoodConan(ConanFile):
     def export(self):
         copy(self, "plugins/*.yml", self.recipe_folder, self.export_folder)
 
+    @staticmethod
+    def _is_external_dep(dep):
+        if "::" not in dep:
+            return False
+        return dep.split("::")[0] not in ["glib", "gst-orc"]
+
     def init(self):
         options_defaults = {}
         prev_count = 0
@@ -65,7 +71,7 @@ class GStPluginsGoodConan(ConanFile):
                 plugins_info = yaml.safe_load(plugins_yml.read_text())
                 for plugin, info in plugins_info.items():
                     main_opt = info.get("options", [plugin])[0]
-                    has_ext_deps = any("::" in r for r in info["requires"] if r != "gst-orc::gst-orc")
+                    has_ext_deps = any(self._is_external_dep(r) for r in info["requires"])
                     all_opts = all(options_defaults.get(opt, True) for opt in info.get("options", [plugin]))
                     options_defaults[main_opt] = not has_ext_deps and all_opts
             count = sum(1 for value in options_defaults.values() if value)
@@ -402,6 +408,8 @@ class GStPluginsGoodConan(ConanFile):
             gst_osxaudio.frameworks = ["CoreAudio", "AudioToolbox"]
             if self.settings.os == "Macos":
                 gst_osxaudio.frameworks.extend(["AudioUnit", "CoreServices"])
+            if self.settings.os == "iOS":
+                gst_osxaudio.frameworks.extend(["AVFAudio", "Foundation"])
 
         # osxvideo
         if self.options.get_safe("osxvideo"):

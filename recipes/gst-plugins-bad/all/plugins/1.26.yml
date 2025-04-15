@@ -94,6 +94,7 @@ camerabin:
 closedcaption:
   requires:
     - gstreamer-video-1.0
+    - gstreamer-codecs-1.0
     - pango::pangocairo
 codec2json:
   requires:
@@ -130,12 +131,15 @@ d3d11:
     - gstreamer-controller-1.0
     - gstreamer-d3d11-1.0
     - gstreamer-dxva-1.0
+    - gstreamer-d3dshader-1.0
 d3d12:
   requires:
     - gstreamer-video-1.0
     - directx-headers::directx-headers
     - gstreamer-codecs-1.0
     - gstreamer-dxva-1.0
+    - gstreamer-d3dshader-1.0
+    - gstreamer-d3d12-1.0
 dash:
   requires:
     - gstreamer-adaptivedemux-1.0
@@ -455,6 +459,7 @@ rist:
 rsvg:
   requires:
     - gstreamer-video-1.0
+    - cairo::cairo_
     - librsvg::librsvg
 rtmp2:
   requires:
@@ -527,8 +532,18 @@ svtav1:
   requires:
     - gstreamer-video-1.0
     - libsvtav1::encoder
+svtjpegxs:
+  requires:
+    - gstreamer-video-1.0
+    - svtjpegxs::svtjpegxs
 switchbin:
   requires: [ ]
+tensordecoders:
+  requires:
+    - gstreamer-codecs-1.0
+    - gstreamer-analytics-1.0
+    - gstreamer-video-1.0
+    - glib::gio-2.0
 timecode:
   requires:
     - gstreamer-audio-1.0
@@ -581,6 +596,7 @@ va:
     - gstreamer-codecparsers-1.0
     - gstreamer-codecs-1.0
     - gstreamer-va-1.0
+    - gstreamer-pbutils-1.0
 videofiltersbad:
   options:
     - videofilters

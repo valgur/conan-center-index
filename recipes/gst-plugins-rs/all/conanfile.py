@@ -29,18 +29,22 @@ class GStPluginsRsConan(ConanFile):
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "webrtc_aws": [True, False],
+        "webrtc_livekit": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
 
-        # Additionally, all supported plugins can be enabled/disabled using the same option names as in meson_options.txt
-    }
+        # Plugins can be enabled using the same option names as in meson_options.txt
 
+        # webrtc plugin options
+        "webrtc_aws": False,
+        "webrtc_livekit": False,
+    }
     languages = ["C"]
 
     @staticmethod
@@ -79,7 +83,13 @@ class GStPluginsRsConan(ConanFile):
         self.options["gstreamer"].shared = self.options.shared
         if self.options.webrtc:
             self.options["gst-plugins-bad"].webrtc = True
+            self.options["gst-plugins-bad"].dtls = True
+            self.options["gst-plugins-bad"].sctp = True
+            self.options["gst-plugins-bad"].srtp = True
             self.options.rtp = True
+        else:
+            self.options.rm_safe("webrtc_aws")
+            self.options.rm_safe("webrtc_livekit")
 
     def layout(self):
         basic_layout(self)
@@ -130,12 +140,12 @@ class GStPluginsRsConan(ConanFile):
 
     def requirements(self):
         reqs = self._all_reqs
-        self.requires("gstreamer/1.24.11", transitive_headers=True, transitive_libs=True)
+        self.requires(f"gstreamer/{self.version}", transitive_headers=True, transitive_libs=True)
         self.requires("glib/2.78.6", transitive_headers=True, transitive_libs=True)
         if "gst-plugins-base" in reqs:
-            self.requires("gst-plugins-base/1.24.11", transitive_headers=True, transitive_libs=True)
+            self.requires(f"gst-plugins-base/{self.version}", transitive_headers=True, transitive_libs=True)
         if "gst-plugins-bad" in reqs:
-            self.requires("gst-plugins-bad/1.24.11", transitive_headers=True, transitive_libs=True)
+            self.requires(f"gst-plugins-bad/{self.version}", transitive_headers=True, transitive_libs=True)
 
         if "cairo" in reqs:
             self.requires("cairo/1.18.0")
@@ -165,7 +175,7 @@ class GStPluginsRsConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("rust/1.84.0")
+        self.tool_requires("rust/[~1.85]")
         self.tool_requires("cargo-c/[^0.10]")
         if self.options.rav1e:
             self.tool_requires("nasm/[^2]")
@@ -189,18 +199,25 @@ class GStPluginsRsConan(ConanFile):
         env.define_path("CARGO_HOME", os.path.join(self.build_folder, "cargo"))
         env.vars(self).save_script("cargo_paths")
 
+        def feature(v):
+            return "enabled" if v else "disabled"
+
         tc = MesonToolchain(self)
         for opt in self._all_options:
-            tc.project_options[opt] = "enabled" if self.options.get_safe(opt) else "disabled"
+            tc.project_options[opt] = feature(self.options.get_safe(opt))
         tc.project_options["doc"] = "disabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["sodium-source"] = "system"
+        tc.project_options["webrtc-aws"] = feature(self.options.get_safe("webrtc_aws"))
+        tc.project_options["webrtc-livekit"] = feature(self.options.get_safe("webrtc_livekit"))
         tc.generate()
-        rust_target = self.conf.get(f"user.rust:target_host", check_type=str)
-        replace_in_file(self, "conan_meson_cross.ini",
-                        "[binaries]",
-                        f"[binaries]\nrust = ['rustc', '--target', '{rust_target}']")
+
+        if cross_building(self):
+            rust_target = self.conf.get(f"user.rust:target_host", check_type=str)
+            replace_in_file(self, "conan_meson_cross.ini",
+                            "[binaries]",
+                            f"[binaries]\nrust = ['rustc', '--target', '{rust_target}']")
 
         deps = PkgConfigDeps(self)
         deps.generate()
