@@ -120,7 +120,7 @@ class GtkConan(ConanFile):
 
     def requirements(self):
         # INFO: https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/gdktypes.h?ref_type=tags#L34-38
-        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.78.6", transitive_headers=True, transitive_libs=True)
         # INFO: https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/gdkpixbuf.h?ref_type=tags#L32-33
         # Note: gdkpixbuf.h is deprecated in newer versions
         self.requires("gdk-pixbuf/2.42.10", transitive_headers=True, transitive_libs=True)

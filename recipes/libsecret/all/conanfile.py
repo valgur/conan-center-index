@@ -55,7 +55,7 @@ class LibsecretConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.78.6", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("crypto") == "libgcrypt":
             self.requires("libgcrypt/1.10.3")
         elif self.options.get_safe("crypto") == "gnutls":

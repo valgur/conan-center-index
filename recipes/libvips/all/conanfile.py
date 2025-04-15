@@ -132,7 +132,7 @@ class LibvipsConan(ConanFile):
 
     def requirements(self):
         self.requires("expat/[>=2.6.2 <3]")
-        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.78.6", transitive_headers=True, transitive_libs=True)
         if self.options.introspection:
             self.requires("gobject-introspection/1.78.1")
         if self.options.get_safe("with_archive"):

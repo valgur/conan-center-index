@@ -46,7 +46,7 @@ class DbusCXX(ConanFile):
     def requirements(self):
         self.requires("libsigcpp/3.0.7", transitive_headers=True)
         if self.options.get_safe("with_glib"):
-            self.requires("glib/2.81.0", transitive_headers=True)
+            self.requires("glib/2.78.6", transitive_headers=True)
         if self.options.get_safe("with_uv"):
             self.requires("libuv/[>=1 <2]", transitive_headers=True)
         if self.options.with_qt:

@@ -42,7 +42,7 @@ class QxmppConan(ConanFile):
         self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
         if self.options.with_gstreamer:
             self.requires("gstreamer/1.24.11")
-            self.requires("glib/2.78.3")
+            self.requires("glib/2.78.6")
 
     def validate(self):
         check_min_cppstd(self, 17)

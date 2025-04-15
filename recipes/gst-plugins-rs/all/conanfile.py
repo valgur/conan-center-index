@@ -131,7 +131,7 @@ class GStPluginsRsConan(ConanFile):
     def requirements(self):
         reqs = self._all_reqs
         self.requires("gstreamer/1.24.11", transitive_headers=True, transitive_libs=True)
-        self.requires("glib/2.78.3", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/2.78.6", transitive_headers=True, transitive_libs=True)
         if "gst-plugins-base" in reqs:
             self.requires("gst-plugins-base/1.24.11", transitive_headers=True, transitive_libs=True)
         if "gst-plugins-bad" in reqs:

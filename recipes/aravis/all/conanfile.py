@@ -67,7 +67,7 @@ class AravisConan(ConanFile):
 
     def requirements(self):
         # glib-object.h and gio/gio.h are used in several public headers
-        self.requires("glib/2.78.3", transitive_headers=True)
+        self.requires("glib/2.78.6", transitive_headers=True)
         self.requires("libxml2/[>=2.12.5 <3]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.usb:

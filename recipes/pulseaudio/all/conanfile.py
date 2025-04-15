@@ -65,7 +65,7 @@ class PulseAudioConan(ConanFile):
         if self.options.with_alsa:
             self.requires("libalsa/1.2.10")
         if self.options.with_glib:
-            self.requires("glib/2.78.3")
+            self.requires("glib/2.78.6")
         if self.options.get_safe("with_fftw"):
             self.requires("fftw/3.3.10")
         if self.options.with_x11:
