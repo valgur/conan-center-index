@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-14:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-15:
 
 - aeron/1.43.0
 - apr-util/1.6.3
