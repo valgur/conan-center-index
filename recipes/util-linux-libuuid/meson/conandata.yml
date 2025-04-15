@@ -1,4 +1,9 @@
 sources:
-  "2.40.2":
-    url: "https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.2.tar.xz"
-    sha256: "d78b37a66f5922d70edf3bdfb01a6b33d34ed3c3cafd6628203b2a2b67c8e8b3"
+  "2.41":
+    url: "https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.41/util-linux-2.41.tar.xz"
+    sha256: "81ee93b3cfdfeb7d7c4090cedeba1d7bbce9141fd0b501b686b3fe475ddca4c6"
+patches:
+  "2.41":
+    - patch_file: "patches/2.41-fix-meson.patch"
+      patch_description: "Fix a minor meson.build bug"
+      patch_source: "https://github.com/util-linux/util-linux/pull/3532"
