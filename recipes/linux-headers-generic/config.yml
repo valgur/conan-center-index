@@ -1,11 +1,9 @@
 versions:
+  "6.14.2":
+    folder: all
   "6.5.9":
     folder: all
+  "5.19.17":
+    folder: all
   "5.19.9":
-    folder: all
-  "5.15.128":
-    folder: all
-  "5.14.9":
-    folder: all
-  "5.13.9":
     folder: all
