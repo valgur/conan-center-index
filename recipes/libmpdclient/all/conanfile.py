@@ -1,3 +1,4 @@
+import glob
 import os
 
 from conan import ConanFile
@@ -101,8 +102,6 @@ class LibmpdclientConan(ConanFile):
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    from conan.tools.files import *
-    import glob
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
     libdirs = getattr(conanfile.cpp.package, "libdirs")
