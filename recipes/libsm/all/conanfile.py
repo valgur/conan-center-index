@@ -40,7 +40,7 @@ class LibSmConan(ConanFile):
         self.requires("libice/1.1.1", transitive_headers=True)
         self.requires("xorg-proto/2024.1", transitive_headers=True)
         self.requires("xtrans/1.5.0")
-        self.requires("util-linux-libuuid/2.39.3")
+        self.requires("util-linux-libuuid/2.41")
 
     def validate(self):
         if is_msvc(self):

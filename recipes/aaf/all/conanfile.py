@@ -40,7 +40,7 @@ class AafConan(ConanFile):
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("libjpeg/9e")
         if self.settings.os in ("FreeBSD", "Linux"):
-            self.requires("util-linux-libuuid/2.39.3")
+            self.requires("util-linux-libuuid/2.41")
 
     def validate(self):
         # Based on ref-impl/include/AAFPlatform.h

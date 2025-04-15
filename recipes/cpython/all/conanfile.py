@@ -119,7 +119,7 @@ class CPythonConan(ConanFile):
                 self.requires("mpdecimal/2.5.1")
         if self.settings.os != "Windows":
             if not is_apple_os(self):
-                self.requires("util-linux-libuuid/2.39.3")
+                self.requires("util-linux-libuuid/2.41")
             # In <3.9 and lower patch versions of 3.9/10/11, crypt.h was exposed in Python.h
             # This was removed in 3.11 and backported: https://github.com/python/cpython/issues/88914
             # For the sake of this recipe, we only have later patch versions, so this version check

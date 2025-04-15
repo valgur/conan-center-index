@@ -35,7 +35,7 @@ class CrossGUIDConan(ConanFile):
 
     def requirements(self):
         if not (self.settings.os in ["Windows", "Android"] or is_apple_os(self)):
-            self.requires("util-linux-libuuid/2.39.3")
+            self.requires("util-linux-libuuid/2.41")
 
     def validate(self):
         check_min_cppstd(self, 11)

@@ -50,7 +50,7 @@ class PremakeConan(ConanFile):
         self.requires("libzip/1.10.1")
         self.requires("zlib/[>=1.2.13 <2]")
         if self.settings.os == "Linux":
-            self.requires("util-linux-libuuid/2.39.3")
+            self.requires("util-linux-libuuid/2.41")
         # Lua sources are required during the build and cannot be unvendored
 
     def source(self):

@@ -42,7 +42,7 @@ class Libhdfs3Conan(ConanFile):
         self.requires("krb5/1.21.2")
         # self.requires("gsasl/0")
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("util-linux-libuuid/2.39.3")
+            self.requires("util-linux-libuuid/2.41")
 
     def validate(self):
         check_min_cppstd(self, 11)
