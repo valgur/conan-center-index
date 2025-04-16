@@ -2,8 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import cross_building
-from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 
@@ -41,8 +39,6 @@ class LibsysfsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        if not cross_building(self):
-            VirtualRunEnv(self).generate(scope="build")
         tc = AutotoolsToolchain(self)
         tc.generate()
 
