@@ -7,7 +7,7 @@ from conan.tools.gnu import PkgConfig, PkgConfigDeps
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     def requirements(self):
         self.requires(self.tested_reference_str, run=can_run(self))

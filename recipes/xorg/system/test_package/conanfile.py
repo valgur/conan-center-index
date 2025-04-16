@@ -7,7 +7,7 @@ from conan.tools.gnu import PkgConfigDeps
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeToolchain", "CMakeDeps"
 
     def requirements(self):

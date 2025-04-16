@@ -18,7 +18,7 @@ class GtkDocStubConan(ConanFile):
     license = "GPL-2.0-or-later"
     topics = ("gtk", "documentation", "gtkdocize")
     package_type = "application"
-    settings = "os"
+    settings = "os", "arch", "compiler", "build_type"
 
     def export_sources(self):
         export_conandata_patches(self)

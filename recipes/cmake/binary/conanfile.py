@@ -17,13 +17,13 @@ class CMakeConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Kitware/CMake"
     license = "BSD-3-Clause"
-    settings = "os", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        if self.settings.arch not in ["x86_64", "armv8"]:
+        if self.settings.arch not in ["x86_64", "armv8", "armv8|x86_64"]:
             raise ConanInvalidConfiguration("CMake binaries are only provided for x86_64 and armv8 architectures")
 
         if self.settings.os == "Windows" and self.settings.arch == "armv8" and Version(self.version) < "3.24":
@@ -34,8 +34,9 @@ class CMakeConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version][str(self.settings.os)][arch], strip_root=True)
 
     def package_id(self):
-        if self.info.settings.os == "Macos":
-            del self.info.settings.arch
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+        self.info.settings.arch = "armv8|x86_64"
 
     def package(self):
         copy(self, "*", src=self.build_folder, dst=self.package_folder)

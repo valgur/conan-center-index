@@ -14,7 +14,7 @@ class Atomic_opsConan(ConanFile):
     topics = ("conan", "fmt", "format", "iostream", "printf")
     url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-2.0-or-later"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     _cmake_options_defaults = (
         ("assertions",          False,),

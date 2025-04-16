@@ -13,7 +13,7 @@ class GladConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/Dav1dde/glad"
     license = "MIT"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     options = {
         "shared": [True, False],

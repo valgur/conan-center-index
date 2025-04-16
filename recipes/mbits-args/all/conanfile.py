@@ -29,7 +29,7 @@ class MBitsArgsConan(ConanFile):
         "argparser",
         "argument-parsing",
     )
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"fPIC": [True, False]}
     default_options = {"fPIC": True}
 

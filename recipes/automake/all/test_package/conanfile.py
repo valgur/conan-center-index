@@ -12,7 +12,7 @@ required_conan_version = ">=2.1"
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     win_bash = True
 
     _default_cc = {

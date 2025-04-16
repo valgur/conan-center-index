@@ -18,7 +18,7 @@ class MBitsSemverConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mbits-libs/semver"
     topics = ("semver", "semantic-versioning")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"fPIC": [True, False]}
     default_options = {"fPIC": True}
 

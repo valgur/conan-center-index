@@ -19,7 +19,7 @@ class DiligentCoreConan(ConanFile):
     license = "Apache-2.0"
     topics = ("graphics",)
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC":   [True, False],

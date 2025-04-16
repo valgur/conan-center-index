@@ -27,7 +27,7 @@ class VtkConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.vtk.org/"
     topics = ("scientific", "image", "processing", "visualization")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     short_paths = True
     no_copy_source = True

@@ -18,7 +18,7 @@ class BShoshanyThreadPoolConan(ConanFile):
     topics = ("concurrency", "cpp17", "cpp20", "cpp23", "header-only", "library", "multi-threading", "parallel-computing", "thread-pool", "threads", "module", "modules")
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"
-    settings = "arch", "build_type", "compiler", "os"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property

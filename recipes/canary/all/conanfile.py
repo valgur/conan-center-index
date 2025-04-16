@@ -17,7 +17,7 @@ class SocketcanCanaryConan(ConanFile):
     homepage = "https://github.com/djarek/canary"
     topics = ("socketcan", "can-bus", "can")
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property

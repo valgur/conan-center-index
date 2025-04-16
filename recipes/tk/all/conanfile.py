@@ -21,7 +21,7 @@ class TkConan(ConanFile):
     homepage = "https://tcl.tk"
     license = "TCL"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],

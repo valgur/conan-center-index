@@ -14,7 +14,7 @@ class MicroserviceEssentials(ConanFile):
     license = "MIT"
     description = """microservice-essentials is a portable, independent C++ library that takes care of typical recurring concerns that occur in microservice development."""
     topics = ("microservices", "cloud-native", "request-handling")
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],

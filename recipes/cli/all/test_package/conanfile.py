@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain
 
 
 class cliTestConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps"
 
     def requirements(self):

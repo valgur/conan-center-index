@@ -19,7 +19,7 @@ class LibniceConan(ConanFile):
     description = "a GLib ICE implementation"
     topics = ("ice", "stun", "turn")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

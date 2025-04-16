@@ -17,7 +17,7 @@ class TzConan(ConanFile):
     description = "The Time Zone Database contains data that represent the history of local time for many representative locations around the globe."
     topics = ("tz", "tzdb", "time", "zone", "date")
     package_type = "application" # This is not an application, but application has the correct traits to provide a runtime dependency on data
-    settings = "os", "build_type", "arch", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_binary_db": [True, False],
     }

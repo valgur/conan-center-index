@@ -4,7 +4,7 @@ from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.build import can_run
 
 class CycloneDDSCXXTestConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):

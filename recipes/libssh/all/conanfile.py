@@ -17,7 +17,7 @@ class LibSSHRecipe(ConanFile):
     description = "multiplatform C library implementing the SSHv2 protocol on client and server side"
     topics = ("ssh", "shell", "ssh2", "connection")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

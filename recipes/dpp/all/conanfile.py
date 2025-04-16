@@ -16,7 +16,7 @@ class DPPConan(ConanFile):
     description = "D++ is a lightweight and efficient library for Discord"
     topics = ("discord")
     package_type = "shared-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     def validate(self):
         check_min_cppstd(self, "17")

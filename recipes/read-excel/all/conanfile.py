@@ -17,7 +17,7 @@ class ReadExcelConan(ConanFile):
     license = "MIT"
     description = "This is very simple implementation of the Excel 97-2003 format (BIFF8) written in C++. Supported reading only."
     topics = ("read", "excel", "biff8")
-    settings = "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property
@@ -43,9 +43,13 @@ class ReadExcelConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def package_id(self):
+        del self.info.settings.os
+        del self.info.settings.arch
+        del self.info.settings.build_type
+
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build(self):
         pass

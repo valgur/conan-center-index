@@ -20,7 +20,7 @@ class bxConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "Base library providing utility functions and macros."
     topics = ("general", "utility")
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"fPIC": [True, False], "tools": [True, False]}
     default_options = {"fPIC": True, "tools": False}
 

@@ -17,7 +17,7 @@ class TinyAlsaConan(ConanFile):
     homepage = "https://github.com/tinyalsa/tinyalsa"
     topics = ("tiny", "alsa", "sound", "audio", "tinyalsa")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "with_utils": [True, False]}
     default_options = {"shared": False, "with_utils": False}
 

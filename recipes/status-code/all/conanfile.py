@@ -17,7 +17,7 @@ class StatusCodeConan(ConanFile):
     description = "Proposed SG14 status_code for the C++ standard"
     topics = ("header-only", "proposal", "status", "return code")
     package_type = "header-library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _compiler_required_version(self):

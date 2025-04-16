@@ -19,7 +19,7 @@ class LibgudevConan(ConanFile):
     homepage = "https://gitlab.gnome.org/GNOME/libgudev/"
     topics = ("udev", "gobject")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

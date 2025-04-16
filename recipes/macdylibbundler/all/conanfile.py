@@ -19,7 +19,7 @@ class MacDylibBundlerConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/auriamg/macdylibbundler"
     license = "MIT"
-    settings = "os", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -27,6 +27,9 @@ class MacDylibBundlerConan(ConanFile):
     def validate(self):
         if not is_apple_os(self):
             raise ConanInvalidConfiguration("This tool is for macOS only")
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

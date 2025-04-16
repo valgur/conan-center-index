@@ -14,7 +14,7 @@ class NodeEditorConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/paceholder/nodeeditor"
     topics = ("qt", "ui", "dataflow")
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
     package_type = "library"

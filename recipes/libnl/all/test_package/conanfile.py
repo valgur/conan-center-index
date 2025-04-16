@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 
 class NetlinkTestConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain", "PkgConfigDeps"
 
     def layout(self):

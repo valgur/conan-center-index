@@ -7,7 +7,7 @@ from conan.tools.layout import basic_layout
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     exports_sources = "configure.ac"
     win_bash = True # This assignment must be *here* to avoid "Cannot wrap command with different envs." in Conan 1.x
 

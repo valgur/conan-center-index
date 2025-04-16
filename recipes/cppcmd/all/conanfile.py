@@ -18,7 +18,7 @@ class CppCmdConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
     package_type = "header-library"
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property

@@ -17,7 +17,7 @@ class PackageConan(ConanFile):
     # no "conan"  and project name in topics. Use "pre-built" for tooling packages
     topics = ("topic1", "topic2", "topic3", "pre-built")
     package_type = "application"
-    settings = "os", "arch", "compiler", "build_type"  # even for pre-built executables
+    settings = "os", "arch", "compiler", "build_type"
 
     # not needed but suppress warning message from conan commands
     def layout(self):

@@ -18,7 +18,7 @@ class ImaglConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "A lightweight library to load image for OpenGL application."
     topics = ("opengl", "texture", "image")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

@@ -18,7 +18,7 @@ class OctoWildcardMatchingCPPConan(ConanFile):
     description = "Octo wildcardmatching library"
     topics = ("wildcard", "regex", "patterns", "cpp")
     package_type = "static-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _min_cppstd(self):

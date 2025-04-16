@@ -12,7 +12,7 @@ class NpcapConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "LicenseRef-NPCAP"
     topics = ("pcap", "windows", "packet-capture")
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
 
     # not needed but supress warning message from conan commands
     def layout(self):

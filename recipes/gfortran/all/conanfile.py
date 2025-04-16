@@ -25,7 +25,7 @@ class GFortranConan(ConanFile):
     # You will usually need to use the package as both a tool_requires() and a requires() in your recipe.
     # "shared" to keep things simple and to not accidentally mix static and shared libraries during linking.
     package_type = "shared-library"
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
 
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")

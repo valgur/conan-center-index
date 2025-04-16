@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain, CMakeDeps
 
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     def generate(self):
         tc = CMakeToolchain(self)

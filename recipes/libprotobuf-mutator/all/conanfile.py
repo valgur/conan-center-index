@@ -16,7 +16,7 @@ class LibProtobufMutatorConan(ConanFile):
     homepage = "https://github.com/google/libprotobuf-mutator"
     description = "A library to randomly mutate protobuffers."
     topics = ("test", "fuzzing", "protobuf")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],

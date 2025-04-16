@@ -26,7 +26,7 @@ class CoinUtilsConan(ConanFile):
     license = "EPL-2.0"
 
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

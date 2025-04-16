@@ -19,7 +19,7 @@ class LibaecConan(ConanFile):
     topics = "dsp", "encoding", "decoding"
 
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

@@ -19,7 +19,7 @@ class bgfxConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "Cross-platform, graphics API agnostic, \"Bring Your Own Engine/Framework\" style rendering library."
     topics = ("rendering", "graphics")
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "tools": [True, False]}
     default_options = {"shared": False, "tools": False}
 

@@ -16,7 +16,7 @@ class AndreasbuhrCppCoroConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/andreasbuhr/cppcoro"
     license = "MIT"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     provides = "cppcoro"
     package_type = "library"
 

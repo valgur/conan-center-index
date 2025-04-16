@@ -20,7 +20,7 @@ class JsonGlibConan(ConanFile):
     homepage = "https://wiki.gnome.org/Projects/JsonGlib"
     topics = ("json", "gobject")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

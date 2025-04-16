@@ -19,7 +19,7 @@ class ChaiScriptConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "BSD-3-Clause"
     exports_sources = ["CMakeLists.txt"]
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"fPIC": [True, False], "dyn_load": [True, False], "use_std_make_shared": [True, False],
                "multithread_support": [True, False],
                "header_only": [True, False]}

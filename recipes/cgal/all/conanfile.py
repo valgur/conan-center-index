@@ -19,7 +19,7 @@ class CgalConan(ConanFile):
                   " in computational geometry."
     topics = ("cgal", "geometry", "algorithms")
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps"
     short_paths = True
 

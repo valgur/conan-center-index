@@ -20,7 +20,7 @@ class LdnsConan(ConanFile):
     description = "LDNS is a DNS library that facilitates DNS tool programming"
     topics = ("dns")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

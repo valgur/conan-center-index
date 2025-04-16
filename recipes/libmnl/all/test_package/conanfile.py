@@ -6,7 +6,7 @@ from conan.tools.cmake import cmake_layout, CMake
 
 
 class LibmnlTestConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):

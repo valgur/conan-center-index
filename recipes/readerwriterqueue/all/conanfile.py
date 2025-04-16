@@ -14,24 +14,21 @@ class ReaderWriterQueue(ConanFile):
     topics = ("cpp11", "cpp14", "cpp17", "queue", "lock-free")
     license = "BSD-2-Clause"
     no_copy_source = True
-    settings = "os"
+    settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def package_id(self):
+        self.info.clear()
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def build(self):
-        pass
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include", "readerwriterqueue"),
              excludes=["benchmarks", "tests"])
-
-    def package_id(self):
-        self.info.clear()
 
     def package_info(self):
         self.cpp_info.bindirs = []

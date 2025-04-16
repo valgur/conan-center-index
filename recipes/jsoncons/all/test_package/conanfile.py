@@ -7,7 +7,7 @@ from conan.tools.cmake import CMake, cmake_layout
 required_conan_version = ">=2.1"
 
 class TestPackageConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):

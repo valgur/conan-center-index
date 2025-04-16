@@ -19,7 +19,7 @@ class MagnumConan(ConanFile):
     homepage = "https://magnum.graphics"
 
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     options = {
         "shared": [True, False],

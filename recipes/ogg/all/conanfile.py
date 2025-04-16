@@ -15,7 +15,7 @@ class OggConan(ConanFile):
     homepage = "https://github.com/xiph/ogg"
     license = "BSD-2-Clause"
 
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

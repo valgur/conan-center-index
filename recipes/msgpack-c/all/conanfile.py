@@ -15,7 +15,7 @@ class MsgpackCConan(ConanFile):
     homepage = "https://github.com/msgpack/msgpack-c"
     topics = ("msgpack", "message-pack", "serialization")
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
         "shared": [True, False],

@@ -20,7 +20,7 @@ class PROPOSALConan(ConanFile):
     description = "monte Carlo based lepton and photon propagator"
     topics = ("propagator", "lepton", "photon", "stochastic")
 
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

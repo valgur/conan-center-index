@@ -18,7 +18,7 @@ class DbusCXX(ConanFile):
     description = "DBus-cxx provides an object-oriented interface to DBus"
     topics = "bus", "interprocess", "message"
     package_type = "shared-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
         "with_glib": [True, False],

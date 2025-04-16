@@ -23,7 +23,7 @@ class OneDplConan(ConanFile):
     topics = ("stl", "parallelism")
 
     package_type = "header-library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "backend": ["tbb", "serial"],
     }

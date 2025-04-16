@@ -24,7 +24,7 @@ class GdbmConan(ConanFile):
     homepage = "https://www.gnu.org.ua/software/gdbm/gdbm.html"
     topics = ("dbm", "hash", "database")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

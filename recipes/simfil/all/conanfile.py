@@ -19,8 +19,7 @@ class SimfilRecipe(ConanFile):
     package_type = "library"
     topics = ["query-language", "json", "data-model"]
 
-    # Binary configuration
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

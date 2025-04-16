@@ -17,7 +17,7 @@ class Stlab(ConanFile):
     homepage = "https://github.com/stlab/libraries"
     license = "BSL-1.0"
     topics = "concurrency", "futures", "channels"
-    settings = "arch", "os", "compiler", "build_type",
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_boost": [True, False],
         "no_std_coroutines": [True, False],

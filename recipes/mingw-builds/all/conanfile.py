@@ -15,7 +15,7 @@ class MingwConan(ConanFile):
     homepage = "https://github.com/niXman/mingw-builds"
     license = "ZPL-2.1", "MIT", "GPL-2.0-or-later"
     topics = ("gcc", "gnu", "unix", "mingw32", "binutils")
-    settings = "os", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "threads": ["posix", "win32", "mcf"],
         "exception": ["seh", "sjlj"],
@@ -35,6 +35,10 @@ class MingwConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
 
     def validate(self):
         valid_os = ["Windows"]

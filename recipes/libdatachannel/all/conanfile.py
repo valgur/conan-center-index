@@ -17,7 +17,7 @@ class libdatachannelConan(ConanFile):
     topics = ("webrtc", "rtc", "datachannel", "websocket")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/paullouisageneau/libdatachannel"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],

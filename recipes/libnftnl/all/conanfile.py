@@ -15,7 +15,7 @@ class LibnftnlConan(ConanFile):
     homepage = "https://netfilter.org/projects/libnftnl/index.html"
     description = "Library providing a low-level netlink programming interface (API) to the in-kernel nf_tables subsystem"
     topics = ("netlink", "nftables")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
     package_type = "library"

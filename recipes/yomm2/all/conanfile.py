@@ -21,7 +21,7 @@ class yomm2Recipe(ConanFile):
     topics = ("multi-methods", "multiple-dispatch", "open-methods", "shared-library",
               "header-only", "polymorphism", "expression-problem", "c++17")
     # Binary configuration
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "header_only": [True, False],
     }

@@ -6,7 +6,7 @@ from conan.tools.layout import basic_layout
 
 
 class TzTestConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
         basic_layout(self, src_folder="src")

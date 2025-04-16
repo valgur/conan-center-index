@@ -18,7 +18,7 @@ class ZmarokSemverConan(ConanFile):
     description = "Semantic versioning for cpp14"
     topics = ("versioning", "semver", "semantic")
     package_type = "library"
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

@@ -19,7 +19,7 @@ class DfpConan(ConanFile):
     topics = ("decimal", "dfp", "ieee-754", "deltix")
 
     # Binary configuration
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False]

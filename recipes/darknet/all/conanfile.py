@@ -16,7 +16,7 @@ class DarknetConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://pjreddie.com/darknet/"
     topics = ("neural network", "deep learning")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

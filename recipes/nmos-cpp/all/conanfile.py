@@ -21,7 +21,7 @@ class NmosCppConan(ConanFile):
 
     # https://github.com/sony/nmos-cpp/blob/master/Development/cmake/NmosCppLibraries.cmake#L947
     package_type = "static-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     # for now, no "shared" option support
     options = {
         "fPIC": [True, False],

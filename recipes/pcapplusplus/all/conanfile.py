@@ -21,7 +21,7 @@ class PcapplusplusConan(ConanFile):
     topics = ("pcap", "network", "security", "packet")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/seladb/PcapPlusPlus"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
         "immediate_mode": [True, False],

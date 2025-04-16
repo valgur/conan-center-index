@@ -17,7 +17,7 @@ class BoostLEAFConan(ConanFile):
     description = ("Lightweight Error Augmentation Framework")
     topics = ("multi-platform", "multi-threading", "cpp11", "error-handling",
               "header-only", "low-latency", "no-dependencies", "single-header")
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
     deprecated = "boost"
 

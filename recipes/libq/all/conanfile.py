@@ -16,7 +16,7 @@ class libqConan(ConanFile):
     topics = ("async", "promises")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/grantila/q"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],

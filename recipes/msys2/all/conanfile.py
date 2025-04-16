@@ -42,7 +42,7 @@ class MSYS2Conan(ConanFile):
     license = "MSYS license"
     topics = ("msys", "unix", "subsystem")
 
-    settings = "os", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     # "exclude_files" "packages" "additional_packages" values are a comma separated list
     options = {
         "exclude_files": ["ANY"],
@@ -63,6 +63,8 @@ class MSYS2Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
         del self.info.options.no_kill
 
     def validate(self):

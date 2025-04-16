@@ -20,7 +20,7 @@ class UTConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://boost-ext.github.io/ut/"
     license = "BSL-1.0"
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
     options = { "disable_module": [True, False], }
     default_options = { "disable_module": False, }

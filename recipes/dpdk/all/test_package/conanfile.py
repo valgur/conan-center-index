@@ -7,7 +7,7 @@ from conan.tools.meson import Meson
 
 
 class DpdkTestConan(ConanFile):
-    settings = "os", "build_type", "arch", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "PkgConfigDeps", "MesonToolchain"
 
     def layout(self):

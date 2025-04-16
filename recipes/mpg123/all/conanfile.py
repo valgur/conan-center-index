@@ -21,7 +21,7 @@ class Mpg123Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://mpg123.org/"
     license = "LGPL-2.1-or-later", "GPL-2.0-or-later"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

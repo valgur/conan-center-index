@@ -16,7 +16,7 @@ class DbgMacroConan(ConanFile):
     description = "A dbg(...) macro for C"
     topics = ("debugging", "macro", "pretty-printing", "header-only")
     package_type = "header-library"
-    settings = ("compiler",  "build_type", "os", "arch")
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     def layout(self):

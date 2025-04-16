@@ -20,7 +20,7 @@ class PhysXConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
 
     package_type = "library"
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

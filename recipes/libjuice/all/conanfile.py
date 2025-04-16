@@ -15,7 +15,7 @@ class libjuiceConan(ConanFile):
     topics = ("webrtc", "ice")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/paullouisageneau/libjuice"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],

@@ -30,7 +30,7 @@ class Open62541Conan(ConanFile):
     )
 
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
         "shared": [True, False],

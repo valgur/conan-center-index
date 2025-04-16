@@ -18,7 +18,7 @@ class RocketConan(ConanFile):
     homepage = "https://github.com/tripleslash/rocket"
     topics = ("signal-slots", "observer-pattern", "header-only")
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _min_cppstd(self):

@@ -15,7 +15,7 @@ class LibYangConan(ConanFile):
     description = "YANG data modeling language library"
     homepage = "https://github.com/CESNET/libyang"
     topics = ("yang", "bsd", "netconf", "restconf", "yin")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False],
                "fPIC": [True, False]}
     default_options = {

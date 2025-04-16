@@ -16,7 +16,7 @@ class LibCuckooConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("concurrency", "hashmap", "header-only", "library", "cuckoo")
     package_type = "header-library"
-    settings = "arch", "build_type", "compiler", "os"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _minimum_cpp_standard(self):

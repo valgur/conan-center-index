@@ -15,7 +15,7 @@ class CgnsConan(ConanFile):
     homepage = "http://cgns.org/"
     license = "Zlib"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

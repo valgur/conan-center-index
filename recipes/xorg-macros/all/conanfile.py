@@ -17,13 +17,16 @@ class XorgMacrosConan(ConanFile):
     license = "MIT"
     homepage = "https://gitlab.freedesktop.org/xorg/util/macros"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def export_sources(self):
-        export_conandata_patches(self)
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -35,9 +38,6 @@ class XorgMacrosConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         self.tool_requires("automake/1.16.5")
-
-    def package_id(self):
-        self.info.clear()
 
     @property
     def _datarootdir(self):

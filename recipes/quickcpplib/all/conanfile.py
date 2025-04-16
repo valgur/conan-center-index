@@ -18,7 +18,7 @@ class QuickcpplibCodeConan(ConanFile):
     description = "Eliminate all the tedious hassle when making state-of-the-art C++ 17 - 23 libraries!"
     topics = ("header-only", "common")
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     @property
     def _compiler_required_version(self):

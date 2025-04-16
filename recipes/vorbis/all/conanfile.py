@@ -17,7 +17,7 @@ class VorbisConan(ConanFile):
     homepage = "https://xiph.org/vorbis/"
     license = "BSD-3-Clause"
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

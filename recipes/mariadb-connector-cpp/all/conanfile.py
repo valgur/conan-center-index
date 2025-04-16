@@ -17,7 +17,7 @@ class MariadbConnectorCppRecipe (ConanFile):
     homepage = "https://mariadb.com/docs/server/connect/programming-languages/cpp"
     topics = ("mariadb", "mysql", "database")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

@@ -14,13 +14,16 @@ class SConsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index/"
     homepage = "https://scons.org"
     topics = ("scons", "build", "configuration", "development")
-    settings = "os"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "application"
     no_copy_source = True
     short_paths = True
 
     def layout(self):
         self.folders.source = "src"
+
+    def package_id(self):
+        self.info.clear()
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version],
@@ -37,9 +40,6 @@ class SConsConan(ConanFile):
     @property
     def _scons_cmd(self):
         return os.path.join(self.package_folder, "bin", "scons.cmd")
-
-    def package_id(self):
-        self.info.clear()
 
     def package(self):
         copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

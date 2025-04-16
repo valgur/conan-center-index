@@ -14,7 +14,7 @@ class Libpfm4Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "A helper library to program the performance monitoring events"
     topics = ("perf", "pmu", "benchmark", "microbenchmark")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
     package_type = "library"

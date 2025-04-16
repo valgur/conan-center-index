@@ -18,7 +18,7 @@ class sqlite3mc(ConanFile):
     description = "The project SQLite3 Multiple Ciphers implements an encryption extension for SQLite with support for multiple ciphers."
     topics = ("sqlite", "sqlite3", "sqlite3-encryption", "database-encryption", "sqlite3-extension")
 
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

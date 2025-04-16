@@ -16,7 +16,7 @@ class ensmallenRecipe(ConanFile):
     topics = ("optimization", "numerical", "header-only")
 
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     def package_id(self):
         self.info.clear()

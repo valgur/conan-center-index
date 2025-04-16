@@ -14,7 +14,7 @@ class ShieldConan(ConanFile):
     homepage = "https://github.com/holoplot/shield"
     topics = ("utility", "warnings", "suppression", "header-only")
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     def layout(self):

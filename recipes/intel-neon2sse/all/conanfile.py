@@ -15,7 +15,7 @@ class IntelNeon2sseConan(ConanFile):
     license = "BSD-2-Clause"
     topics = "neon", "sse", "port", "translation", "intrinsics"
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "SSE4": [True, False],
         "disable_performance_warnings": [True, False],

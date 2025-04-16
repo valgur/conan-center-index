@@ -19,7 +19,7 @@ class SymengineConan(ConanFile):
     topics = ("symbolic", "algebra")
     homepage = "https://symengine.org/"
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],

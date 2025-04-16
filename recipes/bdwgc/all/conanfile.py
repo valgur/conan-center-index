@@ -16,7 +16,7 @@ class BdwGcConan(ConanFile):
     topics = ("gc", "garbage", "collector")
     url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
 
     _autotools_options_defaults = (
         ("cplusplus",                   False,),

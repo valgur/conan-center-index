@@ -17,7 +17,7 @@ class OisConan(ConanFile):
     homepage = "https://github.com/wgois/OIS"
     license = "Zlib"
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

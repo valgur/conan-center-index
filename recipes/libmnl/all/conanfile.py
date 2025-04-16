@@ -15,7 +15,7 @@ class LibmnlConan(ConanFile):
     homepage = "https://netfilter.org/projects/libmnl/index.html"
     description = "Minimalistic Netlink communication library"
     topics = ("libmnl", "netlink")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
     package_type = "library"

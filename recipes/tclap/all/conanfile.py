@@ -12,7 +12,7 @@ class TclapConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "Templatized Command Line Argument Parser"
     topics = ("parser", "command-line", "header-only")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "header-library"
     no_copy_source = True
 

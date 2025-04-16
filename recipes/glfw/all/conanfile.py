@@ -21,7 +21,7 @@ class GlfwConan(ConanFile):
     homepage = "https://github.com/glfw/glfw"
     topics = ("graphics", "opengl", "vulkan", "opengl-es")
     package_type = "library"
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

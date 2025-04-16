@@ -13,7 +13,7 @@ class MozillaBuildConan(ConanFile):
     description = "Mozilla build requirements on Windows"
     topics = ("mozilla", "build")
     url = "https://github.com/conan-io/conan-center-index"
-    settings = "arch", "build_type", "compiler", "os"
+    settings = "os", "arch", "compiler", "build_type"
     license = "MPL-2.0"
 
     def layout(self):

@@ -16,7 +16,7 @@ class CrowConan(ConanFile):
     homepage = "http://crowcpp.org/"
     topics = ("web", "microframework", "header-only")
     package_type = "header-library"
-    settings = "os", "compiler", "arch", "build_type"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "amalgamation": [True, False],
         "with_ssl": [True, False],

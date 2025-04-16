@@ -20,7 +20,7 @@ class LibmemcachedConan(ConanFile):
     topics = ("cache", "network", "cloud")
     package_type = "library"
 
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

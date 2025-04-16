@@ -21,7 +21,7 @@ class SdbusCppConan(ConanFile):
                   " to provide easy-to-use yet powerful API in modern C++"
     topics = ("dbus", "sd-bus", "sdbus-c++")
     package_type = "library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

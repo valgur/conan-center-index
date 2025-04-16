@@ -16,7 +16,7 @@ class WTLConan(ConanFile):
     homepage = "https://sourceforge.net/projects/wtl"
     topics = ("atl", "template library", "windows", "template", "ui", "gdi", "header-only")
 
-    settings = "os"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     package_type = "header-library"

@@ -17,7 +17,7 @@ class OboeConan(ConanFile):
     homepage = "https://github.com/google/oboe"
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "library"
-    settings = "os", "arch", "compiler", "build_type",
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

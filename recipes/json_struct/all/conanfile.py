@@ -16,7 +16,7 @@ class JsonStructConan(ConanFile):
 
     topics = ("serialization", "deserialization", "reflection", "json")
 
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "header-library"
     no_copy_source = True
 

@@ -5,7 +5,7 @@ import os
 
 
 class GTlabLoggingTestConan(ConanFile):
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain"
 
     def layout(self):

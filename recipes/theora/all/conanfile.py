@@ -15,7 +15,7 @@ class TheoraConan(ConanFile):
     description = "Theora is a free and open video compression format from the Xiph.org Foundation"
     topics = "video", "video-compressor", "video-format"
 
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

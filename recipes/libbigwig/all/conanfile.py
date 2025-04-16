@@ -16,7 +16,7 @@ class LibBigWigConan(ConanFile):
     homepage = "https://github.com/dpryan79/libBigWig"
     license = "MIT"
     package_type = "library"
-    settings = "arch", "build_type", "compiler", "os"
+    settings = "os", "arch", "compiler", "build_type"
 
     options = {
         "shared": [True, False],

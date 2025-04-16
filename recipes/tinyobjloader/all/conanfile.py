@@ -15,7 +15,7 @@ class TinyObjLoaderConan(ConanFile):
     homepage = "https://github.com/syoyo/tinyobjloader"
     topics = ("loader", "obj", "3d", "wavefront", "geometry")
 
-    settings = "os", "arch", "build_type", "compiler"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

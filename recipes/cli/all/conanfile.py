@@ -16,7 +16,7 @@ class CLIConan(ConanFile):
     homepage = "https://github.com/daniele77/cli"
     topics = "cli-interface", "cpp14", "no-dependencies", "header-only"
     package_type = "header-library"
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
     @property

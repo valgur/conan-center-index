@@ -14,7 +14,7 @@ class TinyCThreadPoolConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/bennyhuo/tinycthreadpool"
     topics = ("thread-pool", "threading", "pure-c")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

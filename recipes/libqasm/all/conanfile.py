@@ -20,7 +20,7 @@ class LibqasmConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "Library to parse cQASM files"
     topics = ("code generation", "parser", "compiler", "quantum compilation", "quantum simulation")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     package_type = "library"
     options = {
         "shared": [True, False],
