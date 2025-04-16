@@ -16,7 +16,7 @@ required_conan_version = ">=2.1"
 
 
 class NcbiCxxToolkit(ConanFile):
-    name = "ncbi-cxx-toolkit-public"
+    name = "ncbi-cxx-toolkit"
     description = "NCBI C++ Toolkit -- a cross-platform application framework and a collection of libraries for working with biological data."
     license = "CC0-1.0"
     url = "https://github.com/conan-io/conan-center-index"
