@@ -9,8 +9,8 @@ from conan.tools.files import *
 required_conan_version = ">=2.1"
 
 
-class CmaesConan(ConanFile):
-    name = "cmaes"
+class LibcmaesConan(ConanFile):
+    name = "libcmaes"
     description = (
         "libcmaes is a multithreaded C++11 library for high performance blackbox stochastic optimization"
         " using the CMA-ES algorithm for Covariance Matrix Adaptation Evolution Strategy"
