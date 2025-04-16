@@ -1,4 +1,5 @@
-#include <libcmaes/cmaes.h>   
+#include <libcmaes/cmaes.h>
+
 #include <iostream>
 
 using namespace libcmaes;
@@ -6,9 +7,9 @@ using namespace libcmaes;
 FitFunc fsphere = [](const double *x, const int N)
 {
   double val = 0.0;
-  for (int i=0;i<N;i++)
+  for (int i=0; i < N; i++)
   {
-    val += x[i]*x[i];
+    val += x[i] * x[i];
   }
   return val;
 };
