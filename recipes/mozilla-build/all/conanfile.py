@@ -1,7 +1,9 @@
-from conan import ConanFile
-from conan.tools.files import *
-from conan.errors import ConanInvalidConfiguration
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import *
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
 
@@ -13,6 +15,9 @@ class MozillaBuildConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     settings = "arch", "build_type", "compiler", "os"
     license = "MPL-2.0"
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -26,7 +31,6 @@ class MozillaBuildConan(ConanFile):
         download(self, **self.conan_data["sources"][self.version][0], filename=filename)
         download(self, **self.conan_data["sources"][self.version][1], filename="LICENSE")
         self.run(f"7z x {filename}")
-
 
     def package(self):
         copy(self, "LICENSE", src=self.build_folder, dst=os.path.join(self.package_folder, "licenses"))

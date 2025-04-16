@@ -2,9 +2,10 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -27,25 +28,15 @@ class WasmtimeConan(ConanFile):
     no_copy_source = True
 
     @property
-    def _min_cppstd(self):
-        return 11
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "191",
-            "apple-clang": "9.4",
-            "clang": "3.3",
-            "gcc": "5.1",
-        }
-
-    @property
     def _sources_os_key(self):
         if is_msvc(self):
             return "Windows"
         elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
             return "MinGW"
         return str(self.settings.os)
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def configure(self):
         self.settings.rm_safe("compiler.libcxx")
@@ -62,16 +53,11 @@ class WasmtimeConan(ConanFile):
         except KeyError:
             raise ConanInvalidConfiguration("Binaries for this combination of architecture/version/os are not available")
 
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 11)
 
     def build(self):
         # This is packaging binaries so the download needs to be in build
-        get(self, **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)],
-            destination=self.build_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][self._sources_os_key][str(self.settings.arch)], strip_root=True)
 
     def package(self):
         copy(self, pattern="*.h", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.build_folder, "include"))

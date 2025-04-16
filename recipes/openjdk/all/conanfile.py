@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -27,6 +28,9 @@ class OpenJDK(ConanFile):
     def configure(self):
         self.settings.rm_safe("os.version")
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def validate(self):
         if Version(self.version) < "19.0.2" and self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Unsupported Architecture.  This package currently only supports x86_64.")
@@ -37,8 +41,7 @@ class OpenJDK(ConanFile):
         key = self.settings.os
         if self.settings.os in ["Macos", "Linux"]:
             key = f"{self.settings.os}_{self.settings.arch}"
-        get(self, **self.conan_data["sources"][self.version][str(key)],
-                  destination=self.build_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][str(key)], strip_root=True)
 
     def package(self):
         if self.settings.os == "Macos":

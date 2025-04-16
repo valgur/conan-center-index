@@ -1,9 +1,13 @@
 from conan import ConanFile
 from conan.tools.build import can_run
+from conan.tools.layout import basic_layout
 
 
 class MoldTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
+
+    def layout(self):
+        basic_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)

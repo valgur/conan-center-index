@@ -3,18 +3,17 @@ from io import StringIO
 from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.build import can_run
-
-required_conan_version = ">=2.1"
+from conan.tools.layout import basic_layout
 
 
 class TestPackage(ConanFile):
-    settings = "os", "arch"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        basic_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)
-
-    def build(self):
-        pass  # nothing to build, but tests should not warn
 
     def test(self):
         if can_run(self):

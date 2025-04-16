@@ -3,9 +3,11 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
+
 
 class CMakeConan(ConanFile):
     name = "cmake"
@@ -17,6 +19,9 @@ class CMakeConan(ConanFile):
     license = "BSD-3-Clause"
     settings = "os", "arch"
 
+    def layout(self):
+        basic_layout(self, src_folder="src")
+
     def validate(self):
         if self.settings.arch not in ["x86_64", "armv8"]:
             raise ConanInvalidConfiguration("CMake binaries are only provided for x86_64 and armv8 architectures")
@@ -26,8 +31,7 @@ class CMakeConan(ConanFile):
 
     def build(self):
         arch = str(self.settings.arch) if self.settings.os != "Macos" else "universal"
-        get(self, **self.conan_data["sources"][self.version][str(self.settings.os)][arch],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][str(self.settings.os)][arch], strip_root=True)
 
     def package_id(self):
         if self.info.settings.os == "Macos":

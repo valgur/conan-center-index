@@ -4,6 +4,7 @@ import shutil
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.layout import basic_layout
 
 
 class TestPackageConan(ConanFile):
@@ -28,6 +29,9 @@ class TestPackageConan(ConanFile):
                 "bin": os.path.join(self.build_folder, "hello_f90"),
             },
         }
+
+    def layout(self):
+        basic_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)

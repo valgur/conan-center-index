@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
 
@@ -27,6 +28,9 @@ class LibsysfsConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os != "Linux":

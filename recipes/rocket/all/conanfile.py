@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -31,6 +32,9 @@ class RocketConan(ConanFile):
             "apple-clang": "10",
             "msvc": "191",
         }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def export_sources(self):
         export_conandata_patches(self)

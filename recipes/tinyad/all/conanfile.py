@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
@@ -17,8 +18,11 @@ class TinyADConan(ConanFile):
     description = "TinyAD is a C++ header-only library for second-order automatic differentiation"
     topics = ("algebra", "linear-algebra", "optimization", "autodiff", "numerical", "header-only")
     package_type = "header-library"
-    license = ("MIT")
+    license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("eigen/3.4.0")
@@ -46,8 +50,7 @@ class TinyADConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         # The project has a CMakelists.txt file, but it doesn't have "install" logic

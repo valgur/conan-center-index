@@ -14,6 +14,7 @@ from conan.tools.build import build_jobs, check_min_cppstd, cross_building, can_
 from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, is_msvc_static_runtime, VCVars
 from conan.tools.scm import Version
 
@@ -137,6 +138,9 @@ class QtConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate_build(self):
         if self.options.qtwebengine:

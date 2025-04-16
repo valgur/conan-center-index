@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -29,6 +29,9 @@ class MicroserviceEssentials(ConanFile):
         "with_examples": False
     }
     implements = ["auto_shared_fpic"]
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16.3 <4]")

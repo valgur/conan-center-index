@@ -3,9 +3,10 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 class WasmedgeConan(ConanFile):
     name = "wasmedge"
@@ -18,6 +19,7 @@ class WasmedgeConan(ConanFile):
     topics = ("webassembly", "wasm", "wasi", "emscripten")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
+    languages = ["C"]
 
     @property
     def _compiler_alias(self):
@@ -25,9 +27,8 @@ class WasmedgeConan(ConanFile):
             "msvc": "msvc",
         }.get(str(self.info.settings.compiler), "gcc")
 
-    def configure(self):
-        self.settings.compiler.rm_safe("libcxx")
-        self.settings.compiler.rm_safe("cppstd")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]", options={"shared": True})

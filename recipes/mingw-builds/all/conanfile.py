@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -31,6 +32,9 @@ class MingwConan(ConanFile):
         # Before version 12 (included) the only possible runtime was msvcrt
         if Version(self.version) <= Version("12.2.0"):
             del self.options.runtime
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         valid_os = ["Windows"]

@@ -1,7 +1,9 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
-import os
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
 
@@ -19,6 +21,9 @@ class ZuluOpenJDK(ConanFile):
     def _jni_folder(self):
         folder = {"Linux": "linux", "Macos": "darwin", "Windows": "win32"}.get(str(self.settings_build.os))
         return os.path.join("include", folder)
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler

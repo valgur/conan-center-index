@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
@@ -21,6 +22,9 @@ class PackageConan(ConanFile):
     default_options = {
         "provider": "auto",
     }
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def config_options(self):
         if self.settings.compiler == "clang" and self.settings.os == "Linux":

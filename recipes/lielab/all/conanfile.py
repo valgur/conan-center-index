@@ -5,9 +5,11 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
+
 
 class LielabConan(ConanFile):
     name = "lielab"
@@ -23,6 +25,9 @@ class LielabConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     no_copy_source = True
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("eigen/3.4.0")

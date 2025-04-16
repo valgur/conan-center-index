@@ -1,6 +1,7 @@
 from conan import ConanFile, conan_version
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.gnu import PkgConfig
+from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
 
@@ -17,12 +18,15 @@ class XorgConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     topics = ("x11", "xorg")
 
-    def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
+
+    def validate(self):
+        if self.settings.os not in ["Linux", "FreeBSD"]:
+            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
 
     def system_requirements(self):
         apt = package_manager.Apt(self)

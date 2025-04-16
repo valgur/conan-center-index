@@ -2,9 +2,14 @@ from conan import ConanFile
 from conan.tools.build import cross_building
 from io import StringIO
 
+from conan.tools.layout import basic_layout
+
 
 class TestPackage(ConanFile):
-    settings = "os", "arch"
+    settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        basic_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)

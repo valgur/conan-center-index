@@ -5,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
 
@@ -33,6 +34,9 @@ class OCILIBConan(ConanFile):
     @property
     def _min_cppstd(self):
         return 11
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

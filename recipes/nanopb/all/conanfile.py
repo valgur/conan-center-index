@@ -2,8 +2,9 @@ import os
 
 from conan import ConanFile
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class NanopbConan(ConanFile):
@@ -16,6 +17,9 @@ class NanopbConan(ConanFile):
     topics = ("protocol-buffers", "protobuf", "microcontrollers")
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.settings.compiler

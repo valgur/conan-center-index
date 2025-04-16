@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.tools.gnu import PkgConfig
+from conan.tools.layout import basic_layout
 from conan.tools.system import package_manager
 from conan.errors import ConanInvalidConfiguration
 
@@ -16,12 +17,15 @@ class XkeyboardConfigConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     topics = ("x11", "xorg", "keyboard")
 
-    def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         self.info.clear()
+
+    def validate(self):
+        if self.settings.os not in ["Linux", "FreeBSD"]:
+            raise ConanInvalidConfiguration("This recipe supports only Linux and FreeBSD")
 
     def system_requirements(self):
         apt = package_manager.Apt(self)

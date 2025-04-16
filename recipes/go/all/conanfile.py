@@ -4,6 +4,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 
 
 class GoConan(ConanFile):
@@ -17,6 +18,9 @@ class GoConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     upload_policy = "skip"
     build_policy = "missing"
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         del self.info.settings.compiler
