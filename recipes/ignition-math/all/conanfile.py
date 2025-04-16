@@ -2,10 +2,8 @@ import os
 import textwrap
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.scm import Version
 
@@ -44,7 +42,7 @@ class IgnitionMathConan(ConanFile):
         self.requires("ignition-cmake/2.17.1", visible=False)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if self.options.enable_swig:
-            self.requires("swig/4.2.1")
+            self.requires("swig/[^4.2.1]")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -53,7 +51,7 @@ class IgnitionMathConan(ConanFile):
         self.tool_requires("ignition-cmake/2.17.1")
         self.tool_requires("doxygen/[>=1.8 <2]")
         if self.options.enable_swig:
-            self.tool_requires("swig/4.2.1")
+            self.tool_requires("swig/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -62,8 +60,6 @@ class IgnitionMathConan(ConanFile):
                         "${SWIG_USE_FILE}", "UseSWIG")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
         tc.cache_variables["SKIP_SWIG"] = not self.options.enable_swig
