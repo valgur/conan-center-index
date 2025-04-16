@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sysfs/libsysfs.h"
+#include <sysfs/libsysfs.h>
 
 int main(void) {
     char sysfs_mntpath[SYSFS_PATH_MAX];
