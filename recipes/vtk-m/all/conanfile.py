@@ -92,7 +92,7 @@ class VtkmConan(ConanFile):
             if self.options.with_rendering == "egl":
                 self.requires("egl/system")
             elif self.options.with_rendering == "osmesa":
-                self.requires("mesa-glu/9.0.3")
+                self.requires("glu/system")
 
     # Also contains a modified loguru (like VTK) and lodepng, which cannot be unvendored
     # Other vendored deps as of v2.2.0:
@@ -202,7 +202,7 @@ class VtkmConan(ConanFile):
             "MPI::MPI_CXX": "openmpi::ompi-cxx",
             "OpenGL::EGL": "egl::egl",
             "OpenGL::GL": "opengl::opengl",
-            "OpenGL::GLU": "mesa-glu::mesa-glu",
+            "OpenGL::GLU": "glu::glu",
             "OpenGL::GLX": "opengl::opengl",
             "OpenGL::OpenGL": "opengl::opengl",
             "OpenMP::OpenMP_CXX": "openmp::openmp",

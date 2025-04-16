@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -107,10 +106,7 @@ class G2oConan(ConanFile):
             # Used in stuff/opengl_wrapper.h
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
             self.requires("freeglut/3.4.0", transitive_headers=True, transitive_libs=True)
-            if is_apple_os(self) or self.settings.os == "Windows":
-                self.requires("glu/system")
-            else:
-                self.requires("mesa-glu/9.0.3")
+            self.requires("glu/system")
         if self.options.with_openmp:
             # Used in core/openmp_mutex.h, also '#pragma omp' is used in several core public headers
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)

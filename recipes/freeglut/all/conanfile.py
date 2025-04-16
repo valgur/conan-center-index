@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -91,11 +90,8 @@ class freeglutConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if is_apple_os(self) or self.settings.os == "Windows":
-            self.requires("glu/system")
-        else:
-            # FreeGLUT includes glu.h in freeglut_std.h.
-            self.requires("mesa-glu/9.0.3", transitive_headers=True)
+        # FreeGLUT includes glu.h in freeglut_std.h.
+        self.requires("glu/system", transitive_headers=True)
         if self._with_libglvnd:
             self.requires("libglvnd/1.7.0")
         else:
@@ -207,7 +203,4 @@ class freeglutConan(ConanFile):
             ])
         if self.options.get_safe("with_wayland"):
             self.cpp_info.requires.extend(["wayland::wayland-client", "wayland::wayland-cursor", "wayland::wayland-egl", "xkbcommon::xkbcommon"])
-        if is_apple_os(self) or self.settings.os == "Windows":
-            self.cpp_info.requires.append("glu::glu")
-        else:
-            self.cpp_info.requires.append("mesa-glu::mesa-glu")
+        self.cpp_info.requires.append("glu::glu")

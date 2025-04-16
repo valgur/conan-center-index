@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -222,7 +221,7 @@ class PclConan(ConanFile):
             "libusb": ["libusb::libusb"],
             "metslib": [],
             "opencv": ["opencv::opencv"],
-            "opengl": ["opengl::opengl", "freeglut::freeglut", "glew::glew", "glu::glu" if is_apple_os(self) or self.settings.os == "Windows" else "mesa-glu::mesa-glu"],
+            "opengl": ["opengl::opengl", "freeglut::freeglut", "glew::glew", "glu::glu"],
             "openmp": ["openmp::openmp"],
             "openni": [],
             "openni2": [],
@@ -379,10 +378,7 @@ class PclConan(ConanFile):
             self.requires("opengl/system", transitive_headers=True)
             self.requires("freeglut/3.4.0", transitive_headers=True)
             self.requires("glew/2.2.0", transitive_headers=True)
-            if is_apple_os(self) or self.settings.os == "Windows":
-                self.requires("glu/system", transitive_headers=True)
-            else:
-                self.requires("mesa-glu/9.0.3", transitive_headers=True)
+            self.requires("glu/system", transitive_headers=True)
         if self._is_enabled("opencv"):
             self.requires("opencv/4.11.0", transitive_headers=True)
         if self._is_enabled("zlib"):

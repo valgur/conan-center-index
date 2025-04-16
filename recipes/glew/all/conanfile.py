@@ -1,8 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import *
 
@@ -22,14 +20,12 @@ class GlewConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_egl": [True, False],
-        "with_glu": ["mesa-glu", "system"],
         "with_xorg": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_egl": False,
-        "with_glu": "mesa-glu",
         "with_xorg": True,
     }
 
@@ -40,8 +36,6 @@ class GlewConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
             del self.options.with_egl
-        if is_apple_os(self) or self.settings.os == "Windows":
-            self.options.with_glu = "system"
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_xorg
 
@@ -57,16 +51,9 @@ class GlewConan(ConanFile):
     def requirements(self):
         self.requires("opengl/system")
         # GL/glew.h includes glu.h.
-        if self.options.with_glu == "mesa-glu":
-            self.requires("mesa-glu/9.0.3", transitive_headers=True)
-        else:
-            self.requires("glu/system", transitive_headers=True)
+        self.requires("glu/system", transitive_headers=True)
         if self.options.get_safe("with_xorg"):
             self.requires("xorg/system")
-
-    def validate(self):
-        if self.options.with_glu == "mesa-glu" and (is_apple_os(self) or self.settings.os == "Windows"):
-            raise ConanInvalidConfiguration("mesa-glu is only supported on Linux.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -116,10 +103,7 @@ class GlewConan(ConanFile):
             self.cpp_info.components["glewlib"].defines.append("GLEW_STATIC")
         self.cpp_info.components["glewlib"].requires = ["opengl::opengl"]
 
-        if self.options.with_glu == "mesa-glu":
-            self.cpp_info.components["glewlib"].requires.append("mesa-glu::mesa-glu")
-        else:
-            self.cpp_info.components["glewlib"].requires.append("glu::glu")
+        self.cpp_info.components["glewlib"].requires.append("glu::glu")
 
         if self.options.get_safe("with_xorg"):
             self.cpp_info.components["glewlib"].requires.append("xorg::x11")
