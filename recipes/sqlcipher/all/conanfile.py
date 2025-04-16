@@ -11,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, NMakeToolchain, NMakeDeps
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class SqlcipherConan(ConanFile):
@@ -161,9 +161,13 @@ class SqlcipherConan(ConanFile):
             tc.configure_args.append("--with-crypto-lib=commoncrypto")
         else:
             tc.extra_defines.append("SQLCIPHER_CRYPTO_OPENSSL")
+
         if cross_building(self):
             build_cc = tc.vars().get("CC_FOR_BUILD", "cc")
             tc.configure_args.append(f"BUILD_CC={build_cc}")
+
+        if self.options.enable_column_metadata:
+            tc.extra_defines.append("SQLITE_ENABLE_COLUMN_METADATA=1")
         tc.generate()
 
         deps = AutotoolsDeps(self)
