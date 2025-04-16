@@ -6,7 +6,6 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
