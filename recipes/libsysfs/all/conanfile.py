@@ -61,7 +61,7 @@ class LibsysfsConan(ConanFile):
         with chdir(self, os.path.join(self.build_folder, "lib")):
             autotools.install()
         copy(self, "*.h",
-             os.path.join(self.source_folder, "include"),
+             os.path.join(self.build_folder, "include"),
              os.path.join(self.package_folder, "include", "sysfs"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
