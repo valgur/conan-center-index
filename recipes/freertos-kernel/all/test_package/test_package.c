@@ -1,8 +1,8 @@
-#include <stdint.h>
+#include <FreeRTOS.h>
 
 #include <semphr.h>
 
-#include <FreeRTOS.h>
+#include <stdint.h>
 
 volatile uint32_t task_status_ticks = 0;
 

@@ -24,7 +24,7 @@ index 6fd1ff56b..9f06a088d 100644
 +  TARGET freertos_config
 +  APPEND
 +  PROPERTY PUBLIC_HEADER
-+           FreeRTOSConfig.h
++           include/FreeRTOSConfig.h
 +)
 +
 +target_compile_definitions(freertos_config INTERFACE projCOVERAGE_TEST=0)
