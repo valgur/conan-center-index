@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-15:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-16:
 
 - aeron/1.43.0
 - apr-util/1.6.3
@@ -27,12 +27,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - boost/1.71.0
 - boost/1.74.0
 - capnproto/1.0.1.1
+- cargo-c/0.10.12
 - cargo-c/0.10.8
 - casadi/3.6.6
 - cgns/4.4.0
 - cilantro/cci.20230816
 - cimg/3.3.5
-- cmake/4.0.0
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -54,6 +54,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dawn/cci.20240726
 - diligent-core/2.5.6
 - dpdk/24.07
+- elfutils/0.191
+- elfutils/0.192
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
@@ -68,8 +70,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gfortran/13.2.0
 - gici/cci.20250127
 - gl2ps/1.4.2
+- glib/2.78.6
 - glib/2.81.2
 - glib/2.82.4
+- glib/2.84.1
 - glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
@@ -85,13 +89,20 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gobject-introspection/1.82.0
 - gpu.cpp/0.1.0
 - gst-libav/1.24.12
+- gst-libav/1.26.0
 - gst-orc/0.4.40
+- gst-orc/0.4.41
 - gst-plugins-bad/1.24.12
+- gst-plugins-bad/1.26.0
 - gst-plugins-base/1.24.12
+- gst-plugins-base/1.26.0
 - gst-plugins-good/1.24.12
-- gst-plugins-rs/0.14.0-alpha.1
+- gst-plugins-good/1.26.0
+- gst-plugins-rs/1.26.0
 - gst-plugins-ugly/1.24.12
+- gst-plugins-ugly/1.26.0
 - gstreamer/1.24.12
+- gstreamer/1.26.0
 - gtk/3.24.43
 - gtk/4.15.6
 - gtkmm/3.24.9
@@ -128,6 +139,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libhdfs3/cci.20191105
 - libice/1.1.1
 - libmediainfo/23.11
+- libmount/2.41
 - libmysqlclient/8.2.0
 - libosmium/2.20.0
 - libpq/17.0
@@ -146,6 +158,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libtorch/2.4.0
 - libudev/255.13
 - libv4l/1.28.1
+- libva/2.22.0
 - libx11/1.8.10
 - libxau/1.0.11
 - libxaw/1.0.16
@@ -168,6 +181,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libxtst/1.2.5
 - libxv/1.0.12
 - libxxf86vm/1.1.5
+- linux-headers-generic/5.19.17
+- linux-headers-generic/6.14.2
 - linux-pam/1.6.1
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
@@ -184,6 +199,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - nanobind/2.4.0
 - nanopb/0.4.9.1
 - netpbm/11.6.0
+- nlohmann_json/3.12.0
 - nss/3.107
 - numpy/1.26.4
 - odbc/2.3.12
@@ -269,6 +285,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tz/2024b
 - usearch/2.9.1
 - util-linux-libuuid/2.39.3
+- util-linux-libuuid/2.41
 - vc/1.4.5
 - vilib/cci.20210625
 - vk-bootstrap/1.3.268
