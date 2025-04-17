@@ -120,12 +120,7 @@ class CPythonConan(ConanFile):
         if self.settings.os != "Windows":
             if not is_apple_os(self):
                 self.requires("util-linux-libuuid/2.41")
-            # In <3.9 and lower patch versions of 3.9/10/11, crypt.h was exposed in Python.h
-            # This was removed in 3.11 and backported: https://github.com/python/cpython/issues/88914
-            # For the sake of this recipe, we only have later patch versions, so this version check
-            # may be slightly inaccurate if a lower patch version is desired.
-            transitive_crypt = Version(self.version) < "3.9"
-            self.requires("libxcrypt/4.4.36", transitive_headers=transitive_crypt, transitive_libs=transitive_crypt)
+            self.requires("libxcrypt/4.4.36")
         if self.options.get_safe("with_bz2"):
             self.requires("bzip2/1.0.8")
         if self.options.get_safe("with_gdbm", False):
@@ -176,9 +171,8 @@ class CPythonConan(ConanFile):
             raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
 
         if self._supports_modules:
-            if Version(self.version) >= "3.9.0":
-                if self.dependencies["mpdecimal"].ref.version < Version("2.5.0"):
-                    raise ConanInvalidConfiguration("cpython 3.9.0 (and newer) requires (at least) mpdecimal 2.5.0")
+            if self.dependencies["mpdecimal"].ref.version < Version("2.5.0"):
+                raise ConanInvalidConfiguration("cpython requires (at least) mpdecimal 2.5.0")
 
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version).major == 9 and Version(self.version) >= "3.12":
             raise ConanInvalidConfiguration("FIXME: GCC 9 produces an internal compiler error locally, and a link error in CCI")
@@ -287,8 +281,8 @@ class CPythonConan(ConanFile):
             tinfo = self.dependencies["ncurses"].cpp_info.components["tinfo"]
             libs = libcurses.libs + libcurses.system_libs + tinfo.libs + tinfo.system_libs
             replace_in_file(self, setup_py,
-                "curses_libs = ",
-                "curses_libs = {} #".format(repr(libs)))
+                            "curses_libs = ",
+                            f"curses_libs = {repr(libs)} #")
 
         if self._supports_modules:
             openssl = self.dependencies["openssl"].cpp_info.aggregated_components()
@@ -361,12 +355,11 @@ class CPythonConan(ConanFile):
         # Remove vendored expat
         self._regex_replace_in_file(self._msvc_project_path("_elementtree"), r'.*Include=\"\.\.\\Modules\\expat\\.*" />', "")
 
-        if Version(self.version) >= "3.9":
-            # deflate.c has warning 4244 disabled, need special patching else it breaks the regex below
-            # Add an extra space to avoid being picked up by the regex
-            replace_in_file(self, self._msvc_project_path("pythoncore"),
-                            r'<ClCompile Include="$(zlibDir)\deflate.c">',
-                            r'<ClCompile Include= "$(zlibDir)\deflate.c" Condition="False">')
+        # deflate.c has warning 4244 disabled, need special patching else it breaks the regex below
+        # Add an extra space to avoid being picked up by the regex
+        replace_in_file(self, self._msvc_project_path("pythoncore"),
+                        r'<ClCompile Include="$(zlibDir)\deflate.c">',
+                        r'<ClCompile Include= "$(zlibDir)\deflate.c" Condition="False">')
         # Don't use vendored zlib
         self._regex_replace_in_file(self._msvc_project_path("pythoncore"), r'.*Include=\"\$\(zlibDir\).*', "")
 
