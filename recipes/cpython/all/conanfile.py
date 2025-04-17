@@ -276,13 +276,17 @@ class CPythonConan(ConanFile):
         if Version(self.version) < "3.10":
             replace_in_file(self, setup_py, ":libmpdec.so.2", "mpdec")
 
-        if self.options.get_safe("with_curses", False):
+        if self.options.get_safe("with_curses"):
             libcurses = self.dependencies["ncurses"].cpp_info.components["libcurses"]
             tinfo = self.dependencies["ncurses"].cpp_info.components["tinfo"]
             libs = libcurses.libs + libcurses.system_libs + tinfo.libs + tinfo.system_libs
             replace_in_file(self, setup_py,
                             "curses_libs = ",
                             f"curses_libs = {repr(libs)} #")
+        else:
+            replace_in_file(self, setup_py,
+                            "curses_libs = ",
+                            "curses_libs = [] #")
 
         if self._supports_modules:
             openssl = self.dependencies["openssl"].cpp_info.aggregated_components()
