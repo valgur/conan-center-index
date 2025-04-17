@@ -75,14 +75,6 @@ class WaylandConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
 
-        deps = PkgConfigDeps(self)
-        if not can_run(self):
-            deps.build_context_activated.append("wayland")
-        elif self.dependencies["expat"].is_build_context:  # wayland is being built as build_require
-            # If wayland is the build_require, all its dependencies are treated as build_requires
-            deps.build_context_activated.extend(dep.ref.name for _, dep in self.dependencies.host.items())
-        deps.generate()
-
         tc = MesonToolchain(self)
         tc.project_options["libdir"] = "lib"
         tc.project_options["datadir"] = "res"
@@ -93,11 +85,20 @@ class WaylandConan(ConanFile):
             tc.project_options["scanner"] = True
         tc.generate()
 
+        deps = PkgConfigDeps(self)
+        if not can_run(self):
+            deps.build_context_activated.append("wayland")
+            deps.build_context_folder = os.path.join(self.generators_folder, "build")
+        elif self.dependencies["expat"].is_build_context:  # wayland is being built as build_require
+            # If wayland is the build_require, all its dependencies are treated as build_requires
+            deps.build_context_activated.extend(dep.ref.name for _, dep in self.dependencies.host.items())
+        deps.generate()
+
         if cross_building(self):
             # required for dependency(..., native: true) in meson.build
             env = Environment()
             env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
+            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
             env.vars(self).save_script("pkg_config_for_build_env.sh")
 
     def _patch_sources(self):
