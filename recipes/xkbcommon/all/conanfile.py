@@ -89,6 +89,10 @@ class XkbcommonConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Patch the build system to use the pkg-config files generated for the build context.
+        replace_in_file(self, "meson.build",
+                        "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
+                        "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native: true)")
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -105,7 +109,8 @@ class XkbcommonConan(ConanFile):
 
         pkg_config_deps = PkgConfigDeps(self)
         if self.options.get_safe("with_wayland"):
-            pkg_config_deps.build_context_activated = ["wayland", "wayland-protocols"]
+            pkg_config_deps.build_context_activated.append("wayland")
+            pkg_config_deps.build_context_activated.append("wayland-protocols")
             pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
         pkg_config_deps.generate()
 
@@ -113,21 +118,9 @@ class XkbcommonConan(ConanFile):
         env = Environment()
         env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
         env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
-        env.vars(self).save_script("pkg_config_for_build_env.sh")
-
-    def _patch_sources(self):
-        if self.options.get_safe("with_wayland"):
-            # Patch the build system to use the pkg-config files generated for the build context.
-            meson_build_file = os.path.join(self.source_folder, "meson.build")
-            replace_in_file(
-                self,
-                meson_build_file,
-                "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
-                "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native: true)",
-            )
+        env.vars(self).save_script("pkg_config_for_build_env")
 
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
