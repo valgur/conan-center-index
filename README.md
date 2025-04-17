@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-16:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-17:
 
 - aeron/1.43.0
 - apr-util/1.6.3
@@ -64,6 +64,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - firebird/5.0.0
 - fortran/cci.latest
 - freeglut/3.6.0
+- freertos-kernel/11.1.0
 - g2o/20230806
 - gdal/3.10.0
 - gdalcpp/1.3.0
@@ -130,6 +131,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libbpf/1.4.6
 - libbsd/0.12.2
 - libcaca/0.99.beta20
+- libcmaes/0.10.0
 - libcroco/0.6.13
 - libcudacxx/2.7.0
 - libecwj2/3.3
@@ -152,6 +154,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libsolv/0.7.29
 - libsoup/3.6.1
 - libstudxml/1.1.0
+- libsysfs/2.1.1
 - libtasn1/4.19.0
 - libtomcrypt/1.18.2
 - libtommath/1.3.0
@@ -198,6 +201,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mrcal/2.4.1
 - nanobind/2.4.0
 - nanopb/0.4.9.1
+- ncbi-cxx-toolkit/29.0.0
 - netpbm/11.6.0
 - nlohmann_json/3.12.0
 - nss/3.107
@@ -279,6 +283,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/5.8.0
 - sundials/6.7.0
 - sundials/7.1.1
+- swig/4.3.1
 - thrust/2.7.0
 - tk/8.6.13
 - tpl/cci.20210302
