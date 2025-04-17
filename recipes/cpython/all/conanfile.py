@@ -133,7 +133,7 @@ class CPythonConan(ConanFile):
         if self.options.get_safe("with_sqlite3"):
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_tkinter"):
-            self.requires("tk/8.6.10")
+            self.requires("tk/8.6.16")
         if self.options.get_safe("with_curses", False):
             # Used in a public header
             # https://github.com/python/cpython/blob/v3.10.13/Include/py_curses.h#L34

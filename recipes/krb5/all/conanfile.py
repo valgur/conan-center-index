@@ -103,7 +103,7 @@ class Krb5Conan(ConanFile):
         if self.options.with_tls == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_tcl"):
-            self.requires("tcl/8.6.11")
+            self.requires("tcl/8.6.16")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
