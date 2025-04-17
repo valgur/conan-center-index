@@ -74,7 +74,7 @@ class LinuxPamConan(ConanFile):
         if self.options.with_selinux:
             self.requires("libselinux/3.6")
         if self.options.with_systemd:
-            self.requires("libsystemd/255.10")
+            self.requires("libsystemd/255.18")
 
     def validate(self):
         if is_apple_os(self) or self.settings.os == "Windows":

@@ -74,7 +74,7 @@ class SdbusCppConan(ConanFile):
 
     def requirements(self):
         if self._with_sdbus == "systemd":
-            self.requires("libsystemd/255.10")
+            self.requires("libsystemd/255.18")
         elif self._with_sdbus == "basu":
             self.requires("basu/0.2.1")
         if self.options.with_code_gen:

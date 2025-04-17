@@ -113,7 +113,7 @@ class GrpcConan(ConanFile):
         self.requires("re2/20230301")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.get_safe("with_libsystemd"):
-            self.requires("libsystemd/255.10")
+            self.requires("libsystemd/255.18")
         if self.options.get_safe("otel_plugin"):
             self.requires("opentelemetry-cpp/1.14.2")
 

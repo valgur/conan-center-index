@@ -55,7 +55,7 @@ class HidapiConan(ConanFile):
             self.requires("libusb/1.0.26")
             self.requires("libiconv/1.17")
         if self.settings.os == "Linux" and self.options.build_hidapi_hidraw:
-            self.requires("libudev/255.13")
+            self.requires("libudev/255.18")
 
     def validate(self):
         if self.settings.os in ["Linux", "FreeBSD"]:

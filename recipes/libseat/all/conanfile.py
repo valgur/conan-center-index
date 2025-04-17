@@ -53,7 +53,7 @@ class LibseatConan(ConanFile):
 
     def requirements(self):
         if self.options.logind == "systemd":
-            self.requires("libsystemd/255.10")
+            self.requires("libsystemd/255.18")
 
     def validate(self):
         if not self.settings.os in ["FreeBSD", "Linux"]:
