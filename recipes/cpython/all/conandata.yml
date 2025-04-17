@@ -1,4 +1,7 @@
 sources:
+  "3.12.10":
+    url: "https://www.python.org/ftp/python/3.12.10/Python-3.12.10.tgz"
+    sha256: "15d9c623abfd2165fe816ea1fb385d6ed8cf3c664661ab357f1782e3036a6dac"
   "3.12.7":
     url: "https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tgz"
     sha256: "73ac8fe780227bf371add8373c3079f42a0dc62deff8d612cd15a618082ab623"
@@ -15,6 +18,22 @@ sources:
     url: "https://www.python.org/ftp/python/3.9.19/Python-3.9.19.tgz"
     sha256: "f5f9ec8088abca9e399c3b62fd8ef31dbd2e1472c0ccb35070d4d136821aaf71"
 patches:
+  "3.12.10":
+    - patch_file: "patches/3.9/3.9.7-0002-_msi-vcxproj.patch"
+      patch_description: "Fix ARM/ARM64 mismatch in project file"
+      patch_type: "bugfix"
+    - patch_file: "patches/3.12/3.12.1-0001-_ctypes-ffi.patch"
+      patch_description: "Support shared libffi"
+      patch_type: "portability"
+    - patch_file: "patches/3.x-0001-relocatable-python-config.patch"
+      patch_description: "Allow package to be relocatable"
+      patch_type: "conan"
+    - patch_file: "patches/3.12/3.12.1-0002-remove-module-deps.patch"
+      patch_description: "Remove section of solution file forcing projects to be built that might not be used for this recipe"
+      patch_type: "conan"
+    - patch_file: "patches/3.12/3.12.2-0003-disable-nis.patch"
+      patch_description: "Avoid libnsl dependency, which is missing from newer glibc versions"
+      patch_type: "conan"
   "3.12.7":
     - patch_file: "patches/3.9/3.9.7-0002-_msi-vcxproj.patch"
       patch_description: "Fix ARM/ARM64 mismatch in project file"
