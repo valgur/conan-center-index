@@ -51,10 +51,10 @@ class CPythonConan(ConanFile):
         "docstrings": True,
         "pymalloc": True,
         "with_bz2": True,
-        "with_gdbm": True,
+        "with_gdbm": False,
         "with_sqlite3": True,
-        "with_tkinter": True,
-        "with_curses": True,
+        "with_tkinter": False,
+        "with_curses": False,
         "with_lzma": True,
 
         # options that don't change package id
