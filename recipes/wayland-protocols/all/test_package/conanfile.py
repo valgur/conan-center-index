@@ -1,9 +1,11 @@
+import os
+
 from conan import ConanFile
-from conan.tools.build import can_run
+from conan.tools.build import can_run, cross_building
+from conan.tools.env import Environment
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-import os
 
 
 class TestPackageConan(ConanFile):
@@ -17,19 +19,26 @@ class TestPackageConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("wayland/1.22.0")
+        self.tool_requires("wayland/<host_version>")
 
     def layout(self):
         basic_layout(self)
 
     def generate(self):
         tc = MesonToolchain(self)
-        tc.project_options["build.pkg_config_path"] = self.generators_folder
         tc.generate()
-        pkg_config_deps = PkgConfigDeps(self)
-        pkg_config_deps.build_context_activated = ["wayland"]
-        pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
-        pkg_config_deps.generate()
+
+        deps = PkgConfigDeps(self)
+        deps.build_context_activated.append("wayland")
+        deps.build_context_folder = os.path.join(self.generators_folder, "build")
+        deps.generate()
+
+        if cross_building(self):
+            # required for dependency(..., native: true) in meson.build
+            env = Environment()
+            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
+            env.vars(self).save_script("pkg_config_for_build_env")
 
     def build(self):
         meson = Meson(self)
