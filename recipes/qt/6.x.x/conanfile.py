@@ -45,8 +45,11 @@ class QtConan(ConanFile):
         "with_icu": [True, False],
         "with_harfbuzz": [True, False],
         "with_libb2": [True, False],
+        "with_jasper": [True, False],
         "with_libjpeg": ["libjpeg", "libjpeg-turbo", False],
         "with_libpng": [True, False],
+        "with_libtiff": [True, False],
+        "with_libwebp": [True, False],
         "with_sqlite3": [True, False],
         "with_mysql": [True, False],
         "with_pq": [True, False],
@@ -86,8 +89,11 @@ class QtConan(ConanFile):
         "with_icu": True,
         "with_harfbuzz": True,
         "with_libb2": False,
+        "with_jasper": True,
         "with_libjpeg": "libjpeg",
         "with_libpng": True,
+        "with_libtiff": True,
+        "with_libwebp": True,
         "with_sqlite3": True,
         "with_mysql": False,
         "with_pq": False,
@@ -311,6 +317,11 @@ class QtConan(ConanFile):
                 if not "gnu" in str(self.settings.compiler.cppstd):
                     self.settings.compiler.cppstd = f"gnu{self.settings.compiler.cppstd}"
 
+        if not self.options.qtimageformats:
+            del self.options.with_jasper
+            del self.options.with_libtiff
+            del self.options.with_libwebp
+
     def validate_build(self):
         if self.options.get_safe("qtquickeffectmaker"):
             # https://github.com/qt/qtquickeffectmaker/blob/v6.8.1/CMakeLists.txt#L53
@@ -483,6 +494,17 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_md4c"):
             self.requires("md4c/0.4.8")
 
+        # https://github.com/qt/qtimageformats/blob/v6.8.3/src/imageformats/configure.cmake
+        if self.options.qtimageformats:
+            if self.options.with_jasper:
+                self.requires("jasper/[^4.2]")
+            if self.options.with_libwebp:
+                self.requires("libwebp/[^1.3]")
+            if self.options.with_libtiff:
+                self.requires("libtiff/[^4.5]")
+            # if self.options.with_libmng:
+            #     self.requires("libmng/[^x.x]")
+
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.21.1 <4]")
         self.tool_requires("ninja/[>=1.12 <2]")
@@ -652,8 +674,12 @@ class QtConan(ConanFile):
             ("with_gstreamer", "gstreamer"),
             ("with_harfbuzz", "harfbuzz"),
             ("with_icu", "icu"),
+            ("with_jasper", "jasper"),
             ("with_libjpeg", "jpeg"),
+            ("with_libmng", "mng"),
             ("with_libpng", "png"),
+            ("with_libtiff", "tiff"),
+            ("with_libwebp", "webp"),
             ("with_mysql", "sql_mysql"),
             ("with_odbc", "sql_odbc"),
             ("with_pcre2", "pcre2"),
@@ -674,8 +700,12 @@ class QtConan(ConanFile):
             ("with_freetype", "freetype"),
             ("with_harfbuzz", "harfbuzz"),
             ("with_libb2", "libb2"),
+            ("with_jasper", "jasper"),
             ("with_libjpeg", "libjpeg"),
+            ("with_libmng", "mng"),
             ("with_libpng", "libpng"),
+            ("with_libtiff", "tiff"),
+            ("with_libwebp", "webp"),
             ("with_md4c", "libmd4c"),
             ("with_pcre2", "pcre"),
         ]:
@@ -1435,15 +1465,25 @@ class QtConan(ConanFile):
                 _create_module("3DQuickRender", ["3DCore", "3DQuick", "3DRender", "Gui", "Qml"])
                 _create_module("3DQuickScene2D", ["3DCore", "3DQuick", "3DRender", "Gui", "Qml"])
         if self.options.get_safe("qtimageformats"):
-            _create_plugin("ICNSPlugin", "qicns", "imageformats", ["Gui"])
-            _create_plugin("QJp2Plugin", "qjp2", "imageformats", ["Gui"])
-            _create_plugin("QMacHeifPlugin", "qmacheif", "imageformats", ["Gui"])
-            _create_plugin("QMacJp2Plugin", "qmacjp2", "imageformats", ["Gui"])
-            _create_plugin("QMngPlugin", "qmng", "imageformats", ["Gui"])
+            # https://github.com/qt/qtimageformats/blob/v6.8.3/src/plugins/imageformats/CMakeLists.txt
             _create_plugin("QTgaPlugin", "qtga", "imageformats", ["Gui"])
-            _create_plugin("QTiffPlugin", "qtiff", "imageformats", ["Gui"])
             _create_plugin("QWbmpPlugin", "qwbmp", "imageformats", ["Gui"])
-            _create_plugin("QWebpPlugin", "qwebp", "imageformats", ["Gui"])
+            if is_apple_os(self):
+                mac_heif_plugin = _create_plugin("QMacHeifPlugin", "qmacheif", "imageformats", ["Gui"])
+                mac_heif_plugin.frameworks = ["CoreFoundation", "CoreGraphics", "ImageIO"]
+            if self.options.with_pcre2:
+                _create_plugin("ICNSPlugin", "qicns", "imageformats", ["Gui"])
+            if self.options.with_jasper:
+                _create_plugin("QJp2Plugin", "qjp2", "imageformats", ["Gui", "jasper::jasper"])
+            elif is_apple_os(self):
+                mac_jp2_plugin = _create_plugin("QMacJp2Plugin", "qmacjp2", "imageformats", ["Gui"])
+                mac_jp2_plugin.frameworks = ["CoreFoundation", "CoreGraphics", "ImageIO"]
+            if self.options.get_safe("with_libmng"):
+                _create_plugin("QMngPlugin", "qmng", "imageformats", ["Gui", "libmng::libmng"])
+            if self.options.with_libtiff:
+                _create_plugin("QTiffPlugin", "qtiff", "imageformats", ["Gui", "libtiff::libtiff"])
+            if self.options.with_libwebp:
+                _create_plugin("QWebpPlugin", "qwebp", "imageformats", ["Gui", "libwebp::libwebp"])
         if self.options.get_safe("qtnetworkauth"):
             _create_module("NetworkAuth", ["Network"])
         if self.options.get_safe("qtcoap"):
