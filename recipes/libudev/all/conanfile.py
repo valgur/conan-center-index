@@ -1,16 +1,16 @@
 import os
 import tarfile
+import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibUdevConan(ConanFile):
@@ -22,10 +22,7 @@ class LibUdevConan(ConanFile):
     license = "GPL-2.0-or-later AND LGPL-2.1-or-later"
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -42,9 +39,6 @@ class LibUdevConan(ConanFile):
 
     def requirements(self):
         self.requires("libcap/2.69")
-        # These are not actually linked into the final library.
-        self.requires("libmount/2.41", libs=False)
-        self.requires("libxcrypt/4.4.36", libs=False)
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -70,11 +64,11 @@ class LibUdevConan(ConanFile):
             tar.extractall()
         move_folder_contents(self, os.path.join(self.source_folder, f"systemd-stable-{self.version}"), self.source_folder)
         apply_conandata_patches(self)
+        # These shared files are only used to build systemd, tools or tests and need libmount or libcrypt.
+        for src_file in ["bus-unit-util.c", "libmount-util.c", "mount-util.c", "libcrypt-util.c"]:
+            replace_in_file(self, os.path.join("src", "shared", "meson.build"), f"'{src_file}',", "")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = MesonToolchain(self)
         tc.project_options["tests"] = "false"
         tc.project_options["selinux"] = "false"
@@ -112,6 +106,17 @@ class LibUdevConan(ConanFile):
 
         deps = PkgConfigDeps(self)
         deps.generate()
+
+        # Create dummy .pc files for dependencies that are not really required to build libudev.
+        for pkg, version in [
+            ("libxcrypt", "4.4.36"),
+            ("mount", "2.41"),
+        ]:
+            save(self, f"{pkg}.pc", textwrap.dedent(f"""\
+                Name: {pkg}
+                Description:
+                Version: {version}
+            """))
 
     def build(self):
         meson = Meson(self)
