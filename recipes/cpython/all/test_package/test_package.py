@@ -17,7 +17,7 @@ def add_test(fn):
     name = fn.__name__[fn.__name__.find("_") + 1 :]
 
     def inner_fn():
-        print("testing {}".format(name))
+        print(f"testing {name}")
         sys.stdout.flush()
         fn()
 
@@ -87,7 +87,7 @@ def test_spam():
         raise Exception("spam.__doc__ does not contain the expected text")
 
     cmd = {"Windows": "dir"}.get(platform.system(), "ls")
-    print('About to run spam.system("{}")'.format(cmd))
+    print(f'About to run spam.system("{cmd}")')
     sys.stdout.flush()
 
     spam.system(cmd)
@@ -162,7 +162,7 @@ def test_decimal():
 def test_curses():
     import _curses
 
-    print("Using _curses version {}".format(_curses.version))
+    print(f"Using _curses version {_curses.version}")
 
 
 @add_test
@@ -170,15 +170,15 @@ def test_ctypes():
     import _ctypes
 
     errno = _ctypes.get_errno()
-    print("errno={}".format(errno))
+    print(f"errno={errno}")
 
 
 @add_test
 def test_tkinter():
     import _tkinter
 
-    print("tcl version: {}".format(_tkinter.TCL_VERSION))
-    print("tk version: {}".format(_tkinter.TK_VERSION))
+    print(f"tcl version: {_tkinter.TCL_VERSION}")
+    print(f"tk version: {_tkinter.TK_VERSION}")
 
 
 @add_test
@@ -186,7 +186,7 @@ def test_ssl():
     import ssl
 
     default_context = ssl.create_default_context()
-    print("default_context.options={}".format(default_context.options))
+    print(f"default_context.options={default_context.options}")
 
 
 def main():
