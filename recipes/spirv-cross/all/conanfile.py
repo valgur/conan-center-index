@@ -122,23 +122,39 @@ class SpirvCrossConan(ConanFile):
             ]:
                 rm(self, f"*{static_lib}.*", os.path.join(self.package_folder, "lib"))
 
-    @property
-    def _spirv_cross_components(self):
-        components = {}
+    def package_info(self):
+        # FIXME: we should provide one CMake config file per target (waiting for an implementation of https://github.com/conan-io/conan/issues/9000)
+        def _add_component(target_lib, requires=None):
+            component = self.cpp_info.components[target_lib]
+            component.set_property("cmake_target_name", target_lib)
+            if self.options.shared:
+                component.set_property("pkg_config_name", target_lib)
+            prefix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+            component.libs = [f"{target_lib}{prefix}"]
+            component.includedirs.append(os.path.join("include", "spirv_cross"))
+            component.defines.append(f"SPIRV_CROSS_NAMESPACE_OVERRIDE={self.options.namespace}")
+            component.requires = requires or []
+            if self.settings.os in ["Linux", "FreeBSD"] and self.options.glsl:
+                component.system_libs.append("m")
+            if not self.options.shared and self.options.c_api:
+                libcxx = stdcpp_library(self)
+                if libcxx:
+                    component.system_libs.append(libcxx)
+
         if self.options.shared:
-            components.update({"spirv-cross-c-shared": []})
+            _add_component("spirv-cross-c-shared")
         else:
-            components.update({"spirv-cross-core": []})
+            _add_component("spirv-cross-core")
             if self.options.glsl:
-                components.update({"spirv-cross-glsl": ["spirv-cross-core"]})
+                _add_component("spirv-cross-glsl", requires=["spirv-cross-core"])
                 if self.options.hlsl:
-                    components.update({"spirv-cross-hlsl": ["spirv-cross-glsl"]})
+                    _add_component("spirv-cross-hlsl", requires=["spirv-cross-glsl"])
                 if self.options.msl:
-                    components.update({"spirv-cross-msl": ["spirv-cross-glsl"]})
+                    _add_component("spirv-cross-msl", requires=["spirv-cross-glsl"])
                 if self.options.cpp:
-                    components.update({"spirv-cross-cpp": ["spirv-cross-glsl"]})
+                    _add_component("spirv-cross-cpp", requires=["spirv-cross-glsl"])
                 if self.options.reflect:
-                    components.update({"spirv-cross-reflect": []})
+                    _add_component("spirv-cross-reflect")
             if self.options.c_api:
                 c_api_requires = []
                 if self.options.glsl:
@@ -151,28 +167,6 @@ class SpirvCrossConan(ConanFile):
                         c_api_requires.append("spirv-cross-cpp")
                     if self.options.reflect:
                         c_api_requires.append("spirv-cross-reflect")
-                components.update({"spirv-cross-c": c_api_requires})
+                _add_component("spirv-cross-c", requires=c_api_requires)
             if self.options.util:
-                components.update({"spirv-cross-util": ["spirv-cross-core"]})
-        return components
-
-    def package_info(self):
-        # FIXME: we should provide one CMake config file per target (waiting for an implementation of https://github.com/conan-io/conan/issues/9000)
-        def _register_component(target_lib, requires):
-            self.cpp_info.components[target_lib].set_property("cmake_target_name", target_lib)
-            if self.options.shared:
-                self.cpp_info.components[target_lib].set_property("pkg_config_name", target_lib)
-            prefix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
-            self.cpp_info.components[target_lib].libs = [f"{target_lib}{prefix}"]
-            self.cpp_info.components[target_lib].includedirs.append(os.path.join("include", "spirv_cross"))
-            self.cpp_info.components[target_lib].defines.append(f"SPIRV_CROSS_NAMESPACE_OVERRIDE={self.options.namespace}")
-            self.cpp_info.components[target_lib].requires = requires
-            if self.settings.os in ["Linux", "FreeBSD"] and self.options.glsl:
-                self.cpp_info.components[target_lib].system_libs.append("m")
-            if not self.options.shared and self.options.c_api:
-                libcxx = stdcpp_library(self)
-                if libcxx:
-                    self.cpp_info.components[target_lib].system_libs.append(libcxx)
-
-        for target_lib, requires in self._spirv_cross_components.items():
-            _register_component(target_lib, requires)
+                _add_component("spirv-cross-util", requires=["spirv-cross-core"])
