@@ -1,9 +1,7 @@
-import functools
 import os
 
-import yaml
 from conan import ConanFile
-from conan.errors import ConanException, ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -41,42 +39,14 @@ class MoltenVKConan(ConanFile):
         "tools": True,
     }
 
-    @property
-    def _dependencies_filename(self):
-        return f"dependencies-{self.version}.yml"
-
-    @property
-    @functools.lru_cache(1)
-    def _dependencies_versions(self):
-        dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)
-        if not os.path.isfile(dependencies_filepath):
-            raise ConanException(f"Cannot find {dependencies_filepath}")
-        cached_dependencies = yaml.safe_load(open(dependencies_filepath))
-        return cached_dependencies
-
-    @property
-    def _min_cppstd(self):
-        return 11 if Version(self.version) < "1.1.9" else 17
-
-    @property
-    def _has_hide_vulkan_symbols_option(self):
-        return Version(self.version) >= "1.1.7"
-
-    def export(self):
-        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
-
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
-
-    def config_options(self):
-        if not self._has_hide_vulkan_symbols_option:
-            del self.options.hide_vulkan_symbols
 
     def configure(self):
         if self.options.shared:
             del self.options.fPIC
-        elif self._has_hide_vulkan_symbols_option:
+        else:
             self.options.rm_safe("hide_vulkan_symbols")
 
     def layout(self):
@@ -84,19 +54,15 @@ class MoltenVKConan(ConanFile):
 
     def requirements(self):
         self.requires("cereal/1.3.2")
-        self.requires(self._require("glslang"))
-        self.requires(self._require("spirv-cross"))
-        self.requires(self._require("vulkan-headers"), transitive_headers=True)
+        vulkan_version = self.conan_data["vulkan_version"][self.version]
+        self.requires(f"glslang/{vulkan_version}")
+        self.requires(f"spirv-cross/{vulkan_version}")
+        self.requires(f"vulkan-headers/{vulkan_version}", transitive_headers=True)
         if self.options.with_spirv_tools:
-            self.requires(self._require("spirv-tools"))
-
-    def _require(self, recipe_name):
-        if recipe_name not in self._dependencies_versions:
-            raise ConanException(f"{recipe_name} is missing in {self._dependencies_filename}")
-        return f"{recipe_name}/{self._dependencies_versions[recipe_name]}"
+            self.requires(f"spirv-tools/{vulkan_version}")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 17)
         if self.settings.os not in ["Macos", "iOS", "tvOS"]:
             raise ConanInvalidConfiguration(f"{self.ref} only supported on MacOS, iOS and tvOS")
         if self.settings.compiler != "apple-clang":
@@ -117,7 +83,7 @@ class MoltenVKConan(ConanFile):
         tc.variables["MVK_VERSION"] = self.version
         tc.variables["MVK_WITH_SPIRV_TOOLS"] = self.options.with_spirv_tools
         tc.variables["MVK_BUILD_SHADERCONVERTER_TOOL"] = self.options.tools
-        if self._has_hide_vulkan_symbols_option and self.options.shared:
+        if self.options.shared:
             tc.variables["MVK_HIDE_VULKAN_SYMBOLS"] = self.options.hide_vulkan_symbols
         tc.generate()
         deps = CMakeDeps(self)
@@ -125,11 +91,11 @@ class MoltenVKConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

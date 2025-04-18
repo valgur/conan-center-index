@@ -9,13 +9,10 @@ endif()
 
 option(MVK_WITH_SPIRV_TOOLS "Build MoltenVK without the MVK_EXCLUDE_SPIRV_TOOLS build setting" ON)
 option(MVK_BUILD_SHADERCONVERTER_TOOL "Build MoltenVKShaderConverter" ON)
-if(MVK_VERSION VERSION_GREATER_EQUAL "1.1.7" AND BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
     option(MVK_HIDE_VULKAN_SYMBOLS "Hide Vulkan symbols" OFF)
 endif()
 
-set(MVK_COMMON_DIR ${MVK_SRC_DIR}/common)
-set(MVK_SC_DIR ${MVK_SRC_DIR}/MoltenVKShaderConverter)
-set(MVK_LIB_DIR ${MVK_SRC_DIR}/MoltenVK)
 set(MVK_INSTALL_TARGETS "")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
@@ -63,9 +60,9 @@ add_compile_options(
 )
 
 # MoltenVKCommon
-file(GLOB MVK_COMMON_SOURCES ${MVK_COMMON_DIR}/*.mm)
+file(GLOB MVK_COMMON_SOURCES common/*.mm)
 add_library(MoltenVKCommon OBJECT ${MVK_COMMON_SOURCES})
-target_include_directories(MoltenVKCommon PUBLIC ${MVK_COMMON_DIR})
+target_include_directories(MoltenVKCommon PUBLIC common)
 target_compile_definitions(MoltenVKCommon PRIVATE $<$<CONFIG:Debug>:DEBUG=1>)
 target_link_libraries(MoltenVKCommon PRIVATE ${FOUNDATION_FRAMEWORK})
 if(BUILD_SHARED_LIBS)
@@ -79,36 +76,13 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # MoltenVKShaderConverter
-if(MVK_VERSION VERSION_LESS "1.1.0")
-    file(GLOB MVK_SC_SOURCES
-        ${MVK_SC_DIR}/MoltenVKGLSLToSPIRVConverter/*.cpp
-        ${MVK_SC_DIR}/MoltenVKGLSLToSPIRVConverter/*.mm
-        ${MVK_SC_DIR}/MoltenVKSPIRVToMSLConverter/*.cpp
-        ${MVK_SC_DIR}/MoltenVKSPIRVToMSLConverter/*.mm
-    )
-else()
-    file(GLOB MVK_SC_SOURCES
-        ${MVK_SC_DIR}/MoltenVKShaderConverter/*.cpp
-        ${MVK_SC_DIR}/MoltenVKShaderConverter/*.mm
-    )
-endif()
-if(MVK_VERSION VERSION_LESS "1.1.4")
-    file(GLOB MVK_SC_COMMON_SOURCES ${MVK_SC_DIR}/common/*.cpp)
-    list(APPEND MVK_SC_SOURCES ${MVK_SC_COMMON_SOURCES})
-endif()
-add_library(MoltenVKShaderConverter OBJECT ${MVK_SC_SOURCES})
-if(MVK_VERSION VERSION_LESS "1.1.9")
-    target_compile_features(MoltenVKShaderConverter PUBLIC cxx_std_11)
-else()
-    target_compile_features(MoltenVKShaderConverter PUBLIC cxx_std_17)
-endif()
-target_include_directories(MoltenVKShaderConverter
-    PRIVATE
-        $<$<VERSION_LESS:${MVK_VERSION},1.1.0>:${MVK_SC_DIR}/MoltenVKSPIRVToMSLConverter>
-        $<$<VERSION_LESS:${MVK_VERSION},1.1.4>:${MVK_SC_DIR}/common>
-    INTERFACE
-        ${MVK_SC_DIR}
+file(GLOB MVK_SC_SOURCES
+    MoltenVKShaderConverter/MoltenVKShaderConverter/*.cpp
+    MoltenVKShaderConverter/MoltenVKShaderConverter/*.mm
 )
+add_library(MoltenVKShaderConverter OBJECT ${MVK_SC_SOURCES})
+target_compile_features(MoltenVKShaderConverter PUBLIC cxx_std_17)
+target_include_directories(MoltenVKShaderConverter INTERFACE MoltenVKShaderConverter)
 target_link_libraries(MoltenVKShaderConverter
     PRIVATE
         glslang::glslang
@@ -137,21 +111,14 @@ endif()
 # MoltenVKShaderConverterTool
 if(MVK_BUILD_SHADERCONVERTER_TOOL)
     file(GLOB MVK_SCT_SOURCES
-        ${MVK_SC_DIR}/MoltenVKShaderConverterTool/*.cpp
-        ${MVK_SC_DIR}/MoltenVKShaderConverterTool/*.mm
+        MoltenVKShaderConverter/MoltenVKShaderConverterTool/*.cpp
+        MoltenVKShaderConverter/MoltenVKShaderConverterTool/*.mm
     )
     add_executable(MoltenVKShaderConverterTool ${MVK_SCT_SOURCES})
-    if(MVK_VERSION VERSION_LESS "1.1.9")
-        target_compile_features(MoltenVKShaderConverterTool PUBLIC cxx_std_11)
-    else()
-        target_compile_features(MoltenVKShaderConverterTool PUBLIC cxx_std_17)
-    endif()
-    set_property(TARGET MoltenVKShaderConverterTool PROPERTY OUTPUT_NAME "MoltenVKShaderConverter")
+    target_compile_features(MoltenVKShaderConverterTool PUBLIC cxx_std_17)
+    set_property(TARGET MoltenVKShaderConverterTool PROPERTY OUTPUT_NAME MoltenVKShaderConverter)
     target_include_directories(MoltenVKShaderConverterTool PRIVATE
-        $<$<VERSION_LESS:${MVK_VERSION},1.1.0>:${MVK_SC_DIR}/MoltenVKGLSLToSPIRVConverter>
-        $<$<VERSION_LESS:${MVK_VERSION},1.1.0>:${MVK_SC_DIR}/MoltenVKSPIRVToMSLConverter>
-        $<$<VERSION_LESS:${MVK_VERSION},1.1.4>:${MVK_SC_DIR}/common>
-        $<$<VERSION_GREATER_EQUAL:${MVK_VERSION},1.1.0>:${MVK_SC_DIR}/MoltenVKShaderConverter>
+        MoltenVKShaderConverter/MoltenVKShaderConverter
     )
     target_link_libraries(MoltenVKShaderConverterTool PRIVATE
         MoltenVKCommon
@@ -164,24 +131,20 @@ endif()
 
 # MoltenVK
 file(GLOB_RECURSE MVK_SOURCES
-    ${MVK_LIB_DIR}/MoltenVK/*.m
-    ${MVK_LIB_DIR}/MoltenVK/*.mm
-    ${MVK_LIB_DIR}/MoltenVK/*.cpp
+    MoltenVK/MoltenVK/*.m
+    MoltenVK/MoltenVK/*.mm
+    MoltenVK/MoltenVK/*.cpp
 )
 add_library(MoltenVK ${MVK_SOURCES})
-if(MVK_VERSION VERSION_LESS "1.1.9")
-    target_compile_features(MoltenVK PUBLIC cxx_std_11)
-else()
-    target_compile_features(MoltenVK PUBLIC cxx_std_17)
-endif()
+target_compile_features(MoltenVK PUBLIC cxx_std_17)
 target_include_directories(MoltenVK PRIVATE
-    ${MVK_LIB_DIR}/MoltenVK/API
-    ${MVK_LIB_DIR}/MoltenVK/Commands
-    ${MVK_LIB_DIR}/MoltenVK/GPUObjects
-    ${MVK_LIB_DIR}/MoltenVK/Layers
-    ${MVK_LIB_DIR}/MoltenVK/OS
-    ${MVK_LIB_DIR}/MoltenVK/Utility
-    ${MVK_LIB_DIR}/MoltenVK/Vulkan
+    MoltenVK/MoltenVK/API
+    MoltenVK/MoltenVK/Commands
+    MoltenVK/MoltenVK/GPUObjects
+    MoltenVK/MoltenVK/Layers
+    MoltenVK/MoltenVK/OS
+    MoltenVK/MoltenVK/Utility
+    MoltenVK/MoltenVK/Vulkan
 )
 target_link_libraries(MoltenVK
     PRIVATE
@@ -207,7 +170,7 @@ if(BUILD_SHARED_LIBS)
         OBJCXX_VISIBILITY_PRESET hidden
         VISIBILITY_INLINES_HIDDEN ON
     )
-    if(MVK_VERSION VERSION_GREATER_EQUAL "1.1.7" AND MVK_HIDE_VULKAN_SYMBOLS)
+    if(MVK_HIDE_VULKAN_SYMBOLS)
         target_compile_definitions(MoltenVK PRIVATE MVK_HIDE_VULKAN_SYMBOLS)
     endif()
 endif()
@@ -219,15 +182,10 @@ list(APPEND MVK_INSTALL_TARGETS MoltenVK)
 #  - if moltenvk >= 1.0.44: moltenvk commit hash in mvkRevString variable (but we still
 #    use spirv-cross commit hash, since MoltenVK hash is not available in this context,
 #    and hash value is no really important)
-set(MVK_REV_FILE ${MVK_SRC_DIR}/ExternalRevisions/SPIRV-Cross_repo_revision)
+set(MVK_REV_FILE ExternalRevisions/SPIRV-Cross_repo_revision)
 set(MVK_REV_HEADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/mvk_hash_generated)
-if(MVK_VERSION VERSION_LESS "1.0.44")
-    set(MVK_REV_HEADER ${MVK_REV_HEADER_DIR}/SPIRV-Cross/mvkSpirvCrossRevisionDerived.h)
-    set(MVK_REV_VAR_NAME "spirvCrossRevisionString")
-else()
-    set(MVK_REV_HEADER ${MVK_REV_HEADER_DIR}/mvkGitRevDerived.h)
-    set(MVK_REV_VAR_NAME "mvkRevString")
-endif()
+set(MVK_REV_HEADER ${MVK_REV_HEADER_DIR}/mvkGitRevDerived.h)
+set(MVK_REV_VAR_NAME mvkRevString)
 set(MVK_REV_DEFINES -DMVK_REV_FILE=${MVK_REV_FILE} -DMVK_REV_HEADER=${MVK_REV_HEADER} -DMVK_REV_VAR_NAME=${MVK_REV_VAR_NAME})
 set(MVK_REV_GEN_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/mvk_git_hash_generator.cmake")
 file(WRITE ${MVK_REV_GEN_SCRIPT}
@@ -256,30 +214,21 @@ install(
 
 if(BUILD_SHARED_LIBS)
     install(
-        FILES ${MVK_LIB_DIR}/icd/MoltenVK_icd.json
+        FILES MoltenVK/icd/MoltenVK_icd.json
         DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
 endif()
 
-file(GLOB MVK_PUBLIC_HEADERS ${MVK_LIB_DIR}/MoltenVK/API/*.h)
+file(GLOB MVK_PUBLIC_HEADERS MoltenVK/MoltenVK/API/*.h)
 install(
     FILES ${MVK_PUBLIC_HEADERS}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/MoltenVK
 )
 
-if(MVK_VERSION VERSION_LESS "1.1.0")
-    file(GLOB MVK_SC_PUBLIC_HEADERS
-        ${MVK_SC_DIR}/MoltenVKGLSLToSPIRVConverter/*Conversion.h
-        ${MVK_SC_DIR}/MoltenVKGLSLToSPIRVConverter/*Converter.h
-        ${MVK_SC_DIR}/MoltenVKSPIRVToMSLConverter/*Conversion.h
-        ${MVK_SC_DIR}/MoltenVKSPIRVToMSLConverter/*Converter.h
-    )
-else()
-    file(GLOB MVK_SC_PUBLIC_HEADERS
-        ${MVK_SC_DIR}/MoltenVKShaderConverter/*Conversion.h
-        ${MVK_SC_DIR}/MoltenVKShaderConverter/*Converter.h
-    )
-endif()
+file(GLOB MVK_SC_PUBLIC_HEADERS
+    MoltenVKShaderConverter/MoltenVKShaderConverter/*Conversion.h
+    MoltenVKShaderConverter/MoltenVKShaderConverter/*Converter.h
+)
 install(
     FILES ${MVK_SC_PUBLIC_HEADERS}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/MoltenVKShaderConverter
