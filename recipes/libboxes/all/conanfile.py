@@ -48,7 +48,7 @@ class libboxesRecipe(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("xxhash/0.8.2", transitive_headers=True)
+        self.requires("xxhash/[>=0.8.1 <0.9]", transitive_headers=True)
 
     def validate(self):
         if self.settings.os == "Windows":

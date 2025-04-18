@@ -53,7 +53,7 @@ class CcacheConan(ConanFile):
 
         if Version(self.version) >= "4.10":
             self.requires("fmt/[>=10.2.1 <=11.1.1]") # Explicitly tested with all versions in this range
-            self.requires("xxhash/[~0.8]")
+            self.requires("xxhash/[>=0.8.1 <0.9]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
