@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-17:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-18:
 
 - aeron/1.43.0
 - apr-util/1.6.3
@@ -45,6 +45,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cose-c/cci.20200603
 - cpp-validator/2.1.1
 - cppserver/1.0.4.1
+- cpython/3.10.17
+- cpython/3.11.12
+- cpython/3.12.10
+- cpython/3.9.22
 - crashpad/cci.20231107
 - crow/1.1.0
 - crow/1.2.0
@@ -155,13 +159,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libsoup/3.6.1
 - libstudxml/1.1.0
 - libsysfs/2.1.1
+- libsystemd/255.18
 - libtasn1/4.19.0
 - libtomcrypt/1.18.2
 - libtommath/1.3.0
 - libtorch/2.4.0
 - libudev/255.13
+- libudev/255.18
 - libv4l/1.28.1
 - libva/2.22.0
+- libwacom/2.15.0
 - libx11/1.8.10
 - libxau/1.0.11
 - libxaw/1.0.16
@@ -238,7 +245,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qcoro/0.10.0
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
-- qt/6.8.2
+- qt/6.8.3
 - qtawesome/6.5.1
 - rmlui/5.1
 - rosx_introspection/1.0.2
@@ -284,8 +291,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/6.7.0
 - sundials/7.1.1
 - swig/4.3.1
+- tcl/8.6.16
 - thrust/2.7.0
 - tk/8.6.13
+- tk/8.6.16
 - tpl/cci.20210302
 - tz/2024b
 - usearch/2.9.1
