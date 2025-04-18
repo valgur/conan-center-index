@@ -1,9 +1,11 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -76,20 +78,17 @@ class EasyloggingppConan(ConanFile):
         "disable_global_lock": False,
         "lib_utc_datetime": False,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    implements = ["auto_shared_fpic"]
 
     def validate(self):
-        if self.settings.compiler.cppstd:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 11)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "set_property(TARGET easyloggingpp PROPERTY POSITION_INDEPENDENT_CODE ON)", "")
 
     @property
     def _public_defines(self):
@@ -150,17 +149,15 @@ class EasyloggingppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["build_static_lib"] = True
+        tc.cache_variables["build_static_lib"] = True
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
+        if Version(self.version) > "9.97.1":
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.15, check if new version supports CMake 4")
         for d in self._public_defines:
             tc.preprocessor_definitions[d] = "1"
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set_property(TARGET easyloggingpp PROPERTY POSITION_INDEPENDENT_CODE ON)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
