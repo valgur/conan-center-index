@@ -31,6 +31,8 @@ class SpirvheadersConan(ConanFile):
         tc.variables["SPIRV_HEADERS_SKIP_EXAMPLES"] = True
         if Version(self.version) > "1.3.275.0":
             tc.variables["SPIRV_HEADERS_ENABLE_TESTS"] = False
+        if Version(self.version) < "1.3.250.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

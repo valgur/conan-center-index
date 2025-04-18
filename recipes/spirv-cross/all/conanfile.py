@@ -5,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -97,6 +98,8 @@ class SpirvCrossConan(ConanFile):
         tc.variables["SPIRV_CROSS_SKIP_INSTALL"] = False
         tc.variables["SPIRV_CROSS_FORCE_PIC"] = self.options.get_safe("fPIC", True)
         tc.variables["SPIRV_CROSS_NAMESPACE_OVERRIDE"] = self.options.namespace
+        if Version(self.version) < "1.3.280":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
     def build(self):

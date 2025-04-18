@@ -49,37 +49,29 @@ class VolkConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) >= "1.3.296":
+            replace_in_file(self, "CMakeLists.txt",
+                            "if(VULKAN_HEADERS_INSTALL_DIR)",
+                            "if(1)\nfind_package(VulkanHeaders REQUIRED)\nset(VOLK_INCLUDES ${VulkanHeaders_INCLUDE_DIRS})\nelseif(VULKAN_HEADERS_INSTALL_DIR)")
+        else:
+            replace_in_file(self, "CMakeLists.txt",
+                            "if(VULKAN_HEADERS_INSTALL_DIR)",
+                            "if(1)\nset(VOLK_INCLUDES ${VulkanHeaders_INCLUDE_DIRS})\nelseif(VULKAN_HEADERS_INSTALL_DIR)")
+            replace_in_file(self, "CMakeLists.txt",
+                            "find_package(Vulkan QUIET)",
+                            "find_package(VulkanHeaders REQUIRED)")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["VOLK_PULL_IN_VULKAN"] = True
         tc.variables["VOLK_INSTALL"] = True
+        if Version(self.version) < "1.3.270":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        if Version(self.version) < "1.3.296":
-            replace_in_file(self, cmakelists, "find_package(Vulkan QUIET)", "find_package(VulkanHeaders REQUIRED)")
-
-        if Version(self.version) < "1.3.296":
-            replace_in_file(
-                self,
-                cmakelists,
-                "if(VULKAN_HEADERS_INSTALL_DIR)",
-                "if(1)\nset(VOLK_INCLUDES ${VulkanHeaders_INCLUDE_DIRS})\nelseif(VULKAN_HEADERS_INSTALL_DIR)",
-            )
-        else:
-            replace_in_file(
-                self,
-                cmakelists,
-                "if(VULKAN_HEADERS_INSTALL_DIR)",
-                "if(1)\nfind_package(VulkanHeaders REQUIRED)\nset(VOLK_INCLUDES ${VulkanHeaders_INCLUDE_DIRS})\nelseif(VULKAN_HEADERS_INSTALL_DIR)",
-            )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

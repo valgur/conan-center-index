@@ -94,8 +94,6 @@ class GlslangConan(ConanFile):
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         # glslang builds intermediate static libs, but Conan does not set -fPIC for shared builds
         tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
-        if Version(self.version) < "1.3.224.1":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         deps = CMakeDeps(self)

@@ -9,6 +9,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -62,7 +63,8 @@ class VulkanValidationLayersConan(ConanFile):
         self.requires(f"spirv-headers/{self._vulkan_sdk_version}")
         self.requires(f"spirv-tools/{self._vulkan_sdk_version}", visible=False)
         self.requires(f"vulkan-headers/{self._vulkan_sdk_version}", transitive_headers=True)
-        self.requires(f"vulkan-utility-libraries/{self._vulkan_sdk_version}")
+        if Version(self.version) >= "1.3.268.0":
+            self.requires(f"vulkan-utility-libraries/{self._vulkan_sdk_version}")
 
         self.requires("robin-hood-hashing/3.11.5")
         if self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib"):
@@ -186,7 +188,8 @@ class VulkanValidationLayersConan(ConanFile):
 
         self.cpp_info.requires.append("spirv-headers::spirv-headers")
         self.cpp_info.requires.append("vulkan-headers::vulkan-headers")
-        self.cpp_info.requires.append("vulkan-utility-libraries::vulkan-utility-libraries")
+        if Version(self.version) >= "1.3.268.0":
+            self.cpp_info.requires.append("vulkan-utility-libraries::vulkan-utility-libraries")
         self.cpp_info.requires.append("robin-hood-hashing::robin-hood-hashing")
         if self.options.get_safe("with_wsi_xlib"):
             self.cpp_info.requires.append("xorg::x11")

@@ -64,11 +64,11 @@ class SpirvtoolsConan(ConanFile):
             )
 
     def build_requirements(self):
-        if Version(self.version) >= "1.3.239":
-            self.tool_requires("cmake/[>=3.17.2 <4]")
+        self.tool_requires("cmake/[>=3.17.2 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -86,20 +86,11 @@ class SpirvtoolsConan(ConanFile):
         tc.variables["SPIRV_CHECK_CONTEXT"] = False
         tc.variables["SPIRV_BUILD_FUZZER"] = False
         tc.variables["SPIRV_SKIP_EXECUTABLES"] = not self.options.build_executables
-        # To install relocatable shared libs on Macos
-        if Version(self.version) < "1.3.239":
-            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         # For iOS/tvOS/watchOS
         tc.variables["CMAKE_MACOSX_BUNDLE"] = False
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -160,6 +151,3 @@ class SpirvtoolsConan(ConanFile):
         self.cpp_info.components["spirv-tools-diff"].set_property("cmake_target_name", "SPIRV-Tools-diff")
         self.cpp_info.components["spirv-tools-diff"].libs = ["SPIRV-Tools-diff"]
         self.cpp_info.components["spirv-tools-diff"].requires = ["spirv-tools-core", "spirv-tools-opt"]
-
-        if Version(self.version) < "1.3":
-            del self.cpp_info.components["spirv-tools-diff"]
