@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -60,6 +61,8 @@ class DiligentCoreConan(ConanFile):
         self.requires("vulkan-validationlayers/1.4.309.0")
         self.requires("volk/1.4.309.0")
         self.requires("xxhash/[>=0.8.1 <0.9]")
+        # TODO: unvendor DirectXShaderCompiler headers?
+        # TODO: unvendor DXBCChecksum from FidelityFX-SDK?
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
@@ -70,13 +73,20 @@ class DiligentCoreConan(ConanFile):
         check_min_cppstd(self, 14)
         if is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
+        if self._diligent_platform is None:
+            raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
 
     def build_requirements(self):
         self.tool_requires("cmake/[^4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        save(self, os.path.join("ThirdParty", "CMakeLists.txt"), "")
+        # Remove vendored libs, except for two minor ones without a Conan package
+        third_party = Path(self.source_folder, "ThirdParty")
+        third_party.joinpath("CMakeLists.txt").write_text("")
+        for path in third_party.iterdir():
+            if path.is_dir() and path.name not in ["DirectXShaderCompiler", "GPUOpenShaderUtils"]:
+                rmdir(self, path)
         # Always install core files: fix android and emscripten installations
         replace_in_file(self, "CMakeLists.txt",
                         "set(DILIGENT_INSTALL_CORE OFF)",
@@ -84,20 +94,15 @@ class DiligentCoreConan(ConanFile):
 
     @property
     def _diligent_platform(self):
-        if self.settings.os == "Windows":
-            return "PLATFORM_WIN32"
-        elif self.settings.os == "Macos":
-            return "PLATFORM_MACOS"
-        elif self.settings.os == "Linux":
-            return "PLATFORM_LINUX"
-        elif self.settings.os == "Android":
-            return "PLATFORM_ANDROID"
-        elif self.settings.os == "iOS":
-            return "PLATFORM_IOS"
-        elif self.settings.os == "Emscripten":
-            return "PLATFORM_EMSCRIPTEN"
-        elif self.settings.os == "watchOS":
-            return "PLATFORM_TVOS"
+        return {
+            "Android": "PLATFORM_ANDROID",
+            "Emscripten": "PLATFORM_EMSCRIPTEN",
+            "Linux": "PLATFORM_LINUX",
+            "Macos": "PLATFORM_MACOS",
+            "Windows": "PLATFORM_WIN32",
+            "iOS": "PLATFORM_IOS",
+            "watchOS": "PLATFORM_TVOS",
+        }.get(str(self.settings.os))
 
     def generate(self):
         tc = CMakeToolchain(self)
