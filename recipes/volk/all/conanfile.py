@@ -63,9 +63,7 @@ class VolkConan(ConanFile):
         if Version(self.version) < "1.3.296":
             replace_in_file(self, cmakelists, "find_package(Vulkan QUIET)", "find_package(VulkanHeaders REQUIRED)")
 
-        if Version(self.version) < "1.3.261":
-            replace_in_file(self, cmakelists, "Vulkan::Vulkan", "Vulkan::Headers")
-        elif Version(self.version) < "1.3.296":
+        if Version(self.version) < "1.3.296":
             replace_in_file(
                 self,
                 cmakelists,
