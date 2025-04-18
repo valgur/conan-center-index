@@ -6,7 +6,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.scm import Version
 
@@ -61,16 +60,15 @@ class GlslangConan(ConanFile):
                 raise ConanInvalidConfiguration(f"{self.ref} shared library build is broken on {self.settings.os}")
 
     def build_requirements(self):
-        if Version(self.version) >= "1.3.261":
+        if Version(self.version) >= "1.4":
+            self.tool_requires("cmake/[>=3.22.1 <4]")
+        elif Version(self.version) >= "1.3.261":
             self.tool_requires("cmake/[>=3.17.2 <4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["GLSLANG_ENABLE_INSTALL"] = True
         tc.variables["BUILD_EXTERNAL"] = False
