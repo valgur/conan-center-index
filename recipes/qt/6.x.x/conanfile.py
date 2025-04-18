@@ -425,8 +425,8 @@ class QtConan(ConanFile):
             #       must be exactly part of the same Vulkan SDK version
             #       do not update either without checking both
             #       require exactly the same version of vulkan-headers
-            self.requires("vulkan-loader/1.3.290.0")
-            self.requires("vulkan-headers/1.3.290.0", transitive_headers=True)
+            self.requires("vulkan-loader/1.4.309.0")
+            self.requires("vulkan-headers/1.4.309.0", transitive_headers=True)
             if is_apple_os(self):
                 self.requires("moltenvk/1.2.2")
         if self.options.with_glib:

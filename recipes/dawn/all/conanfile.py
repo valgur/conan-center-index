@@ -31,14 +31,14 @@ class DawnConan(ConanFile):
 
     def requirements(self):
         self.requires("abseil/20240116.2")
-        self.requires("spirv-headers/1.3.290.0", transitive_headers=True)
-        self.requires("glslang/1.3.290.0")
+        self.requires("spirv-headers/1.4.309.0", transitive_headers=True)
+        self.requires("glslang/1.4.309.0")
         self.requires("glfw/3.4")
-        self.requires("vulkan-headers/1.3.290.0")
-        self.requires("vulkan-utility-libraries/1.3.290.0")
+        self.requires("vulkan-headers/1.4.309.0")
+        self.requires("vulkan-utility-libraries/1.4.309.0")
         self.requires("opengl-registry/20240721")
         # Remove SPIRV-Tools from the dependency graph
-        self.requires("spirv-tools/1.3.290.0", headers=False, libs=False, visible=False)
+        self.requires("spirv-tools/1.4.309.0", headers=False, libs=False, visible=False)
 
     def validate(self):
         check_min_cppstd(self, 11)

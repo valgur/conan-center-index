@@ -148,7 +148,7 @@ class GtkConan(ConanFile):
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
             self.requires("fontconfig/2.15.0")
         if self.options.with_vulkan:
-            self.requires("vulkan-loader/1.3.290.0")
+            self.requires("vulkan-loader/1.4.309.0")
         if self.options.get_safe("with_ffmpeg"):
             self.requires("ffmpeg/5.0")
         if self.options.with_introspection:
@@ -202,7 +202,7 @@ class GtkConan(ConanFile):
         self.tool_requires("libxml2/[>=2.12.5 <3]")  # for xmllint
         self.tool_requires("sassc/3.6.2")
         if self.options.with_vulkan:
-            self.tool_requires("shaderc/2024.1")  # for glslc
+            self.tool_requires("shaderc/2025.1")  # for glslc
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
             self.tool_requires("wayland-protocols/1.42")

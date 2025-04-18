@@ -55,14 +55,14 @@ class ShaderSlangConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glslang/1.3.290.0")
-        self.requires("spirv-headers/1.3.290.0")
-        self.requires("spirv-tools/1.3.290.0")
+        self.requires("glslang/1.4.309.0")
+        self.requires("spirv-headers/1.4.309.0")
+        self.requires("spirv-tools/1.4.309.0")
         self.requires("lz4/1.9.4")
         self.requires("miniz/3.0.2")
         self.requires("unordered_dense/4.4.0")
         if self.options.enable_gfx:
-            self.requires("vulkan-headers/1.3.290.0")
+            self.requires("vulkan-headers/1.4.309.0")
             self.requires("imgui/1.91.0")
             if is_apple_os(self):
                 self.requires("metal-cpp/14.2")

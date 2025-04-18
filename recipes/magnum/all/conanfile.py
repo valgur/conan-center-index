@@ -215,7 +215,7 @@ class MagnumConan(ConanFile):
             self.requires("opengl/system", transitive_headers=transitive, transitive_libs=transitive)
         if self.options.vk:
             # not used in public headers
-            self.requires("vulkan-loader/1.3.290.0")
+            self.requires("vulkan-loader/1.4.309.0")
 
         if (
             self.options.get_safe("egl_context", False)

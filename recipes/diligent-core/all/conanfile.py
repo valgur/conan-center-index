@@ -51,14 +51,14 @@ class DiligentCoreConan(ConanFile):
         if self.settings.os == "Linux":
             self.requires("wayland/1.22.0")
 
-        self.requires("spirv-headers/1.3.290.0")
-        self.requires("spirv-cross/1.3.290.0")
-        self.requires("spirv-tools/1.3.290.0")
+        self.requires("spirv-headers/1.4.309.0")
+        self.requires("spirv-cross/1.4.309.0")
+        self.requires("spirv-tools/1.4.309.0")
         if self.options.with_glslang:
-            self.requires("glslang/1.3.290.0")
-        self.requires("vulkan-headers/1.3.290.0")
-        self.requires("vulkan-validationlayers/1.3.290.0")
-        self.requires("volk/1.3.290.0")
+            self.requires("glslang/1.4.309.0")
+        self.requires("vulkan-headers/1.4.309.0")
+        self.requires("vulkan-validationlayers/1.4.309.0")
+        self.requires("volk/1.4.309.0")
         self.requires("xxhash/0.8.1")
 
         if self.settings.os in ["Linux", "FreeBSD"]:

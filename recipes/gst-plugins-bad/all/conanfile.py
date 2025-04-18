@@ -303,7 +303,7 @@ class GStPluginsBadConan(ConanFile):
         if "libv4l" in reqs:
             self.requires("libv4l/1.28.1")
         if "vulkan-loader" in reqs:
-            self.requires("vulkan-loader/1.3.290.0")
+            self.requires("vulkan-loader/1.4.309.0")
             if self.options.get_safe("with_wayland") or self.options.get_safe("with_xorg"):
                 self.requires("xkbcommon/1.6.0")
             if is_apple_os(self):
@@ -361,7 +361,7 @@ class GStPluginsBadConan(ConanFile):
         if "gst-orc" in self._all_reqs:
             self.tool_requires("gst-orc/<host_version>")
         if self.options.vulkan:
-            self.tool_requires("shaderc/2024.1")
+            self.tool_requires("shaderc/2025.1")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
             self.tool_requires("wayland-protocols/1.42")

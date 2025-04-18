@@ -294,13 +294,13 @@ class OgreConanFile(ConanFile):
         if self.options.build_plugin_freeimage:
             self.requires("freeimage/3.18.0")
         if self.options.build_plugin_glslang:
-            self.requires("glslang/1.3.268.0")
-            self.requires("spirv-tools/1.3.268.0")
+            self.requires("glslang/1.4.309.0")
+            self.requires("spirv-tools/1.4.309.0")
         if self.options.build_plugin_stbi:
             self.requires("stb/cci.20230920")
         if self.options.build_rendersystem_vulkan:
-            self.requires("vulkan-headers/1.3.268.0")
-            self.requires("volk/1.3.268.0", transitive_headers=True, transitive_libs=True)
+            self.requires("vulkan-headers/1.4.309.0")
+            self.requires("volk/1.4.309.0", transitive_headers=True, transitive_libs=True)
 
         # TODO: Qt support in OgreBites
         # TODO: add support for DirectX, DirectX11, Softimage, GLSLOptimizer, HLSL2GLSL

@@ -281,8 +281,8 @@ class LibtorchConan(ConanFile):
             self.requires("opencl-headers/2023.12.14")
             self.requires("opencl-icd-loader/2023.12.14")
         if self.options.with_vulkan:
-            self.requires("vulkan-headers/1.3.290.0")
-            self.requires("vulkan-loader/1.3.290.0")
+            self.requires("vulkan-headers/1.4.309.0")
+            self.requires("vulkan-loader/1.4.309.0")
         if self.options.with_mimalloc:
             self.requires("mimalloc/2.1.7")
 

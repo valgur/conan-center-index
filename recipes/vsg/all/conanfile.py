@@ -35,7 +35,7 @@ class VsgConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("vulkan-loader/1.3.290.0", transitive_headers=True)
+        self.requires("vulkan-loader/1.4.309.0", transitive_headers=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
 
