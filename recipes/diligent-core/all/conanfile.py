@@ -78,7 +78,7 @@ class DiligentCoreConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         save(self, os.path.join("ThirdParty", "CMakeLists.txt"), "")
         # Always install core files: fix android and emscripten installations
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+        replace_in_file(self, "CMakeLists.txt",
                         "set(DILIGENT_INSTALL_CORE OFF)",
                         "set(DILIGENT_INSTALL_CORE ON)")
 
