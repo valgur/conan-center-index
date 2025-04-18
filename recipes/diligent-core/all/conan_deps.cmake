@@ -14,10 +14,15 @@ if(NOT DILIGENT_NO_GLSLANG)
 endif()
 
 if(LINUX)
-    # X11/XCB is not acutally linked against or included anywhere
+    # X11/XCB is not actually linked against or included anywhere
     find_package(X11 REQUIRED)
     link_libraries(X11::X11)
 endif()
 
 add_library(SPIRV-Headers ALIAS SPIRV-Headers::SPIRV-Headers)
-add_library(spirv-tools-core ALIAS spirv-tools::spirv-tools)
+add_library(spirv-tools-core ALIAS SPIRV-Tools)
+if(TARGET spirv-cross-c-shared)
+    add_library(spirv-cross-core ALIAS spirv-cross-c-shared)
+    add_library(spirv-cross-glsl ALIAS spirv-cross-c-shared)
+    add_library(spirv-cross-msl ALIAS spirv-cross-c-shared)
+endif()

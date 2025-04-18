@@ -53,7 +53,7 @@ class DiligentCoreConan(ConanFile):
             self.requires("wayland/1.22.0")
 
         self.requires("spirv-headers/1.4.309.0")
-        self.requires("spirv-cross/1.4.309.0")
+        self.requires("spirv-cross/1.4.309.0", options={"shared": False})
         self.requires("spirv-tools/1.4.309.0")
         if self.options.with_glslang:
             self.requires("glslang/1.4.309.0")
@@ -75,6 +75,9 @@ class DiligentCoreConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
         if self._diligent_platform is None:
             raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
+        if self.dependencies["spirv-cross"].options.shared:
+            # Otherwise fails with many spirv_cross::Compiler::* linker errors in SPIRVShaderResources.cpp
+            raise ConanInvalidConfiguration("spirv-cross must be built as static (-o spirv-cross/*:shared=False)")
 
     def build_requirements(self):
         self.tool_requires("cmake/[^4]")
@@ -107,11 +110,13 @@ class DiligentCoreConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_PROJECT_DiligentCore_INCLUDE"] = "conan_deps.cmake"
+        tc.cache_variables["BUILD_SHARED_LIBS"] = False  # both static and shared are always built
         tc.cache_variables["DILIGENT_BUILD_SAMPLES"] = False
         tc.cache_variables["DILIGENT_NO_FORMAT_VALIDATION"] = True
         tc.cache_variables["DILIGENT_BUILD_TESTS"] = False
         tc.cache_variables["DILIGENT_NO_DXC"] = True
         tc.cache_variables["DILIGENT_NO_GLSLANG"] = not self.options.with_glslang
+        tc.cache_variables["DILIGENT_USE_SPIRV_TOOLCHAIN"] = True
         tc.cache_variables["DILIGENT_CLANG_COMPILE_OPTIONS"] = ""
         tc.cache_variables["DILIGENT_MSVC_COMPILE_OPTIONS"] = ""
         tc.cache_variables["ENABLE_RTTI"] = True
@@ -119,8 +124,6 @@ class DiligentCoreConan(ConanFile):
         tc.cache_variables[self._diligent_platform] = True
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.19"
         tc.cache_variables["SPIRV_CROSS_NAMESPACE_OVERRIDE"] = self.dependencies["spirv-cross"].options.namespace
-        # FIXME: should not be necessary, Archiver_GL.cpp fails otherwise
-        tc.preprocessor_definitions["diligent_spirv_cross"] = self.dependencies["spirv-cross"].options.namespace
         tc.generate()
 
         deps = CMakeDeps(self)
