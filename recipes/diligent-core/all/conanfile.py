@@ -13,10 +13,10 @@ required_conan_version = ">=2.1"
 
 class DiligentCoreConan(ConanFile):
     name = "diligent-core"
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/DiligentGraphics/DiligentCore"
     description = "Diligent Core is a modern cross-platform low-level graphics API."
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DiligentGraphics/DiligentCore"
     topics = ("graphics",)
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -77,7 +77,12 @@ class DiligentCoreConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         save(self, os.path.join("ThirdParty", "CMakeLists.txt"), "")
+        # Always install core files: fix android and emscripten installations
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "set(DILIGENT_INSTALL_CORE OFF)",
+                        "set(DILIGENT_INSTALL_CORE ON)")
 
+    @property
     def _diligent_platform(self):
         if self.settings.os == "Windows":
             return "PLATFORM_WIN32"
@@ -106,7 +111,7 @@ class DiligentCoreConan(ConanFile):
         tc.cache_variables["DILIGENT_MSVC_COMPILE_OPTIONS"] = ""
         tc.cache_variables["ENABLE_RTTI"] = True
         tc.cache_variables["ENABLE_EXCEPTIONS"] = True
-        tc.cache_variables[self._diligent_platform()] = True
+        tc.cache_variables[self._diligent_platform] = True
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.19"
         tc.cache_variables["SPIRV_CROSS_NAMESPACE_OVERRIDE"] = self.dependencies["spirv-cross"].options.namespace
         # FIXME: should not be necessary, Archiver_GL.cpp fails otherwise
@@ -192,7 +197,7 @@ class DiligentCoreConan(ConanFile):
             self.cpp_info.includedirs.append(os.path.join("include", "Graphics", "GraphicsEngineD3D12", "interface"))
 
         self.cpp_info.defines.append(f"DILIGENT_SPIRV_CROSS_NAMESPACE={self.dependencies['spirv-cross'].options.namespace}")
-        self.cpp_info.defines.append(f"{self._diligent_platform()}=1")
+        self.cpp_info.defines.append(f"{self._diligent_platform}=1")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "pthread"]
@@ -200,3 +205,5 @@ class DiligentCoreConan(ConanFile):
             self.cpp_info.frameworks = ["CoreFoundation", "Cocoa", "AppKit"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["dxgi", "shlwapi"]
+        elif self.settings.os == "Android":
+            self.cpp_info.system_libs = ["android", "log"]
