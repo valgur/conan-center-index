@@ -164,8 +164,8 @@ class DiligentCoreConan(ConanFile):
 
         # BuildUtils.cmake is required in diligent-tools and others, but is not packaged correctly by DiligentCore
         copy(self, "BuildUtils.cmake",
-             dst=os.path.join(self.package_folder, "lib", "cmake"),
-             src=os.path.join(self.source_folder, "BuildTools", "CMake", "BuildUtils.cmake"))
+             os.path.join(self.source_folder, "BuildTools", "CMake"),
+             os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
@@ -215,3 +215,6 @@ class DiligentCoreConan(ConanFile):
             self.cpp_info.system_libs = ["dxgi", "shlwapi"]
         elif self.settings.os == "Android":
             self.cpp_info.system_libs = ["android", "log"]
+
+        self.cpp_info.builddirs.append(os.path.join("lib", "cmake"))
+        self.cpp_info.set_property("cmake_build_modules", [os.path.join("lib", "cmake", "BuildUtils.cmake")])
