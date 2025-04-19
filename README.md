@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-18:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-19:
 
 - aeron/1.43.0
 - apr-util/1.6.3
@@ -56,7 +56,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
-- diligent-core/2.5.6
+- diligent-core/2.5.6.8
 - dpdk/24.07
 - elfutils/0.191
 - elfutils/0.192
@@ -84,7 +84,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glomap/cci.20240802
 - glpk/4.48
 - glpk/4.65
+- glslang/1.3.250.1
 - glslang/1.3.290.0
+- glslang/1.3.296.0
+- glslang/1.4.309.0
 - gn/qt-20240924
 - gnsstk/14.3.0
 - gnu-getopt/2.40
@@ -204,6 +207,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.0
 - mkfontscale/1.2.3
+- moltenvk/1.2.11
 - moltenvk/1.2.7
 - mrcal/2.4.1
 - nanobind/2.4.0
@@ -264,8 +268,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - small_gicp/0.1.2
 - spectra/1.1.0
 - spirv-cross/1.3.290.0
+- spirv-headers/1.3.250.1
 - spirv-headers/1.3.290.0
+- spirv-tools/1.3.250.1
 - spirv-tools/1.3.290.0
+- spirv-tools/1.3.296.0
 - splinter/3.0
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
@@ -304,17 +311,27 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vilib/cci.20210625
 - vk-bootstrap/1.3.268
 - vlfeat/0.9.21
+- volk/1.3.250.1
 - volk/1.3.290.0
+- volk/1.4.309.0
 - vswhere/3.1.7
 - vtk-m/2.2.0
 - vtk/9.3.1
+- vulkan-headers/1.3.250.1
+- vulkan-loader/1.3.250.1
+- vulkan-loader/1.3.296.0
 - vulkan-memory-allocator/3.1.0
+- vulkan-memory-allocator/3.2.1
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
 - vulkan-utility-libraries/1.3.290.0
 - vulkan-utility-libraries/1.3.296.0
+- vulkan-utility-libraries/1.4.309.0
+- vulkan-validationlayers/1.3.250.1
 - vulkan-validationlayers/1.3.268.0
 - vulkan-validationlayers/1.3.290.0
+- vulkan-validationlayers/1.3.296.0
+- vulkan-validationlayers/1.4.309.0
 - wuffs/0.3.4
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
