@@ -67,7 +67,7 @@ class PolyscopeConan(ConanFile):
         self.requires("imgui/1.90.5", transitive_headers=True, transitive_libs=True)
         self.requires("nlohmann_json/[^3]")
         # Using a newer unvendored stb causes "undefined symbol" errors on Windows
-        # self.requires("stb/cci.20240531")
+        # self.requires("stb/cci.20250314")
 
     def validate(self):
         check_min_cppstd(self, 11)

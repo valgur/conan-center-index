@@ -47,7 +47,7 @@ class MlpackConan(ConanFile):
         self.requires("armadillo/12.6.4")
         self.requires("cereal/1.3.2")
         self.requires("ensmallen/2.21.0")
-        self.requires("stb/cci.20230920")
+        self.requires("stb/cci.20250314")
         # https://github.com/mlpack/mlpack/blob/4.4.0/src/mlpack/methods/det/dt_utils_impl.hpp#L184
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 

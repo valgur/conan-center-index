@@ -195,7 +195,7 @@ class AssimpConan(ConanFile):
             else:
                 self.requires("clipper/4.10.0")
         if self._depends_on_stb:
-            self.requires("stb/cci.20230920")
+            self.requires("stb/cci.20250314")
         if self._depends_on_openddlparser:
             self.requires("openddl-parser/0.5.1")
 

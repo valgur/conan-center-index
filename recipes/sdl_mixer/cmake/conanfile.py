@@ -101,7 +101,7 @@ class SDLMixerConan(ConanFile):
         if self.options.minimp3:
             self.requires("minimp3/cci.20211201")
         if self.options.vorbis == "stb":
-            self.requires("stb/cci.20230920")
+            self.requires("stb/cci.20250314")
         elif self.options.vorbis == "vorbisfile":
             self.requires("vorbis/1.3.7")
         elif self.options.vorbis == "tremor":

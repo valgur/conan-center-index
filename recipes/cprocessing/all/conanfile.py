@@ -41,7 +41,7 @@ class CProcessingConan(ConanFile):
         self.requires("glfw/3.3.8")
         self.requires("glm/0.9.9.8")
         self.requires("glew/2.2.0")
-        self.requires("stb/cci.20220909")
+        self.requires("stb/cci.20250314")
         self.requires("opengl/system")
 
     def package_id(self):

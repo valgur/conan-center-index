@@ -10,7 +10,7 @@ class TestPackageConan(ConanFile):
     generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
-        self.requires("stb/cci.20220909")
+        self.requires("stb/cci.20250314")
         self.requires(self.tested_reference_str)
 
     def layout(self):
