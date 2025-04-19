@@ -1,0 +1,114 @@
+diff --git a/AssetLoader/src/GLTFLoader.cpp b/AssetLoader/src/GLTFLoader.cpp
+--- a/AssetLoader/src/GLTFLoader.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/AssetLoader/src/GLTFLoader.cpp	(date 1745054232650)
+@@ -53,7 +53,7 @@
+ #if defined(_MSC_VER) && defined(TINYGLTF_ENABLE_DRACO)
+ #    pragma warning(disable : 4127) // warning C4127: conditional expression is constant
+ #endif
+-#include "../../ThirdParty/tinygltf/tiny_gltf.h"
++#include "tiny_gltf.h"
+ 
+ namespace Diligent
+ {
+diff --git a/RenderStateNotation/CMakeLists.txt b/RenderStateNotation/CMakeLists.txt
+--- a/RenderStateNotation/CMakeLists.txt	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/RenderStateNotation/CMakeLists.txt	(date 1745054235085)
+@@ -104,6 +104,7 @@
+     Diligent-GraphicsAccessories
+     Diligent-GraphicsTools
+     Diligent-JSON
++    nlohmann_json::nlohmann_json
+ )
+ 
+ set_target_properties(Diligent-RenderStateNotation PROPERTIES
+diff --git a/TextureLoader/CMakeLists.txt b/TextureLoader/CMakeLists.txt
+--- a/TextureLoader/CMakeLists.txt	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/TextureLoader/CMakeLists.txt	(date 1745054232669)
+@@ -34,12 +34,6 @@
+ add_library(Diligent-TextureLoader STATIC ${SOURCE} ${INCLUDE} ${INTERFACE})
+ set_common_target_properties(Diligent-TextureLoader)
+ 
+-set_property(SOURCE src/PNGCodec.c src/Image.cpp
+-APPEND PROPERTY INCLUDE_DIRECTORIES
+-    "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/libpng" # png_static target does not define any public include directories
+-    "${CMAKE_CURRENT_BINARY_DIR}/../ThirdParty/libpng" # pnglibconf.h is generated in the binary directory
+-)
+-
+ target_include_directories(Diligent-TextureLoader
+ PUBLIC
+     interface
+@@ -62,6 +56,7 @@
+     PNG::PNG 
+     TIFF::TIFF
+     ZLIB::ZLIB
++    stb::stb
+ )
+ 
+ if (NOT DILIGENT_EXTERNAL_LIBJPEG)
+diff --git a/RenderStateNotation/include/pch.h b/RenderStateNotation/include/pch.h
+--- a/RenderStateNotation/include/pch.h	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/RenderStateNotation/include/pch.h	(date 1745054232691)
+@@ -26,7 +26,7 @@
+ 
+ #pragma once
+ 
+-#include "json.hpp"
++#include "nlohmann/json.hpp"
+ 
+ #include "BasicMath.hpp"
+ #include "RenderDevice.h"
+diff --git a/TextureLoader/src/STBImpl.cpp b/TextureLoader/src/STBImpl.cpp
+--- a/TextureLoader/src/STBImpl.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/TextureLoader/src/STBImpl.cpp	(date 1745054232672)
+@@ -26,4 +26,4 @@
+ 
+ #include <cstring>
+ #define STB_DXT_IMPLEMENTATION
+-#include "../../ThirdParty/stb/stb_dxt.h"
++#include "stb_dxt.h"
+diff --git a/AssetLoader/CMakeLists.txt b/AssetLoader/CMakeLists.txt
+--- a/AssetLoader/CMakeLists.txt	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/AssetLoader/CMakeLists.txt	(date 1745054232694)
+@@ -44,6 +44,7 @@
+     Diligent-GraphicsTools
+     Diligent-TextureLoader
+     Diligent-JSON
++    TinyGLTF::TinyGLTF
+ )
+ 
+ if (TARGET draco OR TARGET draco_static)
+diff --git a/TextureLoader/src/Image.cpp b/TextureLoader/src/Image.cpp
+--- a/TextureLoader/src/Image.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/TextureLoader/src/Image.cpp	(date 1745054232677)
+@@ -57,7 +57,7 @@
+ #define STB_IMAGE_STATIC
+ #define STBI_ONLY_HDR
+ #define STBI_ONLY_TGA
+-#include "../../ThirdParty/stb/stb_image.h"
++#include "stb_image.h"
+ #ifdef __clang__
+ #    pragma clang diagnostic pop
+ #endif
+diff --git a/HLSL2GLSLConverter/CMakeLists.txt b/HLSL2GLSLConverter/CMakeLists.txt
+--- a/HLSL2GLSLConverter/CMakeLists.txt	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/HLSL2GLSLConverter/CMakeLists.txt	(date 1745054232681)
+@@ -41,6 +41,7 @@
+     Diligent-GraphicsTools
+     Diligent-HLSL2GLSLConverterLib 
+     Diligent-GraphicsEngineOpenGL-static
++    taywee::args
+ )
+ 
+ source_group("source" FILES ${SOURCE})
+diff --git a/TextureLoader/src/TextureLoaderImpl.cpp b/TextureLoader/src/TextureLoaderImpl.cpp
+--- a/TextureLoader/src/TextureLoaderImpl.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/TextureLoader/src/TextureLoaderImpl.cpp	(date 1745054232702)
+@@ -46,7 +46,7 @@
+ 
+ #define STB_DXT_STATIC
+ #define STB_DXT_IMPLEMENTATION
+-#include "../../ThirdParty/stb/stb_dxt.h"
++#include "stb_dxt.h"
+ 
+ extern "C"
+ {

@@ -34,22 +34,25 @@ class DiligentToolsConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
-        copy(self, "BuildUtils.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"diligent-core/{self.version}")
+        self.requires(f"diligent-core/{self.version}", transitive_headers=True, transitive_libs=True)
+        self.requires("imgui/1.90.5", transitive_headers=True, transitive_libs=True)
+        self.requires("imguizmo/cci.20231114")
+        self.requires("libpng/[>=1.6 <2]")
+        self.requires("libtiff/[>=4.5 <5]")
+        self.requires("nlohmann_json/[^3.11]")
+        self.requires("stb/cci.20250314")
         self.requires("taywee-args/6.4.6")
-        self.requires("imgui/1.90.5")
+        self.requires("tinygltf/2.9.0")
+        self.requires("zlib/[>=1.2.11 <2]")
         if self.options.jpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.1")
-        self.requires("libpng/1.6.40")
-        self.requires("libtiff/[>=4.5 <5]")
-        self.requires("zlib/[>=1.2.11 <2]")
 
     def package_id(self):
         if is_msvc(self.info):
@@ -63,27 +66,26 @@ class DiligentToolsConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[^4]")
+        # TODO: unvendor clang-format
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        rmdir(self, "ThirdParty")
+        save(self, os.path.join("ThirdParty", "CMakeLists.txt"), "")
+        replace_in_file(self, os.path.join("Imgui", "CMakeLists.txt"), "source_group(", "# source_group(")
 
     @property
     def _diligent_platform(self):
-        if self.settings.os == "Windows":
-            return "PLATFORM_WIN32"
-        elif is_apple_os(self):
-            return "PLATFORM_MACOS"
-        elif self.settings.os in ["Linux", "FreeBSD"]:
-            return "PLATFORM_LINUX"
-        elif self.settings.os == "Android":
-            return "PLATFORM_ANDROID"
-        elif self.settings.os == "iOS":
-            return "PLATFORM_IOS"
-        elif self.settings.os == "Emscripten":
-            return "PLATFORM_EMSCRIPTEN"
-        elif self.settings.os == "watchOS":
-            return "PLATFORM_TVOS"
+        return {
+            "Android": "PLATFORM_ANDROID",
+            "Emscripten": "PLATFORM_EMSCRIPTEN",
+            "Linux": "PLATFORM_LINUX",
+            "Macos": "PLATFORM_MACOS",
+            "Windows": "PLATFORM_WIN32",
+            "iOS": "PLATFORM_IOS",
+            "watchOS": "PLATFORM_TVOS",
+        }.get(str(self.settings.os))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -108,6 +110,9 @@ class DiligentToolsConan(ConanFile):
         deps.generate()
 
     def build(self):
+        copy(self, "*",
+             os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"),
+             os.path.join(self.source_folder, "Imgui", "src", "backends"))
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

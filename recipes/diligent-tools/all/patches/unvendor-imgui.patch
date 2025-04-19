@@ -1,0 +1,98 @@
+diff --git a/Imgui/src/ImGuiImplLinuxX11.cpp b/Imgui/src/ImGuiImplLinuxX11.cpp
+--- a/Imgui/src/ImGuiImplLinuxX11.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/Imgui/src/ImGuiImplLinuxX11.cpp	(date 1745054232659)
+@@ -86,7 +86,7 @@
+     io.KeyMap[ImGuiKey_Space]      = 268;
+     io.KeyMap[ImGuiKey_Enter]      = 269;
+     //io.KeyMap[ImGuiKey_Escape]      = 270;
+-    io.KeyMap[ImGuiKey_KeyPadEnter] = 271;
++    io.KeyMap[ImGuiKey_KeypadEnter] = 271;
+     io.KeyMap[ImGuiKey_A]           = 'A';
+     io.KeyMap[ImGuiKey_C]           = 'C';
+     io.KeyMap[ImGuiKey_V]           = 'V';
+@@ -186,7 +186,7 @@
+                 //case XK_space:     k = io.KeyMap[ImGuiKey_Space];      break;
+                 case XK_Return:    k = io.KeyMap[ImGuiKey_Enter];      break;
+                 case XK_Escape:    k = io.KeyMap[ImGuiKey_Escape];     break;
+-                case XK_KP_Enter:  k = io.KeyMap[ImGuiKey_KeyPadEnter];break;
++                case XK_KP_Enter:  k = io.KeyMap[ImGuiKey_KeypadEnter];break;
+                     // clang-format on
+             }
+ 
+diff --git a/Imgui/src/ImGuiImplLinuxXCB.cpp b/Imgui/src/ImGuiImplLinuxXCB.cpp
+--- a/Imgui/src/ImGuiImplLinuxXCB.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/Imgui/src/ImGuiImplLinuxXCB.cpp	(date 1745054232627)
+@@ -74,7 +74,7 @@
+     //io.KeyMap[ImGuiKey_Space] = 0;//VK_SPACE;
+     io.KeyMap[ImGuiKey_Enter]       = 0x24;
+     io.KeyMap[ImGuiKey_Escape]      = 0x09;
+-    io.KeyMap[ImGuiKey_KeyPadEnter] = 0x68;
++    io.KeyMap[ImGuiKey_KeypadEnter] = 0x68;
+     io.KeyMap[ImGuiKey_A]           = 'A';
+     io.KeyMap[ImGuiKey_C]           = 'C';
+     io.KeyMap[ImGuiKey_V]           = 'V';
+@@ -139,7 +139,7 @@
+         case 0x6E:  k = io.KeyMap[ImGuiKey_Home];       break;
+         case 0x17:  k = io.KeyMap[ImGuiKey_Tab];        break;
+         case 0x73:  k = io.KeyMap[ImGuiKey_End];        break;
+-        case 0x68:  k = io.KeyMap[ImGuiKey_KeyPadEnter];break;
++        case 0x68:  k = io.KeyMap[ImGuiKey_KeypadEnter];break;
+         case 0x70:  k = io.KeyMap[ImGuiKey_PageUp];     break;
+         case 0x75:  k = io.KeyMap[ImGuiKey_PageDown];   break;
+             // clang-format on
+diff --git a/Imgui/src/ImGuiImplUWP.cpp b/Imgui/src/ImGuiImplUWP.cpp
+--- a/Imgui/src/ImGuiImplUWP.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/Imgui/src/ImGuiImplUWP.cpp	(date 1745054232698)
+@@ -68,7 +68,7 @@
+     io.KeyMap[ImGuiKey_Space]       = VK_SPACE;
+     io.KeyMap[ImGuiKey_Enter]       = VK_RETURN;
+     io.KeyMap[ImGuiKey_Escape]      = VK_ESCAPE;
+-    io.KeyMap[ImGuiKey_KeyPadEnter] = VK_RETURN;
++    io.KeyMap[ImGuiKey_KeypadEnter] = VK_RETURN;
+     io.KeyMap[ImGuiKey_A]           = 'A';
+     io.KeyMap[ImGuiKey_C]           = 'C';
+     io.KeyMap[ImGuiKey_V]           = 'V';
+diff --git a/Imgui/src/ImGuiImplSDL.cpp b/Imgui/src/ImGuiImplSDL.cpp
+--- a/Imgui/src/ImGuiImplSDL.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/Imgui/src/ImGuiImplSDL.cpp	(date 1745054232686)
+@@ -28,7 +28,7 @@
+ 
+ #include "Errors.hpp"
+ #include "RenderDevice.h"
+-#include "backends/imgui_impl_sdl.h"
++#include "backends/imgui_impl_sdl2.h"
+ 
+ namespace Diligent
+ {
+diff --git a/Imgui/CMakeLists.txt b/Imgui/CMakeLists.txt
+--- a/Imgui/CMakeLists.txt	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/Imgui/CMakeLists.txt	(date 1745054232705)
+@@ -51,11 +51,13 @@
+     ${SOURCE}
+     ${INCLUDE}
+     ${INTERFACE}
+-    ${IMGUIZMO_QUAT_SOURCE}
+ )
+ 
+-if(TARGET imgui)
+-    target_link_libraries(Diligent-Imgui PRIVATE imgui)
++find_package(imgui REQUIRED CONFIG)
++find_package(imguizmo REQUIRED CONFIG)
++
++if(TRUE)
++    target_link_libraries(Diligent-Imgui PRIVATE imgui::imgui imguizmo::imguizmo)
+ else()
+     set(DEAR_IMGUI_INTERFACE
+         ${DILIGENT_DEAR_IMGUI_PATH}/imgui.h
+@@ -129,11 +131,6 @@
+     target_link_libraries(Diligent-Imgui PRIVATE dwmapi.lib)
+ endif()
+ 
+-source_group("src" FILES ${SOURCE})
+-source_group("include" FILES ${INCLUDE})
+-source_group("interface" FILES ${INTERFACE})
+-source_group("imGuIZMO.quat" FILES ${IMGUIZMO_QUAT_SOURCE})
+-
+ target_link_libraries(Diligent-Imgui
+ PRIVATE
+     Diligent-BuildSettings

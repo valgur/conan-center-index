@@ -1,13 +1,10 @@
 sources:
-  "2.5.2":
-    url: "https://github.com/DiligentGraphics/DiligentTools/archive/refs/tags/v2.5.2.tar.gz"
-    sha256: "6519f3d5871a1119876928531d249c45ef46392237ab7bacc6531b4d538551ca"
+  "2.5.6.8":
+    url: "https://github.com/DiligentGraphics/DiligentTools/archive/refs/tags/API256008.tar.gz"
+    sha256: "1e22d92b272651cee7be576298bdcd0aaf23dbbd47c8fcd684add92b89d2f8fc"
 patches:
-  "2.5.2":
-    - patch_file: "patches/0006-2.5.2-use-imgui-from-conan.diff"
-    - patch_file: "patches/0007-2.5.2-use-diligent-core-dependencies.diff"
-    - patch_file: "patches/0008-2.5.2-use-conan-dependencies.diff"
-    - patch_file: "patches/0009-2.5.2-fix-include-path.diff"
-    - patch_file: "patches/0010-2.5.2-fix-render-state-notation-paths.diff"
-    - patch_file: "patches/0011-2.5.2-use-conan-dependencies-part2.diff"
-    - patch_file: "patches/0012-2.5.2-fix-imgui-include-path.diff"
+  "2.5.6.8":
+    - patch_file: "patches/add-project-to-cmakelists.patch"
+    - patch_file: "patches/external-diligent-core.patch"
+    - patch_file: "patches/unvendor-imgui.patch"
+    - patch_file: "patches/unvendor-deps.patch"
