@@ -167,6 +167,14 @@ class DiligentCoreConan(ConanFile):
              os.path.join(self.source_folder, "BuildTools", "CMake"),
              os.path.join(self.package_folder, "lib", "cmake"))
 
+        # Required in diligent-fx
+        copy(self, "script.py",
+             os.path.join(self.source_folder, "BuildTools", "File2Include"),
+             os.path.join(self.package_folder, "res"))
+        rename(self,
+               os.path.join(self.package_folder, "res", "script.py"),
+               os.path.join(self.package_folder, "res", "file2string.py"))
+
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.resdirs = ["res"]

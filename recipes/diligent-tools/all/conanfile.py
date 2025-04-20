@@ -127,10 +127,23 @@ class DiligentToolsConan(ConanFile):
         copy(self, "License.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
+        # Copy missing includes
+        copy(self, "*",
+             os.path.join(self.source_folder, "TextureLoader", "interface"),
+             os.path.join(self.package_folder, "include", "DiligentTools", "TextureLoader", "interface"))
+
     def package_info(self):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools"))
         self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "AssetLoader", "interface"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "AssetLoader", "interface"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "Imgui", "interface"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "NativeApp", "include"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "RenderStateNotation", "include"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "RenderStatePackager", "include"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "Tests", "DiligentToolsTest", "include"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "TextureLoader", "include"))
+        self.cpp_info.includedirs.append(os.path.join("include", "DiligentTools", "TextureLoader", "interface"))
 
         self.cpp_info.defines.append(f"{self._diligent_platform}=1")
 

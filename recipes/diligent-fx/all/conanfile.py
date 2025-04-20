@@ -1,9 +1,7 @@
 import os
 import shutil
-from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 
@@ -22,15 +20,12 @@ class DiligentFxConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-        copy(self, "BuildUtils.cmake", self.recipe_folder, self.export_sources_folder)
-        copy(self, "script.py", self.recipe_folder, self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"diligent-tools/{self.version}")
+        self.requires(f"diligent-tools/{self.version}", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -38,20 +33,15 @@ class DiligentFxConan(ConanFile):
 
     @property
     def _diligent_platform(self):
-        if self.settings.os == "Windows":
-            return "PLATFORM_WIN32"
-        elif is_apple_os(self):
-            return "PLATFORM_MACOS"
-        elif self.settings.os in ["Linux", "FreeBSD"]:
-            return "PLATFORM_LINUX"
-        elif self.settings.os == "Android":
-            return "PLATFORM_ANDROID"
-        elif self.settings.os == "iOS":
-            return "PLATFORM_IOS"
-        elif self.settings.os == "Emscripten":
-            return "PLATFORM_EMSCRIPTEN"
-        elif self.settings.os == "watchOS":
-            return "PLATFORM_TVOS"
+        return {
+            "Android": "PLATFORM_ANDROID",
+            "Emscripten": "PLATFORM_EMSCRIPTEN",
+            "Linux": "PLATFORM_LINUX",
+            "Macos": "PLATFORM_MACOS",
+            "Windows": "PLATFORM_WIN32",
+            "iOS": "PLATFORM_IOS",
+            "watchOS": "PLATFORM_TVOS",
+        }.get(str(self.settings.os))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -59,12 +49,12 @@ class DiligentFxConan(ConanFile):
         tc.variables["DILIGENT_BUILD_TESTS"] = False
         tc.variables[self._diligent_platform] = True
         tc.generate()
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=Path(self.source_folder).parent)
+        cmake.configure()
         cmake.build()
 
     def package(self):
@@ -73,7 +63,6 @@ class DiligentFxConan(ConanFile):
         copy(self, "License.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         rename(self, os.path.join(self.package_folder, "include", "source_subfolder"), os.path.join(self.package_folder, "include", "DiligentFx"))
         shutil.move(os.path.join(self.package_folder, "Shaders"), os.path.join(self.package_folder, "res", "Shaders"))
-
         copy(self, "*.dll", self.build_folder, os.path.join(self.package_folder, "bin"), keep_path=False)
         for pattern in ["*.lib", "*.a", "*.so", "*.dylib"]:
             copy(self, pattern, self.build_folder, os.path.join(self.package_folder, "lib"), keep_path=False)
