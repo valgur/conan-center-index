@@ -1,7 +1,0 @@
-sources:
-  "2.5.6.8":
-    url: "https://github.com/DiligentGraphics/DiligentFX/archive/refs/tags/API256008.tar.gz"
-    sha256: "0b5947e7817485fcaa0030c7eea8c4fc7dbd71cc14f598eea5ccb17af73bb5a9"
-patches:
-  "2.5.6.8":
-    - patch_file: "patches/use-conan-dependencies.patch"

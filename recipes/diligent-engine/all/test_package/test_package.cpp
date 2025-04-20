@@ -1,13 +1,19 @@
+#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
+
+#include <DiligentTools/AssetLoader/interface/GLTFLoader.hpp>
+
+#include <DiligentFX/Components/interface/ShadowMapManager.hpp>
+
 #include <iostream>
 
-#include "Common/interface/RefCntAutoPtr.hpp"
-#include "Graphics/GraphicsEngine/interface/PipelineState.h"
-#include "Graphics/GraphicsEngine/interface/SwapChain.h"
-#include "Graphics/GraphicsEngine/interface/DeviceContext.h"
-#include "Graphics/GraphicsEngine/interface/RenderDevice.h"
 
 int main()
 {
+
 #ifdef PLATFORM_WIN32
   std::cout << "PLATFORM_WIN32: " << PLATFORM_WIN32;
 #endif
@@ -39,5 +45,8 @@ int main()
   Diligent::RefCntAutoPtr<Diligent::IRenderDevice>  _pDevice;
   Diligent::RefCntAutoPtr<Diligent::IDeviceContext> _pImmediateContext;
   Diligent::RefCntAutoPtr<Diligent::ISwapChain>     _pSwapChain;
-  return 0;
+
+  Diligent::GLTF::Material material;
+
+  Diligent::ShadowMapManager manager;
 }

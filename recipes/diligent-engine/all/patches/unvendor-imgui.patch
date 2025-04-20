@@ -1,6 +1,6 @@
-diff --git a/Imgui/src/ImGuiImplLinuxX11.cpp b/Imgui/src/ImGuiImplLinuxX11.cpp
---- a/Imgui/src/ImGuiImplLinuxX11.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
-+++ b/Imgui/src/ImGuiImplLinuxX11.cpp	(date 1745054232659)
+diff --git a/DiligentTools/Imgui/src/ImGuiImplLinuxX11.cpp b/DiligentTools/Imgui/src/ImGuiImplLinuxX11.cpp
+--- a/DiligentTools/Imgui/src/ImGuiImplLinuxX11.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/DiligentTools/Imgui/src/ImGuiImplLinuxX11.cpp	(date 1745054232659)
 @@ -86,7 +86,7 @@
      io.KeyMap[ImGuiKey_Space]      = 268;
      io.KeyMap[ImGuiKey_Enter]      = 269;
@@ -19,9 +19,9 @@ diff --git a/Imgui/src/ImGuiImplLinuxX11.cpp b/Imgui/src/ImGuiImplLinuxX11.cpp
                      // clang-format on
              }
  
-diff --git a/Imgui/src/ImGuiImplLinuxXCB.cpp b/Imgui/src/ImGuiImplLinuxXCB.cpp
---- a/Imgui/src/ImGuiImplLinuxXCB.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
-+++ b/Imgui/src/ImGuiImplLinuxXCB.cpp	(date 1745054232627)
+diff --git a/DiligentTools/Imgui/src/ImGuiImplLinuxXCB.cpp b/DiligentTools/Imgui/src/ImGuiImplLinuxXCB.cpp
+--- a/DiligentTools/Imgui/src/ImGuiImplLinuxXCB.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/DiligentTools/Imgui/src/ImGuiImplLinuxXCB.cpp	(date 1745054232627)
 @@ -74,7 +74,7 @@
      //io.KeyMap[ImGuiKey_Space] = 0;//VK_SPACE;
      io.KeyMap[ImGuiKey_Enter]       = 0x24;
@@ -40,9 +40,9 @@ diff --git a/Imgui/src/ImGuiImplLinuxXCB.cpp b/Imgui/src/ImGuiImplLinuxXCB.cpp
          case 0x70:  k = io.KeyMap[ImGuiKey_PageUp];     break;
          case 0x75:  k = io.KeyMap[ImGuiKey_PageDown];   break;
              // clang-format on
-diff --git a/Imgui/src/ImGuiImplUWP.cpp b/Imgui/src/ImGuiImplUWP.cpp
---- a/Imgui/src/ImGuiImplUWP.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
-+++ b/Imgui/src/ImGuiImplUWP.cpp	(date 1745054232698)
+diff --git a/DiligentTools/Imgui/src/ImGuiImplUWP.cpp b/DiligentTools/Imgui/src/ImGuiImplUWP.cpp
+--- a/DiligentTools/Imgui/src/ImGuiImplUWP.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/DiligentTools/Imgui/src/ImGuiImplUWP.cpp	(date 1745054232698)
 @@ -68,7 +68,7 @@
      io.KeyMap[ImGuiKey_Space]       = VK_SPACE;
      io.KeyMap[ImGuiKey_Enter]       = VK_RETURN;
@@ -52,9 +52,9 @@ diff --git a/Imgui/src/ImGuiImplUWP.cpp b/Imgui/src/ImGuiImplUWP.cpp
      io.KeyMap[ImGuiKey_A]           = 'A';
      io.KeyMap[ImGuiKey_C]           = 'C';
      io.KeyMap[ImGuiKey_V]           = 'V';
-diff --git a/Imgui/src/ImGuiImplSDL.cpp b/Imgui/src/ImGuiImplSDL.cpp
---- a/Imgui/src/ImGuiImplSDL.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
-+++ b/Imgui/src/ImGuiImplSDL.cpp	(date 1745054232686)
+diff --git a/DiligentTools/Imgui/src/ImGuiImplSDL.cpp b/DiligentTools/Imgui/src/ImGuiImplSDL.cpp
+--- a/DiligentTools/Imgui/src/ImGuiImplSDL.cpp	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/DiligentTools/Imgui/src/ImGuiImplSDL.cpp	(date 1745054232686)
 @@ -28,7 +28,7 @@
  
  #include "Errors.hpp"
@@ -64,9 +64,9 @@ diff --git a/Imgui/src/ImGuiImplSDL.cpp b/Imgui/src/ImGuiImplSDL.cpp
  
  namespace Diligent
  {
-diff --git a/Imgui/CMakeLists.txt b/Imgui/CMakeLists.txt
---- a/Imgui/CMakeLists.txt	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
-+++ b/Imgui/CMakeLists.txt	(date 1745054232705)
+diff --git a/DiligentTools/Imgui/CMakeLists.txt b/DiligentTools/Imgui/CMakeLists.txt
+--- a/DiligentTools/Imgui/CMakeLists.txt	(revision 66b9a6ed76bc4577e43feb58a08a1c17689b6ce2)
++++ b/DiligentTools/Imgui/CMakeLists.txt	(date 1745054232705)
 @@ -51,11 +51,13 @@
      ${SOURCE}
      ${INCLUDE}
@@ -80,7 +80,7 @@ diff --git a/Imgui/CMakeLists.txt b/Imgui/CMakeLists.txt
 +find_package(imguizmo REQUIRED CONFIG)
 +
 +if(TRUE)
-+    target_link_libraries(Diligent-Imgui PRIVATE imgui::imgui imguizmo::imguizmo)
++    target_link_libraries(Diligent-Imgui PUBLIC imgui::imgui imguizmo::imguizmo)
  else()
      set(DEAR_IMGUI_INTERFACE
          ${DILIGENT_DEAR_IMGUI_PATH}/imgui.h

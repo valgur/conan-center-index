@@ -1,3 +1,4 @@
+# For DiligentCore
 find_package(SPIRV-Headers REQUIRED CONFIG)
 find_package(SPIRV-Tools REQUIRED CONFIG)
 find_package(spirv-cross REQUIRED CONFIG)
@@ -5,18 +6,22 @@ find_package(volk REQUIRED CONFIG)
 find_package(xxHash REQUIRED CONFIG)
 find_package(GLEW REQUIRED CONFIG)
 
+# For DiligentTools
+find_package(args REQUIRED CONFIG)
+find_package(JPEG REQUIRED CONFIG)
+find_package(nlohmann_json REQUIRED CONFIG)
+find_package(PNG REQUIRED CONFIG)
+find_package(stb REQUIRED CONFIG)
+find_package(TIFF REQUIRED CONFIG)
+find_package(TinyGLTF REQUIRED CONFIG)
+find_package(ZLIB REQUIRED CONFIG)
+
 if(NOT DILIGENT_NO_GLSLANG)
     find_package(glslang REQUIRED CONFIG)
     add_library(glslang INTERFACE)
     target_link_libraries(glslang INTERFACE glslang::glslang)
     target_include_directories(glslang INTERFACE ${glslang_INCLUDE_DIR}/glslang)
     add_library(SPIRV ALIAS glslang::SPIRV)
-endif()
-
-if(LINUX)
-    # X11/XCB is not actually linked against or included anywhere
-    find_package(X11 REQUIRED)
-    link_libraries(X11::X11)
 endif()
 
 add_library(SPIRV-Headers ALIAS SPIRV-Headers::SPIRV-Headers)
