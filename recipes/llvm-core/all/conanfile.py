@@ -527,14 +527,16 @@ def components_from_dotfile(dotfile):
         match each node in the dotfile with a label property, and map the label to a conan component
         """
         label_replacements = {
+            "-lpthread": "pthread",
+            "LibEdit::LibEdit": "editline::editline",
             "LibXml2::LibXml2": "libxml2::libxml2",
-            "ZLIB::ZLIB": "zlib::zlib",
-            "zstd::libzstd_static": "zstd::zstdlib",
             "z3::libz3": "z3::z3",
-            "-lpthread": "pthread"
+            "ZLIB::ZLIB": "zlib::zlib",
+            "zstd::libzstd_shared": "zstd::zstdlib",
+            "zstd::libzstd_static": "zstd::zstdlib",
         }
         for row in dot:
-            match_label = re.match(r'''^\s*"(node[0-9]+)"\s*\[\s*label\s*=\s*"(.+)".*''', row)
+            match_label = re.match(r'^\s*"(node[0-9]+)"\s*\[\s*label\s*=\s*"(.+)".*', row)
             if match_label:
                 node = match_label.group(1)
                 label = match_label.group(2)
