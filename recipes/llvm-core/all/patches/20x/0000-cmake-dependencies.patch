@@ -2,7 +2,7 @@ diff --git a/lib/Support/CMakeLists.txt b/lib/Support/CMakeLists.txt
 index f653379e3033..4cb691de3027 100644
 --- a/lib/Support/CMakeLists.txt
 +++ b/lib/Support/CMakeLists.txt
-@@ -301,27 +301,13 @@ set(llvm_system_libs ${system_libs})
+@@ -316,27 +316,13 @@
  # This block is only needed for llvm-config. When we deprecate llvm-config and
  # move to using CMake export, this block can be removed.
  if(LLVM_ENABLE_ZLIB)

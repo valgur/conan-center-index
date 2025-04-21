@@ -110,6 +110,8 @@ class LLVMCoreConan(ConanFile):
     }
     default_options.update({f"target_{t}": False for t in LLVM_TARGETS + EXPERIMENTAL_TARGETS})
 
+    no_copy_source = True
+
     @property
     def _default_target(self):
         arch = str(self.settings.arch)
@@ -291,6 +293,15 @@ class LLVMCoreConan(ConanFile):
 
         tc.cache_variables["LLVM_TARGETS_TO_BUILD"] = self._targets_to_build
 
+        # Bypass some checks in cmake/config-ix.cmake
+        tc.cache_variables["HAVE_ZLIB"] = self.options.with_zlib
+        tc.cache_variables["HAVE_LIBXML2"] = self.options.with_xml2
+        tc.cache_variables["HAVE_ZSTD"] = self.options.get_safe("with_zstd", False)
+        tc.cache_variables["HAVE_LIBEDIT"] = self.options.get_safe("with_libedit", False)
+        tc.cache_variables["HAVE_CURL"] = False
+        tc.cache_variables["HAVE_HTTPLIB"] = False
+        tc.cache_variables["HAVE_BACKTRACE"] = False
+
         if is_msvc(self):
             build_type = str(self.settings.build_type).upper()
             tc.cache_variables[f"LLVM_USE_CRT_{build_type}"] = msvc_runtime_flag(self)
@@ -332,6 +343,9 @@ class LLVMCoreConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
+        if Version(self.version) >= 18:
+            deps.set_property("editline", "cmake_file_name", "LibEdit")
+            deps.set_property("editline", "cmake_target_name", "LibEdit::LibEdit")
         deps.generate()
 
     @property
