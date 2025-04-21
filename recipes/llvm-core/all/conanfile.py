@@ -11,7 +11,6 @@ from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import Environment
 from conan.tools.files import *
-from conan.tools.gnu import GnuToolchain
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 
@@ -321,6 +320,7 @@ class LLVMCoreConan(ConanFile):
             tc.variables["CMAKE_BUILD_RPATH"] = ";".join(libdirs_host)
 
         if cross_building(self):
+            from conan.tools.gnu import GnuToolchain
             gtc = GnuToolchain(self)
             gtc_vars = gtc.extra_env.vars(self)
             tc.cache_variables["LLVM_HOST_TRIPLE"] = gtc.triplets_info["host"]["triplet"]
