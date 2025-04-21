@@ -20,7 +20,8 @@ required_conan_version = ">=2.1"
 # LLVM's default config is to enable all targets, but end users can significantly reduce
 # build times for the package by specifying only the targets they need as a
 # semi-colon delimited string in the value of the 'targets' option
-LLVM_TARGETS = {
+# https://github.com/llvm/llvm-project/blob/llvmorg-20.1.3/llvm/CMakeLists.txt#L480-L510
+LLVM_TARGETS = [
     "AArch64",
     "AMDGPU",
     "ARM",
@@ -35,12 +36,21 @@ LLVM_TARGETS = {
     "PowerPC",
     "RISCV",
     "Sparc",
+    "SPIRV",
     "SystemZ",
     "VE",
     "WebAssembly",
     "X86",
     "XCore"
-}
+]
+EXPERIMENTAL_TARGETS = [
+    "ARC",
+    "CSKY",
+    "DirectX",
+    "M68k",
+    "SPIRV",
+    "Xtensa",
+]
 
 
 class LLVMCoreConan(ConanFile):
@@ -76,7 +86,7 @@ class LLVMCoreConan(ConanFile):
         "with_z3": [True, False],
         "with_zstd": [True, False],
     }
-    options.update({f"target_{t}": [True, False] for t in LLVM_TARGETS})
+    options.update({f"target_{t}": [True, False] for t in LLVM_TARGETS + EXPERIMENTAL_TARGETS})
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -98,7 +108,7 @@ class LLVMCoreConan(ConanFile):
         "with_zlib": True,
         "with_zstd": True,
     }
-    default_options.update({f"target_{t}": False for t in LLVM_TARGETS})
+    default_options.update({f"target_{t}": False for t in LLVM_TARGETS + EXPERIMENTAL_TARGETS})
 
     @property
     def _default_target(self):
@@ -131,23 +141,30 @@ class LLVMCoreConan(ConanFile):
     def _all_targets(self):
         targets = set(LLVM_TARGETS)
         if Version(self.version) < 14:
-            targets -= {"LoongArch", "VE"}
+            targets.remove("VE")
+        if Version(self.version) < 16:
+            targets.remove("LoongArch")
+        if Version(self.version) >= 17:
+            targets |= set(EXPERIMENTAL_TARGETS)
+        if Version(self.version) < 20:
+            targets.remove("SPIRV")
         return targets
 
     @property
     def _targets_to_build(self):
         return ";".join(t for t in LLVM_TARGETS if self.options.get_safe(f"target_{t}"))
 
+    @property
+    def _experimental_targets_to_build(self):
+        return ";".join(t for t in EXPERIMENTAL_TARGETS if self.options.get_safe(f"target_{t}"))
+
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
-        for target in set(LLVM_TARGETS) - self._all_targets:
+        for target in set(LLVM_TARGETS + EXPERIMENTAL_TARGETS) - self._all_targets:
             self.options.rm_safe(f"target_{target}")
         setattr(self.options, f"target_{self._default_target}", True)
-        if Version(self.version) < 14:
-            del self.options.target_LoongArch
-            del self.options.target_VE
         if self.settings.os == "Windows":
             del self.options.fPIC
             del self.options.with_libedit  # not supported on windows
@@ -184,12 +201,7 @@ class LLVMCoreConan(ConanFile):
         self.tool_requires("cmake/[>=3.20 <4]") # required by LLVM 19
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17 if Version(self.version) >= 19 else 14)
 
         if self.options.shared:
             if self.settings.os == "Windows":
