@@ -78,7 +78,7 @@ def components_from_dotfile(dotfile):
         ]
         labels = {k: v for k, v in node_labels(dot)}
         for row in dot:
-            match_dep = re.match(r'''^\s*"(node[0-9]+)"\s*->\s*"(node[0-9]+)".*''', row)
+            match_dep = re.match(r'^\s*"(node[0-9]+)"\s*->\s*"(node[0-9]+)".*', row)
             if match_dep:
                 node_label = labels[match_dep.group(1)]
                 dependency = labels[match_dep.group(2)]
@@ -144,16 +144,7 @@ class LLVMCoreConan(ConanFile):
         "unwind_tables": [True, False],
         "expensive_checks": [True, False],
         "use_perf": [True, False],
-        "use_sanitizer": [
-            "Address",
-            "Memory",
-            "MemoryWithOrigins",
-            "Undefined",
-            "Thread",
-            "DataFlow",
-            "Address;Undefined",
-            "None"
-        ],
+        "use_sanitizer": ["Address", "Memory", "MemoryWithOrigins", "Undefined", "Thread", "DataFlow", "Address;Undefined", "None"],
         "with_ffi": [True, False],
         "with_libedit": [True, False],
         "with_terminfo": [True, False],
@@ -314,62 +305,58 @@ class LLVMCoreConan(ConanFile):
         # https://releases.llvm.org/12.0.0/docs/CMake.html
         # https://releases.llvm.org/13.0.0/docs/CMake.html
         # https://releases.llvm.org/19.1.0/docs/CMake.html
-        cmake_variables = {
-            # Enables LLVM to find conan libraries during try_compile
-            "CMAKE_TRY_COMPILE_CONFIGURATION": str(self.settings.build_type),
-            # LLVM has two separate concepts of a "shared library build".
-            # "BUILD_SHARED_LIBS" builds shared versions of all the static components
-            # "LLVM_BUILD_LLVM_DYLIB" builds a single shared library containing all components.
-            # It is likely the latter that the user expects by a "shared library" build.
-            "BUILD_SHARED_LIBS": False,
-            "LLVM_BUILD_LLVM_DYLIB": self.options.shared,
-            "LLVM_LINK_LLVM_DYLIB": self.options.shared,
-            "LLVM_DYLIB_COMPONENTS": self.options.components,
-            "LLVM_ABI_BREAKING_CHECKS": "WITH_ASSERTS",
-            "LLVM_INCLUDE_BENCHMARKS": False,
-            "LLVM_INCLUDE_TOOLS": True,
-            "LLVM_INCLUDE_EXAMPLES": False,
-            "LLVM_INCLUDE_TESTS": False,
-            "LLVM_ENABLE_IDE": False,
-            "LLVM_ENABLE_EH": self.options.exceptions,
-            "LLVM_ENABLE_RTTI": self.options.rtti,
-            "LLVM_ENABLE_THREADS": self.options.threads,
-            "LLVM_ENABLE_LTO": self.options.lto,
-            "LLVM_STATIC_LINK_CXX_STDLIB": self.options.static_stdlib,
-            "LLVM_ENABLE_UNWIND_TABLES": self.options.unwind_tables,
-            "LLVM_ENABLE_EXPENSIVE_CHECKS": self.options.expensive_checks,
-            "LLVM_ENABLE_ASSERTIONS": str(self.settings.build_type),
-            "LLVM_USE_PERF": self.options.use_perf,
-            "LLVM_ENABLE_LIBEDIT": self.options.get_safe("with_libedit", False),
-            "LLVM_ENABLE_Z3_SOLVER": self.options.with_z3,
-            "LLVM_ENABLE_FFI": self.options.with_ffi,
-            "LLVM_ENABLE_ZLIB": "FORCE_ON" if self.options.with_zlib else False,
-            "LLVM_ENABLE_LIBXML2": "FORCE_ON" if self.options.with_xml2 else False,
-        }
+        # Enables LLVM to find conan libraries during try_compile
+        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
+        # LLVM has two separate concepts of a "shared library build".
+        # "BUILD_SHARED_LIBS" builds shared versions of all the static components
+        # "LLVM_BUILD_LLVM_DYLIB" builds a single shared library containing all components.
+        # It is likely the latter that the user expects by a "shared library" build.
+        tc.cache_variables["BUILD_SHARED_LIBS"] = False
+        tc.cache_variables["LLVM_BUILD_LLVM_DYLIB"] = self.options.shared
+        tc.cache_variables["LLVM_LINK_LLVM_DYLIB"] = self.options.shared
+        tc.cache_variables["LLVM_DYLIB_COMPONENTS"] = self.options.components
+        tc.cache_variables["LLVM_ABI_BREAKING_CHECKS"] = "WITH_ASSERTS"
+        tc.cache_variables["LLVM_INCLUDE_BENCHMARKS"] = False
+        tc.cache_variables["LLVM_INCLUDE_TOOLS"] = True
+        tc.cache_variables["LLVM_INCLUDE_EXAMPLES"] = False
+        tc.cache_variables["LLVM_INCLUDE_TESTS"] = False
+        tc.cache_variables["LLVM_ENABLE_IDE"] = False
+        tc.cache_variables["LLVM_ENABLE_EH"] = self.options.exceptions
+        tc.cache_variables["LLVM_ENABLE_RTTI"] = self.options.rtti
+        tc.cache_variables["LLVM_ENABLE_THREADS"] = self.options.threads
+        tc.cache_variables["LLVM_ENABLE_LTO"] = self.options.lto
+        tc.cache_variables["LLVM_STATIC_LINK_CXX_STDLIB"] = self.options.static_stdlib
+        tc.cache_variables["LLVM_ENABLE_UNWIND_TABLES"] = self.options.unwind_tables
+        tc.cache_variables["LLVM_ENABLE_EXPENSIVE_CHECKS"] = self.options.expensive_checks
+        tc.cache_variables["LLVM_ENABLE_ASSERTIONS"] = str(self.settings.build_type)
+        tc.cache_variables["LLVM_USE_PERF"] = self.options.use_perf
+        tc.cache_variables["LLVM_ENABLE_LIBEDIT"] = self.options.get_safe("with_libedit", False)
+        tc.cache_variables["LLVM_ENABLE_Z3_SOLVER"] = self.options.with_z3
+        tc.cache_variables["LLVM_ENABLE_FFI"] = self.options.with_ffi
+        tc.cache_variables["LLVM_ENABLE_ZLIB"] = "FORCE_ON" if self.options.with_zlib else False
+        tc.cache_variables["LLVM_ENABLE_LIBXML2"] = "FORCE_ON" if self.options.with_xml2 else False
         if Version(self.version) < 19:
-            cmake_variables["LLVM_ENABLE_TERMINFO"] = self.options.get_safe("with_terminfo")
+            tc.cache_variables["LLVM_ENABLE_TERMINFO"] = self.options.get_safe("with_terminfo")
         else:
-            cmake_variables["LLVM_ENABLE_ZSTD"] = "FORCE_ON" if self.options.get_safe("with_zstd") else False
+            tc.cache_variables["LLVM_ENABLE_ZSTD"] = "FORCE_ON" if self.options.get_safe("with_zstd") else False
 
         if self.options.targets != "all":
-            cmake_variables["LLVM_TARGETS_TO_BUILD"] = self.options.targets
+            tc.cache_variables["LLVM_TARGETS_TO_BUILD"] = self.options.targets
 
-        self._apply_resource_limits(cmake_variables)
+        self._apply_resource_limits(tc.cache_variables)
 
         if is_msvc(self):
             build_type = str(self.settings.build_type).upper()
-            cmake_variables[f"LLVM_USE_CRT_{build_type}"] = msvc_runtime_flag(self)
+            tc.cache_variables[f"LLVM_USE_CRT_{build_type}"] = msvc_runtime_flag(self)
 
         if not self.options.shared:
-            cmake_variables.update({
-                "DISABLE_LLVM_LINK_LLVM_DYLIB": True,
-                "LLVM_ENABLE_PIC": self.options.get_safe("fPIC", default=True)
-            })
+            tc.cache_variables["DISABLE_LLVM_LINK_LLVM_DYLIB"] = True
+            tc.cache_variables["LLVM_ENABLE_PIC"] = self.options.get_safe("fPIC", default=True)
 
         if self.options.use_sanitizer == "None":
-            cmake_variables["LLVM_USE_SANITIZER"] = ""
+            tc.cache_variables["LLVM_USE_SANITIZER"] = ""
         else:
-            cmake_variables["LLVM_USE_SANITIZER"] = self.options.use_sanitizer
+            tc.cache_variables["LLVM_USE_SANITIZER"] = self.options.use_sanitizer
 
         if self.settings.os == "Linux":
             # Workaround for: https://github.com/conan-io/conan/issues/13560
@@ -379,9 +366,9 @@ class LLVMCoreConan(ConanFile):
         if cross_building(self):
             gtc = GnuToolchain(self)
             gtc_vars = gtc.extra_env.vars(self)
-            tc.variables["LLVM_HOST_TRIPLE"] = gtc.triplets_info["host"]["triplet"]
+            tc.cache_variables["LLVM_HOST_TRIPLE"] = gtc.triplets_info["host"]["triplet"]
             # The native build utilities don't need any external dependencies.
-            tc.variables["CROSS_TOOLCHAIN_FLAGS_NATIVE"] = ";".join([
+            tc.cache_variables["CROSS_TOOLCHAIN_FLAGS_NATIVE"] = ";".join([
                 "-DLLVM_ENABLE_LIBEDIT=FALSE",
                 "-DLLVM_ENABLE_Z3_SOLVER=FALSE",
                 "-DLLVM_ENABLE_FFI=FALSE",
@@ -395,7 +382,6 @@ class LLVMCoreConan(ConanFile):
             env.define_path("CXX", gtc_vars.get("CXX_FOR_BUILD", "c++"))
             env.vars(self).save_script("native_compiler_env")
 
-        tc.cache_variables.update(cmake_variables)
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -430,23 +416,22 @@ class LLVMCoreConan(ConanFile):
         cmake.build()
 
     @property
-    def _package_folder_path(self):
+    def _package_path(self):
         return PurePosixPath(self.package_folder)
 
     @property
     def _llvm_source_folder_path(self):
-        if (Version(self.version) < 18):
+        if Version(self.version) < 18:
             return PurePosixPath(self.source_folder)
-
         return PurePosixPath(self.source_folder) / "llvm-main"
 
     def _llvm_build_info(self):
-        cmake_config = Path(self._package_folder_path / "lib" / "cmake" / "llvm" / "LLVMConfig.cmake").read_text("utf-8")
+        cmake_config = Path(self._package_path / "lib" / "cmake" / "llvm" / "LLVMConfig.cmake").read_text("utf-8")
         components = components_from_dotfile(load(self, self._graphviz_file))
 
         return {
             "components": components,
-            "native_arch": re.search(r"""^set\(LLVM_NATIVE_ARCH (\S*)\)$""", cmake_config, re.MULTILINE).group(1)
+            "native_arch": re.search(r"^set\(LLVM_NATIVE_ARCH (\S*)\)$", cmake_config, re.MULTILINE).group(1)
         }
 
     @property
@@ -454,11 +439,11 @@ class LLVMCoreConan(ConanFile):
         return PurePosixPath("lib") / "cmake" / "llvm"
 
     @property
-    def _build_info_file(self):
-        return self._package_folder_path / self._cmake_module_path / "conan_llvm_build_info.json"
+    def _build_info_file(self) -> PurePosixPath:
+        return self._package_path / self._cmake_module_path / "conan_llvm_build_info.json"
 
     @property
-    def _build_module_file_rel_path(self):
+    def _build_module_file_rel_path(self) -> PurePosixPath:
         return self._cmake_module_path / f"conan-official-{self.name}-variables.cmake"
 
     def _create_cmake_build_module(self, build_info, module_file):
@@ -493,7 +478,6 @@ class LLVMCoreConan(ConanFile):
         build_info = self._llvm_build_info()
         with open(self._build_info_file, "w", encoding="utf-8") as fp:
             json.dump(build_info, fp, indent=2)
-
         return build_info
 
     def _read_build_info(self) -> dict:
@@ -501,37 +485,34 @@ class LLVMCoreConan(ConanFile):
             return json.load(fp)
 
     def package(self):
-        copy(self, "LICENSE.TXT", self._llvm_source_folder_path, self._package_folder_path / "licenses")
+        copy(self, "LICENSE.TXT", self._llvm_source_folder_path, self._package_path / "licenses")
         cmake = CMake(self)
         cmake.install()
 
         build_info = self._write_build_info()
 
-        cmake_folder = self._package_folder_path / "lib" / "cmake" / "llvm"
+        cmake_folder = self._package_path / "lib" / "cmake" / "llvm"
         rm(self, "LLVMConfig.cmake", cmake_folder)
         rm(self, "LLVMExports*", cmake_folder)
         rm(self, "Find*", cmake_folder)
-        rm(self, "*.pdb", self._package_folder_path / "lib")
-        rm(self, "*.pdb", self._package_folder_path / "bin")
+        rm(self, "*.pdb", self._package_path / "lib")
+        rm(self, "*.pdb", self._package_path / "bin")
         # need to rename this as Conan will flag it, but it's not actually a Config file and is needed by
         # downstream packages
         rename(self, cmake_folder / "LLVM-Config.cmake", cmake_folder / "LLVM-ConfigInternal.cmake")
         replace_in_file(self, cmake_folder / "AddLLVM.cmake", "LLVM-Config", "LLVM-ConfigInternal")
-        rmdir(self, self._package_folder_path / "share")
+        rmdir(self, self._package_path / "share")
         if self.options.shared:
-            rm(self, "*.a", self._package_folder_path / "lib")
+            rm(self, "*.a", self._package_path / "lib")
 
-        self._create_cmake_build_module(
-            build_info,
-            self._package_folder_path / self._build_module_file_rel_path
-        )
+        self._create_cmake_build_module(build_info, self._package_path / self._build_module_file_rel_path)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LLVM")
-        self.cpp_info.set_property("cmake_build_modules",
-                                   [self._build_module_file_rel_path,
-                                    self._cmake_module_path / "LLVM-ConfigInternal.cmake"]
-                                   )
+        self.cpp_info.set_property("cmake_build_modules", [
+            self._build_module_file_rel_path,
+            self._cmake_module_path / "LLVM-ConfigInternal.cmake",
+        ])
         self.cpp_info.builddirs.append(self._cmake_module_path)
 
         if not self.options.shared:
