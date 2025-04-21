@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2"
 
@@ -44,7 +45,7 @@ class Z3Conan(ConanFile):
         check_min_cppstd(self, 11)
 
     def validate_build(self):
-        check_min_cppstd(self, 17 if Version(self.version) < "4.14" else 20)
+        check_min_cppstd(self, 20 if Version(self.version) >= "4.14" else 17)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16 <4]")
