@@ -17,9 +17,8 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
-# LLVM's default config is to enable all targets, but end users can significantly reduce
-# build times for the package by specifying only the targets they need as a
-# semi-colon delimited string in the value of the 'targets' option
+# Only the target matching the host-profile architecture is enabled by default in the recipe.
+# Additional targets can be enabled by setting respective 'target_<target>' options to True.
 # https://github.com/llvm/llvm-project/blob/llvmorg-20.1.3/llvm/CMakeLists.txt#L480-L510
 LLVM_TARGETS = [
     "AArch64",
