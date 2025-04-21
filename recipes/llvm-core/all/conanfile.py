@@ -259,7 +259,7 @@ class LLVMCoreConan(ConanFile):
         tc.cache_variables["LLVM_STATIC_LINK_CXX_STDLIB"] = self.options.static_stdlib
         tc.cache_variables["LLVM_ENABLE_UNWIND_TABLES"] = self.options.unwind_tables
         tc.cache_variables["LLVM_ENABLE_EXPENSIVE_CHECKS"] = self.options.expensive_checks
-        tc.cache_variables["LLVM_ENABLE_ASSERTIONS"] = str(self.settings.build_type)
+        tc.cache_variables["LLVM_ENABLE_ASSERTIONS"] = str(self.settings.build_type) == "Debug"
         tc.cache_variables["LLVM_USE_PERF"] = self.options.use_perf
         tc.cache_variables["LLVM_ENABLE_LIBEDIT"] = self.options.get_safe("with_libedit", False)
         tc.cache_variables["LLVM_ENABLE_Z3_SOLVER"] = self.options.with_z3
