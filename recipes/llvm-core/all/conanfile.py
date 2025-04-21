@@ -414,7 +414,7 @@ class LLVMCoreConan(ConanFile):
             set(LLVM_AVAILABLE_LIBS "{';'.join(sorted(components.keys()))}")
             set(LLVM_BUILD_TYPE "{self.settings.build_type}")
             set(LLVM_CMAKE_DIR "${{CMAKE_CURRENT_LIST_DIR}}")
-            list(APPEND CMAKE_MODULE_DIR ${{CMAKE_CURRENT_LIST_DIR}})
+            list(APPEND CMAKE_MODULE_PATH ${{CMAKE_CURRENT_LIST_DIR}})
             set(LLVM_ALL_TARGETS "{';'.join(sorted(self._all_targets))}")
             set(LLVM_TARGETS_TO_BUILD "{self._targets_to_build}")
             set(LLVM_TARGETS_WITH_JIT "{';'.join(targets_with_jit)}")
