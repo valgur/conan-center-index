@@ -123,19 +123,19 @@ class LLVMCoreConan(ConanFile):
         if arch.startswith("ppc"):
             return "PowerPC"
         return {
-            "asm.js": "WebAssembly",
-            "avr": "AVR",
-            "mips": "Mips",
-            "mips64": "Mips",
+            "asm.js":  "WebAssembly",
+            "avr":     "AVR",
+            "mips":    "Mips",
+            "mips64":  "Mips",
             "riscv32": "RISCV",
             "riscv64": "RISCV",
-            "s390": "SystemZ",
-            "s390x": "SystemZ",
-            "sparc": "Sparc",
+            "s390":    "SystemZ",
+            "s390x":   "SystemZ",
+            "sparc":   "Sparc",
             "sparcv9": "Sparc",
-            "wasm": "WebAssembly",
-            "x86": "X86",
-            "x86_64": "X86",
+            "wasm":    "WebAssembly",
+            "x86":     "X86",
+            "x86_64":  "X86",
         }.get(arch)
 
     @property
@@ -165,7 +165,8 @@ class LLVMCoreConan(ConanFile):
     def config_options(self):
         for target in set(LLVM_TARGETS + EXPERIMENTAL_TARGETS) - self._all_targets:
             self.options.rm_safe(f"target_{target}")
-        setattr(self.options, f"target_{self._default_target}", True)
+        if self._default_target:
+            setattr(self.options, f"target_{self._default_target}", True)
         if self.settings.os == "Windows":
             del self.options.fPIC
             del self.options.with_libedit  # not supported on windows
