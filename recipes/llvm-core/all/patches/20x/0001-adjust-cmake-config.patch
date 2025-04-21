@@ -1,0 +1,102 @@
+diff --git a/cmake/modules/LLVMConfig.cmake.in b/cmake/modules/LLVMConfig.cmake.in
+--- a/cmake/modules/LLVMConfig.cmake.in	(revision 923a5c4f83d2b3675bb88e9fe441daeaa4d69488)
++++ b/cmake/modules/LLVMConfig.cmake.in	(date 1745271185406)
+@@ -5,9 +5,9 @@
+ # For finding self-installed Find*.cmake packages.
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+ 
+-set(LLVM_VERSION_MAJOR @LLVM_VERSION_MAJOR@)
+-set(LLVM_VERSION_MINOR @LLVM_VERSION_MINOR@)
+-set(LLVM_VERSION_PATCH @LLVM_VERSION_PATCH@)
++# set(LLVM_VERSION_MAJOR @LLVM_VERSION_MAJOR@)
++# set(LLVM_VERSION_MINOR @LLVM_VERSION_MINOR@)
++# set(LLVM_VERSION_PATCH @LLVM_VERSION_PATCH@)
+ set(LLVM_VERSION_SUFFIX @LLVM_VERSION_SUFFIX@)
+ set(LLVM_PACKAGE_VERSION @PACKAGE_VERSION@)
+ set(LLVM_PACKAGE_BUGREPORT @PACKAGE_BUGREPORT@)
+@@ -49,46 +49,24 @@
+ set(LLVM_ENABLE_EH @LLVM_ENABLE_EH@)
+ 
+ set(LLVM_ENABLE_FFI @LLVM_ENABLE_FFI@)
+-if(LLVM_ENABLE_FFI)
+-  find_package(FFI)
+-endif()
+ 
+ set(LLVM_ENABLE_RTTI @LLVM_ENABLE_RTTI@)
+ 
+ set(LLVM_ENABLE_LIBEDIT @HAVE_LIBEDIT@)
+-if(LLVM_ENABLE_LIBEDIT)
+-  find_package(LibEdit)
+-endif()
+ 
+ set(LLVM_ENABLE_THREADS @LLVM_ENABLE_THREADS@)
+ 
+ set(LLVM_ENABLE_UNWIND_TABLES @LLVM_ENABLE_UNWIND_TABLES@)
+ 
+ set(LLVM_ENABLE_ZLIB @LLVM_ENABLE_ZLIB@)
+-if(LLVM_ENABLE_ZLIB)
+-  set(ZLIB_ROOT @ZLIB_ROOT@)
+-  find_package(ZLIB)
+-endif()
+ 
+ set(LLVM_ENABLE_ZSTD @LLVM_ENABLE_ZSTD@)
+-if(LLVM_ENABLE_ZSTD)
+-  find_package(zstd)
+-endif()
+ 
+ set(LLVM_ENABLE_LIBXML2 @LLVM_ENABLE_LIBXML2@)
+-if(LLVM_ENABLE_LIBXML2)
+-  find_package(LibXml2)
+-endif()
+ 
+ set(LLVM_ENABLE_CURL @LLVM_ENABLE_CURL@)
+-if(LLVM_ENABLE_CURL)
+-  find_package(CURL)
+-endif()
+ 
+ set(LLVM_ENABLE_HTTPLIB @LLVM_ENABLE_HTTPLIB@)
+-if(LLVM_ENABLE_HTTPLIB)
+-  find_package(httplib)
+-endif()
+ 
+ set(LLVM_WITH_Z3 @LLVM_WITH_Z3@)
+ 
+@@ -114,7 +92,7 @@
+ 
+ set(LLVM_LIBDIR_SUFFIX @LLVM_LIBDIR_SUFFIX@)
+ 
+-set(LLVM_INCLUDE_DIRS "@LLVM_CONFIG_INCLUDE_DIRS@")
++# set(LLVM_INCLUDE_DIRS "@LLVM_CONFIG_INCLUDE_DIRS@")
+ set(LLVM_LIBRARY_DIRS "@LLVM_CONFIG_LIBRARY_DIRS@")
+ 
+ set(LLVM_APPEND_VC_REV "@LLVM_APPEND_VC_REV@")
+@@ -129,7 +107,7 @@
+ set(LLVM_LIBRARY_DIR "@LLVM_CONFIG_LIBRARY_DIR@")
+ 
+ # This is a secondary one for generated files
+-set(LLVM_INCLUDE_DIR "@LLVM_CONFIG_INCLUDE_DIR@")
++# set(LLVM_INCLUDE_DIR "@LLVM_CONFIG_INCLUDE_DIR@")
+ 
+ set(LLVM_DEFINITIONS "@LLVM_DEFINITIONS@")
+ set(LLVM_BINARY_DIR "@LLVM_CONFIG_BINARY_DIR@")
+@@ -139,14 +117,8 @@
+ set(LLVM_CONFIGURATION_TYPES @CMAKE_CONFIGURATION_TYPES@)
+ set(LLVM_ENABLE_SHARED_LIBS @BUILD_SHARED_LIBS@)
+ 
+-set(LLVM_DEFAULT_EXTERNAL_LIT "@LLVM_CONFIG_DEFAULT_EXTERNAL_LIT@")
+ set(LLVM_LIT_ARGS "@LLVM_LIT_ARGS@")
+ 
+-if(NOT TARGET LLVMSupport)
+-  @LLVM_CONFIG_INCLUDE_EXPORTS@
+-  @llvm_config_include_buildtree_only_exports@
+-endif()
+-
+ # By creating the following targets here, subprojects that depend on
+ # LLVM's tablegen-generated headers can always depend on this target
+ # whether building in-tree with LLVM or not.
+@@ -173,4 +145,4 @@
+ endif()
+ 
+ set_property(GLOBAL PROPERTY LLVM_TARGETS_CONFIGURED On)
+-include(${LLVM_CMAKE_DIR}/LLVM-Config.cmake)
++include(${LLVM_CMAKE_DIR}/LLVM-ConfigUtils.cmake)

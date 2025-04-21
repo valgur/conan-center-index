@@ -19,8 +19,16 @@ patches:
       patch_description: fix references to third party libs to match conan variables and targets
       patch_type: conan
       base_path: llvm-main
+    - patch_file: patches/20x/0001-adjust-cmake-config.patch
+      patch_description: Adjust the exported CMake config contents for Conan
+      patch_type: conan
+      base_path: llvm-main
   "19.1.7":
     - patch_file: patches/19x/0000-cmake-dependencies.patch
       patch_description: fix references to third party libs to match conan variables and targets
+      patch_type: conan
+      base_path: llvm-main
+    - patch_file: patches/19x/0001-adjust-cmake-config.patch
+      patch_description: Adjust the exported CMake config contents for Conan
       patch_type: conan
       base_path: llvm-main
