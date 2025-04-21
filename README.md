@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-20:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-21:
 
 - aeron/1.43.0
 - apr-util/1.6.3
@@ -56,7 +56,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
-- diligent-core/2.5.6.8
+- diligent-engine/2.5.6.8
 - dpdk/24.07
 - elfutils/0.191
 - elfutils/0.192
@@ -125,6 +125,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - icu4x/1.4.1
 - icu4x/1.5.1
 - imagemagick/7.1.1.38
+- imgui/1.91.9
+- imgui/1.91.9b
 - imlib2/1.12.3
 - influxdb-cxx/0.7.3
 - ios-cmake/4.4.1
@@ -274,6 +276,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-tools/1.3.290.0
 - spirv-tools/1.3.296.0
 - splinter/3.0
+- stb/cci.20250314
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
 - suitesparse-amd/3.3.3
