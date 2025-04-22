@@ -69,7 +69,6 @@ class LLVMCoreConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "monolithic": [True, False],
-        "components": ["ANY"],
         "exceptions": [True, False],
         "rtti": [True, False],
         "threads": [True, False],
@@ -91,7 +90,6 @@ class LLVMCoreConan(ConanFile):
         "shared": True,
         "fPIC": True,
         "monolithic": False,
-        "components": "all",
         "exceptions": True,
         "rtti": True,
         "threads": True,
@@ -265,7 +263,6 @@ class LLVMCoreConan(ConanFile):
         tc.cache_variables["LLVM_LINK_LLVM_DYLIB"] = self.options.get_safe("monolithic", False)
         tc.cache_variables["LLVM_ENABLE_PIC"] = self.options.get_safe("fPIC", True)
 
-        tc.cache_variables["LLVM_DYLIB_COMPONENTS"] = self.options.components
         tc.cache_variables["LLVM_ABI_BREAKING_CHECKS"] = "WITH_ASSERTS"
         tc.cache_variables["LLVM_INCLUDE_BENCHMARKS"] = False
         tc.cache_variables["LLVM_INCLUDE_TOOLS"] = True
@@ -305,9 +302,7 @@ class LLVMCoreConan(ConanFile):
             build_type = str(self.settings.build_type).upper()
             tc.cache_variables[f"LLVM_USE_CRT_{build_type}"] = msvc_runtime_flag(self)
 
-        if self.options.use_sanitizer == "None":
-            tc.cache_variables["LLVM_USE_SANITIZER"] = ""
-        else:
+        if self.options.use_sanitizer != "None":
             tc.cache_variables["LLVM_USE_SANITIZER"] = self.options.use_sanitizer
 
         if self.settings.os == "Linux":
