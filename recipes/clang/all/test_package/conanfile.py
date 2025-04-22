@@ -10,11 +10,14 @@ import os
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    test_type = "explicit"
-    generators = "CMakeDeps", "CMakeToolchain", "VirtualRunEnv"
+    generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
-        self.requires(self.tested_reference_str, run=True)
+        self.requires(self.tested_reference_str, run=can_run(self))
+
+    def test_requirements(self):
+        if not can_run(self):
+            self.test_requires(self.tested_reference_str)
 
     def layout(self):
         cmake_layout(self)
