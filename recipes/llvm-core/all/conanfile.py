@@ -59,15 +59,16 @@ class LLVMCoreConan(ConanFile):
         "A toolkit for the construction of highly optimized compilers,"
         "optimizers, and runtime environments."
     )
-    package_type = "library"
     license = "Apache-2.0 WITH LLVM-exception"
     topics = ("llvm", "compiler")
     homepage = "https://llvm.org"
     url = "https://github.com/conan-io/conan-center-index"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "monolithic": [True, False],
         "components": ["ANY"],
         "exceptions": [True, False],
         "rtti": [True, False],
@@ -89,6 +90,7 @@ class LLVMCoreConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "monolithic": False,
         "components": "all",
         "exceptions": True,
         "rtti": True,
@@ -107,6 +109,9 @@ class LLVMCoreConan(ConanFile):
         "with_zstd": True,
     }
     default_options.update({f"target_{t}": False for t in LLVM_TARGETS + EXPERIMENTAL_TARGETS})
+    options_description = {
+        "monolithic": "Build a single monolithic shared library containing all LLVM components.",
+    }
 
     no_copy_source = True
 
@@ -162,13 +167,19 @@ class LLVMCoreConan(ConanFile):
             self.options.rm_safe(f"target_{target}")
         if self._host_target:
             setattr(self.options, f"target_{self._host_target}", True)
+
         if self.settings.os == "Windows":
             del self.options.fPIC
             del self.options.with_libedit  # not supported on windows
 
+        if is_apple_os(self):
+            self.options["libxml2"].iconv = False
+
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        else:
+            del self.options.monolithic
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -195,8 +206,6 @@ class LLVMCoreConan(ConanFile):
         check_min_cppstd(self, 17)
 
         if self.options.shared:
-            if self.settings.os == "Windows":
-                raise ConanInvalidConfiguration("Shared builds are currently not supported on Windows")
             if is_apple_os(self) and self.options.with_xml2 and bool(self.dependencies["libxml2"].options.iconv):
                 # FIXME iconv contains duplicate symbols in the libiconv and libcharset libraries (both of which are
                 #  provided by libiconv). This may be an issue with how conan packages libiconv
@@ -241,13 +250,16 @@ class LLVMCoreConan(ConanFile):
         # https://releases.llvm.org/19.1.0/docs/CMake.html
         # Enables LLVM to find conan libraries during try_compile
         tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
+
         # LLVM has two separate concepts of a "shared library build".
-        # "BUILD_SHARED_LIBS" builds shared versions of all the static components
-        # "LLVM_BUILD_LLVM_DYLIB" builds a single shared library containing all components.
-        # It is likely the latter that the user expects by a "shared library" build.
-        tc.cache_variables["BUILD_SHARED_LIBS"] = False
-        tc.cache_variables["LLVM_BUILD_LLVM_DYLIB"] = self.options.shared
-        tc.cache_variables["LLVM_LINK_LLVM_DYLIB"] = self.options.shared
+        # "BUILD_SHARED_LIBS" builds shared versions of all components instead of static.
+        # "LLVM_BUILD_LLVM_DYLIB" links all static libraries into an additional monolithic LLVM shared library.
+        # "LLVM_LINK_LLVM_DYLIB" uses the LLVM monolithic library when linking executables.
+        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared and not self.options.get_safe("monolithic")
+        tc.cache_variables["LLVM_BUILD_LLVM_DYLIB"] = self.options.get_safe("monolithic", False)
+        tc.cache_variables["LLVM_LINK_LLVM_DYLIB"] = self.options.get_safe("monolithic", False)
+        tc.cache_variables["LLVM_ENABLE_PIC"] = self.options.get_safe("fPIC", True)
+
         tc.cache_variables["LLVM_DYLIB_COMPONENTS"] = self.options.components
         tc.cache_variables["LLVM_ABI_BREAKING_CHECKS"] = "WITH_ASSERTS"
         tc.cache_variables["LLVM_INCLUDE_BENCHMARKS"] = False
@@ -286,10 +298,6 @@ class LLVMCoreConan(ConanFile):
         if is_msvc(self):
             build_type = str(self.settings.build_type).upper()
             tc.cache_variables[f"LLVM_USE_CRT_{build_type}"] = msvc_runtime_flag(self)
-
-        if not self.options.shared:
-            tc.cache_variables["DISABLE_LLVM_LINK_LLVM_DYLIB"] = True
-            tc.cache_variables["LLVM_ENABLE_PIC"] = self.options.get_safe("fPIC", default=True)
 
         if self.options.use_sanitizer == "None":
             tc.cache_variables["LLVM_USE_SANITIZER"] = ""
@@ -331,7 +339,7 @@ class LLVMCoreConan(ConanFile):
 
     @property
     def _graphviz_file(self):
-        return Path(self.build_folder) / "llvm-core.dot"
+        return Path(self.build_folder) / f"{self.name}.dot"
 
     def _validate_components(self, components):
         for component, info in components.items():
@@ -350,6 +358,10 @@ class LLVMCoreConan(ConanFile):
             "components": components_from_dotfile(self._graphviz_file.read_text()),
         }
 
+    @property
+    def _build_info_file(self):
+        return self._package_path / self._cmake_module_path / "conan_build_info.json"
+
     def _write_build_info(self, path):
         Path(path).write_text(json.dumps(self._llvm_build_info, indent=2))
 
@@ -362,10 +374,13 @@ class LLVMCoreConan(ConanFile):
 
         # components not exported or not of interest
         exclude_patterns = [
+            ".+_static",
             "LLVMTableGenGlobalISel.*",
             "CONAN_LIB.*",
             "LLVMExegesis.*",
-            "LLVMCFIVerify.*"
+            "LLVMCFIVerify.*",
+            "-Wl,.*",
+            r".*diaguids\.lib",  # https://github.com/llvm/llvm-project/issues/86250
         ]
         Path(self.build_folder, "CMakeGraphVizOptions.cmake").write_text(textwrap.dedent(f"""
             set(GRAPHVIZ_EXECUTABLES OFF)
@@ -390,10 +405,6 @@ class LLVMCoreConan(ConanFile):
     def _cmake_module_path(self):
         return Path("lib") / "cmake" / "llvm"
 
-    @property
-    def _build_info_file(self):
-        return self._package_path / self._cmake_module_path / "conan_llvm_build_info.json"
-
     def package(self):
         copy(self, "LICENSE.TXT", self._source_path, self._package_path / "licenses")
         cmake = CMake(self)
@@ -410,18 +421,24 @@ class LLVMCoreConan(ConanFile):
         rename(self, cmake_folder / "LLVM-Config.cmake", cmake_folder / "LLVM-ConfigUtils.cmake")
         replace_in_file(self, cmake_folder / "AddLLVM.cmake", "LLVM-Config", "LLVM-ConfigUtils")
 
+        if self.options.get_safe("monolithic"):
+            # Keep only libLLVM.so
+            rm(self, "*.a", self._package_path / "lib")
+
         rm(self, "*.pdb", self._package_path / "lib")
         rm(self, "*.pdb", self._package_path / "bin")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LLVM")
 
+        libs = collect_libs(self)
         components = self._read_build_info()["components"]
         for component_name, data in components.items():
-            self.cpp_info.components[component_name].set_property("cmake_target_name", component_name)
-            self.cpp_info.components[component_name].libs = [component_name]
-            self.cpp_info.components[component_name].requires = data["requires"]
-            self.cpp_info.components[component_name].system_libs = data["system_libs"]
+            if component_name in libs:
+                self.cpp_info.components[component_name].set_property("cmake_target_name", component_name)
+                self.cpp_info.components[component_name].libs = [component_name]
+                self.cpp_info.components[component_name].requires = data["requires"]
+                self.cpp_info.components[component_name].system_libs = data["system_libs"]
 
         self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "LLVM-ConfigInternal.cmake"])
         self.cpp_info.components["LLVMSupport"].builddirs.append(self._cmake_module_path)
@@ -475,25 +492,11 @@ def components_from_dotfile(dotfile):
         "dl",
         "pthread"
     }
-    ignored_deps = [
-        "diaguids.lib"  # https://github.com/llvm/llvm-project/issues/86250
-    ]
-
     components = {}
     for component, deps in parse_dotfile(dotfile, label_replacements).items():
-        if not component.startswith("LLVM"):
-            continue
-        requires = []
-        system_libs = []
-        for dep in deps:
-            if dep.startswith("-Wl") or Path(dep).name in ignored_deps:
-                continue
-            if dep in known_system_libs:
-                system_libs.append(dep)
-            else:
-                requires.append(dep)
-        components[component] = {
-            "requires": requires,
-            "system_libs": system_libs
-        }
+        if component.startswith("LLVM"):
+            components[component] = {
+                "requires": [d for d in deps if d not in known_system_libs],
+                "system_libs": [d for d in deps if d in known_system_libs],
+            }
     return components

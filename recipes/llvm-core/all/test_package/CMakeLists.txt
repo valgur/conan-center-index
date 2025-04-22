@@ -1,24 +1,23 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
+find_package(LLVM REQUIRED CONFIG)
+
+add_executable(${PROJECT_NAME} test_package.cpp)
+
+if (TARGET LLVM)
+    target_link_libraries(${PROJECT_NAME} PRIVATE LLVM)
+else()
+    llvm_map_components_to_libnames(llvm_libs interpreter nativecodegen irreader)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${llvm_libs})
+endif()
+
 macro(test_llvm_cmake_variable VARIABLE)
     if(NOT DEFINED ${VARIABLE})
         message(FATAL_ERROR "${VARIABLE} is not defined")
     endif()
     message(STATUS "${VARIABLE}: ${${VARIABLE}}")
 endmacro()
-
-set(CMAKE_CXX_STANDARD 17)
-add_executable(${PROJECT_NAME} test_package.cpp)
-
-if (LLVM_SHARED)
-    find_package(LLVM REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PRIVATE LLVM)
-else()
-    find_package(LLVM REQUIRED)
-    llvm_map_components_to_libnames(llvm_libs interpreter nativecodegen irreader)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${llvm_libs})
-endif()
 
 message(STATUS "Testing LLVM Build Module Variables")
 test_llvm_cmake_variable(LLVM_PACKAGE_VERSION)
