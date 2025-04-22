@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-21:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-22:
 
 - aeron/1.43.0
 - apr-util/1.6.3
@@ -199,6 +199,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - linux-headers-generic/5.19.17
 - linux-headers-generic/6.14.2
 - linux-pam/1.6.1
+- llvm-core/20.1.3
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
