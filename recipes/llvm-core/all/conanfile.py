@@ -195,7 +195,7 @@ class LLVMCoreConan(ConanFile):
             self.requires("libxml2/[>=2.12.5 <3]")
         if self.options.with_z3:
             self.requires("z3/[^4.13.0]")
-        if self.options.get_safe("with_zstd"):
+        if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
 
     def build_requirements(self):
@@ -224,9 +224,14 @@ class LLVMCoreConan(ConanFile):
 
     def source(self):
         sources = self.conan_data["sources"][self.version]
-        get(self, **sources["llvm"], destination="llvm-main", strip_root=True)
+        get(self, **sources["llvm"], destination="llvm", strip_root=True)
         get(self, **sources["cmake"], destination="cmake", strip_root=True)
         apply_conandata_patches(self)
+        modules_dir = Path("llvm", "cmake", "modules")
+        for path in modules_dir.glob("Find*.cmake"):
+            if path.name != "FindOCaml.cmake":
+                path.unlink()
+        modules_dir.joinpath("FindLibpfm.cmake").write_text("")
 
     def _apply_resource_limits(self, cmake_definitions):
         if os.getenv("CONAN_CENTER_BUILD_SERVICE"):
@@ -281,7 +286,7 @@ class LLVMCoreConan(ConanFile):
         tc.cache_variables["LLVM_ENABLE_FFI"] = self.options.with_ffi
         tc.cache_variables["LLVM_ENABLE_ZLIB"] = "FORCE_ON" if self.options.with_zlib else False
         tc.cache_variables["LLVM_ENABLE_LIBXML2"] = "FORCE_ON" if self.options.with_xml2 else False
-        tc.cache_variables["LLVM_ENABLE_ZSTD"] = "FORCE_ON" if self.options.get_safe("with_zstd") else False
+        tc.cache_variables["LLVM_ENABLE_ZSTD"] = "FORCE_ON" if self.options.with_zstd else False
 
         tc.cache_variables["LLVM_TARGETS_TO_BUILD"] = self._targets_to_build
         tc.cache_variables["LLVM_TARGET_ARCH"] = self._host_target
@@ -294,6 +299,7 @@ class LLVMCoreConan(ConanFile):
         tc.cache_variables["HAVE_CURL"] = False
         tc.cache_variables["HAVE_HTTPLIB"] = False
         tc.cache_variables["HAVE_BACKTRACE"] = False
+        tc.cache_variables["HAVE_LIBPFM"] = False
 
         if is_msvc(self):
             build_type = str(self.settings.build_type).upper()
@@ -342,14 +348,19 @@ class LLVMCoreConan(ConanFile):
         return Path(self.build_folder) / f"{self.name}.dot"
 
     def _validate_components(self, components):
+        direct_deps = {k.ref.name for k, v in self.dependencies.direct_host.items()}
+        all_ext_deps = set()
         for component, info in components.items():
             if not component.startswith("LLVM"):
                 raise ConanException(f"Unexpected component: {component}")
             for req in info["requires"]:
                 if not req.startswith("LLVM"):
                     dep = req.split("::", 1)[0]
-                    if dep not in self.dependencies:
+                    if dep not in direct_deps:
                         raise ConanException(f"Unexpected dependency for {component}: {req}")
+                    all_ext_deps.add(dep)
+        if direct_deps - all_ext_deps:
+            raise ConanException(f"Dependencies not used by any components: {', '.join(direct_deps - all_ext_deps)}")
 
     @property
     @lru_cache
@@ -374,7 +385,7 @@ class LLVMCoreConan(ConanFile):
 
         # components not exported or not of interest
         exclude_patterns = [
-            ".+_static",
+            "LLVM.+_static",
             "LLVMTableGenGlobalISel.*",
             "CONAN_LIB.*",
             "LLVMExegesis.*",
@@ -388,7 +399,7 @@ class LLVMCoreConan(ConanFile):
             set(GRAPHVIZ_OBJECT_LIBS OFF)
             set(GRAPHVIZ_IGNORE_TARGETS "{';'.join(exclude_patterns)}")
         """))
-        cmake.configure(build_script_folder="llvm-main", cli_args=graphviz_args)
+        cmake.configure(build_script_folder="llvm", cli_args=graphviz_args)
         self._write_build_info(self._build_info_file.name)
         self._validate_components(self._llvm_build_info["components"])
         cmake.build()
@@ -399,7 +410,7 @@ class LLVMCoreConan(ConanFile):
 
     @property
     def _source_path(self):
-        return Path(self.source_folder) / "llvm-main"
+        return Path(self.source_folder) / "llvm"
 
     @property
     def _cmake_module_path(self):
