@@ -88,7 +88,7 @@ class LLVMCoreConan(ConanFile):
     }
     options.update({f"target_{t}": [True, False] for t in LLVM_TARGETS + EXPERIMENTAL_TARGETS})
     default_options = {
-        "shared": False,
+        "shared": True,
         "fPIC": True,
         "monolithic": False,
         "components": "all",
