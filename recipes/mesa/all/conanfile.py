@@ -6,7 +6,7 @@ from functools import lru_cache
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.build import check_min_cppstd, cross_building, check_max_cppstd
+from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMakeDeps
 from conan.tools.env import Environment
 from conan.tools.files import *
@@ -116,8 +116,8 @@ class MesaConan(ConanFile):
         "gles2": True,
         "glx": "dri",
         "imagination_srv": False,
-        "intel_clc": False,
-        "microsoft_clc": False,
+        "intel_clc": "system",
+        "microsoft_clc": True,
         "min_windows_version": "8",
         "opencl_spirv": False,
         "opengl": True,
@@ -135,8 +135,7 @@ class MesaConan(ConanFile):
         "with_libselinux": False,
         "with_libudev": "systemd",
         "with_libunwind": True,
-        # todo When the llvm Conan package is available, this should default to True.
-        "with_llvm": False,
+        "with_llvm": True,
         # "with_lmsensors": True,
         "with_perfetto": False,
         "with_zlib": True,
@@ -297,7 +296,7 @@ class MesaConan(ConanFile):
         if self.settings.os not in ["FreeBSD", "Linux"]:
             self.options.rm_safe("xmlconfig")
 
-        if not self._has_egl_option:
+        if is_apple_os(self):
             self.options.rm_safe("egl")
 
         if self.settings.os == "Windows":
@@ -437,10 +436,6 @@ class MesaConan(ConanFile):
             # The `with_glx` option in libva requires `opengl/system` which causes a conflict when not using libglvnd.
             self.options["libva"].with_glx = False
 
-        # todo
-        # if self._requires_libclc:
-        #     self.dependencies["llvm"].options.with_project_libclc = True
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -477,7 +472,14 @@ class MesaConan(ConanFile):
             self.requires("libunwind/1.8.1")
 
         if self.options.get_safe("with_llvm"):
-            self.requires("llvm/17.0.2")
+            self.requires("llvm-core/20.1.3", options={
+                "target_AMDGPU": True,
+                "target_NVPTX": True,
+            })
+            # TODO: add llvmspirvlib from SPIRV-LLVM-Translator
+
+        if self._requires_libclc:
+            self.requires("libclc/20.1.3")
 
         if self.options.get_safe("opencl_spirv"):
             self.requires("spirv-tools/1.4.309.0")
@@ -510,11 +512,6 @@ class MesaConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
-        check_max_cppstd(self, 17)
-
-        # todo Remove this when the llvm Conan package is merged.
-        if self.options.get_safe("with_llvm"):
-            raise ConanInvalidConfiguration("The with_llvm option is not available until the llvm Conan package becomes available.")
 
         if self.options.get_safe("egl") and not self.options.get_safe("shared_glapi"):
             raise ConanInvalidConfiguration("The egl option requires the the shared_glapi option to be enabled")
@@ -588,12 +585,8 @@ class MesaConan(ConanFile):
         if "overlay" in self._vulkan_layers and is_msvc(self):
             raise ConanInvalidConfiguration("The vulkan_layer_overlay option doesn't compile with MSVC")
 
-        # todo
-        # if self._requires_libclc and not (self.options.get_safe("with_llvm") and self.dependencies["llvm"].options.with_project_libclc):
-        #     raise ConanInvalidConfiguration("The gallium_opencl, gallium_rusticl, intel_clc, and microsoft_clc options require libclc from LLVM")
-
-        if self.options.get_safe("opencl_spirv") and not (self.options.get_safe("with_llvm") and self.dependencies.direct_host["llvm"].options.with_project_libclc):
-            raise ConanInvalidConfiguration("The opencl_spirv option requires the with_project_libclc option to be enabled for the llvm package")
+    def validate_build(self):
+        check_max_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -608,10 +601,12 @@ class MesaConan(ConanFile):
             self.tool_requires("bison/3.8.2")
             self.tool_requires("flex/2.6.4")
         if {"amd", "intel", "overlay"} & self._vulkan_layers:
-            self.tool_requires("glslang/1.3.290.0")
-        # todo if self._requires_libclc and self.dependencies["llvm"].options.shared == False and self.options.with_zstd:
-        # if self.options.get_safe("with_llvm"):
-        #     self.tool_requires("llvm/<host_version>")
+            self.tool_requires("glslang/1.4.309.0")
+        if self.options.get_safe("with_llvm"):
+            self.tool_requires("llvm-core/<host_version>", options={
+                "target_AMDGPU": True,
+                "target_NVPTX": True,
+            })
         if self._requires_libclc and self.options.with_zstd:
             self.tool_requires("zstd/[^1.5]")
         # Python is required for mako
@@ -620,6 +615,9 @@ class MesaConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "meson.build",
+                        "dependency('SPIRV-Tools', required : true, version : '>= 2018.0')",
+                        "dependency('SPIRV-Tools', required : true)")
 
     def generate(self):
         def boolean(option):
@@ -680,7 +678,7 @@ class MesaConan(ConanFile):
         tc.project_options["shader-cache"] = feature("shader_cache")
         tc.project_options["shared-glapi"] = feature("shared_glapi")
         if self.options.get_safe("with_llvm"):
-            tc.project_options["shared-llvm"] = "enabled" if self.dependencies["llvm"].options.shared else "disabled"
+            tc.project_options["shared-llvm"] = "enabled" if self.dependencies["llvm-core"].options.shared else "disabled"
         tc.project_options["sse2"] = boolean("sse2")
         tc.project_options["tools"] = sorted(t.replace("_", "-") for t in self._tools)
         tc.project_options["valgrind"] = "disabled"
@@ -697,15 +695,13 @@ class MesaConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.build_context_activated.append("wayland")
         deps.build_context_activated.append("wayland-protocols")
-        deps.build_context_suffix = {"wayland": "_BUILD"}
+        deps.build_context_folder = os.path.join(self.generators_folder, "build")
         deps.generate()
 
-        if cross_building(self):
-            # required for dependency(..., native: true) in meson.build
-            env = Environment()
-            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
-            env.vars(self).save_script("pkg_config_for_build_env")
+        env = Environment()
+        env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+        env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
+        env.vars(self).save_script("pkg_config_for_build_env")
 
         if self.options.get_safe("with_llvm"):
             deps = CMakeDeps(self)
@@ -727,7 +723,7 @@ class MesaConan(ConanFile):
         return os.path.join(self.build_folder, "site-packages")
 
     def _pip_install(self, packages):
-        self.run(f"python -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}",
+        self.run(f"python -m pip install {' '.join(packages)} --target={self._site_packages_dir}",
                  cwd=self.source_folder)
 
     def build(self):
@@ -927,7 +923,9 @@ class MesaConan(ConanFile):
             self.cpp_info.requires.append("zstd::zstd")
 
         if self.options.get_safe("with_llvm"):
-            self.cpp_info.requires.append("llvm::llvm")
+            self.cpp_info.requires.append("llvm-core::llvm-core")
+        if self._requires_libclc:
+            self.cpp_info.requires.append("libclc::libclc")
         if self.options.get_safe("gallium_va"):
             self.cpp_info.requires.append("libva::libva_")
             if self.settings.os == "Windows":
