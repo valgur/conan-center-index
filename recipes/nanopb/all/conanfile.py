@@ -85,6 +85,7 @@ class NanopbConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "nanopb::protobuf-nanopb")
         self.cpp_info.set_property("cmake_target_aliases", ["nanopb::protobuf-nanopb-static"])
         self.cpp_info.libs = ["protobuf-nanopb"]
+        self.cpp_info.includedirs = [os.path.join("include", "nanopb")]
 
         site_packages_dir = str(next(Path(self.package_folder, "lib").glob("python*")).joinpath("site-packages"))
         self.buildenv_info.prepend_path("PYTHONPATH", site_packages_dir)
