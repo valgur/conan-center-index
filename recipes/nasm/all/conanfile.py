@@ -2,13 +2,12 @@ import os
 import shutil
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import NMakeToolchain, is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class NASMConan(ConanFile):
@@ -19,8 +18,8 @@ class NASMConan(ConanFile):
     description = "The Netwide Assembler, NASM, is an 80x86 and x86-64 assembler"
     license = "BSD-2-Clause"
     topics = ("asm", "installer", "assembler",)
-
     settings = "os", "arch", "compiler", "build_type"
+    languages = ["C"]
 
     @property
     def _nasm(self):
@@ -39,10 +38,6 @@ class NASMConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -56,49 +51,45 @@ class NASMConan(ConanFile):
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")
+        if not is_msvc(self):
+            self.tool_requires("autoconf/2.72")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()
         else:
             tc = AutotoolsToolchain(self)
+            tc.configure_args.append("--disable-werror")
+            if self.settings.build_type == "Debug":
+                tc.configure_args.append("--enable-debug")
             if self.settings.arch == "x86":
                 tc.extra_cflags.append("-m32")
             elif self.settings.arch == "x86_64":
                 tc.extra_cflags.append("-m64")
+            # disable installation of man files
+            tc.make_args.append("INSTALL_DATA=echo")
             tc.generate()
 
     def build(self):
         if is_msvc(self):
             with chdir(self, self.source_folder):
-                self.run(f'nmake /f {os.path.join("Mkfiles", "msvc.mak")}')
+                self.run(r"nmake /f Mkfiles\msvc.mak")
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
+                self.run("./autogen.sh")
                 autotools.configure()
-
-                # GCC9 - "pure" attribute on function returning "void"
-                replace_in_file(self, "Makefile", "-Werror=attributes", "")
-
-                # Need "-arch" flag for the linker when cross-compiling.
-                # FIXME: Revisit after https://github.com/conan-io/conan/issues/9069, using new Autotools integration
-                # TODO it is time to revisit, not sure what to do here though...
-                if str(self.version).startswith("2.13"):
-                    replace_in_file(self, "Makefile", "$(CC) $(LDFLAGS) -o", "$(CC) $(ALL_CFLAGS) $(LDFLAGS) -o")
-                    replace_in_file(self, "Makefile", "$(INSTALLROOT)", "$(DESTDIR)")
                 autotools.make()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
-            copy(self, pattern="*.exe", src=self.source_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
+            copy(self, "*.exe", self.source_folder, os.path.join(self.package_folder, "bin"), keep_path=False)
             with chdir(self, os.path.join(self.package_folder, "bin")):
                 shutil.copy2("nasm.exe", "nasmw.exe")
                 shutil.copy2("ndisasm.exe", "ndisasmw.exe")

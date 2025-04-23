@@ -1,6 +1,6 @@
---- Mkfiles/msvc.mak
-+++ Mkfiles/msvc.mak
-@@ -226,7 +226,7 @@
+--- a/Mkfiles/msvc.mak
++++ b/Mkfiles/msvc.mak
+@@ -242,7 +242,7 @@
  x86\regs.h: x86\regs.dat x86\regs.pl
  	$(RUNPERL) $(srcdir)\x86\regs.pl h \
  		$(srcdir)\x86\regs.dat > x86\regs.h
@@ -9,7 +9,7 @@
  # Extract warnings from source code. This is done automatically if any
  # C files have changed; the script is fast enough that that is
  # reasonable, but doesn't update the time stamp if the files aren't
-@@ -262,7 +262,7 @@
+@@ -277,7 +277,7 @@
  
  doc\warnings.src : doc\warnings.src.time
  	@: Side effect
