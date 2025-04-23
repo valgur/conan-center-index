@@ -17,7 +17,7 @@ index a63ce4d..6224832 100644
      unless $ENV{AUTOMAKE_UNINSTALLED};
  }
  
-@@ -64,9 +67,16 @@ $perl_threads = 0;
+@@ -64,9 +67,10 @@ $perl_threads = 0;
  # @system_includes can be augmented with the 'dirlist' file or the
  # ACLOCAL_PATH environment variable, and reset with the '--system-acdir'
  # option.
@@ -27,25 +27,10 @@ index a63ce4d..6224832 100644
 -my @system_includes = ('@datadir@/aclocal');
 +my @automake_includes = ("$scriptpath/../share/aclocal-" . $APIVERSION);
 +my @system_includes = ("$scriptpath/../share/aclocal");
-+my @conan_includes;
-+foreach my $conandir (uniq(split(/[:;]/, $ENV{'AUTOMAKE_CONAN_INCLUDES'} || ""))) 
-+{
-+    push (@conan_includes, $conandir) if $conandir ne '' && -d $conandir;
-+    
-+}
  
  # Whether we should copy M4 file in $user_includes[0].
  my $install = 0;
-@@ -448,6 +458,8 @@ sub scan_m4_files ()
-     }
-   scan_m4_dirs (FT_AUTOMAKE, SCAN_M4_DIRS_ERROR, @automake_includes);
-   scan_m4_dirs (FT_SYSTEM, SCAN_M4_DIRS_ERROR, @system_includes);
-+  scan_m4_dirs (FT_SYSTEM, SCAN_M4_DIRS_ERROR, @conan_includes);
-+
- 
-   # Construct a new function that does the searching.  We use a
-   # function (instead of just evaluating $search in the loop) so that
-@@ -768,7 +780,7 @@ sub trace_used_macros ()
+@@ -768,7 +772,7 @@ sub trace_used_macros ()
    # aclocal.m4 is not yet available.
    local $ENV{WARNINGS} = 'none';
  
