@@ -1,0 +1,18 @@
+sources:
+  "1.0":
+    url: "https://github.com/scottt/debugbreak/archive/refs/tags/v1.0.tar.gz"
+    sha256: "62089680cc1cd0857519e2865b274ed7534bfa7ddfce19d72ffee41d4921ae2f"
+patches:
+  "1.0":
+    - patch_file: "patches/001-support-riscv.patch"
+      patch_description: "Support RISC-V"
+      patch_source: "https://github.com/scottt/debugbreak/commit/56b6b8f20f75f5d938ac33adbfb3d39c91261eb4"
+      patch_type: "backport"
+    - patch_file: "patches/002-aarch64-builtin_debuggrap.patch"
+      patch_description: "Use __builtin_debuggrap on Apple AARCH64"
+      patch_source: "https://github.com/scottt/debugbreak/commit/5dcbe41d2bd4712c8014aa7e843723ad7b40fd74"
+      patch_type: "backport"
+    - patch_file: "patches/003-fix-apple-silicon-gcc-and-use-debugtrap-where-possible.patch"
+      patch_description: "Fix build issue on macOS (aarch64, gcc) and use debugtrap wherever possible"
+      patch_source: "https://github.com/scottt/debugbreak/pull/25"
+      patch_type: "bugfix"
