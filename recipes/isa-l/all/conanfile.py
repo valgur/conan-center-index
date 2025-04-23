@@ -50,7 +50,7 @@ class LibisalConan(ConanFile):
             raise ConanInvalidConfiguration(f"Version {self.version} does not support armv8")
 
     def build_requirements(self):
-        self.tool_requires("nasm/2.15.05")
+        self.tool_requires("nasm/[^2.16]")
         if not is_msvc(self):
             self.tool_requires("libtool/2.4.7")
             if self.settings_build.os == "Windows":

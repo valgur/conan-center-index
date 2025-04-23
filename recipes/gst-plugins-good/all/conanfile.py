@@ -272,7 +272,7 @@ class GStPluginsGoodConan(ConanFile):
         if "gst-orc" in self._all_reqs:
             self.tool_requires("gst-orc/<host_version>")
         if self.options.get_safe("with_asm"):
-            self.tool_requires("nasm/2.16.01")
+            self.tool_requires("nasm/[^2.16]")
         if self._with_qt and not can_run(self):
             self.tool_requires("qt/<host_version>", options={
                 **self._qt_options,

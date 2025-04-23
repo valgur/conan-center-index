@@ -46,7 +46,7 @@ class OpenH264Conan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if self.settings.arch in ["x86", "x86_64"]:
-            self.tool_requires("nasm/2.16.01")
+            self.tool_requires("nasm/[^2.16]")
 
     def validate(self):
         if Version(self.version) <= "2.1.1" and self.settings.os in ["Android", "Macos"]:

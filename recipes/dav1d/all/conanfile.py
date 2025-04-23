@@ -64,7 +64,7 @@ class Dav1dConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if self.options.assembly:
-            self.tool_requires("nasm/2.16.01")
+            self.tool_requires("nasm/[^2.16]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
