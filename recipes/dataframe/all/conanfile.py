@@ -104,7 +104,7 @@ class DataFrameConan(ConanFile):
 
     def build_requirements(self):
         # For C++23 support
-        self.tool_requires("cmake/[>=3.20 <4]")
+        self.tool_requires("cmake/[>=3.20 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

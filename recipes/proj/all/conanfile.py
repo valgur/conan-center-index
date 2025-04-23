@@ -53,7 +53,7 @@ class ProjConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "9.4.0":
-            self.tool_requires("cmake/[>=3.16 <4]")
+            self.tool_requires("cmake/[>=3.16 <5]")
         self.tool_requires("sqlite3/<host_version>")
 
     def source(self):

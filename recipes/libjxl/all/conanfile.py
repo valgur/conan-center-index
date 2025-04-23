@@ -70,7 +70,7 @@ class LibjxlConan(ConanFile):
     def build_requirements(self):
         # Require newer CMake, which allows INCLUDE_DIRECTORIES to be set on INTERFACE targets
         # Also, v0.9+ require CMake 3.16
-        self.tool_requires("cmake/[>=3.19 <4]")
+        self.tool_requires("cmake/[>=3.19 <5]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 

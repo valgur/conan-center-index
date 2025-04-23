@@ -61,9 +61,9 @@ class GlslangConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "1.4":
-            self.tool_requires("cmake/[>=3.22.1 <4]")
+            self.tool_requires("cmake/[>=3.22.1 <5]")
         elif Version(self.version) >= "1.3.261":
-            self.tool_requires("cmake/[>=3.17.2 <4]")
+            self.tool_requires("cmake/[>=3.17.2 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

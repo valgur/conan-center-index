@@ -105,7 +105,7 @@ class ReflectCppConan(ConanFile):
             self.requires("yaml-cpp/0.8.0", transitive_headers=True)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.23 <4]")
+        self.tool_requires("cmake/[>=3.23 <5]")
 
     def validate(self):
         check_min_cppstd(self, 20)

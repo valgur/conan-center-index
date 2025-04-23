@@ -60,7 +60,7 @@ class DoxygenConan(ConanFile):
             self.tool_requires("flex/2.6.4")
             self.tool_requires("bison/3.8.2")
 
-        self.tool_requires("cmake/[>=3.19 <4]")
+        self.tool_requires("cmake/[>=3.19 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

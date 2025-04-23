@@ -58,7 +58,7 @@ class GnuradioVolkConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("cpython/[~3.12]")
         # To avoid a conflict with CMake installed via pip on the system Python
-        self.tool_requires("cmake/[>=3.15 <4]")
+        self.tool_requires("cmake/[>=3.15 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

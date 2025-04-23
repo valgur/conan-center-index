@@ -53,7 +53,7 @@ class QCustomPlotConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} with opengl requires Qt with opengl enabled")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("cmake/[>=3.27 <5]")
         self.tool_requires("qt/<host_version>")
 
     def layout(self):

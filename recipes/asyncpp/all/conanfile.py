@@ -59,7 +59,7 @@ class AsyncppRecipe(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} does not support apple-clang compiler, as it lacks jthread support.")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.25 <4]")
+        self.tool_requires("cmake/[>=3.25 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

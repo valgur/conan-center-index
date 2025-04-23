@@ -39,7 +39,7 @@ class FastCDRConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "1.1.0":
-            self.tool_requires("cmake/[>=3.16.3 <4]")
+            self.tool_requires("cmake/[>=3.16.3 <5]")
 
     def validate(self):
         check_min_cppstd(self, 11)

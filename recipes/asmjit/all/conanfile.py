@@ -43,7 +43,7 @@ class AsmjitConan(ConanFile):
                 )
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.19 <4]")
+        self.tool_requires("cmake/[>=3.19 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

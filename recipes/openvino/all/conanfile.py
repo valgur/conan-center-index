@@ -152,7 +152,7 @@ class OpenvinoConan(ConanFile):
         if self.options.enable_tf_lite_frontend:
             self.tool_requires("flatbuffers/<host_version>")
         if not self.options.shared:
-            self.tool_requires("cmake/[>=3.18 <4]")
+            self.tool_requires("cmake/[>=3.18 <5]")
 
     def requirements(self):
         self.requires("onetbb/2021.10.0")

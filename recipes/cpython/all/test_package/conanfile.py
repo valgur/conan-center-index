@@ -23,7 +23,7 @@ class TestPackageConan(ConanFile):
         # The interesting problem that arises here is if you have CMake installed
         # with your global pip, then it will fail to run in this test package.
         # To avoid that, just add a requirement on CMake.
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[>=3.16 <5]")
         if not can_run(self):
             self.tool_requires("cpython/<host_version>")
 

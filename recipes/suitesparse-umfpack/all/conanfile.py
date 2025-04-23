@@ -42,7 +42,7 @@ class SuiteSparseUmfpackConan(ConanFile):
             self.requires("suitesparse-cholmod/5.3.0")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.22 <4]")
+        self.tool_requires("cmake/[>=3.22 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

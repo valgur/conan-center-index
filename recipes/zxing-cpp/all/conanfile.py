@@ -59,7 +59,7 @@ class ZXingCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.build_requires("cmake/[>=3.16 <4]")
+        self.build_requires("cmake/[>=3.16 <5]")
 
     def validate(self):
         cpp_version = 17 if Version(self.version) >= "1.2.0" else 14

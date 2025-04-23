@@ -66,7 +66,7 @@ class LibsersiConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.22 <4]")
+        self.tool_requires("cmake/[>=3.22 <5]")
 
     def validate(self):
         if self.settings.compiler.cppstd:

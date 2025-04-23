@@ -44,7 +44,7 @@ class QtXlsxWriterConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires -o qt/*:gui=True")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("cmake/[>=3.21 <5]")
         self.tool_requires("qt/<host_version>")
 
     def source(self):

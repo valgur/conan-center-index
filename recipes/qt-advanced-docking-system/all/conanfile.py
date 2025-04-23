@@ -56,7 +56,7 @@ class QtADS(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("qt/<host_version>")
-        self.tool_requires("cmake/[>=3.27 <4]") # to be able to use CMAKE_AUTOMOC_EXECUTABLE
+        self.tool_requires("cmake/[>=3.27 <5]") # to be able to use CMAKE_AUTOMOC_EXECUTABLE
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

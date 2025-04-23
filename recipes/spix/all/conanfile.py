@@ -55,7 +55,7 @@ class SpixConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires qt:gui and qt:qtdeclarative to get the Quick module")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("cmake/[>=3.27 <5]")
         self.tool_requires("qt/<host_version>", options=self._qt_options)
 
     def source(self):

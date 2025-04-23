@@ -50,7 +50,7 @@ class CryptoPPConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "8.7.0":
-            self.tool_requires("cmake/[>=3.20 <4]")
+            self.tool_requires("cmake/[>=3.20 <5]")
 
     def source(self):
         # Get cryptopp sources

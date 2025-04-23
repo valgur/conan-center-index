@@ -62,7 +62,7 @@ class FakerCXXConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is not prepared to generated shared library on Windows.")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.22 <4]")
+        self.tool_requires("cmake/[>=3.22 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -39,7 +39,7 @@ class JoltPhysicsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.20 <4]")
+        self.tool_requires("cmake/[>=3.20 <5]")
 
     def validate(self):
         check_min_cppstd(self, 17)

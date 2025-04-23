@@ -88,7 +88,7 @@ class FaissRecipe(ConanFile):
             raise ConanInvalidConfiguration(f"-o enable_gpu={self.options.enable_gpu} is only supported with -o shared=True")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.24 <4]")
+        self.tool_requires("cmake/[>=3.24 <5]")
 
     def generate(self):
         VirtualBuildEnv(self).generate()

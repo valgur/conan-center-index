@@ -64,7 +64,7 @@ class FlatbuffersConan(ConanFile):
         # since 23.3.3 version, flatbuffers cmake scripts were refactored to use cmake 3.8 version
         # see https://github.com/google/flatbuffers/pull/7801
         if "2.0.8" <= Version(self.version) < "23.3.3":
-            self.tool_requires("cmake/[>=3.16 <4]")
+            self.tool_requires("cmake/[>=3.16 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

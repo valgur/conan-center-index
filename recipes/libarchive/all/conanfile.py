@@ -116,7 +116,7 @@ class LibarchiveConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "3.7.9":
-            self.tool_requires("cmake/[>=3.17 <4]")
+            self.tool_requires("cmake/[>=3.17 <5]")
 
     def validate(self):
         if self.settings.os != "Windows" and self.options.with_cng:

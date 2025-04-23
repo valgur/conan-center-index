@@ -92,7 +92,7 @@ class XgboostConan(ConanFile):
             raise ConanInvalidConfiguration("Cannot build static lib with federated learning support")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18 <4]")
+        self.tool_requires("cmake/[>=3.18 <5]")
         if self.options.get_safe("plugin_federated"):
             self.tool_requires("protobuf/<host_version>")
 

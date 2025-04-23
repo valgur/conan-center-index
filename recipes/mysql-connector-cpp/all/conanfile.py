@@ -48,7 +48,7 @@ class MysqlConnectorCppConan(ConanFile):
         check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.24 <4]")
+        self.tool_requires("cmake/[>=3.24 <5]")
         self.tool_requires("protobuf/<host_version>")
 
     def source(self):

@@ -48,7 +48,7 @@ class LibnfsConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "6.0.2":
-            self.tool_requires("cmake/[>=3.16 <4]")
+            self.tool_requires("cmake/[>=3.16 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

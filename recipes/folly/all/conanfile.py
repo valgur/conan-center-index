@@ -90,7 +90,7 @@ class FollyConan(ConanFile):
 
     def build_requirements(self):
         # INFO: Required due ZIP_LISTS CMake feature in conan_deps.cmake
-        self.tool_requires("cmake/[>=3.17 <4]")
+        self.tool_requires("cmake/[>=3.17 <5]")
 
     @property
     def _required_boost_components(self):

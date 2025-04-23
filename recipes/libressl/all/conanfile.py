@@ -46,7 +46,7 @@ class LibreSSLConan(ConanFile):
             raise ConanInvalidConfiguration("Static runtime linked into shared LibreSSL not supported")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.15.6 <4]")
+        self.tool_requires("cmake/[>=3.15.6 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

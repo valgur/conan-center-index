@@ -69,7 +69,7 @@ class OrToolsConan(ConanFile):
             check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.20 <4]")
+        self.tool_requires("cmake/[>=3.20 <5]")
         self.tool_requires("protobuf/<host_version>")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")

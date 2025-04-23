@@ -95,7 +95,7 @@ class StdgpuConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) > "1.3.0":
-            self.tool_requires("cmake/[>=3.18 <4]")
+            self.tool_requires("cmake/[>=3.18 <5]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

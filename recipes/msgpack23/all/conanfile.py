@@ -26,7 +26,7 @@ class PackageConan(ConanFile):
         check_min_cppstd(self, 23)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.28 <4]")
+        self.tool_requires("cmake/[>=3.28 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

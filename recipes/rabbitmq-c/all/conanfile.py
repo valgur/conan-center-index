@@ -36,7 +36,7 @@ class RabbitmqcConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "0.14.0":
-            self.tool_requires("cmake/[>=3.22 <4]")
+            self.tool_requires("cmake/[>=3.22 <5]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

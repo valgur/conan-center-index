@@ -111,7 +111,7 @@ class sqlite3mc(ConanFile):
     }
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.24 <4]")
+        self.tool_requires("cmake/[>=3.24 <5]")
 
     def config_options(self):
         if self.settings.os == "Windows":

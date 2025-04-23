@@ -74,7 +74,7 @@ class MoldConan(ConanFile):
             raise ConanInvalidConfiguration(f'{self.ref} doesn\'t support Apple-Clang < 14.')
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18.0 <4]")
+        self.tool_requires("cmake/[>=3.18.0 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

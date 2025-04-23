@@ -53,7 +53,7 @@ class QuaZIPConan(ConanFile):
             raise ConanInvalidConfiguration("QuaZip does not support Qt 6 without the qt5compat option enabled")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("cmake/[>=3.27 <5]")
         self.tool_requires("qt/<host_version>")
 
     def source(self):

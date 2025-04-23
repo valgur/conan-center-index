@@ -333,7 +333,7 @@ class LibtorchConan(ConanFile):
             self.output.warning("xpu recipe is not available, assuming that Intel oneAPI is installed on your system")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18 <4]")
+        self.tool_requires("cmake/[>=3.18 <5]")
         self.tool_requires("cpython/[~3.12]")
         if self._depends_on_flatbuffers:
             self.tool_requires("flatbuffers/<host_version>")

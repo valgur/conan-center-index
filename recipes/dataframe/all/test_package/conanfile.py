@@ -17,7 +17,7 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         # For C++23 support
-        self.tool_requires("cmake/[>=3.20 <4]")
+        self.tool_requires("cmake/[>=3.20 <5]")
 
     def build(self):
         cmake = CMake(self)

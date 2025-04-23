@@ -60,7 +60,7 @@ class MathterConan(ConanFile):
             self.requires("xsimd/13.0.0")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.25 <4]")
+        self.tool_requires("cmake/[>=3.25 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

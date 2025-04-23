@@ -403,7 +403,7 @@ class VtkConan(ConanFile):
 
     def tool_requirements(self):
         if self.options.with_qt:
-            self.tool_requires("cmake/[>=3.27 <4]")
+            self.tool_requires("cmake/[>=3.27 <5]")
             self.tool_requires("qt/<host_version>")
 
     def validate(self):

@@ -72,7 +72,7 @@ class NmosCppConan(ConanFile):
             self.requires("avahi/0.8")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.17 <4]")
+        self.tool_requires("cmake/[>=3.17 <5]")
 
     def validate(self):
         if self.info.settings.os in ["Macos"]:

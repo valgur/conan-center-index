@@ -506,7 +506,7 @@ class QtConan(ConanFile):
             #     self.requires("libmng/[^x.x]")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.21.1 <4]")
+        self.tool_requires("cmake/[>=3.21.1 <5]")
         self.tool_requires("ninja/[>=1.12 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")

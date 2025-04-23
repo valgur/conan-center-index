@@ -159,7 +159,7 @@ class OsgearthConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.20 <4]")
+        self.tool_requires("cmake/[>=3.20 <5]")
         if self.options.with_protobuf:
             self.tool_requires("protobuf/<host_version>")
 

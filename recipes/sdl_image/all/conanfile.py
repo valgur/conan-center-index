@@ -108,7 +108,7 @@ class SDLImageConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support with_jxl (yet)")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[>=3.16 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

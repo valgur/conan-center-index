@@ -60,7 +60,7 @@ class LimereportConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} option with_zint=True requires -o 'zint/*:with_qt=True'")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("cmake/[>=3.27 <5]")
         self.tool_requires("qt/<host_version>", options=self._qt_options)
 
     def source(self):

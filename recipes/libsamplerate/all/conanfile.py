@@ -39,7 +39,7 @@ class LibsamplerateConan(ConanFile):
     def build_requirements(self):
         if is_apple_os(self) and self.options.shared and Version(self.version) >= "0.2.2":
             # see https://github.com/libsndfile/libsamplerate/blob/0.2.2/src/CMakeLists.txt#L110-L119
-            self.tool_requires("cmake/[>=3.17 <4]")
+            self.tool_requires("cmake/[>=3.17 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

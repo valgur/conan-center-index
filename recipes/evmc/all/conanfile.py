@@ -19,7 +19,7 @@ class EVMCConan(ConanFile):
     topics = ("ethereum", "wasm", "evm")
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
-    tool_requires = "cmake/[>=3.16.2 <4]"
+    tool_requires = "cmake/[>=3.16.2 <5]"
     options = {"fPIC": [True, False]}
     default_options = {"fPIC": True}
 

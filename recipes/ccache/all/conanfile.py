@@ -72,7 +72,7 @@ class CcacheConan(ConanFile):
             raise ConanInvalidConfiguration("ccache does not support ARMv8 on Windows before version 4.10")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.15 <4]")
+        self.tool_requires("cmake/[>=3.15 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder,

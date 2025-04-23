@@ -176,7 +176,7 @@ class PangolinConan(ConanFile):
                 raise ConanInvalidConfiguration("Ffmpeg with avdevice and avformat options enabled is required")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[>=3.16 <5]")
         if self.options.get_safe("with_wayland"):
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")

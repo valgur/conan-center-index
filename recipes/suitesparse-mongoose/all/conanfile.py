@@ -36,7 +36,7 @@ class SuiteSparseMongooseConan(ConanFile):
         self.requires("suitesparse-config/7.8.3", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.22 <4]")
+        self.tool_requires("cmake/[>=3.22 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

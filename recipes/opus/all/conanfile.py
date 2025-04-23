@@ -37,7 +37,7 @@ class OpusConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "1.5.2":
-            self.tool_requires("cmake/[>=3.16 <4]")
+            self.tool_requires("cmake/[>=3.16 <5]")
 
     def export_sources(self):
         export_conandata_patches(self)

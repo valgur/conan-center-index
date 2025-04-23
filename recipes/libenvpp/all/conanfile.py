@@ -52,7 +52,7 @@ class LibenvppConan(ConanFile):
         self.requires("fmt/10.2.1", transitive_headers=True)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[>=3.16 <5]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

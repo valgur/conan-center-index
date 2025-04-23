@@ -173,7 +173,7 @@ class MPUnitsConan(ConanFile):
                 self.requires("fmt/10.2.1")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.29 <4]")
+        self.tool_requires("cmake/[>=3.29 <5]")
 
     def validate(self):
         self._check_feature_supported("mp-units", "minimum_support")

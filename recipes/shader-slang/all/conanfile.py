@@ -73,7 +73,7 @@ class ShaderSlangConan(ConanFile):
         check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.25 <4]")
+        self.tool_requires("cmake/[>=3.25 <5]")
         if not can_run(self):
             self.tool_requires(f"shader-slang/{self.version}")
 

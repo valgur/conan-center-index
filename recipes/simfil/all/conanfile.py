@@ -56,7 +56,7 @@ class SimfilRecipe(ConanFile):
                     f"{self.name} requires Concepts support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>3.19 <4]")
+        self.tool_requires("cmake/[>3.19 <5]")
 
     def requirements(self):
         self.requires("sfl/1.2.4", transitive_headers=True)

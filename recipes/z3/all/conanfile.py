@@ -48,7 +48,7 @@ class Z3Conan(ConanFile):
         check_min_cppstd(self, 20 if Version(self.version) >= "4.14" else 17)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[>=3.16 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

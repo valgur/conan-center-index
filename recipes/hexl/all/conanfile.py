@@ -68,7 +68,7 @@ class HexlConan(ConanFile):
             raise ConanInvalidConfiguration("Hexl only supports x86 architectures")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.24 <4]")
+        self.tool_requires("cmake/[>=3.24 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

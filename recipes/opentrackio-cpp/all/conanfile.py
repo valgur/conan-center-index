@@ -63,7 +63,7 @@ class PackageConan(ConanFile):
     def build_requirements(self):
         # Min required is 3.15 in the file, but 3.20 in the README.
         # Be conservative and require the higher version
-        self.tool_requires("cmake/[>=3.20 <4]")
+        self.tool_requires("cmake/[>=3.20 <5]")
 
     def validate(self):
         if self.settings.compiler.cppstd:

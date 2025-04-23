@@ -67,7 +67,7 @@ class QwtConan(ConanFile):
 
     def requirements(self):
         self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
-        self.tool_requires("cmake/[>=3.27 <4]") #For CMAKE_AUTOMOC_EXECUTABLE
+        self.tool_requires("cmake/[>=3.27 <5]") #For CMAKE_AUTOMOC_EXECUTABLE
 
     def validate(self):
         qt_version = self.dependencies["qt"].ref.version
@@ -84,7 +84,7 @@ class QwtConan(ConanFile):
             raise ConanInvalidConfiguration("qwt:designer=True requires qt:qttools=True, qt::gui=True and qt::widgets=True")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("cmake/[>=3.27 <5]")
         self.tool_requires("qt/<host_version>")
 
     def source(self):

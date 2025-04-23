@@ -55,7 +55,7 @@ class PackageConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} requires cpython:shared=True when using MSVC compiler")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.25 <4]")
+        self.tool_requires("cmake/[>=3.25 <5]")
         if self.options.with_python:
             self.tool_requires("cpython/<host_version>")
 

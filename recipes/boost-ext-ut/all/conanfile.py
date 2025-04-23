@@ -83,7 +83,7 @@ class UTConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "2.0.0":
-            self.tool_requires("cmake/[>=3.21 <4]")
+            self.tool_requires("cmake/[>=3.21 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

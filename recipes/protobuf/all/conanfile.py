@@ -113,7 +113,7 @@ class ProtobufConan(ConanFile):
 
     def build_requirements(self):
         if self._protobuf_release >= "30.1":
-            self.tool_requires("cmake/[>=3.16 <4]")
+            self.tool_requires("cmake/[>=3.16 <5]")
 
     @property
     def _cmake_install_base_path(self):

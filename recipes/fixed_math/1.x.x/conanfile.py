@@ -79,7 +79,7 @@ class FixedMathConan(ConanFile):
 
     def build_requirements(self):
         if not self.options.header_only:
-            self.tool_requires("cmake/[>=3.21 <4]")
+            self.tool_requires("cmake/[>=3.21 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

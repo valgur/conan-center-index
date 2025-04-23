@@ -41,7 +41,7 @@ class NodeEditorConan(ConanFile):
         # INFO: Uses Qt rcc tool to generate resources.cpp file via resources.qrc
         self.tool_requires("qt/<host_version>")
         # INFO: To be able to use CMAKE_AUTOMOC_EXECUTABLE
-        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("cmake/[>=3.27 <5]")
 
     def generate(self):
         deps = CMakeDeps(self)

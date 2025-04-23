@@ -59,7 +59,7 @@ class yomm2Recipe(ConanFile):
             )
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("cmake/[>=3.21 <5]")
 
     def requirements(self):
         # Upstream requires Boost 1.74

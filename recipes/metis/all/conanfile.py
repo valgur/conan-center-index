@@ -69,7 +69,7 @@ class METISConan(ConanFile):
     def build_requirements(self):
         if self.options.with_openmp:
             # Required for LINK_LANGUAGE generator expression
-            self.tool_requires("cmake/[>=3.18 <4]")
+            self.tool_requires("cmake/[>=3.18 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

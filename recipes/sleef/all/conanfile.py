@@ -72,7 +72,7 @@ class SleefConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "3.6":
-            self.tool_requires("cmake/[>=3.18 <4]")
+            self.tool_requires("cmake/[>=3.18 <5]")
         if not can_run(self):
             self.tool_requires(f"sleef/{self.version}")
 

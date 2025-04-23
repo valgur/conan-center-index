@@ -106,7 +106,7 @@ class Libssh2Conan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "1.11":
-            self.tool_requires("cmake/[>=3.20 <4]")
+            self.tool_requires("cmake/[>=3.20 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

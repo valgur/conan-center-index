@@ -50,7 +50,7 @@ class ProtobufCConan(ConanFile):
         # we want to make sure the protobuf dep is visible.
         self.tool_requires("protobuf/3.21.9", visible=True)
         if Version(self.version) >= "1.5.0":
-            self.tool_requires("cmake/[>=3.19 <4]")
+            self.tool_requires("cmake/[>=3.19 <5]")
 
     def requirements(self):
         self.requires("protobuf/3.21.9")

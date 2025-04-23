@@ -16,7 +16,7 @@ class Box2DTestConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.21 <4]")
+        self.tool_requires("cmake/[>=3.21 <5]")
 
     def build(self):
         cmake = CMake(self)

@@ -56,7 +56,7 @@ class LightGBMConan(ConanFile):
 
     def build_requirements(self):
         if Version(self.version) >= "4.3.0":
-            self.tool_requires("cmake/[>=3.18 <4]")
+            self.tool_requires("cmake/[>=3.18 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

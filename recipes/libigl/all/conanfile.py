@@ -58,7 +58,7 @@ class LibiglConan(ConanFile):
             self.requires("eigen/3.3.9", transitive_headers=True)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16 <4]")
+        self.tool_requires("cmake/[>=3.16 <5]")
 
     def package_id(self):
         if self.info.options.header_only:

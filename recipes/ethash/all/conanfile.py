@@ -56,7 +56,7 @@ class EthashConan(ConanFile):
         }
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16.2 <4]")
+        self.tool_requires("cmake/[>=3.16.2 <5]")
 
     def generate(self):
         tc = CMakeToolchain(self)

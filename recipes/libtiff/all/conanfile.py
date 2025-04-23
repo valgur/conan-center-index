@@ -97,7 +97,7 @@ class LibtiffConan(ConanFile):
     def build_requirements(self):
         if Version(self.version) >= "4.5.1":
             # https://github.com/conan-io/conan/issues/3482#issuecomment-662284561
-            self.tool_requires("cmake/[>=3.18 <4]")
+            self.tool_requires("cmake/[>=3.18 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

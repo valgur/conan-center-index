@@ -325,7 +325,7 @@ class OgreConanFile(ConanFile):
 
     def build_requirements(self):
         # For OpenGL::GLES2 support in FindOpenGL.cmake
-        self.tool_requires("cmake/[>=3.27 <4]")
+        self.tool_requires("cmake/[>=3.27 <5]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
