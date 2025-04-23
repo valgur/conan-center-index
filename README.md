@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-22:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-23:
 
 - aeron/1.43.0
 - apr-util/1.6.3
@@ -33,6 +33,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cgns/4.4.0
 - cilantro/cci.20230816
 - cimg/3.3.5
+- clang/19.1.7
+- clang/20.1.3
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
