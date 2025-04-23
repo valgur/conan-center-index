@@ -1,4 +1,4 @@
-#include "reduct/client.h"
+#include <reduct/client.h>
 
 #include <iostream>
 

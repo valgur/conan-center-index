@@ -1,13 +1,13 @@
-from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 import os
 
-required_conan_version = ">=1.53.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import *
+from conan.tools.scm import Version
+
+required_conan_version = ">=2.1"
 
 class ReductCPPConan(ConanFile):
     name = "reduct-cpp"
@@ -26,6 +26,7 @@ class ReductCPPConan(ConanFile):
         "fPIC": True,
         "with_std_chrono": False,
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _min_cppstd(self):
@@ -45,22 +46,19 @@ class ReductCPPConan(ConanFile):
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+        copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("fmt/11.0.2")
-        self.requires("cpp-httplib/0.18.0")
-        self.requires("nlohmann_json/3.11.3")
+        self.requires("fmt/[^11]")
+        self.requires("cpp-httplib/0.19.0")
+        self.requires("nlohmann_json/[^3.11]")
         self.requires("concurrentqueue/1.0.4")
         if not self.options.with_std_chrono:
-            self.requires("date/3.0.1")
+            self.requires("date/3.0.3")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
@@ -77,19 +75,22 @@ class ReductCPPConan(ConanFile):
             raise ConanInvalidConfiguration("gcc >= 14 requires option with_std_chrono=True")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18 <4]")
+        self.tool_requires("cmake/[>=3.18 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        save(self, os.path.join("cmake", "InstallDependencies.cmake"), "")
+        replace_in_file(self, os.path.join("src", "CMakeLists.txt"), 'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")', "")
+        replace_in_file(self, os.path.join("src", "reduct", "bucket.cc"), "#define FMT_HEADER_ONLY 1", "")
+        replace_in_file(self, os.path.join("src", "reduct", "error.cc"), "#define FMT_HEADER_ONLY 1", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["REDUCT_CPP_USE_STD_CHRONO"] = self.options.with_std_chrono
+        tc.cache_variables["CMAKE_PROJECT_reductcpp_INCLUDE"] = "conan_deps.cmake"
+        tc.cache_variables["REDUCT_CPP_USE_STD_CHRONO"] = self.options.with_std_chrono
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate(scope="build")
 
     def build(self):
         apply_conandata_patches(self)
@@ -101,8 +102,9 @@ class ReductCPPConan(ConanFile):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "ReductCpp")
+        self.cpp_info.set_property("cmake_target_name", "reductcpp")
         self.cpp_info.libs = ["reductcpp"]
