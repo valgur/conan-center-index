@@ -23,7 +23,7 @@ index 1407739..50ad1de 100644
 -: ${trailer_m4='@pkgdatadir@/autoconf/trailer.m4'}
 +# Locate autom4ate and support files relative to current script inside package
 +SCRIPT_DIR=$(dirname "$as_myself")
-+RES_DIR="$SCRIPT_DIR/../res/autoconf"
++RES_DIR="$SCRIPT_DIR/../share/autoconf"
 +if [[ ! -d "$RES_DIR" ]]
 +then
 +    echo "Autoconf conan package error, unable to locate resource directory at $RES_DIR\n"
@@ -50,7 +50,7 @@ index 1cbf509..9bdd1cf 100644
  {
 -  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
 +  my $scriptpath = abs_path(dirname(__FILE__));
-+  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../res/autoconf";
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../share/autoconf";
    unshift @INC, "$pkgdatadir";
  
    # Override SHELL.  On DJGPP SHELL may not be set to a shell
@@ -79,7 +79,7 @@ index 7ebe419..42f09b4 100644
  {
 -  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
 +  my $scriptpath = abs_path(dirname(__FILE__));
-+  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../res/autoconf";
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../share/autoconf";
    unshift @INC, $pkgdatadir;
  
    # Override SHELL.  On DJGPP SHELL may not be set to a shell
@@ -89,7 +89,7 @@ index 7ebe419..42f09b4 100644
  # Data directory.
 -my $pkgdatadir = $ENV{'AC_MACRODIR'} || '@pkgdatadir@';
 +my $scriptpath = abs_path(dirname(__FILE__));
-+my $pkgdatadir = $ENV{'AC_MACRODIR'} || "$scriptpath/../res/autoconf";
++my $pkgdatadir = $ENV{'AC_MACRODIR'} || "$scriptpath/../share/autoconf";
  
  # $LANGUAGE{LANGUAGE} -- Automatic options for LANGUAGE.
  my %language;
@@ -131,7 +131,7 @@ index ec391a6..2992b16 100644
  {
 -  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
 +  my $scriptpath = abs_path(dirname(__FILE__));
-+  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../res/autoconf";
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../share/autoconf";
    unshift @INC, $pkgdatadir;
  
    $buildauxdir = $ENV{'autom4te_buildauxdir'} || $pkgdatadir . '/build-aux';
@@ -164,7 +164,7 @@ index b89fd1a..6113d62 100644
  {
 -  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
 +  my $scriptpath = abs_path(dirname(__FILE__));
-+  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../res/autoconf";
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../share/autoconf";
    unshift @INC, $pkgdatadir;
  
    # Override SHELL.  On DJGPP SHELL may not be set to a shell
@@ -193,7 +193,7 @@ index c86203a..844dd20 100644
  {
 -  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
 +  my $scriptpath = abs_path(dirname(__FILE__));
-+  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../res/autoconf";
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../share/autoconf";
    unshift @INC, $pkgdatadir;
  
    # Override SHELL.  On DJGPP SHELL may not be set to a shell
@@ -230,7 +230,7 @@ index b04947f..75d014e 100644
  {
 -  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || '@pkgdatadir@';
 +  my $scriptpath = abs_path(dirname(__FILE__));
-+  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../res/autoconf";
++  my $pkgdatadir = $ENV{'autom4te_perllibdir'} || "$scriptpath/../share/autoconf";
    unshift @INC, $pkgdatadir;
  
    # Override SHELL.  On DJGPP SHELL may not be set to a shell

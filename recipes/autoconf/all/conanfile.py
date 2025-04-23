@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -46,15 +45,15 @@ class AutoconfConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"),
+                        "M4 = /usr/bin/env m4", "#M4 = /usr/bin/env m4")
+        if self.settings_build.os == "Windows":
+            # Handle vagaries of Windows line endings
+            replace_in_file(self, os.path.join(self.source_folder, "bin", "autom4te.in"),
+                            "$result =~ s/^\\n//mg;", "$result =~ s/^\\R//mg;")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--datarootdir=${prefix}/res",
-        ])
 
         if self.settings.os == "Windows":
             if is_msvc(self):
@@ -73,16 +72,7 @@ class AutoconfConan(ConanFile):
         env.define_path("INSTALL", unix_path(self, os.path.join(self.source_folder, "build-aux", "install-sh")))
         tc.generate(env)
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"),
-                        "M4 = /usr/bin/env m4", "#M4 = /usr/bin/env m4")
-        if self.settings_build.os == "Windows":
-            # Handle vagaries of Windows line endings
-            replace_in_file(self, os.path.join(self.source_folder, "bin", "autom4te.in"),
-                            "$result =~ s/^\\n//mg;", "$result =~ s/^\\R//mg;")
-
     def build(self):
-        self._patch_sources()
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -92,14 +82,14 @@ class AutoconfConan(ConanFile):
         autotools.install()
 
         copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        rmdir(self, os.path.join(self.package_folder, "res", "info"))
-        rmdir(self, os.path.join(self.package_folder, "res", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         bin_path = os.path.join(self.package_folder, "bin")
         self.buildenv_info.define_path("AUTOCONF", os.path.join(bin_path, "autoconf"))
