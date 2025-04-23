@@ -36,7 +36,7 @@ class Liburing(ConanFile):
 
     def requirements(self):
         if Version(self.version) < "2.3":
-            self.requires("linux-headers-generic/5.13.9")
+            self.requires("linux-headers-generic/[^6.5]")
 
     def config_options(self):
         if self.settings.os == "Windows":

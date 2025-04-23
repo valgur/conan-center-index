@@ -81,7 +81,7 @@ class LibdrmConan(ConanFile):
         if self.options.intel:
             self.requires("libpciaccess/0.17")
         if self.settings.os == "Linux":
-            self.requires("linux-headers-generic/6.5.9")
+            self.requires("linux-headers-generic/[^6.5]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:

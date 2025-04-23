@@ -38,7 +38,7 @@ class I2cConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("linux-headers-generic/5.15.128")
+        self.requires("linux-headers-generic/[^6.5]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:

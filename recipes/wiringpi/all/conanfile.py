@@ -44,7 +44,7 @@ class WiringpiConan(ConanFile):
 
     def requirements(self):
         if  Version(self.version) >= "3.2":
-            self.requires("linux-headers-generic/6.5.9", transitive_headers=True)
+            self.requires("linux-headers-generic/[^6.5]", transitive_headers=True)
         if self.options.wpi_extensions:
             self.requires("libxcrypt/4.4.36")
 

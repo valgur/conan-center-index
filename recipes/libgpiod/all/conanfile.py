@@ -46,7 +46,7 @@ class LibgpiodConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("linux-headers-generic/6.5.9")
+        self.requires("linux-headers-generic/[^6.5]")
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
