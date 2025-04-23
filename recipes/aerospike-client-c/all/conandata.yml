@@ -1,0 +1,11 @@
+sources:
+  "7.0.4":
+    root:
+      url: "https://github.com/aerospike/aerospike-client-c/archive/refs/tags/7.0.4.tar.gz"
+      sha256: "c70d98f263e41145ab7d61ad4e0c4ccff87c7f2314189386d94543c56c42d3bd"
+    common:
+      url: "https://github.com/aerospike/aerospike-common/archive/adb57b276849408275331f1e1c23455d47cbab15.tar.gz"
+      sha256: "2056f4c39b11b325488acf8040c5b6806610ce4d916ef29315de23bb85c52a5e"
+    mod-lua:
+      url: "https://github.com/aerospike/aerospike-mod-lua/archive/16da7372589ea9fcc40312526ffb8bc37a136dcc.zip"
+      sha256: "759a8e7c8d22e5ddf1d429b79c79cf09f67ee4a31396ed569d2be9dc4a97f9b1"
