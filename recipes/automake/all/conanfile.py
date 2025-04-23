@@ -1,13 +1,13 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class AutomakeConan(ConanFile):
@@ -23,13 +23,10 @@ class AutomakeConan(ConanFile):
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -55,13 +52,7 @@ class AutomakeConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
-        tc.configure_args.extend([
-            "--datarootdir=${prefix}/res",
-        ])
         tc.generate()
 
     def _patch_sources(self):
@@ -69,13 +60,14 @@ class AutomakeConan(ConanFile):
             # tracing using m4 on Windows returns Windows paths => use cygpath to convert to unix paths
             ac_local_in = os.path.join(self.source_folder, "bin", "aclocal.in")
             replace_in_file(self, ac_local_in,
-                                "          $map_traced_defs{$arg1} = $file;",
-                                "          $file = `cygpath -u $file`;\n"
-                                "          $file =~ s/^\\s+|\\s+$//g;\n"
-                                "          $map_traced_defs{$arg1} = $file;")
+                            "          $map_traced_defs{$arg1} = $file;",
+                            "          $file = `cygpath -u $file`;\n"
+                            "          $file =~ s/^\\s+|\\s+$//g;\n"
+                            "          $map_traced_defs{$arg1} = $file;")
             # handle relative paths during aclocal.m4 creation
-            replace_in_file(self, ac_local_in, "$map{$m} eq $map_traced_defs{$m}",
-                                "abs_path($map{$m}) eq abs_path($map_traced_defs{$m})")
+            replace_in_file(self, ac_local_in,
+                            "$map{$m} eq $map_traced_defs{$m}",
+                            "abs_path($map{$m}) eq abs_path($map_traced_defs{$m})")
 
     def build(self):
         self._patch_sources()
@@ -83,40 +75,43 @@ class AutomakeConan(ConanFile):
         autotools.configure()
         autotools.make()
 
-    @property
-    def _datarootdir(self):
-        return os.path.join(self.package_folder, "res")
-
     def package(self):
         autotools = Autotools(self)
         autotools.install()
         copy(self, "COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
-        rmdir(self, os.path.join(self._datarootdir, "info"))
-        rmdir(self, os.path.join(self._datarootdir, "man"))
-        rmdir(self, os.path.join(self._datarootdir, "doc"))
-
-        # TODO: consider whether the following is still necessary on Windows
-        if self.settings.os == "Windows":
-            binpath = os.path.join(self.package_folder, "bin")
-            for filename in os.listdir(binpath):
-                fullpath = os.path.join(binpath, filename)
-                if not os.path.isfile(fullpath):
-                    continue
-                os.rename(fullpath, fullpath + ".exe")
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
 
     @property
     def _automake_libdir(self):
         ver = Version(self.version)
-        return os.path.join(self._datarootdir, f"automake-{ver.major}.{ver.minor}")
+        return os.path.join(self.package_folder, "share", f"automake-{ver.major}.{ver.minor}")
+
+    @property
+    def _aclocal_libdir(self):
+        ver = Version(self.version)
+        return os.path.join(self.package_folder, "share", f"aclocal-{ver.major}.{ver.minor}")
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         compile_wrapper = os.path.join(self._automake_libdir, "compile")
         lib_wrapper = os.path.join(self._automake_libdir, "ar-lib")
         self.conf_info.define("user.automake:compile-wrapper", compile_wrapper)
         self.conf_info.define("user.automake:lib-wrapper", lib_wrapper)
+
+        aclocal_bin = os.path.join(self.package_folder, "bin", "aclocal")
+        self.buildenv_info.define_path("ACLOCAL", aclocal_bin)
+        self.runenv_info.define_path("ACLOCAL", aclocal_bin)
+
+        automake_bin = os.path.join(self.package_folder, "bin", "automake")
+        self.buildenv_info.define_path("AUTOMAKE", automake_bin)
+        self.runenv_info.define_path("AUTOMAKE", automake_bin)
+
+        self.buildenv_info.append_path("ACLOCAL_PATH", self._aclocal_libdir)
+        self.runenv_info.append_path("ACLOCAL_PATH", self._aclocal_libdir)
