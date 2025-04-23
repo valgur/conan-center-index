@@ -1,5 +1,4 @@
 sources:
   "0.4.9.1":
-    license:
-      url: "https://raw.githubusercontent.com/nanopb/nanopb/refs/tags/nanopb-0.4.9.1/LICENSE.txt"
-      sha256: "e2f2fc8fe3faa7dcb09dbe995db48c6ec5c1f72705db915101e4a83fed44f66d"
+    url: "https://github.com/nanopb/nanopb/archive/refs/tags/0.4.9.1.tar.gz"
+    sha256: "4575944a468718ef25f05eb01d994364650b581563089a9841986bb1e460eac3"
