@@ -1,21 +1,22 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.files import copy, apply_conandata_patches, export_conandata_patches
-from conan.tools.scm import git
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.files import *
+from conan.tools.gnu.autotools import Autotools
+from conan.tools.gnu.autotoolstoolchain import AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=1.57.0"
+required_conan_version = ">=2.4"
 
 
 class AerospikeConan(ConanFile):
     name = "aerospike-client-c"
-    homepage = "https://github.com/aerospike/aerospike-client-c"
-    description = "The Aerospike C client provides a C interface for interacting with the Aerospike Database."
-    topics = ("aerospike", "client", "database")
-    url = "https://github.com/conan-io/conan-center-index"
     license = "Apache-2.0"
+    description = "The Aerospike C client provides a C interface for interacting with the Aerospike Database."
+    homepage = "https://github.com/aerospike/aerospike-client-c"
+    url = "https://github.com/conan-io/conan-center-index"
+    topics = ("aerospike", "client", "database")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -28,93 +29,75 @@ class AerospikeConan(ConanFile):
         "fPIC": True,
         "event_library": None,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def validate(self):
         if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "This recipe is not compatible with Windows")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
+            raise ConanInvalidConfiguration("This recipe is not compatible with Windows")
 
     def requirements(self):
-        self.requires("openssl/[>=1.1 <4]")
-        self.requires("zlib/[>=1.2.11 <2]")
-
-        # in the original code lua is used as a submodule.
-        # when creating a new version, you need to manually check which version of lua is used in the submodule.
-        if self.version == "6.6.0":
-            self.requires(f"lua/5.4.6")
-
+        self.requires("lua/[^5]", transitive_headers=True, transitive_libs=True)
+        self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
+        self.requires("zlib/[^1.2.11]")
         if self.options.event_library == "libev":
-            self.requires("libev/[>=4.24 <5]")
+            self.requires("libev/[^4.24]", transitive_headers=True, transitive_libs=True)
         elif self.options.event_library == "libuv":
-            self.requires("libuv/[>=1.15.0 <2]")
+            self.requires("libuv/[^1]", transitive_headers=True, transitive_libs=True)
         elif self.options.event_library == "libevent":
-            self.requires("libevent/[>=2.1.8 <3]")
-
-    def export_sources(self):
-        export_conandata_patches(self)
+            self.requires("libevent/[>=2.1.8 <3]", transitive_headers=True, transitive_libs=True)
 
     def layout(self):
-        basic_layout(self, src_folder='src')
+        basic_layout(self, src_folder="src")
 
     def source(self):
-        repo = git.Git(self)
-        clone_args = ['--depth', '1', '--branch',
-                      self.version, '--single-branch', '.']
-        repo.clone(self.conan_data["sources"]
-                  [self.version]['url'], args=clone_args)
-        if repo.get_commit() != self.conan_data["sources"][self.version]['sha256']:
-            raise ConanException("tag {} commit sha256 {} do not match with provided in conandata.yml: {}".format(
-                self.version, repo.get_commit(), self.conan_data["sources"][self.version]['sha256']))
-        self.run('git submodule update --init --recursive')
+        sources = self.conan_data["sources"][self.version]
+        get(self, **sources["root"], strip_root=True)
+        get(self, **sources["common"], strip_root=True, destination=os.path.join("modules", "common"))
+        get(self, **sources["mod-lua"], strip_root=True, destination=os.path.join("modules", "mod-lua"))
+        replace_in_file(self, "Makefile", "CC_FLAGS = -std=gnu99 -g -Wall -fPIC -O$(O)", "CC_FLAGS = -std=gnu99 -Wall")
+        replace_in_file(self, "Makefile", "LUA_OBJECTS = $(filter-out $(LUAMOD)/lua.o, $(shell ls $(LUAMOD)/*.o))", "")
+        replace_in_file(self, os.path.join("modules", "mod-lua", "Makefile"), "MODULES += LUAMOD", "")
+        replace_in_file(self, os.path.join("modules", "mod-lua", "project", "modules.mk"), "ifndef LUAMOD", "ifeq (0,1)")
+        replace_in_file(self, os.path.join("modules", "mod-lua", "project", "modules.mk"), "ifeq ($(wildcard $(LUAMOD)/makefile),)", "ifeq (0,1)")
+
+    def generate(self):
+        tc = AutotoolsToolchain(self)
+        for var, value in tc.vars().items():
+            if var != "LDFLAGS":
+                tc.make_args.append(f"{var}={value}")
+        tc.make_args.append("TARGET_BASE=target")
+        tc.make_args.append(f"LUAMOD={self.dependencies['lua'].cpp_info.includedir}")
+        if self.options.event_library:
+            tc.make_args.append(f"EVENT_LIB={self.options.event_library}")
+        includedirs = []
+        libdirs = []
+        libs = []
+        for dep in reversed(self.dependencies.host.topological_sort.values()):
+            cpp_info = dep.cpp_info.aggregated_components()
+            includedirs += cpp_info.includedirs
+            libdirs += cpp_info.libdirs
+            libs += cpp_info.libs
+        include_flags = " ".join(f"-I{i}" for i in includedirs)
+        libdir_flags = " ".join(f"-L{l}" for l in libdirs)
+        lib_flags = " ".join(f"-l{l}" for l in libs)
+        tc.make_args.append(f"EXT_CFLAGS={include_flags}" + (" -fPIC" if self.options.get_safe("fPIC", True) else ""))
+        tc.make_args.append(f"LDFLAGS={tc.vars().get('LDFLAGS', '')} {libdir_flags} {lib_flags}")
+        tc.generate()
 
     def build(self):
-        apply_conandata_patches(self)
-        includes = []
-        for _, dependency in self.dependencies.items():
-            for path in dependency.cpp_info.includedirs:
-                includes.append(path)
-
-        lua_include = self.dependencies["lua"].cpp_info.includedirs[0]
-        event_library = ""
-        if self.options.event_library:
-            event_library = f"EVENT_LIB={self.options.event_library}"
-            includes.append(self.deps_cpp_info[str(
-                self.options.event_library)].rootpath)
-        include_flags = ' '.join([f'-I{i}' for i in includes])
-
-        ld_flags = ""
-        if self.options.shared:
-            libs = []
-            for _, dependency in self.dependencies.items():
-                for dir in dependency.cpp_info.libdirs:
-                    for lib in os.listdir(dir):
-                        if lib.endswith(".a"):
-                            libs.append(os.path.join(dir, lib))
-            libs_str = " ".join(libs)
-            ld_flags = f"LDFLAGS='{libs_str}'"
-
-        self.run(
-            f"make TARGET_BASE='target' {event_library} {ld_flags} LUAMOD='{lua_include}' EXT_CFLAGS='{include_flags}' -C {self.source_path}")
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.make()
 
     def package(self):
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*", os.path.join(self.source_folder, "target", "include"), os.path.join(self.package_folder, "include"))
         if self.options.shared:
-            copy(self, src=f"{self.source_folder}/target", pattern="lib/*.so*", dst=self.package_folder)
-            copy(self, src=f"{self.source_folder}/target", pattern="lib/*.dylib", dst=self.package_folder)
+            copy(self, "lib/*.so*", os.path.join(self.source_folder, "target"), self.package_folder)
+            copy(self, "lib/*.dylib", os.path.join(self.source_folder, "target"), self.package_folder)
         else:
-            copy(self, src=f"{self.source_folder}/target", pattern="lib/*.a", dst=self.package_folder)
-
-        copy(self, pattern="*",
-             src=f'{self.source_folder}/src/include', dst=f'{self.package_folder}/include')
-        copy(self, pattern="*",
-             src=f'{self.source_folder}/modules/common/src/include', dst=f'{self.package_folder}/include')
-        copy(self, pattern="LICENSE.md", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+            copy(self, "lib/*.a", os.path.join(self.source_folder, "target"), self.package_folder)
 
     def package_info(self):
         self.cpp_info.includedirs = ["include"]

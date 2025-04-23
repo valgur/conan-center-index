@@ -1,8 +1,8 @@
-#include <iostream>
-
 #include <aerospike/aerospike.h>
 #include <aerospike/as_event.h>
 #include <aerospike/version.h>
+
+#include <iostream>
 
 int main()
 {
@@ -25,6 +25,4 @@ int main()
         as_event_close_loops();
         aerospike_destroy(&as);
     }
-
-    return 0;
 }
