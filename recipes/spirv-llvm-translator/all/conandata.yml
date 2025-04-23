@@ -1,0 +1,4 @@
+sources:
+  "20.1.1":
+    url: "https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/refs/tags/v20.1.1.tar.gz"
+    sha256: "3b2a750bbaea4a084e90fd88de317f9a03879056e3bd429bb56c588f4c77ca16"
