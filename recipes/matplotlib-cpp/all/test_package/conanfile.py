@@ -12,7 +12,7 @@ class TestPackageConan(ConanFile):
         self.requires("cpython/[~3.12]")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[^3]")
+        self.tool_requires("cmake/[^4]")
         self.tool_requires("cpython/<host_version>")
 
     def layout(self):

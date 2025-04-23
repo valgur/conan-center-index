@@ -38,7 +38,7 @@ class Games101CglConan(ConanFile):
         check_min_cppstd(self, 11)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.25 <4.0.0]")
+        self.tool_requires("cmake/[>=3.25 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

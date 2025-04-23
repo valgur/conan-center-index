@@ -20,7 +20,7 @@ class TestPackageConan(ConanFile):
             # set. This could be because you are using a Mac OS X version less than 10.5
             # or because CMake's platform configuration is corrupt.
             # FIXME: Remove once CMake on macOS/M1 CI runners is upgraded.
-            self.tool_requires("cmake/[>=3.22]")
+            self.tool_requires("cmake/[>=3.22 <5]")
 
     def layout(self):
         cmake_layout(self)

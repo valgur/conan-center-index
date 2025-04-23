@@ -77,7 +77,7 @@ class VulkanLoaderConan(ConanFile):
             self.output.warning("vulkan-loader should be built & consumed with the same version than vulkan-headers.")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.17.2 <4.0]")
+        self.tool_requires("cmake/[>=3.17.2 <5]")
         if self._is_pkgconf_needed:
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
