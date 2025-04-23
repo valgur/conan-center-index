@@ -4,6 +4,7 @@ from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -33,7 +34,8 @@ class SpirvLlvmTranslatorConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("llvm-core/20.1.3")
+        llvm_major = Version(self.version).major
+        self.requires(f"llvm-core/[^{llvm_major}]")
         self.requires("spirv-headers/1.4.309.0")
         if self.options.with_spirv_tools:
             self.requires("spirv-tools/1.4.309.0")
@@ -48,13 +50,14 @@ class SpirvLlvmTranslatorConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # SPIRV-Tools-tools is not exposed as a separate package by Conan
         replace_in_file(self, "CMakeLists.txt", "find_package(SPIRV-Tools-tools)", "")
-        # Not available in the Conan package, included automatically
-        replace_in_file(self, "CMakeLists.txt", "include(LLVM-Config)", "")
         replace_in_file(self, "CMakeLists.txt",
                         "get_target_property(SPIRV_TOOLS_INCLUDE_DIRS ${SPIRV-Tools-library} INTERFACE_INCLUDE_DIRECTORIES)",
                         "set(SPIRV_TOOLS_INCLUDE_DIRS ${SPIRV-Tools_INCLUDE_DIRS})")
-        # Compilation with the experimental LLVM SPIRV target fails, force-disable for now
-        replace_in_file(self, "CMakeLists.txt", "if(spirv_present_result)", "if(FALSE)")
+        if Version(self.version) >= 20:
+            # Not available in the Conan package, included automatically
+            replace_in_file(self, "CMakeLists.txt", "include(LLVM-Config)", "")
+            # Compilation with the experimental LLVM SPIRV target fails, force-disable for now
+            replace_in_file(self, "CMakeLists.txt", "if(spirv_present_result)", "if(FALSE)")
 
     def generate(self):
         tc = CMakeToolchain(self)
