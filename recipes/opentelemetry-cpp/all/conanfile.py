@@ -1,13 +1,13 @@
+import os
+import textwrap
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.files import *
 from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-
-import os
-import textwrap
+from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -23,6 +23,7 @@ class OpenTelemetryCppConan(ConanFile):
     options = {
         "fPIC": [True, False],
         "shared": [True, False],
+        "abi_version": [1, 2],
         "with_no_deprecated_code": [True, False],
         "with_stl": [True, False],
         "with_gsl": [True, False],
@@ -45,7 +46,7 @@ class OpenTelemetryCppConan(ConanFile):
     default_options = {
         "fPIC": True,
         "shared": False,
-
+        "abi_version": 1,
         "with_no_deprecated_code": False,
         # Enabling this causes stack overflow in the test_package
         "with_stl": False,
@@ -205,6 +206,11 @@ class OpenTelemetryCppConan(ConanFile):
                 f"{', '.join(self._required_boost_components)}"
             )
 
+        if Version(self.version) < "1.12.0" and self.options.abi_version > 1:
+            raise ConanInvalidConfiguration(
+                f"{self.name} does not support ABI version > 1 before v1.12.0"
+            )
+
     def build_requirements(self):
         if self._needs_proto:
             if Version(self.version) >= "1.18.0":
@@ -277,6 +283,8 @@ class OpenTelemetryCppConan(ConanFile):
         tc.cache_variables["WITH_ASYNC_EXPORT_PREVIEW"] = self.options.with_async_export_preview
         tc.cache_variables["WITH_METRICS_EXEMPLAR_PREVIEW"] = self.options.with_metrics_exemplar_preview
         tc.cache_variables["OPENTELEMETRY_INSTALL"] = True
+        tc.cache_variables["WITH_ABI_VERSION_1"] = self.options.abi_version == 1
+        tc.cache_variables["WITH_ABI_VERSION_2"] = self.options.abi_version == 2
         tc.generate()
 
         deps = CMakeDeps(self)
