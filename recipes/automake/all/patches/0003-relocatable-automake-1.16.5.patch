@@ -13,7 +13,7 @@ index a63ce4d..6224832 100644
  {
 -  unshift (@INC, '@datadir@/@PACKAGE@-@APIVERSION@')
 +  my $scriptpath = abs_path(dirname(__FILE__));
-+  unshift (@INC, "$scriptpath/../share/@PACKAGE@-@APIVERSION@")
++  unshift (@INC, abs_path("$scriptpath/../share/@PACKAGE@-@APIVERSION@"))
      unless $ENV{AUTOMAKE_UNINSTALLED};
  }
  
@@ -25,8 +25,8 @@ index a63ce4d..6224832 100644
  my @user_includes = ();
 -my @automake_includes = ('@datadir@/aclocal-' . $APIVERSION);
 -my @system_includes = ('@datadir@/aclocal');
-+my @automake_includes = ("$scriptpath/../share/aclocal-" . $APIVERSION);
-+my @system_includes = ("$scriptpath/../share/aclocal");
++my @automake_includes = abs_path("$scriptpath/../share/aclocal-" . $APIVERSION);
++my @system_includes = abs_path("$scriptpath/../share/aclocal");
  
  # Whether we should copy M4 file in $user_includes[0].
  my $install = 0;
@@ -86,7 +86,7 @@ index d529f1b..ca98604 100644
  our $RELEASE_YEAR = '@RELEASE_YEAR@';
 -our $libdir = $ENV{"AUTOMAKE_LIBDIR"} || '@datadir@/@PACKAGE@-@APIVERSION@';
 +my $scriptpath = abs_path(dirname(__FILE__));
-+our $libdir = $ENV{"AUTOMAKE_LIBDIR"} || "$scriptpath/../../@PACKAGE@-@APIVERSION@";
++our $libdir = $ENV{"AUTOMAKE_LIBDIR"} || abs_path("$scriptpath/../../@PACKAGE@-@APIVERSION@");
  
  our $perl_threads = 0;
  # We need at least this version for CLONE support.

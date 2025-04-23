@@ -87,6 +87,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
+            self.run("aclocal --print-ac-dir")
             with chdir(self, self.build_folder):
                 self.run("./script_test")
                 self.run("./test_package")
