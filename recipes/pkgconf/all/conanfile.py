@@ -131,9 +131,7 @@ class PkgConfConan(ConanFile):
         self.buildenv_info.define_path("PKG_CONFIG", pkg_config)
 
         pkgconf_aclocal = os.path.join(self.package_folder, "bin", "aclocal")
-        self.buildenv_info.prepend_path("ACLOCAL_PATH", pkgconf_aclocal)
-        # TODO: evaluate if `ACLOCAL_PATH` is enough and we can stop using `AUTOMAKE_CONAN_INCLUDES`
-        self.buildenv_info.prepend_path("AUTOMAKE_CONAN_INCLUDES", pkgconf_aclocal)
+        self.buildenv_info.append_path("ACLOCAL_PATH", pkgconf_aclocal)
 
         # To ensure that PkgConfig(self, "<lib>").variables uses the correct executable
         if not self.conf.get("tools.gnu:pkg_config", default=False):

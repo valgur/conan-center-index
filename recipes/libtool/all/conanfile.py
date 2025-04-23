@@ -211,6 +211,4 @@ class LibtoolConan(ConanFile):
         libtool_aclocal_dir = os.path.join(self._datarootdir, "aclocal")
 
         self.buildenv_info.append_path("ACLOCAL_PATH", libtool_aclocal_dir)
-        self.buildenv_info.append_path("AUTOMAKE_CONAN_INCLUDES", libtool_aclocal_dir)
         self.runenv_info.append_path("ACLOCAL_PATH", libtool_aclocal_dir)
-        self.runenv_info.append_path("AUTOMAKE_CONAN_INCLUDES", libtool_aclocal_dir)

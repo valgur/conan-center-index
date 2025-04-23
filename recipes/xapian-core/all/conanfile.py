@@ -178,4 +178,4 @@ class XapianCoreConan(ConanFile):
                 self.cpp_info.system_libs = ["socket", "nsl"]
 
         xapian_aclocal_dir = os.path.join(self._datarootdir, "aclocal")
-        self.buildenv_info.prepend_path("AUTOMAKE_CONAN_INCLUDES", xapian_aclocal_dir)
+        self.buildenv_info.prepend_path("ACLOCAL_PATH", xapian_aclocal_dir)

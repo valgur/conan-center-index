@@ -64,4 +64,4 @@ class GtkDocStubConan(ConanFile):
         self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
 
         automake_dir = unix_path_package_info_legacy(self, os.path.join(self.package_folder, "res", "aclocal"))
-        self.buildenv_info.append_path("AUTOMAKE_CONAN_INCLUDES", automake_dir)
+        self.buildenv_info.append_path("ACLOCAL_PATH", automake_dir)
