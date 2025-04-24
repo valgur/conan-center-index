@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
@@ -37,7 +37,9 @@ class EasyhttpcppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("poco/1.12.4", transitive_headers=True, transitive_libs=True)
+        self.requires("poco/[^1.12.4]", transitive_headers=True, transitive_libs=True, options={
+            opt: True for opt in self._required_poco_components
+        })
         if self.settings.os != "Windows":
             self.requires("openssl/[>=1.1 <4]")
 
@@ -64,8 +66,6 @@ class EasyhttpcppConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["FORCE_SHAREDLIB"] = self.options.shared
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         if self.settings.os == "Windows" and self.options.shared:
             tc.preprocessor_definitions["EASYHTTPCPP_DLL"] = "1"
             tc.preprocessor_definitions["EASYHTTPCPP_API_EXPORTS"] = "1"
