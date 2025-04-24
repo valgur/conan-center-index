@@ -83,7 +83,7 @@ class PipeWireConan(ConanFile):
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[>=6 <8]")
         if self.options.with_libalsa:
-            self.requires("libalsa/1.2.10")
+            self.requires("libalsa/[~1.2.10]")
         if self.options.with_libsndfile:
             self.requires("libsndfile/1.2.2")
         if self.options.get_safe("with_libudev", True):

@@ -321,7 +321,7 @@ class FFMpegConan(ConanFile):
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_libalsa"):
-            self.requires("libalsa/1.2.10")
+            self.requires("libalsa/[~1.2.10]")
         if self.options.get_safe("with_xcb") or self.options.get_safe("with_xlib"):
             self.requires("xorg/system")
         if self.options.get_safe("with_soxr"):

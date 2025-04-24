@@ -169,7 +169,7 @@ class GStPluginsBaseConan(ConanFile):
 
         self.requires("zlib/[>=1.2.11 <2]")
         if "libalsa" in reqs:
-            self.requires("libalsa/1.2.10")
+            self.requires("libalsa/[~1.2.10]")
         if "libdrm" in reqs:
             self.requires("libdrm/2.4.119")
         if "xorg" in reqs or self.options.with_gl and self.options.get_safe("with_xorg"):

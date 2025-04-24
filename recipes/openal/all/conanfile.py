@@ -70,7 +70,7 @@ class OpenALConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == "Linux":
-            self.requires("libalsa/1.2.7.2")
+            self.requires("libalsa/[~1.2.10]")
 
     def validate(self):
         if self._openal_cxx_backend:

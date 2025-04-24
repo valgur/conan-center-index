@@ -35,7 +35,7 @@ class FensterConan(ConanFile):
             if self.options.enable_graphics:
                 self.requires("xorg/system")
             if self.options.enable_audio:
-                self.requires("libalsa/1.2.12")
+                self.requires("libalsa/[~1.2.10]")
 
     def package_id(self):
         self.info.clear()

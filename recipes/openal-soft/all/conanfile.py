@@ -44,7 +44,7 @@ class OpenALSoftConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == "Linux":
-            self.requires("libalsa/1.2.10")
+            self.requires("libalsa/[~1.2.10]")
 
     def validate(self):
         check_min_cppstd(self, 14)
