@@ -32,7 +32,7 @@ class EnchantConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.78.6")
+        self.requires("glib/[~2.78.6]")
         self.requires("hunspell/1.7.2")
 
     def source(self):

@@ -85,7 +85,7 @@ class HarfbuzzConan(ConanFile):
         if self.options.with_icu:
             self.requires("icu/75.1")
         if self.options.with_glib:
-            self.requires("glib/2.78.6")
+            self.requires("glib/[~2.78.6]")
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1")
 

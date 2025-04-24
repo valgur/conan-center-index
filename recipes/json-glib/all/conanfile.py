@@ -38,7 +38,7 @@ class JsonGlibConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/2.78.6", transitive_headers=True)
+        self.requires("glib/[~2.78.6]", transitive_headers=True)
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1")
 
