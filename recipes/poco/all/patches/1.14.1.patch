@@ -1,8 +1,7 @@
 diff --git a/NetSSL_Win/CMakeLists.txt b/NetSSL_Win/CMakeLists.txt
-index c6325eb4f..8541ffcb5 100644
 --- a/NetSSL_Win/CMakeLists.txt
 +++ b/NetSSL_Win/CMakeLists.txt
-@@ -21,7 +21,7 @@ set_target_properties(NetSSLWin
+@@ -21,7 +21,7 @@
  	DEFINE_SYMBOL NetSSL_Win_EXPORTS
  )
  
@@ -12,10 +11,9 @@ index c6325eb4f..8541ffcb5 100644
  	PUBLIC
  		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 diff --git a/cmake/PocoMacros.cmake b/cmake/PocoMacros.cmake
-index 0ef354e9e..f57e39c3c 100644
 --- a/cmake/PocoMacros.cmake
 +++ b/cmake/PocoMacros.cmake
-@@ -40,7 +40,7 @@ if(WIN32)
+@@ -40,7 +40,7 @@
  			endforeach()
  		endif(X64)
  	endif()
