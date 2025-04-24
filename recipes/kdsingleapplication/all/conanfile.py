@@ -35,7 +35,7 @@ class KDSingleApplicationConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def requirements(self):
-        self.requires("qt/[>=6.7 <7]", transitive_headers=True, transitive_libs=True)
+        self.requires("qt/[>=5 <7]", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.27 <5]")
