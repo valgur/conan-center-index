@@ -193,6 +193,7 @@ class B2Conan(ConanFile):
             "--ignore-site-config",
             "--abbreviate-paths",
             f"--prefix={os.path.join(self.package_folder, 'bin')}",
+            f"--b2prefix-portable={os.path.join(self.package_folder, 'bin')}",
         ]), cwd=self.source_folder)
 
     def package_info(self):
