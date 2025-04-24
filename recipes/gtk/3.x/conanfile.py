@@ -4,7 +4,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import can_run, cross_building
+from conan.tools.build import can_run
 from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -13,7 +13,7 @@ from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import is_msvc
 from conan.tools.system.package_manager import Apt
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class GtkConan(ConanFile):

@@ -4,7 +4,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple.apple import is_apple_os
-from conan.tools.build import can_run, cross_building
+from conan.tools.build import can_run
 from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
