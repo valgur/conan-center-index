@@ -1,0 +1,4 @@
+sources:
+  "0.0.33":
+    url: "https://github.com/openiap/rustapi/archive/refs/tags/0.0.33.tar.gz"
+    sha256: "227a020f23194f847586ba367873a8fa6a15beca0ec2438baa56998a31847a15"
