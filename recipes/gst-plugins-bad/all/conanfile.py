@@ -361,7 +361,7 @@ class GStPluginsBadConan(ConanFile):
         if "gst-orc" in self._all_reqs:
             self.tool_requires("gst-orc/<host_version>")
         if self.options.vulkan:
-            self.tool_requires("shaderc/2025.1")
+            self.tool_requires("shaderc/2025.2")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
             self.tool_requires("wayland-protocols/1.42")

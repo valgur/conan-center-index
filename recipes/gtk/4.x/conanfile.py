@@ -202,7 +202,7 @@ class GtkConan(ConanFile):
         self.tool_requires("libxml2/[>=2.12.5 <3]")  # for xmllint
         self.tool_requires("sassc/3.6.2")
         if self.options.with_vulkan:
-            self.tool_requires("shaderc/2025.1")  # for glslc
+            self.tool_requires("shaderc/2025.2")  # for glslc
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
             self.tool_requires("wayland-protocols/1.42")
