@@ -14,7 +14,7 @@ from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 from conan.tools.system.package_manager import Apt
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class GtkConan(ConanFile):
@@ -64,6 +64,7 @@ class GtkConan(ConanFile):
         "with_pango": "deprecated",
         "with_cloudprint": "deprecated",
     }
+    languages = ["C"]
     no_copy_source = True
 
     def config_options(self):
@@ -85,9 +86,6 @@ class GtkConan(ConanFile):
             del self.options.with_ffmpeg
 
     def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.options["cairo"].with_xlib = self.options.with_x11
             self.options["cairo"].with_xlib_xrender = self.options.with_x11
@@ -277,16 +275,7 @@ class GtkConan(ConanFile):
         tc.project_options["sysconfdir"] = os.path.join("res", "etc")
 
         tc.pkg_config_path = None
-        env = Environment()
-        env.define_path("PKG_CONFIG_PATH", self.generators_folder)
-        if cross_building(self):
-            env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
-            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
-        if self._apt_packages:
-            env.append_path("PKG_CONFIG_PATH", self._get_system_pkg_config_paths())
-        env.vars(self).save_script("conan_pkg_config_path")
-
+        tc.build_pkg_config_path = None
         tc.generate()
 
         deps = PkgConfigDeps(self)
@@ -295,6 +284,15 @@ class GtkConan(ConanFile):
             deps.build_context_activated.append("wayland-protocols")
             deps.build_context_folder = os.path.join(self.generators_folder, "build")
         deps.generate()
+
+        env = Environment()
+        env.define_path("PKG_CONFIG_PATH", self.generators_folder)
+        env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
+        if self._apt_packages:
+            env.append_path("PKG_CONFIG_PATH", self._get_system_pkg_config_paths())
+        env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+        env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
+        env.vars(self).save_script("conan_pkg_config_path")
 
     def _get_system_pkg_config_paths(self):
         # Global PKG_CONFIG_PATH is generally not filled by default, so ask for the default paths from pkg-config instead.
