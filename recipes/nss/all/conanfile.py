@@ -11,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, VCVars, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class NSSConan(ConanFile):
@@ -21,30 +21,29 @@ class NSSConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     description = "Network Security Services"
     topics = ("network", "security", "crypto", "ssl")
-
-    # FIXME: NSS_Init() fails in test_package for static builds
-    package_type = "shared-library"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
         "enable_legacy_db": [True, False],
     }
     default_options = {
+        "shared": False,
+        "fPIC": True,
         "enable_legacy_db": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-        self.options["nspr"].shared = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("nspr/4.35", transitive_headers=True, transitive_libs=True)
+        self.requires("nspr/[^4.35]", transitive_headers=True, transitive_libs=True, options={"shared": True})
         self.requires("sqlite3/[>=3.45.0 <4]")
         self.requires("zlib/[>=1.2.11 <2]")
 
@@ -59,7 +58,6 @@ class NSSConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if self.settings.os == "Windows":
             self.tool_requires("mozilla-build/4.0.2")
-        self.tool_requires("cpython/3.12.2")
         self.tool_requires("ninja/[>=1.10.2 <2]")
         self.tool_requires("sqlite3/<host_version>")
         if not can_run(self):
@@ -172,7 +170,7 @@ class NSSConan(ConanFile):
 
     def _pip_install(self, packages):
         site_packages_dir = self._site_packages_dir.replace("\\", "/")
-        self.run(f"python -m pip install {' '.join(packages)} --no-cache-dir --target={site_packages_dir} --index-url https://pypi.org/simple",)
+        self.run(f"python -m pip install {' '.join(packages)} --target={site_packages_dir} --index-url https://pypi.org/simple",)
 
     def _write_conan_gyp_target(self, conan_dep, target_name, file_name):
         def _format_libs(libraries, libdir=None):
@@ -352,6 +350,13 @@ class NSSConan(ConanFile):
             self.cpp_info.components["pkcs7"].libs = ["pkcs7"]
             self.cpp_info.components["pkcs12"].libs = ["pkcs12"]
             self.cpp_info.components["pki"].libs = ["nsspki"]
+
+            # https://github.com/nss-dev/nss/blob/NSS_3_110_RTM/lib/nss/nss.gyp#L29-L36
+            self.cpp_info.components["libnss"].requires.extend([
+                "certhi", "cryptohi", "pk11wrap", "certdb", "pki", "dev", "base", "mozpkix",
+            ])
+            # Fixes a linker error
+            self.cpp_info.components["certdb"].requires = ["certhi"]
 
             # Not built by default
             # self.cpp_info.components["sysinit"].libs = ["nsssysinit_static"]
