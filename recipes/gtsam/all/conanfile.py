@@ -141,7 +141,7 @@ class GtsamConan(ConanFile):
             self.requires("spectra/1.1.0")
         if self.options.with_TBB:
             if Version(self.version) >= "4.1":
-                self.requires("onetbb/2021.12.0", transitive_headers=True, transitive_libs=True)
+                self.requires("onetbb/[^2021]", transitive_headers=True, transitive_libs=True)
             else:
                 self.requires("onetbb/2020.3.3", transitive_headers=True, transitive_libs=True)
         if self.options.default_allocator == "tcmalloc":

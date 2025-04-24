@@ -133,7 +133,7 @@ class EmbreeConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tbb:
-            self.requires("onetbb/2021.7.0")
+            self.requires("onetbb/[^2021]")
 
     def validate(self):
         if not (self._has_sse_avx or (self._embree_has_neon_support and self._has_neon)):

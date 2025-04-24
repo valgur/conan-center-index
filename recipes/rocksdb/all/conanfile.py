@@ -93,7 +93,7 @@ class RocksDBConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.get_safe("with_tbb"):
-            self.requires("onetbb/2021.10.0")
+            self.requires("onetbb/[^2021]")
         if self.options.with_jemalloc:
             self.requires("jemalloc/5.3.0")
 

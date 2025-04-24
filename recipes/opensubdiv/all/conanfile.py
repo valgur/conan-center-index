@@ -86,7 +86,7 @@ class OpenSubdivConan(ConanFile):
             if Version(self.version) < "3.6.0":
                 self.requires("onetbb/2020.3.3", transitive_headers=True)
             else:
-                self.requires("onetbb/2021.12.0", transitive_headers=True)
+                self.requires("onetbb/[^2021]", transitive_headers=True)
         if self.options.with_opengl:
             self.requires("opengl/system")
             self.requires("glfw/3.4")

@@ -1061,7 +1061,7 @@ class OpenCVConan(ConanFile):
             # https://github.com/opencv/opencv/blob/4.x/modules/core/include/opencv2/core/parallel/backend/parallel_for.openmp.hpp#L39
             self.requires("openmp/system")
         elif self.options.parallel == "tbb":
-            self.requires("onetbb/2021.10.0")
+            self.requires("onetbb/[^2021]")
         if self.options.with_ipp == "intel-ipp":
             self.requires("intel-ipp/2020")
         # dnn module dependencies

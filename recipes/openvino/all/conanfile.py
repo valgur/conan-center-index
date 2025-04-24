@@ -155,7 +155,7 @@ class OpenvinoConan(ConanFile):
             self.tool_requires("cmake/[>=3.18 <5]")
 
     def requirements(self):
-        self.requires("onetbb/2021.10.0")
+        self.requires("onetbb/[^2021]")
         self.requires("pugixml/1.14")
         if self._target_x86_64:
             self.requires("xbyak/6.73")

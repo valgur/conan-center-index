@@ -85,7 +85,7 @@ class VtkmConan(ConanFile):
         if self.options.with_openmp:
             self.requires("openmp/system")
         if self.options.with_tbb:
-            self.requires("onetbb/2021.10.0")
+            self.requires("onetbb/[^2021]")
         if self.options.with_rendering:
             self.requires("glew/2.2.0")
             self.requires("opengl/system")
