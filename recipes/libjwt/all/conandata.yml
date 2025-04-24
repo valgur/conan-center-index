@@ -1,0 +1,4 @@
+sources:
+  "3.2.1":
+    url: "https://github.com/benmcollins/libjwt/archive/refs/tags/v3.2.1.zip"
+    sha256: "fbe0883929e0cd4a8677ac0740be9ea4549e4f443f84ca088fad65a7ae1c9907"
