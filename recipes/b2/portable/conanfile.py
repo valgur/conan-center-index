@@ -161,6 +161,8 @@ class B2Conan(ConanFile):
         else:
             build_args.append(f"--cxx={self._cxx}")
             cxxflags = self._cxxflags
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                cxxflags += " -pthread"
             if cxxflags:
                 build_args.append(f'--cxxflags="{cxxflags}"')
             if self.settings.build_type in ["Debug", "RelWithDebInfo"]:
