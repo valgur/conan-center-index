@@ -1,6 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <resultlib/result.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 RESULT_STRUCT_TAG(int, const char *, RESULT_TAG(int, text));
 
