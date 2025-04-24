@@ -82,6 +82,7 @@ class TermcapConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["termcap"]
+        self.cpp_info.resdirs = ["etc"]
         if self.options.shared:
             self.cpp_info.defines = ["TERMCAP_SHARED"]
 
