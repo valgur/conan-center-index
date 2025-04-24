@@ -2,7 +2,7 @@ import glob
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
@@ -192,6 +192,9 @@ class EmbreeConan(ConanFile):
             tc.variables["EMBREE_ISA_AVX512SKX"] = self.options.get_safe("avx512", False)
         else:
             tc.variables["EMBREE_ISA_AVX512"] = self.options.get_safe("avx512", False)
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
+        if Version(self.version) > "1.0.2":
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to >3.5, check if new version supports CMake 4")
         tc.generate()
 
         deps = CMakeDeps(self)
