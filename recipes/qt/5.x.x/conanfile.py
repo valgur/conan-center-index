@@ -445,7 +445,7 @@ class QtConan(ConanFile):
                 self.requires("xorg-proto/2024.1")
             self.requires("libxshmfence/1.3")
             self.requires("nss/3.107")
-            self.requires("libdrm/2.4.119")
+            self.requires("libdrm/[~2.4.119]")
             self.requires("egl/system")
         if self.options.get_safe("with_gstreamer", False):
             self.requires("gst-plugins-base/1.24.11")

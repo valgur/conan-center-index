@@ -171,7 +171,7 @@ class GStPluginsBaseConan(ConanFile):
         if "libalsa" in reqs:
             self.requires("libalsa/[~1.2.10]")
         if "libdrm" in reqs:
-            self.requires("libdrm/2.4.119")
+            self.requires("libdrm/[~2.4.119]")
         if "xorg" in reqs or self.options.with_gl and self.options.get_safe("with_xorg"):
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_gl:

@@ -39,7 +39,7 @@ class LibliftoffConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libdrm/2.4.119")
+        self.requires("libdrm/[~2.4.119]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:

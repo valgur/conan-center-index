@@ -228,7 +228,7 @@ class GStPluginsBadConan(ConanFile):
         if "libcurl" in reqs:
             self.requires("libcurl/[>=7.78.0 <9]")
         if self.options.get_safe("with_libdrm"):
-            self.requires("libdrm/2.4.119")
+            self.requires("libdrm/[~2.4.119]")
         if "libdc1394" in reqs:
             self.requires("libdc1394/2.2.7")
         if "libqrencode" in reqs:

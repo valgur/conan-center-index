@@ -343,7 +343,7 @@ class FFMpegConan(ConanFile):
         if self.options.get_safe("with_libdav1d"):
             self.requires("dav1d/1.4.3")
         if self.options.get_safe("with_libdrm"):
-            self.requires("libdrm/2.4.119")
+            self.requires("libdrm/[~2.4.119]")
 
     def validate(self):
         if self.options.with_ssl == "securetransport" and not is_apple_os(self):
