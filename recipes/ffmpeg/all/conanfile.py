@@ -1,8 +1,8 @@
-import glob
 import io
 import os
 import re
 import shutil
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -347,15 +347,12 @@ class FFMpegConan(ConanFile):
 
     def validate(self):
         if self.options.with_ssl == "securetransport" and not is_apple_os(self):
-            raise ConanInvalidConfiguration(
-                "securetransport is only available on Apple")
+            raise ConanInvalidConfiguration("securetransport is only available on Apple")
 
         for dependency, features in self._dependencies.items():
             if not self.options.get_safe(dependency):
                 continue
-            used = False
-            for feature in features:
-                used = used or self.options.get_safe(feature)
+            used = any(self.options.get_safe(f) for f in features)
             if not used:
                 raise ConanInvalidConfiguration("FFmpeg '{}' option requires '{}' option to be enabled".format(
                     dependency, "' or '".join(features)))
@@ -570,50 +567,31 @@ class FFMpegConan(ConanFile):
         opt_append_disable_if_set(args, "outdevs", self.options.disable_all_output_devices)
         opt_append_disable_if_set(args, "filters", self.options.disable_all_filters)
 
-        args.extend(self._split_and_format_options_string(
-            "enable-encoder", self.options.enable_encoders))
-        args.extend(self._split_and_format_options_string(
-            "disable-encoder", self.options.disable_encoders))
-        args.extend(self._split_and_format_options_string(
-            "enable-decoder", self.options.enable_decoders))
-        args.extend(self._split_and_format_options_string(
-            "disable-decoder", self.options.disable_decoders))
-        args.extend(self._split_and_format_options_string(
-            "enable-hwaccel", self.options.enable_hardware_accelerators))
-        args.extend(self._split_and_format_options_string(
-            "disable-hwaccel", self.options.disable_hardware_accelerators))
-        args.extend(self._split_and_format_options_string(
-            "enable-muxer", self.options.enable_muxers))
-        args.extend(self._split_and_format_options_string(
-            "disable-muxer", self.options.disable_muxers))
-        args.extend(self._split_and_format_options_string(
-            "enable-demuxer", self.options.enable_demuxers))
-        args.extend(self._split_and_format_options_string(
-            "disable-demuxer", self.options.disable_demuxers))
-        args.extend(self._split_and_format_options_string(
-            "enable-parser", self.options.enable_parsers))
-        args.extend(self._split_and_format_options_string(
-            "disable-parser", self.options.disable_parsers))
-        args.extend(self._split_and_format_options_string(
-            "enable-bsf", self.options.enable_bitstream_filters))
-        args.extend(self._split_and_format_options_string(
-            "disable-bsf", self.options.disable_bitstream_filters))
-        args.extend(self._split_and_format_options_string(
-            "enable-protocol", self.options.enable_protocols))
-        args.extend(self._split_and_format_options_string(
-            "disable-protocol", self.options.disable_protocols))
-        args.extend(self._split_and_format_options_string(
-            "enable-indev", self.options.enable_input_devices))
-        args.extend(self._split_and_format_options_string(
-            "disable-indev", self.options.disable_input_devices))
-        args.extend(self._split_and_format_options_string(
-            "enable-outdev", self.options.enable_output_devices))
-        args.extend(self._split_and_format_options_string(
-            "disable-outdev", self.options.disable_output_devices))
-        args.extend(self._split_and_format_options_string(
-            "enable-filter", self.options.enable_filters))
-        args.extend(self._split_and_format_options_string(
-            "disable-filter", self.options.disable_filters))
+        def _split_and_format_options_string(flag_name, options_list):
+            return [f"--{flag_name}={item}" for item in str(options_list).replace(",", " ").split() if item]
+
+        args += _split_and_format_options_string("enable-encoder", self.options.enable_encoders)
+        args += _split_and_format_options_string("disable-encoder", self.options.disable_encoders)
+        args += _split_and_format_options_string("enable-decoder", self.options.enable_decoders)
+        args += _split_and_format_options_string("disable-decoder", self.options.disable_decoders)
+        args += _split_and_format_options_string("enable-hwaccel", self.options.enable_hardware_accelerators)
+        args += _split_and_format_options_string("disable-hwaccel", self.options.disable_hardware_accelerators)
+        args += _split_and_format_options_string("enable-muxer", self.options.enable_muxers)
+        args += _split_and_format_options_string("disable-muxer", self.options.disable_muxers)
+        args += _split_and_format_options_string("enable-demuxer", self.options.enable_demuxers)
+        args += _split_and_format_options_string("disable-demuxer", self.options.disable_demuxers)
+        args += _split_and_format_options_string("enable-parser", self.options.enable_parsers)
+        args += _split_and_format_options_string("disable-parser", self.options.disable_parsers)
+        args += _split_and_format_options_string("enable-bsf", self.options.enable_bitstream_filters)
+        args += _split_and_format_options_string("disable-bsf", self.options.disable_bitstream_filters)
+        args += _split_and_format_options_string("enable-protocol", self.options.enable_protocols)
+        args += _split_and_format_options_string("disable-protocol", self.options.disable_protocols)
+        args += _split_and_format_options_string("enable-indev", self.options.enable_input_devices)
+        args += _split_and_format_options_string("disable-indev", self.options.disable_input_devices)
+        args += _split_and_format_options_string("enable-outdev", self.options.enable_output_devices)
+        args += _split_and_format_options_string("disable-outdev", self.options.disable_output_devices)
+        args += _split_and_format_options_string("enable-filter", self.options.enable_filters)
+        args += _split_and_format_options_string("disable-filter", self.options.disable_filters)
 
         if self._version_supports_libsvtav1:
             args.append(opt_enable_disable("libsvtav1", self.options.get_safe("with_libsvtav1")))
@@ -715,21 +693,8 @@ class FFMpegConan(ConanFile):
         deps.generate()
 
         if self.options.with_ssl == "openssl":
-            openssl_libs = " ".join([f"-l{lib}" for lib in self.dependencies["openssl"].cpp_info.aggregated_components().libs])
+            openssl_libs = " ".join(f"-l{lib}" for lib in self.dependencies["openssl"].cpp_info.aggregated_components().libs)
             save(self, os.path.join(self.build_folder, "openssl_libs.list"), openssl_libs)
-
-    def _split_and_format_options_string(self, flag_name, options_list):
-        if not options_list:
-            return []
-
-        def _format_options_list_item(flag_name, options_item):
-            return f"--{flag_name}={options_item}"
-
-        def _split_options_string(options_string):
-            return list(filter(None, "".join(options_string.split()).split(",")))
-
-        options_string = str(options_list)
-        return [_format_options_list_item(flag_name, item) for item in _split_options_string(options_string)]
 
     def build(self):
         self._patch_sources()
@@ -750,31 +715,25 @@ class FFMpegConan(ConanFile):
         if is_msvc(self):
             if self.options.shared:
                 # ffmpeg created `.lib` files in the `/bin` folder
-                for fn in os.listdir(os.path.join(self.package_folder, "bin")):
-                    if fn.endswith(".lib"):
-                        rename(self, os.path.join(self.package_folder, "bin", fn),
-                               os.path.join(self.package_folder, "lib", fn))
+                for path in Path(self.package_folder, "bin").glob("*.lib"):
+                    rename(self, path, os.path.join(self.package_folder, "lib", path.name))
                 rm(self, "*.def", os.path.join(self.package_folder, "lib"))
             else:
                 # ffmpeg produces `.a` files that are actually `.lib` files
-                with chdir(self, os.path.join(self.package_folder, "lib")):
-                    for lib in glob.glob("*.a"):
-                        rename(self, lib, lib[3:-2] + ".lib")
+                for lib in Path(self.package_folder, "lib").glob("*.a"):
+                    rename(self, lib, str(lib)[3:-2] + ".lib")
 
     def _read_component_version(self, component_name):
         # since 5.1, major version may be defined in version_major.h instead of version.h
-        component_folder = os.path.join(self.package_folder, "include", f"lib{component_name}")
-        version_file_name = os.path.join(component_folder, "version.h")
-        version_major_file_name = os.path.join(component_folder, "version_major.h")
+        component_folder = Path(self.package_folder, "include", f"lib{component_name}")
+        version_file_name = component_folder / "version.h"
+        version_major_file_name = component_folder / "version_major.h"
         pattern = f"define LIB{component_name.upper()}_VERSION_(MAJOR|MINOR|MICRO)[ \t]+(\\d+)"
-        version = dict()
-        for file in (version_file_name, version_major_file_name):
-            if os.path.isfile(file):
-                with open(file, "r", encoding="utf-8") as f:
-                    for line in f:
-                        match = re.search(pattern, line)
-                        if match:
-                            version[match[1]] = match[2]
+        version = {}
+        for path in (version_file_name, version_major_file_name):
+            if path.is_file():
+                for kind, value in re.findall(pattern, path.read_text(encoding="utf-8")):
+                    version[kind] = value
         if "MAJOR" in version and "MINOR" in version and "MICRO" in version:
             return f"{version['MAJOR']}.{version['MINOR']}.{version['MICRO']}"
         return None
