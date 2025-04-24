@@ -39,7 +39,7 @@ class OpenUSDConan(ConanFile):
         "with_opencolorio": [True, False],
         "with_openimageio": [True, False],
         "with_openvdb": [True, False],
-        "with_vptex": [True, False],
+        "with_ptex": [True, False],
         "with_vulkan": [True, False],
     }
     default_options = {
@@ -56,7 +56,7 @@ class OpenUSDConan(ConanFile):
         "with_opencolorio": False,
         "with_openimageio": False,
         "with_openvdb": False,
-        "with_vptex": True,
+        "with_ptex": False,
         "with_vulkan": False,
     }
 
@@ -77,6 +77,9 @@ class OpenUSDConan(ConanFile):
             "Visual Studio": "15",
         }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -89,10 +92,10 @@ class OpenUSDConan(ConanFile):
             del self.options.with_opencolorio
             del self.options.with_openimageio
             del self.options.with_openvdb
-            del self.options.with_vptex
+            del self.options.with_ptex
             del self.options.with_vulkan
-        elif self.options.with_opencolorio:
-            del self.options.with_openimageio
+        elif self.options.with_openimageio:
+            del self.options.with_opencolorio
         # Set same options as in https://github.com/PixarAnimationStudios/OpenUSD/blob/release/build_scripts/build_usd.py#L1476
         self.options["opensubdiv/*"].with_tbb = True
         self.options["opensubdiv/*"].with_opengl = True
@@ -101,24 +104,27 @@ class OpenUSDConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("onetbb/2021.12.0", transitive_headers=True)
+        self.requires("onetbb/[^2021]", transitive_headers=True)
         if self.options.build_imaging:
             self.requires("opengl/system")
             self.requires("opensubdiv/3.6.0")
-            if self.options.get_safe("with_openimageio"):
+            if self.options.with_openimageio:
                 self.requires("openimageio/2.5.18.0")
             elif self.options.with_opencolorio:
                 self.requires("opencolorio/2.4.2")
             if self.options.with_vulkan:
-                self.requires("vulkan-headers/1.4.309.0")
-            if self.options.with_vptex:
+                self.requires("vulkan-loader/1.4.309.0")
+                self.requires("vulkan-memory-allocator/3.2.1")
+                self.requires("spirv-cross/1.4.309.0")
+                self.requires("shaderc/2025.2")
+            if self.options.with_ptex:
                 self.requires("ptex/2.4.2")
             if self.options.with_openvdb:
                 self.requires("openvdb/11.0.0")
             if self.options.with_embree:
                 self.requires("embree3/3.13.5")
             if self.options.get_safe("with_openimageio") or self.options.with_openvdb:
-                self.requires("imath/3.1.12")
+                self.requires("imath/[~3.1.9]")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.requires("xorg/system")
         if self.options.with_alembic:
@@ -130,10 +136,10 @@ class OpenUSDConan(ConanFile):
         if self.options.with_materialx:
             self.requires("materialx/1.39.1", transitive_headers=True)
         # if self.options.enable_osl_support:
-           # TODO: add osl to conan center (https://github.com/AcademySoftwareFoundation/OpenShadingLanguage)
+            # TODO: add osl recipe (https://github.com/AcademySoftwareFoundation/OpenShadingLanguage)
             # self.requires("openshadinglanguage/1.13.8.0")
         # if self.options.build_animx_tests:
-           # TODO: add animx to conan center (https://github.com/Autodesk/animx/)
+            # TODO: add animx recipe (https://github.com/Autodesk/animx/)
             # self.requires("animx/x.y.z")
 
     def validate(self):
@@ -143,10 +149,15 @@ class OpenUSDConan(ConanFile):
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
         if is_apple_os(self) and not self.dependencies["opensubdiv"].options.with_metal:
-            raise ConanInvalidConfiguration(f'{self.ref} needs -o opensubdiv/*:with_metal=True')
+            raise ConanInvalidConfiguration(f"{self.ref} needs -o opensubdiv/*:with_metal=True")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self, os.path.join("cmake", "defaults", "Packages.cmake"),
+                        'if (EXISTS $ENV{VULKAN_SDK})', "if (FALSE)")
+        replace_in_file(self, os.path.join("cmake", "defaults", "Packages.cmake"),
+                        'message(FATAL_ERROR "VULKAN_SDK not valid")', "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -159,7 +170,7 @@ class OpenUSDConan(ConanFile):
         tc.cache_variables["PXR_BUILD_USD_TOOLS"] = self.options.tools
 
         tc.cache_variables["OPENSUBDIV_LIBRARIES"] = "OpenSubdiv::osdcpu"
-        tc.cache_variables["OPENSUBDIV_INCLUDE_DIR"] = self.dependencies['opensubdiv'].cpp_info.includedirs[0].replace("\\", "/")
+        tc.cache_variables["OPENSUBDIV_INCLUDE_DIR"] = self.dependencies["opensubdiv"].cpp_info.includedirs[0].replace("\\", "/")
         tc.cache_variables["OPENSUBDIV_OSDCPU_LIBRARY"] = "OpenSubdiv::osdcpu"
 
         tc.cache_variables["TBB_tbb_LIBRARY"] = "TBB::tbb"
@@ -168,20 +179,23 @@ class OpenUSDConan(ConanFile):
 
         tc.cache_variables["PXR_BUILD_IMAGING"] = self.options.build_imaging
         if self.options.build_imaging:
-            tc.cache_variables["PXR_BUILD_COLORIO_PLUGIN"] = self.options.with_opencolorio
+            tc.cache_variables["PXR_BUILD_COLORIO_PLUGIN"] = self.options.get_safe("with_opencolorio", False)
             tc.cache_variables["PXR_BUILD_EMBREE_PLUGIN"] = self.options.with_embree
-            tc.cache_variables["PXR_BUILD_OPENIMAGEIO_PLUGIN"] = self.options.get_safe("with_openimageio")
+            tc.cache_variables["PXR_BUILD_OPENIMAGEIO_PLUGIN"] = self.options.with_openimageio
             tc.cache_variables["PXR_BUILD_USDVIEW"] = self.options.build_usdview
             tc.cache_variables["PXR_BUILD_USD_IMAGING"] = True
             tc.cache_variables["PXR_ENABLE_GL_SUPPORT"] = True
             tc.cache_variables["PXR_ENABLE_OPENVDB_SUPPORT"] = self.options.with_openvdb
-            tc.cache_variables["PXR_ENABLE_PTEX_SUPPORT"] = self.options.with_vptex
+            tc.cache_variables["PXR_ENABLE_PTEX_SUPPORT"] = self.options.with_ptex
             tc.cache_variables["PXR_ENABLE_VULKAN_SUPPORT"] = self.options.with_vulkan
             tc.cache_variables["OPENVDB_LIBRARY"] = "OpenVDB::openvdb"
             if self.options.with_embree:
-                tc.cache_variables["EMBREE_LIBRARY"] = self.dependencies['embree3'].cpp_info.libdirs[0].replace("\\", "/")
-                tc.cache_variables["EMBREE_INCLUDE_DIR"] = self.dependencies['embree3'].cpp_info.includedirs[0].replace("\\", "/")
-            if self.options.with_vptex:
+                tc.cache_variables["EMBREE_LIBRARY"] = self.dependencies["embree3"].cpp_info.libdirs[0].replace("\\", "/")
+                tc.cache_variables["EMBREE_INCLUDE_DIR"] = self.dependencies["embree3"].cpp_info.includedirs[0].replace("\\", "/")
+            if self.options.get_safe("with_openimageio"):
+                tc.cache_variables["OIIO_LIBRARIES"] = "OpenImageIO::OpenImageIO"
+                tc.cache_variables["OIIO_INCLUDE_DIRS"] = self.dependencies["openimageio"].cpp_info.includedirs[0].replace("\\", "/")
+            if self.options.with_ptex:
                 tc.cache_variables["PTEX_LIBRARY"] = str(next(Path(self.dependencies["ptex"].cpp_info.libdir).iterdir())).replace("\\", "/")
                 tc.cache_variables["PTEX_INCLUDE_DIR"] = self.dependencies["ptex"].cpp_info.includedir.replace("\\", "/")
 
@@ -192,14 +206,14 @@ class OpenUSDConan(ConanFile):
         if self.options.with_alembic:
             tc.cache_variables["ALEMBIC_FOUND"] = True
             tc.cache_variables["ALEMBIC_LIBRARIES"] = "Alembic::Alembic"
-            tc.cache_variables["ALEMBIC_LIBRARY_DIR"] = self.dependencies['alembic'].cpp_info.libdirs[0].replace("\\", "/")
-            tc.cache_variables["ALEMBIC_INCLUDE_DIR"] = self.dependencies['alembic'].cpp_info.includedirs[0].replace("\\", "/")
+            tc.cache_variables["ALEMBIC_LIBRARY_DIR"] = self.dependencies["alembic"].cpp_info.libdirs[0].replace("\\", "/")
+            tc.cache_variables["ALEMBIC_INCLUDE_DIR"] = self.dependencies["alembic"].cpp_info.includedirs[0].replace("\\", "/")
             tc.cache_variables["PXR_ENABLE_HDF5_SUPPORT"] = self.options.with_hdf5
 
         tc.cache_variables["PXR_BUILD_DRACO_PLUGIN"] = self.options.with_draco
         if self.options.with_draco:
             tc.cache_variables["DRACO_LIBRARY"] = "draco::draco"
-            tc.cache_variables["DRACO_INCLUDES"] = self.dependencies['draco'].cpp_info.includedirs[0].replace("\\", "/")
+            tc.cache_variables["DRACO_INCLUDES"] = self.dependencies["draco"].cpp_info.includedirs[0].replace("\\", "/")
 
         # tc.cache_variables["PXR_ENABLE_OSL_SUPPORT"] = self.options.enable_osl_support
 
@@ -316,6 +330,7 @@ class OpenUSDConan(ConanFile):
                 component.libs = [f"usd_{name}"]
                 component.requires = data["requires"]
                 component.system_libs = data["system_libs"]
+
 
 def parse_dotfile(dotfile, label_replacements=None):
     """

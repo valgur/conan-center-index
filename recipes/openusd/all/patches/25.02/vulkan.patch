@@ -1,0 +1,51 @@
+--- a/pxr/imaging/hgiVulkan/CMakeLists.txt
++++ b/pxr/imaging/hgiVulkan/CMakeLists.txt
+@@ -6,6 +6,12 @@
+         "Skipping ${PXR_PACKAGE} because PXR_BUILD_GPU_SUPPORT or PXR_ENABLE_VULKAN_SUPPORT is OFF")
+     return()
+ endif()
++
++find_package(Vulkan REQUIRED)
++find_package(shaderc REQUIRED CONFIG)
++find_package(spirv-cross REQUIRED CONFIG)
++find_package(VulkanMemoryAllocator REQUIRED CONFIG)
++set(VULKAN_LIBS Vulkan::Vulkan shaderc::shaderc spirv-cross::spirv-cross GPUOpen::VulkanMemoryAllocator)
+ 
+ pxr_library(hgiVulkan
+     LIBRARIES
+@@ -40,14 +46,10 @@
+         shaderProgram
+         shaderSection
+         texture
+-        vk_mem_alloc
+ 
+     PUBLIC_HEADERS
+         api.h
+         vulkan.h
+-
+-    PRIVATE_CLASSES
+-        spirv_reflect
+ 
+     RESOURCE_FILES
+         plugInfo.json
+
+--- a/pxr/imaging/hgiVulkan/spirv_reflect.h
++++ b/pxr/imaging/hgiVulkan/spirv_reflect.h
+@@ -10,6 +10,6 @@
+ // This is an implementation of SPIRV-Reflect included
+ // from the Vulkan SDK.
+ 
+-#include <SPIRV-Reflect/spirv_reflect.h>
++#include <spirv_reflect.hpp>
+ 
+ #endif
+--- a/pxr/imaging/hgiVulkan/vk_mem_alloc.h
++++ b/pxr/imaging/hgiVulkan/vk_mem_alloc.h
+@@ -10,6 +10,6 @@
+ // This is an implementation of VMA (Vulkan Memory Allocator) included
+ // from the Vulkan SDK.
+ 
+-#include <vma/vk_mem_alloc.h>
++#include <vk_mem_alloc.h>
+ 
+ #endif
