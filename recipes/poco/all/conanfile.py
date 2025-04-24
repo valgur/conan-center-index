@@ -29,7 +29,6 @@ class PocoConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "enable_fork": [True, False],
-        "enable_active_record": [True, False, "deprecated"],
         "log_debug": [True, False],
         "with_sql_parser": [True, False],
         "comp_foundation_sharedlibrary_debug_suffix": [True, False],
@@ -38,7 +37,6 @@ class PocoConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "enable_fork": True,
-        "enable_active_record": "deprecated",
         "log_debug": False,
         "with_sql_parser": True,
         "comp_foundation_sharedlibrary_debug_suffix": True,
@@ -117,8 +115,6 @@ class PocoConan(ConanFile):
             del self.options.comp_foundation_sharedlibrary_debug_suffix
 
     def configure(self):
-        if self.options.enable_active_record != "deprecated":
-            self.output.warning("enable_active_record option is deprecated, use 'enable_activerecord' instead")
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if not self.options.enable_xml:
@@ -156,7 +152,6 @@ class PocoConan(ConanFile):
             self.requires("utf8proc/2.9.0")
 
     def package_id(self):
-        del self.info.options.enable_active_record
         del self.info.options.log_debug
 
     def validate(self):
