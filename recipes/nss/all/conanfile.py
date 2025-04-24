@@ -316,21 +316,15 @@ class NSSConan(ConanFile):
         # There are also nssckbi and nsssysinit shared libs, but these are meant to be loaded dynamically
 
         if not self.options.get_safe("shared", True):
-            static_libs = collect_libs(self)
-
             self.cpp_info.components["libnss"].libs = ["nss_static"]
-            self.cpp_info.components["libnss"].requires += [
-                "base", "certdb", "certhi", "cryptohi", "dev", "pk11wrap", "pki",
-            ]
-
-            freebl_private = [name for name in static_libs if
-                              name.startswith("freebl") or "c_lib" in name or "gcm-" in name or "hw-acc-crypto-" in name]
-            self.cpp_info.components["freebl"].libs = ["freebl", "freebl_static"] + freebl_private
-
             self.cpp_info.components["smime"].libs = ["smime"]
             self.cpp_info.components["softokn"].libs = ["softokn", "softokn_static"]
             self.cpp_info.components["ssl"].libs = ["ssl"]
             self.cpp_info.components["util"].libs = ["nssutil"]
+
+            freebl_private = [name for name in collect_libs(self) if
+                              name.startswith("freebl") or "c_lib" in name or "gcm-" in name or "hw-acc-crypto-" in name]
+            self.cpp_info.components["freebl"].libs = ["freebl", "freebl_static"] + freebl_private
 
             if self.options.enable_legacy_db:
                 self.cpp_info.components["dbm"].libs = ["nssdbm"]
@@ -340,8 +334,10 @@ class NSSConan(ConanFile):
             self.cpp_info.components["certdb"].libs = ["certdb"]
             self.cpp_info.components["certhi"].libs = ["certhi"]
             self.cpp_info.components["ckfw"].libs = ["nssckfw"]
+            self.cpp_info.components["cpputil"].libs = ["cpputil"]
             self.cpp_info.components["crmf"].libs = ["crmf"]
             self.cpp_info.components["cryptohi"].libs = ["cryptohi"]
+            self.cpp_info.components["dbm"].libs = ["dbm"]
             self.cpp_info.components["dev"].libs = ["nssdev"]
             self.cpp_info.components["jar"].libs = ["jar"]
             self.cpp_info.components["mozpkix"].libs = ["mozpkix"]
