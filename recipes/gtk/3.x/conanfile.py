@@ -51,6 +51,7 @@ class GtkConan(ConanFile):
         "with_tracker": False,
         "with_iso_codes": False,
     }
+    languages = ["C"]
     no_copy_source = True
 
     def export_sources(self):
@@ -73,8 +74,6 @@ class GtkConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.options["cairo"].with_xlib = self.options.with_x11
@@ -201,14 +200,6 @@ class GtkConan(ConanFile):
         tc.project_options["sysconfdir"] = os.path.join("res", "etc")
 
         tc.pkg_config_path = None
-        env = Environment()
-        env.define_path("PKG_CONFIG_PATH", self.generators_folder)
-        if cross_building(self):
-            env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
-            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
-        env.vars(self).save_script("conan_pkg_config_path")
-
         tc.generate()
 
         deps = PkgConfigDeps(self)
@@ -217,6 +208,13 @@ class GtkConan(ConanFile):
             deps.build_context_activated.append("wayland-protocols")
             deps.build_context_folder = os.path.join(self.generators_folder, "build")
         deps.generate()
+
+        env = Environment()
+        env.define_path("PKG_CONFIG_PATH", self.generators_folder)
+        env.append_path("PKG_CONFIG_PATH", os.path.join(self.generators_folder, "build"))
+        env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+        env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
+        env.vars(self).save_script("conan_pkg_config_path")
 
     def _get_system_pkg_config_paths(self):
         # Global PKG_CONFIG_PATH is generally not filled by default, so ask for the default paths from pkg-config instead.
