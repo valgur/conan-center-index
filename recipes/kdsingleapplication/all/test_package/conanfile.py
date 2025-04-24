@@ -1,11 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.build import can_run
+from conan.tools.cmake import CMake, cmake_layout
 
 
-class qtkeychainTestConan(ConanFile):
+class TestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
 
@@ -22,5 +22,5 @@ class qtkeychainTestConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            cmd = os.path.join(self.cpp.build.bindir, "example")
+            cmd = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(cmd, env="conanrun")

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(PackageTest CXX)
+project(test_package CXX)
 
-find_package(kdsingleapplication CONFIG REQUIRED)
+find_package(KDSingleApplication CONFIG REQUIRED)
 
-add_executable(example src/example.cpp)
-target_link_libraries(example kdsingleapplication::kdsingleapplication)
+add_executable(test_package test_package.cpp)
+target_link_libraries(test_package kdsingleapplication)
