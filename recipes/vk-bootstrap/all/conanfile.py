@@ -37,9 +37,6 @@ class VkBootstrapConan(ConanFile):
             return 17
         return 14
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -61,7 +58,6 @@ class VkBootstrapConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
         if Version(self.version) >= "1.0":
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                             "add_library(vk-bootstrap STATIC ", "add_library(vk-bootstrap ")
