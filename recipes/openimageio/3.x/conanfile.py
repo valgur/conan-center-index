@@ -1,13 +1,13 @@
-from conan import ConanFile
-from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, export_conandata_patches, copy, get, rm, rmdir
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.scm import Version
-from conan.errors import ConanInvalidConfiguration
 import os
 
-required_conan_version = ">=2.0.0"
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import *
+from conan.tools.microsoft import is_msvc_static_runtime
+
+required_conan_version = ">=2.1"
 
 
 class OpenImageIOConan(ConanFile):
@@ -47,53 +47,46 @@ class OpenImageIOConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_dicom": False,  # Heavy dependency, disabled by default
-        "with_ffmpeg": True,
-        "with_freetype": True,
+        "with_dicom": False,
+        "with_ffmpeg": False,
+        "with_freetype": False,
         "with_giflib": True,
-        "with_hdf5": True,
-        "with_libheif": True,
+        "with_hdf5": False,
+        "with_libheif": False,
         "with_libjpeg": "libjpeg",
-        "with_libjxl": True,
+        "with_libjxl": False,
         "with_libpng": True,
         "with_libwebp": True,
         "with_openjpeg": True,
-        "with_openvdb": True,
+        "with_openvdb": False,
         "with_opencv": False,
-        "with_ptex": True,
+        "with_ptex": False,
         "with_raw": False,  # libraw is available under CDDL-1.0 or LGPL-2.1, for this reason it is disabled by default
-        "with_tbb": False,
+        "with_tbb": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def requirements(self):
         # Required libraries
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("libtiff/4.7.0")
+        self.requires("libtiff/[>=4.5 <5]")
         self.requires("imath/3.1.9", transitive_headers=True)
-        self.requires("openexr/3.3.2")
+        self.requires("openexr/3.3.3")
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[>=3.0.3 <4]")
-        self.requires("pugixml/1.14")
+            self.requires("libjpeg-turbo/[~3.0]")
+        self.requires("pugixml/1.15")
         self.requires("tsl-robin-map/1.3.0")
-        self.requires("fmt/10.2.1", transitive_headers=True)
-        self.requires("opencolorio/2.4.0")
+        self.requires("fmt/[^10]", transitive_headers=True)
+        self.requires("opencolorio/2.4.2")
 
         # Optional libraries
         if self.options.with_libjxl:
-            self.requires("libjxl/0.10.3")
+            self.requires("libjxl/0.11.1")
         if self.options.with_libpng:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_freetype:
@@ -101,18 +94,17 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_hdf5:
             self.requires("hdf5/1.14.5")
         if self.options.with_opencv:
-            self.requires("opencv/4.10.0")
+            self.requires("opencv/4.11.0")
         if self.options.with_tbb:
-            self.requires("onetbb/2021.12.0")
+            self.requires("onetbb/[^2021]")
         if self.options.with_dicom:
             self.requires("dcmtk/3.6.8")
         if self.options.with_ffmpeg:
-            self.requires("ffmpeg/7.0.1")
-        # TODO: Field3D dependency
+            self.requires("ffmpeg/[>=6 <8]")
         if self.options.with_giflib:
             self.requires("giflib/5.2.2")
         if self.options.with_libheif:
-            self.requires("libheif/1.18.2")
+            self.requires("libheif/1.19.5")
         if self.options.with_raw:
             self.requires("libraw/0.21.3")
         if self.options.with_openjpeg:
@@ -122,22 +114,20 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_ptex:
             self.requires("ptex/2.4.2")
         if self.options.with_libwebp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1]")
 
+        # TODO: Field3D dependency
         # TODO: R3DSDK dependency
         # TODO: Nuke dependency
+        # TODO: libuhdr dependency
 
     def build_requirements(self):
-        # A minimum cmake version is now required that is reasonably new
-        self.build_requires("cmake/[>=3.18.2 <4]")
+        self.build_requires("cmake/[>=3.18.2 <5]")
 
     def validate(self):
         check_min_cppstd(self, 17)
-
-        if is_msvc(self) and is_msvc_static_runtime(self) and self.options.shared:
-            raise ConanInvalidConfiguration(
-                "Building shared library with static runtime is not supported!"
-            )
+        if is_msvc_static_runtime(self) and self.options.shared:
+            raise ConanInvalidConfiguration("Building shared library with static runtime is not supported!")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -178,7 +168,9 @@ class OpenImageIOConan(ConanFile):
         tc.variables["USE_LIBJXL"] = self.options.with_libjxl
         tc.variables["USE_LIBPNG"] = self.options.with_libpng
         tc.variables["USE_LIBRAW"] = self.options.with_raw
+        tc.variables["USE_LIBUHDR"] = False
         tc.variables["USE_LIBWEBP"] = self.options.with_libwebp
+        tc.variables["USE_NUKE"] = False
         tc.variables["USE_OPENCV"] = self.options.with_opencv
         tc.variables["USE_OPENGL"] = False
         tc.variables["USE_OPENJPEG"] = self.options.with_openjpeg
@@ -186,11 +178,8 @@ class OpenImageIOConan(ConanFile):
         tc.variables["USE_PTEX"] = self.options.with_ptex
         tc.variables["USE_PYTHON"] = False
         tc.variables["USE_QT"] = False
-        tc.variables["USE_TBB"] = self.options.with_tbb
-
-        # Unsupported options
-        tc.variables["USE_NUKE"] = False
         tc.variables["USE_R3DSDK"] = False
+        tc.variables["USE_TBB"] = self.options.with_tbb
 
         # Override variable for internal linking visibility of Imath otherwise not visible
         # in the tools included in the build that consume the library.
@@ -198,7 +187,6 @@ class OpenImageIOConan(ConanFile):
 
         tc.generate()
         cd = CMakeDeps(self)
-        # Map the name of openexr for the target name expected in OIIO cmake
         cd.set_property("openexr", "cmake_target_name", "OpenEXR::OpenEXR")
         cd.generate()
 
@@ -239,9 +227,7 @@ class OpenImageIOConan(ConanFile):
             "openexr::openexr",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            open_image_io_util.system_libs.extend(
-                ["dl", "m", "pthread"]
-            )
+            open_image_io_util.system_libs.extend(["dl", "m", "pthread"])
         if self.options.with_tbb:
             open_image_io_util.requires.append("onetbb::onetbb")
 
@@ -265,9 +251,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_libjpeg == "libjpeg":
             open_image_io.requires.append("libjpeg::libjpeg")
         elif self.options.with_libjpeg == "libjpeg-turbo":
-            open_image_io.requires.append(
-                "libjpeg-turbo::libjpeg-turbo"
-            )
+            open_image_io.requires.append("libjpeg-turbo::libjpeg-turbo")
         if self.options.with_libpng:
             open_image_io.requires.append("libpng::libpng")
         if self.options.with_freetype:
