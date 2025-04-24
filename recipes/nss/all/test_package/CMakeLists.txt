@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(test_package C)
+project(test_package LANGUAGES C)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(nss REQUIRED IMPORTED_TARGET nss)
