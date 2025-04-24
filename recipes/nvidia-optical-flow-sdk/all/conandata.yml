@@ -1,0 +1,6 @@
+sources:
+  "5.0.7":
+    sha256: "1cbb8951ddb1be661f9bc03e31cf72253b251ca4721dd893a24583b472d06314"
+patches:
+  "5.0.7":
+    - patch_file: "patches/5.0.7-cmake_fixes.patch"

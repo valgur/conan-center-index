@@ -1,0 +1,38 @@
+--- a/NvOFTracker/CMakeLists.txt
++++ b/NvOFTracker/CMakeLists.txt
+@@ -7,15 +7,7 @@
+ # is strictly prohibited.
+ cmake_minimum_required(VERSION 3.14.0)
+ project(NvOFTrackerMain)
+-set(CMAKE_CXX_STANDARD  11)
+-
+-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
+-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin")
+-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+ 
+ add_subdirectory(NvOFTracker)
+-add_subdirectory(NvOFTSample)
+ 
+-install (TARGETS nvoftracker LIBRARY DESTINATION bin)
+-install (TARGETS NvOFTSample RUNTIME DESTINATION bin)
++install (TARGETS nvoftracker LIBRARY DESTINATION lib ARCHIVE DESTINATION lib RUNTIME DESTINATION bin)
+--- a/NvOFTracker/NvOFTracker/CMakeLists.txt
++++ b/NvOFTracker/NvOFTracker/CMakeLists.txt
+@@ -7,7 +7,6 @@
+ # is strictly prohibited.
+ cmake_minimum_required(VERSION 3.14.0)
+ project(nvoftracker VERSION 0.1.0)
+-set(CMAKE_CXX_STANDARD  11)
+ 
+ set(NVOFTRACKER_SRCS
+ ${CMAKE_CURRENT_SOURCE_DIR}/src/NvOFTracker.cpp
+@@ -43,7 +42,7 @@
+ message(STATUS "Found CudaRT libs at ${CUDA_CUDART_LIBRARY}")
+ message(STATUS "Found Cuda headers at ${CUDA_INCLUDE_DIRS}")
+ 
+-add_library(nvoftracker SHARED ${NVOFTRACKER_SRCS} ${NVOFTRACKER_HDRS} NvOFTracker.def)
++add_library(nvoftracker ${NVOFTRACKER_SRCS} ${NVOFTRACKER_HDRS} NvOFTracker.def)
+ target_include_directories(nvoftracker PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../interface ${OpenCV_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS})
+ target_link_libraries(nvoftracker ${OpenCV_LIBS} ${CUDA_CUDART_LIBRARY})
+ set_target_properties(nvoftracker PROPERTIES LINKER_LANGUAGE CXX)
