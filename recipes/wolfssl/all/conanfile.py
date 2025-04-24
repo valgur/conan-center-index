@@ -9,7 +9,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class WolfSSLConan(ConanFile):
@@ -64,6 +64,8 @@ class WolfSSLConan(ConanFile):
         "with_experimental": False,
         "with_rpk": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -79,12 +81,6 @@ class WolfSSLConan(ConanFile):
         if self.settings.os == "baremetal":
             del self.options.shared
             self.package_type = "static-library"
-
-    def configure(self):
-        if self.options.get_safe("shared"):
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -124,8 +120,6 @@ class WolfSSLConan(ConanFile):
             "--enable-sessioncerts={}".format(yes_no(self.options.sessioncerts)),
             "--enable-sni={}".format(yes_no(self.options.sni)),
             "--enable-testcert={}".format(yes_no(self.options.testcert)),
-            "--enable-shared={}".format(yes_no(self.options.get_safe("shared"))),
-            "--enable-static={}".format(yes_no(not self.options.get_safe("shared"))),
         ])
         if self.options.get_safe("with_curl"):
             tc.configure_args.append("--enable-curl")
@@ -175,6 +169,28 @@ class WolfSSLConan(ConanFile):
             rename(self, os.path.join(self.package_folder, "lib", "wolfssl.dll.lib"),
                          os.path.join(self.package_folder, "lib", "wolfssl.lib"))
 
+    @property
+    def _32bitarchs(self):
+        return ["x86", "ppc32", "armv5el", "armv5hf", "armv6", "armv7", "armv7hf", "armv7s", "armv7k", "armv8_32", "mips", "s390"]
+
+    @property
+    def _defines(self):
+        # INFO: These defines are defined by autotools already when building,
+        #       but they need to be forwarded to the consumers
+        # See https://www.wolfssl.com/documentation/manuals/wolfssl/chapter02.html#building-with-configure-with-cross-compile
+        defines = ["TFM_TIMING_RESISTANT", "ECC_TIMING_RESISTANT", "WC_RSA_BLINDING"]
+        if self.settings.os == "baremetal":
+            defines.extend([
+                "NO_FILESYSTEM",
+                "USE_FAST_MATH",
+                "HAVE_PK_CALLBACKS",
+                "WOLFSSL_USER_IO",
+                "NO_WRITEV",
+            ])
+            if self.settings.arch in self._32bitarchs:
+                defines.append("TIME_T_NOT_64BIT")
+        return defines
+
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "wolfssl")
         self.cpp_info.libs = ["wolfssl"]
@@ -190,38 +206,3 @@ class WolfSSLConan(ConanFile):
                     self.cpp_info.system_libs.append("crypt32")
             elif is_apple_os(self) and Version(self.version) >= "5.6.0":
                 self.cpp_info.frameworks.extend(["CoreFoundation", "Security"])
-
-    @property
-    def _32bitarchs(self):
-        return [
-            "x86",
-            "ppc32",
-            "armv5el",
-            "armv5hf",
-            "armv6",
-            "armv7",
-            "armv7hf",
-            "armv7s",
-            "armv7k",
-            "armv8_32",
-            "mips",
-            "s390",
-        ]
-
-    @property
-    def _defines(self):
-        # INFO: These defines are defined by autotools already when building,
-        #       but they need to be forwarded to the consumers
-        # See https://www.wolfssl.com/documentation/manuals/wolfssl/chapter02.html#building-with-configure-with-cross-compile
-        defines = ["TFM_TIMING_RESISTANT", "ECC_TIMING_RESISTANT", "WC_RSA_BLINDING"]
-        if self.settings.os == "baremetal":
-            defines.extend([
-                "NO_FILESYSTEM",
-                "USE_FAST_MATH",
-                "HAVE_PK_CALLBACKS",
-                "WOLFSSL_USER_IO",
-                "NO_WRITEV"
-            ])
-            if self.settings.arch in self._32bitarchs:
-                defines.append("TIME_T_NOT_64BIT")
-        return defines
