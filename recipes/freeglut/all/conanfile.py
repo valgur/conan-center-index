@@ -97,7 +97,7 @@ class freeglutConan(ConanFile):
         else:
             self.requires("opengl/system")
         if self.options.get_safe("with_wayland"):
-            self.requires("wayland/1.22.0")
+            self.requires("wayland/[^1.22.0]")
             self.requires("xkbcommon/1.6.0")
         if self._with_x11:
             self.requires("xorg/system")

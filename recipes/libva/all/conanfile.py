@@ -65,7 +65,7 @@ class PackageConan(ConanFile):
         if self.options.get_safe("with_drm"):
             self.requires("libdrm/[~2.4.119]")
         if self.options.get_safe("with_wayland"):
-            self.requires("wayland/1.22.0")
+            self.requires("wayland/[^1.22.0]")
         if self.options.get_safe("with_glx"):
             self.requires("opengl/system")
 

@@ -157,7 +157,7 @@ class SDLConan(ConanFile):
             if self.options.nas:
                 self.requires("nas/1.9.5")
             if self.options.wayland:
-                self.requires("wayland/1.22.0")
+                self.requires("wayland/[^1.22.0]")
                 self.requires("xkbcommon/1.6.0")
                 self.requires("egl/system")
             if self.options.libunwind:
@@ -187,7 +187,7 @@ class SDLConan(ConanFile):
         if self.settings.os == "Linux" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("wayland"):
-            self.tool_requires("wayland/1.22.0")  # Provides wayland-scanner
+            self.tool_requires("wayland/<host_version>")  # Provides wayland-scanner
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

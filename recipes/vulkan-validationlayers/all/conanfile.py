@@ -70,7 +70,7 @@ class VulkanValidationLayersConan(ConanFile):
         if self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib"):
             self.requires("xorg/system", libs=False)
         if self.options.get_safe("with_wsi_wayland"):
-            self.requires("wayland/1.22.0", libs=False)
+            self.requires("wayland/[^1.22.0]", libs=False)
 
         # TODO: add support for mimalloc
 

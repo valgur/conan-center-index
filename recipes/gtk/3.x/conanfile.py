@@ -103,7 +103,7 @@ class GtkConan(ConanFile):
         self.requires("fribidi/1.0.13")
         self.requires("harfbuzz/8.3.0")
         if self.options.get_safe("with_wayland"):
-            self.requires("wayland/1.22.0")
+            self.requires("wayland/[^1.22.0]")
             self.requires("xkbcommon/1.6.0")
             self.requires("egl/system")
         if self.options.get_safe("with_x11"):

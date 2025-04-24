@@ -276,7 +276,7 @@ class OgreConanFile(ConanFile):
                 self.requires("egl/system")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.use_wayland:
-                self.requires("wayland/1.22.0")
+                self.requires("wayland/[^1.22.0]")
             else:
                 self.requires("xorg/system")
         if self.options.build_component_bullet:

@@ -166,7 +166,7 @@ class wxWidgetsConan(ConanFile):
 
         if self.settings.os != "Windows":
             if self.options.get_safe("glcanvas_egl"):
-                self.requires("wayland/1.22.0")
+                self.requires("wayland/[^1.22.0]")
             if self.options.libiconv:
                 self.requires("libiconv/1.17")
             if self.options.sound:

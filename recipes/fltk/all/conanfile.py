@@ -89,7 +89,7 @@ class FltkConan(ConanFile):
                 self.requires("libxft/2.3.8")
             if Version(self.version) >= "1.4.0":
                 self.requires("gtk/system", options={"version": "3"})
-                self.requires("wayland/1.22.0")
+                self.requires("wayland/[^1.22.0]")
                 self.requires("xkbcommon/1.6.0")
                 self.requires("dbus/1.15.8")
 

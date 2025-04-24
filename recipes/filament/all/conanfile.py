@@ -111,7 +111,7 @@ class FilamentConan(ConanFile):
         if self.options.get_safe("egl_support"):
             self.requires("egl/system")
         if self.options.get_safe("with_wayland"):
-            self.requires("wayland/1.22.0")
+            self.requires("wayland/[^1.22.0]")
         if self.options.get_safe("with_xlib") or self.options.get_safe("with_xcb"):
             self.requires("xorg/system")
 

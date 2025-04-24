@@ -473,7 +473,7 @@ class QtConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.get_safe("qtwayland"):
-            self.requires("wayland/1.22.0")
+            self.requires("wayland/[^1.22.0]")
         if self.options.with_brotli:
             self.requires("brotli/1.1.0")
         if self.options.get_safe("qtwebengine") and self.settings.os == "Linux":
@@ -521,7 +521,7 @@ class QtConan(ConanFile):
                 self.tool_requires("bison/3.8.2")
                 self.tool_requires("flex/2.6.4")
         if self.options.get_safe("qtwayland"):
-            self.tool_requires("wayland/1.22.0")
+            self.tool_requires("wayland/<host_version>")
         if cross_building(self):
             need_gui = bool(self._enabled_modules & {
                 "qtactiveqt",
