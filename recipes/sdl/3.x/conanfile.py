@@ -223,7 +223,7 @@ class SDLConan(ConanFile):
         if self.options.get_safe("libudev"):
             self.requires("libudev/255.18")
         if self._supports_dbus:
-            self.requires("dbus/1.15.8")
+            self.requires("dbus/[^1.15]")
         if self.options.get_safe("pulseaudio"):
             self.requires("pulseaudio/17.0")
         if self.options.get_safe("alsa"):

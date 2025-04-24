@@ -79,7 +79,7 @@ class PipeWireConan(ConanFile):
         if self.options.with_avahi:
             self.requires("avahi/0.8")
         if self.options.with_dbus:
-            self.requires("dbus/1.15.8")
+            self.requires("dbus/[^1.15]")
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[>=6 <8]")
         if self.options.with_libalsa:

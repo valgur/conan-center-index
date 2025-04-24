@@ -91,7 +91,7 @@ class FltkConan(ConanFile):
                 self.requires("gtk/system", options={"version": "3"})
                 self.requires("wayland/[^1.22.0]")
                 self.requires("xkbcommon/1.6.0")
-                self.requires("dbus/1.15.8")
+                self.requires("dbus/[^1.15]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

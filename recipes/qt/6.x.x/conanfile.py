@@ -488,7 +488,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_pulseaudio"):
             self.requires("pulseaudio/17.0")
         if self.options.with_dbus:
-            self.requires("dbus/1.15.8")
+            self.requires("dbus/[^1.15]")
         if self.options.get_safe("with_gssapi"):
             self.requires("krb5/1.21.2")
         if self.options.get_safe("with_md4c"):

@@ -48,7 +48,7 @@ class AvahiConan(ConanFile):
         self.requires("glib/[~2.78.6]")
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("libdaemon/0.14")
-        self.requires("dbus/1.15.8")
+        self.requires("dbus/[^1.15]")
         self.requires("gdbm/1.23")
         self.requires("libevent/2.1.12")
         self.requires("libcap/2.70")

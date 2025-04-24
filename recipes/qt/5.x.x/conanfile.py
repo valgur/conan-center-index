@@ -452,7 +452,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_pulseaudio", False):
             self.requires("pulseaudio/17.0")
         if self.options.with_dbus:
-            self.requires("dbus/1.15.8")
+            self.requires("dbus/[^1.15]")
         if self.options.qtwayland:
             self.requires("wayland/[^1.22.0]")
         if self.settings.os in ['Linux', 'FreeBSD'] and self.options.with_gssapi:

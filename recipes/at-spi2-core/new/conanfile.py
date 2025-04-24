@@ -62,7 +62,7 @@ class AtSpi2CoreConan(ConanFile):
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1", libs=True, run=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("dbus/1.15.8")
+            self.requires("dbus/[^1.15]")
         if self.options.get_safe("with_x11"):
             self.requires("xorg/system")
 
