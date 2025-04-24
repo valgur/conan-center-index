@@ -13,23 +13,27 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-23:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-24:
 
 - aeron/1.43.0
+- aerospike-client-c/7.0.4
 - apr-util/1.6.3
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
+- autoconf-archive/2024.10.16
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.4
 - blis/0.9.0
 - boost/1.71.0
 - boost/1.74.0
+- boxfort/0.1.4
 - capnproto/1.0.1.1
 - cargo-c/0.10.12
 - cargo-c/0.10.8
 - casadi/3.6.6
+- catalyst/2.0.0
 - cgns/4.4.0
 - cilantro/cci.20230816
 - cimg/3.3.5
@@ -52,12 +56,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cpython/3.12.10
 - cpython/3.9.22
 - crashpad/cci.20231107
+- criterion/2.4.2
 - crow/1.1.0
 - crow/1.2.0
 - cub/2.7.0
 - cuda-samples/12.5
 - daggy/2.1.3
 - dawn/cci.20240726
+- debugbreak/1.0
 - diligent-engine/2.5.6.8
 - dpdk/24.07
 - elfutils/0.191
@@ -136,12 +142,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - isl/0.27
 - json-glib/1.10.6
 - jsonifier/0.9.98
+- klib/cci.20250205
 - kokkos/4.3.1
 - lapack/3.12.0
 - libbasisu/1.16.4
 - libbpf/1.4.6
 - libbsd/0.12.2
 - libcaca/0.99.beta20
+- libclc/19.1.7
+- libclc/20.1.3
 - libcmaes/0.10.0
 - libcroco/0.6.13
 - libcudacxx/2.7.0
@@ -217,6 +226,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mrcal/2.4.1
 - nanobind/2.4.0
 - nanopb/0.4.9.1
+- nasm/2.16.03
 - ncbi-cxx-toolkit/29.0.0
 - netpbm/11.6.0
 - nlohmann_json/3.12.0
@@ -256,6 +266,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qscintilla/2.14.1
 - qt/6.8.3
 - qtawesome/6.5.1
+- reduct-cpp/1.14.0
 - rmlui/5.1
 - rosx_introspection/1.0.2
 - rust/1.72.1
@@ -275,6 +286,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-cross/1.3.290.0
 - spirv-headers/1.3.250.1
 - spirv-headers/1.3.290.0
+- spirv-llvm-translator/19.1.6
+- spirv-llvm-translator/20.1.1
 - spirv-tools/1.3.250.1
 - spirv-tools/1.3.290.0
 - spirv-tools/1.3.296.0
