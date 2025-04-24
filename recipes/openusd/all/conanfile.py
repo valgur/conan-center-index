@@ -28,47 +28,36 @@ class OpenUSDConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "build_usd_tools": [True, False],
         "build_imaging": [True, False],
-        "build_usd_imaging": [True, False],
         "build_usdview": [True, False],
-        "build_openimageio_plugin": [True, False],
-        "build_opencolorio_plugin": [True, False],
-        "build_embree_plugin": [True, False],
-        "enable_materialx_support": [True, False],
-        "enable_vulkan_support": [True, False],
-        "enable_gl_support": [True, False],
-        "build_gpu_support": [True, False],
-        "enable_ptex_support": [True, False],
-        "enable_openvdb_support": [True, False],
-        "build_alembic_plugin": [True, False],
-        "enable_hdf5_support": [True, False],
-        "build_draco_plugin": [True, False],
-        "enable_osl_support": [True, False],
-        "build_animx_tests": [True, False],
-        "enable_python_support": [True, False],
+        "tools": [True, False],
+        "with_alembic": [True, False],
+        "with_draco": [True, False],
+        "with_embree": [True, False],
+        "with_hdf5": [True, False],
+        "with_materialx": [True, False],
+        "with_opencolorio": [True, False],
+        "with_openimageio": [True, False],
+        "with_openvdb": [True, False],
+        "with_vptex": [True, False],
+        "with_vulkan": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": False,
-        "build_usd_tools": True,
         "build_imaging": True,
-        "build_usd_imaging": True,
         "build_usdview": True,
-        "build_openimageio_plugin": False,
-        "build_opencolorio_plugin": False,
-        "build_embree_plugin": False,
-        "enable_materialx_support": True,
-        "enable_vulkan_support": False,
-        "enable_gl_support": True,
-        "enable_ptex_support": True,
-        "enable_openvdb_support": False,
-        "build_alembic_plugin": False,
-        "enable_hdf5_support": True,
-        "build_draco_plugin": False,
-        "enable_osl_support": False,
-        "build_animx_tests": False,
-        "enable_python_support": False
+        "tools": True,
+        "with_alembic": False,
+        "with_draco": False,
+        "with_embree": False,
+        "with_hdf5": True,
+        "with_materialx": True,
+        "with_opencolorio": False,
+        "with_openimageio": False,
+        "with_openvdb": False,
+        "with_vptex": True,
+        "with_vulkan": False,
     }
 
     no_copy_source = True
@@ -88,71 +77,57 @@ class OpenUSDConan(ConanFile):
             "Visual Studio": "15",
         }
 
-    @property
-    def _enable_ptex(self):
-        return self.options.enable_ptex_support and self.options.enable_gl_support and self.options.build_gpu_support
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if self.options.build_usd_imaging and not self.options.build_imaging:
-            self.options.build_usd_imaging = False
-        self.options.build_gpu_support = self.options.enable_gl_support or is_apple_os(self) or self.options.enable_vulkan_support
-        if self.options.build_usdview:
-            if self.options.build_imaging:
-                self.options.build_usd_imaging = False
-        if self.options.build_usdview:
-            if not self.options.build_usd_imaging:
-                self.options.build_usdview = False
-            elif not self.options.enable_python_support:
-                self.options.build_usdview = False
-            elif not self.options.build_gpu_support:
-                self.options.build_usdview = False
-        if self.options.build_embree_plugin:
-            if not self.options.build_imaging:
-                self.options.build_embree_plugin = False
-            elif not self.options.build_gpu_support:
-                self.options.build_embree_plugin = False
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.build_imaging:
+            del self.options.with_embree
+            del self.options.with_opencolorio
+            del self.options.with_openimageio
+            del self.options.with_openvdb
+            del self.options.with_vptex
+            del self.options.with_vulkan
+        elif self.options.with_opencolorio:
+            del self.options.with_openimageio
         # Set same options as in https://github.com/PixarAnimationStudios/OpenUSD/blob/release/build_scripts/build_usd.py#L1476
         self.options["opensubdiv/*"].with_tbb = True
-        if self.options.enable_gl_support:
-            self.options["opensubdiv/*"].with_opengl = self.options.enable_gl_support
+        self.options["opensubdiv/*"].with_opengl = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.enable_python_support:
-            self.requires("boost/1.87.0")
-        # openusd doesn't support yet recent release of onetbb, see https://github.com/PixarAnimationStudios/OpenUSD/issues/1471
         self.requires("onetbb/2021.12.0", transitive_headers=True)
         if self.options.build_imaging:
-            if self.options.build_openimageio_plugin and self.options.build_gpu_support:
-                self.requires("openimageio/2.5.18.0")
-            if not self.options.build_openimageio_plugin and self.options.build_opencolorio_plugin and self.options.build_gpu_support and self.options.enable_gl_support:
-                self.requires("opencolorio/2.4.2")
+            self.requires("opengl/system")
             self.requires("opensubdiv/3.6.0")
-            if self.options.enable_vulkan_support:
+            if self.options.get_safe("with_openimageio"):
+                self.requires("openimageio/2.5.18.0")
+            elif self.options.with_opencolorio:
+                self.requires("opencolorio/2.4.2")
+            if self.options.with_vulkan:
                 self.requires("vulkan-headers/1.4.309.0")
-            if self.options.enable_gl_support:
-                self.requires("opengl/system")
-            # if self._enable_ptex:
-            #     self.requires("ptex/2.4.2")
-            if self.options.enable_openvdb_support and self.options.build_gpu_support:
+            if self.options.with_vptex:
+                self.requires("ptex/2.4.2")
+            if self.options.with_openvdb:
                 self.requires("openvdb/11.0.0")
-            if self.options.build_embree_plugin and self.options.build_gpu_support:
+            if self.options.with_embree:
                 self.requires("embree3/3.13.5")
-        if self.options.build_alembic_plugin:
+            if self.options.get_safe("with_openimageio") or self.options.with_openvdb:
+                self.requires("imath/3.1.12")
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                self.requires("xorg/system")
+        if self.options.with_alembic:
             self.requires("alembic/1.8.6")
-            if self.options.enable_hdf5_support:
+            if self.options.with_hdf5:
                 self.requires("hdf5/1.14.5")
-        if self.options.build_draco_plugin:
+        if self.options.with_draco:
             self.requires("draco/1.5.6")
-        if self.options.enable_materialx_support:
+        if self.options.with_materialx:
             self.requires("materialx/1.39.1", transitive_headers=True)
         # if self.options.enable_osl_support:
            # TODO: add osl to conan center (https://github.com/AcademySoftwareFoundation/OpenShadingLanguage)
@@ -160,10 +135,6 @@ class OpenUSDConan(ConanFile):
         # if self.options.build_animx_tests:
            # TODO: add animx to conan center (https://github.com/Autodesk/animx/)
             # self.requires("animx/x.y.z")
-        if self.options.build_imaging and (self.options.build_openimageio_plugin and self.options.build_gpu_support or self.options.enable_openvdb_support):
-            self.requires("imath/3.1.12")
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.requires("xorg/system")
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -171,14 +142,8 @@ class OpenUSDConan(ConanFile):
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
-        if self.options.enable_gl_support and is_apple_os(self):
-            raise ConanInvalidConfiguration(f'{self.ref} needs -o="opensubdiv/*:with_metal=True"')
-        if self.options.build_animx_tests:
-            raise ConanInvalidConfiguration("animx recipe doesn't yet exists in conan center index")
-        if self.options.enable_osl_support:
-            raise ConanInvalidConfiguration("openshadinglanguage recipe doesn't yet exists in conan center index")
-        if self.options.enable_python_support:
-            raise ConanInvalidConfiguration("python doesn't yet supported")
+        if is_apple_os(self) and not self.dependencies["opensubdiv"].options.with_metal:
+            raise ConanInvalidConfiguration(f'{self.ref} needs -o opensubdiv/*:with_metal=True')
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -190,67 +155,53 @@ class OpenUSDConan(ConanFile):
         tc.cache_variables["PXR_BUILD_EXAMPLES"] = False
         tc.cache_variables["PXR_BUILD_TUTORIALS"] = False
         tc.cache_variables["PXR_BUILD_HTML_DOCUMENTATION"] = False
-        tc.cache_variables["PXR_ENABLE_PYTHON_SUPPORT"] = self.options.enable_python_support
-        tc.cache_variables["PXR_BUILD_USD_TOOLS"] = self.options.build_usd_tools
+        tc.cache_variables["PXR_ENABLE_PYTHON_SUPPORT"] = False
+        tc.cache_variables["PXR_BUILD_USD_TOOLS"] = self.options.tools
 
-        if self.options.enable_gl_support:
-            tc.cache_variables["OPENSUBDIV_LIBRARIES"] = "OpenSubdiv::osdcpu"
-            tc.cache_variables["OPENSUBDIV_INCLUDE_DIR"] = self.dependencies['opensubdiv'].cpp_info.includedirs[0].replace("\\", "/")
-        target_suffix = "" if self.dependencies["opensubdiv"].options.shared else "_static"
-        tc.cache_variables["OPENSUBDIV_OSDCPU_LIBRARY"] = "OpenSubdiv::osdcpu"+target_suffix
+        tc.cache_variables["OPENSUBDIV_LIBRARIES"] = "OpenSubdiv::osdcpu"
+        tc.cache_variables["OPENSUBDIV_INCLUDE_DIR"] = self.dependencies['opensubdiv'].cpp_info.includedirs[0].replace("\\", "/")
+        tc.cache_variables["OPENSUBDIV_OSDCPU_LIBRARY"] = "OpenSubdiv::osdcpu"
 
         tc.cache_variables["TBB_tbb_LIBRARY"] = "TBB::tbb"
 
-        tc.cache_variables["PXR_ENABLE_MATERIALX_SUPPORT"] = self.options.enable_materialx_support
+        tc.cache_variables["PXR_ENABLE_MATERIALX_SUPPORT"] = self.options.with_materialx
 
         tc.cache_variables["PXR_BUILD_IMAGING"] = self.options.build_imaging
         if self.options.build_imaging:
-            tc.cache_variables["PXR_BUILD_IMAGING"] = True
-            tc.cache_variables["PXR_ENABLE_GL_SUPPORT"] = self.options.enable_gl_support
-            tc.cache_variables["PXR_ENABLE_VULKAN_SUPPORT"] = self.options.enable_vulkan_support
-
-            # if self._enable_ptex:
-            #     tc.cache_variables["PXR_ENABLE_PTEX_SUPPORT"] = True
-            #     tc.cache_variables["PTEX_LIBRARY"] = self.dependencies['ptex'].cpp_info.libdirs[0]
-            #     tc.cache_variables["PTEX_INCLUDE_DIR"] = self.dependencies['ptex'].cpp_info.includedirs[0].replace("\\", "/")
-
-            tc.cache_variables["PXR_ENABLE_OPENVDB_SUPPORT"] = self.options.enable_openvdb_support and self.options.enable_gl_support
+            tc.cache_variables["PXR_BUILD_COLORIO_PLUGIN"] = self.options.with_opencolorio
+            tc.cache_variables["PXR_BUILD_EMBREE_PLUGIN"] = self.options.with_embree
+            tc.cache_variables["PXR_BUILD_OPENIMAGEIO_PLUGIN"] = self.options.get_safe("with_openimageio")
+            tc.cache_variables["PXR_BUILD_USDVIEW"] = self.options.build_usdview
+            tc.cache_variables["PXR_BUILD_USD_IMAGING"] = True
+            tc.cache_variables["PXR_ENABLE_GL_SUPPORT"] = True
+            tc.cache_variables["PXR_ENABLE_OPENVDB_SUPPORT"] = self.options.with_openvdb
+            tc.cache_variables["PXR_ENABLE_PTEX_SUPPORT"] = self.options.with_vptex
+            tc.cache_variables["PXR_ENABLE_VULKAN_SUPPORT"] = self.options.with_vulkan
             tc.cache_variables["OPENVDB_LIBRARY"] = "OpenVDB::openvdb"
-
-            tc.cache_variables["PXR_BUILD_OPENIMAGEIO_PLUGIN"] = self.options.build_openimageio_plugin and self.options.shared and self.options.build_gpu_support
-            tc.cache_variables["PXR_BUILD_COLORIO_PLUGIN"] = self.options.build_opencolorio_plugin and self.options.shared and self.options.enable_gl_support and self.options.build_gpu_support
-
-            if self.options.build_embree_plugin and self.options.shared and self.options.build_gpu_support:
-                tc.cache_variables["PXR_BUILD_EMBREE_PLUGIN"] = self.options.build_embree_plugin
-                tc.cache_variables["EMBREE_LIBRARY"] = self.dependencies['embree3'].cpp_info.libdirs[0]
+            if self.options.with_embree:
+                tc.cache_variables["EMBREE_LIBRARY"] = self.dependencies['embree3'].cpp_info.libdirs[0].replace("\\", "/")
                 tc.cache_variables["EMBREE_INCLUDE_DIR"] = self.dependencies['embree3'].cpp_info.includedirs[0].replace("\\", "/")
-
-            if self.options.build_usd_imaging:
-                tc.cache_variables["PXR_BUILD_USD_IMAGING"] = True
-                if self.options.build_usdview:
-                    tc.cache_variables["PXR_BUILD_USDVIEW"] = True
+            if self.options.with_vptex:
+                tc.cache_variables["PTEX_LIBRARY"] = str(next(Path(self.dependencies["ptex"].cpp_info.libdir).iterdir())).replace("\\", "/")
+                tc.cache_variables["PTEX_INCLUDE_DIR"] = self.dependencies["ptex"].cpp_info.includedir.replace("\\", "/")
 
         # Renderman is a proprietary software, see build_renderman_plugin
         tc.cache_variables["PXR_BUILD_PRMAN_PLUGIN"] = False
 
-        if self.options.build_alembic_plugin and self.options.shared:
-            tc.cache_variables["PXR_BUILD_ALEMBIC_PLUGIN"] = True
+        tc.cache_variables["PXR_BUILD_ALEMBIC_PLUGIN"] = self.options.with_alembic
+        if self.options.with_alembic:
             tc.cache_variables["ALEMBIC_FOUND"] = True
             tc.cache_variables["ALEMBIC_LIBRARIES"] = "Alembic::Alembic"
             tc.cache_variables["ALEMBIC_LIBRARY_DIR"] = self.dependencies['alembic'].cpp_info.libdirs[0].replace("\\", "/")
             tc.cache_variables["ALEMBIC_INCLUDE_DIR"] = self.dependencies['alembic'].cpp_info.includedirs[0].replace("\\", "/")
+            tc.cache_variables["PXR_ENABLE_HDF5_SUPPORT"] = self.options.with_hdf5
 
-        tc.cache_variables["PXR_ENABLE_HDF5_SUPPORT"] = self.options.build_alembic_plugin and self.options.enable_hdf5_support
-
-        if self.options.build_draco_plugin and self.options.shared:
-            tc.cache_variables["PXR_BUILD_DRACO_PLUGIN"] = True
+        tc.cache_variables["PXR_BUILD_DRACO_PLUGIN"] = self.options.with_draco
+        if self.options.with_draco:
             tc.cache_variables["DRACO_LIBRARY"] = "draco::draco"
             tc.cache_variables["DRACO_INCLUDES"] = self.dependencies['draco'].cpp_info.includedirs[0].replace("\\", "/")
 
-        tc.cache_variables["PXR_ENABLE_OSL_SUPPORT"] = self.options.enable_osl_support
-        tc.cache_variables["PXR_BUILD_ANIMX_TESTS"] = self.options.build_animx_tests
-
-        tc.cache_variables["MaterialX_DIR"] = self.options.build_animx_tests
+        # tc.cache_variables["PXR_ENABLE_OSL_SUPPORT"] = self.options.enable_osl_support
 
         tc.generate()
 
@@ -258,7 +209,7 @@ class OpenUSDConan(ConanFile):
         if self.options.build_imaging:
             deps.set_property("opensubdiv::osdcpu", "cmake_target_name", "OpenSubdiv::osdcpu")
             deps.set_property("opensubdiv::osdcpu", "cmake_target_aliases", ["OpenSubdiv::osdcpu_static"])
-        if self.options.enable_materialx_support:
+        if self.options.with_materialx:
             deps.set_property("materialx::MaterialXCore", "cmake_target_name", "MaterialXCore")
             deps.set_property("materialx::MaterialXFormat", "cmake_target_name", "MaterialXFormat")
             deps.set_property("materialx::MaterialXGenShader", "cmake_target_name", "MaterialXGenShader")
