@@ -32,12 +32,8 @@ class LibmountConan(ConanFile):
         "fPIC": True,
         "year2038": True,
     }
-
-    def configure(self):
-        if self.options.shared:
-            del self.options.fPIC
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -77,11 +73,11 @@ class LibmountConan(ConanFile):
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
-        self.cpp_info.components["libblkid"].libs = ["blkid"]
         self.cpp_info.components["libblkid"].set_property("pkg_config_name", "blkid")
+        self.cpp_info.components["libblkid"].libs = ["blkid"]
 
+        self.cpp_info.components["libmount"].set_property("pkg_config_name", "mount")
         self.cpp_info.components["libmount"].libs = ["mount"]
         self.cpp_info.components["libmount"].system_libs = ["rt"]
         self.cpp_info.components["libmount"].includedirs.append(os.path.join("include", "libmount"))
-        self.cpp_info.components["libmount"].set_property("pkg_config_name", "mount")
         self.cpp_info.components["libmount"].requires = ["libblkid"]
