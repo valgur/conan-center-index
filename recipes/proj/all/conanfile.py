@@ -37,9 +37,6 @@ class ProjConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -52,8 +49,7 @@ class ProjConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
 
     def build_requirements(self):
-        if Version(self.version) >= "9.4.0":
-            self.tool_requires("cmake/[>=3.16 <5]")
+        self.tool_requires("cmake/[>=3.16 <5]")
         self.tool_requires("sqlite3/<host_version>")
 
     def validate(self):
