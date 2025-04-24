@@ -24,14 +24,6 @@ class EmSDKConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def requirements(self):
-        self.requires("nodejs/16.3.0")
-        # self.requires("python")  # FIXME: Not available as Conan package
-        # self.requires("wasm")  # FIXME: Not available as Conan package
-
-    def build_requirements(self):
-        self.tool_requires("tar/1.35")
-
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
@@ -102,9 +94,8 @@ class EmSDKConan(ConanFile):
             # Install required tools
             required_tools = self._tools_for_version()
             for key, value in required_tools.items():
-                if key != 'nodejs':
-                    self.run(f"{emsdk} install {value}")
-                    self.run(f"{emsdk} activate {value}")
+                self.run(f"{emsdk} install {value}")
+                self.run(f"{emsdk} activate {value}")
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -146,7 +137,7 @@ class EmSDKConan(ConanFile):
             return
 
         if self.settings_target.os != "Emscripten":
-            self.output.warning(f"You've added {self.name}/{self.version} as a build requirement, while os={self.settings_target.os} != Emscripten")
+            self.output.warning(f"You've added {self.ref} as a build requirement, while os={self.settings_target.os} != Emscripten")
             return
 
         toolchain = os.path.join(self.package_folder, "bin", "upstream", "emscripten", "cmake", "Modules", "Platform", "Emscripten.cmake")
