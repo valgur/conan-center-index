@@ -60,7 +60,7 @@ class LibpqxxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpq/15.4")
+        self.requires("libpq/[^17.0]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

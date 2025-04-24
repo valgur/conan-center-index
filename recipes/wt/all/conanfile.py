@@ -112,7 +112,7 @@ class WtConan(ConanFile):
         if self.options.get_safe("with_mysql"):
             self.requires("libmysqlclient/8.1.0", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_postgres"):
-            self.requires("libpq/15.4", transitive_headers=True, transitive_libs=True)
+            self.requires("libpq/[^17.0]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_mssql") and self.settings.os != "Windows":
             self.requires("odbc/2.3.11")
         if self.options.get_safe("with_unwind"):

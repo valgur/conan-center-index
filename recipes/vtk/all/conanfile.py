@@ -358,7 +358,7 @@ class VtkConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_postgresql:
-            self.requires("libpq/15.5")
+            self.requires("libpq/[^17.0]")
         if self.options.with_qt:
             # Used in public vtkQWidgetWidget.h
             self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)

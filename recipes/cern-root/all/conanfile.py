@@ -60,7 +60,7 @@ class CernRootConan(ConanFile):
         self.requires("gsl/2.7.1")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("libmysqlclient/8.1.0")
-        self.requires("libpq/15.5")
+        self.requires("libpq/[^17.0]")
         self.requires("libxml2/[>=2.12.5 <3]")
         self.requires("lz4/1.9.4")
         self.requires("odbc/2.3.11")

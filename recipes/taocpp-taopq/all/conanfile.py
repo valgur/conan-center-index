@@ -47,7 +47,7 @@ class TaoCPPTaopqConan(ConanFile):
 
     def requirements(self):
         # libpq-fe.h is included by many public headers of taocpp-taopq, and also uses some symbols of the lib (see https://github.com/conan-io/conan-center-index/pull/19825#issuecomment-1720996359)
-        self.requires("libpq/15.4", transitive_headers=True, transitive_libs=True)
+        self.requires("libpq/[^17.0]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

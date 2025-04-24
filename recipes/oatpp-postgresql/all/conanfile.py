@@ -39,7 +39,7 @@ class OatppPostgresqlConan(ConanFile):
     def requirements(self):
         # Most headers include oatpp's
         self.requires(f"oatpp/{self.version}", transitive_headers=True)
-        self.requires("libpq/15.4")
+        self.requires("libpq/[^17.0]")
 
     def validate(self):
         check_min_cppstd(self, 11)

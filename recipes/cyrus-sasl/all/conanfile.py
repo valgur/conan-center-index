@@ -95,7 +95,7 @@ class CyrusSaslConan(ConanFile):
         if self.options.get_safe("with_gssapi"):
             self.requires("krb5/1.21.2")
         if self.options.get_safe("with_postgresql"):
-            self.requires("libpq/15.4")
+            self.requires("libpq/[^17.0]")
         if self.options.get_safe("with_mysql"):
             self.requires("libmysqlclient/8.1.0")
         if self.options.get_safe("with_sqlite3"):

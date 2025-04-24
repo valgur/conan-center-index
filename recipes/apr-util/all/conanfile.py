@@ -94,7 +94,7 @@ class AprUtilConan(ConanFile):
         if self.options.with_expat:
             self.requires("expat/[>=2.6.2 <3]")
         if self.options.with_postgresql:
-            self.requires("libpq/15.4")
+            self.requires("libpq/[^17.0]")
 
     def validate(self):
         if not self.options.with_expat:

@@ -57,7 +57,7 @@ class QuickfixConan(ConanFile):
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_postgres:
-            self.requires("libpq/15.3")
+            self.requires("libpq/[^17.0]")
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/8.0.31")
         if self.options.enable_boost_atomic_count:

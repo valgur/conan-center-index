@@ -41,7 +41,7 @@ class YandexOzoConan(ConanFile):
         # Used in ozo/detail/bind.h public header
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("resource_pool/cci.20210322")
-        self.requires("libpq/15.4")
+        self.requires("libpq/[^17.0]")
 
     def package_id(self):
         self.info.clear()
