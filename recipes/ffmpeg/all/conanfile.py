@@ -709,7 +709,7 @@ class FFMpegConan(ConanFile):
                 env = Environment()
                 env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
                 env.append_path("PKG_CONFIG_PATH", system_pkg_config_path)
-                env.vars(self).save("system_pkg_config_path")
+                env.vars(self).save_script("system_pkg_config_path")
 
         deps = PkgConfigDeps(self)
         deps.generate()
