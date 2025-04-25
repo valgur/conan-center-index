@@ -27,7 +27,6 @@ class ColmapConan(ConanFile):
         "ipo": [True, False],
         "openmp": [True, False],
         "tools": [True, False],
-        "cuda_architectures": ["native", "all-major", "all", "ANY"],
     }
     default_options = {
         "fPIC": True,
@@ -37,7 +36,6 @@ class ColmapConan(ConanFile):
         "ipo": True,
         "openmp": True,
         "tools": True,
-        "cuda_architectures": "all-major",
     }
 
     def export_sources(self):
@@ -46,10 +44,6 @@ class ColmapConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-
-    def configure(self):
-        if not self.options.cuda:
-            del self.options.cuda_architectures
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -100,8 +94,10 @@ class ColmapConan(ConanFile):
         tc.cache_variables["OPENMP_ENABLED"] = self.options.openmp
         tc.cache_variables["SIMD_ENABLED"] = True  # only applied to VLFeat and when on x86
         tc.cache_variables["TESTS_ENABLED"] = False
-        tc.cache_variables["CMAKE_CUDA_ARCHITECTURES"] = self.options.get_safe("cuda_architectures", "")
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
+        # set CUDA architectures via
+        #   tools.cmake.cmaketoolchain:extra_variables={"CMAKE_CUDA_ARCHITECTURES": "..."}
+        # if needed
         tc.generate()
 
         deps = CMakeDeps(self)
