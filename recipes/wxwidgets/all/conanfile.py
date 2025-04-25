@@ -146,7 +146,7 @@ class wxWidgetsConan(ConanFile):
         self.requires("libpng/[>=1.6 <2]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("nanosvg/cci.20231025")
-        self.requires("pcre2/10.42")
+        self.requires("pcre2/[^10.42]")
         self.requires("xz_utils/[>=5.4.5 <6]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.jpeg == "libjpeg":

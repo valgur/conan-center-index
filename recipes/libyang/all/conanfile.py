@@ -33,7 +33,7 @@ class LibYangConan(ConanFile):
                 f"{self.ref} Conan recipe is not prepared to work on Windows. Contributions are welcome.")
 
     def requirements(self):
-        self.requires("pcre2/10.42", transitive_headers=True)
+        self.requires("pcre2/[^10.42]", transitive_headers=True)
 
     def configure(self):
         if self.options.shared:

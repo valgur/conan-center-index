@@ -287,7 +287,7 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_pcre"):
             self.requires("pcre/8.45")
         if self.options.get_safe("with_pcre2"):
-            self.requires("pcre2/10.42")
+            self.requires("pcre2/[^10.42]")
         if self.options.with_webp:
             self.requires("libwebp/1.3.1")
         if self.options.with_geos:

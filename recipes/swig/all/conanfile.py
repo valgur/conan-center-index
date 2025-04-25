@@ -45,7 +45,7 @@ class SwigConan(ConanFile):
 
     def requirements(self):
         if self._use_pcre2:
-            self.requires("pcre2/10.43")
+            self.requires("pcre2/[^10.42]")
         else:
             self.requires("pcre/8.45")
         if is_apple_os(self):

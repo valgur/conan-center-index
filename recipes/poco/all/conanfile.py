@@ -130,7 +130,7 @@ class PocoConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("pcre2/10.42")
+        self.requires("pcre2/[^10.42]")
         self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True)
         if self.options.enable_xml:
             self.requires("expat/[>=2.6.2 <3]", transitive_headers=True)
