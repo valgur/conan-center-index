@@ -10,7 +10,7 @@ from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, check_min_vs
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class RocksDBConan(ConanFile):

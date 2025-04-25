@@ -10,7 +10,7 @@ from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class GFortranConan(ConanFile):

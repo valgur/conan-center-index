@@ -9,7 +9,7 @@ from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, VCVars
 from conan.tools.scm import Version
 
-required_conan_version = ">=2"
+required_conan_version = ">=2.1"
 
 
 class MimallocConan(ConanFile):

@@ -9,7 +9,7 @@ from conan.tools.gnu import Autotools, GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import unix_path
 
-required_conan_version = ">=2.3.0"
+required_conan_version = ">=2.4"
 
 
 class LibcapConan(ConanFile):

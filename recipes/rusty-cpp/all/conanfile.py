@@ -6,7 +6,7 @@ from conan.tools.cmake import CMake, CMakeToolchain
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class RustyCppConan(ConanFile):

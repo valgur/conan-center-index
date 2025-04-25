@@ -9,7 +9,7 @@ from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc_static_runtime
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class PangolinConan(ConanFile):

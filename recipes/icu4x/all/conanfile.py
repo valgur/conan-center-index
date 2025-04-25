@@ -11,7 +11,7 @@ from conan.tools.gnu import GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class ICU4XConan(ConanFile):

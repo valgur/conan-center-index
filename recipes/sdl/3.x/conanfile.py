@@ -8,7 +8,7 @@ from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2"
+required_conan_version = ">=2.1"
 
 _subsystems = [
     ("audio", []),

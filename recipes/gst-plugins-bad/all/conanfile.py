@@ -17,7 +17,7 @@ from conan.tools.microsoft import is_msvc, check_min_vs, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 # For PkgConfigDeps.set_property()
-required_conan_version = ">=2.8"
+required_conan_version = ">=2.1"
 
 
 class GStPluginsBadConan(ConanFile):

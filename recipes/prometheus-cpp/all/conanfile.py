@@ -6,7 +6,7 @@ from conan.tools.scm import Version
 
 import os
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 class PrometheusCppConan(ConanFile):
     name = "prometheus-cpp"

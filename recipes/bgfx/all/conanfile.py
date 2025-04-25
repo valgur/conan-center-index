@@ -10,7 +10,7 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, MSBuild, VCVars
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 class bgfxConan(ConanFile):
     name = "bgfx"

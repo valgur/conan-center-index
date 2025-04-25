@@ -6,7 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 
-required_conan_version = ">=2"
+required_conan_version = ">=2.1"
 
 
 class SDLImageConan(ConanFile):

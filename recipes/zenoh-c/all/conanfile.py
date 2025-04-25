@@ -10,7 +10,7 @@ from conan.tools.files import *
 from conan.tools.gnu import GnuToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.3.0"
+required_conan_version = ">=2.4"
 
 
 class ZenohCConan(ConanFile):

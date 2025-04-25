@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMakeToolchain, CMake, CMakeDeps, cmake_layout
 from conan.tools.files import *
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class CycloneDDSConan(ConanFile):
