@@ -48,7 +48,7 @@ class WatcherConan(ConanFile):
         self.requires("gettext/[>=0.21 <1]")
 
     def build_requirements(self):
-        self.tool_requires("gettext/[>=0.21 <1]")
+        self.tool_requires("gettext/<host_version>")
 
     def _apply_patches(self):
         # Remove hardcoded CXX standard
