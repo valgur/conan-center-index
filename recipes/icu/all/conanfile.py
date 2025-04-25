@@ -67,8 +67,6 @@ class ICUConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if Version(self.version) < "74.1":
-            self.license = "ICU"
 
     def validate(self):
         if self.options.dat_package_file:
