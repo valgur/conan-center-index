@@ -167,7 +167,7 @@ class VtkConan(ConanFile):
         "with_pdal": False,  # TODO: #21296
         "with_pegtl": True,
         "with_png": True,
-        "with_postgresql": True,
+        "with_postgresql": False,
         "with_qt": False,  # FIXME: too many version conflicts
         "with_sdl2": True,
         "with_sqlite": True,

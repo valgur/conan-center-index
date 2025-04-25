@@ -36,7 +36,7 @@ class ResiprocateConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_ssl": True,
-        "with_postgresql": True,
+        "with_postgresql": False,
         "with_mysql": False,
     }
     implements = ["auto_shared_fpic"]
