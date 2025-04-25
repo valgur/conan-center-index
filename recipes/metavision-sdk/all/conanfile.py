@@ -62,8 +62,11 @@ class MetavisionSdkConan(ConanFile):
         self.requires("libusb/1.0.26", transitive_headers=True)
         # several headers, e.g. metavision/sdk/core/preprocessors/json_parser.h
         self.requires("boost/1.86.0", transitive_headers=True)
-        # used in many public headers
-        self.requires("opencv/[^4.5]", transitive_headers=True)
+        # OpenCV is used in many public headers
+        extra_opts = {"videoio": True}
+        if self.options.advanced_sdk_repo_url:
+            extra_opts.update({"highgui": True, "objdetect": True})
+        self.requires("opencv/[^4.5]", transitive_headers=True, options=extra_opts)
         if self.options.stream:
             # newer version conflicts with opencv
             self.requires("protobuf/3.21.12")
