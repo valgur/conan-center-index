@@ -1,5 +1,5 @@
 import os
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 
 import yaml
@@ -57,8 +57,7 @@ class FreeRTOSKernelConan(ConanFile):
         else:
             return str(self.options.config_contents)
 
-    @property
-    @lru_cache
+    @cached_property
     def _port_include_directories(self):
         v = Version(self.version)
         return yaml.safe_load(Path(self.recipe_folder, "include_dirs", f"{v.major}.{v.minor}.yml").read_text())

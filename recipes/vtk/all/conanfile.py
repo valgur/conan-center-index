@@ -1,9 +1,9 @@
-import functools
 import itertools
 import json
 import os
 import re
 from collections import OrderedDict
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -202,23 +202,19 @@ class VtkConan(ConanFile):
         new_defaults = {mod: "auto" for mod in all_modules}
         self.options.update(new_options, new_defaults)
 
-    @property
-    @functools.lru_cache()
+    @cached_property
     def _module_ext_deps(self):
         return json.loads(Path(self.recipe_folder, "options", f"{self.version}.json").read_text())["flat_external_deps"]
 
-    @property
-    @functools.lru_cache()
+    @cached_property
     def _module_opt_deps(self):
         return json.loads(Path(self.recipe_folder, "options", f"{self.version}.json").read_text())["optional_external_deps"]
 
-    @property
-    @functools.lru_cache()
+    @cached_property
     def _modules(self):
         return [mod for mod in self._module_ext_deps.keys() if mod[0].isupper()]
 
-    @property
-    @functools.lru_cache()
+    @cached_property
     def _vendored_deps(self):
         return [mod for mod in self._module_ext_deps.keys() if mod[0].islower()]
 
@@ -425,8 +421,7 @@ class VtkConan(ConanFile):
         # Just to check for conflicts
         self._compute_module_values()
 
-    @property
-    @functools.lru_cache()
+    @cached_property
     def _default_state(self):
         return "WANT" if self.options.want_all_modules else "DONT_WANT"
 
@@ -468,7 +463,7 @@ class VtkConan(ConanFile):
             raise ConanInvalidConfiguration(f"Unused dependency options:{''.join(msg)}")
         return available_modules
 
-    @functools.lru_cache()
+    @cached_property
     def _compute_module_values(self):
         def _yes_no(value):
             return "YES" if value else "NO"
@@ -762,8 +757,7 @@ class VtkConan(ConanFile):
     def _cmake_targets_map_json(self):
         return os.path.join(self.generators_folder, "cmake_to_conan_targets.json")
 
-    @property
-    @functools.lru_cache()
+    @cached_property
     def _cmake_targets_map(self):
         return json.loads(load(self, self._cmake_targets_map_json))
 

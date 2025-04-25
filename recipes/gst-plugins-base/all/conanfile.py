@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
 
 import yaml
@@ -93,8 +93,7 @@ class GStPluginsBaseConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
-    @property
-    @lru_cache()
+    @cached_property
     def _plugins(self):
         version = Version(self.version)
         return yaml.safe_load(Path(self.recipe_folder, "plugins", f"{version.major}.{version.minor}.yml").read_text())
@@ -103,7 +102,7 @@ class GStPluginsBaseConan(ConanFile):
         required_options = self._plugins[plugin].get("options", [plugin])
         return all(self.options.get_safe(opt, False) for opt in required_options)
 
-    @lru_cache()
+    @lru_cache
     def _plugin_reqs(self, plugin):
         reqs = []
         for req in self._plugins[plugin]["requires"]:
@@ -114,8 +113,7 @@ class GStPluginsBaseConan(ConanFile):
                 reqs.append(req)
         return reqs
 
-    @property
-    @lru_cache()
+    @cached_property
     def _all_reqs(self):
         reqs = set()
         for plugin in self._plugins:
@@ -123,8 +121,7 @@ class GStPluginsBaseConan(ConanFile):
                 reqs.update(r.split("::")[0] for r in self._plugin_reqs(plugin) if "::" in r)
         return reqs
 
-    @property
-    @lru_cache()
+    @cached_property
     def _all_options(self):
         options = set()
         for plugins_yml in Path(self.recipe_folder, "plugins").glob("*.yml"):

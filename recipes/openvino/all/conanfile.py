@@ -1,5 +1,5 @@
-import functools
 import os
+from functools import cached_property
 
 import yaml
 from conan import ConanFile
@@ -69,8 +69,7 @@ class OpenvinoConan(ConanFile):
     def _dependencies_filename(self):
         return f"dependencies-{self.version}.yml"
 
-    @property
-    @functools.lru_cache(1)
+    @cached_property
     def _dependencies_versions(self):
         dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)
         if not os.path.isfile(dependencies_filepath):

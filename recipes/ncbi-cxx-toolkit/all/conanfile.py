@@ -1,7 +1,7 @@
 import os
 import re
 import textwrap
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 
 import yaml
@@ -53,14 +53,12 @@ class NcbiCxxToolkit(ConanFile):
         v = Version(self.version)
         return f"requirements-{v.major}.{v.minor}.yml"
 
-    @property
-    @lru_cache
+    @cached_property
     def _tk_dependencies(self):
         dependencies_filepath = Path(self.recipe_folder, "dependencies", self._dependencies_filename)
         return yaml.safe_load(dependencies_filepath.read_text(encoding="utf-8"))
 
-    @property
-    @lru_cache
+    @cached_property
     def _tk_requirements(self):
         requirements_filepath = Path(self.recipe_folder, "dependencies", self._requirements_filename)
         return yaml.safe_load(requirements_filepath.read_text(encoding="utf-8"))
@@ -69,13 +67,11 @@ class NcbiCxxToolkit(ConanFile):
         items = str(data).replace(",", ";").replace(" ", ";").split(";")
         return set(filter(None, items))
 
-    @property
-    @lru_cache
+    @cached_property
     def _targets(self):
         return sorted(self._parse_option(self.options.with_targets))
 
-    @property
-    @lru_cache
+    @cached_property
     def _disabled_req(self):
         return sorted(self._parse_option(self.options.without_req))
 
@@ -91,8 +87,7 @@ class NcbiCxxToolkit(ConanFile):
                         queue.append(dependency)
         return visited
 
-    @property
-    @lru_cache
+    @cached_property
     def _components(self):
         components = self._parse_option(self.options.with_components)
         for t in self._targets:
@@ -103,16 +98,14 @@ class NcbiCxxToolkit(ConanFile):
             components = self._tk_dependencies["components"]
         return sorted(self._collect_dependencies(components))
 
-    @property
-    @lru_cache
+    @cached_property
     def _component_targets(self):
         cts = set(self._targets)
         for component in self._components:
             cts.update(self._tk_dependencies["libraries"][component])
         return sorted(cts)
 
-    @property
-    @lru_cache
+    @cached_property
     def _requirements(self):
         requirements = set()
         for target in self._component_targets:

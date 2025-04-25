@@ -2,7 +2,7 @@ import os
 import platform
 import textwrap
 from collections import defaultdict
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 
 import yaml
@@ -170,8 +170,7 @@ class QtConan(ConanFile):
     options.update({f"{status}_modules": [True, False] for status in _module_statuses})
     default_options.update({f"{status}_modules": False for status in _module_statuses})
 
-    @property
-    @lru_cache()
+    @cached_property
     def _qtmodules_info(self):
         """
         Returns the contents of qtmodules/<version>.conf file as a dict.
@@ -239,8 +238,7 @@ class QtConan(ConanFile):
                 self.output.debug(f"Removing {module} option as it is not in the module tree for this version, or is marked as obsolete or ignore")
                 self.options.rm_safe(module)
 
-    @property
-    @lru_cache()
+    @cached_property
     def _enabled_modules(self):
         # Requested modules:
         # - any module for non-removed options that have 'True' value

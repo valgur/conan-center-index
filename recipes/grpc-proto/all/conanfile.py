@@ -1,5 +1,5 @@
-import functools
 import os
+from functools import lru_cache
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -77,7 +77,7 @@ class GRPCProto(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    @functools.lru_cache(1)
+    @lru_cache
     def _parse_proto_libraries(self):
         # Generate the libraries to build dynamically
         proto_libraries = parse_proto_libraries(os.path.join(self.source_folder, 'BUILD.bazel'), self.source_folder, self.output.error)

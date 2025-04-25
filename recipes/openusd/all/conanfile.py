@@ -2,7 +2,7 @@ import json
 import os
 import re
 import textwrap
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -232,8 +232,7 @@ class OpenUSDConan(ConanFile):
         deps.generate()
         self._cmakedeps = deps
 
-    @property
-    @lru_cache
+    @cached_property
     def _cmake_to_conan_targets(self):
         def _get_targets(*args):
             targets = [self._cmakedeps.get_property("cmake_target_name", *args),
@@ -251,8 +250,7 @@ class OpenUSDConan(ConanFile):
                     cmake_targets_map[target] = f"{dep_name}::{component}"
         return cmake_targets_map
 
-    @property
-    @lru_cache
+    @cached_property
     def _build_info(self):
         return {
             "components": components_from_dotfile(self._graphviz_file.read_text(), self._cmake_to_conan_targets),

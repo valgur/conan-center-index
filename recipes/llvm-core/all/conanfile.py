@@ -2,7 +2,7 @@ import json
 import os
 import re
 import textwrap
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -357,8 +357,7 @@ class LLVMCoreConan(ConanFile):
         if direct_deps - all_ext_deps:
             raise ConanException(f"Dependencies not used by any components: {', '.join(direct_deps - all_ext_deps)}")
 
-    @property
-    @lru_cache
+    @cached_property
     def _llvm_build_info(self):
         return {
             "components": components_from_dotfile(self._graphviz_file.read_text()),

@@ -2,7 +2,7 @@ import json
 import os
 import re
 import textwrap
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -91,8 +91,7 @@ class ClangConan(ConanFile):
                     if dep not in self.dependencies.direct_host:
                         raise ConanException(f"Unexpected dependency for {component}: {req}")
 
-    @property
-    @lru_cache
+    @cached_property
     def _clang_build_info(self):
         return {
             "components": components_from_dotfile(self._graphviz_file.read_text()),

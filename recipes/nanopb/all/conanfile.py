@@ -1,6 +1,6 @@
 import io
 import os
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -39,8 +39,7 @@ class NanopbConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    @property
-    @lru_cache
+    @cached_property
     def _python_version(self):
         output = io.StringIO()
         self.run("python --version", stdout=output)
