@@ -7,8 +7,6 @@ import requests
 from conan.tools.scm import Version
 from tqdm.auto import tqdm
 
-script_dir = Path(__file__).parent
-
 # qt.io does not provide Content-Length info, so using a mirror instead.
 base_url = "https://qt-mirror.dannhauer.de/archive/"
 
@@ -20,6 +18,12 @@ git_components = [
     "qtopcua",
 ]
 
+
+def recipe_root(version):
+    script_dir = Path(__file__).parent
+    return script_dir.joinpath("..", "5.x.x").resolve() if version[0] == "5" else script_dir
+
+
 def get_components_list(version):
     version = Version(version)
     url = f"{base_url}qt/{version.major}.{version.minor}/{version}/submodules/md5sums.txt"
@@ -29,14 +33,22 @@ def get_components_list(version):
     for l in r.text.splitlines():
         if not l.endswith(".tar.xz"):
             continue
-        components.append(l.split()[1].split("-")[0])
-    return sorted(components + git_components)
+        components.append(l.split()[1].split("-everywhere")[0])
+    if version.major >= 6:
+        components += git_components
+    return sorted(components)
+
+
+def git_tag(version):
+    return f"v{version}-lts-lgpl" if str(version)[0] == "5" else f"v{version}"
 
 
 def get_url(version, component):
     version = Version(version)
-    if component in git_components:
-        return f"https://github.com/qt/{component}/archive/refs/tags/v{version}.tar.gz"
+    if version.major >= 6 and component in git_components:
+        return f"https://github.com/qt/{component}/archive/refs/tags/{git_tag(version)}.tar.gz"
+    if version.major == 5:
+        return f"{base_url}qt/{version.major}.{version.minor}/{version}/submodules/{component}-everywhere-opensource-src-{version}.tar.xz"
     return f"{base_url}qt/{version.major}.{version.minor}/{version}/submodules/{component}-everywhere-src-{version}.tar.xz"
 
 
@@ -49,7 +61,8 @@ def get_download_size(session, url):
 def add_source_hashes(version):
     print("Computing source archive hashes...")
     components = get_components_list(version)
-    yml_path = script_dir / "sources" / f"{version}.yml"
+    yml_path = recipe_root(version) / "sources" / f"{version}.yml"
+    yml_path.parent.mkdir(exist_ok=True)
     with requests.Session() as session:
         # Fetch sizes before downloading to check that all URLs are valid.
         urls = {component: get_url(version, component) for component in components}
@@ -75,14 +88,16 @@ def add_source_hashes(version):
                 f.write(f'  {component + ":": <19} "{hash}"  # {file_size / 1_000_000: 6.1f} MB\n')
                 f.flush()
             overall_progress.close()
-            f.write("git_only:\n")
-            for component in git_components:
-                f.write(f'  - {component}\n')
+            if version.major >= 6:
+                f.write("git_only:\n")
+                for component in git_components:
+                    f.write(f'  - {component}\n')
 
 def fetch_gitmodules(version):
-    conf_path = script_dir.joinpath("qtmodules", f"{version}.conf")
+    conf_path = recipe_root(version).joinpath("qtmodules", f"{version}.conf")
+    conf_path.parent.mkdir(exist_ok=True)
     print(f"Adding qtmodules/{version}.conf...")
-    url = f"https://raw.githubusercontent.com/qt/qt5/refs/tags/v{version}/.gitmodules"
+    url = f"https://raw.githubusercontent.com/qt/qt5/refs/tags/{git_tag(version)}/.gitmodules"
     r = requests.get(url)
     r.raise_for_status()
     conf_path.write_text(r.text)

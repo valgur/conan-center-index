@@ -2,16 +2,19 @@ import configparser
 import glob
 import itertools
 import os
+import platform
 import shutil
 import textwrap
 from io import StringIO
+from pathlib import Path
 
+import yaml
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.android import android_abi
 from conan.tools.apple import is_apple_os, to_apple_arch
 from conan.tools.build import build_jobs, check_min_cppstd, cross_building, can_run
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -130,11 +133,10 @@ class QtConan(ConanFile):
     #    these are only provided for convenience, set to False by default
     default_options.update({f"{status}_modules": False for status in _module_statuses})
 
-    no_copy_source = True
-    short_paths = True
-
     def export(self):
-        copy(self, f"qtmodules{self.version}.conf", self.recipe_folder, self.export_folder)
+        copy(self, f"{self.version}.conf", os.path.join(self.recipe_folder, "qtmodules"), os.path.join(self.export_folder, "qtmodules"))
+        copy(self, f"{self.version}.yml", os.path.join(self.recipe_folder, "sources"), os.path.join(self.export_folder, "sources"))
+        copy(self, "mirrors.txt", self.recipe_folder, self.export_folder)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -230,7 +232,7 @@ class QtConan(ConanFile):
             del self.settings.build_type
 
         config = configparser.ConfigParser()
-        config.read(os.path.join(self.recipe_folder, f"qtmodules{self.version}.conf"))
+        config.read(str(Path(self.recipe_folder, "qtmodules", f"{self.version}.conf")))
         submodules_tree = {}
         assert config.sections(), f"no qtmodules.conf file for version {self.version}"
         for s in config.sections():
@@ -405,7 +407,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_fontconfig", False):
             self.requires("fontconfig/2.15.0")
         if self.options.get_safe("with_icu", False):
-            self.requires("icu/75.1")
+            self.requires("icu/74.2")
         if self.options.get_safe("with_harfbuzz", False) and not self.options.multiconfiguration:
             self.requires("harfbuzz/8.3.0")
         if self.options.get_safe("with_libjpeg", False) and not self.options.multiconfiguration:
@@ -494,32 +496,89 @@ class QtConan(ConanFile):
         return os.path.join(self.source_folder, "angle")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            strip_root=True, destination="qt5")
+        pass
 
+    def _get_download_info(self):
+        """
+        Generate the equivalent of self.conan_data["sources"][self.version] for each enabled module,
+        based on sources/<version>.yml and mirrors.txt.
+        """
+        mirrors = Path(self.recipe_folder, "mirrors.txt").read_text().strip().split()
+        archive_info = yaml.safe_load(Path(self.recipe_folder, "sources", f"{self.version}.yml").read_text())
+        hashes = archive_info["hashes"]
+        # Modules that are no longer stand-alone.
+        merged_modules = {"qtquickcontrols2": "qtdeclarative"}
+
+        def _get_module_urls(component):
+            version = Version(self.version)
+            return [f"{base_url}qt/{version.major}.{version.minor}/{version}/submodules/{component}-everywhere-opensource-src-{version}.tar.xz" for base_url in mirrors]
+
+        def _get_info(component):
+            return {
+                "url": _get_module_urls(component),
+                "sha256": hashes[component],
+            }
+
+        download_info = {
+            "root": _get_info("tqtc-qt5"),
+            "qtbase": _get_info("qtbase"),
+        }
+        for module in self._submodules:
+            if self.options.get_safe(module):
+                module = merged_modules.get(module, module)
+                download_info[module] = _get_info(module)
+        return download_info
+
+    def _get_sources(self):
+        """
+        Equivalent to source(), but downloads only the relevant source archives based on the configuration.
+        """
+        destination = self.source_folder
+        if platform.system() == "Windows":
+            # Don't use os.path.join, or it removes the \\?\ prefix, which enables long paths
+            destination = rf"\\?\{self.source_folder}"
+        download_info = self._get_download_info()
+        get(self, **download_info.pop("root"), strip_root=True, destination=destination)
+        for component, info in download_info.items():
+            self.output.info(f"Fetching {component}...")
+            get(self, **info, strip_root=True, destination=os.path.join(destination, component))
+        # Remove empty subdirs
+        for path in Path(self.source_folder).iterdir():
+            if path.is_dir() and not list(path.iterdir()):
+                path.rmdir()
+
+    def _patch_sources(self):
+        # Exclude patches that are for modules that are not enabled
+        patches = []
+        for patch in self.conan_data["patches"][self.version]:
+            base_path = patch.get("base_path")
+            if base_path is None or Path(self.source_folder, patch["base_path"]).is_dir():
+                patches.append(patch)
+        self.conan_data["patches"][self.version] = patches
         apply_conandata_patches(self)
-        for f in ["renderer", os.path.join("renderer", "core"), os.path.join("renderer", "platform")]:
-            replace_in_file(self, os.path.join(self.source_folder, "qt5", "qtwebengine", "src", "3rdparty", "chromium", "third_party", "blink", f, "BUILD.gn"),
-                "  if (enable_precompiled_headers) {\n    if (is_win) {",
-                "  if (enable_precompiled_headers) {\n    if (false) {"
-            )
-        replace_in_file(self, os.path.join(self.source_folder, "qt5", "qtbase", "configure.json"),
+
+        if self.options.qtwebengine:
+            for f in ["renderer", os.path.join("renderer", "core"), os.path.join("renderer", "platform")]:
+                replace_in_file(self, os.path.join(self.source_folder, "qtwebengine", "src", "3rdparty", "chromium", "third_party", "blink", f, "BUILD.gn"),
+                    "  if (enable_precompiled_headers) {\n    if (is_win) {",
+                    "  if (enable_precompiled_headers) {\n    if (false) {"
+                )
+
+        replace_in_file(self, os.path.join(self.source_folder, "qtbase", "configure.json"),
             "-ldbus-1d",
             "-ldbus-1"
         )
-        save(self, os.path.join(self.source_folder, "qt5", "qtbase", "mkspecs", "features", "uikit", "bitcode.prf"), "")
+        save(self, os.path.join(self.source_folder, "qtbase", "mkspecs", "features", "uikit", "bitcode.prf"), "")
 
         # shorten the path to ANGLE to avoid the following error:
         # C:\J2\w\prod-v2\bsr@4\104220\ebfcf\p\qtde01f793a6074\s\qt5\qtbase\src\3rdparty\angle\src\libANGLE\renderer\d3d\d3d11\texture_format_table_autogen.cpp : fatal error C1083: Cannot open compiler generated file: '': Invalid argument
-        copy(self, "*", os.path.join(self.source_folder, "qt5", "qtbase", "src", "3rdparty", "angle"), self.angle_path)
+        copy(self, "*", os.path.join(self.source_folder, "qtbase", "src", "3rdparty", "angle"), self.angle_path)
 
     def generate(self):
         pc = PkgConfigDeps(self)
         pc.generate()
         ms = VCVars(self)
         ms.generate()
-        vbe = VirtualBuildEnv(self)
-        vbe.generate()
         if not cross_building(self):
             vre = VirtualRunEnv(self)
             vre.generate(scope="build")
@@ -528,7 +587,7 @@ class QtConan(ConanFile):
         env.define("ANGLE_DIR", self.angle_path)
         env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
         if self.settings.os == "Windows":
-            env.prepend_path("PATH", os.path.join(self.source_folder, "qt5", "gnuwin32", "bin"))
+            env.prepend_path("PATH", os.path.join(self.source_folder, "gnuwin32", "bin"))
         env.vars(self).save_script("conan_qt_env_file")
 
     def _make_program(self):
@@ -634,6 +693,9 @@ class QtConan(ConanFile):
         return None
 
     def build(self):
+        self._get_sources()
+        self._patch_sources()
+
         args = ["-confirm-license", "-silent", "-nomake examples", "-nomake tests",
                 f"-prefix {self.package_folder}"]
         if cross_building(self):
@@ -873,7 +935,7 @@ class QtConan(ConanFile):
                 save(self, ".qmake.stash" , "")
                 save(self, ".qmake.super" , "")
 
-            self.run("%s %s" % (os.path.join(self.source_folder, "qt5", "configure"), " ".join(args)))
+            self.run("%s %s" % (os.path.join(self.source_folder, "configure"), " ".join(args)))
             self.run(self._make_program())
 
     @property
