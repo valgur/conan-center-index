@@ -23,7 +23,7 @@ class CvPlotConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("opencv/4.11.0")
+        self.requires("opencv/[^4.5]")
 
     def package_id(self):
         self.info.clear()

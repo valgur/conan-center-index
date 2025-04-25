@@ -33,7 +33,7 @@ class ArucoConan(ConanFile):
     def requirements(self):
         # Header used in public markerdetector.h
         # cv::FileStorage::FileStorage used by aruco::CameraParameters::saveToFile
-        self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
+        self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True)
         # Header used in levmarq.h
         self.requires("eigen/3.4.0", transitive_headers=False)
 

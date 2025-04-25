@@ -94,7 +94,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_hdf5:
             self.requires("hdf5/1.14.5")
         if self.options.with_opencv:
-            self.requires("opencv/4.11.0")
+            self.requires("opencv/[^4.5]")
         if self.options.with_tbb:
             self.requires("onetbb/[^2021]")
         if self.options.with_dicom:

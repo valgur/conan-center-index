@@ -38,7 +38,7 @@ class VilibConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True)
-        self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
+        self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

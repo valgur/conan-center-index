@@ -63,7 +63,7 @@ class MetavisionSdkConan(ConanFile):
         # several headers, e.g. metavision/sdk/core/preprocessors/json_parser.h
         self.requires("boost/1.86.0", transitive_headers=True)
         # used in many public headers
-        self.requires("opencv/4.11.0", transitive_headers=True)
+        self.requires("opencv/[^4.5]", transitive_headers=True)
         if self.options.stream:
             # newer version conflicts with opencv
             self.requires("protobuf/3.21.12")

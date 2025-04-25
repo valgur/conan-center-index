@@ -102,7 +102,7 @@ class OpenImageIOConan(ConanFile):
             self.requires("opencolorio/2.4.1")
         if self.options.with_opencv:
             # INFO: https://github.com/AcademySoftwareFoundation/OpenImageIO/blob/v2.5.4.0/src/libOpenImageIO/CMakeLists.txt#L131
-            self.requires("opencv/4.11.0", transitive_headers=True)
+            self.requires("opencv/[^4.5]", transitive_headers=True)
         if self.options.with_tbb:
             self.requires("onetbb/[^2021]")
         if self.options.with_dicom:
