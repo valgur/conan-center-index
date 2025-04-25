@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-24:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-25:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -68,6 +68,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dpdk/24.07
 - elfutils/0.191
 - elfutils/0.192
+- emsdk/4.0.6
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
@@ -142,6 +143,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - isl/0.27
 - json-glib/1.10.6
 - jsonifier/0.9.98
+- kdsingleapplication/1.1.0
 - klib/cci.20250205
 - kokkos/4.3.1
 - lapack/3.12.0
@@ -154,12 +156,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcmaes/0.10.0
 - libcroco/0.6.13
 - libcudacxx/2.7.0
+- libdecor/0.2.2
 - libecwj2/3.3
 - libelas/cci.20150630
 - libfontenc/1.1.8
 - libgudev/238
 - libhdfs3/cci.20191105
 - libice/1.1.1
+- libjwt/3.2.1
 - libmediainfo/23.11
 - libmount/2.41
 - libmysqlclient/8.2.0
@@ -231,17 +235,21 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - netpbm/11.6.0
 - nlohmann_json/3.12.0
 - nss/3.107
+- nss/3.110
 - numpy/1.26.4
 - odbc/2.3.12
 - ogre/14.3.4
 - openblas/0.3.28
 - opencv/4.5.4
+- openiap/0.0.33
+- openimageio/3.0.5.0
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
+- openusd/25.02
 - or-tools/9.10
 - osgearth/3.7
 - osrm/5.27.1
@@ -254,11 +262,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pdal/2.7.2
 - perf/6.11
 - piex/0.27
+- pipewire/1.4.2
 - plf_list/2.77
+- poco/1.14.1
 - polyscope/2.3.0
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta6
+- proj/9.6.0
 - protobuf/3.12.4
 - protobuf/4.23.4
 - qcoro/0.10.0
@@ -267,6 +278,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qt/6.8.3
 - qtawesome/6.5.1
 - reduct-cpp/1.14.0
+- resultlib/1.0.0
 - rmlui/5.1
 - rosx_introspection/1.0.2
 - rust/1.72.1
@@ -279,6 +291,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - serf/1.3.10
 - sfcgal/1.5.0
 - shader-slang/2024.11.1
+- shaderc/2025.2
 - skia/132
 - sleef/3.6.1
 - small_gicp/0.1.2
