@@ -18,7 +18,6 @@ class WaylandProtocolsConan(ConanFile):
     homepage = "https://gitlab.freedesktop.org/wayland/wayland-protocols"
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     def package_id(self):
         self.info.clear()

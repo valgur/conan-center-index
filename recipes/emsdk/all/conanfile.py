@@ -19,8 +19,6 @@ class EmSDKConan(ConanFile):
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
 
-    short_paths = True
-
     def layout(self):
         basic_layout(self, src_folder="src")
 

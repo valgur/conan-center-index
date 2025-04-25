@@ -61,8 +61,6 @@ class SundialsConan(ConanFile):
         "precision": "double",
     }
 
-    short_paths = True
-
     def export_sources(self):
         copy(self, "*.cmake", self.recipe_folder, self.export_sources_folder)
 

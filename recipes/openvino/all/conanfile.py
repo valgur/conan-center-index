@@ -24,7 +24,6 @@ class OpenvinoConan(ConanFile):
               "generative-ai", "llm-inference", "optimize-ai", "deploy-ai")
     package_id_non_embed_mode = "patch_mode"
     package_type = "library"
-    short_paths = True
     no_copy_source = True
 
     # Binary configuration

@@ -114,7 +114,6 @@ class ArrowConan(ConanFile):
         "with_zlib": True,
         "with_zstd": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

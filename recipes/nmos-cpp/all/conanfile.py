@@ -33,8 +33,6 @@ class NmosCppConan(ConanFile):
         "with_dnssd": "mdnsresponder",
     }
 
-    short_paths = True
-
     def export_sources(self):
         files.export_conandata_patches(self)
 

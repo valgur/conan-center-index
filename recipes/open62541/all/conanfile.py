@@ -142,8 +142,6 @@ class Open62541Conan(ConanFile):
 
     exports = "submoduledata.yml"
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 

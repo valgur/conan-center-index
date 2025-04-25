@@ -22,7 +22,6 @@ class KaitaiStructCppStlRuntimeConan(ConanFile):
         "with_zlib": False,
         "with_iconv": False,
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)

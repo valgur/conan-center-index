@@ -40,8 +40,6 @@ class ProtobufConan(ConanFile):
         "debug_suffix": True,
     }
 
-    short_paths = True
-
     @property
     def _is_clang_cl(self):
         return self.settings.compiler == "clang" and self.settings.os == "Windows"

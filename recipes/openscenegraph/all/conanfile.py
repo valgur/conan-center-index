@@ -82,7 +82,6 @@ class OpenSceneGraphConanFile(ConanFile):
         "opengl_profile": "gl2",
         "with_avfoundation": True,
     }
-    short_paths = True
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)

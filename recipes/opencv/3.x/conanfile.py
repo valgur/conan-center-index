@@ -51,8 +51,6 @@ class OpenCVConan(ConanFile):
         "nonfree": False,
     }
 
-    short_paths = True
-
     @property
     def _contrib_folder(self):
         return os.path.join(self.source_folder, "contrib")

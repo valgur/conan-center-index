@@ -33,7 +33,6 @@ class Stlab(ConanFile):
         # Handle default value for `task_system` in `config_options` method
     }
     package_type = "header-library"
-    short_paths = True
 
     def config_options(self):
         self.options.thread_system = {"Macos": "pthread-apple",

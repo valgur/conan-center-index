@@ -23,7 +23,6 @@ class DirectShowBaseClassesConan(ConanFile):
 
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)

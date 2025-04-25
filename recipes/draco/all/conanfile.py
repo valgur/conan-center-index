@@ -42,8 +42,6 @@ class DracoConan(ConanFile):
         "enable_backwards_compatibility": True,
     }
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 

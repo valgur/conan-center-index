@@ -26,7 +26,6 @@ class ZookeeperClientCConan(ConanFile):
         "with_cyrus_sasl": False,
         "with_openssl": False,
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)

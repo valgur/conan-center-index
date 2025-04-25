@@ -16,7 +16,6 @@ class UaNodeSetConan(ConanFile):
 
     package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     def layout(self):
         pass

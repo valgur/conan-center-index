@@ -17,7 +17,6 @@ class ExtracmakemodulesConan(ConanFile):
     description = "KDE's CMake modules"
     package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")

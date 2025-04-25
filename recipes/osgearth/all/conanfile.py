@@ -78,7 +78,6 @@ class OsgearthConan(ConanFile):
         "build_legacy_splat_nodekit": False,
         "enable_wininet_for_http": False,
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)

@@ -21,7 +21,6 @@ class CgalConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps"
-    short_paths = True
 
     @property
     def _requires_cpp17(self):

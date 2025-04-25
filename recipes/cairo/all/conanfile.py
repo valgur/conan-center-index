@@ -56,7 +56,6 @@ class CairoConan(ConanFile):
         "with_symbol_lookup": False,
         "tee": False,
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)

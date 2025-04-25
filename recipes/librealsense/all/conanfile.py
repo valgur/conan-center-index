@@ -35,8 +35,6 @@ class LibrealsenseConan(ConanFile):
         "rsusb_backend": True, # TODO: change to False when CI gets MSVC ATL support
     }
 
-    short_paths = True
-
     def export_sources(self):
         export_conandata_patches(self)
 

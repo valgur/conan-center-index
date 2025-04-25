@@ -29,7 +29,6 @@ class PackageConan(ConanFile):
         "shared": False,
         "with_python": False,
     }
-    short_paths = True
 
     def configure(self):
         if self.options.with_python and is_msvc(self):

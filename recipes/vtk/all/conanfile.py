@@ -28,8 +28,6 @@ class VtkConan(ConanFile):
     homepage = "https://www.vtk.org/"
     topics = ("scientific", "image", "processing", "visualization")
     settings = "os", "arch", "compiler", "build_type"
-
-    short_paths = True
     no_copy_source = True
 
     options = {

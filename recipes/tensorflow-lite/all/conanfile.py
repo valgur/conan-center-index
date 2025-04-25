@@ -38,8 +38,6 @@ class TensorflowLiteConan(ConanFile):
         "with_xnnpack": True
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         return "17"

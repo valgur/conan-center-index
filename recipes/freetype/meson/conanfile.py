@@ -23,7 +23,6 @@ class FreetypeConan(ConanFile):
     license = "FTL"
     topics = ("freetype", "fonts")
     package_type = "library"
-    short_paths = True
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],

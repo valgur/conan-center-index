@@ -21,7 +21,6 @@ class CutlassConan(ConanFile):
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
     # TODO: add header_only=False option
 
     @property

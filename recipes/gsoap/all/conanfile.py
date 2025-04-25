@@ -33,7 +33,6 @@ class GsoapConan(ConanFile):
         "with_cookies": True,
         "with_c_locale": True,
     }
-    short_paths = True
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)

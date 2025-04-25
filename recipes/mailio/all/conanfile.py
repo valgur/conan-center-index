@@ -26,7 +26,6 @@ class MailioConan(ConanFile):
         "fPIC": True,
         "shared": False,
     }
-    short_paths = True
     implements = ["auto_shared_fpic"]
 
     def export_sources(self):

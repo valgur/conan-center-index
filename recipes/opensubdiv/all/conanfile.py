@@ -44,8 +44,6 @@ class OpenSubdivConan(ConanFile):
         "with_metal": True
     }
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         if self.options.get_safe("with_metal"):

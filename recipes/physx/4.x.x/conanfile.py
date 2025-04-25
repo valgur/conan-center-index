@@ -36,7 +36,6 @@ class PhysXConan(ConanFile):
         "enable_float_point_precise_math": False,
     }
 
-    short_paths = True
     no_copy_source = True
 
     def export_sources(self):

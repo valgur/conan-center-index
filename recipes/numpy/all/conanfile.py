@@ -30,7 +30,6 @@ class NumpyConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
-    short_paths = True
 
     def config_options(self):
         if self.settings.os == "Windows":

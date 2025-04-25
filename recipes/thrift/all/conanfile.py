@@ -45,7 +45,6 @@ class ThriftConan(ConanFile):
         "with_haskell": False,
     }
     implements = ["auto_shared_fpic"]
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)

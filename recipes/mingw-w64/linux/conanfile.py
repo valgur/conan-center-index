@@ -38,8 +38,6 @@ class MingwConan(ConanFile):
         "gcc": "GCC version provided by MinGW-w64",
     }
 
-    short_paths = True
-
     def layout(self):
         basic_layout(self, src_folder="src")
 

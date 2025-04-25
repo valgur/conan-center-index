@@ -30,8 +30,6 @@ class SentryCrashpadConan(ConanFile):
         "with_tls": "openssl",
     }
 
-    short_paths = True
-
     @property
     def _is_mingw(self):
         return self.settings.os == "Windows" and self.settings.compiler == "gcc"

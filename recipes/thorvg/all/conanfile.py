@@ -64,7 +64,6 @@ class ThorvgConan(ConanFile):
         "with_examples": "Enable building examples",
         "with_extra": "Enable support for exceptionally advanced features",
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

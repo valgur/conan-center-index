@@ -20,7 +20,6 @@ class H5ppConan(ConanFile):
     package_type="header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    short_paths = True
     options = {
         "with_eigen": [True, False],
         "with_spdlog": [True, False],

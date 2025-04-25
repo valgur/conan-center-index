@@ -45,12 +45,11 @@ class GoogleCloudCppConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
-    exports = ["components_2_15_1.py",
-               "components_2_19_0.py",
-               "components_2_28_0.py",
-               ]
-
-    short_paths = True
+    exports = [
+        "components_2_15_1.py",
+        "components_2_19_0.py",
+        "components_2_28_0.py",
+    ]
 
     _GA_COMPONENTS = {
         '2.15.1': components_2_15_1.COMPONENTS,

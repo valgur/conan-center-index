@@ -24,7 +24,6 @@ class GlibmmConan(ConanFile):
     topics = ("giomm",)
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     @property
     def _abi_version(self):

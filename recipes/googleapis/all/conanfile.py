@@ -33,7 +33,6 @@ class GoogleAPIS(ConanFile):
         "fPIC": True,
     }
     exports = "helpers.py"
-    short_paths = True
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=os.path.join(self.export_sources_folder, "src"))

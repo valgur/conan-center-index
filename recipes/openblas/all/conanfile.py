@@ -113,7 +113,6 @@ class OpenblasConan(ConanFile):
         "max_threads": "The maximum number of parallel threads you expect to need (defaults to the number of cores in the build cpu)",
         "max_omp_parallel": "Number of OpenMP instances that your code may use for parallel calls into OpenBLAS",
     }
-    short_paths = True
 
     @property
     def _fortran_compiler(self):

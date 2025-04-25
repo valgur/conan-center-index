@@ -54,7 +54,6 @@ class OpenmvgConan(ConanFile):
         "cpu_architecture": "sandy-bridge",  # sse sse2 sse3 ssse3 sse4.1 sse4.2 avx
         "with_avx": "avx",
     }
-    short_paths = True
 
     def export_sources(self):
         export_conandata_patches(self)

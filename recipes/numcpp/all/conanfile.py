@@ -28,7 +28,6 @@ class NumCppConan(ConanFile):
         "threads" : False,
     }
     no_copy_source = True
-    short_paths = True
 
     @property
     def _min_cppstd(self):

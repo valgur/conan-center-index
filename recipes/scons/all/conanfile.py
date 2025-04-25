@@ -17,7 +17,6 @@ class SConsConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     package_type = "application"
     no_copy_source = True
-    short_paths = True
 
     def layout(self):
         self.folders.source = "src"

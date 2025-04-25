@@ -23,7 +23,6 @@ class DbusConan(ConanFile):
     topics = "bus", "interprocess", "message"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
     options = {
         "shared": [True, False],
         "fPIC": [True, False],

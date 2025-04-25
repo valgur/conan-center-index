@@ -442,8 +442,6 @@ class AwsSdkCppConan(ConanFile):
         "monitoring": True  # TODO: Clarify why monitoring is True by default
     }
 
-    short_paths = True
-
     @property
     def _internal_requirements(self):
         # These modules and dependencies come from https://github.com/aws/aws-sdk-cpp/blob/1.11.352/cmake/sdksCommon.cmake#L147 and below

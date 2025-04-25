@@ -170,8 +170,6 @@ class QtConan(ConanFile):
     options.update({f"{status}_modules": [True, False] for status in _module_statuses})
     default_options.update({f"{status}_modules": False for status in _module_statuses})
 
-    short_paths = True
-
     @property
     @lru_cache()
     def _qtmodules_info(self):

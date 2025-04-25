@@ -34,7 +34,6 @@ class OnnxRuntimeConan(ConanFile):
         "with_xnnpack": False,
         "with_cuda": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

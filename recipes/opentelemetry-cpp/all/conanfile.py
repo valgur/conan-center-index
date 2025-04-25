@@ -68,7 +68,6 @@ class OpenTelemetryCppConan(ConanFile):
         "with_async_export_preview": False,
         "with_metrics_exemplar_preview": False,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

@@ -37,7 +37,6 @@ class CassandraCppDriverConan(ConanFile):
         "with_kerberos": False,
         "use_timerfd": True,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

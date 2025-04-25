@@ -48,8 +48,6 @@ class RubyConan(ConanFile):
         "with_gmp": True,
     }
 
-    short_paths = True
-
     @property
     def _windows_system_libs(self):
         return ["user32", "advapi32", "shell32", "ws2_32", "iphlpapi", "imagehlp", "shlwapi", "bcrypt"]

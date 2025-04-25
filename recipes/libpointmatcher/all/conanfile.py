@@ -32,7 +32,6 @@ class LibpointmatcherConan(ConanFile):
         "fPIC": True,
         "with_openmp": True,
     }
-    short_paths = True
 
     @property
     def _min_cppstd(self):

@@ -15,7 +15,6 @@ from conan.tools.microsoft import is_msvc, unix_path
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     def layout(self):
         basic_layout(self)

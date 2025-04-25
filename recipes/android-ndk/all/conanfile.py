@@ -23,7 +23,6 @@ class AndroidNDKConan(ConanFile):
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
-    short_paths = True
 
     def _is_universal2(self, info=False):
         settings = self.info.settings if info else self.settings

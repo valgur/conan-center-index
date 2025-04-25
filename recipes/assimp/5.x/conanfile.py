@@ -107,8 +107,6 @@ class AssimpConan(ConanFile):
     options.update(dict.fromkeys(_format_option_map, [True, False]))
     default_options.update(dict.fromkeys(_format_option_map, True))
 
-    short_paths = True
-
     @property
     def _min_cppstd(self):
         if Version(self.version) < "5.2.0":

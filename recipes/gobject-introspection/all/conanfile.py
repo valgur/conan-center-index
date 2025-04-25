@@ -31,7 +31,6 @@ class GobjectIntrospectionConan(ConanFile):
     default_options = {
         "build_introspection_data": True,
     }
-    short_paths = True
     languages = ["C"]
 
     def export_sources(self):

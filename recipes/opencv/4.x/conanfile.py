@@ -225,8 +225,6 @@ class OpenCVConan(ConanFile):
     }
     default_options.update({_name: False for _name in OPENCV_EXTRA_MODULES_OPTIONS})
 
-    short_paths = True
-
     @property
     def _is_cl_like(self):
         return self.settings.compiler.get_safe("runtime") is not None
