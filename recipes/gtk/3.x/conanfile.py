@@ -116,7 +116,7 @@ class GtkConan(ConanFile):
         # TODO: fix libintl support on macOS by using gnuintl from gettext
         # if self.settings.os != "Linux":
         #     # for Linux, gettext is provided by libc
-        #     self.requires("libgettext/0.22", transitive_headers=True, transitive_libs=True)
+        #     self.requires("gettext/0.22.5", transitive_headers=True, transitive_libs=True)
 
         # TODO: iso-codes
         # TODO: tracker-sparql-3.0

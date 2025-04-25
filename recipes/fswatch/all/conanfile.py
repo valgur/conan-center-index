@@ -45,7 +45,7 @@ class WatcherConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC due pthread requirement.")
 
     def requirements(self):
-        self.requires("libgettext/0.22")
+        self.requires("gettext/0.22.5")
 
     def build_requirements(self):
         self.tool_requires("gettext/0.22.5")
