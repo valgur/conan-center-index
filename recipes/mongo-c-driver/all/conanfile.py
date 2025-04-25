@@ -76,7 +76,7 @@ class MongoCDriverConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[^1.5]")
         if self.options.with_icu:
-            self.requires("icu/75.1")
+            self.requires("icu/[*]")
 
     def validate(self):
         if self.options.with_ssl == "darwin" and not is_apple_os(self):

@@ -26,7 +26,7 @@ class FirebirdConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("icu/75.1")
+        self.requires("icu/[*]")
         self.requires("termcap/1.3.1")
         self.requires("zlib/[>=1.2.11 <2]")
 

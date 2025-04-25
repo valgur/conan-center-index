@@ -436,7 +436,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_fontconfig"):
             self.requires("fontconfig/2.15.0")
         if self.options.get_safe("with_icu"):
-            self.requires("icu/75.1")
+            self.requires("icu/[*]")
         if self.options.get_safe("with_harfbuzz"):
             self.requires("harfbuzz/8.3.0")
         if self.options.with_libb2:

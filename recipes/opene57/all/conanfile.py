@@ -72,7 +72,7 @@ class Opene57Conan(ConanFile):
             self.requires("doxygen/[>=1.8 <2]")
 
         if self.settings.os != "Windows":
-            self.requires("icu/75.1")
+            self.requires("icu/[*]")
 
         self.requires("xerces-c/3.2.4")
 

@@ -133,7 +133,7 @@ class LibpqConan(ConanFile):
         if self.options.with_gssapi:
             self.requires("krb5/1.21.2")
         if self.options.get_safe("with_icu"):
-            self.requires("icu/75.1")
+            self.requires("icu/[*]")
         if self.options.with_ldap:
             self.requires("openldap/2.6.7")
         if self.options.with_libxml:

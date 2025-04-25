@@ -40,7 +40,7 @@ class PdfiumConan(ConanFile):
 
     def requirements(self):
         self.requires("freetype/2.13.2")
-        self.requires("icu/75.1")
+        self.requires("icu/[*]")
         self.requires("lcms/2.16")
         self.requires("openjpeg/2.5.0")
         self.requires("zlib/[>=1.2.11 <2]")

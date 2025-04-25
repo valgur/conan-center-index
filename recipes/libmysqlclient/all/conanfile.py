@@ -58,7 +58,7 @@ class LibMysqlClientCConan(ConanFile):
         if self.settings.os == "FreeBSD":
             self.requires("libunwind/1.8.1")
         # Dependencies that would otherwise be bundled
-        self.requires("icu/75.1")
+        self.requires("icu/[*]")
         self.requires("editline/3.1")
         self.requires("libevent/2.1.12")
         self.requires("lz4/1.9.4")

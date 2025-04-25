@@ -45,7 +45,7 @@ class SkiaConan(ConanFile):
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("freetype/2.13.2")
         self.requires("fontconfig/2.15.0")
-        self.requires("icu/75.1")
+        self.requires("icu/[*]")
 
     def validate(self):
         check_min_cppstd(self, 17)

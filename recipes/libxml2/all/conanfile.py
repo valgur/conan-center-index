@@ -99,7 +99,7 @@ class Libxml2Conan(ConanFile):
         if self.options.iconv:
             self.requires("libiconv/1.17", transitive_headers=True, transitive_libs=True)
         if self.options.icu:
-            self.requires("icu/75.1")
+            self.requires("icu/[*]")
 
     def build_requirements(self):
         if not (is_msvc(self) or self._is_mingw_windows):
