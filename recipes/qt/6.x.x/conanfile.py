@@ -490,7 +490,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_gssapi"):
             self.requires("krb5/1.21.2")
         if self.options.get_safe("with_md4c"):
-            self.requires("md4c/0.4.8")
+            self.requires("md4c/[^0.5]")
 
         # https://github.com/qt/qtimageformats/blob/v6.8.3/src/imageformats/configure.cmake
         if self.options.qtimageformats:
