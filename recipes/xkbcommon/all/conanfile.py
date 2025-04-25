@@ -89,10 +89,6 @@ class XkbcommonConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # Patch the build system to use the pkg-config files generated for the build context.
-        replace_in_file(self, "meson.build",
-                        "wayland_scanner_dep = dependency('wayland-scanner', required: false, native: true)",
-                        "wayland_scanner_dep = dependency('wayland-scanner_BUILD', required: false, native: true)")
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -107,18 +103,20 @@ class XkbcommonConan(ConanFile):
             tc.project_options["enable-tools"] = False
         tc.generate()
 
-        pkg_config_deps = PkgConfigDeps(self)
+        deps = PkgConfigDeps(self)
         if self.options.get_safe("with_wayland"):
-            pkg_config_deps.build_context_activated.append("wayland")
-            pkg_config_deps.build_context_activated.append("wayland-protocols")
-            pkg_config_deps.build_context_suffix = {"wayland": "_BUILD"}
-        pkg_config_deps.generate()
+            deps.build_context_activated.append("wayland")
+            deps.build_context_activated.append("wayland-protocols")
+            deps.build_context_folder = os.path.join(self.generators_folder, "build")
+        deps.generate()
 
-        # required for dependency(..., native: true) in meson.build
-        env = Environment()
-        env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
-        env.define_path("PKG_CONFIG_PATH_FOR_BUILD", self.generators_folder)
-        env.vars(self).save_script("pkg_config_for_build_env")
+        if self.options.get_safe("with_wayland"):
+            rename(self, os.path.join("build", "wayland-protocols.pc"), "wayland-protocols.pc")
+            env = Environment()
+            # required for dependency(..., native: true) in meson.build
+            env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
+            env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
+            env.vars(self).save_script("pkg_config_for_build_env")
 
     def build(self):
         meson = Meson(self)
