@@ -1,20 +1,21 @@
 sources:
+  "0.24":
+    url: "https://ftpmirror.gnu.org/gettext/gettext-0.24.tar.xz"
+    sha256: "e1620d518b26d7d3b16ac570e5018206e8b0d725fb65c02d048397718b5cf318"
   "0.22.5":
     url: "https://ftpmirror.gnu.org/gettext/gettext-0.22.5.tar.xz"
     sha256: "fe10c37353213d78a5b83d48af231e005c4da84db5ce88037d88355938259640"
   "0.21":
     url: "https://ftpmirror.gnu.org/gettext/gettext-0.21.tar.xz"
     sha256: "d20fcbb537e02dcf1383197ba05bd0734ef7bf5db06bdb241eb69b7d16b73192"
-  "0.20.1":
-    url: "https://ftpmirror.gnu.org/gettext/gettext-0.20.1.tar.xz"
-    sha256: "53f02fbbec9e798b0faaf7c73272f83608e835c6288dd58be6c9bb54624a3800"
 patches:
-  "0.22.5":
+  "0.24":
     - patch_file: "patches/0004-autopoint-relocatable.patch"
       patch_description: "relocatable autopoint with resources relative to script"
       patch_type: "conan"
-    - patch_file: "patches/0.22.5-0001-fix-macos-crossbuild.patch"
-      patch_description: "fix ability to crossbuild on macos and assume macOS newer than 10.4"
+  "0.22.5":
+    - patch_file: "patches/0004-autopoint-relocatable.patch"
+      patch_description: "relocatable autopoint with resources relative to script"
       patch_type: "conan"
   "0.21":
     - patch_file: "patches/0004-autopoint-relocatable.patch"
@@ -27,19 +28,6 @@ patches:
     - patch_file: "patches/0.21-include-stdlib_h.patch"
       patch_description: "include stdlib.h for newer gcc"
       patch_type: "portability"
-    - patch_file: "patches/0002-memmove-is-intrinsic-function-on-MSVC.patch"
-      patch_description: "memmove is intrinsic function on MSVC"
-      patch_type: "portability"
-  "0.20.1":
-    - patch_file: "patches/0.20.1-0001-fix-build-errors-with-MSVC.patch"
-      patch_description: "Fix build errors with MSVC"
-      patch_type: "portability"
-    - patch_file: "patches/0.20.1-0003-Reported-by-Gabor-Z.-Papp-gzp-papp.hu.patch"
-      patch_description: "fix preloadable libintl for static build"
-      patch_type: "portability"
-    - patch_file: "patches/0004-autopoint-relocatable.patch"
-      patch_description: "relocatable autopoint with resources relative to script"
-      patch_type: "conan"
     - patch_file: "patches/0002-memmove-is-intrinsic-function-on-MSVC.patch"
       patch_description: "memmove is intrinsic function on MSVC"
       patch_type: "portability"

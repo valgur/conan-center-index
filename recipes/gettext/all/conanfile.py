@@ -95,6 +95,11 @@ class GettextConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # fix ability to cross-build on macOS and assume macOS newer than 10.4
+        for folder in ["gettext-runtime", "gettext-tools"]:
+            replace_in_file(self, os.path.join(folder, "configure"),
+                            "darwin | darwin[1-7].*) ;;",
+                            "darwin | darwin[1-7].*) use_macos_tools=yes ;;")
 
     def generate(self):
         if not cross_building(self):
