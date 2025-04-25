@@ -50,7 +50,7 @@ class ResiprocateConan(ConanFile):
         if self.options.with_postgresql:
             self.requires("libpq/[^17.0]")
         if self.options.with_mysql:
-            self.requires("libmysqlclient/8.1.0")
+            self.requires("libmysqlclient/[^8.1.0]")
 
     def validate(self):
         if self.settings.os == "Windows" or is_apple_os(self):

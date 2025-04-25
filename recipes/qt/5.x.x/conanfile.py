@@ -418,7 +418,7 @@ class QtConan(ConanFile):
         if self.options.with_sqlite3 and not self.options.multiconfiguration:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_mysql") == "mysql":
-            self.requires("libmysqlclient/8.1.0")
+            self.requires("libmysqlclient/[^8.1.0]")
         if self.options.get_safe("with_mysql") == "mariadb":
             self.requires("mariadb-connector-c/3.3.3")
         if self.options.with_pq:

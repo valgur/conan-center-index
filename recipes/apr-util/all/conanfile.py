@@ -88,7 +88,7 @@ class AprUtilConan(ConanFile):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_mysql:
-            self.requires("libmysqlclient/8.1.0")
+            self.requires("libmysqlclient/[^8.1.0]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_expat:

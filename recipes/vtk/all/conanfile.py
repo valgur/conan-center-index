@@ -326,7 +326,7 @@ class VtkConan(ConanFile):
             # Used in public vtk_mpi.h
             self.requires("openmpi/4.1.6", transitive_headers=True, transitive_libs=True, options={"enable_cxx": True})
         if self.options.with_mysql == "libmysqlclient":
-            self.requires("libmysqlclient/8.1.0")
+            self.requires("libmysqlclient/[^8.1.0]")
         elif self.options.with_mysql == "mariadb-connector-c":
             self.requires("mariadb-connector-c/3.3.3")
         if self.options.with_netcdf:

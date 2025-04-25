@@ -59,7 +59,7 @@ class QuickfixConan(ConanFile):
         if self.options.with_postgres:
             self.requires("libpq/[^17.0]")
         if self.options.with_mysql == "libmysqlclient":
-            self.requires("libmysqlclient/8.0.31")
+            self.requires("libmysqlclient/[^8.1.0]")
         if self.options.enable_boost_atomic_count:
             self.requires("boost/1.86.0")
 

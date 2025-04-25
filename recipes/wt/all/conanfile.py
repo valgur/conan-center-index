@@ -47,8 +47,8 @@ class WtConan(ConanFile):
         "fPIC": True,
         "with_ssl": True,
         "with_sqlite": True,
-        "with_postgres": True,
-        "with_mysql": True,
+        "with_postgres": False,
+        "with_mysql": False,
         "with_mssql": False,
         "with_test": False,
         "with_dbo": True,
@@ -110,7 +110,7 @@ class WtConan(ConanFile):
         if self.options.get_safe("with_sqlite"):
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_mysql"):
-            self.requires("libmysqlclient/8.1.0", transitive_headers=True, transitive_libs=True)
+            self.requires("libmysqlclient/[^8.1.0]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_postgres"):
             self.requires("libpq/[^17.0]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_mssql") and self.settings.os != "Windows":

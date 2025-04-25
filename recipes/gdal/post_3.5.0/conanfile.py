@@ -250,7 +250,7 @@ class GdalConan(ConanFile):
         if self.options.with_mongocxx:
             self.requires("mongo-cxx-driver/3.8.1")
         if self.options.with_mysql == "libmysqlclient":
-            self.requires("libmysqlclient/8.1.0")
+            self.requires("libmysqlclient/[^8.1.0]")
         elif self.options.with_mysql == "mariadb-connector-c":
             self.requires("mariadb-connector-c/3.3.3")
         if self.options.with_netcdf:
