@@ -65,7 +65,7 @@ class OsgearthConan(ConanFile):
         "with_duktape": True,
         "with_geos": True,
         "with_imgui": True,
-        "with_protobuf": True,
+        "with_protobuf": False,
         "with_rocksdb": True,
         "with_spdlog": True,
         "with_sqlite3": True,

@@ -41,7 +41,7 @@ class LibMysqlClientCConan(ConanFile):
         "with_boost": False, # Disabled by default due to a rigid version requirement
         "with_kerberos": False,  # FIXME
         "with_ldap": True,
-        "with_protobuf": True,
+        "with_protobuf": False,
         "with_sasl": True,
     }
     implements = ["auto_shared_fpic"]
