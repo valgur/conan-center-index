@@ -78,7 +78,7 @@ class ElfutilsConan(ConanFile):
             self.requires("libmicrohttpd/0.9.75")
 
     def build_requirements(self):
-        self.tool_requires("gettext/0.22.5")
+        self.tool_requires("gettext/[>=0.21 <1]")
         self.tool_requires("automake/1.16.5")
         self.tool_requires("m4/1.4.19")
         self.tool_requires("flex/2.6.4")

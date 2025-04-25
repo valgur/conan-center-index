@@ -45,10 +45,10 @@ class WatcherConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC due pthread requirement.")
 
     def requirements(self):
-        self.requires("gettext/0.22.5")
+        self.requires("gettext/[>=0.21 <1]")
 
     def build_requirements(self):
-        self.tool_requires("gettext/0.22.5")
+        self.tool_requires("gettext/[>=0.21 <1]")
 
     def _apply_patches(self):
         # Remove hardcoded CXX standard

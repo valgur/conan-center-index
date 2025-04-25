@@ -40,7 +40,7 @@ class TreConan(ConanFile):
 
     def build_requirements(self):
         if self.settings.os != "Windows":
-            self.tool_requires("gettext/0.22.5")
+            self.tool_requires("gettext/[>=0.21 <1]")
             self.tool_requires("libtool/2.4.7")
 
     def source(self):

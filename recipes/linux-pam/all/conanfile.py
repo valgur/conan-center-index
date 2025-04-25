@@ -68,7 +68,7 @@ class LinuxPamConan(ConanFile):
         elif self.options.with_db == "gdbm":
             self.requires("gdbm/1.23")
         if self.options.with_intl:
-            self.requires("gettext/0.22.5")
+            self.requires("gettext/[>=0.21 <1]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_selinux:

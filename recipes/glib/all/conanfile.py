@@ -78,7 +78,7 @@ class GLibConan(ConanFile):
             self.requires("libselinux/3.6")
         if self.settings.os != "Linux":
             # for Linux, gettext is provided by libc
-            self.requires("gettext/0.22.5", transitive_headers=True, transitive_libs=True)
+            self.requires("gettext/[>=0.21 <1]", transitive_headers=True, transitive_libs=True)
         if is_apple_os(self):
             self.requires("libiconv/1.17")
 
@@ -86,7 +86,7 @@ class GLibConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("gettext/0.22.5")
+        self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

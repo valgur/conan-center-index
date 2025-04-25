@@ -90,7 +90,7 @@ class GdkPixbufConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         # FIXME: unify libgettext and gettext??
         # INFO: gettext provides msgfmt, which is required to build the .mo files
-        self.tool_requires("gettext/0.22.5")
+        self.tool_requires("gettext/[>=0.21 <1]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")

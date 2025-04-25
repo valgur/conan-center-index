@@ -228,7 +228,7 @@ class LibvipsConan(ConanFile):
         if self.options.introspection:
             self.tool_requires("gobject-introspection/<host_version>")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/0.22.5")
+        self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

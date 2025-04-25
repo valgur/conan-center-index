@@ -53,7 +53,7 @@ class AzureStorageCppConan(ConanFile):
             self.requires("util-linux-libuuid/2.41", transitive_headers=True, transitive_libs=True)
             self.requires("openssl/[>=1.1 <4]")
         if is_apple_os(self):
-            self.requires("gettext/0.22.5")
+            self.requires("gettext/[>=0.21 <1]")
 
     def validate(self):
         check_min_cppstd(self, 11)

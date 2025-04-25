@@ -265,7 +265,7 @@ class GStPluginsGoodConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/0.22.5")
+        self.tool_requires("gettext/[>=0.21 <1]")
         if "gst-orc" in self._all_reqs:
             self.tool_requires("gst-orc/<host_version>")
         if self.options.get_safe("with_asm"):

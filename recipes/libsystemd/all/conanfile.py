@@ -91,7 +91,7 @@ class LibsystemdConan(ConanFile):
         self.tool_requires("m4/1.4.19")
         self.tool_requires("gperf/3.1")
         if self.options.nls:
-            self.tool_requires("gettext/0.22.5")
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         # Extract using standard Python tools due to Conan's unzip() not handling backslashes in
