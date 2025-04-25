@@ -174,8 +174,8 @@ class OpenCVConan(ConanFile):
         "world": False,
         "nonfree": False,
         # dnn module options
-        "with_flatbuffers": True,
-        "with_protobuf": True,
+        "with_flatbuffers": False,
+        "with_protobuf": False,
         "with_vulkan": False,
         "with_openvino": False,
         "dnn_cuda": False,
@@ -188,8 +188,8 @@ class OpenCVConan(ConanFile):
         "with_jpeg": "libjpeg",
         "with_png": True,
         "with_tiff": True,
-        "with_jpeg2000": "openjpeg",
-        "with_openexr": True,
+        "with_jpeg2000": False,
+        "with_openexr": False,
         "with_webp": True,
         "with_gdal": False,
         "with_gdcm": False,
@@ -200,14 +200,29 @@ class OpenCVConan(ConanFile):
         "with_msmf": True,
         "with_msmf_dxva": True,
         # objdetect module options
-        "with_quirc": True,
+        "with_quirc": False,
         # videoio module options
         "with_ffmpeg": True,
-        "with_v4l": False,
+        "with_v4l": True,
         # text module options
         "with_tesseract": True,
+
+        # main modules - enable the more lightweight ones by default
+        "calib3d": True,
+        "dnn": False,
+        "features2d": True,
+        "flann": True,
+        "gapi": False,
+        "highgui": False,
+        "imgcodecs": True,
+        "imgproc": True,
+        "ml": False,
+        "objdetect": False,
+        "photo": True,
+        "stitching": True,
+        "video": True,
+        "videoio": False,
     }
-    default_options.update({_name: True for _name in OPENCV_MAIN_MODULES_OPTIONS})
     default_options.update({_name: False for _name in OPENCV_EXTRA_MODULES_OPTIONS})
 
     short_paths = True
