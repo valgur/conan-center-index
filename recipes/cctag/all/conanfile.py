@@ -25,6 +25,7 @@ class CCTagConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "apps": [True, False],
         "serialize": [True, False],
         "visual_debug": [True, False],
         "no_cout": [True, False],
@@ -34,6 +35,7 @@ class CCTagConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "apps": False,
         "serialize": False,
         "visual_debug": False,
         "no_cout": True,
@@ -52,16 +54,21 @@ class CCTagConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    @property
+    def _apps_opencv_components(self):
+        return ["videoio", "imgproc", "imgcodecs", "highgui"]
+
     def requirements(self):
         # boost/1.85.0 not compatible because of "error: 'numeric' is not a namespace-name" error
-        boost_version = "1.85.0" if Version(self.version) >= "1.0.4" else "1.84.0"
+        boost_version = "1.86.0" if Version(self.version) >= "1.0.4" else "1.84.0"
         self.requires(f"boost/{boost_version}", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if Version(self.version) >= "1.0.3":
             self.requires("onetbb/[^2021]")
         else:
             self.requires("onetbb/2020.3.3")
-        self.requires("opencv/4.11.0", transitive_headers=True, transitive_libs=True)
+        extra_opts = {comp: True for comp in self._apps_opencv_components} if self.options.apps else {}
+        self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True, options=extra_opts)
 
     @property
     def _required_boost_components(self):
@@ -89,13 +96,27 @@ class CCTagConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Non-core components are only used for apps
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(OpenCV REQUIRED core videoio imgproc imgcodecs)",
+                        "find_package(OpenCV REQUIRED core)")
+        # Link to OpenCV targets
+        replace_in_file(self, os.path.join("src", "CMakeLists.txt"), "${OpenCV_LIBS}", "opencv_core")
+        # Cleanup RPATH if Apple in shared lib of install tree
+        replace_in_file(self, "CMakeLists.txt", "SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
+        # From https://github.com/alicevision/CCTag/pull/210/files CCTAG_CUDA_CC_LIST_INIT0 variable doesn't exists anymore in favor of a chooseCudaCC() cmake function
+        if Version(self.version) < "1.0.4":
+            # Remove very old CUDA compute capabilities
+            replace_in_file(self, "CMakeLists.txt",
+                            "set(CCTAG_CUDA_CC_LIST_INIT0 3.5 3.7 5.0 5.2)",
+                            "set(CCTAG_CUDA_CC_LIST_INIT0 5.0 5.2)")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CCTAG_SERIALIZE"] = self.options.serialize
         tc.variables["CCTAG_VISUAL_DEBUG"] = self.options.visual_debug
         tc.variables["CCTAG_NO_COUT"] = self.options.no_cout
-        tc.variables["CCTAG_BUILD_APPS"] = False
+        tc.variables["CCTAG_BUILD_APPS"] = self.options.apps
         tc.variables["CCTAG_EIGEN_NO_ALIGN"] = True
         tc.variables["CCTAG_USE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
         tc.variables["CCTAG_ENABLE_SIMD_AVX2"] = False
@@ -112,24 +133,7 @@ class CCTagConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Cleanup RPATH if Apple in shared lib of install tree
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)",
-                              "")
-        # Link to OpenCV targets
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                              "${OpenCV_LIBS}",
-                              "opencv_core opencv_videoio opencv_imgproc opencv_imgcodecs")
-        # From https://github.com/alicevision/CCTag/pull/210/files CCTAG_CUDA_CC_LIST_INIT0 variable doesn't exists anymore in favor of a chooseCudaCC() cmake function
-        if Version(self.version) < "1.0.4":
-            # Remove very old CUDA compute capabilities
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set(CCTAG_CUDA_CC_LIST_INIT0 3.5 3.7 5.0 5.2)",
-                              "set(CCTAG_CUDA_CC_LIST_INIT0 5.0 5.2)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -161,10 +165,11 @@ class CCTagConan(ConanFile):
             "eigen::eigen",
             "onetbb::onetbb",
             "opencv::opencv_core",
-            "opencv::opencv_imgcodecs",
-            "opencv::opencv_imgproc",
-            "opencv::opencv_videoio",
         ]
+        if self.options.apps:
+            self.cpp_info.requires.extend([
+                f"opencv::opencv_{comp}" for comp in self._apps_opencv_components
+            ])
         if self.settings.os == "Windows":
             self.cpp_info.requires.append("boost::stacktrace_windbg")
         else:
