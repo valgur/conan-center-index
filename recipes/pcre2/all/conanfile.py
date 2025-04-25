@@ -7,7 +7,7 @@ from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class PCRE2Conan(ConanFile):
@@ -45,9 +45,7 @@ class PCRE2Conan(ConanFile):
         "grep_support_callout_fork": True,
         "link_size": 2,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -80,15 +78,23 @@ class PCRE2Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        # Do not add ${PROJECT_SOURCE_DIR}/cmake because it contains a custom
+        # FindPackageHandleStandardArgs.cmake which can break conan generators
+        if Version(self.version) >= "10.45":
+            replace_in_file(self, "CMakeLists.txt", "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", "")
+        else:
+            replace_in_file(self, "CMakeLists.txt", "LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", "")
+        # Avoid CMP0006 error (macos bundle)
+        replace_in_file(self, "CMakeLists.txt",
+                        "RUNTIME DESTINATION bin",
+                        "RUNTIME DESTINATION bin BUNDLE DESTINATION bin")
 
     def generate(self):
         tc = CMakeToolchain(self)
         # Mandatory because upstream CMakeLists overrides BUILD_SHARED_LIBS as a CACHE variable
         # (see https://github.com/conan-io/conan/issues/11840)
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
-        if Version(self.version) >= "10.38":
-            tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
+        tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
         tc.variables["PCRE2_BUILD_PCRE2GREP"] = self.options.build_pcre2grep
         tc.variables["PCRE2_SUPPORT_LIBZ"] = self.options.get_safe("with_zlib", False)
         tc.variables["PCRE2_SUPPORT_LIBBZ2"] = self.options.get_safe("with_bzip2", False)
@@ -102,40 +108,19 @@ class PCRE2Conan(ConanFile):
         tc.variables["PCRE2_SUPPORT_JIT"] = self.options.support_jit
         tc.variables["PCRE2_LINK_SIZE"] = self.options.link_size
         tc.variables["PCRE2GREP_SUPPORT_CALLOUT_FORK"] = self.options.get_safe("grep_support_callout_fork", False)
-        if Version(self.version) < "10.38":
-            # relocatable shared libs on Macos
-            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
-        if Version(self.version) < "10.43":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
         cd = CMakeDeps(self)
         cd.generate()
 
     def _patch_sources(self):
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        # Do not add ${PROJECT_SOURCE_DIR}/cmake because it contains a custom
-        # FindPackageHandleStandardArgs.cmake which can break conan generators
-        if Version(self.version) < "10.34":
-            replace_in_file(self, cmakelists, "SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", "")
-        else:
-            replace_in_file(self, cmakelists, "LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)", "")
-        # Avoid CMP0006 error (macos bundle)
-        replace_in_file(self, cmakelists,
-                              "RUNTIME DESTINATION bin",
-                              "RUNTIME DESTINATION bin BUNDLE DESTINATION bin")
         # pcre2-config does not correctly include '-static' in static library names
         if is_msvc(self):
-            replace = None
-            if Version(self.version) > "10.42":
-                replace = "configure_file(pcre2-config.in"
-            elif Version(self.version) >= "10.38":
-                replace = "CONFIGURE_FILE(pcre2-config.in"
+            replace = "configure_file(pcre2-config.in"
             postfix = "-static" if not self.options.shared else ""
-            if replace:
-                if self.settings.build_type == "Debug":
-                    postfix += "d"
-                replace_in_file(self, cmakelists, replace, f'set(LIB_POSTFIX "{postfix}")\n{replace}')
+            if self.settings.build_type == "Debug":
+                postfix += "d"
+            replace_in_file(self, "CMakeLists.txt", replace, f'set(LIB_POSTFIX "{postfix}")\n{replace}')
 
     def build(self):
         self._patch_sources()
@@ -167,7 +152,7 @@ class PCRE2Conan(ConanFile):
             self.cpp_info.components["pcre2-posix"].set_property("pkg_config_name", "libpcre2-posix")
             self.cpp_info.components["pcre2-posix"].libs = [self._lib_name("pcre2-posix")]
             self.cpp_info.components["pcre2-posix"].requires = ["pcre2-8"]
-            if Version(self.version) >= "10.43" and is_msvc(self) and self.options.shared:
+            if is_msvc(self) and self.options.shared:
                 self.cpp_info.components["pcre2-posix"].defines.append("PCRE2POSIX_SHARED=1")
 
         # pcre2-16
@@ -186,16 +171,15 @@ class PCRE2Conan(ConanFile):
                 self.cpp_info.components["pcre2-32"].defines.append("PCRE2_STATIC")
 
         if self.options.build_pcre2grep:
-            # FIXME: This is a workaround to avoid ConanException. zlib and bzip2
-            # are optional requirements of pcre2grep executable, not of any pcre2 lib.
+            # zlib and bzip2 are optional requirements of pcre2grep executable, not of any pcre2 lib.
             if self.options.with_zlib:
-                self.cpp_info.components["pcre2-8"].requires.append("zlib::zlib")
+                self.cpp_info.components["tools"].requires.append("zlib::zlib")
             if self.options.with_bzip2:
-                self.cpp_info.components["pcre2-8"].requires.append("bzip2::bzip2")
+                self.cpp_info.components["tools"].requires.append("bzip2::bzip2")
 
     def _lib_name(self, name):
         libname = name
-        if Version(self.version) >= "10.38" and is_msvc(self) and not self.options.shared:
+        if is_msvc(self) and not self.options.shared:
             libname += "-static"
         if self.settings.os == "Windows":
             if self.settings.build_type == "Debug":
