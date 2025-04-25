@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -38,14 +37,10 @@ class Md4cConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) >= "0.5.0":
-            # Set it to false for iOS, tvOS, watchOS, visionOS
-            # to prevent cmake from creating a bundle for the md2html executable
-            is_ios_variant = is_apple_os(self) and not self.settings.os == "Macos"
-            self.options.md2html = not is_ios_variant
-        else:
-            # md2html was introduced in 0.5.0
-            del self.options.md2html
+        # Set it to false for iOS, tvOS, watchOS, visionOS
+        # to prevent cmake from creating a bundle for the md2html executable
+        is_ios_variant = is_apple_os(self) and not self.settings.os == "Macos"
+        self.options.md2html = not is_ios_variant
 
     def configure(self):
         if self.options.shared:
@@ -63,6 +58,9 @@ class Md4cConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Honor encoding option
+        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+                        'COMPILE_FLAGS "-DMD4C_USE_UTF8"', "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -75,17 +73,7 @@ class Md4cConan(ConanFile):
             tc.preprocessor_definitions["MD4C_USE_ASCII"] = "1"
         tc.generate()
 
-    def _patch_sources(self):
-        # Honor encoding option
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-            "COMPILE_FLAGS \"-DMD4C_USE_UTF8\"",
-            "",
-        )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
