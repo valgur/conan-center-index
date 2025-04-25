@@ -1191,14 +1191,8 @@ class OpenCVConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version][0], strip_root=True)
-        get(self, **self.conan_data["sources"][self.version][1],
-            destination=self._contrib_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version][1], destination=self._contrib_folder, strip_root=True)
         apply_conandata_patches(self)
-
-    def _patch_sources(self):
-        # Patches in opencv
-        # -----------------
-
         ## Remove 3rd party libs
         for directory in [
             "libjasper", "libjpeg", "libjpeg-turbo", "libpng", "libspng", "libtiff",
@@ -1223,77 +1217,12 @@ class OpenCVConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "modules", "videoio", "cmake", "detect_ffmpeg.cmake"),
                         "FFMPEG_FOUND", "ffmpeg_FOUND")
 
-        ## Robust handling of wayland
-        if self.options.get_safe("with_wayland"):
-            detect_wayland = os.path.join(self.source_folder, "modules", "highgui", "cmake", "detect_wayland.cmake")
-
-            # We have to override *_LINK_LIBRARIES variables linked to highui because they are just link fkags, not cflags
-            # so include dirs are missing (OpenCV seems to assume system libs for wayland)
-            replace_in_file(
-                self,
-                detect_wayland,
-                "ocv_check_modules(WAYLAND_CLIENT wayland-client)",
-                "ocv_check_modules(WAYLAND_CLIENT wayland-client)\nfind_package(wayland REQUIRED CONFIG)\nset(WAYLAND_CLIENT_LINK_LIBRARIES wayland::wayland-client)",
-            )
-            replace_in_file(
-                self,
-                detect_wayland,
-                "ocv_check_modules(WAYLAND_CURSOR wayland-cursor)",
-                "ocv_check_modules(WAYLAND_CURSOR wayland-cursor)\nset(WAYLAND_CURSOR_LINK_LIBRARIES wayland::wayland-cursor)",
-            )
-            replace_in_file(
-                self,
-                detect_wayland,
-                "ocv_check_modules(XKBCOMMON xkbcommon)",
-                "ocv_check_modules(XKBCOMMON xkbcommon)\nfind_package(xkbcommon REQUIRED CONFIG)\nset(XKBCOMMON_LINK_LIBRARIES xkbcommon::libxkbcommon)",
-            )
-
         ## Cleanup RPATH
         install_layout_file = os.path.join(self.source_folder, "cmake", "OpenCVInstallLayout.cmake")
         replace_in_file(self, install_layout_file,
-                              "ocv_update(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}\")",
-                              "")
+                        'ocv_update(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}")',
+                        "")
         replace_in_file(self, install_layout_file, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
-
-        ## Fix discovery & link of protobuf
-        if self.options.get_safe("with_protobuf"):
-            find_protobuf = os.path.join(self.source_folder, "cmake", "OpenCVFindProtobuf.cmake")
-            # OpenCV expects to find FindProtobuf.cmake, not the config file
-            replace_in_file(self, find_protobuf,
-                            "find_package(Protobuf QUIET)",
-                            "find_package(Protobuf REQUIRED MODULE)")
-            # in 'if' block, get_target_property() produces an error
-            if Version(self.version) >= "4.4.0":
-                replace_in_file(self, find_protobuf,
-                                      'if(TARGET "${Protobuf_LIBRARIES}")',
-                                      'if(FALSE)  # patch: disable if(TARGET "${Protobuf_LIBRARIES}")')
-
-        # Patches in opencv_contrib
-        # -------------------------
-
-        ## Remove unused extra modules to avoid side effects
-        if not self.options.with_cuda:
-            rmdir(self, os.path.join(self._extra_modules_folder, "cudev"))
-        for module in OPENCV_EXTRA_MODULES_OPTIONS:
-            if not self.options.get_safe(module):
-                rmdir(self, os.path.join(self._extra_modules_folder, module))
-        for module in ["cnn_3dobj", "julia", "matlab"]:
-            rmdir(self, os.path.join(self._extra_modules_folder, module))
-
-        ## Fix Freetype discovery logic in freetype extra module
-        if self.options.freetype:
-            freetype_cmake = os.path.join(self._extra_modules_folder, "freetype", "CMakeLists.txt")
-            replace_in_file(self, freetype_cmake, "ocv_check_modules(FREETYPE freetype2)", "find_package(Freetype REQUIRED MODULE)")
-            replace_in_file(self, freetype_cmake, "FREETYPE_", "Freetype_")
-
-            replace_in_file(self, freetype_cmake, "ocv_check_modules(HARFBUZZ harfbuzz)", "find_package(harfbuzz REQUIRED CONFIG)")
-            replace_in_file(self, freetype_cmake, "HARFBUZZ_", "harfbuzz_")
-
-        if self.options.get_safe("with_qt"):
-            # Use proper CMake targets for Qt. Fails due to headers not being found otherwise.
-            replace_in_file(self, os.path.join(self.source_folder, "modules", "highgui", "CMakeLists.txt"),
-                            "${Qt${QT_VERSION_MAJOR}${dt_dep}_LIBRARIES}",
-                            "Qt${QT_VERSION_MAJOR}::${dt_dep}")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -1520,6 +1449,66 @@ class OpenCVConan(ConanFile):
             deps = PkgConfigDeps(self)
             deps.build_context_activated.append("wayland-protocols")
             deps.generate()
+
+    def _patch_sources(self):
+        ## Robust handling of wayland
+        if self.options.get_safe("with_wayland"):
+            detect_wayland = os.path.join(self.source_folder, "modules", "highgui", "cmake", "detect_wayland.cmake")
+            # We have to override *_LINK_LIBRARIES variables linked to highui because they are just link fkags, not cflags
+            # so include dirs are missing (OpenCV seems to assume system libs for wayland)
+            replace_in_file(self, detect_wayland,
+                            "ocv_check_modules(WAYLAND_CLIENT wayland-client)",
+                            "ocv_check_modules(WAYLAND_CLIENT wayland-client)\n"
+                            "find_package(wayland REQUIRED CONFIG)\n"
+                            "set(WAYLAND_CLIENT_LINK_LIBRARIES wayland::wayland-client)")
+            replace_in_file(self, detect_wayland,
+                            "ocv_check_modules(WAYLAND_CURSOR wayland-cursor)",
+                            "ocv_check_modules(WAYLAND_CURSOR wayland-cursor)\n"
+                            "set(WAYLAND_CURSOR_LINK_LIBRARIES wayland::wayland-cursor)")
+            replace_in_file(self, detect_wayland,
+                            "ocv_check_modules(XKBCOMMON xkbcommon)",
+                            "ocv_check_modules(XKBCOMMON xkbcommon)\n"
+                            "find_package(xkbcommon REQUIRED CONFIG)\n"
+                            "set(XKBCOMMON_LINK_LIBRARIES xkbcommon::libxkbcommon)")
+
+        ## Fix discovery & link of protobuf
+        if self.options.get_safe("with_protobuf"):
+            find_protobuf = os.path.join(self.source_folder, "cmake", "OpenCVFindProtobuf.cmake")
+            # OpenCV expects to find FindProtobuf.cmake, not the config file
+            replace_in_file(self, find_protobuf,
+                            "find_package(Protobuf QUIET)",
+                            "find_package(Protobuf REQUIRED MODULE)")
+            # in 'if' block, get_target_property() produces an error
+            if Version(self.version) >= "4.4.0":
+                replace_in_file(self, find_protobuf,
+                                'if(TARGET "${Protobuf_LIBRARIES}")',
+                                'if(FALSE)  # patch: disable if(TARGET "${Protobuf_LIBRARIES}")')
+
+        # Patches in opencv_contrib
+        # -------------------------
+
+        ## Remove unused extra modules to avoid side effects
+        if not self.options.with_cuda:
+            rmdir(self, os.path.join(self._extra_modules_folder, "cudev"))
+        for module in OPENCV_EXTRA_MODULES_OPTIONS:
+            if not self.options.get_safe(module):
+                rmdir(self, os.path.join(self._extra_modules_folder, module))
+        for module in ["cnn_3dobj", "julia", "matlab"]:
+            rmdir(self, os.path.join(self._extra_modules_folder, module))
+
+        ## Fix Freetype discovery logic in freetype extra module
+        if self.options.freetype:
+            freetype_cmake = os.path.join(self._extra_modules_folder, "freetype", "CMakeLists.txt")
+            replace_in_file(self, freetype_cmake, "ocv_check_modules(FREETYPE freetype2)", "find_package(Freetype REQUIRED MODULE)")
+            replace_in_file(self, freetype_cmake, "FREETYPE_", "Freetype_")
+            replace_in_file(self, freetype_cmake, "ocv_check_modules(HARFBUZZ harfbuzz)", "find_package(harfbuzz REQUIRED CONFIG)")
+            replace_in_file(self, freetype_cmake, "HARFBUZZ_", "harfbuzz_")
+
+        if self.options.get_safe("with_qt"):
+            # Use proper CMake targets for Qt. Fails due to headers not being found otherwise.
+            replace_in_file(self, os.path.join(self.source_folder, "modules", "highgui", "CMakeLists.txt"),
+                            "${Qt${QT_VERSION_MAJOR}${dt_dep}_LIBRARIES}",
+                            "Qt${QT_VERSION_MAJOR}::${dt_dep}")
 
     def build(self):
         self._patch_sources()
