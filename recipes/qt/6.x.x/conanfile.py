@@ -338,7 +338,7 @@ class QtConan(ConanFile):
         if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "12":
             raise ConanInvalidConfiguration("apple-clang >= 12 required by qt >= 6.4.0")
 
-        if Version(self.version) >= "6.6.1" and self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "13":
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "13":
             # note: assuming that by now, any xcode 13 is updated to the latest 13.4.1
             # https://bugreports.qt.io/browse/QTBUG-119490
             raise ConanInvalidConfiguration("apple-clang >= 13.1 is required by qt >= 6.6.1 cf QTBUG-119490")
@@ -848,8 +848,7 @@ class QtConan(ConanFile):
                 "set_property(TARGET ZLIB::ZLIB PROPERTY IMPORTED_GLOBAL TRUE)",
                 "")
 
-        replace_in_file(self,
-                        os.path.join(self.source_folder, "qtbase", "cmake", "QtAutoDetect.cmake" if Version(self.version) < "6.6.2" else "QtAutoDetectHelpers.cmake"),
+        replace_in_file(self, os.path.join(self.source_folder, "qtbase", "cmake", "QtAutoDetectHelpers.cmake"),
                         "qt_auto_detect_vcpkg()",
                         "# qt_auto_detect_vcpkg()")
 
@@ -1225,9 +1224,8 @@ class QtConan(ConanFile):
                     if self.settings.compiler == "gcc":
                         # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L813
                         qtGui.system_libs.append("uuid")  # FIXME: should be util-linux-libuuid?
-                    if Version(self.version) >= "6.6.0":
-                        # https://github.com/qt/qtbase/blob/v6.6.0/src/gui/CMakeLists.txt#L428
-                        qtGui.system_libs.append("d3d12")
+                    # https://github.com/qt/qtbase/blob/v6.6.0/src/gui/CMakeLists.txt#L428
+                    qtGui.system_libs.append("d3d12")
                     if Version(self.version) >= "6.7.0":
                         # https://github.com/qt/qtbase/blob/v6.8.0/src/gui/CMakeLists.txt#L430
                         qtGui.system_libs.append("uxtheme")
@@ -1279,14 +1277,14 @@ class QtConan(ConanFile):
                     # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/android/CMakeLists.txt#L66-L67
                     QAndroidIntegrationPlugin.system_libs = ["android", "jnigraphics"]
             elif self.settings.os == "Macos":
-                    QCocoaIntegrationPlugin = _create_plugin("QCocoaIntegrationPlugin", "qcocoa", "platforms", ["Core", "Gui"])
-                    if not self.options.shared:
-                        # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/cocoa/CMakeLists.txt#L51-L58
-                        QCocoaIntegrationPlugin.frameworks = [
-                            "AppKit", "Carbon", "CoreServices", "CoreVideo", "IOKit", "IOSurface", "Metal", "QuartzCore"
-                        ]
-                        if Version(self.version) >= "6.8.0":
-                            QCocoaIntegrationPlugin.frameworks.append("UniformTypeIdentifiers")
+                QCocoaIntegrationPlugin = _create_plugin("QCocoaIntegrationPlugin", "qcocoa", "platforms", ["Core", "Gui"])
+                if not self.options.shared:
+                    # https://github.com/qt/qtbase/blob/v6.8.0/src/plugins/platforms/cocoa/CMakeLists.txt#L51-L58
+                    QCocoaIntegrationPlugin.frameworks = [
+                        "AppKit", "Carbon", "CoreServices", "CoreVideo", "IOKit", "IOSurface", "Metal", "QuartzCore"
+                    ]
+                    if Version(self.version) >= "6.8.0":
+                        QCocoaIntegrationPlugin.frameworks.append("UniformTypeIdentifiers")
             elif self.settings.os in ["iOS", "tvOS"]:
                 QIOSIntegrationPlugin = _create_plugin("QIOSIntegrationPlugin", "qios", "platforms")
                 if not self.options.shared:
