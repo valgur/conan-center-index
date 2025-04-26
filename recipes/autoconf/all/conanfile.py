@@ -33,7 +33,12 @@ class AutoconfConan(ConanFile):
         self.requires("m4/1.4.19") # Needed at runtime by downstream clients as well
 
     def package_id(self):
-        self.info.clear()
+        del self.info.settings.arch
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+        # distinguish between Windows and other OS-s to ensure that +x attributes are kept
+        if self.info.settings.os != "Windows":
+            del self.info.settings.os
 
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")
