@@ -11,7 +11,7 @@ index 3a24eee..a53c65a 100644
 -: ${gettext_datadir="@datadir@/gettext"}
 +scriptdir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 +prefix="$scriptdir/.."
-+datarootdir="$prefix/res"
++datarootdir="$prefix/share"
 +: ${gettext_datadir="${datarootdir}/gettext"}
  : ${AUTOM4TE=autom4te}
  
