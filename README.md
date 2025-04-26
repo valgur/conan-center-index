@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-25:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-26:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -81,6 +81,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - g2o/20230806
 - gdal/3.10.0
 - gdalcpp/1.3.0
+- gettext/0.24
 - gfortran/13.2.0
 - gici/cci.20250127
 - gl2ps/1.4.2
@@ -131,6 +132,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/9.0.0
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
+- icu/77.1
 - icu4x/1.4.1
 - icu4x/1.5.1
 - imagemagick/7.1.1.38
@@ -237,10 +239,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - nss/3.107
 - nss/3.110
 - numpy/1.26.4
+- nvidia-optical-flow-sdk/5.0.7
 - odbc/2.3.12
 - ogre/14.3.4
 - openblas/0.3.28
-- opencv/4.5.4
 - openiap/0.0.33
 - openimageio/3.0.5.0
 - openmp/system
@@ -259,6 +261,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangomm/2.46.4
 - pangomm/2.54.0
 - pcl/1.14.1
+- pcre2/10.45
 - pdal/2.7.2
 - perf/6.11
 - piex/0.27
