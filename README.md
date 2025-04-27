@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-26:
+Package versions that are available here but not yet on the main CCI repo as of 2025-04-27:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -280,6 +280,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qscintilla/2.14.1
 - qt/6.8.3
 - qtawesome/6.5.1
+- qtkeychain/0.15.0
 - reduct-cpp/1.14.0
 - resultlib/1.0.0
 - rmlui/5.1
