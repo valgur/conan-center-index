@@ -57,7 +57,6 @@ class LibinputConan(ConanFile):
             self.requires("gtk/[^4]")
             if self.options.with_wayland:
                 self.requires("wayland/[^1.22.0]")
-                self.requires("wayland-protocols/[^1.42]")
             if self.options.with_x11:
                 # Only xorg::x11 is used.
                 self.requires("xorg/system")

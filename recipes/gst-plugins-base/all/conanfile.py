@@ -181,7 +181,6 @@ class GStPluginsBaseConan(ConanFile):
                 self.requires("egl/system", transitive_headers=True, transitive_libs=True)
             if self.options.get_safe("with_wayland"):
                 self.requires("wayland/[^1.22.0]", transitive_headers=True, transitive_libs=True)
-                self.requires("wayland-protocols/[^1.42]")
             if self.options.with_graphene:
                 self.requires("graphene/1.10.8")
             if self.options.with_libpng:

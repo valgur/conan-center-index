@@ -73,7 +73,6 @@ class XkbcommonConan(ConanFile):
             self.requires("libxml2/[>=2.12.5 <3]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
-            self.requires("wayland-protocols/[^1.42]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD", "Android"]:

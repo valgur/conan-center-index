@@ -121,7 +121,6 @@ class PangolinConan(ConanFile):
             self.requires("egl/system", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
-            self.requires("wayland-protocols/[^1.42]")
             self.requires("xkbcommon/1.6.0")
         if self.options.get_safe("with_x11"):
             # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_windowing/include/pangolin/windowing/X11Window.h#L35

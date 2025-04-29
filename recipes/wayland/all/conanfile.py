@@ -10,7 +10,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class WaylandConan(ConanFile):
@@ -37,17 +37,14 @@ class WaylandConan(ConanFile):
         "enable_libraries": True,
         "enable_dtd_validation": True,
     }
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("wayland-protocols/[^1.42]", visible=True)
         if self.options.enable_libraries:
             self.requires("libffi/3.4.4")
         if self.options.enable_dtd_validation:
@@ -158,7 +155,7 @@ class WaylandConan(ConanFile):
 
             self.cpp_info.components["wayland-client"].libs = ["wayland-client"]
             self.cpp_info.components["wayland-client"].set_property("pkg_config_name", "wayland-client")
-            self.cpp_info.components["wayland-client"].requires = ["libffi::libffi"]
+            self.cpp_info.components["wayland-client"].requires = ["libffi::libffi", "wayland-protocols::wayland-protocols"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["wayland-client"].system_libs = ["pthread", "m"]
             self.cpp_info.components["wayland-client"].resdirs = ["res"]

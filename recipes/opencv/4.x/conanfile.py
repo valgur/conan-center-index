@@ -1095,7 +1095,6 @@ class OpenCVConan(ConanFile):
             self.requires("qt/[>=5.15 <7]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
-            self.requires("wayland-protocols/[^1.42]")
             self.requires("xkbcommon/1.6.0")
         # imgcodecs module dependencies
         if self.options.get_safe("with_avif"):

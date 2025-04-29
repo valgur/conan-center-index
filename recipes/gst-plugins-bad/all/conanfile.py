@@ -307,7 +307,6 @@ class GStPluginsBadConan(ConanFile):
                 self.requires("moltenvk/1.2.2")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
-            self.requires("wayland-protocols/[^1.42]")
         if "libwebp" in reqs:
             self.requires("libwebp/1.3.2")
         if "wildmidi" in reqs:

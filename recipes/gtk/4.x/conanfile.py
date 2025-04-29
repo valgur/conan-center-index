@@ -136,7 +136,6 @@ class GtkConan(ConanFile):
             self.requires("libdrm/[~2.4.119]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
-            self.requires("wayland-protocols/[^1.42]")
             self.requires("xkbcommon/1.6.0")
             # workaround for [replace_requires] bug of not propagating egl from libepoxy correctly,
             # when egl/system is replaced with libglvnd
