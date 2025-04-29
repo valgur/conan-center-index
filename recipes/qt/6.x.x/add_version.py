@@ -7,8 +7,9 @@ import requests
 from conan.tools.scm import Version
 from tqdm.auto import tqdm
 
+hashes_base_url = "https://download.qt.io/archive/"
 # qt.io does not provide Content-Length info, so using a mirror instead.
-base_url = "https://qt-mirror.dannhauer.de/archive/"
+sizes_base_url = "https://qt-mirror.dannhauer.de/archive/"
 
 # Modules that are not available as a downloadable archive and which must be fetched from GitHub instead.
 git_components = [
@@ -21,10 +22,10 @@ git_components = [
 
 def recipe_root(version):
     script_dir = Path(__file__).parent
-    return script_dir.joinpath("..", "5.x.x").resolve() if version[0] == "5" else script_dir
+    return script_dir.joinpath("..", "5.x.x").resolve() if version.major == 5 else script_dir
 
 
-def get_components_list(version):
+def get_components_list(base_url, version):
     version = Version(version)
     url = f"{base_url}qt/{version.major}.{version.minor}/{version}/submodules/md5sums.txt"
     r = requests.get(url)
@@ -43,7 +44,7 @@ def git_tag(version):
     return f"v{version}-lts-lgpl" if str(version)[0] == "5" else f"v{version}"
 
 
-def get_url(version, component):
+def get_url(base_url, version, component):
     version = Version(version)
     if version.major >= 6 and component in git_components:
         return f"https://github.com/qt/{component}/archive/refs/tags/{git_tag(version)}.tar.gz"
@@ -57,37 +58,32 @@ def get_download_size(session, url):
         r.raise_for_status()
         return int(r.headers["Content-Length"])
 
+def get_hash(session, url):
+    sha256sum = sha256()
+    with session.get(url, stream=True) as r:
+        r.raise_for_status()
+        for chunk in r.iter_content(chunk_size=100_000):
+            sha256sum.update(chunk)
+    return sha256sum.hexdigest().lower()
 
 def add_source_hashes(version):
-    print("Computing source archive hashes...")
-    components = get_components_list(version)
+    components = get_components_list(hashes_base_url, version)
     yml_path = recipe_root(version) / "sources" / f"{version}.yml"
     yml_path.parent.mkdir(exist_ok=True)
     with requests.Session() as session:
-        # Fetch sizes before downloading to check that all URLs are valid.
-        urls = {component: get_url(version, component) for component in components}
-        archive_sizes = {
-            component: get_download_size(session, url) for component, url in tqdm(urls.items(), desc="Fetching sizes")
-        }
         with yml_path.open("w") as f:
             f.write("hashes:\n")
-            overall_progress = tqdm(total=sum(archive_sizes.values()), desc="Overall progress", unit="B", unit_scale=True, position=0)
-            for component in components:
-                url = urls[component]
-                file_size = archive_sizes[component]
-                progress = tqdm(total=file_size, unit="B", unit_scale=True, desc=component, leave=False, position=1)
-                sha256sum = sha256()
-                with requests.get(url, stream=True) as r:
+            for component in tqdm(components, desc="Fetching hashes"):
+                url = get_url(hashes_base_url, version, component)
+                if component in git_components:
+                    hash = get_hash(session, url)
+                else:
+                    r = session.get(url + ".sha256")
                     r.raise_for_status()
-                    for chunk in r.iter_content(chunk_size=100_000):
-                        overall_progress.update(len(chunk))
-                        progress.update(len(chunk))
-                        sha256sum.update(chunk)
-                progress.close()
-                hash = sha256sum.hexdigest().lower()
+                    hash = r.text.split()[0].lower()
+                file_size = get_download_size(session, get_url(sizes_base_url, version, component))
                 f.write(f'  {component + ":": <19} "{hash}"  # {file_size / 1_000_000: 6.1f} MB\n')
                 f.flush()
-            overall_progress.close()
             if version.major >= 6:
                 f.write("git_only:\n")
                 for component in git_components:
@@ -103,6 +99,6 @@ def fetch_gitmodules(version):
     conf_path.write_text(r.text)
 
 if __name__ == "__main__":
-    version = sys.argv[1]
+    version = Version(sys.argv[1])
     fetch_gitmodules(version)
     add_source_hashes(version)
