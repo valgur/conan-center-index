@@ -90,6 +90,10 @@ class RustConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        # Include target os and arch info for cross-compilation
+        self.info.settings_target = self.settings_target
+        self.info.settings_target.rm_safe("compiler")
+        self.info.settings_target.rm_safe("build_type")
 
     def validate(self):
         urls = self._urls
