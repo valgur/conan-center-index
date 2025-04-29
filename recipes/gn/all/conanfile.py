@@ -117,25 +117,33 @@ class GnConan(ConanFile):
         ]
         if self.settings.build_type in ["Debug", "RelWithDebInfo"]:
             configure_args.append("-d")
+        if self.version.startswith("qt-"):
+            configure_args.append(f"--qt-version={self.version.split('-')[1]}")
         save(self, os.path.join(self.source_folder, "configure_args"), " ".join(configure_args))
 
+    def _patch_sources(self):
+        # Generate dummy header to be able to run `build/gen.py` with `--no-last-commit-position`.
+        # This allows running the script without the tree having to be a git checkout.
+        save(self, os.path.join(self.source_folder, "src", "gn", "last_commit_position.h"),
+             textwrap.dedent("""\
+                #pragma once
+                #define LAST_COMMIT_POSITION "1"
+                #define LAST_COMMIT_POSITION_NUM 1
+                """),
+             )
+
+        # Disable GenerateLastCommitPosition()
+        replace_in_file(self, os.path.join(self.source_folder, "build/gen.py"),
+                        "def GenerateLastCommitPosition(host, header):",
+                        "def GenerateLastCommitPosition(host, header):\n  return")
+
+        if self.version.startswith("qt-"):
+            replace_in_file(self, os.path.join(self.source_folder, "build", "gen.py"),
+                            "'src/gn/rsp_target_writer_unittest.cc',", "")
+
     def build(self):
+        self._patch_sources()
         with chdir(self, self.source_folder):
-            # Generate dummy header to be able to run `build/gen.py` with `--no-last-commit-position`.
-            # This allows running the script without the tree having to be a git checkout.
-            save(self, os.path.join(self.source_folder, "src", "gn", "last_commit_position.h"),
-                textwrap.dedent("""\
-                    #pragma once
-                    #define LAST_COMMIT_POSITION "1"
-                    #define LAST_COMMIT_POSITION_NUM 1
-                    """),
-            )
-
-            # Disable GenerateLastCommitPosition()
-            replace_in_file(self, os.path.join(self.source_folder, "build/gen.py"),
-                            "def GenerateLastCommitPosition(host, header):",
-                            "def GenerateLastCommitPosition(host, header):\n  return")
-
             self.run(f"{sys.executable} build/gen.py " + load(self, "configure_args"))
             self.run(f"ninja -C out -j{os.cpu_count()} -v")
 

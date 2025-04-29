@@ -1,185 +1,5 @@
-diff -ur --new-file a/base/numerics/safe_conversions_arm_impl.h b/base/numerics/safe_conversions_arm_impl.h
---- /dev/null
-+++ b/base/numerics/safe_conversions_arm_impl.h
-@@ -0,0 +1,51 @@
-+// Copyright 2017 The Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
-+
-+#ifndef BASE_NUMERICS_SAFE_CONVERSIONS_ARM_IMPL_H_
-+#define BASE_NUMERICS_SAFE_CONVERSIONS_ARM_IMPL_H_
-+
-+#include <cassert>
-+#include <limits>
-+#include <type_traits>
-+
-+#include "base/numerics/safe_conversions_impl.h"
-+
-+namespace base {
-+namespace internal {
-+
-+// Fast saturation to a destination type.
-+template <typename Dst, typename Src>
-+struct SaturateFastAsmOp {
-+  static const bool is_supported =
-+      std::is_signed<Src>::value && std::is_integral<Dst>::value &&
-+      std::is_integral<Src>::value &&
-+      IntegerBitsPlusSign<Src>::value <= IntegerBitsPlusSign<int32_t>::value &&
-+      IntegerBitsPlusSign<Dst>::value <= IntegerBitsPlusSign<int32_t>::value &&
-+      !IsTypeInRangeForNumericType<Dst, Src>::value;
-+
-+  __attribute__((always_inline)) static Dst Do(Src value) {
-+    int32_t src = value;
-+    typename std::conditional<std::is_signed<Dst>::value, int32_t,
-+                              uint32_t>::type result;
-+    if (std::is_signed<Dst>::value) {
-+      asm("ssat %[dst], %[shift], %[src]"
-+          : [dst] "=r"(result)
-+          : [src] "r"(src), [shift] "n"(IntegerBitsPlusSign<Dst>::value <= 32
-+                                            ? IntegerBitsPlusSign<Dst>::value
-+                                            : 32));
-+    } else {
-+      asm("usat %[dst], %[shift], %[src]"
-+          : [dst] "=r"(result)
-+          : [src] "r"(src), [shift] "n"(IntegerBitsPlusSign<Dst>::value < 32
-+                                            ? IntegerBitsPlusSign<Dst>::value
-+                                            : 31));
-+    }
-+    return static_cast<Dst>(result);
-+  }
-+};
-+
-+}  // namespace internal
-+}  // namespace base
-+
-+#endif  // BASE_NUMERICS_SAFE_CONVERSIONS_ARM_IMPL_H_
-diff -ur --new-file a/base/numerics/safe_math_arm_impl.h b/base/numerics/safe_math_arm_impl.h
---- /dev/null
-+++ b/base/numerics/safe_math_arm_impl.h
-@@ -0,0 +1,122 @@
-+// Copyright 2017 The Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
-+
-+#ifndef BASE_NUMERICS_SAFE_MATH_ARM_IMPL_H_
-+#define BASE_NUMERICS_SAFE_MATH_ARM_IMPL_H_
-+
-+#include <cassert>
-+#include <limits>
-+#include <type_traits>
-+
-+#include "base/numerics/safe_conversions.h"
-+
-+namespace base {
-+namespace internal {
-+
-+template <typename T, typename U>
-+struct CheckedMulFastAsmOp {
-+  static const bool is_supported =
-+      FastIntegerArithmeticPromotion<T, U>::is_contained;
-+
-+  // The following is much more efficient than the Clang and GCC builtins for
-+  // performing overflow-checked multiplication when a twice wider type is
-+  // available. The below compiles down to 2-3 instructions, depending on the
-+  // width of the types in use.
-+  // As an example, an int32_t multiply compiles to:
-+  //    smull   r0, r1, r0, r1
-+  //    cmp     r1, r1, asr #31
-+  // And an int16_t multiply compiles to:
-+  //    smulbb  r1, r1, r0
-+  //    asr     r2, r1, #16
-+  //    cmp     r2, r1, asr #15
-+  template <typename V>
-+  __attribute__((always_inline)) static bool Do(T x, U y, V* result) {
-+    using Promotion = typename FastIntegerArithmeticPromotion<T, U>::type;
-+    Promotion presult;
-+
-+    presult = static_cast<Promotion>(x) * static_cast<Promotion>(y);
-+    *result = static_cast<V>(presult);
-+    return IsValueInRangeForNumericType<V>(presult);
-+  }
-+};
-+
-+template <typename T, typename U>
-+struct ClampedAddFastAsmOp {
-+  static const bool is_supported =
-+      BigEnoughPromotion<T, U>::is_contained &&
-+      IsTypeInRangeForNumericType<
-+          int32_t,
-+          typename BigEnoughPromotion<T, U>::type>::value;
-+
-+  template <typename V>
-+  __attribute__((always_inline)) static V Do(T x, U y) {
-+    // This will get promoted to an int, so let the compiler do whatever is
-+    // clever and rely on the saturated cast to bounds check.
-+    if (IsIntegerArithmeticSafe<int, T, U>::value)
-+      return saturated_cast<V>(x + y);
-+
-+    int32_t result;
-+    int32_t x_i32 = x;
-+    int32_t y_i32 = y;
-+
-+    asm("qadd %[result], %[first], %[second]"
-+        : [result] "=r"(result)
-+        : [first] "r"(x_i32), [second] "r"(y_i32));
-+    return saturated_cast<V>(result);
-+  }
-+};
-+
-+template <typename T, typename U>
-+struct ClampedSubFastAsmOp {
-+  static const bool is_supported =
-+      BigEnoughPromotion<T, U>::is_contained &&
-+      IsTypeInRangeForNumericType<
-+          int32_t,
-+          typename BigEnoughPromotion<T, U>::type>::value;
-+
-+  template <typename V>
-+  __attribute__((always_inline)) static V Do(T x, U y) {
-+    // This will get promoted to an int, so let the compiler do whatever is
-+    // clever and rely on the saturated cast to bounds check.
-+    if (IsIntegerArithmeticSafe<int, T, U>::value)
-+      return saturated_cast<V>(x - y);
-+
-+    int32_t result;
-+    int32_t x_i32 = x;
-+    int32_t y_i32 = y;
-+
-+    asm("qsub %[result], %[first], %[second]"
-+        : [result] "=r"(result)
-+        : [first] "r"(x_i32), [second] "r"(y_i32));
-+    return saturated_cast<V>(result);
-+  }
-+};
-+
-+template <typename T, typename U>
-+struct ClampedMulFastAsmOp {
-+  static const bool is_supported = CheckedMulFastAsmOp<T, U>::is_supported;
-+
-+  template <typename V>
-+  __attribute__((always_inline)) static V Do(T x, U y) {
-+    // Use the CheckedMulFastAsmOp for full-width 32-bit values, because
-+    // it's fewer instructions than promoting and then saturating.
-+    if (!IsIntegerArithmeticSafe<int32_t, T, U>::value &&
-+        !IsIntegerArithmeticSafe<uint32_t, T, U>::value) {
-+      V result;
-+      if (CheckedMulFastAsmOp<T, U>::Do(x, y, &result))
-+        return result;
-+      return CommonMaxOrMin<V>(IsValueNegative(x) ^ IsValueNegative(y));
-+    }
-+
-+    assert((FastIntegerArithmeticPromotion<T, U>::is_contained));
-+    using Promotion = typename FastIntegerArithmeticPromotion<T, U>::type;
-+    return saturated_cast<V>(static_cast<Promotion>(x) *
-+                             static_cast<Promotion>(y));
-+  }
-+};
-+
-+}  // namespace internal
-+}  // namespace base
-+
-+#endif  // BASE_NUMERICS_SAFE_MATH_ARM_IMPL_H_
-diff -ur --new-file a/build/build_clang_cl.ninja.template b/build/build_clang_cl.ninja.template
+diff --git a/gn/build/build_clang_cl.ninja.template b/build/build_clang_cl.ninja.template
+new file mode 100644
 --- /dev/null
 +++ b/build/build_clang_cl.ninja.template
 @@ -0,0 +1,12 @@
@@ -195,7 +15,8 @@ diff -ur --new-file a/build/build_clang_cl.ninja.template b/build/build_clang_cl
 +rule link
 +  command = $ld /nologo $ldflags /OUT:$out /PDB:$out.pdb $in $solibs $libs
 +  description = LINK $out
-diff -ur --new-file a/build/build_mingw.ninja.template b/build/build_mingw.ninja.template
+diff --git a/gn/build/build_mingw.ninja.template b/build/build_mingw.ninja.template
+new file mode 100644
 --- /dev/null
 +++ b/build/build_mingw.ninja.template
 @@ -0,0 +1,13 @@
@@ -212,20 +33,20 @@ diff -ur --new-file a/build/build_mingw.ninja.template b/build/build_mingw.ninja
 +rule link
 +  command = $ld $ldflags -o $out -Wl,--start-group $in $libs -Wl,--end-group $solibs
 +  description = LINK $out
-diff -ur --new-file a/build/build_win.ninja.template b/build/build_win.ninja.template
+diff --git a/build/build_win.ninja.template b/build/build_win.ninja.template
 --- a/build/build_win.ninja.template
 +++ b/build/build_win.ninja.template
-@@ -8,5 +8,5 @@
+@@ -8,5 +8,5 @@ rule alink_thin
    description = LIB $out
  
  rule link
 -  command = $ld /nologo $ldflags /OUT:$out /PDB:$out.pdb $in $solibs $libs
 +  command = $ld /nologo $in /link $ldflags /PDB:$out.pdb /OUT:$out $solibs $libs
    description = LINK $out
-diff -ur --new-file a/build/gen.py b/build/gen.py
+diff --git a/build/gen.py b/build/gen.py
 --- a/build/gen.py
 +++ b/build/gen.py
-@@ -200,6 +200,22 @@
+@@ -200,6 +200,24 @@ def main(argv):
    args_list.add('--allow-warnings', action='store_true', default=False,
                      help=('Allow compiler warnings, don\'t treat them as '
                            'errors.'))
@@ -244,19 +65,13 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
 +  args_list.add('--osx-architectures',
 +                    help='delimited list of architectures for universal build',
 +                    type=str)
++  args_list.add('--gcc-legacy-support', action='store_true',
++                    help='Support gcc9 compilation')
 +
    if sys.platform == 'zos':
      args_list.add('--zoslib-dir',
                        action='store',
-@@ -209,7 +225,6 @@
-                             'with <ZOSLIB_DIR>/install/lib/libzoslib.a, and ' +
-                             'add -I<ZOSLIB_DIR>/install/include to the compile ' +
-                             'commands. See README.md for details.'))
--
-   args_list.add_to_parser(parser)
-   options = parser.parse_args(argv)
- 
-@@ -225,6 +240,9 @@
+@@ -225,6 +242,9 @@ def main(argv):
    if not options.no_last_commit_position:
      GenerateLastCommitPosition(host,
                                 os.path.join(out_dir, 'last_commit_position.h'))
@@ -266,7 +81,7 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
    WriteGNNinja(os.path.join(out_dir, 'build.ninja'), platform, host, options, args_list)
    return 0
  
-@@ -295,10 +313,15 @@
+@@ -295,10 +315,15 @@ def WriteGenericNinja(path, static_libraries, executables,
      '',
    ]
  
@@ -283,7 +98,7 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
        'msys': 'build_linux.ninja.template',
        'darwin': 'build_mac.ninja.template',
        'linux': 'build_linux.ninja.template',
-@@ -310,7 +333,7 @@
+@@ -310,7 +335,7 @@ def WriteGenericNinja(path, static_libraries, executables,
        'netbsd': 'build_linux.ninja.template',
        'zos': 'build_zos.ninja.template',
        'serenity': 'build_linux.ninja.template',
@@ -292,19 +107,64 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
  
    with open(template_filename) as f:
      ninja_template = f.read()
-@@ -412,6 +435,22 @@
-   cflags += os.environ.get('CXXFLAGS', '').split()
-   ldflags = os.environ.get('LDFLAGS', '').split()
-   libflags = os.environ.get('LIBFLAGS', '').split()
+@@ -391,27 +416,46 @@ def WriteGenericNinja(path, static_libraries, executables,
+ 
+ 
+ def WriteGNNinja(path, platform, host, options, args_list):
+-  if platform.is_msvc():
+-    cxx = os.environ.get('CXX', 'cl.exe')
+-    ld = os.environ.get('LD', 'link.exe')
+-    ar = os.environ.get('AR', 'lib.exe')
+-  elif platform.is_aix():
+-    cxx = os.environ.get('CXX', 'g++')
+-    ld = os.environ.get('LD', 'g++')
+-    ar = os.environ.get('AR', 'ar -X64')
+-  elif platform.is_msys() or platform.is_mingw():
+-    cxx = os.environ.get('CXX', 'g++')
+-    ld = os.environ.get('LD', 'g++')
+-    ar = os.environ.get('AR', 'ar')
+-  else:
+-    cxx = os.environ.get('CXX', 'clang++')
+-    ld = cxx
+-    ar = os.environ.get('AR', 'ar')
+-
+-  cflags = os.environ.get('CFLAGS', '').split()
+-  cflags += os.environ.get('CXXFLAGS', '').split()
+-  ldflags = os.environ.get('LDFLAGS', '').split()
+-  libflags = os.environ.get('LIBFLAGS', '').split()
++  # QTBUG-64759
++  # if platform.is_msvc():
++  #   cxx = os.environ.get('CXX', 'cl.exe')
++  #   ld = os.environ.get('LD', 'link.exe')
++  #   ar = os.environ.get('AR', 'lib.exe')
++  # elif platform.is_aix():
++  #   cxx = os.environ.get('CXX', 'g++')
++  #   ld = os.environ.get('LD', 'g++')
++  #   ar = os.environ.get('AR', 'ar -X64')
++  # elif platform.is_msys() or platform.is_mingw():
++  #   cxx = os.environ.get('CXX', 'g++')
++  #   ld = os.environ.get('LD', 'g++')
++  #   ar = os.environ.get('AR', 'ar')
++  # else:
++  #   cxx = os.environ.get('CXX', 'c++')
++  #  ld = cxx
++  #  ar = os.environ.get('AR', 'ar')
 +
-+  if options.cc:
-+    cc = options.cc
-+  if options.cxx:
-+    cxx = options.cxx
-+  if options.ld:
-+    ld = options.ld
-+  if options.ar:
-+    ar = options.ar
++
++  # cflags = os.environ.get('CFLAGS', '').split()
++  # cflags += os.environ.get('CXXFLAGS', '').split()
++  # ldflags = os.environ.get('LDFLAGS', '').split()
++  # libflags = os.environ.get('LIBFLAGS', '').split()
++
++  cflags = []
++  cflags_cc = []
++  ldflags = []
++  libflags = []
++
++  cc = options.cc
++  cxx = options.cxx
++  ld = options.ld
++  ar = options.ar
 +
 +  if not ar:
 +     if platform.is_msvc():
@@ -315,17 +175,17 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
    include_dirs = [
        os.path.relpath(os.path.join(REPO_ROOT, 'src'), os.path.dirname(path)),
        '.',
-@@ -420,6 +459,9 @@
-     include_dirs += [ options.zoslib_dir + '/install/include' ]
+@@ -421,6 +465,9 @@ def WriteGNNinja(path, platform, host, options, args_list):
  
    libs = []
-+
+ 
 +  if options.no_last_commit_position:
 +      cflags.append('-DNO_LAST_COMMIT_POSITION')
- 
++
    if not platform.is_msvc():
      if options.debug:
-@@ -436,6 +478,10 @@
+       cflags.extend(['-O0', '-g'])
+@@ -436,6 +483,10 @@ def WriteGNNinja(path, platform, host, options, args_list):
        if options.no_strip:
          cflags.append('-g')
        ldflags.append('-O3')
@@ -336,7 +196,7 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
        # Use -fdata-sections and -ffunction-sections to place each function
        # or data item into its own section so --gc-sections can eliminate any
        # unused functions and data items.
-@@ -510,6 +556,7 @@
+@@ -510,20 +561,32 @@ def WriteGNNinja(path, platform, host, options, args_list):
        if not options.no_static_libstdcpp:
          ldflags.append('-static-libstdc++')
  
@@ -344,13 +204,19 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
        cflags.extend([
          '-Wno-deprecated-copy',
          '-Wno-implicit-fallthrough',
-@@ -518,12 +565,17 @@
+         '-Wno-redundant-move',
+         '-Wno-unused-variable',
++        '-Wno-parentheses-equality',
          '-Wno-format',             # Use of %llx, which is supported by _UCRT, false positive
          '-Wno-strict-aliasing',    # Dereferencing punned pointer
          '-Wno-cast-function-type', # Casting FARPROC to RegDeleteKeyExPtr
-+        '-std=gnu++20',
        ])
--
+ 
++      if options.gcc_legacy_support:
++        cflags.append('-std=gnu++2a')
++      else:
++        cflags.append('-std=gnu++20')
++
      elif platform.is_darwin():
        min_mac_version_flag = '-mmacosx-version-min=10.9'
        cflags.append(min_mac_version_flag)
@@ -363,7 +229,7 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
      elif platform.is_aix():
        cflags.append('-maix64')
        ldflags.append('-maix64')
-@@ -584,6 +636,7 @@
+@@ -584,6 +647,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
          '/wd4244',
          '/wd4267',
          '/wd4505',
@@ -371,7 +237,7 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
          '/wd4838',
          '/wd4996',
          '/std:c++20',
-@@ -593,8 +646,15 @@
+@@ -593,8 +657,15 @@ def WriteGNNinja(path, platform, host, options, args_list):
  
      win_manifest = os.path.relpath(
        os.path.join(REPO_ROOT, "build/windows.manifest.xml"), options.out_path)
@@ -388,7 +254,7 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
  
    static_libraries = {
        'base': {'sources': [
-@@ -737,6 +797,7 @@
+@@ -737,6 +808,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
          'src/gn/parser.cc',
          'src/gn/path_output.cc',
          'src/gn/pattern.cc',
@@ -396,15 +262,15 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
          'src/gn/pool.cc',
          'src/gn/qt_creator_writer.cc',
          'src/gn/resolved_target_data.cc',
-@@ -864,6 +925,7 @@
+@@ -864,6 +936,7 @@ def WriteGNNinja(path, platform, host, options, args_list):
          'src/gn/pointer_set_unittest.cc',
          'src/gn/resolved_target_data_unittest.cc',
          'src/gn/resolved_target_deps_unittest.cc',
-+        # 'src/gn/rsp_target_writer_unittest.cc',
++        'src/gn/rsp_target_writer_unittest.cc',
          'src/gn/runtime_deps_unittest.cc',
          'src/gn/scope_per_file_provider_unittest.cc',
          'src/gn/scope_unittest.cc',
-@@ -957,5 +1019,29 @@
+@@ -957,5 +1030,29 @@ def WriteGNNinja(path, platform, host, options, args_list):
                      platform, host, options, args_list,
                      cflags, ldflags, libflags, include_dirs, libs)
  
@@ -434,10 +300,10 @@ diff -ur --new-file a/build/gen.py b/build/gen.py
 +
  if __name__ == '__main__':
    sys.exit(main(sys.argv[1:]))
-diff -ur --new-file a/src/gn/binary_target_generator.cc b/src/gn/binary_target_generator.cc
+diff --git a/src/gn/binary_target_generator.cc b/src/gn/binary_target_generator.cc
 --- a/src/gn/binary_target_generator.cc
 +++ b/src/gn/binary_target_generator.cc
-@@ -97,6 +97,7 @@
+@@ -97,6 +97,7 @@ bool BinaryTargetGenerator::FillSources() {
    for (std::size_t i = 0; i < target_->sources().size(); ++i) {
      const auto& source = target_->sources()[i];
      const SourceFile::Type source_type = source.GetType();
@@ -445,7 +311,7 @@ diff -ur --new-file a/src/gn/binary_target_generator.cc b/src/gn/binary_target_g
      switch (source_type) {
        case SourceFile::SOURCE_CPP:
        case SourceFile::SOURCE_MODULEMAP:
-@@ -124,6 +125,7 @@
+@@ -124,6 +125,7 @@ bool BinaryTargetGenerator::FillSources() {
                      Target::GetStringForOutputType(target_->output_type()) +
                      ". " + source.value() + " is not one of the valid types.");
      }
@@ -453,10 +319,132 @@ diff -ur --new-file a/src/gn/binary_target_generator.cc b/src/gn/binary_target_g
  
      target_->source_types_used().Set(source_type);
    }
-diff -ur --new-file a/src/gn/escape.cc b/src/gn/escape.cc
+diff --git a/src/gn/command_format_unittest.cc b/src/gn/command_format_unittest.cc
+--- a/src/gn/command_format_unittest.cc
++++ b/src/gn/command_format_unittest.cc
+@@ -20,8 +20,12 @@ using FormatTest = TestWithScheduler;
+     std::string input;                                                      \
+     std::string out;                                                        \
+     std::string expected;                                                   \
+-    base::FilePath src_dir =                                                \
+-        GetExePath().DirName().Append(FILE_PATH_LITERAL(".."));             \
++    const char* test_data_ptr = getenv("GN_TESTDATA_ROOT");                 \
++    base::FilePath src_dir;                                                 \
++    if (!test_data_ptr)                                                     \
++      src_dir = GetExePath().DirName().Append(FILE_PATH_LITERAL(".."));     \
++    else                                                                    \
++      src_dir = base::FilePath(test_data_ptr);                              \
+     base::SetCurrentDirectory(src_dir);                                     \
+     ASSERT_TRUE(base::ReadFileToString(                                     \
+         base::FilePath(FILE_PATH_LITERAL("src/gn/format_test_data/")        \
+diff --git a/src/gn/command_refs.cc b/src/gn/command_refs.cc
+--- a/src/gn/command_refs.cc
++++ b/src/gn/command_refs.cc
+@@ -226,6 +226,70 @@ size_t DoDirectListOutput(
+   return results.size();
+ }
+ 
++size_t RecursivePrintTargetDepsMatch(const DepMap& dep_map,
++                                     const Target* target,
++                                     const Target* match,
++                                     TargetSet* seen_targets,
++                                     int indent_level);
++
++size_t RecursivePrintTargetMatch(const DepMap& dep_map,
++                                 const Target* target,
++                                 const Target* match,
++                                 TargetSet* seen_targets,
++                                 int indent_level) {
++  size_t count = 0;
++
++  if (seen_targets->add(target)) {
++    count += RecursivePrintTargetDepsMatch(dep_map, target, match, seen_targets,
++                                           indent_level + 1);
++  }
++  if (target == match) {
++    count = 1;
++  }
++  if (count > 0) {
++    std::string indent(indent_level * 2, ' ');
++    OutputString(indent);
++    if (target == match)
++      OutputString(">>> ");
++    OutputString(
++        target->label().GetUserVisibleName(!target->settings()->is_default()));
++    OutputString("\n");
++  }
++  return count;
++}
++
++size_t RecursivePrintTargetDepsMatch(const DepMap& dep_map,
++                                     const Target* target,
++                                     const Target* match,
++                                     TargetSet* seen_targets,
++                                     int indent_level) {
++  DepMap::const_iterator dep_begin = dep_map.lower_bound(target);
++  DepMap::const_iterator dep_end = dep_map.upper_bound(target);
++  size_t count = 0;
++  for (DepMap::const_iterator cur_dep = dep_begin; cur_dep != dep_end;
++       cur_dep++) {
++    count += RecursivePrintTargetMatch(dep_map, cur_dep->second, match,
++                                       seen_targets, indent_level);
++  }
++  return count;
++}
++
++size_t DoFilteredTreeOutput(
++    const DepMap& dep_map,
++    const Target* match,
++    const UniqueVector<const Target*>& implicit_target_matches,
++    const UniqueVector<const Target*>& explicit_target_matches) {
++  TargetSet seen_targets;
++  size_t count = 0;
++  for (const Target* target : implicit_target_matches) {
++    if (target == match)
++      continue;
++    count +=
++        RecursivePrintTargetMatch(dep_map, target, match, &seen_targets, 0);
++  }
++  return count;
++}
++
+ }  // namespace
+ 
+ const char kRefs[] = "refs";
+@@ -349,6 +413,7 @@ int RunRefs(const std::vector<std::string>& args) {
+   const base::CommandLine* cmdline = base::CommandLine::ForCurrentProcess();
+   bool tree = cmdline->HasSwitch("tree");
+   bool all = cmdline->HasSwitch("all");
++  bool tree_match = cmdline->HasSwitch("tree-match");
+   bool default_toolchain_only = cmdline->HasSwitch(switches::kDefaultToolchain);
+ 
+   // Deliberately leaked to avoid expensive process teardown.
+@@ -431,13 +496,17 @@ int RunRefs(const std::vector<std::string>& args) {
+   FillDepMap(setup, &dep_map);
+ 
+   size_t cnt = 0;
+-  if (tree)
++  if (tree_match) {
++    const Target* target = target_matches[0];
++    cnt = DoFilteredTreeOutput(dep_map, target, target_matches,
++                               explicit_target_matches);
++  } else if (tree) {
+     cnt = DoTreeOutput(dep_map, target_matches, explicit_target_matches, all);
+-  else if (all)
++  } else if (all) {
+     cnt = DoAllListOutput(dep_map, target_matches, explicit_target_matches);
+-  else
++  } else {
+     cnt = DoDirectListOutput(dep_map, target_matches, explicit_target_matches);
+-
++  }
+   // If you ask for the references of a valid target, but that target has
+   // nothing referencing it, we'll get here without having printed anything.
+   if (!quiet && cnt == 0)
+diff --git a/src/gn/escape.cc b/src/gn/escape.cc
 --- a/src/gn/escape.cc
 +++ b/src/gn/escape.cc
-@@ -239,6 +239,51 @@
+@@ -239,6 +239,51 @@ size_t EscapeStringToString_PosixNinjaFork(std::string_view str,
    return i;
  }
  
@@ -508,7 +496,7 @@ diff -ur --new-file a/src/gn/escape.cc b/src/gn/escape.cc
  // Escapes |str| into |dest| and returns the number of characters written.
  size_t EscapeStringToString(std::string_view str,
                              const EscapeOptions& options,
-@@ -278,6 +323,8 @@
+@@ -278,6 +323,8 @@ size_t EscapeStringToString(std::string_view str,
        }
      case ESCAPE_NINJA_PREFORMATTED_COMMAND:
        return EscapeStringToString_NinjaPreformatted(str, dest);
@@ -517,7 +505,7 @@ diff -ur --new-file a/src/gn/escape.cc b/src/gn/escape.cc
      default:
        NOTREACHED();
    }
-diff -ur --new-file a/src/gn/escape.h b/src/gn/escape.h
+diff --git a/src/gn/escape.h b/src/gn/escape.h
 --- a/src/gn/escape.h
 +++ b/src/gn/escape.h
 @@ -7,6 +7,7 @@
@@ -528,7 +516,7 @@ diff -ur --new-file a/src/gn/escape.h b/src/gn/escape.h
  
  enum EscapingMode {
    // No escaping.
-@@ -36,6 +37,9 @@
+@@ -36,6 +37,9 @@ enum EscapingMode {
    // Parameters use shell quoting and shell escaping of quotes, with ‘"’ and ‘\’
    // being the only special characters.
    ESCAPE_COMPILATION_DATABASE,
@@ -538,7 +526,28 @@ diff -ur --new-file a/src/gn/escape.h b/src/gn/escape.h
  };
  
  enum EscapingPlatform {
-diff -ur --new-file a/src/gn/ninja_binary_target_writer.cc b/src/gn/ninja_binary_target_writer.cc
+diff --git a/src/gn/gn_main.cc b/src/gn/gn_main.cc
+--- a/src/gn/gn_main.cc
++++ b/src/gn/gn_main.cc
+@@ -16,7 +16,7 @@
+ #include "util/msg_loop.h"
+ #include "util/sys_info.h"
+ 
+-#include "last_commit_position.h"
++#include "qt_version.h"
+ 
+ namespace {
+ 
+@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
+     command = commands::kHelp;
+   } else if (cmdline.HasSwitch(switches::kVersion)) {
+     // Make "--version" print the version and exit.
+-    OutputString(std::string(LAST_COMMIT_POSITION) + "\n");
++    OutputString(std::string(QT_GN_VERSION) +"\n");
+     exit(0);
+   } else if (args.empty()) {
+     // No command, print error and exit.
+diff --git a/src/gn/ninja_binary_target_writer.cc b/src/gn/ninja_binary_target_writer.cc
 --- a/src/gn/ninja_binary_target_writer.cc
 +++ b/src/gn/ninja_binary_target_writer.cc
 @@ -4,8 +4,8 @@
@@ -561,7 +570,7 @@ diff -ur --new-file a/src/gn/ninja_binary_target_writer.cc b/src/gn/ninja_binary
  #include "gn/string_utils.h"
  #include "gn/substitution_writer.h"
  #include "gn/target.h"
-@@ -54,6 +56,23 @@
+@@ -54,6 +56,23 @@ void NinjaBinaryTargetWriter::Run() {
    writer.SetResolvedTargetData(GetResolvedTargetData());
    writer.SetNinjaOutputs(ninja_outputs_);
    writer.Run();
@@ -585,10 +594,10 @@ diff -ur --new-file a/src/gn/ninja_binary_target_writer.cc b/src/gn/ninja_binary
  }
  
  std::vector<OutputFile>
-diff -ur --new-file a/src/gn/ninja_binary_target_writer.h b/src/gn/ninja_binary_target_writer.h
+diff --git a/src/gn/ninja_binary_target_writer.h b/src/gn/ninja_binary_target_writer.h
 --- a/src/gn/ninja_binary_target_writer.h
 +++ b/src/gn/ninja_binary_target_writer.h
-@@ -80,6 +80,8 @@
+@@ -80,6 +80,8 @@ class NinjaBinaryTargetWriter : public NinjaTargetWriter {
    std::string rule_prefix_;
  
   private:
@@ -597,10 +606,10 @@ diff -ur --new-file a/src/gn/ninja_binary_target_writer.h b/src/gn/ninja_binary_
    NinjaBinaryTargetWriter(const NinjaBinaryTargetWriter&) = delete;
    NinjaBinaryTargetWriter& operator=(const NinjaBinaryTargetWriter&) = delete;
  };
-diff -ur --new-file a/src/gn/ninja_c_binary_target_writer.cc b/src/gn/ninja_c_binary_target_writer.cc
+diff --git a/src/gn/ninja_c_binary_target_writer.cc b/src/gn/ninja_c_binary_target_writer.cc
 --- a/src/gn/ninja_c_binary_target_writer.cc
 +++ b/src/gn/ninja_c_binary_target_writer.cc
-@@ -572,9 +572,16 @@
+@@ -572,9 +572,17 @@ void NinjaCBinaryTargetWriter::WriteLinkerStuff(
        target_, tool_, tool_->outputs(), &output_files);
  
    out_ << "build";
@@ -609,7 +618,8 @@ diff -ur --new-file a/src/gn/ninja_c_binary_target_writer.cc b/src/gn/ninja_c_bi
 -  out_ << ": " << rule_prefix_ << tool_->name();
 +  if (target_->rsp_types().empty()) {
 +    WriteOutputs(output_files);
-+    out_ << ": " << rule_prefix_ << tool_->name();
++    out_ << ": " << rule_prefix_
++         << tool_->name();
 +  } else {
 +    out_ << " ";
 +    WriteOutput(OutputFile(target_->label().name() + ".stamp"));
@@ -619,7 +629,7 @@ diff -ur --new-file a/src/gn/ninja_c_binary_target_writer.cc b/src/gn/ninja_c_bi
  
    ClassifiedDeps classified_deps = GetClassifiedDeps();
  
-@@ -673,7 +680,9 @@
+@@ -673,7 +681,9 @@ void NinjaCBinaryTargetWriter::WriteLinkerStuff(
  
    // Append implicit dependencies collected above.
    if (!implicit_deps.empty()) {
@@ -630,7 +640,7 @@ diff -ur --new-file a/src/gn/ninja_c_binary_target_writer.cc b/src/gn/ninja_c_bi
      path_output_.WriteFiles(out_, implicit_deps);
    }
  
-diff -ur --new-file a/src/gn/ninja_target_writer.cc b/src/gn/ninja_target_writer.cc
+diff --git a/src/gn/ninja_target_writer.cc b/src/gn/ninja_target_writer.cc
 --- a/src/gn/ninja_target_writer.cc
 +++ b/src/gn/ninja_target_writer.cc
 @@ -18,6 +18,7 @@
@@ -641,7 +651,8 @@ diff -ur --new-file a/src/gn/ninja_target_writer.cc b/src/gn/ninja_target_writer
  #include "gn/ninja_copy_target_writer.h"
  #include "gn/ninja_create_bundle_target_writer.h"
  #include "gn/ninja_generated_file_target_writer.h"
-diff -ur --new-file a/src/gn/rsp_target_writer.cc b/src/gn/rsp_target_writer.cc
+diff --git a/gn/src/gn/rsp_target_writer.cc b/src/gn/rsp_target_writer.cc
+new file mode 100644
 --- /dev/null
 +++ b/src/gn/rsp_target_writer.cc
 @@ -0,0 +1,255 @@
@@ -900,7 +911,8 @@ diff -ur --new-file a/src/gn/rsp_target_writer.cc b/src/gn/rsp_target_writer.cc
 +  }
 +  return RspTargetWriter::NONE;
 +}
-diff -ur --new-file a/src/gn/rsp_target_writer.h b/src/gn/rsp_target_writer.h
+diff --git a/gn/src/gn/rsp_target_writer.h b/src/gn/rsp_target_writer.h
+new file mode 100644
 --- /dev/null
 +++ b/src/gn/rsp_target_writer.h
 @@ -0,0 +1,71 @@
@@ -975,7 +987,7 @@ diff -ur --new-file a/src/gn/rsp_target_writer.h b/src/gn/rsp_target_writer.h
 +};
 +
 +#endif  // TOOLS_GN_RSP_TARGET_WRITER_H_
-diff -ur --new-file a/src/gn/scope_per_file_provider.cc b/src/gn/scope_per_file_provider.cc
+diff --git a/src/gn/scope_per_file_provider.cc b/src/gn/scope_per_file_provider.cc
 --- a/src/gn/scope_per_file_provider.cc
 +++ b/src/gn/scope_per_file_provider.cc
 @@ -12,7 +12,11 @@
@@ -990,10 +1002,25 @@ diff -ur --new-file a/src/gn/scope_per_file_provider.cc b/src/gn/scope_per_file_
  
  ScopePerFileProvider::ScopePerFileProvider(Scope* scope, bool allow_target_vars)
      : ProgrammaticProvider(scope), allow_target_vars_(allow_target_vars) {}
-diff -ur --new-file a/src/gn/target.cc b/src/gn/target.cc
+@@ -66,10 +70,10 @@ const Value* ScopePerFileProvider::GetDefaultToolchain() {
+ }
+ 
+ const Value* ScopePerFileProvider::GetGnVersion() {
+-  if (!gn_version_) {
+-    gn_version_ = std::make_unique<Value>(
+-        nullptr, static_cast<int64_t>(LAST_COMMIT_POSITION_NUM));
+-  }
++   if (!gn_version_) {
++     gn_version_ = std::make_unique<Value>(
++         nullptr, static_cast<int64_t>(LAST_COMMIT_POSITION_NUM));
++   }
+   return gn_version_.get();
+ }
+ 
+diff --git a/src/gn/target.cc b/src/gn/target.cc
 --- a/src/gn/target.cc
 +++ b/src/gn/target.cc
-@@ -882,6 +882,9 @@
+@@ -882,6 +882,9 @@ bool Target::FillOutputFiles(Err* err) {
        link_output_file_ = dependency_output_file_ =
            SubstitutionWriter::ApplyPatternToLinkerAsOutputFile(
                this, tool, tool->outputs().list()[0]);
@@ -1003,7 +1030,7 @@ diff -ur --new-file a/src/gn/target.cc b/src/gn/target.cc
        break;
      case RUST_PROC_MACRO:
      case SHARED_LIBRARY: {
-@@ -932,6 +935,9 @@
+@@ -932,6 +935,9 @@ bool Target::FillOutputFiles(Err* err) {
          SubstitutionWriter::ApplyListToLinkerAsOutputFile(
              this, tool, *runtime_outputs_ptr, &runtime_outputs_);
        }
@@ -1013,10 +1040,31 @@ diff -ur --new-file a/src/gn/target.cc b/src/gn/target.cc
        break;
      }
      case UNKNOWN:
-diff -ur --new-file a/src/gn/target_generator.cc b/src/gn/target_generator.cc
+diff --git a/src/gn/target.h b/src/gn/target.h
+--- a/src/gn/target.h
++++ b/src/gn/target.h
+@@ -190,6 +190,7 @@ class Target : public Item {
+     SourceDir rebase_;
+     std::vector<std::string> data_keys_;
+     std::vector<std::string> walk_keys_;
++    std::vector<std::string> rsp_types_;
+   };
+   const GeneratedFile& generated_file() const;
+   GeneratedFile& generated_file();
+@@ -215,6 +216,9 @@ class Target : public Item {
+   }
+   std::vector<std::string>& walk_keys() { return generated_file().walk_keys_; }
+ 
++  std::vector<std::string>& rsp_types() { return generated_file().rsp_types_; }
++  const std::vector<std::string>& rsp_types() const { return generated_file().rsp_types_; }
++
+   OutputFile write_runtime_deps_output() const {
+     return write_runtime_deps_output_;
+   }
+diff --git a/src/gn/target_generator.cc b/src/gn/target_generator.cc
 --- a/src/gn/target_generator.cc
 +++ b/src/gn/target_generator.cc
-@@ -58,6 +58,9 @@
+@@ -58,6 +58,9 @@ void TargetGenerator::Run() {
    if (!FillTestonly())
      return;
  
@@ -1026,11 +1074,10 @@ diff -ur --new-file a/src/gn/target_generator.cc b/src/gn/target_generator.cc
    if (!FillAssertNoDeps())
      return;
  
-@@ -312,6 +315,27 @@
-   }
+@@ -313,6 +316,27 @@ bool TargetGenerator::FillTestonly() {
    return true;
  }
-+
+ 
 +bool TargetGenerator::FillRspTypes() {
 +  const Value* value = scope_->GetValue(variables::kRspTypes, true);
 +  if (!value)
@@ -1051,13 +1098,14 @@ diff -ur --new-file a/src/gn/target_generator.cc b/src/gn/target_generator.cc
 +  }
 +  return true;
 +}
- 
++
  bool TargetGenerator::FillAssertNoDeps() {
    const Value* value = scope_->GetValue(variables::kAssertNoDeps, true);
-diff -ur --new-file a/src/gn/target_generator.h b/src/gn/target_generator.h
+   if (value) {
+diff --git a/src/gn/target_generator.h b/src/gn/target_generator.h
 --- a/src/gn/target_generator.h
 +++ b/src/gn/target_generator.h
-@@ -70,6 +70,7 @@
+@@ -70,6 +70,7 @@ class TargetGenerator {
    bool FillDependencies();  // Includes data dependencies.
    bool FillMetadata();
    bool FillTestonly();
@@ -1065,31 +1113,10 @@ diff -ur --new-file a/src/gn/target_generator.h b/src/gn/target_generator.h
    bool FillAssertNoDeps();
    bool FillWriteRuntimeDeps();
  
-diff -ur --new-file a/src/gn/target.h b/src/gn/target.h
---- a/src/gn/target.h
-+++ b/src/gn/target.h
-@@ -190,6 +190,7 @@
-     SourceDir rebase_;
-     std::vector<std::string> data_keys_;
-     std::vector<std::string> walk_keys_;
-+    std::vector<std::string> rsp_types_;
-   };
-   const GeneratedFile& generated_file() const;
-   GeneratedFile& generated_file();
-@@ -215,6 +216,9 @@
-   }
-   std::vector<std::string>& walk_keys() { return generated_file().walk_keys_; }
- 
-+  std::vector<std::string>& rsp_types() { return generated_file().rsp_types_; }
-+  const std::vector<std::string>& rsp_types() const { return generated_file().rsp_types_; }
-+
-   OutputFile write_runtime_deps_output() const {
-     return write_runtime_deps_output_;
-   }
-diff -ur --new-file a/src/gn/variables.cc b/src/gn/variables.cc
+diff --git a/src/gn/variables.cc b/src/gn/variables.cc
 --- a/src/gn/variables.cc
 +++ b/src/gn/variables.cc
-@@ -2229,6 +2229,30 @@
+@@ -2229,6 +2229,30 @@ Example
    }
  )";
  
@@ -1120,10 +1147,10 @@ diff -ur --new-file a/src/gn/variables.cc b/src/gn/variables.cc
  const char kVisibility[] = "visibility";
  const char kVisibility_HelpShort[] =
      "visibility: [label list] A list of labels that can depend on a target.";
-diff -ur --new-file a/src/gn/variables.h b/src/gn/variables.h
+diff --git a/src/gn/variables.h b/src/gn/variables.h
 --- a/src/gn/variables.h
 +++ b/src/gn/variables.h
-@@ -346,6 +346,10 @@
+@@ -346,6 +346,10 @@ extern const char kTestonly[];
  extern const char kTestonly_HelpShort[];
  extern const char kTestonly_Help[];
  
@@ -1134,7 +1161,7 @@ diff -ur --new-file a/src/gn/variables.h b/src/gn/variables.h
  extern const char kVisibility[];
  extern const char kVisibility_HelpShort[];
  extern const char kVisibility_Help[];
-diff -ur --new-file a/src/util/build_config.h b/src/util/build_config.h
+diff --git a/src/util/build_config.h b/src/util/build_config.h
 --- a/src/util/build_config.h
 +++ b/src/util/build_config.h
 @@ -135,7 +135,7 @@
@@ -1146,10 +1173,10 @@ diff -ur --new-file a/src/util/build_config.h b/src/util/build_config.h
  #define ARCH_CPU_ARM_FAMILY 1
  #define ARCH_CPU_ARM64 1
  #define ARCH_CPU_64_BITS 1
-diff -ur --new-file a/src/util/sys_info.cc b/src/util/sys_info.cc
+diff --git a/src/util/sys_info.cc b/src/util/sys_info.cc
 --- a/src/util/sys_info.cc
 +++ b/src/util/sys_info.cc
-@@ -87,6 +87,8 @@
+@@ -87,6 +87,8 @@ std::string OperatingSystemArchitecture() {
        return "x86";
      case PROCESSOR_ARCHITECTURE_AMD64:
        return "x86_64";

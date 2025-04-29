@@ -1,12 +1,16 @@
 sources:
   # Experimental fork of GN by Qt, used to build QtWebEngine
-  "qt-20240924":
+  "qt-6.9.0":
     url: "https://gn.googlesource.com/gn/+archive/95b0f8fe31a992a33c040bbe3867901335c12762.tar.gz"
   "cci.20240611":
     url: "https://gn.googlesource.com/gn/+archive/b2afae122eeb6ce09c52d63f67dc53fc517dbdc8.tar.gz"
   "cci.20210429":
     url: "https://gn.googlesource.com/gn/+archive/6771ce569fb4803dad7a427aa2e2c23e960b917e.tar.gz"
 patches:
-  "qt-20240924":
-    - patch_file: "patches/qt-20240924.patch"
-    - patch_file: "patches/escape-target-names.patch"
+  "qt-6.9.0":
+    - patch_file: "patches/qt/qt-6.9.0.patch"
+      patch_description: "Diff between Qt 6.9.0 GN fixes and upstream"
+      patch_type: "official"
+      patch_source: "https://github.com/qt/qtwebengine-chromium/tree/45d204bccd41e0f9ec166e47e2a15714e26f384b"
+    - patch_file: "patches/qt/relax-compiler-executables.patch"
+    - patch_file: "patches/qt/escape-target-names.patch"
