@@ -54,8 +54,12 @@ class RustConan(ConanFile):
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+
+    # Always download the binaries directly from the Rust project instead of repackaging them
     upload_policy = "skip"
     build_policy = "missing"
+    # Include the package version in consumer package_id hash even when using it as a tool_requires
+    build_mode = "patch_mode"
 
     def _settings_to_rust_target(self, settings):
         if settings is None:
