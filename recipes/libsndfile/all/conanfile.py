@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
@@ -51,8 +50,6 @@ class LibsndfileConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
             del self.options.with_alsa
-        if Version(self.version) < "1.1.0":
-            del self.options.with_mpeg
 
     def configure(self):
         if self.options.shared:
@@ -106,12 +103,9 @@ class LibsndfileConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.variables["ENABLE_CPACK"] = False
         tc.variables["ENABLE_EXPERIMENTAL"] = self.options.experimental
-        if is_msvc(self) and Version(self.version) < "1.0.30":
-            tc.variables["ENABLE_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
         tc.variables["BUILD_REGTEST"] = False
         # https://github.com/libsndfile/libsndfile/commit/663a59aa6ea5e24cf5159b8e1c2b0735712ea74e#diff-1e7de1ae2d059d21e1dd75d5812d5a34b0222cef273b7c3a2af62eb747f9d20a
-        if Version(self.version) >= "1.1.0":
-            tc.variables["ENABLE_MPEG"] = self.options.with_mpeg
+        tc.variables["ENABLE_MPEG"] = self.options.with_mpeg
         # Fix iOS/tvOS/watchOS
         tc.variables["CMAKE_MACOSX_BUNDLE"] = False
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
