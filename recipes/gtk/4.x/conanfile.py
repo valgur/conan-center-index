@@ -11,7 +11,6 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 from conan.tools.system.package_manager import Apt
 
 required_conan_version = ">=2.4"
@@ -77,8 +76,6 @@ class GtkConan(ConanFile):
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_wayland
             del self.options.with_x11
-        if Version(self.version) >= "4.13.7":
-            del self.options.with_ffmpeg
 
     def configure(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -123,7 +120,7 @@ class GtkConan(ConanFile):
         self.requires("libpng/[>=1.6 <2]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("libjpeg/9e")
-        if self.settings.os == "Linux" and Version(self.version) >= "4.13.2":
+        if self.settings.os == "Linux":
             self.requires("libdrm/[~2.4.119]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
@@ -215,12 +212,6 @@ class GtkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-        if "4.6.2" <= Version(self.version) < "4.9.2":
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                            "dependency(is_msvc_like ? ",
-                            "dependency(false ? ",
-                            strict=not self.no_copy_source)
-
     def generate(self):
         # Required for glib-compile-resources
         if can_run(self):
@@ -233,25 +224,17 @@ class GtkConan(ConanFile):
         tc.project_options["broadway-backend"] = "true" if self.options.enable_broadway_backend else "false"
         tc.project_options["vulkan"] = enabled_disabled(self.options.with_vulkan)
         tc.project_options["media-gstreamer"] = enabled_disabled(self.options.with_gstreamer)
-        if Version(self.version) < "4.13.7":
-            tc.project_options["media-ffmpeg"] = enabled_disabled(self.options.with_ffmpeg)
         tc.project_options["print-cups"] = enabled_disabled(self.options.with_cups)
         tc.project_options["colord"] = enabled_disabled(self.options.with_cups)
-        if Version(self.version) >= "4.10.0":
-            tc.project_options["print-cpdb"] = enabled_disabled(self.options.with_cpdb)
+        tc.project_options["print-cpdb"] = enabled_disabled(self.options.with_cpdb)
         tc.project_options["cloudproviders"] = enabled_disabled(self.options.with_cloudproviders)
         tc.project_options["tracker"] = enabled_disabled(self.options.with_tracker)
         tc.project_options["introspection"] = enabled_disabled(self.options.with_introspection)
 
-        if self.version == "4.7.0":
-            tc.project_options["gtk_doc"] = "false"
-            tc.project_options["update_screenshots"] = "false"
-            tc.project_options["demos"] = "false"
-        else:
-            tc.project_options["documentation"] = "false"
-            tc.project_options["screenshots"] = "false"
-            tc.project_options["build-demos"] = "false"
-            tc.project_options["build-testsuite"] = "false"
+        tc.project_options["documentation"] = "false"
+        tc.project_options["screenshots"] = "false"
+        tc.project_options["build-demos"] = "false"
+        tc.project_options["build-testsuite"] = "false"
         tc.project_options["man-pages"] = "false"
         tc.project_options["build-tests"] = "false"
         tc.project_options["build-examples"] = "false"
@@ -287,12 +270,7 @@ class GtkConan(ConanFile):
         self.run(f"{pkg_config} --variable pc_path pkg-config", output, scope=None)
         return output.getvalue().strip()
 
-    def _patch_sources(self):
-        if "4.6.2" <= Version(self.version) < "4.9.2":
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "dependency(is_msvc_like ? ", "dependency(false ? ", strict=not self.no_copy_source)
-
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -332,7 +310,7 @@ class GtkConan(ConanFile):
             "libpng::libpng",
             "libtiff::tiff",
         ]
-        if self.settings.os == "Linux" and Version(self.version) >= "4.13.2":
+        if self.settings.os == "Linux":
             self.cpp_info.components["gtk4"].requires.append("libdrm::libdrm")
         if self.options.with_vulkan:
             self.cpp_info.components["gtk4"].requires.append("vulkan-loader::vulkan-loader")
