@@ -180,6 +180,9 @@ class LibsystemdConan(ConanFile):
             for includedir in dependency.cpp_info.aggregated_components().includedirs:
                 tc.c_args.append(f"-I{includedir}")
 
+        # Workaround for 'include/libintl.h:20:10: warning: "BUILDING_LIBINTL" is not defined, evaluates to 0 [-Wundef]'
+        tc.extra_cflags.append("-Wno-error=undef")
+
         tc.generate()
 
         deps = PkgConfigDeps(self)
