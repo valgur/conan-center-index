@@ -1,8 +1,10 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanException
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -13,7 +15,7 @@ class LZOConan(ConanFile):
     license = "GPL-v2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.oberhumer.com/opensource/lzo/"
-    topics = ("compression")
+    topics = ("compression",)
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -38,6 +40,9 @@ class LZOConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_STATIC"] = not self.options.shared
         tc.variables["ENABLE_SHARED"] = self.options.shared
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
+        if Version(self.version) > "2.10":
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 
     def build(self):
