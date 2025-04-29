@@ -25,7 +25,7 @@ class DPPConan(ConanFile):
         self.requires("nlohmann_json/[^3]", transitive_libs=True, transitive_headers=True)
         self.requires("openssl/[>=1.1 <4]")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("opus/1.4")
+        self.requires("opus/[^1.4]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

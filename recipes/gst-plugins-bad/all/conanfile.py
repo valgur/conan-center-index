@@ -266,7 +266,7 @@ class GStPluginsBadConan(ConanFile):
         if "openni2" in reqs:
             self.requires("openni2/2.2.0.33")
         if "opus" in reqs:
-            self.requires("opus/1.4")
+            self.requires("opus/[^1.4]")
         if "pango" in reqs:
             self.requires("pango/1.54.0")
         if "qt" in reqs:

@@ -192,7 +192,7 @@ class GStPluginsBaseConan(ConanFile):
         if "ogg" in reqs:
             self.requires("ogg/1.3.5")
         if "opus" in reqs:
-            self.requires("opus/1.4")
+            self.requires("opus/[^1.4]")
         if "theora" in reqs:
             self.requires("theora/1.1.1")
         if "vorbis" in reqs:

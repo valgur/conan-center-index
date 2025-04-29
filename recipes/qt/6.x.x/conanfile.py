@@ -474,7 +474,7 @@ class QtConan(ConanFile):
             self.requires("brotli/1.1.0")
         if self.options.get_safe("qtwebengine") and self.settings.os == "Linux":
             self.requires("expat/[>=2.6.2 <3]")
-            self.requires("opus/1.4")
+            self.requires("opus/[^1.4]")
             self.requires("xorg-proto/2024.1")
             self.requires("libxshmfence/1.3")
             self.requires("nss/3.107")

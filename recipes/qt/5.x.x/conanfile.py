@@ -442,7 +442,7 @@ class QtConan(ConanFile):
             self.requires("zstd/[~1.5]")
         if self.options.qtwebengine and self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("expat/[>=2.6.2 <3]")
-            self.requires("opus/1.4")
+            self.requires("opus/[^1.4]")
             if not self.options.qtwayland:
                 self.requires("xorg-proto/2024.1")
             self.requires("libxshmfence/1.3")
