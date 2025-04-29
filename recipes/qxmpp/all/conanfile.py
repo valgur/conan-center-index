@@ -41,8 +41,7 @@ class QxmppConan(ConanFile):
     def requirements(self):
         self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
         if self.options.with_gstreamer:
-            self.requires("gstreamer/1.24.11")
-            self.requires("glib/[~2.78.6]")
+            self.requires("gstreamer/[^1.24]")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -93,4 +92,4 @@ class QxmppConan(ConanFile):
         self.cpp_info.includedirs.append(os.path.join("include", "qxmpp"))
         self.cpp_info.requires = ["qt::qtCore", "qt::qtNetwork", "qt::qtXml"]
         if self.options.with_gstreamer:
-            self.cpp_info.requires.extend(["gstreamer::gstreamer", "glib::glib"])
+            self.cpp_info.requires.extend(["gstreamer::gstreamer"])

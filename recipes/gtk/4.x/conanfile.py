@@ -141,8 +141,8 @@ class GtkConan(ConanFile):
             self.requires("gobject-introspection/1.78.1")
 
         if self.options.with_gstreamer:
-            self.requires("gst-plugins-base/1.24.11")
-            self.requires("gst-plugins-bad/1.24.11")
+            self.requires("gst-plugins-base/[^1.24]")
+            self.requires("gst-plugins-bad/[^1.24]")
 
         # TODO: fix libintl support on macOS by using gnuintl from gettext
         # if self.settings.os != "Linux":

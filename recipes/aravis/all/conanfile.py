@@ -73,7 +73,7 @@ class AravisConan(ConanFile):
         if self.options.usb:
             self.requires("libusb/1.0.26")
         if self.options.gst_plugin:
-            self.requires("gst-plugins-base/1.24.11")
+            self.requires("gst-plugins-base/[^1.24]")
         if self.options.introspection:
             self.requires("gobject-introspection/1.78.1")
 

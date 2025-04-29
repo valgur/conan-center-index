@@ -480,7 +480,7 @@ class QtConan(ConanFile):
             self.requires("nss/[^3.93]")
             self.requires("libdrm/[~2.4.119]")
         if self.options.get_safe("with_gstreamer"):
-            self.requires("gst-plugins-base/1.24.11")
+            self.requires("gst-plugins-base/[^1.24]")
         if self.options.get_safe("with_pulseaudio"):
             self.requires("pulseaudio/17.0")
         if self.options.with_dbus:
