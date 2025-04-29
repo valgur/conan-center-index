@@ -280,7 +280,7 @@ class GStPluginsBadConan(ConanFile):
         if "usrsctp" in reqs:
             self.requires("usrsctp/0.9.5.0")
         if "libsndfile" in reqs:
-            self.requires("libsndfile/1.2.2")
+            self.requires("libsndfile/[^1.2.2]")
         if "soundtouch" in reqs:
             self.requires("soundtouch/2.3.3")
         if "srt" in reqs:
