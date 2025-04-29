@@ -113,7 +113,7 @@ class PopplerConan(ConanFile):
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/9e")
         if self.options.with_nss:
-            self.requires("nss/3.107")
+            self.requires("nss/[^3.93]")
         if self.options.with_png:
             self.requires("libpng/[>=1.6 <2]")
         if self.options.with_tiff:
