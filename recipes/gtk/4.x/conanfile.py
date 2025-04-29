@@ -44,9 +44,6 @@ class GtkConan(ConanFile):
         "with_iso_codes": [True, False],
         # Unavailable since v4.13.7
         "with_ffmpeg": [True, False],
-        # Deprecated
-        "with_pango": ["deprecated", True, False],
-        "with_cloudprint": ["deprecated", True, False],
     }
     default_options = {
         "enable_broadway_backend": False,
@@ -61,8 +58,6 @@ class GtkConan(ConanFile):
         "with_tracker": False,
         "with_iso_codes": False,
         "with_ffmpeg": False,
-        "with_pango": "deprecated",
-        "with_cloudprint": "deprecated",
     }
     languages = ["C"]
     no_copy_source = True
@@ -111,10 +106,6 @@ class GtkConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.options.with_pango = True
-        self.info.options.with_cloudprint = False
 
     def requirements(self):
         # INFO: https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/gdktypes.h?ref_type=tags#L34-38
@@ -182,10 +173,6 @@ class GtkConan(ConanFile):
                 raise ConanInvalidConfiguration("cairo must be built with '-o cairo/*:with_xlib=True' when 'with_x11' is enabled")
         if not self.dependencies["pango"].options.with_freetype:
             raise ConanInvalidConfiguration("pango must be built with '-o pango/*:with_freetype=True'")
-        if self.options.with_pango != "deprecated":
-            self.output.warning("The 'with_pango' option has been deprecated and will be removed in a future version")
-        if self.options.with_cloudprint != "deprecated":
-            self.output.warning("The 'with_cloudprint' option has been deprecated and will be removed in a future version. It never had any effect.")
         if self.options.with_introspection:
             for dep in self._introspections_deps:
                 if not self.dependencies[dep].options.with_introspection:
