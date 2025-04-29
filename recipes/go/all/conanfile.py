@@ -16,8 +16,12 @@ class GoConan(ConanFile):
     topics = ("language", "compiler", "pre-built")
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+
+    # Always download the binaries directly instead of repackaging them
     upload_policy = "skip"
     build_policy = "missing"
+    # Include the package version in consumer package_id hash even when using it as a tool_requires
+    build_mode = "patch_mode"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -25,6 +29,10 @@ class GoConan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
+        # Include target os and arch info for cross-compilation
+        self.info.settings_target = self.settings_target
+        self.info.settings_target.rm_safe("compiler")
+        self.info.settings_target.rm_safe("build_type")
 
     @property
     def _url(self):
