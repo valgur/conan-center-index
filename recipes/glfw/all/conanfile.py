@@ -75,6 +75,7 @@ class GlfwConan(ConanFile):
                 self.requires("xorg/system", libs=False)
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
+            self.requires("wayland-protocols/[^1.42]")
             self.requires("xkbcommon/1.6.0")
 
     def validate(self):
@@ -89,7 +90,6 @@ class GlfwConan(ConanFile):
 
     def build_requirements(self):
         if self.options.get_safe("with_wayland"):
-            self.tool_requires("wayland-protocols/1.42")
             self.tool_requires("wayland/<host_version>")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
@@ -124,9 +124,8 @@ class GlfwConan(ConanFile):
             cmake_deps.set_property("xkbcommon", "cmake_file_name", "XKBCommon")
         cmake_deps.generate()
         if self.options.get_safe("with_wayland"):
-            pkg_config_deps = PkgConfigDeps(self)
-            pkg_config_deps.build_context_activated = ["wayland-protocols"]
-            pkg_config_deps.generate()
+            deps = PkgConfigDeps(self)
+            deps.generate()
 
     def _patch_sources(self):
         # don't force PIC

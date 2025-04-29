@@ -54,9 +54,10 @@ class LibinputConan(ConanFile):
         if self.options.debug_gui:
             self.requires("cairo/1.18.0")
             self.requires("glib/[~2.78.6]")
-            self.requires("gtk/4.15.6")
+            self.requires("gtk/[^4]")
             if self.options.with_wayland:
                 self.requires("wayland/[^1.22.0]")
+                self.requires("wayland-protocols/[^1.42]")
             if self.options.with_x11:
                 # Only xorg::x11 is used.
                 self.requires("xorg/system")
@@ -78,7 +79,6 @@ class LibinputConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.42")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -97,10 +97,8 @@ class LibinputConan(ConanFile):
         tc.project_options["libwacom"] = self.options.with_libwacom
         tc.project_options["tests"] = False
         tc.generate()
-        pkg_config_deps = PkgConfigDeps(self)
-        if self.options.get_safe("with_wayland"):
-            pkg_config_deps.build_context_activated = ["wayland-protocols"]
-        pkg_config_deps.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         meson = Meson(self)

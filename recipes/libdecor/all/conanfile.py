@@ -25,8 +25,8 @@ class libdecorConan(ConanFile):
         "with_gtk": [True, False],
     }
     default_options = {
-        "with_dbus": True,
-        "with_gtk": True,
+        "with_dbus": False,
+        "with_gtk": False,
     }
 
     implements = ["auto_shared_fpic"]
@@ -39,12 +39,13 @@ class libdecorConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cairo/1.18.0")
+        self.requires("wayland/[^1.22.0]", transitive_headers=True)
+        self.requires("wayland-protocols/[^1.42]")
+        self.requires("pango/1.54.0")
         if self.options.with_dbus:
             self.requires("dbus/[^1.15]")
         if self.options.with_gtk:
             self.requires("gtk/[^3]")
-        self.requires("wayland/[^1.22.0]", transitive_headers=True)
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -57,7 +58,6 @@ class libdecorConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("wayland/<host_version>")
-        self.tool_requires("wayland-protocols/1.42")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -74,7 +74,6 @@ class libdecorConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
-        deps.build_context_activated.append("wayland-protocols")
         deps.generate()
 
     def build(self):

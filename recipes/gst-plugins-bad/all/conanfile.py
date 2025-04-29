@@ -307,6 +307,7 @@ class GStPluginsBadConan(ConanFile):
                 self.requires("moltenvk/1.2.2")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
+            self.requires("wayland-protocols/[^1.42]")
         if "libwebp" in reqs:
             self.requires("libwebp/1.3.2")
         if "wildmidi" in reqs:
@@ -361,7 +362,6 @@ class GStPluginsBadConan(ConanFile):
             self.tool_requires("shaderc/2025.2")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.42")
         if self._is_enabled("qt6d3d11") and not can_run(self):
             self.tool_requires("qt/<host_version>", options={
                 "qtdeclarative": True,
@@ -476,8 +476,6 @@ class GStPluginsBadConan(ConanFile):
 
         deps = PkgConfigDeps(self)
         deps.set_property("wildmidi", "pkg_config_name", "WildMIDI")
-        if self.options.get_safe("with_wayland"):
-            deps.build_context_activated.append("wayland-protocols")
         deps.generate()
 
     def build(self):

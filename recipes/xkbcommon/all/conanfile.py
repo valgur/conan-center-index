@@ -73,6 +73,7 @@ class XkbcommonConan(ConanFile):
             self.requires("libxml2/[>=2.12.5 <3]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
+            self.requires("wayland-protocols/[^1.42]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD", "Android"]:
@@ -85,7 +86,6 @@ class XkbcommonConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.42")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -106,12 +106,10 @@ class XkbcommonConan(ConanFile):
         deps = PkgConfigDeps(self)
         if self.options.get_safe("with_wayland"):
             deps.build_context_activated.append("wayland")
-            deps.build_context_activated.append("wayland-protocols")
             deps.build_context_folder = os.path.join(self.generators_folder, "build")
         deps.generate()
 
         if self.options.get_safe("with_wayland"):
-            rename(self, os.path.join("build", "wayland-protocols.pc"), "wayland-protocols.pc")
             env = Environment()
             # required for dependency(..., native: true) in meson.build
             env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))

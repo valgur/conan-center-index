@@ -1094,8 +1094,9 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_qt"):
             self.requires("qt/[>=5.15 <7]")
         if self.options.get_safe("with_wayland"):
-            self.requires("xkbcommon/1.6.0")
             self.requires("wayland/[^1.22.0]")
+            self.requires("wayland-protocols/[^1.42]")
+            self.requires("xkbcommon/1.6.0")
         # imgcodecs module dependencies
         if self.options.get_safe("with_avif"):
             self.requires("libavif/1.0.4")
@@ -1194,7 +1195,6 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_protobuf"):
             self.tool_requires("protobuf/<host_version>")
         if self.options.get_safe("with_wayland"):
-            self.tool_requires("wayland-protocols/1.42")
             self.tool_requires("wayland/<host_version>")
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
@@ -1460,7 +1460,6 @@ class OpenCVConan(ConanFile):
 
         if self.options.get_safe("with_wayland"):
             deps = PkgConfigDeps(self)
-            deps.build_context_activated.append("wayland-protocols")
             deps.generate()
 
     def _patch_sources(self):

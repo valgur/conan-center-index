@@ -136,6 +136,7 @@ class GtkConan(ConanFile):
             self.requires("libdrm/[~2.4.119]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
+            self.requires("wayland-protocols/[^1.42]")
             self.requires("xkbcommon/1.6.0")
             # workaround for [replace_requires] bug of not propagating egl from libepoxy correctly,
             # when egl/system is replaced with libglvnd
@@ -203,7 +204,6 @@ class GtkConan(ConanFile):
             self.tool_requires("shaderc/2025.2")  # for glslc
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.42")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/<host_version>")
 
@@ -281,7 +281,6 @@ class GtkConan(ConanFile):
         deps = PkgConfigDeps(self)
         if self.options.get_safe("with_wayland"):
             deps.build_context_activated.append("wayland")
-            deps.build_context_activated.append("wayland-protocols")
             deps.build_context_folder = os.path.join(self.generators_folder, "build")
         deps.generate()
 

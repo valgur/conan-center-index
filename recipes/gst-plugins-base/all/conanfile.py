@@ -181,6 +181,7 @@ class GStPluginsBaseConan(ConanFile):
                 self.requires("egl/system", transitive_headers=True, transitive_libs=True)
             if self.options.get_safe("with_wayland"):
                 self.requires("wayland/[^1.22.0]", transitive_headers=True, transitive_libs=True)
+                self.requires("wayland-protocols/[^1.42]")
             if self.options.with_graphene:
                 self.requires("graphene/1.10.8")
             if self.options.with_libpng:
@@ -221,7 +222,6 @@ class GStPluginsBaseConan(ConanFile):
         self.tool_requires("gst-orc/<host_version>")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
-            self.tool_requires("wayland-protocols/1.42")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/<host_version>")
 
@@ -310,8 +310,6 @@ class GStPluginsBaseConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
-        if self.options.get_safe("with_wayland"):
-            deps.build_context_activated.append("wayland-protocols")
         deps.generate()
 
     def build(self):
@@ -427,7 +425,7 @@ class GStPluginsBaseConan(ConanFile):
             gst_gl = _define_library("gl", [
                 "gstreamer-allocators-1.0",
                 "gstreamer-video-1.0",
-                "gmodule-no-export-2.0",
+                "glib::gmodule-no-export-2.0",
                 "opengl::opengl",
                 # TODO: bcm
             ])

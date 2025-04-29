@@ -17,6 +17,7 @@ class WaylandProtocolsConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/wayland/wayland-protocols"
     license = "MIT"
+    package_type = "build-scripts"
     settings = "os", "arch", "compiler", "build_type"
 
     def package_id(self):
