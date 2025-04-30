@@ -1,11 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rmdir
-import os
+from conan.tools.files import *
 
+required_conan_version = ">=2.1"
 
-required_conan_version = ">=2.0.9"
 
 class ManifoldConan(ConanFile):
     name = "manifold"
@@ -20,12 +21,14 @@ class ManifoldConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_parallel_acceleration": [True, False],
+        "with_clipper2": [True, False],
+        "with_tbb": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_parallel_acceleration": False,
+        "with_clipper2": True,
+        "with_tbb": True,
     }
     implements = ["auto_shared_fpic"]
 
@@ -33,19 +36,22 @@ class ManifoldConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # For CrossSection for 2D support
-        self.requires("clipper2/1.4.0")
-        if self.options.with_parallel_acceleration:
-            self.requires("onetbb/2022.0.0")
+        if self.options.with_clipper2:
+            # For CrossSection for 2D support
+            self.requires("clipper2/1.4.0")
+        if self.options.with_tbb:
+            self.requires("onetbb/[>=2021 <2023]")
 
     def validate(self):
         check_min_cppstd(self, 17)
 
     def build_requirements(self):
-        self.tool_requires("cmake/[>=3.18 <4]")
+        self.tool_requires("cmake/[>=3.18 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_EXTENSIONS OFF)", "")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -53,11 +59,13 @@ class ManifoldConan(ConanFile):
         tc.cache_variables["MANIFOLD_TEST"] = False
         tc.cache_variables["MANIFOLD_CBIND"] = False
         tc.cache_variables["MANIFOLD_PYBIND"] = False
-        tc.cache_variables["MANIFOLD_PAR"] = self.options.with_parallel_acceleration
+        tc.cache_variables["MANIFOLD_CROSS_SECTION"] = self.options.with_clipper2
+        tc.cache_variables["MANIFOLD_PAR"] = self.options.with_tbb
         tc.generate()
 
         deps = CMakeDeps(self)
-        deps.set_property("clipper2::clipper2", "cmake_target_name", "Clipper2")
+        if self.options.with_clipper2:
+            deps.set_property("clipper2::clipper2", "cmake_target_name", "Clipper2")
         deps.generate()
 
     def build(self):
@@ -69,12 +77,20 @@ class ManifoldConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "manifold")
+        self.cpp_info.set_property("cmake_target_name", "manifold::manifold")
+        self.cpp_info.set_property("pkg_config_name", "manifold")
+
         self.cpp_info.libs = ["manifold"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
+
+        if self.options.with_clipper2:
+            self.cpp_info.defines.append("MANIFOLD_CROSS_SECTION")
+        if self.options.with_tbb:
+            self.cpp_info.defines.append("MANIFOLD_PAR=1")
