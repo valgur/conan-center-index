@@ -74,7 +74,7 @@ class LibCVDConan(ConanFile):
         self.requires("toon/3.2", transitive_headers=True, transitive_libs=True)
         if self.options.with_ffmpeg:
             # FFMPEG v5.x+ are not supported
-            self.requires("ffmpeg/7.1.1", transitive_libs=True)
+            self.requires("ffmpeg/[>=6 <8]", transitive_libs=True)
         if self.options.with_libdc1394:
             self.requires("libdc1394/2.2.7")
         if self.options.with_libjpeg == "libjpeg-turbo":
