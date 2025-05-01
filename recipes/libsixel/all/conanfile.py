@@ -53,7 +53,7 @@ class LibSixelConan(ConanFile):
         if self.options.with_gd:
             self.requires("libgd/2.3.3")
         if self.options.with_gdk_pixbuf2:
-            self.requires("gdk-pixbuf/2.42.10")
+            self.requires("gdk-pixbuf/[^2.42.10]")
         if self.options.with_jpeg:
             self.requires("libjpeg/9e")
         if self.options.with_png:

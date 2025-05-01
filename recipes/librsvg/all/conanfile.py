@@ -58,7 +58,7 @@ class LibrsvgConan(ConanFile):
         self.requires("harfbuzz/[*]")
         self.requires("pango/[^1.54.0]")
         self.requires("libxml2/[>=2.12.5 <3]")
-        self.requires("gdk-pixbuf/2.42.10", transitive_headers=True, transitive_libs=True)
+        self.requires("gdk-pixbuf/[^2.42.10]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if is_msvc(self):

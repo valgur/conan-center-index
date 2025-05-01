@@ -201,7 +201,7 @@ class GStPluginsGoodConan(ConanFile):
         if "flac" in reqs:
             self.requires("flac/1.4.2")
         if "gdk-pixbuf" in reqs:
-            self.requires("gdk-pixbuf/2.42.10")
+            self.requires("gdk-pixbuf/[^2.42.10]")
         if "gtk" in reqs:
             # Only GTK 3 is supported
             self.requires("gtk/3.24.43")

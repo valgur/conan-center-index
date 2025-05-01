@@ -93,7 +93,7 @@ class GtkConan(ConanFile):
 
     def requirements(self):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
-        self.requires("gdk-pixbuf/2.42.10", transitive_headers=True, transitive_libs=True)
+        self.requires("gdk-pixbuf/[^2.42.10]", transitive_headers=True, transitive_libs=True)
         self.requires("pango/[^1.54.0]", transitive_headers=True, transitive_libs=True)
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.37/gtk/gtkwidget.h?ref_type=tags#L36
