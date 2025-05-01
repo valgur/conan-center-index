@@ -6,8 +6,9 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class UserspaceRCUConan(ConanFile):
@@ -17,7 +18,6 @@ class UserspaceRCUConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://liburcu.org/"
     topics = "urcu"
-
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -28,12 +28,8 @@ class UserspaceRCUConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
-
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -41,9 +37,6 @@ class UserspaceRCUConan(ConanFile):
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
             raise ConanInvalidConfiguration(f"Building for {self.settings.os} unsupported")
-        if self.version == "0.11.4" and self.settings.compiler == "apple-clang":
-            # Fails with "cds_hlist_add_head_rcu.c:19:10: fatal error: 'urcu/urcu-memb.h' file not found"
-            raise ConanInvalidConfiguration(f"{self.ref} is not compatible with apple-clang")
 
     def build_requirements(self):
         self.tool_requires("libtool/2.4.7")
@@ -64,24 +57,22 @@ class UserspaceRCUConan(ConanFile):
         autotools.make()
 
     def package(self):
-        copy(self, "LICENSE*",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-
         rm(self, "*.la", self.package_folder, recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         for lib_type in ["", "-bp", "-cds", "-mb", "-memb", "-qsbr", "-signal"]:
+            if Version(self.version) >= "0.15" and lib_type == "-signal":
+                continue
             component_name = f"urcu{lib_type}"
-            self.cpp_info.components[component_name].libs = ["urcu-common", component_name]
-            self.cpp_info.components[component_name].set_property("pkg_config_name", component_name)
-            if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components[component_name].system_libs = ["pthread"]
+            self.cpp_info.components[component_name].set_property("pkg_config_name", f"lib{component_name}")
+            self.cpp_info.components[component_name].libs = [component_name]
+            self.cpp_info.components[component_name].requires = ["urcu-common"]
 
-        # Some definitions needed for MB and Signal variants
-        self.cpp_info.components["urcu-mb"].defines = ["RCU_MB"]
-        self.cpp_info.components["urcu-signal"].defines = ["RCU_SIGNAL"]
+        self.cpp_info.components["urcu-common"].libs = ["urcu-common"]
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.components["urcu-common"].system_libs = ["pthread"]
