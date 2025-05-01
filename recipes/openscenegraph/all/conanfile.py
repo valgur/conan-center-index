@@ -146,7 +146,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.with_gta:
             self.requires("libgta/1.2.1")
         if self.options.with_jasper:
-            self.requires("jasper/4.2.4")
+            self.requires("jasper/[^4.2]")
         if self.options.get_safe("with_jpeg") == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":

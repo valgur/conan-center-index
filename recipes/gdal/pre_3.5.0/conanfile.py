@@ -255,7 +255,7 @@ class GdalConan(ConanFile):
         if self.options.with_netcdf:
             self.requires("netcdf/4.8.1")
         if self.options.with_jasper:
-            self.requires("jasper/4.0.0")
+            self.requires("jasper/[^4.2]")
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.0")
         # if self.options.with_fgdb:
