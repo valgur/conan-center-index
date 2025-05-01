@@ -162,6 +162,8 @@ class SDLConan(ConanFile):
                 self.requires("egl/system")
             if self.options.libunwind:
                 self.requires("libunwind/1.8.0")
+            if self.options.directfb:
+                self.requires("directfb/1.7.7")
 
     def validate(self):
         # SDL>=2.0.18 requires xcode 12 or higher because it uses CoreHaptics.
@@ -175,8 +177,6 @@ class SDLConan(ConanFile):
                 raise ConanInvalidConfiguration("Package for 'jack' is not available (yet)")
             if self.options.esd:
                 raise ConanInvalidConfiguration("Package for 'esd' is not available (yet)")
-            if self.options.directfb:
-                raise ConanInvalidConfiguration("Package for 'directfb' is not available (yet)")
 
     def package_id(self):
         if Version(self.version) < "2.0.22":
@@ -391,7 +391,7 @@ class SDLConan(ConanFile):
             if self.options.esd:
                 self.cpp_info.components["libsdl2"].requires.append("esd::esd")
             if self.options.directfb:
-                self.cpp_info.components["libsdl2"].requires.append("directfb::directfb")
+                self.cpp_info.components["libsdl2"].requires.append("directfb::directfb_")
             if self.options.video_rpi:
                 self.cpp_info.components["libsdl2"].libs.append("bcm_host")
                 self.cpp_info.components["libsdl2"].includedirs.extend([
