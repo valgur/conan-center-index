@@ -73,7 +73,7 @@ class CzmqConan(ConanFile):
         if self.options.get_safe("with_libuuid"):
             self.requires("util-linux-libuuid/2.41")
         if self.options.get_safe("with_systemd"):
-            self.requires("libsystemd/255.18")
+            self.requires("libsystemd/[^255]")
 
     def validate(self):
         if is_apple_os(self) and self.options.shared and self.settings.build_type == "Debug":

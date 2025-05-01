@@ -155,7 +155,7 @@ class LibpqConan(ConanFile):
         if self.options.get_safe("with_selinux"):
             self.requires("libselinux/3.6")
         if self.options.get_safe("with_systemd"):
-            self.requires("libsystemd/255.18")
+            self.requires("libsystemd/[^255]")
         if self.options.with_uuid:
             self.requires("util-linux-libuuid/2.41")
         if self.options.with_zlib:
