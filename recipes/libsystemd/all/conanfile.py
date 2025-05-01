@@ -63,7 +63,7 @@ class LibsystemdConan(ConanFile):
         }
 
     def requirements(self):
-        self.requires("libcap/2.69")
+        self.requires("libcap/[^2.69]")
         self.requires("libmount/2.41")
         self.requires("libxcrypt/4.4.36")
         if self.options.with_selinux:

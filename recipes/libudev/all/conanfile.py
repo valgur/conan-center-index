@@ -38,7 +38,7 @@ class LibUdevConan(ConanFile):
         }
 
     def requirements(self):
-        self.requires("libcap/2.69")
+        self.requires("libcap/[^2.69]")
 
     def validate(self):
         if self.settings.os != "Linux":

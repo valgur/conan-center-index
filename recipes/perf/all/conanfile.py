@@ -57,7 +57,7 @@ class Perf(ConanFile):
     def requirements(self):
         self.requires("capstone/5.0.1")
         self.requires("libbpf/1.4.6")
-        self.requires("libcap/2.70")
+        self.requires("libcap/[^2.69]")
         self.requires("libelf/0.8.13")
         self.requires("libnuma/2.0.16")
         self.requires("libunwind/1.8.1")

@@ -51,7 +51,7 @@ class AvahiConan(ConanFile):
         self.requires("dbus/[^1.15]")
         self.requires("gdbm/1.23")
         self.requires("libevent/2.1.12")
-        self.requires("libcap/2.70")
+        self.requires("libcap/[^2.69]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
