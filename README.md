@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-04-30:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-01:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -98,7 +98,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glslang/1.3.290.0
 - glslang/1.3.296.0
 - glslang/1.4.309.0
-- gn/qt-20240924
+- gn/qt-6.9.0
 - gnsstk/14.3.0
 - gnu-getopt/2.40
 - gnuradio-volk/3.1.2
@@ -216,6 +216,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - linux-headers-generic/5.19.17
 - linux-headers-generic/6.14.2
 - linux-pam/1.6.1
+- litehtml/0.9
 - llvm-core/20.1.3
 - llvm-openmp/18.1.8
 - matplotlib-cpp/cci.20210423
@@ -235,7 +236,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - nasm/2.16.03
 - ncbi-cxx-toolkit/29.0.0
 - netpbm/11.6.0
-- nlohmann_json/3.12.0
 - nss/3.107
 - nss/3.110
 - numpy/1.26.4
