@@ -66,7 +66,7 @@ class SAILConan(ConanFile):
             self.requires("libavif/1.0.4")
             self.requires("jasper/[^4.2]")
             self.requires("libjxl/0.8.2")
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
         # used only in .c files
         self.requires("openmp/system")
 

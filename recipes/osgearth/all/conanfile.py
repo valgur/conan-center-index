@@ -149,7 +149,7 @@ class OsgearthConan(ConanFile):
         if self.options.with_tinyxml:
             self.requires("tinyxml/2.6.2")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
 
         # Cannot unvendor tinygltf because of modifications to it:
         # https://github.com/gwaldron/osgearth/commit/dae4c9115d80eb3e655496471bbe8cdd5d6a9969

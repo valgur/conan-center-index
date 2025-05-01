@@ -157,7 +157,7 @@ class GStPluginsRsConan(ConanFile):
         if "libsodium" in reqs:
             self.requires("libsodium/1.0.20")
         if "libwebp" in reqs:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
 
     def validate(self):
         if not self.dependencies["glib"].options.shared and self.options.shared:

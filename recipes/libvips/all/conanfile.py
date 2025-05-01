@@ -182,7 +182,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
 

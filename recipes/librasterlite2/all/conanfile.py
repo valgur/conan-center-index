@@ -68,7 +68,7 @@ class Librasterlite2Conan(ConanFile):
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.2")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
         if self.options.with_lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.with_lz4:

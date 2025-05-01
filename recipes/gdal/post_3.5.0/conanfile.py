@@ -289,7 +289,7 @@ class GdalConan(ConanFile):
         if self.options.with_tiledb:
             self.requires("tiledb/2.21.0")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
         if self.options.with_xerces:
             self.requires("xerces-c/3.2.5")
         if self.options.with_xml2:

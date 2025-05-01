@@ -82,7 +82,7 @@ class LeptonicaConan(ConanFile):
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.2")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
 
     def build_requirements(self):
         if self.options.with_webp or self.options.with_openjpeg:

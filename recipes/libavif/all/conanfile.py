@@ -73,7 +73,7 @@ class LibAVIFConan(ConanFile):
         if self._has_dav1d:
             self.requires("dav1d/1.2.1")
         if self._depends_on_sharpyuv:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
 
     def validate(self):
         if self._depends_on_sharpyuv and Version(self.dependencies["libwebp"].ref.version) < "1.3.0":

@@ -114,7 +114,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_ptex:
             self.requires("ptex/2.4.2")
         if self.options.with_libwebp:
-            self.requires("libwebp/[^1]")
+            self.requires("libwebp/[^1.3.2]")
 
         # TODO: Field3D dependency
         # TODO: R3DSDK dependency

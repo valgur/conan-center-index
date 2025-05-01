@@ -109,7 +109,7 @@ class Imlib2Conan(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
         if self.options.get_safe("with_x"):
             # Only xorg::x11 is used.
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)

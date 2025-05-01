@@ -308,7 +308,7 @@ class GStPluginsBadConan(ConanFile):
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
         if "libwebp" in reqs:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
         if "wildmidi" in reqs:
             self.requires("wildmidi/0.4.5")
         if self.options.get_safe("with_xorg"):

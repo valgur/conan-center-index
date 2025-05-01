@@ -116,7 +116,7 @@ class ThorvgConan(ConanFile):
         if loaders_opt in ("all", "png"):
             self.requires("libpng/[~1.6]")
         if loaders_opt in ("all", "webp"):
-            self.requires("libwebp/1.4.0")
+            self.requires("libwebp/[^1.3.2]")
         if self.settings.os == "Linux":
             if self.options.with_engines in ["gl", "gl_beta"]:
                 self.requires("opengl/system")

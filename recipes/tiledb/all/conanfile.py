@@ -123,7 +123,7 @@ class TileDBConan(ConanFile):
         if self.options.tools:
             self.requires("clipp/1.2.3")
         if self.options.webp:
-            self.requires("libwebp/1.4.0")
+            self.requires("libwebp/[^1.3.2]")
 
         # TODO: unvendor
         #  - bitshuffle

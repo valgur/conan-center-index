@@ -86,7 +86,7 @@ class LibtiffConan(ConanFile):
         if self.options.zstd:
             self.requires("zstd/[~1.5]")
         if self.options.webp:
-            self.requires("libwebp/1.3.2")
+            self.requires("libwebp/[^1.3.2]")
         if self.options.lerc:
             self.requires("lerc/4.0.4")
 

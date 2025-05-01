@@ -495,7 +495,7 @@ class QtConan(ConanFile):
             if self.options.with_jasper:
                 self.requires("jasper/[^4.2]")
             if self.options.with_libwebp:
-                self.requires("libwebp/[^1.3]")
+                self.requires("libwebp/[^1.3.2]")
             if self.options.with_libtiff:
                 self.requires("libtiff/[^4.5]")
             # if self.options.with_libmng:
