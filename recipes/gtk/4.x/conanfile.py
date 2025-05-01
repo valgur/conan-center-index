@@ -110,7 +110,7 @@ class GtkConan(ConanFile):
         # INFO: https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/gdkpixbuf.h?ref_type=tags#L32-33
         # Note: gdkpixbuf.h is deprecated in newer versions
         self.requires("gdk-pixbuf/2.42.10", transitive_headers=True, transitive_libs=True)
-        self.requires("pango/1.54.0", transitive_headers=True, transitive_libs=True)
+        self.requires("pango/[^1.54.0]", transitive_headers=True, transitive_libs=True)
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)
         # INFO: https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gsk/gsktypes.h#L25
         self.requires("graphene/1.10.8", transitive_headers=True, transitive_libs=True)

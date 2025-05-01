@@ -40,7 +40,7 @@ class libdecorConan(ConanFile):
 
     def requirements(self):
         self.requires("wayland/[^1.22.0]", transitive_headers=True)
-        self.requires("pango/1.54.0")
+        self.requires("pango/[^1.54.0]")
         if self.options.with_dbus:
             self.requires("dbus/[^1.15]")
         if self.options.with_gtk:

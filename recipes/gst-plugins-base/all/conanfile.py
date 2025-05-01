@@ -198,7 +198,7 @@ class GStPluginsBaseConan(ConanFile):
         if "vorbis" in reqs:
             self.requires("vorbis/1.3.7")
         if "pango" in reqs:
-            self.requires("pango/1.54.0")
+            self.requires("pango/[^1.54.0]")
 
     def validate(self):
         if not self.dependencies["glib"].options.shared and self.options.shared:

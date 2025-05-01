@@ -270,7 +270,7 @@ class GStPluginsBadConan(ConanFile):
         if "opus" in reqs:
             self.requires("opus/[^1.4]")
         if "pango" in reqs:
-            self.requires("pango/1.54.0")
+            self.requires("pango/[^1.54.0]")
         if "qt" in reqs:
             self.requires("qt/[>=6.7 <7]", options={
                 "qtdeclarative": True,

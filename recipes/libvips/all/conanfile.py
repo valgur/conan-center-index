@@ -170,7 +170,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.2")
         if self.options.with_pangocairo:
-            self.requires("pango/1.50.10")
+            self.requires("pango/[^1.54.0]")
         if self.options.with_pdfium:
             self.requires("pdfium/95.0.4629")
         if self.options.with_png == "libpng":

@@ -153,7 +153,7 @@ class GStPluginsRsConan(ConanFile):
         if "openssl" in reqs:
             self.requires("openssl/[>=1.1 <4]")
         if "pango" in reqs:
-            self.requires("pango/1.54.0", options={"with_cairo": True})
+            self.requires("pango/[^1.54.0]", options={"with_cairo": True})
         if "libsodium" in reqs:
             self.requires("libsodium/1.0.20")
         if "libwebp" in reqs:

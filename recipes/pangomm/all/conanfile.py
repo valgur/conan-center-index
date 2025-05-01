@@ -42,7 +42,7 @@ class PangommConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("pango/1.54.0", transitive_headers=True, transitive_libs=True)
+        self.requires("pango/[^1.54.0]", transitive_headers=True, transitive_libs=True)
         if self._abi_version == "2.48":
             self.requires("glibmm/2.78.1", transitive_headers=True, transitive_libs=True)
             self.requires("cairomm/1.18.0", transitive_headers=True, transitive_libs=True)
