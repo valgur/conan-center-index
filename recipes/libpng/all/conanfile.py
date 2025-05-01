@@ -6,7 +6,7 @@ from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibpngConan(ConanFile):
@@ -36,6 +36,8 @@ class LibpngConan(ConanFile):
         "vsx": True,
         "api_prefix": "",
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     @property
     def _is_clang_cl(self):
@@ -78,12 +80,6 @@ class LibpngConan(ConanFile):
         if not self._has_vsx_support:
             del self.options.vsx
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -92,7 +88,6 @@ class LibpngConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -102,20 +97,20 @@ class LibpngConan(ConanFile):
         tc.cache_variables["PNG_DEBUG"] = self.settings.build_type == "Debug"
         tc.cache_variables["PNG_PREFIX"] = self.options.api_prefix
         if self._has_neon_support:
-            tc.variables["PNG_ARM_NEON"] = self._neon_msa_sse_vsx_mapping[str(self.options.neon)]
+            tc.cache_variables["PNG_ARM_NEON"] = self._neon_msa_sse_vsx_mapping[str(self.options.neon)]
         if self._has_msa_support:
-            tc.variables["PNG_MIPS_MSA"] = self._neon_msa_sse_vsx_mapping[str(self.options.msa)]
+            tc.cache_variables["PNG_MIPS_MSA"] = self._neon_msa_sse_vsx_mapping[str(self.options.msa)]
         if self._has_sse_support:
-            tc.variables["PNG_INTEL_SSE"] = self._neon_msa_sse_vsx_mapping[str(self.options.sse)]
+            tc.cache_variables["PNG_INTEL_SSE"] = self._neon_msa_sse_vsx_mapping[str(self.options.sse)]
         if self._has_vsx_support:
-            tc.variables["PNG_POWERPC_VSX"] = self._neon_msa_sse_vsx_mapping[str(self.options.vsx)]
-        tc.variables["PNG_FRAMEWORK"] = False  # changed from False to True by default in PNG 1.6.41
-        tc.variables["PNG_TOOLS"] = False
+            tc.cache_variables["PNG_POWERPC_VSX"] = self._neon_msa_sse_vsx_mapping[str(self.options.vsx)]
+        tc.cache_variables["PNG_FRAMEWORK"] = False  # changed from False to True by default in PNG 1.6.41
+        tc.cache_variables["PNG_TOOLS"] = False
         tc.cache_variables["CMAKE_MACOSX_BUNDLE"] = False
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -126,14 +121,20 @@ class LibpngConan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        # Remove libpng-config scripts
         if self.options.shared:
             rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
         else:
             rmdir(self, os.path.join(self.package_folder, "bin"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "libpng"))
+        # .pc files
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        # CMake config files
+        rmdir(self, os.path.join(self.package_folder, "lib", "libpng"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        # man pages
         rmdir(self, os.path.join(self.package_folder, "share"))
-        rm(self, "*.cmake", os.path.join(self.package_folder, "lib", "cmake", "PNG"))
+        # Remove duplicated headers under include/ and include/libpng<version>
+        rm(self, "*.h", os.path.join(self.package_folder, "include"), recursive=False)
 
     def package_info(self):
         major_min_version = f"{Version(self.version).major}{Version(self.version).minor}"
@@ -141,14 +142,18 @@ class LibpngConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "PNG")
         self.cpp_info.set_property("cmake_target_name", "PNG::PNG")
+        self.cpp_info.set_property("cmake_target_aliases", [f"PNG::png_shared" if self.options.shared else "PNG::png_static"])
         self.cpp_info.set_property("pkg_config_name", "libpng")
         self.cpp_info.set_property("pkg_config_aliases", [f"libpng{major_min_version}"])
 
+        self.cpp_info.includedirs.append(os.path.join("include", f"libpng{major_min_version}"))
+
         prefix = "lib" if (is_msvc(self) or self._is_clang_cl) else ""
-        suffix = major_min_version if self.settings.os == "Windows" else ""
-        if is_msvc(self) or self._is_clang_cl:
-            suffix += "_static" if not self.options.shared else ""
-        suffix += "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+        suffix = major_min_version
+        if is_msvc(self) or self._is_clang_cl and not self.options.shared:
+            suffix += "_static"
+        if self.settings.os == "Windows" and self.settings.build_type == "Debug":
+            suffix += "d"
         self.cpp_info.libs = [f"{prefix}png{suffix}"]
         if self.settings.os in ["Linux", "Android", "FreeBSD", "SunOS", "AIX"]:
             self.cpp_info.system_libs.append("m")
