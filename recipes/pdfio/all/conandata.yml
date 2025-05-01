@@ -1,0 +1,4 @@
+sources:
+  "1.5.2":
+    url: "https://github.com/michaelrsweet/pdfio/releases/download/v1.5.2/pdfio-1.5.2.tar.gz"
+    sha256: "1d8527f7e9a953a02777cb00ccb3ea92a2f5119e3e2c8adae49a68f12ecc4826"
