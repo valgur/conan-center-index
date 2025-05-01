@@ -1,7 +1,11 @@
 versions:
-  "system":
-    folder: "system"
+  "4.18.4":
+    folder: "4.x"
   "4.15.6":
     folder: "4.x"
+  "3.24.49":
+    folder: "3.x"
   "3.24.43":
     folder: "3.x"
+  "system":
+    folder: "system"

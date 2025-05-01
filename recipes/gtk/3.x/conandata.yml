@@ -1,8 +1,16 @@
 sources:
+  "3.24.49":
+    url: "https://download.gnome.org/sources/gtk/3.24/gtk-3.24.49.tar.xz"
+    sha256: "5ea52c6a28f0e5ecf2e9a3c2facbb30d040b73871fcd5f33cd1317e9018a146e"
   "3.24.43":
     url: "https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.43.tar.xz"
     sha256: "7e04f0648515034b806b74ae5d774d87cffb1a2a96c468cb5be476d51bf2f3c7"
 patches:
+  "3.24.49":
+    - patch_file: "patches/3.24.43-001-fix-array-bounds-warning.patch"
+      patch_description: "Avoid a false positive -Werror=array-bounds"
+      patch_source: "https://gitlab.gnome.org/GNOME/gtk/-/commit/a5d208adafec044b2c9e36ec5eb0f43db8be0564"
+      patch_type: "backport"
   "3.24.43":
     - patch_file: "patches/3.24.43-001-fix-array-bounds-warning.patch"
       patch_description: "Avoid a false positive -Werror=array-bounds"
