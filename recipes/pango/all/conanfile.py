@@ -1,10 +1,9 @@
-import glob
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -12,7 +11,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class PangoConan(ConanFile):
@@ -46,6 +45,7 @@ class PangoConan(ConanFile):
         "with_fontconfig": True,
         "with_introspection": False,
     }
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -62,8 +62,6 @@ class PangoConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
         if self.options.with_introspection:
             self.options["harfbuzz"].with_introspection = True
 
@@ -71,6 +69,16 @@ class PangoConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
+        if Version(self.version) >= "1.56.0":
+            self.requires("glib/[^2.80]", transitive_headers=True, transitive_libs=True)
+            # "pango/pango-coverage.h" includes "hb.h"
+            self.requires("harfbuzz/[>=8.4.0]", transitive_headers=True)
+        else:
+            self.requires("glib/[^2.70]", transitive_headers=True, transitive_libs=True)
+            self.requires("harfbuzz/[>=2.6.0]", transitive_headers=True)
+        if self.options.with_cairo:
+            # "pango/pangocairo.h" includes "cairo.h"
+            self.requires("cairo/[^1.18.0]", transitive_headers=True)
         if self.options.with_freetype:
             self.requires("freetype/2.13.2")
         if self.options.with_fontconfig:
@@ -78,23 +86,11 @@ class PangoConan(ConanFile):
         if self.options.get_safe("with_xft"):
             self.requires("libxft/2.3.8")
             self.requires("xorg/system")  # for xorg::xrender
-        if self.options.with_cairo:
-            # "pango/pangocairo.h" includes "cairo.h"
-            self.requires("cairo/[^1.18.0]", transitive_headers=True)
-        self.requires("glib/[~2.78.6]", transitive_headers=True, transitive_libs=True)
         self.requires("fribidi/1.0.13")
-        # "pango/pango-coverage.h" includes "hb.h"
-        self.requires("harfbuzz/8.3.0", transitive_headers=True)
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
-        if (
-            self.settings.compiler == "gcc"
-            and Version(self.settings.compiler.version) < "5"
-        ):
-            raise ConanInvalidConfiguration(f"{self.name} does not support GCC before version 5. Contributions are welcome.")
-
         if self.options.get_safe("with_xft"):
             if not self.options.with_freetype or not self.options.with_fontconfig:
                 raise ConanInvalidConfiguration(f"-o=&:with_xft=True requires -o=&:with_freetype=True and -o=&:with_fontconfig=True")
@@ -137,13 +133,12 @@ class PangoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "meson.build", "subdir('tests')", "")
+        replace_in_file(self, "meson.build", "subdir('tools')", "")
+        replace_in_file(self, "meson.build", "subdir('utils')", "")
+        replace_in_file(self, "meson.build", "subdir('examples')", "")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
-        deps = PkgConfigDeps(self)
-        deps.generate()
-
         enabled_disabled = lambda opt: "enabled" if opt else "disabled"
         tc = MesonToolchain(self)
         tc.project_options["introspection"] = enabled_disabled(self.options.with_introspection)
@@ -153,27 +148,18 @@ class PangoConan(ConanFile):
         tc.project_options["fontconfig"] = enabled_disabled(self.options.with_fontconfig)
         tc.project_options["freetype"] = enabled_disabled(self.options.with_freetype)
         tc.generate()
-
-    def _patch_sources(self):
-        meson_build = os.path.join(self.source_folder, "meson.build")
-        replace_in_file(self, meson_build, "subdir('tests')", "")
-        replace_in_file(self, meson_build, "subdir('tools')", "")
-        replace_in_file(self, meson_build, "subdir('utils')", "")
-        replace_in_file(self, meson_build, "subdir('examples')", "")
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
 
-    def _fix_library_names(self, path):
+    def _fix_library_names(self, dir_path):
         if is_msvc(self):
-            with chdir(self, path):
-                for filename_old in glob.glob("*.a"):
-                    filename_new = filename_old[3:-2] + ".lib"
-                    self.output.info(f"rename {filename_old} into {filename_new}")
-                    rename(self, filename_old, filename_new)
+            for path in Path(dir_path).glob("*.a"):
+                rename(self, path, path.parent / (path.stem.replace("lib", "") + ".lib"))
 
     def package(self):
         copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -182,9 +168,6 @@ class PangoConan(ConanFile):
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
-        if self.options.with_introspection:
-            os.rename(os.path.join(self.package_folder, "share"),
-                      os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.components["pango_"].libs = ["pango-1.0"]
@@ -210,9 +193,9 @@ class PangoConan(ConanFile):
         ]
 
         if self.options.with_introspection:
-            self.cpp_info.components["pango_"].resdirs = ["res"]
+            self.cpp_info.components["pango_"].resdirs = ["share"]
             self.cpp_info.components["pango_"].requires.append("gobject-introspection::gobject-introspection")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         # From meson.build: "To build pangoft2, we need HarfBuzz, FontConfig and FreeType"
@@ -259,8 +242,7 @@ class PangoConan(ConanFile):
             self.cpp_info.components["pangowin32"].set_property("pkg_config_name", "pangowin32")
             self.cpp_info.components["pangowin32"].requires = ["pango_"]
             self.cpp_info.components["pangowin32"].system_libs.append("gdi32")
-            if Version(self.version) >= "1.50.12":
-                self.cpp_info.components["pangowin32"].system_libs.append("dwrite")
+            self.cpp_info.components["pangowin32"].system_libs.append("dwrite")
 
         if is_apple_os(self):
             # https://gitlab.gnome.org/GNOME/pango/-/blob/1.54.0/meson.build#L333-346
