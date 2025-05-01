@@ -42,32 +42,21 @@ class PackageConan(ConanFile):
     }
     # In case having config_options() or configure() method, the logic should be moved to the specific methods.
     implements = ["auto_shared_fpic"]
+    # For plain C projects only.
+    languages = ["C"]
 
     # no exports_sources attribute, but export_sources(self) method instead
     def export_sources(self):
         export_conandata_patches(self)
 
-    def configure(self):
-        # Keep this logic only in case configure() is needed e.g pure-c project.
-        # Otherwise remove configure() and auto_shared_fpic will manage it.
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # for plain C projects only. Otherwise, remove this method.
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        # Prefer self.requirements() method instead of self.requires attribute.
-        self.requires("dependency/0.8.1")
+        self.requires("openssl/[>=1.1 <4]")
         if self.options.with_foobar:
             # INFO: used in foo/baz.hpp:34
             self.requires("foobar/0.1.0")
-        # Some dependencies on CCI are allowed to use version ranges.
-        # See https://github.com/conan-io/conan-center-index/blob/master/docs/adding_packages/dependencies.md#version-ranges
-        self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         # validate the minimum cpp standard supported. Only for C++ projects
@@ -173,9 +162,6 @@ class PackageConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "package")
 
         self.cpp_info.libs = ["package_lib"]
-
-        # if the package provides a pkgconfig file (package.pc, usually installed in <prefix>/lib/pkgconfig/)
-        self.cpp_info.set_property("pkg_config_name", "package")
 
         # If they are needed on Linux, m, pthread and dl are usually needed on FreeBSD too
         if self.settings.os in ["Linux", "FreeBSD"]:

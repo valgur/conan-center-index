@@ -28,28 +28,21 @@ class PackageConan(ConanFile):
     default_options = {
         "shared": False,
     }
+    # For plain C projects only.
+    languages = ["C"]
 
     # no exports_sources attribute, but export_sources(self) method instead
     def export_sources(self):
         export_conandata_patches(self)
 
-    def configure(self):
-        # for plain C projects only. Otherwise, this method is not needed
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        # Prefer self.requirements() method instead of self.requires attribute.
-        self.requires("dependency/0.8.1")
+        self.requires("openssl/[>=1.1 <4]")
         if self.options.with_foobar:
             # used in foo/baz.hpp:34
             self.requires("foobar/0.1.0")
-        # A small number of dependencies on CCI are allowed to use version ranges.
-        # See https://github.com/conan-io/conan-center-index/blob/master/docs/adding_packages/dependencies.md#version-ranges
-        self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         # in case it does not work in another configuration, it should be validated here too

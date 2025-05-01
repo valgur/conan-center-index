@@ -33,11 +33,7 @@ class PackageConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        # Prefer self.requires method instead of requires attribute
         # Direct dependencies of header only libs are always transitive since they are included in public headers
-        self.requires("dependency/0.8.1")
-        # Some dependencies on CCI are allowed to use version ranges.
-        # See https://github.com/conan-io/conan-center-index/blob/master/docs/adding_packages/dependencies.md#version-ranges
         self.requires("openssl/[>=1.1 <4]")
 
     # same package ID for any package
@@ -59,10 +55,6 @@ class PackageConan(ConanFile):
         # Using patches is always the last resort to fix issues. If possible, try to fix the issue in the upstream project.
         apply_conandata_patches(self)
 
-    # Suppress warning message about missing build() method when running Conan
-    def build(self):
-        pass
-
     # Copy all files to the package folder
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -70,11 +62,6 @@ class PackageConan(ConanFile):
         copy(self, "*.h", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
 
     def package_info(self):
-        # Set these to the appropriate values if the package has an official FindPACKAGE.cmake
-        # listed in https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html#find-modules
-        # examples: bzip2, freetype, gdal, icu, libcurl, libjpeg, libpng, libtiff, openssl, sqlite3, zlib...
-        self.cpp_info.set_property("cmake_module_file_name", "PACKAGE")
-        self.cpp_info.set_property("cmake_module_target_name", "PACKAGE::PACKAGE")
         # Set these to the appropriate values if package provides a CMake config file
         # (package-config.cmake or packageConfig.cmake, with package::package target, usually installed in <prefix>/lib/cmake/<package>/)
         self.cpp_info.set_property("cmake_file_name", "package")

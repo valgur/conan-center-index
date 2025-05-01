@@ -1,8 +1,7 @@
-#include <cstdlib>
-#include "package/foobar.hpp"
+#include <package/foobar.h>
 
 
-int main(void) {
+int main() {
     /*
      * TODO: Remove this comment before pushing the testing code;
      *
@@ -15,7 +14,5 @@ int main(void) {
      * The propose is testing the generated artifacts ONLY;
     */
 
-    foobar.print_version();
-
-    return EXIT_SUCCESS;
+    foobar.print_version(); // Make sure to call something that will require linkage for compiled libraries
 }

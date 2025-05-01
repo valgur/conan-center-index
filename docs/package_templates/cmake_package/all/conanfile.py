@@ -37,32 +37,21 @@ class PackageConan(ConanFile):
     }
     # In case having config_options() or configure() method, the logic should be moved to the specific methods.
     implements = ["auto_shared_fpic"]
+    # For plain C projects only.
+    languages = ["C"]
 
     # no exports_sources attribute, but export_sources(self) method instead
     def export_sources(self):
         export_conandata_patches(self)
 
-    def configure(self):
-        # Keep this logic only in case configure() is needed e.g pure-c project.
-        # Otherwise remove configure() and auto_shared_fpic will manage it.
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # for plain C projects only
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # Always prefer self.requirements() method instead of self.requires attribute.
-        self.requires("dependency/0.8.1")
+        self.requires("openssl/[>=1.1 <4]")
         if self.options.with_foobar:
             # INFO: used in foo/baz.hpp:34
             self.requires("foobar/0.1.0", transitive_headers=True, transitive_libs=True)
-        # Some dependencies on CCI are allowed to use version ranges.
-        # See https://github.com/conan-io/conan-center-index/blob/master/docs/adding_packages/dependencies.md#version-ranges
-        self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
         # validate the minimum cpp standard supported. For C++ projects only.
@@ -114,10 +103,6 @@ class PackageConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
-        # if package has an official FindPACKAGE.cmake listed in https://cmake.org/cmake/help/latest/manual/cmake-modules.7.html#find-modules
-        # examples: bzip2, freetype, gdal, icu, libcurl, libjpeg, libpng, libtiff, openssl, sqlite3, zlib...
-        self.cpp_info.set_property("cmake_module_file_name", "PACKAGE")
-        self.cpp_info.set_property("cmake_module_target_name", "PACKAGE::PACKAGE")
         # if package provides a CMake config file (package-config.cmake or packageConfig.cmake, with package::package target, usually installed in <prefix>/lib/cmake/<package>/)
         self.cpp_info.set_property("cmake_file_name", "package")
         self.cpp_info.set_property("cmake_target_name", "package::package")
@@ -128,9 +113,7 @@ class PackageConan(ConanFile):
 
         # If they are needed on Linux, m, pthread and dl are usually needed on FreeBSD too
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("m")
-            self.cpp_info.system_libs.append("pthread")
-            self.cpp_info.system_libs.append("dl")
+            self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
 
         # To export additional CMake variables, such as upper-case variables otherwise set by the project's *-config.cmake,
         # you can copy or save a .cmake file under <prefix>/lib/cmake/ with content like

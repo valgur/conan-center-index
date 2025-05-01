@@ -1,8 +1,7 @@
-#include <cstdlib>
-#include "package/foobar.h"
+#include <package/foobar.h>
 
 
-int main(void) {
+int main() {
     /*
      * TODO: Remove this comment before pushing the testing code;
      *
@@ -16,6 +15,4 @@ int main(void) {
     */
 
     foobar_print_version(); // Make sure to call something that will require linkage for compiled libraries
-
-    return EXIT_SUCCESS;
 }
