@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import stdcpp_library
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -51,9 +51,6 @@ class HarfbuzzConan(ConanFile):
         "with_subset": "deprecated",
         "with_introspection": False,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -121,24 +118,17 @@ class HarfbuzzConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('util')", "")
+        replace_in_file(self, "meson.build", "subdir('util')", "")
 
     def generate(self):
         def is_enabled(value):
             return "enabled" if value else "disabled"
 
         def meson_backend_and_flags():
-            def is_vs_2017():
-                version = Version(self.settings.compiler.version)
-                return version == "15" or version == "191"
-
-            if is_msvc(self) and is_vs_2017() and self.settings.build_type == "Debug":
+            if is_msvc(self) and self.settings.compiler.version == "191" and self.settings.build_type == "Debug":
                 # Mitigate https://learn.microsoft.com/en-us/cpp/build/reference/zf?view=msvc-170
                 return "vs", ["/bigobj"]
             return "ninja", []
-
-        VirtualBuildEnv(self).generate()
 
         # Avoid conflicts with libiconv
         # see: https://github.com/conan-io/conan-center-index/pull/17046#issuecomment-1554629094
@@ -183,9 +173,6 @@ class HarfbuzzConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if self.options.with_introspection:
-            os.rename(os.path.join(self.package_folder, "share"),
-                      os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
 
@@ -225,9 +212,9 @@ class HarfbuzzConan(ConanFile):
                 self.cpp_info.components["harfbuzz_"].system_libs.append(libcxx)
 
         if self.options.with_introspection:
-            self.cpp_info.components["harfbuzz_"].resdirs = ["res"]
+            self.cpp_info.components["harfbuzz_"].resdirs = ["share"]
             self.cpp_info.components["harfbuzz_"].requires.append("gobject-introspection::gobject-introspection")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         self.cpp_info.components["subset"].set_property("cmake_target_name", "harfbuzz::subset")
