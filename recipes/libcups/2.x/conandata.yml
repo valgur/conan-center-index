@@ -1,0 +1,4 @@
+sources:
+  "2.2.12":
+    url: "https://github.com/OpenPrinting/libcups/archive/refs/tags/v2.2.12.tar.gz"
+    sha256: "254b735c77130e6d255a3b52dec6302f56dd985be356f930f73c1982e471390a"

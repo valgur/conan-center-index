@@ -27,12 +27,18 @@ class LibcupsConan(ConanFile):
         "fPIC": [True, False],
         "with_dbus": [True, False],
         "with_dnssd": ["avahi", "mdnsresponder"],
+        "with_gssapi": [True, False],
+        "with_libusb": [True, False],
+        "with_systemd": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_dbus": True,
         "with_dnssd": "avahi",
+        "with_gssapi": True,
+        "with_libusb": True,
+        "with_systemd": True,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -47,7 +53,6 @@ class LibcupsConan(ConanFile):
             del self.options.with_dnssd
 
     def requirements(self):
-        self.requires("pdfio/[^1.5.2]")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("libiconv/1.17")
         self.requires("openssl/[>=1.1 <4]")
@@ -57,6 +62,12 @@ class LibcupsConan(ConanFile):
             self.requires("mdnsresponder/878.200.35")
         if self.options.with_dbus:
             self.requires("dbus/[^1.15]")
+        if self.options.with_libusb:
+            self.requires("libusb/1.0.26")
+        if self.options.with_gssapi:
+            self.requires("krb5/[^1.21]")
+        if self.options.with_systemd:
+            self.requires("libsystemd/[^255]")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -70,29 +81,33 @@ class LibcupsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # pdfio has been unvendored
-        replace_in_file(self, os.path.join("tools", "Dependencies"), "../pdfio/pdfio.h", "")
-        replace_in_file(self, os.path.join("tools", "Dependencies"), "../pdfio/pdfio-content.h", "")
-        # Don't override the datarootdir
-        replace_in_file(self, "configure", 'datarootdir="/usr/share"', "")
+        replace_in_file(self, "configure", '"/usr', r'"\$(prefix)')
 
     def generate(self):
         if not cross_building(self):
             VirtualRunEnv(self).generate(scope="build")
 
+        def opt_enable(what, v):
+            return "--{}-{}".format("enable" if v else "disable", what)
+
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
-            "--with-tls=openssl",
-            "--enable-dbus" if self.options.with_dbus else "--disable-dbus",
+            opt_enable("dbus", self.options.with_dbus),
+            opt_enable("libusb", self.options.with_libusb),
+            opt_enable("gssapi", self.options.with_gssapi),
+            opt_enable("tcp-wrappers", False),
+            opt_enable("ssl", True),
+            opt_enable("avahi", self.options.get_safe("with_dnssd") == "avahi"),
+            opt_enable("dnssd", self.options.get_safe("with_dnssd") == "mdnsresponder"),
+            opt_enable("systemd", self.options.with_systemd),
         ])
-        if self.options.get_safe("with_dnssd"):
-            tc.configure_args.append(f"--with-dnssd={self.options.with_dnssd}")
         tc.make_args.append("DIRS=cups")
+        tc.make_args.append(f"prefix={unix_path(self, self.package_folder)}")
         tc.generate()
 
         cpp_info = CppInfo(self)
         for req, dependency in self.dependencies.items():
-            if req.ref.name in ["libiconv"]:
+            if req.ref.name in ["libiconv", "krb5"]:
                 cpp_info.merge(dependency.cpp_info.aggregated_components())
         env = Environment()
         env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in cpp_info.includedirs] + [f"-D{d}" for d in cpp_info.defines])
@@ -126,18 +141,18 @@ class LibcupsConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        rm(self, "cups-config", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        self.cpp_info.set_property("pkg_config_name", "cups3")
-        self.cpp_info.libs = ["cups3"]
-        self.cpp_info.includedirs.append(os.path.join("include", "libcups3"))
+        self.cpp_info.set_property("pkg_config_name", "cups")
+        self.cpp_info.libs = ["cups"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread"])
         elif is_apple_os(self):
