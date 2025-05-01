@@ -36,9 +36,9 @@ class LibcupsConan(ConanFile):
         "fPIC": True,
         "with_dbus": True,
         "with_dnssd": "avahi",
-        "with_gssapi": True,
+        "with_gssapi": False,
         "with_libusb": True,
-        "with_systemd": True,
+        "with_systemd": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
