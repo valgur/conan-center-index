@@ -1,0 +1,5 @@
+sources:
+  "1.37":
+    "renderdoc_app.h":
+      url: "https://raw.githubusercontent.com/baldurk/renderdoc/refs/tags/v1.37/renderdoc/api/app/renderdoc_app.h"
+      sha256: "0ab27bfa81235ebfc8f4c48111399ea81477eb4f77665e6209c9247daee91b94"
