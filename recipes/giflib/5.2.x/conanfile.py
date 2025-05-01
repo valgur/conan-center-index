@@ -11,8 +11,8 @@ required_conan_version = ">=2.4"
 class GiflibConan(ConanFile):
     name = "giflib"
     description = "A library and utilities for reading and writing GIF images."
-    url = "https://github.com/conan-io/conan-center-index"
     license = "MIT"
+    url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://giflib.sourceforge.net"
     topics = ("gif", "image", "multimedia", "format", "graphics")
     package_type = "library"
@@ -31,8 +31,7 @@ class GiflibConan(ConanFile):
     languages = ["C"]
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
-        export_conandata_patches(self)
+        copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -43,12 +42,10 @@ class GiflibConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["GIFLIB_SRC_DIR"] = self.source_folder.replace("\\", "/")
-        tc.variables["UTILS"] = self.options.utils
+        tc.cache_variables["UTILS"] = self.options.utils
         tc.generate()
 
         if is_msvc(self):
@@ -57,11 +54,11 @@ class GiflibConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

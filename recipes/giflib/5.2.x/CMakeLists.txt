@@ -4,17 +4,17 @@ project(gif LANGUAGES C)
 include(GNUInstallDirs)
 
 add_library(gif
-    "${GIFLIB_SRC_DIR}/dgif_lib.c"
-    "${GIFLIB_SRC_DIR}/egif_lib.c"
-    "${GIFLIB_SRC_DIR}/gifalloc.c"
-    "${GIFLIB_SRC_DIR}/gif_err.c"
-    "${GIFLIB_SRC_DIR}/gif_font.c"
-    "${GIFLIB_SRC_DIR}/gif_hash.c"
-    "${GIFLIB_SRC_DIR}/openbsd-reallocarray.c"
+    dgif_lib.c
+    egif_lib.c
+    gifalloc.c
+    gif_err.c
+    gif_font.c
+    gif_hash.c
+    openbsd-reallocarray.c
 )
 if(WIN32)
     if(BUILD_SHARED_LIBS)
-        set_property(TARGET gif PROPERTY PREFIX "")
+        set_property(TARGET gif PROPERTY PREFIX )
         target_compile_definitions(gif INTERFACE USE_GIF_DLL)
     else()
         target_compile_definitions(gif PUBLIC USE_GIF_LIB)
@@ -28,15 +28,15 @@ install(
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 install(
-    FILES "${GIFLIB_SRC_DIR}/gif_lib.h"
+    FILES gif_lib.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 if(UTILS)
     add_library(giflib_util STATIC
-        "${GIFLIB_SRC_DIR}/qprintf.c"
-        "${GIFLIB_SRC_DIR}/quantize.c"
-        "${GIFLIB_SRC_DIR}/getarg.c"
+        qprintf.c
+        quantize.c
+        getarg.c
     )
     target_link_libraries(giflib_util PRIVATE gif)
 
@@ -49,7 +49,7 @@ if(UTILS)
         gifclrmp
     )
     foreach(GIF_UTIL ${GIF_UTILS})
-        add_executable(${GIF_UTIL} "${GIFLIB_SRC_DIR}/${GIF_UTIL}.c")
+        add_executable(${GIF_UTIL} ${GIF_UTIL}.c)
         target_link_libraries(${GIF_UTIL} PRIVATE gif giflib_util)
     endforeach()
     include(CheckLibraryExists)
