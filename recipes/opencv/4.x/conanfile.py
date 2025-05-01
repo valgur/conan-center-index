@@ -1130,7 +1130,7 @@ class OpenCVConan(ConanFile):
         # freetype module dependencies
         if self.options.freetype:
             self.requires("freetype/2.13.2")
-            self.requires("harfbuzz/8.3.0")
+            self.requires("harfbuzz/[*]")
         # hdf module dependencies
         if self.options.hdf:
             self.requires("hdf5/1.14.5")

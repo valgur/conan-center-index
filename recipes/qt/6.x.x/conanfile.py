@@ -436,7 +436,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_icu"):
             self.requires("icu/[*]")
         if self.options.get_safe("with_harfbuzz"):
-            self.requires("harfbuzz/8.3.0")
+            self.requires("harfbuzz/[*]")
         if self.options.with_libb2:
             self.requires("libb2/20190723")
         if self.options.get_safe("with_libjpeg") == "libjpeg":

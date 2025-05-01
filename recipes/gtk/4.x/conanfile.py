@@ -116,7 +116,7 @@ class GtkConan(ConanFile):
         self.requires("graphene/1.10.8", transitive_headers=True, transitive_libs=True)
         self.requires("libepoxy/1.5.10")
         self.requires("fribidi/1.0.13")
-        self.requires("harfbuzz/8.3.0")
+        self.requires("harfbuzz/[*]")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("libjpeg/9e")
