@@ -66,7 +66,7 @@ class Libfreenect2Conan(ConanFile):
             self.requires("opengl/system")
             self.requires("glfw/3.3.8")
         if self.options.get_safe("with_vaapi"):
-            self.requires("libva/2.21.0")
+            self.requires("libva/[^2.21]")
         if self.options.with_cuda:
             self.requires("cuda-samples/12.2")
 

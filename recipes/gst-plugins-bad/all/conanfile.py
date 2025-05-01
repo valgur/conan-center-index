@@ -239,7 +239,7 @@ class GStPluginsBadConan(ConanFile):
         if "libgudev" in reqs or (self._is_enabled("va") and self.options.get_safe("with_libudev")):
             self.requires("libgudev/238")
         if self._is_enabled("va"):
-            self.requires("libva/2.22.0")
+            self.requires("libva/[^2.21]")
         if "libxml2" in reqs:
             self.requires("libxml2/[>=2.12.5 <3]")
         if "lcms" in reqs:

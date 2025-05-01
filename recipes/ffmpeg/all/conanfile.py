@@ -331,7 +331,7 @@ class FFMpegConan(ConanFile):
         if self.options.get_safe("with_sndio"):
             self.requires("libsndio/1.9.0")
         if self.options.get_safe("with_vaapi"):
-            self.requires("libva/2.21.0")
+            self.requires("libva/[^2.21]")
         if self.options.get_safe("with_vdpau"):
             self.requires("libvdpau/1.5")
         if self.options.get_safe("with_vulkan"):
