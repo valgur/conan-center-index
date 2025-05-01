@@ -134,10 +134,10 @@ class wxWidgetsConan(ConanFile):
     def requirements(self):
         if self._toolkit == "gtk3":
             # Used in gtk/private/wrapgtk.h and other public headers
-            self.requires("gtk/3.24.43", transitive_headers=True, transitive_libs=True)
+            self.requires("gtk/[^3.24]", transitive_headers=True, transitive_libs=True)
         elif self._toolkit == "gtk4":
             # Used in gtk/private/wrapgtk.h and other public headers
-            self.requires("gtk/4.15.6", transitive_headers=True, transitive_libs=True)
+            self.requires("gtk/[^4.15]", transitive_headers=True, transitive_libs=True)
         elif self._toolkit == "qt":
             # Used in wx/qt/private/converter.h and other public headers
             self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)

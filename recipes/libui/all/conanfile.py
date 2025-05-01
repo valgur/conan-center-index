@@ -35,7 +35,7 @@ class libuiConan(ConanFile):
     def requirements(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
             # GTK 4 is not yet supported
-            self.requires("gtk/3.24.43")
+            self.requires("gtk/[^3.24]")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):

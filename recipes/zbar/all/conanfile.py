@@ -66,7 +66,7 @@ class ZbarConan(ConanFile):
             self.requires("imagemagick/7.0.11-14")
         if self.options.with_gtk:
             # GTK 4 is not yet supported
-            self.requires("gtk/3.24.43")
+            self.requires("gtk/[^3.24]")
         if self.options.with_qt:
             self.requires("qt/[>=5.15 <7]")
         if self.options.with_xv or self.options.with_xshm or self.options.with_x:

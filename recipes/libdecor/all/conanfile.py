@@ -44,7 +44,7 @@ class libdecorConan(ConanFile):
         if self.options.with_dbus:
             self.requires("dbus/[^1.15]")
         if self.options.with_gtk:
-            self.requires("gtk/[^3]")
+            self.requires("gtk/[^3.24]")
 
     def validate(self):
         if self.settings.os != "Linux":

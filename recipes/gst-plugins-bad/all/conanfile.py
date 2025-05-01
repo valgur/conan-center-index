@@ -221,7 +221,7 @@ class GStPluginsBadConan(ConanFile):
         if "google-cloud-cpp" in reqs:
             self.requires("google-cloud-cpp/2.28.0")
         if "gtk" in reqs:
-            self.requires("gtk/3.24.43")
+            self.requires("gtk/[^3.24]")
         if "json-glib" in reqs:
             self.requires("json-glib/1.10.6")
         if "libcurl" in reqs:

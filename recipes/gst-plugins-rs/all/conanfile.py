@@ -149,7 +149,7 @@ class GStPluginsRsConan(ConanFile):
         if "dav1d" in reqs:
             self.requires("dav1d/1.4.3")
         if "gtk" in reqs:
-            self.requires("gtk/4.15.6")
+            self.requires("gtk/[^4.15]")
         if "openssl" in reqs:
             self.requires("openssl/[>=1.1 <4]")
         if "pango" in reqs:

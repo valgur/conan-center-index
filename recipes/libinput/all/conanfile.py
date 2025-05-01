@@ -54,7 +54,7 @@ class LibinputConan(ConanFile):
         if self.options.debug_gui:
             self.requires("cairo/[^1.18.0]")
             self.requires("glib/[^2.70.0]")
-            self.requires("gtk/[^4]")
+            self.requires("gtk/[^4.15]")
             if self.options.with_wayland:
                 self.requires("wayland/[^1.22.0]")
             if self.options.with_x11:

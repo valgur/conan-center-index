@@ -204,7 +204,7 @@ class GStPluginsGoodConan(ConanFile):
             self.requires("gdk-pixbuf/[^2.42.10]")
         if "gtk" in reqs:
             # Only GTK 3 is supported
-            self.requires("gtk/3.24.43")
+            self.requires("gtk/[^3.24]")
         if "libjpeg" in reqs:
             if self.options.with_jpeg == "libjpeg":
                 self.requires("libjpeg/9e")

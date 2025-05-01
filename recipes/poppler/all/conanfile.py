@@ -105,7 +105,7 @@ class PopplerConan(ConanFile):
         if self.options.with_qt:
             self.requires("qt/[>=6.6 <7]")
         if self.options.get_safe("with_gtk"):
-            self.requires("gtk/4.7.0")
+            self.requires("gtk/[^4.15]")
         if self.options.with_openjpeg:
             self.requires("openjpeg/2.5.2")
         if self.options.with_lcms:

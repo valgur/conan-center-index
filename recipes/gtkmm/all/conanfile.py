@@ -56,13 +56,13 @@ class GtkmmConan(ConanFile):
 
     def requirements(self):
         if self._is_gtk4:
-            self.requires("gtk/4.15.6", transitive_headers=True, transitive_libs=True)
+            self.requires("gtk/[^4.15]", transitive_headers=True, transitive_libs=True)
             self.requires("glibmm/2.78.1", transitive_headers=True, transitive_libs=True)
             self.requires("cairomm/1.18.0", transitive_headers=True, transitive_libs=True)
             self.requires("pangomm/2.54.0", transitive_headers=True, transitive_libs=True)
             self.requires("libsigcpp/3.0.7", transitive_headers=True, transitive_libs=True)
         else:
-            self.requires("gtk/3.24.43", transitive_headers=True, transitive_libs=True)
+            self.requires("gtk/[^3.24]", transitive_headers=True, transitive_libs=True)
             self.requires("glibmm/2.66.4", transitive_headers=True, transitive_libs=True)
             self.requires("cairomm/1.14.5", transitive_headers=True, transitive_libs=True)
             self.requires("pangomm/2.46.4", transitive_headers=True, transitive_libs=True)
