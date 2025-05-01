@@ -1,11 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -65,14 +63,10 @@ class VulkanLoaderConan(ConanFile):
             self.requires("xorg/system")
         if self.options.get_safe("with_wsi_wayland"):
             self.requires("wayland/[^1.22.0]")
+        if self.options.get_safe("with_wsi_directfb"):
+            self.requires("directfb/1.7.7")
 
     def validate(self):
-        if self.options.get_safe("with_wsi_directfb"):
-            # TODO: directfb package
-            raise ConanInvalidConfiguration("Conan recipe for DirectFB is not available yet.")
-        # FIXME: It should build but Visual Studio 2015 container in CI of CCI seems to lack some Win SDK headers
-        check_min_vs(self, "191")
-        # TODO: to replace by some version range check
         if self.dependencies["vulkan-headers"].ref.version != self.version:
             self.output.warning("vulkan-loader should be built & consumed with the same version than vulkan-headers.")
 
@@ -161,3 +155,5 @@ class VulkanLoaderConan(ConanFile):
             self.cpp_info.requires.append("xorg::xcb")
         if self.options.get_safe("with_wsi_wayland"):
             self.cpp_info.requires.append("wayland::wayland")
+        if self.options.get_safe("with_wsi_directfb"):
+            self.cpp_info.requires.append("directfb::directfb_")
