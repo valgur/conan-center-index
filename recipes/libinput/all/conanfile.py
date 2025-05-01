@@ -52,7 +52,7 @@ class LibinputConan(ConanFile):
         self.requires("libevdev/1.13.1")
 
         if self.options.debug_gui:
-            self.requires("cairo/1.18.0")
+            self.requires("cairo/[^1.18.0]")
             self.requires("glib/[~2.78.6]")
             self.requires("gtk/[^4]")
             if self.options.with_wayland:

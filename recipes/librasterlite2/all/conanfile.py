@@ -52,7 +52,7 @@ class Librasterlite2Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cairo/1.18.0")
+        self.requires("cairo/[^1.18.0]")
         self.requires("freetype/2.13.2")
         self.requires("giflib/[^5.2.1]")
         self.requires("libcurl/[>=7.78 <9]")

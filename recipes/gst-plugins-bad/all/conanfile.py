@@ -209,7 +209,7 @@ class GStPluginsBadConan(ConanFile):
         if "bzip2" in reqs:
             self.requires("bzip2/1.0.8")
         if "cairo" in reqs:
-            self.requires("cairo/1.18.0")
+            self.requires("cairo/[^1.18.0]")
         if "directfb" in reqs:
             self.requires("directfb/1.7.7")
         if "directx-headers" in reqs:

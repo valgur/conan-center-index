@@ -160,7 +160,7 @@ class wxWidgetsConan(ConanFile):
             # Used in wx/unix/glx11.h and other public headers
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         if self.options.cairo and not self._toolkit.startswith("gtk"):
-            self.requires("cairo/1.18.0")
+            self.requires("cairo/[^1.18.0]")
         if self.options.get_safe("private_fonts"):
             self.requires("fontconfig/2.15.0")
 

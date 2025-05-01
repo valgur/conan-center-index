@@ -145,7 +145,7 @@ class GStPluginsRsConan(ConanFile):
             self.requires(f"gst-plugins-bad/{self.version}", transitive_headers=True, transitive_libs=True)
 
         if "cairo" in reqs:
-            self.requires("cairo/1.18.0")
+            self.requires("cairo/[^1.18.0]")
         if "dav1d" in reqs:
             self.requires("dav1d/1.4.3")
         if "gtk" in reqs:

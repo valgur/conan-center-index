@@ -197,7 +197,7 @@ class GStPluginsGoodConan(ConanFile):
         if "bzip2" in reqs:
             self.requires("bzip2/1.0.8")
         if "cairo" in reqs:
-            self.requires("cairo/1.18.0")
+            self.requires("cairo/[^1.18.0]")
         if "flac" in reqs:
             self.requires("flac/1.4.2")
         if "gdk-pixbuf" in reqs:

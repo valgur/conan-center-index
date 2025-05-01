@@ -40,7 +40,7 @@ class KplotConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built on Visual Studio and msvc.")
 
     def requirements(self):
-        self.requires("cairo/1.18.0", transitive_headers=True)
+        self.requires("cairo/[^1.18.0]", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
