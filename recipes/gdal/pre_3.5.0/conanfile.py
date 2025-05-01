@@ -239,7 +239,7 @@ class GdalConan(ConanFile):
         if self.options.with_charls:
             self.requires("charls/2.4.1")
         if self.options.with_gif:
-            self.requires("giflib/5.2.1")
+            self.requires("giflib/[^5.2.1]")
         # if self.options.with_ogdi:
         #     self.requires("ogdi/4.1.0")
         # if self.options.with_sosi:

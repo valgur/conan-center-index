@@ -82,7 +82,7 @@ class CernRootConan(ConanFile):
             self.requires("util-linux-libuuid/2.41")
 
         if self.options.asimage:
-            self.requires("giflib/5.2.2")
+            self.requires("giflib/[^5.2.1]")
             self.requires("libjpeg/9e")
             self.requires("libpng/[~1.6]")
             self.requires("libtiff/4.6.0")
