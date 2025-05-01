@@ -13,7 +13,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class GdkPixbufConan(ConanFile):
@@ -42,19 +42,12 @@ class GdkPixbufConan(ConanFile):
         "with_libjpeg": "libjpeg",
         "with_introspection": False,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
         if self.options.shared:
             self.options["glib"].shared = True
 
@@ -99,7 +92,6 @@ class GdkPixbufConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     @property
     def _requires_compiler_rt(self):
@@ -117,28 +109,17 @@ class GdkPixbufConan(ConanFile):
 
         tc = MesonToolchain(self)
         enabled_disabled = lambda v: "enabled" if v else "disabled"
-        true_false = lambda v: "true" if v else "false"
         tc.project_options.update({
             "builtin_loaders": "all",
             "gio_sniffing": "false",
             "introspection": enabled_disabled(self.options.with_introspection),
             "docs": "false",
             "man": "false",
-            "installed_tests": "false"
+            "installed_tests": "false",
+            "png": enabled_disabled(self.options.with_libpng),
+            "tiff": enabled_disabled(self.options.with_libtiff),
+            "jpeg": enabled_disabled(self.options.with_libjpeg)
         })
-
-        if Version(self.version) >= "2.42.8":
-            tc.project_options.update({
-                "png": enabled_disabled(self.options.with_libpng),
-                "tiff": enabled_disabled(self.options.with_libtiff),
-                "jpeg": enabled_disabled(self.options.with_libjpeg)
-            })
-        else:
-            tc.project_options.update({
-                "png": true_false(self.options.with_libpng),
-                "tiff": true_false(self.options.with_libtiff),
-                "jpeg": true_false(self.options.with_libjpeg)
-            })
         # Workaround for https://bugs.llvm.org/show_bug.cgi?id=16404
         # Only really for the purposes of building on CCI - end users can
         # workaround this by appropriately setting global linker flags in their profile
@@ -156,8 +137,7 @@ class GdkPixbufConan(ConanFile):
         # workaround https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/issues/203
         replace_in_file(self, os.path.join(self.source_folder, "build-aux", "post-install.py"),
                         "close_fds=True", "close_fds=(sys.platform != 'win32')")
-        if Version(self.version) >= "2.42.9":
-            replace_in_file(self, meson_build, "is_msvc_like = ", "is_msvc_like = false #")
+        replace_in_file(self, meson_build, "is_msvc_like = ", "is_msvc_like = false #")
         # Fix libtiff and libpng not being linked against when building statically
         # Reported upstream: https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/merge_requests/159
         replace_in_file(self, gdk_meson_build,
