@@ -172,6 +172,10 @@ decklink:
   requires:
     - gstreamer-audio-1.0
     - gstreamer-video-1.0
+directfb:
+  requires:
+    - gstreamer-video-1.0
+    - directfb::directfb_
 directshow:
   requires:
     - gstreamer-video-1.0

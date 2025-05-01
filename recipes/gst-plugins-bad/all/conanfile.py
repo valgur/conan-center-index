@@ -210,6 +210,8 @@ class GStPluginsBadConan(ConanFile):
             self.requires("bzip2/1.0.8")
         if "cairo" in reqs:
             self.requires("cairo/1.18.0")
+        if "directfb" in reqs:
+            self.requires("directfb/1.7.7")
         if "directx-headers" in reqs:
             self.requires("directx-headers/1.614.0")
         if "faac" in reqs:
@@ -403,7 +405,6 @@ class GStPluginsBadConan(ConanFile):
         tc.project_options["bluez"] = "disabled"  # bluez
         tc.project_options["bs2b"] = "disabled"  # libbs2b
         tc.project_options["chromaprint"] = "disabled"  # libchromaprint
-        tc.project_options["directfb"] = "disabled"  # directfb
         tc.project_options["dts"] = "disabled"  # libdca (GPL)
         tc.project_options["faad"] = "disabled"  # faad2 (GPL)
         tc.project_options["flite"] = "disabled"  # flite
