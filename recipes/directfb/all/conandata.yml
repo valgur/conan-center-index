@@ -1,0 +1,11 @@
+sources:
+  "1.7.7":
+    "directfb":
+      url: "https://github.com/deniskropp/DirectFB/archive/DIRECTFB_1_7_7/DirectFB-1.7.7.tar.gz"
+      sha256: "dd8400b6ae2f2f650f4c2519be38c0e5d01a9d9deb5d256452f3ed4eac5da06a"
+    "flux":
+      url: "https://github.com/deniskropp/flux/archive/10ad2ebc78b396032714b839f200848ea0dd9503.tar.gz"
+      sha256: "a55c86930fbad5d648b6ed6fa040b0a89bd836d683f7e550dfddff8881b835c9"
+patches:
+  "1.7.7":
+    - patch_file: "patches/fix-comparator.patch"

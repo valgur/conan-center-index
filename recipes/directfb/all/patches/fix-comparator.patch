@@ -1,0 +1,19 @@
+Fix
+
+src/core/TaskManager.cpp:279:57:   required from here
+/usr/include/c++/13/bits/stl_tree.h:772:15: error: static assertion failed: comparison object must be invocable as const
+  772 |               is_invocable_v<const _Compare&, const _Key&, const _Key&>,
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/usr/include/c++/13/bits/stl_tree.h:772:15: note: 'std::is_invocable_v<const DirectFB::TaskManager&, DirectFB::Task* const&, DirectFB::Task* const&>' evaluates to false
+
+--- a/src/core/TaskManager.h
++++ b/src/core/TaskManager.h
+@@ -121,7 +121,7 @@
+      static void       dumpTasks();
+ 
+ 
+-     bool operator()( Task *t1, Task *t2 )
++     bool operator()( Task *t1, Task *t2 ) const
+      {
+           return t1->ts_emit < t2->ts_emit;
+      }
