@@ -158,7 +158,7 @@ class GStPluginsBaseConan(ConanFile):
     def requirements(self):
         reqs = self._all_reqs
         self.requires(f"gstreamer/{self.version}", transitive_headers=True, transitive_libs=True)
-        self.requires("glib/[~2.78.6]", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         self.requires("gst-orc/0.4.41")
 
         if self.options.with_introspection:

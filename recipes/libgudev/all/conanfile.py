@@ -38,7 +38,7 @@ class LibgudevConan(ConanFile):
 
     def requirements(self):
         self.requires("libudev/255.18")
-        self.requires("glib/[~2.78.6]", transitive_headers=True)
+        self.requires("glib/[^2.70.0]", transitive_headers=True)
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1")
 

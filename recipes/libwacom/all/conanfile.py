@@ -25,7 +25,7 @@ class LibwacomConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/[~2.78.6]")
+        self.requires("glib/[^2.70.0]")
         self.requires("libgudev/238")
         self.requires("libevdev/1.13.1")
 

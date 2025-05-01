@@ -91,7 +91,7 @@ class CairoConan(ConanFile):
             self.requires("libpng/[~1.6]")
         if self.options.with_glib:
             # Used in public cairo-gobject.h header
-            self.requires("glib/[~2.78.6]", transitive_headers=True, transitive_libs=True)
+            self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_xlib or self.options.with_xlib_xrender or self.options.with_xcb:
                 # Used in public cairo-xlib.h, cairo-xlib-xrender.h and cairo-xcb.h headers

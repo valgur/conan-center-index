@@ -92,7 +92,7 @@ class GtkConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glib/[~2.78.6]", transitive_headers=True, transitive_libs=True)
+        self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         self.requires("gdk-pixbuf/2.42.10", transitive_headers=True, transitive_libs=True)
         self.requires("pango/1.54.0", transitive_headers=True, transitive_libs=True)
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)

@@ -426,7 +426,7 @@ class QtConan(ConanFile):
             if is_apple_os(self):
                 self.requires("moltenvk/1.2.2")
         if self.options.with_glib:
-            self.requires("glib/[~2.78.6]")
+            self.requires("glib/[^2.70.0]")
         if self.options.with_doubleconversion:
             self.requires("double-conversion/3.3.0")
         if self.options.get_safe("with_freetype"):

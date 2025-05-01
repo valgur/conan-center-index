@@ -32,7 +32,7 @@ class KeychainConan(ConanFile):
     def requirements(self):
         if self.settings.os == "Linux":
             self.requires("libsecret/0.20.5")
-            self.requires("glib/[~2.78.6]")
+            self.requires("glib/[^2.70.0]")
 
     def validate(self):
         check_min_cppstd(self, 11)
