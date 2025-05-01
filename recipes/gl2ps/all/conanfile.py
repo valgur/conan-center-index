@@ -40,7 +40,7 @@ class Gl2psConan(ConanFile):
     def requirements(self):
         self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
 

@@ -57,7 +57,7 @@ class LibSixelConan(ConanFile):
         if self.options.with_jpeg:
             self.requires("libjpeg/9e")
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
 
     def validate(self):
         if is_msvc(self):

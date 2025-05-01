@@ -273,7 +273,7 @@ class GdalConan(ConanFile):
         if self.options.with_pg:
             self.requires("libpq/15.5")
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_podofo:
             self.requires("podofo/0.9.7")
         if self.options.with_poppler:

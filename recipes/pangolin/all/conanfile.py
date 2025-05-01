@@ -141,7 +141,7 @@ class PangolinConan(ConanFile):
         if self.options.with_openni2:
             self.requires("openni2/2.2.0.33")
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.python_bindings:
             self.requires("cpython/3.12.2")
             self.requires("pybind11/2.12.0")

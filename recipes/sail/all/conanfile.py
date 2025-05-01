@@ -57,7 +57,7 @@ class SAILConan(ConanFile):
         if self.options.with_highest_priority_codecs:
             self.requires("giflib/5.2.2")
             self.requires("libjpeg/9e")
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_high_priority_codecs:
             if Version(self.version) >= "0.9.1":

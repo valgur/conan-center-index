@@ -444,7 +444,7 @@ class QtConan(ConanFile):
         elif self.options.get_safe("with_libjpeg") == "libjpeg-turbo":
             self.requires("libjpeg-turbo/[>=3.0 <3.1]")
         if self.options.get_safe("with_libpng"):
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_mysql"):

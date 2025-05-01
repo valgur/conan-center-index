@@ -39,7 +39,7 @@ class ButteraugliConan(ConanFile):
 
     def requirements(self):
         if self.options.tool:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
             self.requires("libjpeg/9e")
 
     def validate(self):

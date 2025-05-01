@@ -49,7 +49,7 @@ class OpenSlideConan(ConanFile):
         self.requires("gdk-pixbuf/2.42.10")
         self.requires("glib/[~2.78.6]")
         self.requires("libdicom/1.0.5")
-        self.requires("libpng/[>=1.6 <2]")
+        self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("libxml2/[>=2.12.5 <3]")
         self.requires("openjpeg/2.5.2")

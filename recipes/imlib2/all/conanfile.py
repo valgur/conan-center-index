@@ -103,7 +103,7 @@ class Imlib2Conan(ConanFile):
         if self.options.with_lzma:
             self.requires("xz_utils/5.4.5")
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_raw:
             self.requires("libraw/0.21.2")
         if self.options.with_tiff:

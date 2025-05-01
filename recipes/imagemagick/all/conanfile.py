@@ -103,7 +103,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_pango:
             self.requires("pango/1.54.0")
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_webp:

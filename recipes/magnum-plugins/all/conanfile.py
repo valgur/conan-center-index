@@ -134,7 +134,7 @@ class MagnumConan(ConanFile):
         if self.options.meshoptimizer_sceneconverter:
             self.requires("meshoptimizer/0.15")  # v0.16+ is not compatible
         if self.options.png_imageconverter:
-            self.requires("libpng/1.6.40")
+            self.requires("libpng/[~1.6]")
 
     def build_requirements(self):
         self.tool_requires(f"corrade/{self.version}")

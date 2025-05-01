@@ -23,7 +23,7 @@ class PngppConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpng/[>=1.6 <2]")
+        self.requires("libpng/[~1.6]")
 
     def package_id(self):
         self.info.clear()

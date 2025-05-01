@@ -66,7 +66,7 @@ class ImaglConan(ConanFile):
 
     def requirements(self):
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self._supports_jpeg and self.options.with_jpeg:
             self.requires("libjpeg/9e")
 

@@ -174,7 +174,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_pdfium:
             self.requires("pdfium/95.0.4629")
         if self.options.with_png == "libpng":
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         elif self.options.with_png == "libspng":
             self.requires("libspng/0.7.4")
         if self.options.with_poppler:

@@ -350,7 +350,7 @@ class VtkConan(ConanFile):
         if self.options.with_pdal:
             self.requires("pdal/2.7.2")
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_postgresql:
             self.requires("libpq/[^17.0]")
         if self.options.with_qt:

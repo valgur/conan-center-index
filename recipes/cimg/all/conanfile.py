@@ -155,7 +155,7 @@ class CImgConan(ConanFile):
             self.requires("openexr/3.3.3")
             self.requires("imath/3.1.9")
         if self.options.enable_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.enable_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.enable_ffmpeg:

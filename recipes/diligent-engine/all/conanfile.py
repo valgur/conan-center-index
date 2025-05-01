@@ -67,7 +67,7 @@ class DiligentEngineConan(ConanFile):
         # DiligentTools
         self.requires("imgui/1.90.5", transitive_headers=True, transitive_libs=True)
         self.requires("imguizmo/cci.20231114")
-        self.requires("libpng/[>=1.6 <2]")
+        self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("nlohmann_json/[^3.11]")
         self.requires("stb/cci.20250314")

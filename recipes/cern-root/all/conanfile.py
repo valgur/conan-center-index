@@ -84,7 +84,7 @@ class CernRootConan(ConanFile):
         if self.options.asimage:
             self.requires("giflib/5.2.2")
             self.requires("libjpeg/9e")
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
             self.requires("libtiff/4.6.0")
 
     def validate(self):

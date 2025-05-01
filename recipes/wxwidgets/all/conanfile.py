@@ -143,7 +143,7 @@ class wxWidgetsConan(ConanFile):
             self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
 
         self.requires("expat/[>=2.6.2 <3]")
-        self.requires("libpng/[>=1.6 <2]")
+        self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("nanosvg/cci.20231025")
         self.requires("pcre2/[^10.42]")

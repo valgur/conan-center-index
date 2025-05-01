@@ -95,7 +95,7 @@ class CairoConan(ConanFile):
             # Used in public cairo-ft.h header
             self.requires("fontconfig/2.15.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_png:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_glib:
             # Used in public cairo-gobject.h header
             self.requires("glib/[~2.78.6]", transitive_headers=True, transitive_libs=True)

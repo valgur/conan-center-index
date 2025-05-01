@@ -93,7 +93,7 @@ class OpenImageIOConan(ConanFile):
 
         # Optional libraries
         if self.options.with_libpng:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_freetype:
             self.requires("freetype/2.13.2")
         if self.options.with_hdf5:

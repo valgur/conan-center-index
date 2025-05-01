@@ -221,7 +221,7 @@ class GStPluginsGoodConan(ConanFile):
         if "mpg123" in reqs:
             self.requires("mpg123/1.31.2")
         if "libpng" in reqs:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if "opengl" in reqs:
             self.requires("opengl/system")
         if "pulseaudio" in reqs:

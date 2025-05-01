@@ -223,7 +223,7 @@ class GdalConan(ConanFile):
         # if self.options.with_pcraster:
         #     self.requires("pcraster-rasterformat/1.3.2")
         if self.options.get_safe("with_png", True):
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_dds:
             self.requires("crunch/cci.20190615")
         if self.options.with_gta:

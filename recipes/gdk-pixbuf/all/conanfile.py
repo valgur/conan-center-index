@@ -66,7 +66,7 @@ class GdkPixbufConan(ConanFile):
         if self.options.with_introspection:
             self.requires("gobject-introspection/1.78.1")
         if self.options.with_libpng:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_libtiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_libjpeg == "libjpeg-turbo":

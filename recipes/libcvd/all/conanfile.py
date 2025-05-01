@@ -84,7 +84,7 @@ class LibCVDConan(ConanFile):
         elif self.options.with_libjpeg == "mozjpeg":
             self.requires("mozjpeg/4.1.5")
         if self.options.with_libpng:
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/[~1.6]")
         if self.options.with_libtiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.get_safe("with_opengl", True):
