@@ -11,7 +11,7 @@ from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class GLibConan(ConanFile):
@@ -41,6 +41,8 @@ class GLibConan(ConanFile):
         "with_mount": True,
         "with_selinux": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -57,12 +59,6 @@ class GLibConan(ConanFile):
         if self.settings.os == "Neutrino":
             del self.options.with_elf
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -77,7 +73,7 @@ class GLibConan(ConanFile):
         if self.options.get_safe("with_selinux"):
             self.requires("libselinux/3.6")
         if self.settings.os != "Linux":
-            # for Linux, gettext is provided by libc
+            # for Linux, libintl is provided by libc
             self.requires("gettext/[>=0.21 <1]", transitive_headers=True, transitive_libs=True)
         if is_apple_os(self):
             self.requires("libiconv/1.17")
