@@ -1,0 +1,4 @@
+sources:
+  "5.82":
+    url: "https://github.com/bluez/bluez/archive/refs/tags/5.82.tar.gz"
+    sha256: "3102e42328addbc083199bbda9d2b72a7ef64a37c5a03837e4db05cabfab7055"
