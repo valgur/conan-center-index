@@ -1,0 +1,4 @@
+sources:
+  "1.23":
+    url: "https://github.com/libts/tslib/releases/download/1.23/tslib-1.23.tar.bz2"
+    sha256: "39033685f78f9ceabe25430ebeec8788be860752ea992d964d22718ef8562b72"
