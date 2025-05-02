@@ -1,9 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -101,6 +102,9 @@ class FFTWConan(ConanFile):
         tc.variables["ENABLE_SSE2"] = self.options.simd == "sse2"
         tc.variables["ENABLE_AVX"] = self.options.simd == "avx"
         tc.variables["ENABLE_AVX2"] = self.options.simd == "avx2"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
+        if Version(self.version) > "3.3.10":
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 
         deps = CMakeDeps(self)
