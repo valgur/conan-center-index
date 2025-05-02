@@ -70,14 +70,15 @@ class HarfbuzzConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
+        if self.options.with_glib:
+            self.requires("glib/[^2.70.0]")
+            if self.options.with_introspection:
+                self.requires("gobject-introspection/[^1.82]", options={"build_introspection_data": True})
+                self.requires("glib-gir/[^2.82]")
         if self.options.with_freetype:
             self.requires("freetype/2.13.2")
         if self.options.with_icu:
             self.requires("icu/[*]")
-        if self.options.with_glib:
-            self.requires("glib/[^2.70.0]")
-        if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
 
     def validate(self):
         if self.options.shared and self.options.with_glib and not self.dependencies["glib"].options.shared:
@@ -106,7 +107,7 @@ class HarfbuzzConan(ConanFile):
             # with the libiconv that is transitively exposed by glib
             self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -205,7 +206,7 @@ class HarfbuzzConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["harfbuzz_"].resdirs = ["share"]
-            self.cpp_info.components["harfbuzz_"].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components["harfbuzz_"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 

@@ -30,7 +30,7 @@ class LibvipsConan(ConanFile):
         "fPIC": [True, False],
         "deprecated": [True, False],
         "cpp": [True, False],
-        "introspection": [True, False],
+        "with_introspection": [True, False],
         "vapi": [True, False],
         "with_archive": [True, False],
         "with_cfitsio": [True, False],
@@ -70,7 +70,7 @@ class LibvipsConan(ConanFile):
         "fPIC": True,
         "deprecated": True,
         "cpp": True,
-        "introspection": False,
+        "with_introspection": False,
         "vapi": False,
         "with_archive": False,
         "with_cfitsio": False,
@@ -133,8 +133,8 @@ class LibvipsConan(ConanFile):
     def requirements(self):
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
-        if self.options.introspection:
-            self.requires("gobject-introspection/1.78.1")
+        if self.options.with_introspection:
+            self.requires("glib-gir/[^2.82]")
         if self.options.get_safe("with_archive"):
             self.requires("libarchive/3.7.2")
         if self.options.with_cfitsio:
@@ -187,8 +187,8 @@ class LibvipsConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
 
     def validate(self):
-        if self.options.vapi and not self.options.introspection:
-            raise ConanInvalidConfiguration("vapi requires introspection")
+        if self.options.vapi and not self.options.with_introspection:
+            raise ConanInvalidConfiguration("vapi requires with_introspection")
         if self.options.with_pangocairo and not self.dependencies["pango"].options.with_cairo:
             raise ConanInvalidConfiguration(f"{self.ref}:with_pangocairo=True requires pango/*:with_cairo=True")
         if self.options.with_pdfium and self.options.with_poppler:
@@ -225,9 +225,9 @@ class LibvipsConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self.options.introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
-        self.tool_requires("glib/<host_version>")
+        if self.options.with_introspection:
+            self.tool_requires("gobject-introspection/[^1.82]")
+        self.tool_requires("glib/[^2.70.0]")
         self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
@@ -248,7 +248,7 @@ class LibvipsConan(ConanFile):
         tc.project_options["gtk_doc"] = "false"
         tc.project_options["modules"] = "disabled"
         tc.project_options["introspection"] = (
-            enabled_disabled(self.options.introspection)
+            enabled_disabled(self.options.with_introspection)
             if Version(self.version) >= "8.15" else
             true_false(self.options.introspection)
         )
@@ -389,9 +389,9 @@ class LibvipsConan(ConanFile):
         if self.options.with_zlib:
             self.cpp_info.components["vips"].requires.append("zlib::zlib")
 
-        if self.options.introspection:
+        if self.options.with_introspection:
             self.cpp_info.components["vips"].resdirs = ["res"]
-            self.cpp_info.components["vips"].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components["vips"].requires.append("glib-gir::glib-gir")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 

@@ -82,6 +82,8 @@ class PopplerConan(ConanFile):
         if not self.options.get_safe("with_glib"):
             self.options.rm_safe("with_introspection")
             self.options.rm_safe("with_gtk")
+        elif self.options.with_introspection and self.options.with_cairo:
+            self.options["gobject-introspection"].build_introspection_data = True
         if not self.options.cpp:
             self.options.rm_safe("with_libiconv")
 
@@ -101,7 +103,7 @@ class PopplerConan(ConanFile):
         if self.options.get_safe("with_glib"):
             self.requires("glib/[^2.70.0]")
             if self.options.with_introspection:
-                self.requires("gobject-introspection/1.78.1")
+                self.requires("glib-gir/[^2.82]")
         if self.options.with_qt:
             self.requires("qt/[>=6.6 <7]")
         if self.options.get_safe("with_gtk"):
@@ -140,7 +142,7 @@ class PopplerConan(ConanFile):
         if self.options.get_safe("with_glib"):
             self.tool_requires("glib/<host_version>")
             if self.options.with_introspection:
-                self.tool_requires("gobject-introspection/<host_version>")
+                self.tool_requires("gobject-introspection/[^1.82]")
         if self.options.with_qt:
             self.tool_requires("qt/<host_version>")
 
@@ -318,7 +320,7 @@ class PopplerConan(ConanFile):
                 self.cpp_info.components["libpoppler-glib"].requires.append("gtk::gtk")
             if self.options.with_introspection:
                 self.cpp_info.components["libpoppler-glib"].resdirs = ["res"]
-                self.cpp_info.components["libpoppler-glib"].requires.append("gobject-introspection::gobject-introspection")
+                self.cpp_info.components["libpoppler-glib"].requires.append("glib-gir::glib-gir")
                 self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
                 self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 

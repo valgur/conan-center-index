@@ -50,7 +50,7 @@ class LibSoupConan(ConanFile):
         if self.options.gssapi:
             self.requires("krb5/1.21.2")
         if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
+            self.requires("glib-gir/[^2.82]")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -59,7 +59,7 @@ class LibSoupConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -121,6 +121,6 @@ class LibSoupConan(ConanFile):
         if self.options.gssapi:
             self.cpp_info.components[name].requires.append("krb5::krb5-gssapi")
         if self.options.with_introspection:
-            self.cpp_info.components[name].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components[name].requires.append("glib-gir::glib-gir")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

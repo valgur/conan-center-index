@@ -52,7 +52,7 @@ class GStreamerConan(ConanFile):
     def requirements(self):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
+            self.requires("glib-gir/[^2.82]")
         if self.options.get_safe("enable_backtrace"):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.requires("libunwind/1.8.1")
@@ -72,7 +72,7 @@ class GStreamerConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
         if self.settings_build.os == "Windows":
             self.tool_requires("winflexbison/2.5.25")
         else:
@@ -225,6 +225,6 @@ class GStreamerConan(ConanFile):
             self.runenv_info.define_path("GSTREAMER_ROOT_X86_64", gstreamer_root)
 
         if self.options.with_introspection:
-            self.cpp_info.components["gstreamer-1.0"].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components["gstreamer-1.0"].requires.append("glib-gir::glib-gir")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

@@ -202,7 +202,7 @@ class GStPluginsBadConan(ConanFile):
         if "gst-orc" in reqs:
             self.requires("gst-orc/0.4.41")
         if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
+            self.requires("glib-gir/[^2.82]")
 
         if "libaom-av1" in reqs:
             self.requires("libaom-av1/3.8.0")
@@ -356,7 +356,7 @@ class GStPluginsBadConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
         if "gst-orc" in self._all_reqs:
             self.tool_requires("gst-orc/<host_version>")
         if self.options.vulkan:
@@ -532,7 +532,7 @@ class GStPluginsBadConan(ConanFile):
                 "glib::gobject-2.0",
             ] + extra_requires
             if self.options.with_introspection:
-                component.requires.append("gobject-introspection::gobject-introspection")
+                component.requires.append("glib-gir::glib-gir")
             component.resdirs = ["res"]
             if not interface:
                 component.libs = [lib or f"gst{name.replace('-', '')}-1.0"]

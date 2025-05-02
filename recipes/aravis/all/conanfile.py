@@ -33,7 +33,7 @@ class AravisConan(ConanFile):
         "packet_socket": [True, False],
         "gst_plugin": [True, False],
         "tools": [True, False],
-        "introspection": [True, False],
+        "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
@@ -42,7 +42,7 @@ class AravisConan(ConanFile):
         "packet_socket": True,
         "gst_plugin": False,
         "tools": True,
-        "introspection": False,
+        "with_introspection": False,
     }
 
     def export_sources(self):
@@ -74,8 +74,8 @@ class AravisConan(ConanFile):
             self.requires("libusb/1.0.26")
         if self.options.gst_plugin:
             self.requires("gst-plugins-base/[^1.24]")
-        if self.options.introspection:
-            self.requires("gobject-introspection/1.78.1")
+        if self.options.with_introspection:
+            self.requires("glib-gir/[^2.82]")
 
     def validate(self):
         if is_msvc_static_runtime(self):
@@ -94,8 +94,8 @@ class AravisConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self.options.introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+        if self.options.with_introspection:
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -112,7 +112,7 @@ class AravisConan(ConanFile):
         tc.project_options["usb"] = "enabled" if self.options.usb else "disabled"
         tc.project_options["gst-plugin"] = "enabled" if self.options.gst_plugin else "disabled"
         tc.project_options["packet-socket"] = "enabled" if self.options.get_safe("packet_socket") else "disabled"
-        tc.project_options["introspection"] = "enabled" if self.options.introspection else "disabled"
+        tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.project_options["viewer"] = "disabled"
         tc.project_options["tests"] = False
         tc.project_options["documentation"] = "disabled"
@@ -149,7 +149,7 @@ class AravisConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
         if not self.options.tools:
             rm(self, "arv-*", os.path.join(self.package_folder, "bin"))
-        if self.options.introspection:
+        if self.options.with_introspection:
             rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
@@ -170,7 +170,7 @@ class AravisConan(ConanFile):
             if self.options.tools:
                 self.buildenv_info.prepend_path("GST_PLUGIN_PATH", gst_plugin_path)
 
-        if self.options.introspection:
+        if self.options.with_introspection:
             self.cpp_info.resdirs = ["res"]
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

@@ -107,6 +107,9 @@ class GtkConan(ConanFile):
     def requirements(self):
         # INFO: https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/gdktypes.h?ref_type=tags#L34-38
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/[^1.82]", options={"build_introspection_data": True})
+            self.requires("glib-gir/[^2.82]")
         # INFO: https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/gdkpixbuf.h?ref_type=tags#L32-33
         # Note: gdkpixbuf.h is deprecated in newer versions
         self.requires("gdk-pixbuf/[^2.42.10]", transitive_headers=True, transitive_libs=True)
@@ -137,8 +140,6 @@ class GtkConan(ConanFile):
             self.requires("vulkan-loader/1.4.309.0")
         if self.options.get_safe("with_ffmpeg"):
             self.requires("ffmpeg/[>=6 <8]")
-        if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
 
         if self.options.with_gstreamer:
             self.requires("gst-plugins-base/[^1.24]")
@@ -188,7 +189,7 @@ class GtkConan(ConanFile):
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     @property
     def _apt_packages(self):
@@ -408,7 +409,7 @@ class GtkConan(ConanFile):
             self.cpp_info.components["gtk4-unix-print"].includedirs.append(os.path.join("include", "gtk-4.0", "unix-print"))
 
         if self.options.with_introspection:
-            self.cpp_info.components["gtk4"].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components["gtk4"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 

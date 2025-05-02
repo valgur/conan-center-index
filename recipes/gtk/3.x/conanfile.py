@@ -87,12 +87,17 @@ class GtkConan(ConanFile):
             if self.options.with_wayland:
                 self.options["xkbcommon"].with_x11 = self.options.with_x11
                 self.options["xkbcommon"].with_wayland = True
+        if self.options.with_introspection:
+            self.options["at-spi2-core"].with_introspection = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/[^1.82]", options={"build_introspection_data": True})
+            self.requires("glib-gir/[^2.82]")
         self.requires("gdk-pixbuf/[^2.42.10]", transitive_headers=True, transitive_libs=True)
         self.requires("pango/[^1.54.0]", transitive_headers=True, transitive_libs=True)
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)
@@ -110,8 +115,6 @@ class GtkConan(ConanFile):
             # Only the xorg::x11 component actually requires transitive headers/libs.
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
             self.requires("fontconfig/2.15.0")
-        if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
 
         # TODO: fix libintl support on macOS by using gnuintl from gettext
         # if self.settings.os != "Linux":
@@ -149,7 +152,7 @@ class GtkConan(ConanFile):
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     @property
     def _apt_packages(self):
@@ -372,8 +375,8 @@ class GtkConan(ConanFile):
         self.cpp_info.components["gail-3.0"].includedirs = [os.path.join("include", "gail-3.0")]
 
         if self.options.with_introspection:
-            self.cpp_info.components["gdk-3.0"].requires.append("gobject-introspection::gobject-introspection")
-            self.cpp_info.components["gtk+-3.0"].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components["gdk-3.0"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
+            self.cpp_info.components["gtk+-3.0"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 

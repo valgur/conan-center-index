@@ -57,7 +57,7 @@ class GdkPixbufConan(ConanFile):
     def requirements(self):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
+            self.requires("glib-gir/[^2.82]")
         if self.options.with_libpng:
             self.requires("libpng/[~1.6]")
         if self.options.with_libtiff:
@@ -88,7 +88,7 @@ class GdkPixbufConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -175,8 +175,6 @@ class GdkPixbufConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        os.rename(os.path.join(self.package_folder, "share"),
-                  os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
@@ -185,7 +183,7 @@ class GdkPixbufConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "gdk-pixbuf-2.0")
         self.cpp_info.libs = ["gdk_pixbuf-2.0"]
         self.cpp_info.includedirs = [os.path.join("include", "gdk-pixbuf-2.0")]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if not self.options.shared:
             self.cpp_info.defines.append("GDK_PIXBUF_STATIC_COMPILATION")
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -234,8 +232,8 @@ class GdkPixbufConan(ConanFile):
         self.env_info.GDK_PIXBUF_PIXDATA = gdk_pixbuf_pixdata # remove in conan v2?
 
         if self.options.with_introspection:
-            self.cpp_info.requires.append("gobject-introspection::gobject-introspection")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.cpp_info.requires.append("glib-gir::glib-gir")
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):

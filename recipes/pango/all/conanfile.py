@@ -88,7 +88,7 @@ class PangoConan(ConanFile):
             self.requires("xorg/system")  # for xorg::xrender
         self.requires("fribidi/1.0.13")
         if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
+            self.requires("glib-gir/[^2.82]")
 
     def validate(self):
         if self.options.get_safe("with_xft"):
@@ -129,7 +129,7 @@ class PangoConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -194,7 +194,7 @@ class PangoConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["pango_"].resdirs = ["share"]
-            self.cpp_info.components["pango_"].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components["pango_"].requires.append("glib-gir::glib-gir")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 

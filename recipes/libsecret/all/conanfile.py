@@ -10,7 +10,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibsecretConan(ConanFile):
@@ -27,29 +27,21 @@ class LibsecretConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "crypto": [False, "libgcrypt", "gnutls"],
-        "with_libgcrypt": [True, False, "deprecated"],
         "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "crypto": "libgcrypt",
-        "with_libgcrypt": "deprecated",
         "with_introspection": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os != "Linux":
             # libgcrypt recipe is currently only available on Linux
             self.options.crypto = False
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-        if self.options.with_libgcrypt != "deprecated":
-            self.output.warning(f"The '{self.ref}:with_libgcrypt' option is deprecated. Use '{self.ref}:crypto' instead.")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -61,16 +53,13 @@ class LibsecretConan(ConanFile):
         elif self.options.get_safe("crypto") == "gnutls":
             self.requires("gnutls/3.8.2")
         if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
+            self.requires("glib-gir/[^2.82]")
 
     def validate(self):
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} recipe is not yet compatible with Windows.")
         if self.options.crypto == "gnutls" and Version(self.version) < "0.21.2":
             raise ConanInvalidConfiguration(f"{self.ref} does not support GnuTLS before version 0.21.2. Use -o '&:crypto=libgcrypt' instead.")
-
-    def package_id(self):
-        del self.info.options.with_libgcrypt
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -79,7 +68,7 @@ class LibsecretConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -125,6 +114,6 @@ class LibsecretConan(ConanFile):
         elif self.options.get_safe("crypto") == "gnutls":
             self.cpp_info.requires.append("gnutls::gnutls")
         if self.options.with_introspection:
-            self.cpp_info.requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.requires.append("glib-gir::glib-gir")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

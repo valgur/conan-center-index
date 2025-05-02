@@ -70,14 +70,14 @@ class LibniceConan(ConanFile):
         if self.options.with_gstreamer:
             self.requires("gstreamer/[^1.24]")
         if self.options.with_introspection:
-            self.requires("gobject-introspection/1.78.1")
+            self.requires("glib-gir/[^2.82]")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
         self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")  # for glib-mkenums
         if self.options.with_introspection:
-            self.tool_requires("gobject-introspection/<host_version>")
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -137,6 +137,6 @@ class LibniceConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["libnice"].resdirs = ["res"]
-            self.cpp_info.components["libnice"].requires.append("gobject-introspection::gobject-introspection")
+            self.cpp_info.components["libnice"].requires.append("glib-gir::glib-gir")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
