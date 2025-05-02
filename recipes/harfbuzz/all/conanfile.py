@@ -35,7 +35,6 @@ class HarfbuzzConan(ConanFile):
         "with_uniscribe": [True, False],
         "with_directwrite": [True, False],
         "with_coretext": [True, False],
-        "with_subset": ["deprecated", True, False],
         "with_introspection": [True, False],
     }
     default_options = {
@@ -48,7 +47,6 @@ class HarfbuzzConan(ConanFile):
         "with_uniscribe": True,
         "with_directwrite": False,
         "with_coretext": True,
-        "with_subset": "deprecated",
         "with_introspection": False,
     }
 
@@ -70,9 +68,6 @@ class HarfbuzzConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
-
-    def package_id(self):
-        self.info.with_subset = True
 
     def requirements(self):
         if self.options.with_freetype:
@@ -96,9 +91,6 @@ class HarfbuzzConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Linking shared glib with the MSVC static runtime is not supported"
             )
-
-        if self.options.with_subset != "deprecated":
-            self.output.warning("The 'with_subset' option is deprecated and will be removed in a future version. It never had any effect.")
 
         if self.options.with_introspection and not self.options.shared:
             raise ConanInvalidConfiguration("with_introspection=True requires -o shared=True")
