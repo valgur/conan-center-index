@@ -1,5 +1,5 @@
 versions:
-  "2.57.0":
+  "2.60.0":
     folder: all
   "2.40.21":
     folder: pre-2.41

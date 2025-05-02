@@ -5,12 +5,13 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import PkgConfigDeps
+from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
+
 
 class LibrsvgConan(ConanFile):
     name = "librsvg"
@@ -25,10 +26,12 @@ class LibrsvgConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "with_introspection": False,
     }
 
     def config_options(self):
@@ -51,7 +54,9 @@ class LibrsvgConan(ConanFile):
         # All public includes are located here:
         # https://gitlab.gnome.org/GNOME/librsvg/-/blob/2.57.0/include/librsvg/rsvg.h#L30-34
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True, force=True)
-        # self.requires("gobject-introspection/1.78.1")
+        if self.options.with_introspection:
+            self.requires("gobject-introspection/[^1.82]", options={"build_introspection_data": True})
+            self.requires("glib-gir/[^2.82]")
         self.requires("freetype/2.13.2")
         self.requires("fontconfig/2.15.0")
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)
@@ -71,66 +76,53 @@ class LibrsvgConan(ConanFile):
             raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_freetype=True")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
-        if not self.conf.get("tools.gnu:pkg_config", check_type=str):
+        self.tool_requires("rust/1.85.1")
+        self.tool_requires("cargo-c/[*]")
+        self.tool_requires("meson/[>=1.2.3 <2]")
+        if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if self.settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
-        self.tool_requires("rust/1.77.1")
         self.tool_requires("gdk-pixbuf/<host_version>")
+        if self.options.with_introspection:
+            self.tool_requires("gobject-introspection/[^1.82]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Fix freetype version check, which uses a different versioning format
+        replace_in_file(self, "meson.build", "version: freetype2_required,", "")
+        replace_in_file(self, os.path.join(self.source_folder, "rsvg", "Cargo.toml"),
+                        "freetype2 = ",
+                        f'freetype2 = "{self.dependencies["freetype"].ref.version}" # ')
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        if not cross_building(self):
-            env = VirtualRunEnv(self)
-            env.generate(scope="build")
-        tc = AutotoolsToolchain(self)
-        yes_no = lambda v: "yes" if v else "no"
-        tc.configure_args += [
-            "--disable-gtk-doc",
-            f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
-            # TODO: introspection can be enabled once gobject-introspection is available
-            "--disable-introspection",
-        ]
+        tc = MesonToolchain(self)
+        tc.project_options["tests"] = "false"
+        tc.project_options["vala"] = "disabled"
+        tc.project_options["docs"] = "disabled"
+        if cross_building(self):
+            tc.project_options["triplet"] = self.conf.get("user.rust:target_host", check_type=str)
+        tc.project_options["pixbuf"] = "enabled"
+        tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Fix freetype version check, which uses a different versioning format
-        replace_in_file(self, os.path.join(self.source_folder, "configure"), "20.0.14", "2.8")
-        replace_in_file(self, os.path.join(self.source_folder, "rsvg", "Cargo.toml"), "20.0.14", "2.8")
-        # Disable building of rsvg_convert executable and installation of non-essential files
-        # Also, rsvg_convert failed to link with libpango-c8d4953be534d8af.rlib: undefined reference to `pango_attr_overline_new'
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), "$(EXTRA_DIST)", "$(LIBRSVG_SRC)")
-        replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), "bin_SCRIPTS =", "bin_SCRIPTS = #")
-
     def build(self):
-        self._patch_sources()
-        autotools = Autotools(self)
-        autotools.configure()
-        autotools.make()
+        meson = Meson(self)
+        meson.configure()
+        meson.build()
 
     def package(self):
         copy(self, "COPYING.LIB", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
-        autotools.install()
-        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
+        meson = Meson(self)
+        meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
-        rmdir(self, os.path.join(self.package_folder, "gdk-pixbuf-2.0"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "librsvg-2.0")
-        self.cpp_info.includedirs.append(os.path.join("include", "librsvg-2.0"))
         self.cpp_info.libs = ["librsvg-2"]
+        self.cpp_info.includedirs.append(os.path.join("include", "librsvg-2.0"))
+        self.cpp_info.resdirs = ["share"]
 
         # https://gitlab.gnome.org/GNOME/librsvg/-/blob/2.57.0/configure.ac#L161-173
         self.cpp_info.requires = [
@@ -147,3 +139,13 @@ class LibrsvgConan(ConanFile):
             "pango::pangocairo",
             "pango::pangoft2",
         ]
+
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["pthread", "m", "dl", "rt"]
+
+        self.runenv_info.append_path("GDK_PIXBUF_MODULEDIR", os.path.join(self.package_folder, "lib", "gdk-pixbuf-2.0", "2.10", "loaders"))
+
+        if self.options.with_introspection:
+            self.cpp_info.requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
+            self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
