@@ -28,22 +28,19 @@ class GobjectIntrospectionConan(ConanFile):
         "build_introspection_data": [True, False],
     }
     default_options = {
-        "build_introspection_data": True,
+        "build_introspection_data": False,
+    }
+    options_description = {
+        "build_introspection_data": (
+            "Build GIR introspection data for a set of external libraries "
+            "(cairo DBus DBusGLib fontconfig freetype2 gir GIRepository GL libxml2 Vulkan win32 xfixes xft xlib xrandr)"
+        ),
     }
     languages = ["C"]
 
-    def config_options(self):
-        if self.settings_target is not None:
-            # Building gobject-introspection as a tool_requires.
-            # Build only the tools by default.
-            self.options.build_introspection_data = False
-        if self.settings.os in ["Windows", "Macos"]:
-            # FIXME: tools/g-ir-scanner fails to load glib
-            self.options.build_introspection_data = False
-
     def configure(self):
         if self.options.build_introspection_data:
-            # INFO: g-ir-scanner looks for dynamic glib and gobject libraries when running
+            # g-ir-scanner looks for dynamic glib and gobject libraries when running
             self.options["glib"].shared = True
 
     def layout(self):
