@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-01:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-02:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -29,6 +29,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - boost/1.71.0
 - boost/1.74.0
 - boxfort/0.1.4
+- cairo/1.18.4
 - capnproto/1.0.1.1
 - cargo-c/0.10.12
 - cargo-c/0.10.8
@@ -65,6 +66,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - dawn/cci.20240726
 - debugbreak/1.0
 - diligent-engine/2.5.6.8
+- directfb/1.7.7
 - dpdk/24.07
 - elfutils/0.191
 - elfutils/0.192
@@ -81,6 +83,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - g2o/20230806
 - gdal/3.10.0
 - gdalcpp/1.3.0
+- gdk-pixbuf/2.42.12
 - gettext/0.24
 - gfortran/13.2.0
 - gici/cci.20250127
@@ -122,12 +125,15 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gstreamer/1.24.12
 - gstreamer/1.26.0
 - gtk/3.24.43
+- gtk/3.24.49
 - gtk/4.15.6
+- gtk/4.18.4
 - gtkmm/3.24.9
 - gtkmm/4.16.0
 - gtsam/4.3-pre.20250201
 - gtsam_gnss/0.0.0.cci.20250213
 - gtsam_points/1.0.6
+- harfbuzz/11.2.0
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
 - hlslpp/3.5.3
@@ -158,6 +164,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcmaes/0.10.0
 - libcroco/0.6.13
 - libcudacxx/2.7.0
+- libcups/2.2.12
+- libcups/3.0-rc4
 - libdecor/0.2.2
 - libecwj2/3.3
 - libelas/cci.20150630
@@ -167,6 +175,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libice/1.1.1
 - libjwt/3.2.1
 - libmediainfo/23.11
+- libmng/2.0.3
 - libmount/2.41
 - libmysqlclient/8.2.0
 - libosmium/2.20.0
@@ -219,6 +228,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - litehtml/0.9
 - llvm-core/20.1.3
 - llvm-openmp/18.1.8
+- lttng-ust/2.13.9
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
 - mavlink/1.0.12.cci.20240530
@@ -257,12 +267,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - osrm/5.27.1
 - ozz-animation/0.14.3
 - ozz-animation/0.15.0
+- pango/1.56.3
 - pangolin/0.9.3
 - pangomm/2.46.4
 - pangomm/2.54.0
 - pcl/1.14.1
 - pcre2/10.45
 - pdal/2.7.2
+- pdfio/1.5.2
 - perf/6.11
 - piex/0.27
 - pipewire/1.4.2
@@ -282,6 +294,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qtawesome/6.5.1
 - qtkeychain/0.15.0
 - reduct-cpp/1.14.0
+- renderdoc/1.37
 - resultlib/1.0.0
 - rmlui/5.1
 - rosx_introspection/1.0.2
@@ -341,6 +354,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tpl/cci.20210302
 - tz/2024b
 - usearch/2.9.1
+- userspace-rcu/0.15.2
 - util-linux-libuuid/2.39.3
 - util-linux-libuuid/2.41
 - vc/1.4.5
