@@ -1,6 +1,6 @@
-import glob
 import os
 import textwrap
+from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
@@ -44,9 +44,6 @@ class GLibConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -86,7 +83,8 @@ class GLibConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        # https://gitlab.gnome.org/GNOME/glib/-/issues/2152
+        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('fuzzing')", "")
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -109,47 +107,19 @@ class GLibConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
+        deps.set_property("gettext", "pkg_config_name", "intl")
         deps.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self,
-            os.path.join(self.source_folder, "meson.build"),
-            "subdir('fuzzing')",
-            "#subdir('fuzzing')",
-        )  # https://gitlab.gnome.org/GNOME/glib/-/issues/2152
-        if self.settings.os != "Linux" and self.settings.os != "Neutrino":
-            # allow to find gettext
-            replace_in_file(self,
-                os.path.join(self.source_folder, "meson.build"),
-                "libintl = dependency('intl', required: false",
-                "libintl = dependency('libgettext', method : 'pkg-config', required : false",
-            )
-
-        replace_in_file(self,
-            os.path.join(
-                self.source_folder,
-                "gio",
-                "gdbus-2.0",
-                "codegen",
-                "gdbus-codegen.in",
-            ),
-            "'share'",
-            "'res'",
-        )
-
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
 
     def package(self):
-        copy(self, pattern="LGPL-2.1-or-later.txt", dst=os.path.join(self.package_folder, "licenses"), src=os.path.join(self.source_folder, "LICENSES"))
+        copy(self, "LGPL-2.1-or-later.txt", os.path.join(self.source_folder, "LICENSES"), os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "libexec"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
@@ -161,14 +131,14 @@ class GLibConan(ConanFile):
             os.path.join("include", "glib-2.0"),
             os.path.join("lib", "glib-2.0", "include")
         ]
-        self.cpp_info.components["glib-2.0"].resdirs = ["res"]
+        self.cpp_info.components["glib-2.0"].resdirs = ["share"]
         if Version(self.version) >= "2.81.0":
             if not self.options.shared and self.settings.compiler in ["gcc", "clang"]:
                 self.cpp_info.components["glib-2.0"].system_libs.append("atomic")
 
         self.cpp_info.components["gmodule-no-export-2.0"].set_property("pkg_config_name", "gmodule-no-export-2.0")
         self.cpp_info.components["gmodule-no-export-2.0"].libs = ["gmodule-2.0"]
-        self.cpp_info.components["gmodule-no-export-2.0"].resdirs = ["res"]
+        self.cpp_info.components["gmodule-no-export-2.0"].resdirs = ["share"]
         self.cpp_info.components["gmodule-no-export-2.0"].requires.append("glib-2.0")
 
         self.cpp_info.components["gmodule-export-2.0"].set_property("pkg_config_name", "gmodule-export-2.0")
@@ -183,17 +153,17 @@ class GLibConan(ConanFile):
 
         self.cpp_info.components["gobject-2.0"].set_property("pkg_config_name", "gobject-2.0")
         self.cpp_info.components["gobject-2.0"].libs = ["gobject-2.0"]
-        self.cpp_info.components["gobject-2.0"].resdirs = ["res"]
+        self.cpp_info.components["gobject-2.0"].resdirs = ["share"]
         self.cpp_info.components["gobject-2.0"].requires += ["glib-2.0", "libffi::libffi"]
 
         self.cpp_info.components["gthread-2.0"].set_property("pkg_config_name", "gthread-2.0")
         self.cpp_info.components["gthread-2.0"].libs = ["gthread-2.0"]
-        self.cpp_info.components["gthread-2.0"].resdirs = ["res"]
+        self.cpp_info.components["gthread-2.0"].resdirs = ["share"]
         self.cpp_info.components["gthread-2.0"].requires.append("glib-2.0")
 
         self.cpp_info.components["gio-2.0"].set_property("pkg_config_name", "gio-2.0")
         self.cpp_info.components["gio-2.0"].libs = ["gio-2.0"]
-        self.cpp_info.components["gio-2.0"].resdirs = ["res"]
+        self.cpp_info.components["gio-2.0"].resdirs = ["share"]
         self.cpp_info.components["gio-2.0"].requires += ["glib-2.0", "gobject-2.0", "gmodule-no-export-2.0", "zlib::zlib"]
 
         self.cpp_info.components["gresource"].set_property("pkg_config_name", "gresource")
@@ -207,7 +177,7 @@ class GLibConan(ConanFile):
                 typelibdir=${libdir}/girepository-1.0
             """))
             self.cpp_info.components["girepository-2.0"].libs = ["girepository-2.0"]
-            self.cpp_info.components["girepository-2.0"].resdirs = ["res"]
+            self.cpp_info.components["girepository-2.0"].resdirs = ["share"]
             self.cpp_info.components["girepository-2.0"].requires += ["glib-2.0", "gobject-2.0", "gmodule-no-export-2.0", "gio-2.0", "libffi::libffi"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["girepository-2.0"].system_libs.append("m")
@@ -268,7 +238,7 @@ class GLibConan(ConanFile):
         self.buildenv_info.define_path("GLIB_COMPILE_SCHEMAS", os.path.join(self.package_folder, "bin", "glib-compile-schemas"))
 
         pkgconfig_variables = {
-            'datadir': '${prefix}/res',
+            'datadir': '${prefix}/share',
             'schemasdir': '${datadir}/glib-2.0/schemas',
             'bindir': '${prefix}/bin',
             # Can't use libdir here as it is libdir1 when using the PkgConfigDeps generator.
@@ -300,12 +270,11 @@ def fix_msvc_libname(conanfile, remove_lib_prefix=True):
     """remove lib prefix & change extension to .lib in case of cl like compiler"""
     if not conanfile.settings.get_safe("compiler.runtime"):
         return
-    libdirs = getattr(conanfile.cpp.package, "libdirs")
-    for libdir in libdirs:
+    for libdir in getattr(conanfile.cpp.package, "libdirs"):
+        libdir = Path(conanfile.package_folder, libdir)
         for ext in [".dll.a", ".dll.lib", ".a"]:
-            full_folder = os.path.join(conanfile.package_folder, libdir)
-            for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
-                if remove_lib_prefix and libname[0:3] == "lib":
+            for path in sorted(libdir.glob(f"*{ext}")):
+                libname = path.name[0:-len(ext)]
+                if remove_lib_prefix and libname.startswith("lib"):
                     libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))
+                rename(conanfile, path, path.parent / f"{libname}.lib")
