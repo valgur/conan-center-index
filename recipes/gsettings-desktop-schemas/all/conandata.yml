@@ -1,0 +1,4 @@
+sources:
+  "48.0":
+    url: "https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas/-/archive/48.0/gsettings-desktop-schemas-48.0.tar.bz2"
+    sha256: "d76a62e8f1a148b3936bf11299853a21a3fb6a47593f0fe1f1a578fea33eb0c8"
