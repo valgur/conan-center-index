@@ -1,0 +1,4 @@
+sources:
+  "1.1.47":
+    url: "https://github.com/KhronosGroup/OpenXR-SDK/archive/refs/tags/release-1.1.47.tar.gz"
+    sha256: "82c7f4e3658578a22e438b5f005ecaf22c3f724b09fe031fa0f8ffc97c30c9ba"
