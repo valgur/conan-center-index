@@ -1,4 +1,5 @@
 import os
+import textwrap
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -10,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class DbusConan(ConanFile):
@@ -30,27 +31,34 @@ class DbusConan(ConanFile):
         "message_bus": [True, False],
         "system_socket": [None, "ANY"],
         "system_pid_file": [None, "ANY"],
+        "session_socket_dir": [None, "ANY"],
         "with_x11": [True, False],
         "with_systemd": [True, False],
         "with_selinux": [True, False],
-        "session_socket_dir": [None, "ANY"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "dbus_user": "messagebus",
         "message_bus": False,
-        "system_socket": None,
+        "system_socket": "/run/dbus/system_bus_socket",  # default on Ubuntu
         "system_pid_file": None,
+        "session_socket_dir": "/tmp",
         "with_x11": False,
         "with_systemd": False,
         "with_selinux": False,
-        "session_socket_dir": "/tmp",
     }
-
-    @property
-    def _has_message_bus_option(self):
-        return Version(self.version) > "1.15.2"
+    options_description = {
+        "dbus_user": "User for running the system dbus-daemon. Default is 'messagebus'.",
+        "message_bus": "Enable dbus-daemon",
+        "system_socket": "Path for the UNIX domain socket for systemwide daemon",
+        "system_pid_file": "PID file path for systemwide daemon",
+        "session_socket_dir": "Where to put sockets for the per-login-session message bus.",
+        "with_x11": "Build with X11 auto-launch support",
+        "with_systemd": "Enable Systemd at_console support",
+        "with_selinux": "Enable SELinux support.",
+    }
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -62,15 +70,11 @@ class DbusConan(ConanFile):
             del self.options.with_selinux
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if not self._has_message_bus_option:
-            self.options.rm_safe("message_bus")
 
     def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if not self.options.get_safe("message_bus"):
+        if not self.options.message_bus:
             self.options.rm_safe("dbus_user")
 
     def layout(self):
@@ -112,8 +116,6 @@ class DbusConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["asserts"] = not is_apple_os(self)
         tc.project_options["checks"] = False
-        tc.project_options["datadir"] = os.path.join("res", "share")
-        tc.project_options["sysconfdir"] = os.path.join("res", "etc")
         tc.project_options["doxygen_docs"] = "disabled"
         tc.project_options["ducktype_docs"] = "disabled"
         tc.project_options["qt_help"] = "disabled"
@@ -122,19 +124,13 @@ class DbusConan(ConanFile):
         if self.options.session_socket_dir:
             tc.project_options["session_socket_dir"] = str(self.options.session_socket_dir)
         tc.project_options["systemd"] = "enabled" if self.options.get_safe("with_systemd") else "disabled"
-        if self.options.get_safe("with_systemd"):
-            tc.project_options["systemd_system_unitdir"] = "/res/lib/systemd/system"
-            tc.project_options["systemd_user_unitdir"] = "/res/usr/lib/systemd/system"
-        if self._has_message_bus_option:
-            tc.project_options["message_bus"] = bool(self.options.message_bus)
+        tc.project_options["message_bus"] = bool(self.options.message_bus)
         if self.options.get_safe("dbus_user"):
             tc.project_options["dbus_user"] = str(self.options.dbus_user)
         if self.options.system_pid_file:
             tc.project_options["system_pid_file"] = str(self.options.system_pid_file)
         if self.options.system_socket:
             tc.project_options["system_socket"] = str(self.options.system_socket)
-        if is_apple_os(self):
-            tc.project_options["launchd_agent_dir"] = os.path.join("res", "LaunchAgents")
         tc.project_options["x11_autolaunch"] = "enabled" if self.options.get_safe("with_x11") else "disabled"
         tc.project_options["xml_docs"] = "disabled"
         tc.generate()
@@ -158,10 +154,10 @@ class DbusConan(ConanFile):
         meson.install()
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        rmdir(self, os.path.join(self.package_folder, "res", "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
 
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        # rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         fix_apple_shared_install_name(self)
         if self.settings.os == "Windows" and not self.options.shared:
             rename(self, os.path.join(self.package_folder, "lib", "libdbus-1.a"), os.path.join(self.package_folder, "lib", "dbus-1.lib"))
@@ -170,12 +166,14 @@ class DbusConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "DBus1")
         self.cpp_info.set_property("cmake_target_name", "dbus-1")
         self.cpp_info.set_property("pkg_config_name", "dbus-1")
+        self.cpp_info.libs = ["dbus-1"]
         self.cpp_info.includedirs.extend([
             os.path.join("include", "dbus-1.0"),
             os.path.join("lib", "dbus-1.0", "include"),
         ])
-        self.cpp_info.resdirs = ["res"]
-        self.cpp_info.libs = ["dbus-1"]
+        self.cpp_info.resdirs = ["share", "etc"]
+        if is_apple_os(self):
+            self.cpp_info.resdirs.append("LaunchAgents")
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("rt")
         if self.settings.os == "Windows":
@@ -191,3 +189,14 @@ class DbusConan(ConanFile):
             self.cpp_info.requires.append("libsystemd::libsystemd")
         if self.options.get_safe("with_selinux"):
             self.cpp_info.requires.append("libselinux::selinux")
+
+        self.cpp_info.set_property("pkg_config_custom_content", textwrap.dedent("""\
+            datarootdir=/usr/share
+            datadir=${datarootdir}
+            sysconfdir=/etc
+            system_bus_default_address=unix:path=%s
+            session_bus_services_dir=/usr/share/dbus-1/services
+            system_bus_services_dir=/usr/share/dbus-1/system-services
+            interfaces_dir=/usr/share/dbus-1/interfaces
+            daemondir=/usr/bin
+        """ % self.options.system_socket))
