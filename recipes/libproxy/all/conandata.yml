@@ -1,0 +1,4 @@
+sources:
+  "0.5.9":
+    url: "https://github.com/libproxy/libproxy/archive/refs/tags/0.5.9.tar.gz"
+    sha256: "a1976c3ac4affedc17e6d40cf78c9d8eca6751520ea3cbbec1a8850f7ded1565"
