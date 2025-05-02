@@ -2,12 +2,3 @@ sources:
   "1.84.0":
     url: "https://download.gnome.org/sources/gobject-introspection/1.84/gobject-introspection-1.84.0.tar.xz"
     sha256: "945b57da7ec262e5c266b89e091d14be800cc424277d82a02872b7d794a84779"
-  "1.78.1":
-    url: "https://download.gnome.org/sources/gobject-introspection/1.78/gobject-introspection-1.78.1.tar.xz"
-    sha256: "bd7babd99af7258e76819e45ba4a6bc399608fe762d83fde3cac033c50841bb4"
-patches:
-  "1.78.1":
-    - patch_file: "patches/1.78.1-fix-distutils.msvccompiler.patch"
-      patch_description: "Handle removed distutils.msvccompiler"
-      patch_type: "backport"
-      patch_source: "https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/490"

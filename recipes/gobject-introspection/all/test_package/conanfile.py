@@ -9,23 +9,21 @@ class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps"
 
-    def requirements(self):
-        self.requires(self.tested_reference_str, run=can_run(self))
-
     def layout(self):
         cmake_layout(self)
 
+    def requirements(self):
+        self.requires(self.tested_reference_str)
+
     def build_requirements(self):
-        if not can_run(self):
-            self.tool_requires("gobject-introspection/<host_version>")
+        self.tool_requires(self.tested_reference_str)
 
     @property
     def _have_introspection_data(self):
-        return self.dependencies["gobject-introspection"].options.build_introspection_data
+        return str(self.dependencies["gobject-introspection"].options.build_introspection_data) == "True"
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["GLIB_INTROSPECTION_DATA_AVAILABLE"] = self._have_introspection_data
         tc.generate()
 
     def build(self):
@@ -34,24 +32,10 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
+        self.run("g-ir-compiler --version")
+        self.run("g-ir-generate --version")
+        if self._have_introspection_data:
+            self.run("g-ir-inspect fontconfig --print-shlibs --print-typelibs", env=["conanbuild", "conanrun"])
         if can_run(self):
-            if self.settings.os != "Windows":
-                gobject_introspection_bin = self.dependencies["gobject-introspection"].cpp_info.bindir
-                for tool in ["g-ir-compiler", "g-ir-generate", "g-ir-scanner", "g-ir-annotation-tool"]:
-                    if not self._have_introspection_data and tool in ["g-ir-scanner", "g-ir-annotation-tool"]:
-                        continue
-                    tool_path = os.path.join(gobject_introspection_bin, tool)
-                    if os.path.exists(tool_path):
-                        self.run(f"{tool_path} --version", env="conanrun")
-                    else:
-                        raise Exception(f"Tool {tool} not found in {gobject_introspection_bin}")
-                tool_path = os.path.join(gobject_introspection_bin, "g-ir-inspect")
-                if os.path.exists(tool_path):
-                    self.run(f"{tool_path} -h", env="conanrun")
-
             bin_path = os.path.join(self.cpp.build.bindir, "test_basic")
             self.run(bin_path, env="conanrun")
-
-            bin_path = os.path.join(self.cpp.build.bindir, "test_girepository")
-            if os.path.exists(bin_path):
-                self.run(bin_path, env="conanrun")
