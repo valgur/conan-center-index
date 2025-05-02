@@ -278,7 +278,7 @@ class GStPluginsBadConan(ConanFile):
                 "qttools": can_run(self)
             })
         if "librsvg" in reqs:
-            self.requires("librsvg/2.40.21")
+            self.requires("librsvg/[^2.60]")
         if "usrsctp" in reqs:
             self.requires("usrsctp/0.9.5.0")
         if "libsndfile" in reqs:
