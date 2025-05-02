@@ -1,0 +1,4 @@
+sources:
+  "2.3.3":
+    url: "https://github.com/LudovicRousseau/PCSC/archive/refs/tags/2.3.3.tar.gz"
+    sha256: "00b667aa71504ed1d39a48ad377de048c70dbe47229e8c48a3239ab62979c70f"
