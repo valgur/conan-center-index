@@ -8,7 +8,7 @@ from conan.tools.meson import Meson
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "PkgConfigDeps", "MesonToolchain"
+    generators = "MesonToolchain", "PkgConfigDeps"
 
     def layout(self):
         basic_layout(self)
@@ -17,9 +17,9 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        self.tool_requires("meson/[>=1.2.3 <2]")
+        self.tool_requires("meson/[^1.2.3]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
+            self.tool_requires("pkgconf/[^2.2]")
 
     def build(self):
         meson = Meson(self)

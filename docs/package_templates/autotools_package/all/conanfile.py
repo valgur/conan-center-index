@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools import CppInfo
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.env import Environment, VirtualRunEnv
@@ -25,7 +26,7 @@ class PackageConan(ConanFile):
     license = ""
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/project/package"
-    # no "conan" and project name in topics. Use topics from the upstream listed on GH
+    # Use topics from the upstream listed on GH
     topics = ("topic1", "topic2", "topic3")
     # package_type should usually be "library", "shared-library" or "static-library"
     package_type = "library"
@@ -59,7 +60,6 @@ class PackageConan(ConanFile):
             self.requires("foobar/0.1.0")
 
     def validate(self):
-        # validate the minimum cpp standard supported. Only for C++ projects
         check_min_cppstd(self, 14)
 
         # Always comment the reason including the upstream issue.
@@ -67,22 +67,20 @@ class PackageConan(ConanFile):
         if self.settings.os not in ["Linux", "FreeBSD", "Macos"]:
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}.")
 
-    # if a tool other than the compiler or autotools is required to build the project (pkgconf, bison, flex etc)
     def build_requirements(self):
-        # only if we have to call autoreconf
-        self.tool_requires("libtool/x.y.z")
-        # only if upstream configure.ac relies on PKG_CHECK_MODULES macro
+        # Only if we have to call autoreconf.
+        self.tool_requires("libtool/[^2.4.7]")
+        # Only if upstream configure.ac relies on PKG_CHECK_MODULES macro.
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
-        # required to support windows as a build machine
+            self.tool_requires("pkgconf/[^2.2]")
         if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
-        # for msvc support to get compile & ar-lib scripts (may be avoided if shipped in source code of the library)
-        # not needed if libtool already in build requirements
-        if is_msvc(self):
-            self.tool_requires("automake/x.y.z")
+            # For MSVC support to get compile & ar-lib scripts (may be avoided if shipped in source code of the library).
+            # Not needed if libtool already in build requirements.
+            if is_msvc(self):
+                self.tool_requires("automake/[^1.16.5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -106,14 +104,6 @@ class PackageConan(ConanFile):
             "--enable-manpages=no",
         ])
         tc.generate()
-        # generate pkg-config files of dependencies (useless if upstream configure.ac doesn't rely on PKG_CHECK_MODULES macro)
-        tc = PkgConfigDeps(self)
-        tc.generate()
-        # generate dependencies for autotools
-        # some recipes might require a workaround for MSVC (https://github.com/conan-io/conan/issues/12784):
-        # https://github.com/conan-io/conan-center-index/blob/00ce907b910d0d772f1c73bb699971c141c423c1/recipes/xapian-core/all/conanfile.py#L106-L135
-        deps = AutotoolsDeps(self)
-        deps.generate()
 
         # If Visual Studio is supported
         if is_msvc(self):
@@ -134,8 +124,29 @@ class PackageConan(ConanFile):
             env.define("STRIP", ":")
             env.vars(self).save_script("conanbuild_msvc")
 
-    def build(self):
+        # generate pkg-config files of dependencies (useless if upstream configure.ac doesn't rely on PKG_CHECK_MODULES macro)
+        tc = PkgConfigDeps(self)
+        tc.generate()
 
+        # use AutotoolsDeps only when PkgConfigDeps is not sufficient
+        if is_msvc(self):
+            # Custom AutotoolsDeps for cl-like compilers
+            # workaround for https://github.com/conan-io/conan/issues/12784
+            cpp_info = CppInfo(self)
+            for dependency in self.dependencies.values():
+                cpp_info.merge(dependency.cpp_info.aggregated_components())
+            env = Environment()
+            env.append("CPPFLAGS", [f"-I{unix_path(self, p)}" for p in cpp_info.includedirs] + [f"-D{d}" for d in cpp_info.defines])
+            env.append("_LINK_", [lib if lib.endswith(".lib") else f"{lib}.lib" for lib in cpp_info.libs])
+            env.append("LDFLAGS", [f"-L{unix_path(self, p)}" for p in cpp_info.libdirs] + cpp_info.sharedlinkflags + cpp_info.exelinkflags)
+            env.append("CXXFLAGS", cpp_info.cxxflags)
+            env.append("CFLAGS", cpp_info.cflags)
+            env.vars(self).save_script("conanautotoolsdeps_cl_workaround")
+        else:
+            deps = AutotoolsDeps(self)
+            deps.generate()
+
+    def build(self):
         autotools = Autotools(self)
         # (optional) run autoreconf to regenerate configure file (libtool should be in tool_requires)
         autotools.autoreconf()

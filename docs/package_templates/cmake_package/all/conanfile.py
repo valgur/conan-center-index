@@ -22,7 +22,7 @@ class PackageConan(ConanFile):
     license = ""
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/project/package"
-    # no "conan" and project name in topics. Use topics from the upstream listed on GH
+    # Use topics from the upstream listed on GH
     topics = ("topic1", "topic2", "topic3")
     # package_type should usually be "library", "shared-library" or "static-library"
     package_type = "library"
@@ -54,7 +54,6 @@ class PackageConan(ConanFile):
             self.requires("foobar/0.1.0", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        # validate the minimum cpp standard supported. For C++ projects only.
         check_min_cppstd(self, 14)
         # in case it does not work in another configuration, it should be validated here. Always comment the reason including the upstream issue.
         # INFO: Upstream does not support DLL: See <URL>
@@ -62,7 +61,8 @@ class PackageConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
 
     def build_requirements(self):
-        self.tool_requires("cmake/[^4]")
+        # If CMake newer than 3.15 is required
+        self.tool_requires("cmake/[>=3.16 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

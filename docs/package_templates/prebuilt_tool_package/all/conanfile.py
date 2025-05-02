@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.files import *
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class PackageConan(ConanFile):

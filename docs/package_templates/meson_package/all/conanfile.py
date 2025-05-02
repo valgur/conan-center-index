@@ -10,7 +10,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 #
 # INFO: Please, remove all comments before pushing your PR!
@@ -25,7 +25,7 @@ class PackageConan(ConanFile):
     license = ""
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/project/package"
-    # no "conan" and project name in topics. Use topics from the upstream listed on GH
+    # Use topics from the upstream listed on GH
     topics = ("topic1", "topic2", "topic3")
     # package_type should usually be "library", "shared-library" or "static-library"
     package_type = "library"
@@ -59,7 +59,6 @@ class PackageConan(ConanFile):
             self.requires("foobar/0.1.0")
 
     def validate(self):
-        # validate the minimum cpp standard supported. For C++ projects only
         check_min_cppstd(self, 14)
         # in case it does not work in another configuration, it should be validated here too
         # Always comment the reason including the upstream issue.
@@ -67,13 +66,11 @@ class PackageConan(ConanFile):
         if is_msvc(self) and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
 
-    # if another tool than the compiler or Meson is required to build the project (pkgconf, bison, flex etc)
     def build_requirements(self):
-        # CCI policy assumes that Meson may not be installed on consumers machine
-        self.tool_requires("meson/[>=1.2.3 <2]")
+        self.tool_requires("meson/[^1.2.3]")
         # pkgconf is largely used by Meson, it should be added in build requirement when there are dependencies
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/[>=2.2 <3]")
+            self.tool_requires("pkgconf/[^2.2]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -7,13 +7,17 @@ from conan.tools.cmake import cmake_layout, CMake
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeToolchain", "CMakeDeps"  # or "PkgConfigDeps"
 
     def layout(self):
         cmake_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+
+    # def build_requirements(self):
+    #     if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
+    #         self.tool_requires("pkgconf/[^2.2]")
 
     def build(self):
         cmake = CMake(self)

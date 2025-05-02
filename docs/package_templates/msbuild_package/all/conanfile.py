@@ -6,7 +6,7 @@ from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import MSBuild, MSBuildDeps, MSBuildToolchain, is_msvc
 
-required_conan_version = ">=2.0"
+required_conan_version = ">=2.1"
 
 
 class PackageConan(ConanFile):
@@ -17,7 +17,7 @@ class PackageConan(ConanFile):
     license = ""
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/project/package"
-    # no "conan" and project name in topics. Use topics from the upstream listed on GH
+    # Use topics from the upstream listed on GH
     topics = ("topic1", "topic2", "topic3")
     # package_type should usually be "library", "shared-library" or "static-library"
     package_type = "library"
