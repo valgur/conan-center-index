@@ -3,15 +3,14 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class AtSpi2CoreConan(ConanFile):
@@ -36,23 +35,16 @@ class AtSpi2CoreConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_x11": True,
-        "with_introspection": False,
+        "with_introspection": True,
     }
-
-    def export_sources(self):
-        export_conandata_patches(self)
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_x11
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -71,10 +63,6 @@ class AtSpi2CoreConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "Linking a shared library against static glib can cause unexpected behaviour."
             )
-        if Version(self.version) < "2.49.1" and self.settings.os == "Windows":
-            raise ConanInvalidConfiguration("Windows is not supported before version 2.49.1")
-        if Version(self.version) < "2.50.0" and is_apple_os(self):
-            raise ConanInvalidConfiguration("macOS is not supported before version 2.50.0")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -87,14 +75,11 @@ class AtSpi2CoreConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        replace_in_file(self, "meson.build", "subdir('tests')", "#subdir('tests')")
         replace_in_file(self, os.path.join(self.source_folder, "bus", "meson.build"),
                         "if x11_dep.found()",
                         "if get_option('x11').enabled()")
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                        "subdir('tests')",
-                        "#subdir('tests')")
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+        replace_in_file(self, "meson.build",
                         "libxml_dep = dependency('libxml-2.0', version: libxml_req_version)",
                         "#libxml_dep = dependency('libxml-2.0', version: libxml_req_version)")
 

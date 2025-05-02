@@ -97,7 +97,7 @@ class GtkConan(ConanFile):
         self.requires("pango/[^1.54.0]", transitive_headers=True, transitive_libs=True)
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.37/gtk/gtkwidget.h?ref_type=tags#L36
-        self.requires("at-spi2-core/2.51.0", transitive_headers=True, transitive_libs=True)
+        self.requires("at-spi2-core/[^2.53.1]", transitive_headers=True, transitive_libs=True)
         self.requires("libepoxy/1.5.10")
         self.requires("fribidi/1.0.13")
         self.requires("harfbuzz/[*]")
