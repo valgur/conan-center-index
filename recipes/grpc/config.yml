@@ -1,4 +1,6 @@
 versions:
+  "1.72.0":
+    folder: "all"
   "1.69.0":
     folder: "all"
   "1.67.1":
@@ -8,6 +10,4 @@ versions:
   "1.54.3":
     folder: "all"
   "1.50.1":
-    folder: "all"
-  "1.50.0":
     folder: "all"
