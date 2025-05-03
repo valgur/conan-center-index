@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-02:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-03:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -26,6 +26,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.4
 - blis/0.9.0
+- bluez/5.82
 - boost/1.71.0
 - boost/1.74.0
 - boxfort/0.1.4
@@ -67,6 +68,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - debugbreak/1.0
 - diligent-engine/2.5.6.8
 - directfb/1.7.7
+- dotconf/1.4.1
 - dpdk/24.07
 - elfutils/0.191
 - elfutils/0.192
@@ -77,6 +79,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fenster/0.1.0
 - filament/1.5.3
 - firebird/5.0.0
+- flite/2.2
 - fortran/cci.latest
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
@@ -88,8 +91,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gfortran/13.2.0
 - gici/cci.20250127
 - gl2ps/1.4.2
-- glib/2.78.6
-- glib/2.81.2
+- glib-gir/2.82.4
+- glib-gir/2.84.1
 - glib/2.82.4
 - glib/2.84.1
 - glim/1.0.4
@@ -107,8 +110,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gnuradio-volk/3.1.2
 - go/1.16.15
 - go/1.23.5
-- gobject-introspection/1.82.0
+- gobject-introspection/1.84.0
 - gpu.cpp/0.1.0
+- gsettings-desktop-schemas/48.0
 - gst-libav/1.24.12
 - gst-libav/1.26.0
 - gst-orc/0.4.40
@@ -169,6 +173,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libdecor/0.2.2
 - libecwj2/3.3
 - libelas/cci.20150630
+- libell/0.76
 - libfontenc/1.1.8
 - libgudev/238
 - libhdfs3/cci.20191105
@@ -180,9 +185,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libmysqlclient/8.2.0
 - libosmium/2.20.0
 - libpq/17.0
+- libproxy/0.5.9
 - libraw1394/2.1.2
 - librsvg/2.40.21
-- librsvg/2.57.0
+- librsvg/2.60.0
 - libsigcpp/2.12.1
 - libsigcpp/3.6.0
 - libsm/1.2.4
@@ -262,6 +268,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openpmix/5.0.6
 - openspecfun/0.5.7
 - openusd/25.02
+- openxr/1.1.47
 - or-tools/9.10
 - osgearth/3.7
 - osrm/5.27.1
@@ -273,6 +280,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangomm/2.54.0
 - pcl/1.14.1
 - pcre2/10.45
+- pcsc-lite/2.3.3
 - pdal/2.7.2
 - pdfio/1.5.2
 - perf/6.11
@@ -313,6 +321,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sleef/3.6.1
 - small_gicp/0.1.2
 - spectra/1.1.0
+- speech-dispatcher/0.12
 - spirv-cross/1.3.290.0
 - spirv-headers/1.3.250.1
 - spirv-headers/1.3.290.0
@@ -352,6 +361,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tk/8.6.13
 - tk/8.6.16
 - tpl/cci.20210302
+- tslib/1.23
 - tz/2024b
 - usearch/2.9.1
 - userspace-rcu/0.15.2
