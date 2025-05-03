@@ -126,13 +126,13 @@ class FreetypeConan(ConanFile):
             conan_staticlibs="{staticlibs}"
         """).format(version=version, staticlibs=staticlibs))
 
-    def _extract_libtool_version(self):
+    def _extract_soversion(self):
         conf_raw = load(self, os.path.join(self.source_folder, "builds", "unix", "configure.raw"))
         return re.search(r"^version_info='([0-9:]+)'", conf_raw, flags=re.M).group(1).replace(":", ".")
 
     @property
-    def _libtool_version_txt(self):
-        return os.path.join(self.package_folder, "res", "freetype-libtool-version.txt")
+    def _soversion_txt(self):
+        return os.path.join(self.package_folder, "share", "conan", "freetype-soversion.txt")
 
     def package(self):
         meson = Meson(self)
@@ -151,10 +151,9 @@ class FreetypeConan(ConanFile):
             dst = os.path.join(self.package_folder, "bin", f"freetype{suffix}.dll")
             shutil.copyfile(src, dst)
 
-        libtool_version = self._extract_libtool_version()
-
-        save(self, self._libtool_version_txt, libtool_version)
-        self._make_freetype_config(libtool_version)
+        soversion = self._extract_soversion()
+        save(self, self._soversion_txt, soversion)
+        self._make_freetype_config(soversion)
 
         doc_folder = os.path.join(self.source_folder, "docs")
         license_folder = os.path.join(self.package_folder, "licenses")
@@ -164,12 +163,8 @@ class FreetypeConan(ConanFile):
 
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
-        self._create_cmake_module_variables(
-            os.path.join(self.package_folder, self._module_vars_rel_path)
-        )
+        self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_rel_path))
         fix_apple_shared_install_name(self)
 
     def _create_cmake_module_variables(self, module_file):
@@ -207,6 +202,6 @@ class FreetypeConan(ConanFile):
             self.cpp_info.system_libs.append("m")
         self.cpp_info.includedirs.append(os.path.join("include", "freetype2"))
 
-        libtool_version = load(self, self._libtool_version_txt).strip()
-        self.conf_info.define("user.freetype:libtool_version", libtool_version)
-        self.cpp_info.set_property("system_package_version", libtool_version)
+        soversion = load(self, self._soversion_txt).strip()
+        self.conf_info.define("user.freetype:soversion", soversion)
+        self.cpp_info.set_property("system_package_version", soversion)
