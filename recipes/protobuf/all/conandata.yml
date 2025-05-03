@@ -3,9 +3,9 @@ sources:
   # languages, so it is possible to bump these versions incorrectly.
   # Follow https://protobuf.dev/support/version-support/#cpp to see what the correct
   # version is for C++.
-  "6.30.1":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.30.1.tar.gz"
-    sha256: "c97cc064278ef2b8c4da66c1f85613642ecbd5a0c4217c0defdf7ad1b3de9fa5"
+  "6.30.2":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.30.2.tar.gz"
+    sha256: "13392d0ce5cbe2259fe67513f938b1be902d6f9d0d44033ea995db1d43d45388"
   "5.29.3":
     url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.29.3.tar.gz"
     sha256: "fe35f190d7a63533b06558915d6ee469cbee143de70891e1dd54d197b05f362a"
@@ -48,7 +48,7 @@ patches:
     - patch_file: "patches/upstream-pr-8301-bundle-destination.patch"
 absl_deps:
   # reference: https://github.com/protocolbuffers/protobuf/blob/main/cmake/abseil-cpp.cmake
-  "6.30.1":
+  "6.30.2":
     - absl_absl_check
     - absl_absl_log
     - absl_algorithm
