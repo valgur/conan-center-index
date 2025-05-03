@@ -1,10 +1,11 @@
-from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain,CMakeDeps, cmake_layout
-from conan.tools.files import *
-from conan.tools.build import check_min_cppstd
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.scm import Version
 import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -68,6 +69,10 @@ class ClickHouseCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # For CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "CMAKE_MINIMUM_REQUIRED (VERSION 3.0.2)",
+                        "CMAKE_MINIMUM_REQUIRED (VERSION 3.15)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -77,8 +82,7 @@ class ClickHouseCppConan(ConanFile):
         tc.cache_variables["WITH_SYSTEM_LZ4"] = True
         tc.cache_variables["WITH_SYSTEM_CITYHASH"] = True
         # TODO: enable DEBUG_DEPENDENCIES on >= 2.5.0
-        if Version(self.version) >= "2.5.0":
-            tc.cache_variables["DEBUG_DEPENDENCIES"] = False
+        tc.cache_variables["DEBUG_DEPENDENCIES"] = False
         tc.generate()
 
         cd = CMakeDeps(self)
