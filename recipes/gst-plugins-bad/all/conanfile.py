@@ -683,15 +683,15 @@ class GStPluginsBadConan(ConanFile):
             libva = _define_library("va", [
                 "gst-plugins-base::gstreamer-video-1.0",
                 "gst-plugins-base::gstreamer-allocators-1.0",
-                "libva::libva_",
+                "libva::va",
             ])
             if self.options.get_safe("with_libdrm"):
                 libva.requires.extend([
-                    "libva::libva-drm",
+                    "libva::drm",
                     "libdrm::libdrm_libdrm",
                 ])
             if self.settings.os == "Windows":
-                libva.requires.append("libva::libva-win32")
+                libva.requires.append("libva::win32")
                 libva.system_libs.append("dxgi")
         # vulkan
         if self.options.get_safe("vulkan"):

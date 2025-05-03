@@ -122,19 +122,19 @@ class PackageConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        self.cpp_info.components["libva_"].libs = ["va"]
-        self.cpp_info.components["libva_"].set_property("pkg_config_name", "libva")
+        self.cpp_info.components["va"].libs = ["va"]
+        self.cpp_info.components["va"].set_property("pkg_config_name", "libva")
 
         if self.options.get_safe("with_drm"):
-            self.cpp_info.components["libva-drm"].libs = ["va-drm"]
-            self.cpp_info.components["libva-drm"].set_property("pkg_config_name", "libva-drm")
-            self.cpp_info.components["libva-drm"].requires = ["libva_", "libdrm::libdrm"]
+            self.cpp_info.components["drm"].libs = ["va-drm"]
+            self.cpp_info.components["drm"].set_property("pkg_config_name", "libva-drm")
+            self.cpp_info.components["drm"].requires = ["va", "libdrm::libdrm"]
 
         if self.options.get_safe("with_x11"):
-            self.cpp_info.components["libva-x11"].libs = ["va-x11"]
-            self.cpp_info.components["libva-x11"].set_property("pkg_config_name", "libva-x11")
-            self.cpp_info.components["libva-x11"].requires = [
-                "libva_",
+            self.cpp_info.components["x11"].libs = ["va-x11"]
+            self.cpp_info.components["x11"].set_property("pkg_config_name", "libva-x11")
+            self.cpp_info.components["x11"].requires = [
+                "va",
                 "xorg::x11",
                 "xorg::x11-xcb",
                 "xorg::xcb",
@@ -144,16 +144,16 @@ class PackageConan(ConanFile):
             ]
 
         if self.options.get_safe("with_glx"):
-            self.cpp_info.components["libva-glx"].libs = ["va-glx"]
-            self.cpp_info.components["libva-glx"].set_property("pkg_config_name", "libva-glx")
-            self.cpp_info.components["libva-glx"].requires = ["libva_", "opengl::opengl"]
+            self.cpp_info.components["glx"].libs = ["va-glx"]
+            self.cpp_info.components["glx"].set_property("pkg_config_name", "libva-glx")
+            self.cpp_info.components["glx"].requires = ["va", "opengl::opengl"]
 
         if self.options.get_safe("with_wayland"):
-            self.cpp_info.components["libva-wayland"].libs = ["va-wayland"]
-            self.cpp_info.components["libva-wayland"].set_property("pkg_config_name", "libva-wayland")
-            self.cpp_info.components["libva-wayland"].requires = ["libva_", "wayland::wayland-client"]
+            self.cpp_info.components["wayland"].libs = ["va-wayland"]
+            self.cpp_info.components["wayland"].set_property("pkg_config_name", "libva-wayland")
+            self.cpp_info.components["wayland"].requires = ["va", "wayland::wayland-client"]
 
         if self.options.get_safe("with_win32"):
-            self.cpp_info.components["libva-win32"].libs = ["va_win32"]
-            self.cpp_info.components["libva-win32"].set_property("pkg_config_name", "libva-win32")
-            self.cpp_info.components["libva-win32"].requires = ["libva_"]
+            self.cpp_info.components["win32"].libs = ["va_win32"]
+            self.cpp_info.components["win32"].set_property("pkg_config_name", "libva-win32")
+            self.cpp_info.components["win32"].requires = ["va"]
