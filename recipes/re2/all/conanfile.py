@@ -103,3 +103,7 @@ class Re2Conan(ConanFile):
         self.cpp_info.libs = ["re2"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "pthread"]
+
+        # https://github.com/google/re2/blob/2024-07-02/re2.pc.in#L7
+        soversion = self.conan_data["soversion"][self.version]
+        self.cpp_info.set_property("system_package_version", f"{soversion}.0.0")
