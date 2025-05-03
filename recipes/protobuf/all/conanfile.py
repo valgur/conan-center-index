@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -39,16 +40,24 @@ class ProtobufConan(ConanFile):
         "upb": False,
         "debug_suffix": True,
     }
+    options_description = {
+        "with_zlib": "Enable zlib support",
+        "with_rtti": "Enable RTTI support",
+        "lite": "Build lite version",
+        "upb": "Build upb version",
+        "debug_suffix": "Add 'd' suffix to debug libraries",
+    }
+    implements = ["auto_shared_fpic"]
 
-    @property
+    @cached_property
     def _is_clang_cl(self):
         return self.settings.compiler == "clang" and self.settings.os == "Windows"
 
-    @property
+    @cached_property
     def _is_clang_x86(self):
         return self.settings.compiler == "clang" and self.settings.arch == "x86"
 
-    @property
+    @cached_property
     def _protobuf_release(self):
         current_ver = Version(self.version)
         return Version(f"{current_ver.minor}.{current_ver.patch}")
@@ -57,14 +66,9 @@ class ProtobufConan(ConanFile):
         export_conandata_patches(self)
         copy(self, "protobuf-conan-protoc-target.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-
         if self._protobuf_release < "27.0":
             self.options.rm_safe("upb")
 
@@ -74,7 +78,6 @@ class ProtobufConan(ConanFile):
     def requirements(self):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
-
         if self._protobuf_release >= "22.0":
             self.requires("abseil/[>=20230802.1 <=20250127.0]", transitive_headers=True, transitive_libs=True)
 
@@ -101,19 +104,35 @@ class ProtobufConan(ConanFile):
         if self._protobuf_release >= "22.0":
             check_min_cppstd(self, 14)
 
-        if self.settings.compiler == "clang":
-            if Version(self.settings.compiler.version) < "4":
-                raise ConanInvalidConfiguration(f"{self.ref} doesn't support clang < 4")
+        if self.settings.compiler == "clang" and Version(self.settings.compiler.version) < 4:
+            raise ConanInvalidConfiguration(f"{self.ref} doesn't support clang < 4")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+        if self._protobuf_release < "22.0":
+            # In older versions of protobuf, this file defines the `protobuf_generate` function
+            protobuf_config_cmake = os.path.join(self.source_folder, "cmake", "protobuf-config.cmake.in")
+            replace_in_file(self, protobuf_config_cmake, "@_protobuf_FIND_ZLIB@", "")
+            replace_in_file(self, protobuf_config_cmake, 'include("${CMAKE_CURRENT_LIST_DIR}/protobuf-targets.cmake")', "")
+
+        # Disable a potential warning in protobuf-module.cmake.in
+        # https://github.com/protocolbuffers/protobuf/blob/v30.2/cmake/protobuf-module.cmake.in#L81-L168
+        # TODO: remove this patch? Is it really useful?
+        protobuf_module_cmake = os.path.join(self.source_folder, "cmake", "protobuf-module.cmake.in")
+        replace_in_file(self, protobuf_module_cmake,
+                        "if(DEFINED Protobuf_SRC_ROOT_FOLDER)",
+                        "if(0)\nif(DEFINED Protobuf_SRC_ROOT_FOLDER)")
+        replace_in_file(self, protobuf_module_cmake,
+                        "# Define upper case versions of output variables",
+                        "endif()")
+
     def build_requirements(self):
         if self._protobuf_release >= "30.1":
             self.tool_requires("cmake/[>=3.16 <5]")
 
-    @property
+    @cached_property
     def _cmake_install_base_path(self):
         return os.path.join("lib", "cmake", "protobuf")
 
@@ -137,69 +156,39 @@ class ProtobufConan(ConanFile):
         if is_apple_os(self) and self.options.shared:
             # Workaround against SIP on macOS for consumers while invoking protoc when protobuf lib is shared
             tc.variables["CMAKE_INSTALL_RPATH"] = "@loader_path/../lib"
-
         if self.settings.os == "Linux":
             # Use RPATH instead of RUNPATH to help with specific case
             # in the grpc recipe when grpc_cpp_plugin is run with protoc
             # in the same build. RPATH ensures that the rpath in the binary
             # is respected for transitive dependencies too
-            project_include = os.path.join(self.generators_folder, "protobuf_project_include.cmake")
-            save(self, project_include, "add_link_options(-Wl,--disable-new-dtags)")
-            tc.variables["CMAKE_PROJECT_INCLUDE"] = project_include
-            # Note: conan2 only could be:
-            # tc.extra_exelinkflags.append("-Wl,--disable-new-dtags")
-            # tc.extra_sharedlinkflags.append("-Wl,--disable-new-dtags")
-
+            tc.extra_exelinkflags.append("-Wl,--disable-new-dtags")
+            tc.extra_sharedlinkflags.append("-Wl,--disable-new-dtags")
         tc.generate()
 
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        if self._protobuf_release < "22.0":
-            # In older versions of protobuf, this file defines the `protobuf_generate` function
-            protobuf_config_cmake = os.path.join(self.source_folder, "cmake", "protobuf-config.cmake.in")
-            replace_in_file(self, protobuf_config_cmake, "@_protobuf_FIND_ZLIB@", "")
-            replace_in_file(self, protobuf_config_cmake,
-                "include(\"${CMAKE_CURRENT_LIST_DIR}/protobuf-targets.cmake\")",
-                ""
-            )
-
-        # Disable a potential warning in protobuf-module.cmake.in
-        # TODO: remove this patch? Is it really useful?
-        protobuf_module_cmake = os.path.join(self.source_folder, "cmake", "protobuf-module.cmake.in")
-        replace_in_file(self,
-            protobuf_module_cmake,
-            "if(DEFINED Protobuf_SRC_ROOT_FOLDER)",
-            "if(0)\nif(DEFINED Protobuf_SRC_ROOT_FOLDER)",
-        )
-        replace_in_file(self,
-            protobuf_module_cmake,
-            "# Define upper case versions of output variables",
-            "endif()",
-        )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake_root = "cmake" if Version(self.version) < "3.21" else None
         cmake.configure(build_script_folder=cmake_root)
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake", "utf8_range"))
-        if self._protobuf_release < "22.0":
-            rename(self, os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-config.cmake"),
-                      os.path.join(self.package_folder, self._cmake_install_base_path, "protobuf-generate.cmake"))
 
         cmake_config_folder = os.path.join(self.package_folder, self._cmake_install_base_path)
-        rm(self, "protobuf-config*.cmake", folder=cmake_config_folder)
-        rm(self, "protobuf-targets*.cmake", folder=cmake_config_folder)
-        copy(self, "protobuf-conan-protoc-target.cmake", src=self.source_folder, dst=cmake_config_folder)
+        if self._protobuf_release < "22.0":
+            rename(self,
+                   os.path.join(cmake_config_folder, "protobuf-config.cmake"),
+                   os.path.join(cmake_config_folder, "protobuf-generate.cmake"))
+        rm(self, "protobuf-config*.cmake", cmake_config_folder)
+        rm(self, "protobuf-targets*.cmake", cmake_config_folder)
+        copy(self, "protobuf-conan-protoc-target.cmake", self.source_folder, cmake_config_folder)
 
         if not self.options.lite:
             rm(self, "libprotobuf-lite*", os.path.join(self.package_folder, "lib"))
@@ -209,7 +198,8 @@ class ProtobufConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_module_file_name", "Protobuf")
         self.cpp_info.set_property("cmake_file_name", "protobuf")
-        self.cpp_info.set_property("pkg_config_name", "protobuf_full_package") # unofficial, but required to avoid side effects (libprotobuf component "steals" the default global pkg_config name)
+        # unofficial, but required to avoid side effects (libprotobuf component "steals" the default global pkg_config name)
+        self.cpp_info.set_property("pkg_config_name", "protobuf_full_package")
 
         build_modules = [
             os.path.join(self._cmake_install_base_path, "protobuf-generate.cmake"),
@@ -232,12 +222,9 @@ class ProtobufConan(ConanFile):
             self.cpp_info.components["utf8_range"].set_property("cmake_target_name", "utf8_range::utf8_range")
             self.cpp_info.components["utf8_validity"].set_property("cmake_target_name", "utf8_range::utf8_validity")
             # https://github.com/protocolbuffers/protobuf/blob/0d815c5b74281f081c1ee4b431a4d5bbb1615c97/third_party/utf8_range/CMakeLists.txt#L24
-            if self._protobuf_release >= "30.1" and self.settings.os == "Windows":
-                self.cpp_info.components["utf8_range"].libs = ["libutf8_range"]
-                self.cpp_info.components["utf8_validity"].libs = ["libutf8_validity"]
-            else:
-                self.cpp_info.components["utf8_range"].libs = ["utf8_range"]
-                self.cpp_info.components["utf8_validity"].libs = ["utf8_validity"]
+            utf8_prefix = lib_prefix if self._protobuf_release >= "30.1" else ""
+            self.cpp_info.components["utf8_range"].libs = [utf8_prefix + "utf8_range"]
+            self.cpp_info.components["utf8_validity"].libs = [utf8_prefix + "utf8_validity"]
             self.cpp_info.components["utf8_validity"].requires = ["abseil::absl_strings"]
 
         if self.options.get_safe("upb"):
@@ -262,14 +249,14 @@ class ProtobufConan(ConanFile):
             self.cpp_info.components["libprotobuf"].system_libs.extend(["m", "pthread"])
             if self._is_clang_x86 or "arm" in str(self.settings.arch):
                 self.cpp_info.components["libprotobuf"].system_libs.append("atomic")
-        if self.settings.os == "Android":
+        elif self.settings.os == "Android":
             self.cpp_info.components["libprotobuf"].system_libs.append("log")
-        if self.settings.os == "Windows":
+        elif self.settings.os == "Windows":
             if self.options.shared:
                 self.cpp_info.components["libprotobuf"].defines = ["PROTOBUF_USE_DLLS"]
 
         # libprotoc
-        if self.settings.os != "tvOS":
+        if self.settings.os != "tvOS":  # not built due to fork() and execv() missing on tvOS
             self.cpp_info.components["libprotoc"].set_property("cmake_target_name", "protobuf::libprotoc")
             self.cpp_info.components["libprotoc"].libs = [lib_prefix + "protoc" + lib_suffix]
             self.cpp_info.components["libprotoc"].requires = ["libprotobuf"]
@@ -289,7 +276,7 @@ class ProtobufConan(ConanFile):
             if self.settings.os == "Windows":
                 if self.options.shared:
                     self.cpp_info.components["libprotobuf-lite"].defines = ["PROTOBUF_USE_DLLS"]
-            if self.settings.os == "Android":
+            elif self.settings.os == "Android":
                 self.cpp_info.components["libprotobuf-lite"].system_libs.append("log")
             if self._protobuf_release >= "22.0":
                 self.cpp_info.components["libprotobuf-lite"].requires.extend(absl_deps)
