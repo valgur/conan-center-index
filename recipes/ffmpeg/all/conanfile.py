@@ -720,30 +720,14 @@ class FFMpegConan(ConanFile):
                 rm(self, "*.def", os.path.join(self.package_folder, "lib"))
             else:
                 # ffmpeg produces `.a` files that are actually `.lib` files
-                for lib in Path(self.package_folder, "lib").glob("*.a"):
-                    rename(self, lib, str(lib)[3:-2] + ".lib")
+                for path in Path(self.package_folder, "lib").glob("*.a"):
+                    rename(self, path, path.parent / f"{path.stem[3:]}.lib")
 
-    def _read_component_version(self, component_name):
-        # since 5.1, major version may be defined in version_major.h instead of version.h
-        component_folder = Path(self.package_folder, "include", f"lib{component_name}")
-        version_file_name = component_folder / "version.h"
-        version_major_file_name = component_folder / "version_major.h"
-        pattern = f"define LIB{component_name.upper()}_VERSION_(MAJOR|MINOR|MICRO)[ \t]+(\\d+)"
-        version = {}
-        for path in (version_file_name, version_major_file_name):
-            if path.is_file():
-                for kind, value in re.findall(pattern, path.read_text(encoding="utf-8")):
-                    version[kind] = value
-        if "MAJOR" in version and "MINOR" in version and "MICRO" in version:
-            return f"{version['MAJOR']}.{version['MINOR']}.{version['MICRO']}"
-        return None
-
-    def _set_component_version(self, component_name):
-        version = self._read_component_version(component_name)
-        if version is not None:
-            self.cpp_info.components[component_name].set_property("component_version", version)
-        else:
-            self.output.warning(f"cannot determine version of lib{component_name} packaged with ffmpeg!")
+    def _get_component_version(self, component):
+        includedir = Path(self.package_folder, "include", f"lib{component}")
+        version_headers = [includedir / "version.h", includedir / "version_major.h"]
+        content = "".join(load(self, header) for header in version_headers if header.exists())
+        return ".".join(re.search(rf"VERSION_{x}[ \t]+(\d+)", content)[1] for x in ["MAJOR", "MINOR", "MICRO"])
 
     def package_info(self):
         if self.options.with_programs:
@@ -753,7 +737,7 @@ class FFMpegConan(ConanFile):
         def _add_component(name, dependencies):
             component = self.cpp_info.components[name]
             component.set_property("pkg_config_name", f"lib{name}")
-            self._set_component_version(name)
+            component.set_property("component_version", self._get_component_version(name))
             component.libs = [name]
             if name != "avutil":
                 component.requires = ["avutil"]
