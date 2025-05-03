@@ -25,7 +25,7 @@ class BearConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("grpc/1.50.1")
+        self.requires("grpc/[^1.50.2]")
         self.requires("nlohmann_json/[^3]")
         if Version(self.version) >= "3.1":
             self.requires("fmt/10.2.1")

@@ -78,7 +78,7 @@ class XgboostConan(ConanFile):
         if self.options.plugin_rmm:
             self.requires("rmm/24.04.00")
         if self.options.get_safe("plugin_federated"):
-            self.requires("grpc/1.54.3")
+            self.requires("grpc/[^1.50.2]")
             self.requires("protobuf/3.21.12")
 
     def validate(self):

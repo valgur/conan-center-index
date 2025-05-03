@@ -39,7 +39,7 @@ class AsioGrpcConan(ConanFile):
             self.options.local_allocator = "boost_container"
 
     def requirements(self):
-        self.requires("grpc/1.67.1", transitive_headers=True, transitive_libs=True)
+        self.requires("grpc/[^1.50.2]", transitive_headers=True, transitive_libs=True)
         if (self.options.get_safe("local_allocator") == "boost_container" and Version(self.version) < "3.0.0") or self.options.backend == "boost":
             self.requires("boost/1.86.0", transitive_headers=True)
         if self.options.backend == "asio":

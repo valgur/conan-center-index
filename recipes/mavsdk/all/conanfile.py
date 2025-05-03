@@ -55,7 +55,7 @@ class MavsdkConan(ConanFile):
         self.requires("libcurl/[>=7.86 <9]")
         self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.build_server:
-            self.requires("grpc/1.67.1")
+            self.requires("grpc/[^1.50.2]")
 
     def validate(self):
         check_min_cppstd(self, 17)
