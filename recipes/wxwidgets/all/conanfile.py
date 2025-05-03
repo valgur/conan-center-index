@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
@@ -27,7 +28,7 @@ class wxWidgetsConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "toolkit": ["native", "gtk3", "gtk4", "qt5"],
+        "toolkit": ["native", "gtk3", "gtk4", "qt"],
         "aui": [True, False],
         "cairo": [True, False],
         "debugreport": [True, False],
@@ -91,7 +92,7 @@ class wxWidgetsConan(ConanFile):
         "custom_disables": "",
     }
 
-    @property
+    @cached_property
     def _toolkit(self):
         if self.options.toolkit == "native":
             if self.settings.os == "Windows":
@@ -100,8 +101,6 @@ class wxWidgetsConan(ConanFile):
                 return "osx_iphone"
             if is_apple_os(self):
                 return "osx_cocoa"
-        elif self.options.toolkit == "qt5":
-            return "qt"
         return self.options.toolkit.value
 
     def export_sources(self):
@@ -115,8 +114,6 @@ class wxWidgetsConan(ConanFile):
             # include/gtk-4.0/gdk/gdkevents.h:106:16: error: ‘struct’ tag used in naming ‘union _GdkEvent’ [-fpermissive]
             # src/common/popupcmn.cpp:384:29: error: ‘gtk_widget_get_window’ was not declared in this scope
             self.options.toolkit = "gtk3"
-            # GStreamer recipe on CCI is currently broken
-            self.options.mediactrl = False
         else:
             self.options.cairo = False
         if self.settings.os == "Windows":
@@ -381,7 +378,7 @@ class wxWidgetsConan(ConanFile):
                     path.unlink()
                     path.symlink_to(rel)
 
-    @property
+    @cached_property
     def _api_version(self):
         version = Version(self.version)
         return f"{version.major}.{version.minor}"
