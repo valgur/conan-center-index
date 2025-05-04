@@ -1,5 +1,7 @@
 import os
+import re
 from functools import cached_property
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -176,6 +178,17 @@ class ProtobufConan(ConanFile):
         cmake.configure(build_script_folder=cmake_root)
         cmake.build()
 
+    def _read_abseil_targets(self):
+        # Read and convert https://github.com/protocolbuffers/protobuf/blob/v30.2/cmake/abseil-cpp.cmake#L56-L94
+        content = Path(self.source_folder, "cmake", "abseil-cpp.cmake").read_text(encoding="utf-8")
+        block = re.search(r"set\(protobuf_ABSL_USED_TARGETS\n([^)]+)\)", content)[1]
+        cmake_targets = list(filter(None, block.split()))
+        return [x.replace("absl::", "abseil::absl_") for x in cmake_targets]
+
+    @property
+    def _abseil_targets_txt(self):
+        return Path(self.package_folder, "share", "conan", "protobuf", "abseil_targets.txt")
+
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -191,6 +204,10 @@ class ProtobufConan(ConanFile):
         rm(self, "protobuf-config*.cmake", cmake_config_folder)
         rm(self, "protobuf-targets*.cmake", cmake_config_folder)
         copy(self, "protobuf-conan-protoc-target.cmake", self.source_folder, cmake_config_folder)
+
+        if self._protobuf_release >= "22.0":
+            abseil_targets = self._read_abseil_targets()
+            save(self, self._abseil_targets_txt, "\n".join(abseil_targets))
 
         if not self.options.lite:
             rm(self, "libprotobuf-lite*", os.path.join(self.package_folder, "lib"))
@@ -215,7 +232,7 @@ class ProtobufConan(ConanFile):
         lib_suffix = "d" if self.settings.build_type == "Debug" and self.options.debug_suffix else ""
 
         if self._protobuf_release >= "22.0":
-            absl_deps = [f"abseil::{c}" for c in self.conan_data["absl_deps"][self.version]]
+            absl_deps = load(self, self._abseil_targets_txt).splitlines()
 
         if self._protobuf_release >= "22.0" and (not self.options.shared or self.options.get_safe("upb")):
             # utf8 libraries
