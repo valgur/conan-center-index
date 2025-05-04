@@ -78,11 +78,12 @@ class OnnxRuntimeConan(ConanFile):
     def requirements(self):
         required_onnx_version = self.conan_data["onnx_version_map"][self.version]
         self.requires(f"onnx/{required_onnx_version}")
-        self.requires("abseil/20240116.1")
-        self.requires("protobuf/3.21.12")
-        self.requires("date/3.0.1")
-        self.requires("re2/20231101")
+        self.requires("abseil/[>=20220623.1]")
+        self.requires("protobuf/[>=3.21.12]")
+        self.requires("date/[^3.0]")
+        self.requires("re2/[>=20220601]")
         if Version(self.version) >= "1.18":
+            # This exact version is required
             self.requires("flatbuffers/23.5.26")
         else:
             # v1.* is required, newer versions are not compatible
