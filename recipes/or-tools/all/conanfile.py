@@ -31,11 +31,11 @@ class OrToolsConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "build_lp_parser": False,  # FIXME: has an abseil version conflict with protobuf
-        "with_coinor": True,
-        "with_glpk": True,
-        "with_highs": True,
-        "with_scip": True,
+        "build_lp_parser": False,
+        "with_coinor": False,
+        "with_glpk": False,
+        "with_highs": False,
+        "with_scip": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -44,11 +44,11 @@ class OrToolsConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("protobuf/5.27.0")
-        self.requires("abseil/20240116.2")
+        self.requires("protobuf/[>=3.29.4]")
+        self.requires("abseil/[>=20240116.2]", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0")
         if self.options.build_lp_parser:
-            self.requires("re2/20240702")
+            self.requires("re2/[>=20220601]")
         if self.options.with_coinor:
             self.requires("coin-utils/2.11.11")
             self.requires("coin-osi/0.108.10")
