@@ -9,6 +9,7 @@ from pathlib import Path
 
 import requests
 import yaml
+from conan.tools.scm import Version
 
 script_dir = Path(__file__).parent
 
@@ -22,10 +23,7 @@ external_deps = {
     "cares": "c-ares::cares",
     "libssl": "openssl::openssl",
     "protobuf": "protobuf::libprotobuf",
-}
-
-excluded_deps = {
-    "protoc"
+    "protoc": "protobuf::libprotoc",
 }
 
 abseil_irregular = {
@@ -59,21 +57,22 @@ def parse_build_data(data):
     all_targets = [
         v for v in data["libs"] + data["targets"] if v["build"] not in ["private", "test"] and not v.get("gtest")
     ]
-    targets = []
-    plugins = []
+    targets = {}
+    plugins = {}
     for t in all_targets:
+        name = t.pop("name")
         t.pop("public_headers", None)
         t.pop("headers", None)
         t.pop("src", None)
         t.pop("language", None)
         t.pop("build", None)
-        t["deps"] = [rename_dep(x) for x in t.get("deps", []) if x not in excluded_deps]
-        if t["name"] == t.get("lib"):
+        t["deps"] = [rename_dep(x) for x in t.get("deps", [])]
+        if name == t.get("lib"):
             del t["lib"]
-        if t["name"].endswith("_plugin"):
-            plugins.append(t)
-        elif t["name"] not in unvendored:
-            targets.append(t)
+        if name.endswith("_plugin"):
+            plugins[name] = t
+        elif name not in unvendored:
+            targets[name] = t
     return targets, plugins
 
 
@@ -88,6 +87,16 @@ def write_target_info_yaml(targets, plugins, version):
 def main(version):
     data = fetch_build_data(version)
     targets, plugins = parse_build_data(data)
+    # The info for older versions is incomplete for some reason
+    if Version(version) < "1.58.0":
+        targets["upb"] = {"deps": []}
+        targets["grpc"]["deps"].extend(["zlib::zlib", "c-ares::cares", "re2::re2"])
+        targets["grpc_unsecure"]["deps"].extend(["zlib::zlib", "c-ares::cares"])
+        targets["grpc_plugin_support"]["deps"].extend(["protobuf::libprotobuf", "protobuf::libprotoc"])
+        targets["grpcpp_channelz"]["deps"].append("protobuf::libprotobuf")
+        targets["grpc++_reflection"]["deps"].append("protobuf::libprotobuf")
+        if Version(version) >= "1.51":
+            targets["grpc_authorization_provider"]["deps"].extend(["zlib::zlib", "re2::re2"])
     write_target_info_yaml(targets, plugins, version)
 
 

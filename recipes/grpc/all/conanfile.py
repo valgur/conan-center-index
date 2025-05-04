@@ -245,8 +245,7 @@ class GrpcConan(ConanFile):
 
         # Create one custom module file per executable in order to emulate
         # CMake executables imported targets of grpc plugins.
-        for plugin_info in self._target_info["plugins"]:
-            executable = plugin_info["name"]
+        for executable, plugin_info in self._target_info["plugins"].items():
             target = f"gRPC::{executable}"
             option_name = executable.replace("grpc_", "")
             if self.options.get_safe(option_name):
@@ -289,8 +288,7 @@ class GrpcConan(ConanFile):
 
         renames = {"grpc": "_grpc"}
         components = {}
-        for target in self._target_info["targets"]:
-            name = target["name"]
+        for name, target in self._target_info["targets"].items():
             if self.options.secure and name in ["grpc_unsecure", "grpc++_unsecure"]:
                 continue
             if not self.options.codegen and name in ["grpc++_reflection", "grpcpp_channelz"]:
@@ -325,8 +323,7 @@ class GrpcConan(ConanFile):
         # Executable imported targets are added through custom CMake module files,
         # since conan generators don't know how to emulate these kind of targets.
         grpc_modules = []
-        for plugin_info in self._target_info["plugins"]:
-            executable = plugin_info["name"]
+        for executable, plugin_info in self._target_info["plugins"].items():
             option_name = executable.replace("grpc_", "")
             if self.options.get_safe(option_name):
                 grpc_module_filename = f"{executable}.cmake"
