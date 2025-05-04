@@ -141,26 +141,12 @@ class GrpcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-
         tc.cache_variables["CMAKE_PROJECT_grpc_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
-
         tc.cache_variables["gRPC_BUILD_CODEGEN"] = self.options.codegen
         tc.cache_variables["gRPC_BUILD_CSHARP_EXT"] = self.options.csharp_ext
-        tc.cache_variables["gRPC_BUILD_TESTS"] = "OFF"
-
+        tc.cache_variables["gRPC_BUILD_TESTS"] = False
         # We need the generated cmake/ files (bc they depend on the list of targets, which is dynamic)
         tc.cache_variables["gRPC_INSTALL"] = True
-        tc.cache_variables["gRPC_INSTALL_SHAREDIR"] = "res/grpc"
-
-        # tell grpc to use the find_package versions
-        tc.cache_variables["gRPC_ZLIB_PROVIDER"] = "package"
-        tc.cache_variables["gRPC_CARES_PROVIDER"] = "package"
-        tc.cache_variables["gRPC_RE2_PROVIDER"] = "package"
-        tc.cache_variables["gRPC_SSL_PROVIDER"] = "package"
-        tc.cache_variables["gRPC_PROTOBUF_PROVIDER"] = "package"
-        tc.cache_variables["gRPC_ABSL_PROVIDER"] = "package"
-        tc.cache_variables["gRPC_OPENTELEMETRY_PROVIDER"] = "package"
-
         tc.cache_variables["gRPC_BUILD_GRPC_CPP_PLUGIN"] = self.options.cpp_plugin
         tc.cache_variables["gRPC_BUILD_GRPC_CSHARP_PLUGIN"] = self.options.csharp_plugin
         tc.cache_variables["gRPC_BUILD_GRPC_NODE_PLUGIN"] = self.options.node_plugin
@@ -169,21 +155,19 @@ class GrpcConan(ConanFile):
         tc.cache_variables["gRPC_BUILD_GRPC_PYTHON_PLUGIN"] = self.options.python_plugin
         tc.cache_variables["gRPC_BUILD_GRPC_RUBY_PLUGIN"] = self.options.ruby_plugin
         tc.cache_variables["gRPC_BUILD_GRPCPP_OTEL_PLUGIN"] = self.options.get_safe("otel_plugin", False)
-
-        # Never download unnecessary archives
-        # (supported in gRPC >= 1.62.0)
-        tc.cache_variables["gRPC_DOWNLOAD_ARCHIVES"] = False
-
-        if is_apple_os(self):
-            # workaround for: install TARGETS given no BUNDLE DESTINATION for MACOSX_BUNDLE executable
-            tc.cache_variables["CMAKE_MACOSX_BUNDLE"] = False
-
         tc.cache_variables["gRPC_USE_SYSTEMD"] = self.options.get_safe("with_libsystemd", False)
-
+        # tell grpc to use the find_package versions
+        for dep in ["ZLIB", "CARES", "RE2", "SSL", "PROTOBUF", "ABSL", "OPENTELEMETRY"]:
+            tc.cache_variables[f"gRPC_{dep}_PROVIDER"] = "package"
+        # Never download unnecessary archives
+        tc.cache_variables["gRPC_DOWNLOAD_ARCHIVES"] = False
+        tc.cache_variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
+        # workaround for: install TARGETS given no BUNDLE DESTINATION for MACOSX_BUNDLE executable
+        tc.cache_variables["CMAKE_MACOSX_BUNDLE"] = False
         tc.generate()
 
-        cmake_deps = CMakeDeps(self)
-        cmake_deps.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def _patch_sources(self):
         # Management of shared libs when grpc has shared dependencies (like protobuf)
@@ -298,8 +282,8 @@ class GrpcConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "gRPC")
-        self.cpp_info.resdirs = ["res"]
-        ssl_roots_file_path = os.path.join(self.package_folder, "res", "grpc", "roots.pem")
+        self.cpp_info.resdirs = ["share"]
+        ssl_roots_file_path = os.path.join(self.package_folder, "share", "grpc", "roots.pem")
         self.runenv_info.define_path("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", ssl_roots_file_path)
 
         for component, values in self._grpc_components.items():
