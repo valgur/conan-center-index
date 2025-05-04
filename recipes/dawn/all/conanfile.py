@@ -30,7 +30,7 @@ class DawnConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("abseil/20240116.2")
+        self.requires("abseil/[>=20240116.2]")
         self.requires("spirv-headers/1.4.309.0", transitive_headers=True)
         self.requires("glslang/1.4.309.0")
         self.requires("glfw/3.4")

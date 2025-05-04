@@ -49,7 +49,7 @@ class FunctionsFrameworkCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("abseil/20230125.3")
+        self.requires("abseil/[>=20220623.1]")
         self.requires("boost/1.86.0")
         self.requires("nlohmann_json/[^3]", transitive_headers=True)
 

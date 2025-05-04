@@ -61,8 +61,10 @@ class Re2Conan(ConanFile):
     def requirements(self):
         if self.options.get_safe("with_icu"):
             self.requires("icu/[*]")
-        if Version(self.version) >= "20230601":
-            self.requires("abseil/20240116.1", transitive_headers=True)
+        if Version(self.version) >= "20240702":
+            self.requires("abseil/[>=20240116.1]", transitive_headers=True)
+        elif self.version == "20230601":
+            self.requires("abseil/[>=20220623.1]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

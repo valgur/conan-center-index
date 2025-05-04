@@ -76,8 +76,8 @@ class LibphonenumberConan(ConanFile):
 
     def requirements(self):
         # https://github.com/google/libphonenumber/blob/v8.13.35/cpp/src/phonenumbers/phonenumberutil.h#L33-L34
-        self.requires("abseil/20240116.2", transitive_headers=True)
-        self.requires("protobuf/5.27.0", transitive_headers=True, transitive_libs=True)
+        self.requires("protobuf/[>=3.21.12]", transitive_headers=True, transitive_libs=True)
+        self.requires("abseil/[>=20220623.1]", transitive_headers=True)
         if self.options.use_boost:
             # https://github.com/google/libphonenumber/blob/v8.13.35/cpp/src/phonenumbers/base/synchronization/lock_boost.h
             self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
@@ -105,6 +105,7 @@ class LibphonenumberConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, os.path.join(self.source_folder, "cpp", "CMakeLists.txt"), " -Werror", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -135,13 +136,7 @@ class LibphonenumberConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # (failed) attempt to make it work in windows/msvc, patching some build scripts
-        # https://github.com/conan-io/conan-center-index/pull/23689/commits/c5e7091d134174fb590218ed066c074f45274a93
-        replace_in_file(self, os.path.join(self.source_folder, "cpp", "CMakeLists.txt"), " -Werror", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "cpp"))
         cmake.build()
@@ -154,6 +149,8 @@ class LibphonenumberConan(ConanFile):
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "libphonenumber")
+        self.cpp_info.set_property("cmake_target_name", "libphonenumber::libphonenumber")
         if self.options.shared:
             self.cpp_info.components["phonenumber"].set_property("cmake_target_aliases", ["libphonenumber::phonenumber-shared"])
         self.cpp_info.components["phonenumber"].libs = ["phonenumber"]
