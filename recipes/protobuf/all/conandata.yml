@@ -1,51 +1,34 @@
 sources:
-  # Protobuf maintains multiple different "versions" with the same code for different
-  # languages, so it is possible to bump these versions incorrectly.
-  # Follow https://protobuf.dev/support/version-support/#cpp to see what the correct
-  # version is for C++.
   "6.30.2":
     url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.30.2.tar.gz"
     sha256: "13392d0ce5cbe2259fe67513f938b1be902d6f9d0d44033ea995db1d43d45388"
-  "5.29.3":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.29.3.tar.gz"
-    sha256: "fe35f190d7a63533b06558915d6ee469cbee143de70891e1dd54d197b05f362a"
+  "5.29.4":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.29.4.tar.gz"
+    sha256: "28c3ce693fd69206d0b3601eb53a86d12541a011388f88be0afe5f1d8032fb68"
   "5.28.3":
     url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.28.3.tar.gz"
     sha256: "7fce939b9b7181bd0bd157360e0cc88a8cabf01ac4efe4662494f56dd955d4c1"
   "5.27.0":
     url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v5.27.0.tar.gz"
     sha256: "1611a03e550c27c526bde1da544c94f7aa65c10687bbc8e570537dfa94069e1a"
+  "4.30.2":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v4.30.2.tar.gz"
+    sha256: "61064d1a6c68300df474a76e0828ccdad0bb97fa4207e792175f37f0e508c086"
   "4.25.3":
     url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v4.25.3.tar.gz"
     sha256: "1d6b8d9114cb5b33ce8711729893097a107d4fefff5423528eb1decb5451856c"
-  "4.23.4":
-    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v4.23.4.tar.gz"
-    sha256: "5f3cd52d6e5062071d99da57a96ea87e39bc020d6d25748001d919c474a4d8ed"
+  "3.29.4":
+    url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.29.4.tar.gz"
+    sha256: "abfbd1e4999517ad3ef14f350a4aae202f1fd9712a09a1004aa4d1d8bfb8d98b"
   "3.21.12":
     url: "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.21.12.tar.gz"
     sha256: "930c2c3b5ecc6c9c12615cf5ad93f1cd6e12d0aba862b572e076259970ac3a53"
-  "3.20.3":
-    url: "https://github.com/protocolbuffers/protobuf/archive/v3.20.3.tar.gz"
-    sha256: "9c0fd39c7a08dff543c643f0f4baf081988129a411b977a07c46221793605638"
-  "3.12.4":
-    url: "https://github.com/protocolbuffers/protobuf/archive/v3.12.4.tar.gz"
-    sha256: "512e5a674bf31f8b7928a64d8adf73ee67b8fe88339ad29adaa3b84dbaa570d8"
 patches:
   "3.21.12":
     - patch_file: "patches/protobuf-3.21.12-upstream-macos-macros.patch"
       patch_description: "Handle case where macOS SDK macros may conflict with protobuf message types"
       patch_type: "bugfix"
       patch_source: "https://github.com/protocolbuffers/protobuf/pull/10103"
-  "3.20.3":
-    - patch_file: "patches/protobuf-3.20.0-upstream-macos-macros.patch"
-      patch_description: "Handle case where macOS SDK macros may conflict with protobuf message types"
-      patch_type: "bugfix"
-      patch_source: "https://github.com/protocolbuffers/protobuf/pull/10103"
-  "3.12.4":
-    - patch_file: "patches/upstream-pr-7761-cmake-regex-fix.patch"
-    - patch_file: "patches/upstream-issue-7567-no-export-template-define.patch"
-    - patch_file: "patches/upstream-pr-7288-android-log.patch"
-    - patch_file: "patches/upstream-pr-8301-bundle-destination.patch"
 absl_deps:
   # reference: https://github.com/protocolbuffers/protobuf/blob/main/cmake/abseil-cpp.cmake
   "6.30.2":
@@ -86,7 +69,7 @@ absl_deps:
     - absl_type_traits
     - absl_utility
     - absl_variant
-  "5.29.3":
+  "5.29.4":
     - absl_absl_check
     - absl_absl_log
     - absl_algorithm
@@ -238,6 +221,44 @@ absl_deps:
     - absl_type_traits
     - absl_utility
     - absl_variant
+  "4.30.2":
+    - absl_absl_check
+    - absl_absl_log
+    - absl_algorithm
+    - absl_base
+    - absl_bind_front
+    - absl_bits
+    - absl_btree
+    - absl_cleanup
+    - absl_cord
+    - absl_core_headers
+    - absl_debugging
+    - absl_die_if_null
+    - absl_dynamic_annotations
+    - absl_flags
+    - absl_flat_hash_map
+    - absl_flat_hash_set
+    - absl_function_ref
+    - absl_hash
+    - absl_layout
+    - absl_log_initialize
+    - absl_log_globals
+    - absl_log_severity
+    - absl_memory
+    - absl_node_hash_map
+    - absl_node_hash_set
+    - absl_optional
+    - absl_random_distributions
+    - absl_random_random
+    - absl_span
+    - absl_status
+    - absl_statusor
+    - absl_strings
+    - absl_synchronization
+    - absl_time
+    - absl_type_traits
+    - absl_utility
+    - absl_variant
   "4.23.4":
     - absl_absl_check
     - absl_absl_log
@@ -264,6 +285,45 @@ absl_deps:
     - absl_node_hash_map
     - absl_node_hash_set
     - absl_optional
+    - absl_span
+    - absl_status
+    - absl_statusor
+    - absl_strings
+    - absl_synchronization
+    - absl_time
+    - absl_type_traits
+    - absl_utility
+    - absl_variant
+  "3.29.4":
+    - absl_absl_check
+    - absl_absl_log
+    - absl_algorithm
+    - absl_base
+    - absl_bind_front
+    - absl_bits
+    - absl_btree
+    - absl_cleanup
+    - absl_cord
+    - absl_core_headers
+    - absl_debugging
+    - absl_die_if_null
+    - absl_dynamic_annotations
+    - absl_flags
+    - absl_flat_hash_map
+    - absl_flat_hash_set
+    - absl_function_ref
+    - absl_hash
+    - absl_if_constexpr
+    - absl_layout
+    - absl_log_initialize
+    - absl_log_globals
+    - absl_log_severity
+    - absl_memory
+    - absl_node_hash_map
+    - absl_node_hash_set
+    - absl_optional
+    - absl_random_distributions
+    - absl_random_random
     - absl_span
     - absl_status
     - absl_statusor
