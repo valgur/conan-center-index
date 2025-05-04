@@ -56,7 +56,7 @@ class GrpcConan(ConanFile):
         "ruby_plugin": True,
         "otel_plugin": False,
         "secure": False,
-        "with_libsystemd": True
+        "with_libsystemd": False,
     }
 
     @property
