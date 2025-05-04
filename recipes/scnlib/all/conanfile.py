@@ -65,7 +65,7 @@ class ScnlibConan(ConanFile):
         if self.options.get_safe("regex_backend") in ["boost", "boost_icu"]:
             self.requires("boost/1.86.0")
         elif self.options.get_safe("regex_backend") == "re2":
-            self.requires("re2/20231101")
+            self.requires("re2/[>=20220601]")
 
     def package_id(self):
         if self.info.options.get_safe("header_only"):

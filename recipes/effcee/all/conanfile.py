@@ -37,7 +37,7 @@ class EffceeConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("re2/20230301", transitive_headers=True)
+        self.requires("re2/[>=20220601]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, "11")

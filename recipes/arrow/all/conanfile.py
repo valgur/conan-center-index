@@ -197,7 +197,7 @@ class ArrowConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[>=1.5 <1.6]")
         if self.options.with_re2:
-            self.requires("re2/20230301")
+            self.requires("re2/[>=20220601]")
         if self.options.with_utf8proc:
             self.requires("utf8proc/2.8.0")
         if self.options.with_backtrace:
