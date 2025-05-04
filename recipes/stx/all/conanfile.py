@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -35,7 +37,7 @@ class STXConan(ConanFile):
 
     def requirements(self):
         if self.options.backtrace:
-            self.requires("abseil/20230125.3")
+            self.requires("abseil/[>=20230125.3]")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -58,7 +60,7 @@ class STXConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder. os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
