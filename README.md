@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-03:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-04:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -77,6 +77,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - faiss/1.8.0
 - fbgemm/1.1.0
 - fenster/0.1.0
+- ffmpeg/4.4.5
+- ffmpeg/6.1.2
 - filament/1.5.3
 - firebird/5.0.0
 - flite/2.2
@@ -84,6 +86,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
 - g2o/20230806
+- gbm/system
 - gdal/3.10.0
 - gdalcpp/1.3.0
 - gdk-pixbuf/2.42.12
@@ -112,6 +115,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - go/1.23.5
 - gobject-introspection/1.84.0
 - gpu.cpp/0.1.0
+- grpc/1.50.2
+- grpc/1.65.5
+- grpc/1.72.0
 - gsettings-desktop-schemas/48.0
 - gst-libav/1.24.12
 - gst-libav/1.26.0
@@ -295,6 +301,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - proj/9.6.0
 - protobuf/3.12.4
 - protobuf/4.23.4
+- protobuf/6.30.2
 - qcoro/0.10.0
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
@@ -393,6 +400,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.3.296.0
 - vulkan-validationlayers/1.4.309.0
 - wuffs/0.3.4
+- wxwidgets/3.2.8
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
 - xcb-util-errors/1.0.1
