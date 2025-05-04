@@ -29,14 +29,11 @@ class S2GeometryConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("abseil/20250127.0", transitive_headers=True, transitive_libs=True)
+        self.requires("abseil/[>=20240116.1]", transitive_headers=True, transitive_libs=True)
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
     def validate(self):
@@ -46,10 +43,7 @@ class S2GeometryConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_CXX_STANDARD ",
-                        "# set(CMAKE_CXX_STANDARD ")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD ", "# set(CMAKE_CXX_STANDARD ")
 
     def generate(self):
         tc = CMakeToolchain(self)
