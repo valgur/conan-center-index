@@ -196,11 +196,10 @@ class GrpcConan(ConanFile):
 
         if self.settings.os == "Macos" and Version(self.version) >= "1.64":
             # See https://github.com/grpc/grpc/issues/36654#issuecomment-2228569158
-            replace_in_file(self, cmakelists, "target_compile_features(upb_textformat_lib PUBLIC cxx_std_14)",
-            """target_compile_features(upb_textformat_lib PUBLIC cxx_std_14)
-            target_link_options(upb_textformat_lib PRIVATE -Wl,-undefined,dynamic_lookup)
-            target_link_options(upb_json_lib PRIVATE -Wl,-undefined,dynamic_lookup)
-            """)
+            save(self, cmakelists, (
+                "\ntarget_link_options(upb_textformat_lib PRIVATE -Wl,-undefined,dynamic_lookup)"
+                "\ntarget_link_options(upb_json_lib PRIVATE -Wl,-undefined,dynamic_lookup)"
+            ), append=True)
 
     def build(self):
         self._patch_sources()
@@ -230,73 +229,46 @@ class GrpcConan(ConanFile):
                 self._create_executable_module_file(target, executable)
 
     def _create_executable_module_file(self, target, executable):
-        module_abs_path = os.path.join(self.package_folder, self._module_path)
-
-        # Copy our CMake module template file to package folder
-        copy(self, self._grpc_plugin_template, src=os.path.join(self.source_folder, "cmake"), dst=module_abs_path)
-
-        # Rename it
-        dst_file = os.path.join(module_abs_path, f"{executable}.cmake")
-        rename(self, os.path.join(module_abs_path, self._grpc_plugin_template), dst_file)
-
-        # Replace placeholders
-        replace_in_file(self, dst_file, "@target_name@", target)
-        replace_in_file(self, dst_file, "@executable_name@", executable)
-
-        find_program_var = f"{executable.upper()}_PROGRAM"
-        replace_in_file(self, dst_file, "@find_program_variable@", find_program_var)
-
+        content = load(self, os.path.join(self.source_folder, "cmake", self._grpc_plugin_template))
+        content = content.replace("@target_name@", target)
+        content = content.replace("@executable_name@", executable)
+        content = content.replace("@find_program_variable@", f"{executable.upper()}_PROGRAM")
         module_folder_depth = len(os.path.normpath(self._module_path).split(os.path.sep))
-        rel_path = "".join(["../"] * module_folder_depth)
-        replace_in_file(self, dst_file, "@relative_path@", rel_path)
+        content = content.replace("@relative_path@", "../" * module_folder_depth)
+        save(self, os.path.join(self.package_folder, self._module_path, f"{executable}.cmake"), content)
 
     @property
     def _module_path(self):
         return os.path.join("lib", "cmake", "conan_trick")
 
-    @property
-    def _grpc_components(self):
+    def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "gRPC")
+        self.cpp_info.resdirs = ["share"]
+
         system_libs = []
         if self.settings.os == "Windows":
             system_libs = ["crypt32", "ws2_32", "wsock32"]
         elif self.settings.os in ["Linux", "FreeBSD"]:
             system_libs = ["m", "pthread"]
 
-        libsystemd = ["libsystemd::libsystemd"] if self.options.get_safe("with_libsystemd") else []
-
         renames = {"grpc": "_grpc"}
-        components = {}
-        for name, target in self._target_info["targets"].items():
+        for name, info in self._target_info["targets"].items():
             if self.options.secure and name in ["grpc_unsecure", "grpc++_unsecure"]:
                 continue
             if not self.options.codegen and name in ["grpc++_reflection", "grpcpp_channelz"]:
                 continue
-            components[renames.get(name, name)] = {
-                "lib": target.get("lib", name),
-                "requires": [renames.get(x, x) for x in target.get("deps", [])] + libsystemd,
-                "system_libs": system_libs,
-                "frameworks": ["CoreFoundation"] if name in ["grpc", "grpc_unsecure"] else [],
-            }
-
-        return components
-
-    def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "gRPC")
-        self.cpp_info.resdirs = ["share"]
-        ssl_roots_file_path = os.path.join(self.package_folder, "share", "grpc", "roots.pem")
-        self.runenv_info.define_path("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", ssl_roots_file_path)
-
-        for component, values in self._grpc_components.items():
-            target = values.get("lib")
-            lib = values.get("lib")
-            self.cpp_info.components[component].set_property("cmake_target_name", f"gRPC::{target}")
+            component = self.cpp_info.components[renames.get(name, name)]
+            component.set_property("cmake_target_name", f"gRPC::{name}")
             # actually only gpr, grpc, grpc_unsecure, grpc++ and grpc++_unsecure should have a .pc file
-            self.cpp_info.components[component].set_property("pkg_config_name", target)
-            self.cpp_info.components[component].libs = [lib]
-            self.cpp_info.components[component].requires = values.get("requires", [])
-            self.cpp_info.components[component].system_libs = values.get("system_libs", [])
-            if is_apple_os(self):
-                self.cpp_info.components[component].frameworks = values.get("frameworks", [])
+            component.set_property("pkg_config_name", name)
+            component.libs = [name]
+            component.requires = [renames.get(x, x) for x in info["deps"]]
+            component.system_libs = system_libs
+            if name in ["grpc", "grpc_unsecure", "grpc_authorization_provider"]:
+                if is_apple_os(self):
+                    component.frameworks = ["CoreFoundation"]
+                if self.options.get_safe("with_libsystemd"):
+                    component.requires.append("libsystemd::libsystemd")
 
         # Executable imported targets are added through custom CMake module files,
         # since conan generators don't know how to emulate these kind of targets.
@@ -304,6 +276,8 @@ class GrpcConan(ConanFile):
         for executable, plugin_info in self._target_info["plugins"].items():
             option_name = executable.replace("grpc_", "")
             if self.options.get_safe(option_name):
-                grpc_module_filename = f"{executable}.cmake"
-                grpc_modules.append(os.path.join(self._module_path, grpc_module_filename))
+                grpc_modules.append(os.path.join(self._module_path, f"{executable}.cmake"))
         self.cpp_info.set_property("cmake_build_modules", grpc_modules)
+
+        ssl_roots_file_path = os.path.join(self.package_folder, "share", "grpc", "roots.pem")
+        self.runenv_info.define_path("GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", ssl_roots_file_path)
