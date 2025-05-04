@@ -170,10 +170,7 @@ class GrpcConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
-        # Management of shared libs when grpc has shared dependencies (like protobuf)
-        # As the grpc_cpp_plugin that executes during the build will need those packages shared libs
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        variable, repl = None, None
         if self.settings_build.os == "Macos":
             # On macOS if all the following are true:
             # - protoc from protobuf has shared library dependencies
@@ -181,18 +178,10 @@ class GrpcConan(ConanFile):
             # - using `make` as the cmake generator
             # Make will run commands via `/bin/sh` which will strip all env vars that start with `DYLD*`
             # This workaround wraps the protoc command to be invoked by CMake with a modified environment
-            variable, repl = "DYLD_LIBRARY_PATH", "$ENV{DYLD_LIBRARY_PATH}" # to bypass OSX restrictions
-        elif not cross_building(self) and self.settings_build.os == "Linux":
-            # CMAKE_LIBRARY_PATH is defined by conan_toolchain.cmake, in Linux it is "lib" dir of .so dependencies
-            variable, repl = "LD_LIBRARY_PATH", "$<JOIN:${CMAKE_LIBRARY_PATH},:>" # to allow using protobuf/abseil as shared deps
-        elif not cross_building(self) and self.settings_build.os == "Windows":
-            # CONAN_RUNTIME_LIB_DIRS defined by conan_toolchain.cmake points to the "bin" folder in Linux, containing the DLLs
-            variable, repl = "PATH", "$<JOIN:${CONAN_RUNTIME_LIB_DIRS},;>" # to allow using protobuf/abseil as shared deps
-
-        if variable and repl:
+            # to bypass OSX restrictions.
             replace_in_file(self, cmakelists,
                             "COMMAND ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}",
-                            f'COMMAND ${{CMAKE_COMMAND}} -E env --modify "{variable}=path_list_prepend:{repl}" ${{_gRPC_PROTOBUF_PROTOC_EXECUTABLE}}')
+                            'COMMAND ${CMAKE_COMMAND} -E env --modify "DYLD_LIBRARY_PATH=path_list_prepend:$ENV{DYLD_LIBRARY_PATH}" ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}')
 
         if self.settings.os == "Macos" and Version(self.version) >= "1.64":
             # See https://github.com/grpc/grpc/issues/36654#issuecomment-2228569158
