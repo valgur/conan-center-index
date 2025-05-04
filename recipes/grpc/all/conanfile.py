@@ -140,12 +140,6 @@ class GrpcConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        # This doesn't work yet as one would expect, because the install target builds everything
-        # and we need the install target because of the generated CMake files
-        #
-        #   enable_mobile=False # Enables iOS and Android support
-        #
-        # cmake.definitions["CONAN_ENABLE_MOBILE"] = "ON" if self.options.csharp_ext else "OFF"
         tc = CMakeToolchain(self)
 
         tc.cache_variables["CMAKE_PROJECT_grpc_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
