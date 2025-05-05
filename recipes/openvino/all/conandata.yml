@@ -47,3 +47,11 @@ sources:
     "onednn_gpu":
       url: "https://github.com/oneapi-src/oneDNN/archive/cb77937ffcf5e83b5d1cf2940c94e8b508d8f7b4.tar.gz"
       sha256: "2ca304c033786aa5c3ec1ec6f8fc3936ae5c6874d5964b586311da11bec2ec4a"
+dependencies:
+  "2025.0.0":
+    onnx: "1.17.0"
+  "2024.6.0":
+    onnx: "1.16.2"
+  "2023.3.0":
+    onnx: "1.15.0"
+    ade: "0.1.2d"

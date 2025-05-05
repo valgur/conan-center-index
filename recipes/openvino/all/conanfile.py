@@ -1,10 +1,7 @@
 import os
-from functools import cached_property
-from pathlib import Path
 
-import yaml
 from conan import ConanFile
-from conan.errors import ConanException, ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
@@ -67,20 +64,6 @@ class OpenvinoConan(ConanFile):
     }
 
     @property
-    def _dependencies_filename(self):
-        return f"dependencies-{self.version}.yml"
-
-    @cached_property
-    def _dependencies_versions(self):
-        dependencies_path = Path(self.recipe_folder, "dependencies", self._dependencies_filename)
-        return yaml.safe_load(dependencies_path.read_text(encoding="utf-8"))
-
-    def _require(self, dependency):
-        if dependency not in self._dependencies_versions:
-            raise ConanException(f"{dependency} is missing in {self._dependencies_filename}")
-        return f"{dependency}/{self._dependencies_versions[dependency]}"
-
-    @property
     def _protobuf_required(self):
         return self.options.enable_tf_frontend or self.options.enable_onnx_frontend or self.options.enable_paddle_frontend
 
@@ -106,10 +89,7 @@ class OpenvinoConan(ConanFile):
 
     @property
     def _preprocessing_available(self):
-        return "ade" in self._dependencies_versions
-
-    def export(self):
-        copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
+        return "ade" in self._dependency_versions
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -126,6 +106,13 @@ class OpenvinoConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    @property
+    def _dependency_versions(self):
+        return self.conan_data["dependencies"][self.version]
+
+    def _require(self, dependency):
+        return f"{dependency}/{self._dependency_versions[dependency]}"
 
     def requirements(self):
         self.requires("onetbb/[^2021]")
