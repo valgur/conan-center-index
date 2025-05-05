@@ -72,14 +72,11 @@ class FbgemmConan(ConanFile):
         tc.variables["FBGEMM_BUILD_TESTS"] = False
         tc.variables["FBGEMM_BUILD_BENCHMARKS"] = False
         tc.variables["FBGEMM_BUILD_DOCS"] = False
-        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_OpenMP"] = True
         tc.variables["CMAKE_C_STANDARD"] = 99
         if is_msvc(self) and self.settings.build_type == "Debug":
             # Avoid "fatal error C1128: number of sections exceeded object file format limit: compile with /bigobj"
-            tc.blocks["cmake_flags_init"].template += (
-                'string(APPEND CMAKE_CXX_FLAGS_INIT " /bigobj")\n'
-                'string(APPEND CMAKE_C_FLAGS_INIT " /bigobj")\n'
-            )
+            tc.extra_cflags.append("/bigobj")
+            tc.extra_cxxflags.append("/bigobj")
         tc.generate()
 
         deps = CMakeDeps(self)
