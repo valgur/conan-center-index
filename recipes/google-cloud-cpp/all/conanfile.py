@@ -1,9 +1,10 @@
 import os
 import textwrap
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, cross_building
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
@@ -38,28 +39,25 @@ class GoogleCloudCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("abseil/[>=20230125.3 <=20230802.1]", transitive_headers=True)
-        self.requires("crc32c/1.1.2")
-        self.requires("grpc/[^1.50.2]")
+        self.requires("crc32c/[^1.1.2]")
         self.requires("libcurl/[>=7.78.0 <9]")
         self.requires("nlohmann_json/[^3]")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("protobuf/3.21.12")
+        self.requires("grpc/[<1.62.0]")
+        self.requires("abseil/[>=20230125.3]", transitive_headers=True)
         # TODO: googleapis is hard to unvendorize, as it creates google-cloud-cpp:: targets
         #  and it's not trivial to replace them with the googleapis:: targets,
         #  there's not clean 1:1 mapping between them either way
         # self.requires("googleapis/cci.20220531")
 
     def build_requirements(self):
-        self.tool_requires("grpc/<host_version>")
         self.tool_requires("protobuf/<host_version>")
+        self.tool_requires("grpc/<host_version>")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:
             raise ConanInvalidConfiguration("Fails to compile for Windows as a DLL")
-
-        if cross_building(self):
-            raise ConanInvalidConfiguration("Recipe not prepared for cross-building (yet)")
 
         if is_msvc(self):
             check_min_cppstd(self, 20)
@@ -67,6 +65,32 @@ class GoogleCloudCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) < "1.33.0":
+            # Do not override CMAKE_CXX_STANDARD if provided
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            textwrap.dedent("""\
+                    set(CMAKE_CXX_STANDARD
+                        11
+                        CACHE STRING "Configure the C++ standard version for all targets.")"""),
+                            textwrap.dedent("""\
+                    if(NOT "${CMAKE_CXX_STANDARD}")
+                        set(CMAKE_CXX_STANDARD 11 CACHE STRING "Configure the C++ standard version for all targets.")
+                    endif()
+                    """))
+        if self.version == "1.40.1":
+            replace_in_file(self, os.path.join(self.source_folder, "google", "cloud", "internal", "openssl_util.h"),
+                            "#include <vector>", "#include <vector>\n#include <algorithm>")
+        for path in [
+            "google/cloud/internal/curl_handle.h",
+            "google/cloud/internal/oauth2_credentials.h",
+            "google/cloud/internal/rest_response.h",
+            "google/cloud/storage/iam_policy.h",
+            "google/cloud/storage/internal/hash_function_impl.h",
+            "google/cloud/storage/internal/object_read_source.h",
+            "google/cloud/pubsub/ack_handler.h",
+        ]:
+            header = Path(self.source_folder, path)
+            header.write_text("#include <cstdint>\n" + header.read_text())
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -92,25 +116,7 @@ class GoogleCloudCppConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) < "1.33.0":
-            # Do not override CMAKE_CXX_STANDARD if provided
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                textwrap.dedent("""\
-                    set(CMAKE_CXX_STANDARD
-                        11
-                        CACHE STRING "Configure the C++ standard version for all targets.")"""),
-                textwrap.dedent("""\
-                    if(NOT "${CMAKE_CXX_STANDARD}")
-                        set(CMAKE_CXX_STANDARD 11 CACHE STRING "Configure the C++ standard version for all targets.")
-                    endif()
-                    """))
-        if self.version == "1.40.1":
-            replace_in_file(self, os.path.join(self.source_folder, "google", "cloud", "internal", "openssl_util.h"),
-                "#include <vector>", "#include <vector>\n#include <algorithm>")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
