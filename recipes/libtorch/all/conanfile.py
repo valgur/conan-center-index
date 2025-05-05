@@ -244,7 +244,7 @@ class LibtorchConan(ConanFile):
         self.requires("cpuinfo/[>=cci.20231129]")
         self.requires("eigen/3.4.0")
         # fmt/11.x is not yet supported as of v2.4.0
-        self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[^10.2.1]", transitive_headers=True, transitive_libs=True)
         self.requires("foxi/cci.20210217", libs=False)
         self.requires("onnx/1.17.0", transitive_headers=True, transitive_libs=True)
         self.requires("protobuf/3.21.12")

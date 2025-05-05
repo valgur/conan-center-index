@@ -73,7 +73,7 @@ class MpppConan(ConanFile):
         if self.options.with_boost:
             self.requires("boost/1.86.0")
         if self.options.get_safe("with_fmt"):
-            self.requires("fmt/10.2.1", transitive_headers=True)
+            self.requires("fmt/[^10.2.1]", transitive_headers=True)
         if self.options.get_safe("with_flint"):
             self.requires("flint/3.0.1")
 

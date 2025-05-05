@@ -66,10 +66,10 @@ class PackageConan(ConanFile):
         if self.options.with_sbeppc:
             # sbepp/<1.1.0 requires fmt and pugixml with hardcoded versions
             if Version(self.version) < "1.1.0":
-                self.requires("fmt/9.1.0")
+                self.requires("fmt/[^9.1.0]")
                 self.requires("pugixml/1.12.1")
             else:
-                self.requires("fmt/10.2.0")
+                self.requires("fmt/[^10.2.0]")
                 self.requires("pugixml/1.14")
 
     def validate(self):

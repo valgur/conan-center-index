@@ -59,7 +59,7 @@ class SamariumConan(ConanFile):
 
     def requirements(self):
         # Undefined symbols for architecture arm64: "void fmt::v10::detail::vformat_to..." when using sm::print
-        self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[^10.2.1]", transitive_headers=True, transitive_libs=True)
         # Undefined symbols for architecture arm64: "sf::Keyboard::isKeyPressed(sf::Keyboard::Key)"
         # when using inlined is_key_pressed function
         self.requires("sfml/2.6.1", transitive_headers=True, transitive_libs=True)

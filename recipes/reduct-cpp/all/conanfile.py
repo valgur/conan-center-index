@@ -53,7 +53,7 @@ class ReductCPPConan(ConanFile):
 
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("fmt/[^11]")
+        self.requires("fmt/[^[^11]]")
         self.requires("cpp-httplib/0.19.0")
         self.requires("nlohmann_json/[^3.11]")
         self.requires("concurrentqueue/1.0.4")

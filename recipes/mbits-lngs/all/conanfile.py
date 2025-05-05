@@ -35,7 +35,7 @@ class MBitsLngsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/10.2.1")
+        self.requires("fmt/[^10.2.1]")
         self.requires("mbits-utfconv/1.0.3")
         self.requires("mbits-diags/0.9.6")
         self.requires("mbits-mstch/1.0.4")

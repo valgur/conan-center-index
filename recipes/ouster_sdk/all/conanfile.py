@@ -69,7 +69,7 @@ class OusterSdkConan(ConanFile):
         # Used in ouster/sensor_http.h
         self.requires("jsoncpp/1.9.5", transitive_headers=True, transitive_libs=True)
         self.requires("spdlog/1.13.0")
-        self.requires("fmt/10.2.1")
+        self.requires("fmt/[^10.2.1]")
         self.requires("libcurl/[>=7.78 <9]")
         # Replaces vendored optional-lite
         self.requires("optional-lite/3.6.0", transitive_headers=True)

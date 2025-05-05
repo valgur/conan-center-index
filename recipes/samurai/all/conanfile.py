@@ -39,7 +39,7 @@ class PackageConan(ConanFile):
 
     def requirements(self):
         self.requires("cli11/2.3.2")
-        self.requires("fmt/10.1.1")
+        self.requires("fmt/[^10.1.1]")
         self.requires("highfive/2.7.1")
         self.requires("pugixml/1.14")
         self.requires("xsimd/13.0.0")

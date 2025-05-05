@@ -57,7 +57,7 @@ class LoguruConan(ConanFile):
 
     def requirements(self):
         if self.options.with_fmt:
-            self.requires("fmt/9.1.0", transitive_headers=True)
+            self.requires("fmt/[^9.1.0]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

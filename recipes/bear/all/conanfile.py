@@ -28,11 +28,11 @@ class BearConan(ConanFile):
         self.requires("grpc/[^1.50.2]")
         self.requires("nlohmann_json/[^3]")
         if Version(self.version) >= "3.1":
-            self.requires("fmt/10.2.1")
+            self.requires("fmt/[^10.2.1]")
             self.requires("spdlog/1.14.1")
         else:
             # fmt < v10 is required, but v9 is not compatible with spdlog recipe versions
-            self.requires("fmt/8.1.1")
+            self.requires("fmt/[^8.1.1]")
             self.requires("spdlog/1.10.0")
 
     def build_requirements(self):

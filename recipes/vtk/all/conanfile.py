@@ -263,7 +263,7 @@ class VtkConan(ConanFile):
         self.requires("xz_utils/[>=5.4.5 <6]")
         self.requires("zlib/[>=1.2.11 <2]")
         # Used in public vtkloguru/loguru.hpp
-        self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[^10.2.1]", transitive_headers=True, transitive_libs=True)
 
         # kissfft is always required, only replaces the vendored version if enabled.
         # VTK mangles its symbols so not unvendoring it should still not cause conflicts.

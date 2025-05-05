@@ -45,7 +45,7 @@ class FakerCXXConan(ConanFile):
 
     def requirements(self):
         if not self.options.with_std_format:
-            self.requires("fmt/10.2.1")
+            self.requires("fmt/[^10.2.1]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

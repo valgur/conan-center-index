@@ -38,7 +38,7 @@ class PackageConan(ConanFile):
 
     def requirements(self):
         self.requires("range-v3/0.12.0")
-        self.requires("fmt/10.2.1")
+        self.requires("fmt/[^10.2.1]")
 
     def package_id(self):
         self.info.clear()

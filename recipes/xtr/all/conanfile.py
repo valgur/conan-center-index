@@ -70,7 +70,7 @@ class XtrConan(ConanFile):
 
     def requirements(self):
         # INFO: https://github.com/choll/xtr/blob/2.1.0/include/xtr/detail/buffer.hpp#L27
-        self.requires("fmt/10.1.1", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[^10.1.1]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("enable_io_uring"):
             self.requires("liburing/2.4")
 

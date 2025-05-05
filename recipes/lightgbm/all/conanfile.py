@@ -47,7 +47,7 @@ class LightGBMConan(ConanFile):
     def requirements(self):
         self.requires("eigen/3.4.0")
         self.requires("fast_double_parser/0.7.0", transitive_headers=True, transitive_libs=True)
-        self.requires("fmt/10.1.1", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[^10.1.1]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_openmp"):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 

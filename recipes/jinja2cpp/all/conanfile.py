@@ -67,10 +67,10 @@ class Jinja2cppConan(ConanFile):
         self.requires("string-view-lite/1.7.0", transitive_headers=True)
         self.requires("variant-lite/2.0.0", transitive_headers=True)
         if self.version == "1.1.0":
-            self.requires("fmt/6.2.1") # not compatible with fmt >= 7.0.0
+            self.requires("fmt/[^6.2.1]") # not compatible with fmt >= 7.0.0
         else:
             self.requires("nlohmann_json/[^3]")
-            self.requires("fmt/10.2.0")
+            self.requires("fmt/[^10.2.0]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
