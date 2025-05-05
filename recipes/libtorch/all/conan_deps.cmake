@@ -18,7 +18,6 @@ find_package(httplib REQUIRED CONFIG)
 list(APPEND Caffe2_DEPENDENCY_LIBS
     cpuinfo
     fp16::fp16
-    fmt::fmt
 )
 add_library(fp16 ALIAS fp16::fp16)
 
