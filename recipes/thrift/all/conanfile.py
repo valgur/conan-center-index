@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanException
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -77,7 +78,7 @@ class ThriftConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # No static code analysis (seems to trigger CMake warnings due to weird custom Find module file)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "include(StaticCodeAnalysis)", "")
+        replace_in_file(self, "CMakeLists.txt", "include(StaticCodeAnalysis)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -92,6 +93,9 @@ class ThriftConan(ConanFile):
         if is_msvc(self):
             tc.variables["WITH_MT"] = is_msvc_static_runtime(self)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0074"] = "NEW"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
+        if Version(self.version) > "0.20.0":
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 
         cd = CMakeDeps(self)
