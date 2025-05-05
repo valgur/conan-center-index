@@ -3,13 +3,12 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, can_run, check_max_cppstd
+from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library, can_run
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -38,11 +37,11 @@ class LibMysqlClientCConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_curl": True,
-        "with_boost": False, # Disabled by default due to a rigid version requirement
-        "with_kerberos": False,  # FIXME
-        "with_ldap": True,
-        "with_protobuf": False,
-        "with_sasl": True,
+        "with_boost": False,
+        "with_kerberos": False,
+        "with_ldap": False,
+        "with_protobuf": True,
+        "with_sasl": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -56,14 +55,13 @@ class LibMysqlClientCConan(ConanFile):
         # Required
         self.requires("openssl/[>=1.1 <4]")
         if self.settings.os == "FreeBSD":
-            self.requires("libunwind/1.8.1")
+            self.requires("libunwind/[^1.8.1]")
         # Dependencies that would otherwise be bundled
         self.requires("icu/[*]")
-        self.requires("editline/3.1")
-        self.requires("libevent/2.1.12")
-        self.requires("lz4/1.9.4")
-        self.requires("rapidjson/cci.20230929")
+        self.requires("editline/[^3.1]")
+        self.requires("libevent/[^2.1.12]")
         self.requires("lz4/[^1.9.4]")
+        self.requires("rapidjson/[>=cci.20230929]")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("zstd/[~1.5]")
         # Optional deps
@@ -71,22 +69,18 @@ class LibMysqlClientCConan(ConanFile):
             # Requires an exact version of boost
             self.requires("boost/1.77.0")
         if self.options.with_sasl:
-            self.requires("cyrus-sasl/2.1.28")
+            self.requires("cyrus-sasl/[^2.1.28]")
         if self.options.with_curl:
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.with_kerberos:
-            self.requires("krb5/1.21.2")
+            self.requires("krb5/[^1.21.2]")
         if self.options.with_ldap:
-            self.requires("openldap/2.6.7")
+            self.requires("openldap/[^2.6.7]")
         if self.options.with_protobuf:
-            self.requires("protobuf/5.27.0")
+            self.requires("protobuf/[>=3.21.12]")
 
     def validate_build(self):
         check_min_cppstd(self, 17)
-        # mysql < 8.0.29 uses `requires` in source code. It is the reserved keyword in C++20.
-        # https://github.com/mysql/mysql-server/blob/mysql-8.0.0/include/mysql/components/services/dynamic_loader.h#L270
-        if Version(self.version) < "8.0.29":
-            check_max_cppstd(self, 17)
 
     def validate(self):
         if self.options.with_sasl and not self.dependencies["cyrus-sasl"].options.with_gssapi:
@@ -111,12 +105,6 @@ class LibMysqlClientCConan(ConanFile):
             save(self, os.path.join(self.source_folder, folder, "CMakeLists.txt"), "")
         rmdir(self, os.path.join(self.source_folder, "storage", "ndb"))
 
-        # Upstream does not actually load lz4 directories for system, force it to
-        if Version(self.version) < "8.0.34":
-            replace_in_file(self, os.path.join(self.source_folder, "libbinlogevents", "CMakeLists.txt"),
-                            "INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/libbinlogevents/include)",
-                            "MY_INCLUDE_SYSTEM_DIRECTORIES(LZ4)\nINCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/libbinlogevents/include)")
-
         # Inject editline from Conan
         replace_in_file(self, os.path.join(self.source_folder, "cmake", "readline.cmake"),
                         "MARK_AS_ADVANCED(EDITLINE_INCLUDE_DIR EDITLINE_LIBRARY)",
@@ -134,18 +122,13 @@ class LibMysqlClientCConan(ConanFile):
 
         # Do not copy shared libs of dependencies to package folder
         deps_shared = ["KERBEROS", "SASL", "LDAP", "PROTOBUF"]
-        if Version(self.version) < "8.0.34":
-            deps_shared.append("CURL")
-        if Version(self.version) < "8.2.0":
-            deps_shared.append("SSL")
         for dep in deps_shared:
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                             f"MYSQL_CHECK_{dep}_DLLS()", "")
 
-        if Version(self.version) >= "8.2.0":
-            # patchelf is not needed since we are not copying the shared libs
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "IF(NOT PATCHELF_EXECUTABLE)", "if(0)")
+        # patchelf is not needed since we are not copying the shared libs
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "IF(NOT PATCHELF_EXECUTABLE)", "if(0)")
 
         replace_in_file(self, os.path.join(self.source_folder, "cmake", "install_macros.cmake"),
                         "  INSTALL_DEBUG_SYMBOLS(",
@@ -229,11 +212,6 @@ class LibMysqlClientCConan(ConanFile):
                             f"WARN_MISSING_SYSTEM_{lib.upper()}({lib.upper()}_WARN_GIVEN)",
                             f"# WARN_MISSING_SYSTEM_{lib.upper()}({lib.upper()}_WARN_GIVEN)",
                             strict=False)
-            if Version(self.version) < "8.0.34":
-                replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                f"SET({lib.upper()}_WARN_GIVEN)",
-                                f"# SET({lib.upper()}_WARN_GIVEN)",
-                                strict=False)
 
         if self.settings.os == "Macos":
             replace_in_file(self, os.path.join(self.source_folder, "libmysql", "CMakeLists.txt"),
