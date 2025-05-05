@@ -91,11 +91,14 @@ class GrpcConan(ConanFile):
 
     def requirements(self):
         # abseil requires:
-        # transitive_headers=True because grpc headers include abseil headers
-        # transitive_libs=True because generated code (grpc_cpp_plugin) require symbols from abseil
+        #   transitive_headers=True because grpc headers include abseil headers
+        #   transitive_libs=True because generated code (grpc_cpp_plugin) require symbols from abseil
+        # Set transitive_libs=True for protobuf to make it available without
+        # explicitly having to add requires and tool_requires for it.
+        # Saves a lot of pain with version range mismatch issues between host and build.
         if Version(self.version) >= "1.62.0":
             self.requires("abseil/[>=20240116.1]", transitive_headers=True, transitive_libs=True)
-            self.requires("protobuf/[>=3.27.0]", transitive_headers=True)
+            self.requires("protobuf/[>=3.27.0]", transitive_headers=True, transitive_libs=True)
         else:
             self.requires("abseil/[>=20230125.3 <=20230802.1]", transitive_headers=True, transitive_libs=True)
             self.requires("protobuf/3.21.12", transitive_headers=True)
