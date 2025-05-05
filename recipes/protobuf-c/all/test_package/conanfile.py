@@ -14,8 +14,7 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        if cross_building(self):
-            self.tool_requires(self.tested_reference_str)
+        self.tool_requires(self.tested_reference_str)
 
     def layout(self):
         cmake_layout(self)
