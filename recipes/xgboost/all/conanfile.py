@@ -2,9 +2,8 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, cross_building, stdcpp_library
+from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime
 
@@ -59,7 +58,7 @@ class XgboostConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if cross_building(self) or self.settings.os == "Windows":
+        if self.settings.os == "Windows":
             del self.options.plugin_federated
         if self.settings.compiler != "intel-cc":
             del self.options.plugin_sycl
@@ -79,7 +78,6 @@ class XgboostConan(ConanFile):
             self.requires("rmm/24.04.00")
         if self.options.get_safe("plugin_federated"):
             self.requires("grpc/[^1.50.2]")
-            self.requires("protobuf/3.21.12")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -94,13 +92,19 @@ class XgboostConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
         if self.options.get_safe("plugin_federated"):
-            self.tool_requires("protobuf/<host_version>")
+            self.tool_requires("grpc/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["xgboost"], strip_root=True)
         # TODO: unvendor
         get(self, **self.conan_data["sources"][self.version]["dmlc-core"], strip_root=True, destination="dmlc-core")
         get(self, **self.conan_data["sources"][self.version]["gputreeshap"], strip_root=True, destination="gputreeshap")
+        replace_in_file(self, os.path.join("dmlc-core", "CMakeLists.txt"),
+                        "cmake_minimum_required(VERSION 3.2)",
+                        "cmake_minimum_required(VERSION 3.15)")
+        # Don't build the 'xgboost' executable,
+        # which has been deprecated in the upcoming release anyway
+        save(self, "CMakeLists.txt", "\nset_target_properties(runxgboost PROPERTIES EXCLUDE_FROM_ALL TRUE)\n", append=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -115,17 +119,8 @@ class XgboostConan(ConanFile):
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
-    def _patch_sources(self):
-        # Don't build the 'xgboost' executable,
-        # which has been deprecated in the upcoming release anyway
-        save(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-             "\nset_target_properties(runxgboost PROPERTIES EXCLUDE_FROM_ALL TRUE)\n", append=True)
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
