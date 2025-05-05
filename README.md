@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-04:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-05:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -191,6 +191,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libmysqlclient/8.2.0
 - libosmium/2.20.0
 - libpq/17.0
+- libprotobuf-mutator/1.5
 - libproxy/0.5.9
 - libraw1394/2.1.2
 - librsvg/2.40.21
@@ -299,8 +300,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta6
 - proj/9.6.0
-- protobuf/3.12.4
-- protobuf/4.23.4
+- protobuf/3.29.4
+- protobuf/4.30.2
+- protobuf/5.29.4
 - protobuf/6.30.2
 - qcoro/0.10.0
 - qhull/8.1.alpha4
@@ -319,6 +321,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.81.0
 - rust/1.84.0
 - rust/1.85.1
+- s2geometry/0.12.0
 - secsipidx/1.3.2
 - serf/1.3.10
 - sfcgal/1.5.0
