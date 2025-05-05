@@ -95,9 +95,9 @@ class OnnxRuntimeConan(ConanFile):
         self.requires("eigen/3.4.0")
         self.requires("ms-gsl/4.0.0")
         if Version(self.version) >= "1.17.0":
-            self.requires("cpuinfo/cci.20231129")
+            self.requires("cpuinfo/[>=cci.20231129]")
         else:
-            self.requires("cpuinfo/cci.20220618")  # Newer versions are not compatible
+            self.requires("cpuinfo/[>=cci.20231129]")  # Newer versions are not compatible
         if self.settings.os != "Windows":
             self.requires("nsync/1.26.0")
         else:

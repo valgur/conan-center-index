@@ -241,7 +241,7 @@ class LibtorchConan(ConanFile):
         return any(self.options.get_safe(f"with_{name}") for name in ["nnpack", "qnnpack", "xnnpack"])
 
     def requirements(self):
-        self.requires("cpuinfo/cci.20231129")
+        self.requires("cpuinfo/[>=cci.20231129]")
         self.requires("eigen/3.4.0")
         # fmt/11.x is not yet supported as of v2.4.0
         self.requires("fmt/10.2.1", transitive_headers=True, transitive_libs=True)

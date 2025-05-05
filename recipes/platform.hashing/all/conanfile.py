@@ -47,7 +47,7 @@ class PlatformInterfacesConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) >= "0.5.6":
-            self.requires("cpuinfo/cci.20220228", transitive_headers=True)
+            self.requires("cpuinfo/[>=cci.20231129]", transitive_headers=True)
         elif Version(self.version) >= "0.5.0":
             self.requires("cpu_features/0.9.0", transitive_headers=True)
 

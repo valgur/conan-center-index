@@ -49,6 +49,14 @@ class CpuinfoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rmdir(self, "deps")
+        replace_in_file(self, "CMakeLists.txt",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.15 FATAL_ERROR)")
+        # Fix install dir of dll
+        replace_in_file(self, "CMakeLists.txt",
+                        "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}",
+                        "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -56,33 +64,13 @@ class CpuinfoConan(ConanFile):
         tc.cache_variables["CPUINFO_LIBRARY_TYPE"] = "default"
         tc.cache_variables["CPUINFO_RUNTIME_TYPE"] = "default"
         tc.cache_variables["CPUINFO_LOG_LEVEL"] = self.options.log_level
-        tc.variables["CPUINFO_BUILD_TOOLS"] = False
-        tc.variables["CPUINFO_BUILD_UNIT_TESTS"] = False
-        tc.variables["CPUINFO_BUILD_MOCK_TESTS"] = False
-        tc.variables["CPUINFO_BUILD_BENCHMARKS"] = False
-        # clog (always static)
-        tc.cache_variables["CLOG_RUNTIME_TYPE"] = "default"
-        tc.variables["CLOG_BUILD_TESTS"] = False
-        tc.variables["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.get_safe("fPIC", True)
+        tc.cache_variables["CPUINFO_BUILD_TOOLS"] = False
+        tc.cache_variables["CPUINFO_BUILD_UNIT_TESTS"] = False
+        tc.cache_variables["CPUINFO_BUILD_MOCK_TESTS"] = False
+        tc.cache_variables["CPUINFO_BUILD_BENCHMARKS"] = False
         tc.generate()
 
-    def _patch_sources(self):
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-
-        # Fix install dir of dll
-        replace_in_file(
-            self,
-            cmakelists,
-            "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}",
-            "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}",
-        )
-
-        if self.version < "cci.20230118":
-            # Honor fPIC option
-            replace_in_file(self, cmakelists, "SET_PROPERTY(TARGET clog PROPERTY POSITION_INDEPENDENT_CODE ON)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -98,15 +86,8 @@ class CpuinfoConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "cpuinfo")
         self.cpp_info.set_property("pkg_config_name", "libcpuinfo")
 
-        if self.version < "cci.20230118":
-            self.cpp_info.components["clog"].libs = ["clog"]
-            cpuinfo_clog_target = "clog" if self.version < "cci.20220618" else "cpuinfo::clog"
-            self.cpp_info.components["clog"].set_property("cmake_target_name", cpuinfo_clog_target)
-
         self.cpp_info.components["cpuinfo"].set_property("cmake_target_name", "cpuinfo::cpuinfo")
         self.cpp_info.components["cpuinfo"].libs = ["cpuinfo"]
-        if self.version < "cci.20230118":
-            self.cpp_info.components["cpuinfo"].requires = ["clog"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["cpuinfo"].system_libs.append("pthread")
 
