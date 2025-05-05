@@ -1,5 +1,4 @@
 import os
-import sys
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -59,9 +58,6 @@ class OnnxConan(ConanFile):
             "apple-clang": "10",
         }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -77,7 +73,10 @@ class OnnxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
+        if Version(self.version) >= "1.15.0":
+            self.requires("protobuf/[>=3.21.12]", transitive_headers=True, transitive_libs=True)
+        else:
+            self.requires("protobuf/[>3 <3.22]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -93,13 +92,14 @@ class OnnxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        if Version(self.version) >= "1.15.0":
+            # The project incorrectly tries to add missing Protobuf deps
+            replace_in_file(self, "CMakeLists.txt",
+                            '("${Protobuf_VERSION}" VERSION_GREATER_EQUAL',
+                            '(FALSE) #')
 
     def generate(self):
         tc = CMakeToolchain(self)
-        # https://cmake.org/cmake/help/v3.28/module/FindPythonInterp.html
-        # https://github.com/onnx/onnx/blob/1014f41f17ecc778d63e760a994579d96ba471ff/CMakeLists.txt#L119C1-L119C50
-        tc.variables["PYTHON_EXECUTABLE"] = sys.executable.replace("\\", "/")
         tc.variables["ONNX_USE_PROTOBUF_SHARED_LIBS"] = self.dependencies.host["protobuf"].options.shared
         tc.variables["BUILD_ONNX_PYTHON"] = False
         tc.variables["ONNX_GEN_PB_TYPE_STUBS"] = False
@@ -111,7 +111,9 @@ class OnnxConan(ConanFile):
         tc.variables["ONNX_VERIFY_PROTO3"] = Version(self.dependencies.host["protobuf"].ref.version).major == "3"
         if is_msvc(self):
             tc.variables["ONNX_USE_MSVC_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
-        tc.variables["ONNX_DISABLE_STATIC_REGISTRATION"] = self.options.get_safe('disable_static_registration')
+        tc.variables["ONNX_DISABLE_STATIC_REGISTRATION"] = self.options.get_safe("disable_static_registration")
+        if Version(self.version) < "1.17.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -128,39 +130,15 @@ class OnnxConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         fix_apple_shared_install_name(self)
 
-    @property
-    def _onnx_components(self):
-        components = {
-            "libonnx": {
-                "target": "onnx",
-                "libs": ["onnx"],
-                "defines": ["ONNX_NAMESPACE=onnx", "ONNX_ML=1"],
-                "requires": ["onnx_proto"]
-            },
-            "onnx_proto": {
-                "target": "onnx_proto",
-                "libs": ["onnx_proto"],
-                "defines": ["ONNX_NAMESPACE=onnx", "ONNX_ML=1"],
-                "requires": ["protobuf::libprotobuf"]
-            }
-        }
-        components["libonnx"]["defines"].append("__STDC_FORMAT_MACROS")
-        return components
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "ONNX")
 
-        def _register_components(components):
-            for comp_name, comp_values in components.items():
-                target = comp_values["target"]
-                libs = comp_values.get("libs", [])
-                defines = comp_values.get("defines", [])
-                requires = comp_values.get("requires", [])
-                system_libs = [l for cond, sys_libs in comp_values.get("system_libs", []) if cond for l in sys_libs]
-                self.cpp_info.components[comp_name].set_property("cmake_target_name", target)
-                self.cpp_info.components[comp_name].libs = libs
-                self.cpp_info.components[comp_name].defines = defines
-                self.cpp_info.components[comp_name].requires = requires
-                self.cpp_info.components[comp_name].system_libs = system_libs
+        self.cpp_info.components["libonnx"].set_property("cmake_target_name", "onnx")
+        self.cpp_info.components["libonnx"].libs = ["onnx"]
+        self.cpp_info.components["libonnx"].defines = ["ONNX_NAMESPACE=onnx", "ONNX_ML=1", "__STDC_FORMAT_MACROS"]
+        self.cpp_info.components["libonnx"].requires = ["onnx_proto"]
 
-        _register_components(self._onnx_components)
+        self.cpp_info.components["onnx_proto"].set_property("cmake_target_name", "onnx_proto")
+        self.cpp_info.components["onnx_proto"].libs = ["onnx_proto"]
+        self.cpp_info.components["onnx_proto"].defines = ["ONNX_NAMESPACE=onnx", "ONNX_ML=1"]
+        self.cpp_info.components["onnx_proto"].requires = ["protobuf::libprotobuf"]
