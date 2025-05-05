@@ -1,5 +1,6 @@
 import os
 from functools import cached_property
+from pathlib import Path
 
 import yaml
 from conan import ConanFile
@@ -44,7 +45,7 @@ class OpenvinoConan(ConanFile):
         "enable_tf_frontend": [True, False],
         "enable_tf_lite_frontend": [True, False],
         "enable_paddle_frontend": [True, False],
-        "enable_pytorch_frontend": [True, False]
+        "enable_pytorch_frontend": [True, False],
     }
     default_options = {
         "shared": False,
@@ -57,12 +58,12 @@ class OpenvinoConan(ConanFile):
         "enable_hetero": True,
         "enable_auto_batch": True,
         # Frontends
-        "enable_ir_frontend": True,
-        "enable_onnx_frontend": True,
-        "enable_tf_frontend": True,
-        "enable_tf_lite_frontend": True,
-        "enable_paddle_frontend": True,
-        "enable_pytorch_frontend": True
+        "enable_ir_frontend": False,
+        "enable_onnx_frontend": False,
+        "enable_tf_frontend": False,
+        "enable_tf_lite_frontend": False,
+        "enable_paddle_frontend": False,
+        "enable_pytorch_frontend": True,
     }
 
     @property
@@ -71,11 +72,8 @@ class OpenvinoConan(ConanFile):
 
     @cached_property
     def _dependencies_versions(self):
-        dependencies_filepath = os.path.join(self.recipe_folder, "dependencies", self._dependencies_filename)
-        if not os.path.isfile(dependencies_filepath):
-            raise ConanException(f"Cannot find {dependencies_filepath}")
-        cached_dependencies = yaml.safe_load(open(dependencies_filepath, encoding='UTF-8'))
-        return cached_dependencies
+        dependencies_path = Path(self.recipe_folder, "dependencies", self._dependencies_filename)
+        return yaml.safe_load(dependencies_path.read_text(encoding="utf-8"))
 
     def _require(self, dependency):
         if dependency not in self._dependencies_versions:
@@ -110,24 +108,8 @@ class OpenvinoConan(ConanFile):
     def _preprocessing_available(self):
         return "ade" in self._dependencies_versions
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version]["openvino"], strip_root=True)
-        get(self, **self.conan_data["sources"][self.version]["onednn_cpu"], strip_root=True,
-            destination=f"{self.source_folder}/src/plugins/intel_cpu/thirdparty/onednn")
-        get(self, **self.conan_data["sources"][self.version]["mlas"], strip_root=True,
-            destination=f"{self.source_folder}/src/plugins/intel_cpu/thirdparty/mlas")
-        get(self, **self.conan_data["sources"][self.version]["arm_compute"], strip_root=True,
-            destination=f"{self.source_folder}/src/plugins/intel_cpu/thirdparty/ComputeLibrary")
-        get(self, **self.conan_data["sources"][self.version]["onednn_gpu"], strip_root=True,
-            destination=f"{self.source_folder}/src/plugins/intel_gpu/thirdparty/onednn_gpu")
-        rmdir(self, f"{self.source_folder}/src/plugins/intel_gpu/thirdparty/rapidjson")
-        apply_conandata_patches(self)
-
     def export(self):
         copy(self, f"dependencies/{self._dependencies_filename}", self.recipe_folder, self.export_folder)
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -142,15 +124,8 @@ class OpenvinoConan(ConanFile):
                 # even though OpenVINO can work with dynamic protobuf, it's still recommended to use static
                 self.options["protobuf"].shared = False
 
-    def build_requirements(self):
-        if self._target_arm:
-            self.tool_requires("scons/4.3.0")
-        if self._protobuf_required:
-            self.tool_requires("protobuf/<host_version>")
-        if self.options.enable_tf_lite_frontend:
-            self.tool_requires("flatbuffers/<host_version>")
-        if not self.options.shared:
-            self.tool_requires("cmake/[>=3.18 <5]")
+    def layout(self):
+        cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("onetbb/[^2021]")
@@ -161,7 +136,7 @@ class OpenvinoConan(ConanFile):
             self.requires("opencl-icd-loader/2023.04.17")
             self.requires("rapidjson/cci.20220822")
         if self._protobuf_required:
-            self.requires("protobuf/3.21.12")
+            self.requires("protobuf/[>=3.21.12]")
         if self.options.enable_tf_frontend:
             self.requires("snappy/1.1.10")
         if self.options.enable_onnx_frontend:
@@ -171,67 +146,27 @@ class OpenvinoConan(ConanFile):
         if self._preprocessing_available:
             self.requires(self._require("ade"))
 
-    def layout(self):
-        cmake_layout(self, src_folder="src")
+    def validate(self):
+        if (self.options.get_safe("enable_gpu") and self.options.enable_cpu
+                and Version(self.version) < "2024.4.0" and not self.options.shared):
+            # GPU and CPU plugins cannot be simultaneously built statically, because they use different oneDNN versions
+            self.output.warning(f"{self.name} recipe builds GPU plugin without oneDNN (dGPU) support during static build, "
+                                "because CPU plugin compiled with different oneDNN version may cause ODR violation. "
+                                "To enable oneDNN support for GPU plugin, please, either use shared build configuration "
+                                "or disable CPU plugin by setting 'enable_cpu' option to False.")
 
-    def generate(self):
-        deps = CMakeDeps(self)
-        deps.generate()
+        if self.settings.os == "Emscripten":
+            raise ConanInvalidConfiguration(f"{self.ref} does not support Emscripten")
 
-        toolchain = CMakeToolchain(self)
-        # HW plugins
-        toolchain.cache_variables["ENABLE_INTEL_CPU"] = self.options.enable_cpu
-        if self._gpu_option_available:
-            toolchain.cache_variables["ENABLE_INTEL_GPU"] = self.options.enable_gpu
-            toolchain.cache_variables["ENABLE_ONEDNN_FOR_GPU"] = (
-                Version(self.version) >= "2024.4.0" and self.options.enable_gpu
-                or not self.options.enable_cpu
-                or self.options.shared
-            )
-        if self._gna_option_available:
-            toolchain.cache_variables["ENABLE_INTEL_GNA"] = False
-        if self._npu_option_available:
-            toolchain.cache_variables["ENABLE_INTEL_NPU"] = False
-        # SW plugins
-        toolchain.cache_variables["ENABLE_AUTO"] = self.options.enable_auto
-        toolchain.cache_variables["ENABLE_MULTI"] = self.options.enable_auto
-        toolchain.cache_variables["ENABLE_AUTO_BATCH"] = self.options.enable_auto_batch
-        toolchain.cache_variables["ENABLE_HETERO"] = self.options.enable_hetero
-        # Frontends
-        toolchain.cache_variables["ENABLE_OV_IR_FRONTEND"] = self.options.enable_ir_frontend
-        toolchain.cache_variables["ENABLE_OV_PADDLE_FRONTEND"] = self.options.enable_paddle_frontend
-        toolchain.cache_variables["ENABLE_OV_TF_FRONTEND"] = self.options.enable_tf_frontend
-        toolchain.cache_variables["ENABLE_OV_TF_LITE_FRONTEND"] = self.options.enable_tf_lite_frontend
-        toolchain.cache_variables["ENABLE_OV_ONNX_FRONTEND"] = self.options.enable_onnx_frontend
-        toolchain.cache_variables["ENABLE_OV_PYTORCH_FRONTEND"] = self.options.enable_pytorch_frontend
-        if Version(self.version) >= "2024.3.0":
-            toolchain.cache_variables["ENABLE_OV_JAX_FRONTEND"] = False
-        # Dependencies
-        toolchain.cache_variables["ENABLE_SYSTEM_TBB"] = True
-        toolchain.cache_variables["ENABLE_TBBBIND_2_5"] = False
-        toolchain.cache_variables["ENABLE_SYSTEM_PUGIXML"] = True
+    def build_requirements(self):
+        if self._target_arm:
+            self.tool_requires("scons/4.3.0")
         if self._protobuf_required:
-            toolchain.cache_variables["ENABLE_SYSTEM_PROTOBUF"] = True
-        if self.options.enable_tf_frontend:
-            toolchain.cache_variables["ENABLE_SYSTEM_SNAPPY"] = True
+            self.tool_requires("protobuf/<host_version>")
         if self.options.enable_tf_lite_frontend:
-            toolchain.cache_variables["ENABLE_SYSTEM_FLATBUFFERS"] = True
-        if self.options.get_safe("enable_gpu"):
-            toolchain.cache_variables["ENABLE_SYSTEM_OPENCL"] = True
-        # misc
-        if self._preprocessing_available:
-            toolchain.cache_variables["ENABLE_GAPI_PREPROCESSING"] = True
-        toolchain.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
-        toolchain.cache_variables["CPACK_GENERATOR"] = "CONAN"
-        toolchain.cache_variables["ENABLE_PROFILING_ITT"] = False
-        toolchain.cache_variables["ENABLE_PYTHON"] = False
-        toolchain.cache_variables["ENABLE_PROXY"] = False
-        toolchain.cache_variables["ENABLE_WHEEL"] = False
-        toolchain.cache_variables["ENABLE_CPPLINT"] = False
-        toolchain.cache_variables["ENABLE_NCC_STYLE"] = False
-        toolchain.cache_variables["ENABLE_SAMPLES"] = False
-        toolchain.cache_variables["ENABLE_TEMPLATE"] = False
-        toolchain.generate()
+            self.tool_requires("flatbuffers/<host_version>")
+        if not self.options.shared:
+            self.tool_requires("cmake/[>=3.18 <5]")
 
     def validate_build(self):
         min_cppstd = "17" if Version(self.version) >= "2025.0.0" else "11"
@@ -244,21 +179,84 @@ class OpenvinoConan(ConanFile):
                 f"Please, use libstdc++ instead."
             )
 
-        if self.settings.os == "Emscripten":
-            raise ConanInvalidConfiguration(f"{self.ref} does not support Emscripten")
-
         # Failing on Conan Center CI due to memory usage
         if os.getenv("CONAN_CENTER_BUILD_SERVICE") and self.settings.build_type == "Debug":
             raise ConanInvalidConfiguration(f"{self.ref} does not support Debug build type on Conan Center CI")
 
-    def validate(self):
-        if (self.options.get_safe("enable_gpu") and self.options.enable_cpu
-                and Version(self.version) < "2024.4.0" and not self.options.shared):
-            # GPU and CPU plugins cannot be simultaneously built statically, because they use different oneDNN versions
-            self.output.warning(f"{self.name} recipe builds GPU plugin without oneDNN (dGPU) support during static build, "
-                                "because CPU plugin compiled with different oneDNN version may cause ODR violation. "
-                                "To enable oneDNN support for GPU plugin, please, either use shared build configuration "
-                                "or disable CPU plugin by setting 'enable_cpu' option to False.")
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version]["openvino"], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version]["onednn_cpu"], strip_root=True, destination="src/plugins/intel_cpu/thirdparty/onednn")
+        get(self, **self.conan_data["sources"][self.version]["mlas"], strip_root=True, destination="src/plugins/intel_cpu/thirdparty/mlas")
+        get(self, **self.conan_data["sources"][self.version]["arm_compute"], strip_root=True, destination="src/plugins/intel_cpu/thirdparty/ComputeLibrary")
+        get(self, **self.conan_data["sources"][self.version]["onednn_gpu"], strip_root=True, destination="src/plugins/intel_gpu/thirdparty/onednn_gpu")
+        rmdir(self, "src/plugins/intel_gpu/thirdparty/rapidjson")
+        # For CMake v4 support
+        replace_in_file(self, "src/plugins/intel_cpu/thirdparty/onednn/CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 2.8.12)",
+                        "cmake_minimum_required(VERSION 3.15)")
+        if Version(self.version) == "2023.3.0":
+            replace_in_file(self, "thirdparty/fluid/modules/gapi/CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 3.3)",
+                            "cmake_minimum_required(VERSION 3.15)")
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        # HW plugins
+        tc.cache_variables["ENABLE_INTEL_CPU"] = self.options.enable_cpu
+        if self._gpu_option_available:
+            tc.cache_variables["ENABLE_INTEL_GPU"] = self.options.enable_gpu
+            tc.cache_variables["ENABLE_ONEDNN_FOR_GPU"] = (
+                Version(self.version) >= "2024.4.0" and self.options.enable_gpu
+                or not self.options.enable_cpu
+                or self.options.shared
+            )
+        if self._gna_option_available:
+            tc.cache_variables["ENABLE_INTEL_GNA"] = False
+        if self._npu_option_available:
+            tc.cache_variables["ENABLE_INTEL_NPU"] = False
+        # SW plugins
+        tc.cache_variables["ENABLE_AUTO"] = self.options.enable_auto
+        tc.cache_variables["ENABLE_MULTI"] = self.options.enable_auto
+        tc.cache_variables["ENABLE_AUTO_BATCH"] = self.options.enable_auto_batch
+        tc.cache_variables["ENABLE_HETERO"] = self.options.enable_hetero
+        # Frontends
+        tc.cache_variables["ENABLE_OV_IR_FRONTEND"] = self.options.enable_ir_frontend
+        tc.cache_variables["ENABLE_OV_PADDLE_FRONTEND"] = self.options.enable_paddle_frontend
+        tc.cache_variables["ENABLE_OV_TF_FRONTEND"] = self.options.enable_tf_frontend
+        tc.cache_variables["ENABLE_OV_TF_LITE_FRONTEND"] = self.options.enable_tf_lite_frontend
+        tc.cache_variables["ENABLE_OV_ONNX_FRONTEND"] = self.options.enable_onnx_frontend
+        tc.cache_variables["ENABLE_OV_PYTORCH_FRONTEND"] = self.options.enable_pytorch_frontend
+        if Version(self.version) >= "2024.3.0":
+            tc.cache_variables["ENABLE_OV_JAX_FRONTEND"] = False
+        # Dependencies
+        tc.cache_variables["ENABLE_SYSTEM_TBB"] = True
+        tc.cache_variables["ENABLE_TBBBIND_2_5"] = False
+        tc.cache_variables["ENABLE_SYSTEM_PUGIXML"] = True
+        if self._protobuf_required:
+            tc.cache_variables["ENABLE_SYSTEM_PROTOBUF"] = True
+        if self.options.enable_tf_frontend:
+            tc.cache_variables["ENABLE_SYSTEM_SNAPPY"] = True
+        if self.options.enable_tf_lite_frontend:
+            tc.cache_variables["ENABLE_SYSTEM_FLATBUFFERS"] = True
+        if self.options.get_safe("enable_gpu"):
+            tc.cache_variables["ENABLE_SYSTEM_OPENCL"] = True
+        # misc
+        if self._preprocessing_available:
+            tc.cache_variables["ENABLE_GAPI_PREPROCESSING"] = True
+        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
+        tc.cache_variables["CPACK_GENERATOR"] = "CONAN"
+        tc.cache_variables["ENABLE_PROFILING_ITT"] = False
+        tc.cache_variables["ENABLE_PYTHON"] = False
+        tc.cache_variables["ENABLE_PROXY"] = False
+        tc.cache_variables["ENABLE_WHEEL"] = False
+        tc.cache_variables["ENABLE_CPPLINT"] = False
+        tc.cache_variables["ENABLE_NCC_STYLE"] = False
+        tc.cache_variables["ENABLE_SAMPLES"] = False
+        tc.cache_variables["ENABLE_TEMPLATE"] = False
+        tc.generate()
+
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -362,33 +360,20 @@ class OpenvinoConan(ConanFile):
         openvino_runtime_c.libs = ["openvino_c"]
         openvino_runtime_c.requires = ["Runtime"]
 
+        def add_frontend_component(component_name, name, requires):
+            component = self.cpp_info.components[component_name]
+            component.set_property("cmake_target_name", f"openvino::frontend::{name}")
+            component.libs = [f"openvino_{name}_frontend"]
+            component.requires = ["Runtime"] + requires
+
         if self.options.enable_onnx_frontend:
-            openvino_onnx = self.cpp_info.components["ONNX"]
-            openvino_onnx.set_property("cmake_target_name", "openvino::frontend::onnx")
-            openvino_onnx.libs = ["openvino_onnx_frontend"]
-            openvino_onnx.requires = ["Runtime", "onnx::onnx", "protobuf::libprotobuf"]
-
+            add_frontend_component("ONNX", "onnx", ["onnx::onnx", "protobuf::libprotobuf"])
         if self.options.enable_paddle_frontend:
-            openvino_paddle = self.cpp_info.components["Paddle"]
-            openvino_paddle.set_property("cmake_target_name", "openvino::frontend::paddle")
-            openvino_paddle.libs = ["openvino_paddle_frontend"]
-            openvino_paddle.requires = ["Runtime", "protobuf::libprotobuf"]
-
+            add_frontend_component("Paddle", "paddle", ["protobuf::libprotobuf"])
         if self.options.enable_tf_frontend:
-            openvino_tensorflow = self.cpp_info.components["TensorFlow"]
-            openvino_tensorflow.set_property("cmake_target_name", "openvino::frontend::tensorflow")
-            openvino_tensorflow.libs = ["openvino_tensorflow_frontend"]
-            openvino_tensorflow.requires = ["Runtime", "protobuf::libprotobuf", "snappy::snappy"]
-
+            add_frontend_component("TensorFlow", "tensorflow", ["protobuf::libprotobuf", "snappy::snappy"])
         if self.options.enable_pytorch_frontend:
-            openvino_pytorch = self.cpp_info.components["PyTorch"]
-            openvino_pytorch.set_property("cmake_target_name", "openvino::frontend::pytorch")
-            openvino_pytorch.libs = ["openvino_pytorch_frontend"]
-            openvino_pytorch.requires = ["Runtime"]
-
+            add_frontend_component("PyTorch", "pytorch", [])
         if self.options.enable_tf_lite_frontend:
-            openvino_tensorflow_lite = self.cpp_info.components["TensorFlowLite"]
-            openvino_tensorflow_lite.set_property("cmake_target_name", "openvino::frontend::tensorflow_lite")
-            openvino_tensorflow_lite.libs = ["openvino_tensorflow_lite_frontend"]
-            openvino_tensorflow_lite.requires = ["Runtime", "flatbuffers::flatbuffers"]
+            add_frontend_component("TensorFlowLite", "tensorflow_lite", ["flatbuffers::flatbuffers"])
 
