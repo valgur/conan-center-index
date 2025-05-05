@@ -69,7 +69,7 @@ class MetavisionSdkConan(ConanFile):
         self.requires("opencv/[^4.5]", transitive_headers=True, options=extra_opts)
         if self.options.stream:
             # newer version conflicts with opencv
-            self.requires("protobuf/3.21.12")
+            self.requires("protobuf/[>=3.21.12]")
             if self.options.get_safe("with_hdf5"):
                 # hdf5_ecf/ecf_h5filter.h
                 self.requires("hdf5/[^1.8]", transitive_headers=True)
