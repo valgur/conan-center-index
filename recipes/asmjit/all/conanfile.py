@@ -35,13 +35,6 @@ class AsmjitConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 11)
 
-        if self.version >= "cci.20240531":
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} does not support {self.settings.compiler}/{self.settings.compiler.version}."
-                )
-
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.19 <5]")
 
