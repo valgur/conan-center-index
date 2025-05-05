@@ -91,7 +91,7 @@ class TensorflowLiteConan(ConanFile):
         if Version(self.version) >= "2.12.0" or self.options.with_xnnpack:
             self.requires("pthreadpool/cci.20231129")
         if self.options.with_xnnpack or self.options.get_safe("with_nnapi", False):
-            self.requires("fp16/cci.20210320")
+            self.requires("fp16/[>=cci.20210320]")
         if self._needs_fxdiv:
             self.requires("fxdiv/cci.20200417")
 
