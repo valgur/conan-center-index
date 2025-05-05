@@ -36,7 +36,7 @@ class GameNetworkingSocketsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("protobuf/3.21.12")
+        self.requires("protobuf/[>=3 <3.30 || >=4 <4.30 || >=5 <5.30]")
         if self.options.encryption == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         elif self.options.encryption == "libsodium":
@@ -44,7 +44,6 @@ class GameNetworkingSocketsConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 11)
-
         if self.options.encryption == "bcrypt" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration("bcrypt is only valid on Windows")
 
@@ -55,6 +54,11 @@ class GameNetworkingSocketsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Let Conan set the C++ standard
+        replace_in_file(self, "CMakeLists.txt", "CXX_STANDARD 11", "FOLDER xyz")
+        replace_in_file(self, os.path.join("src", "external", "steamwebrtc", "CMakeLists.txt"), "CXX_STANDARD 14", "FOLDER xyz")
+        # Disable MSVC runtime override
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "configure_msvc_runtime()", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -85,13 +89,7 @@ class GameNetworkingSocketsConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Disable MSVC runtime override
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "configure_msvc_runtime()", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
