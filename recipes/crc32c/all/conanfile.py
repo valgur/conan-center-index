@@ -36,11 +36,11 @@ class crc32cConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # For CMake v4 support
+        replace_in_file(self, "CMakeLists.txt", "cmake_minimum_required(VERSION 3.1)", "cmake_minimum_required(VERSION 3.15)")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.variables["CRC32C_BUILD_TESTS"] = False
         tc.variables["CRC32C_BUILD_BENCHMARKS"] = False
         tc.variables["CRC32C_INSTALL"] = True
