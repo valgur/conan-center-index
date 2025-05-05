@@ -38,7 +38,7 @@ class ArcusConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("protobuf/3.21.12")
+        self.requires("protobuf/[>=3 <3.26 || >=4 <4.26]")
 
     def validate(self):
         check_min_cppstd(self, 11)
