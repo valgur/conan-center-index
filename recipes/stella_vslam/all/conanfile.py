@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -33,22 +32,9 @@ class StellaVslamConan(ConanFile):
         "fPIC": True,
         "build_iridescence_viewer": False,
         "build_pangolin_viewer": False,
-        "build_socket_viewer": False,
+        "build_socket_viewer": True,
         "with_gtsam": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -91,17 +77,12 @@ class StellaVslamConan(ConanFile):
         if self.options.build_pangolin_viewer:
             self.requires("pangolin/0.9.1")
         if self.options.build_socket_viewer:
-            self.requires("protobuf/3.21.12")
+            self.requires("protobuf/[>=3.21.12]")
             # TODO: add socket.io-client-cpp to CCI
             self.requires("socket.io-client-cpp/3.1.0")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if self.options.build_iridescence_viewer:
             raise ConanInvalidConfiguration("build_iridescence_viewer option is not yet implemented")
@@ -119,16 +100,17 @@ class StellaVslamConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["stella_vslam"], strip_root=True)
-        rmdir(self, os.path.join(self.source_folder, "3rd"))
         apply_conandata_patches(self)
+        rmdir(self, os.path.join(self.source_folder, "3rd"))
+        # Latest g2o requires C++17 or newer. Let Conan set the C++ standard.
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        "set(CMAKE_CXX_STANDARD 11)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_PROJECT_stella_vslam_INCLUDE"] = "conan_deps.cmake"
         tc.variables["USE_ARUCO"] = self.dependencies["opencv"].options.aruco
         tc.variables["USE_GTSAM"] = self.options.with_gtsam
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         # The project unnecessarily tries to find and link SuiteSparse as a transitive dep for g2o
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_SuiteSparse"] = True
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
@@ -137,13 +119,7 @@ class StellaVslamConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        # Latest g2o requires C++17 or newer. Let Conan set the C++ standard.
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_CXX_STANDARD 11)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
