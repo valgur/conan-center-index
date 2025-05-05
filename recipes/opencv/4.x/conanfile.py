@@ -326,8 +326,6 @@ class OpenCVConan(ConanFile):
 
         if not self._has_with_jpeg2000_option:
             del self.options.with_jpeg2000
-        elif Version(self.version) < "4.3.0":
-            self.options.with_jpeg2000 = "jasper"
 
         if "arm" not in self.settings.arch or Version(self.version) >= "4.11.0":
             del self.options.neon
