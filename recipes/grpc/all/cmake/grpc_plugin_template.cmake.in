@@ -2,13 +2,6 @@ if(NOT TARGET @target_name@)
     if(NOT @find_program_variable@)
         find_program(@find_program_variable@ NAMES @executable_name@)
     endif()
-    if(NOT @find_program_variable@)
-        find_program(@find_program_variable@
-            NAMES @executable_name@
-            PATHS "${CMAKE_CURRENT_LIST_DIR}/@relative_path@bin/"
-            NO_DEFAULT_PATH
-        )
-    endif()
     if(@find_program_variable@)
         get_filename_component(@find_program_variable@ "${@find_program_variable@}" ABSOLUTE)
         add_executable(@target_name@ IMPORTED)

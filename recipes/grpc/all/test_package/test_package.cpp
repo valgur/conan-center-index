@@ -1,9 +1,9 @@
-#include <iostream>
-#include <string>
 #include <grpcpp/grpcpp.h>
+#include "helloworld.grpc.pb.h"
 
-
-int main(int argc, char** argv) {
-  std::cout << "gPRC version: " << grpc::Version() << "\n";
-  return 0;
+int main() {
+    helloworld::HelloRequest request;
+    helloworld::HelloReply reply;
+    helloworld::Greeter greeter;
+    std::cout << "gPRC version: " << grpc::Version() << "\n";
 }

@@ -2,12 +2,12 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import can_run
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.cmake import CMake, cmake_layout
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
@@ -15,10 +15,8 @@ class TestPackageConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
 
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.cache_variables["CHECK_GRPC_CPP_PLUGIN"] = self.dependencies[self.tested_reference_str].options.cpp_plugin
-        tc.generate()
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
 
     def build(self):
         cmake = CMake(self)

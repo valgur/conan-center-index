@@ -225,8 +225,6 @@ class GrpcConan(ConanFile):
         content = content.replace("@target_name@", target)
         content = content.replace("@executable_name@", executable)
         content = content.replace("@find_program_variable@", f"{executable.upper()}_PROGRAM")
-        module_folder_depth = len(os.path.normpath(self._module_path).split(os.path.sep))
-        content = content.replace("@relative_path@", "../" * module_folder_depth)
         save(self, os.path.join(self.package_folder, self._module_path, f"{executable}.cmake"), content)
 
     @property
