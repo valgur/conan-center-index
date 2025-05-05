@@ -257,7 +257,7 @@ class VtkConan(ConanFile):
         self.requires("exprtk/0.0.2")
         self.requires("fast_float/6.1.4")
         self.requires("libarchive/3.7.4")
-        self.requires("lz4/1.9.4")
+        self.requires("lz4/[^1.9.4]")
         self.requires("pugixml/1.14")
         self.requires("utfcpp/4.0.4")
         self.requires("xz_utils/[>=5.4.5 <6]")

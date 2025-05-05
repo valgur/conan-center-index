@@ -65,7 +65,7 @@ class LibosmiumConan(ConanFile):
         if self.options.proj:
             self.requires("proj/9.3.1")
         if self.options.lz4:
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
 
     def package_id(self):
         self.info.clear()

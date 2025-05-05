@@ -134,7 +134,7 @@ class PangolinConan(ConanFile):
         if self.options.with_jpeg:
             self.requires("libjpeg/9e")
         if self.options.with_lz4:
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
         if self.options.with_openexr:
             self.requires("openexr/3.3.3")
 

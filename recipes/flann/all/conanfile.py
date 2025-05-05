@@ -38,7 +38,7 @@ class FlannConan(ConanFile):
 
     def requirements(self):
         # see https://github.com/conan-io/conan-center-index/pull/16355#discussion_r1150197550
-        self.requires("lz4/1.9.4", transitive_headers=True, transitive_libs=True)
+        self.requires("lz4/[^1.9.4]", transitive_headers=True, transitive_libs=True)
         # used in a public header:
         # https://github.com/flann-lib/flann/blob/1.9.2/src/cpp/flann/algorithms/nn_index.h#L323
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)

@@ -48,7 +48,7 @@ class McapConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("lz4/1.9.4")
+        self.requires("lz4/[^1.9.4]")
         self.requires("zstd/[~1.5]")
         if Version(self.version) < "0.1.1":
             self.requires("fmt/9.1.0")

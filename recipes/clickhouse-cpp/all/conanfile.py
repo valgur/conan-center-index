@@ -52,7 +52,7 @@ class ClickHouseCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("lz4/1.9.4")
+        self.requires("lz4/[^1.9.4]")
         self.requires("abseil/[>=20220623.1]", transitive_headers=True, transitive_libs=True)
         self.requires("cityhash/1.0.1")
         if self.options.with_openssl:

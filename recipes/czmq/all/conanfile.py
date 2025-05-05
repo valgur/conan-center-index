@@ -69,7 +69,7 @@ class CzmqConan(ConanFile):
         if self.options.get_safe("with_libcurl"):
             self.requires("libcurl/[>=7.78.0 <9]")
         if self.options.with_lz4:
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
         if self.options.get_safe("with_libuuid"):
             self.requires("util-linux-libuuid/2.41")
         if self.options.get_safe("with_systemd"):

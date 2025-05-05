@@ -246,7 +246,7 @@ class GdalConan(ConanFile):
         if self.options.with_lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.with_lz4:
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
         if self.options.with_mongocxx:
             self.requires("mongo-cxx-driver/3.8.1")
         if self.options.with_mysql == "libmysqlclient":

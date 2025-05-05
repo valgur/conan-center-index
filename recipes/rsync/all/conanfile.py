@@ -60,7 +60,7 @@ class RsyncConan(ConanFile):
             self.requires("zstd/[~1.5]")
 
         if self.options.with_lz4:
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
 
         if self.options.with_xxhash:
             self.requires("xxhash/[>=0.8.1 <0.9]")

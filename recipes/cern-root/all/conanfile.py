@@ -62,7 +62,7 @@ class CernRootConan(ConanFile):
         self.requires("libmysqlclient/[^8.1.0]")
         self.requires("libpq/[^17.0]")
         self.requires("libxml2/[>=2.12.5 <3]")
-        self.requires("lz4/1.9.4")
+        self.requires("lz4/[^1.9.4]")
         self.requires("odbc/2.3.11")
         self.requires("onetbb/2020.3.3")
         self.requires("openblas/0.3.27")

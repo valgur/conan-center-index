@@ -183,7 +183,7 @@ class ArrowConan(ConanFile):
         if self.options.with_bz2:
             self.requires("bzip2/1.0.8")
         if self.options.with_lz4:
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
         if self.options.with_snappy:
             self.requires("snappy/1.1.9")
         if self.options.get_safe("simd_level") != None or \

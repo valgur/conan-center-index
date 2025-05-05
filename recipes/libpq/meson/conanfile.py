@@ -141,7 +141,7 @@ class LibpqConan(ConanFile):
         if self.options.with_libxslt:
             self.requires("libxslt/1.1.42")
         if self.options.get_safe("with_lz4"):
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
         if self.options.with_nls:
             self.requires("gettext/[>=0.21 <1]")
         if self.options.with_openssl:

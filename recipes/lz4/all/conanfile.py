@@ -12,10 +12,10 @@ required_conan_version = ">=2.4"
 class LZ4Conan(ConanFile):
     name = "lz4"
     description = "Extremely Fast Compression algorithm"
-    license = ("BSD-2-Clause", "BSD-3-Clause")
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lz4/lz4"
-    topics = ("compression")
+    topics = ("compression",)
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -54,22 +54,16 @@ class LZ4Conan(ConanFile):
             tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         tc.generate()
 
-    @property
-    def _cmakelists_folder(self):
-        subfolder = os.path.join("build", "cmake")
-        return os.path.join(self.source_folder, subfolder)
-
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=self._cmakelists_folder)
+        cmake.configure(build_script_folder=os.path.join("build", "cmake"))
         cmake.build()
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        if Version(self.version) >= "1.9.4":
-            rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
@@ -80,7 +74,7 @@ class LZ4Conan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "lz4")
         self.cpp_info.set_property("cmake_target_name", self._lz4_target)
-        self.cpp_info.set_property("cmake_target_aliases", ["lz4::lz4"]) # old unofficial target in CCI for lz4, kept for the moment to not break consumers
+        self.cpp_info.set_property("cmake_target_aliases", ["lz4::lz4"]) # unofficial
         self.cpp_info.set_property("pkg_config_name", "liblz4")
         self.cpp_info.libs = ["lz4"]
         if is_msvc(self) and self.options.shared:

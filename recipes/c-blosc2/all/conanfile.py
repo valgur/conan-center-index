@@ -66,7 +66,7 @@ class CBlosc2Conan(ConanFile):
 
     def requirements(self):
         if self.options.with_lz4:
-            self.requires("lz4/1.9.4")
+            self.requires("lz4/[^1.9.4]")
         if self.options.with_zlib in ["zlib-ng", "zlib-ng-compat"]:
             self.requires("zlib-ng/2.2.0")
         elif self.options.with_zlib == "zlib":

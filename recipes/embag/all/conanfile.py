@@ -40,7 +40,7 @@ class EmbagConan(ConanFile):
         # INFO: embag.h includes boost/variant.hpp
         self.requires("boost/1.86.0", transitive_headers=True)
         # INFO: decompression.h includes lz4frame.h
-        self.requires("lz4/1.9.4", transitive_headers=True)
+        self.requires("lz4/[^1.9.4]", transitive_headers=True)
         # INFO: ros_bag_types.h includes bzlib.h
         self.requires("bzip2/1.0.8", transitive_headers=True)
 
