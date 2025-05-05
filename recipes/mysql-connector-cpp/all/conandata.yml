@@ -1,8 +1,18 @@
 sources:
+  "9.3.0":
+    url: "https://github.com/mysql/mysql-connector-cpp/archive/refs/tags/9.3.0.tar.gz"
+    sha256: "d333dc427d7eca3a67377cd3e770bb20305ef1f4336601576bac89be04d6e62e"
   "9.2.0":
     url: "https://github.com/mysql/mysql-connector-cpp/archive/refs/tags/9.2.0.tar.gz"
     sha256: "0b811559e57868487cfa7fa04af7f71d9df16cf6f7200bce83c5ddbeeedfb97c"
 patches:
+  "9.3.0":
+    - patch_file: "patches/9.2.0-01-handle-protobuf-logic.patch"
+      patch_description: "Handle protobuf logic"
+      patch_type: "conan"
+    - patch_file: "patches/9.2.0-02-dont-embed-transitive-deps.patch"
+      patch_description: "Avoid embedding transitive deps"
+      patch_type: "conan"
   "9.2.0":
     - patch_file: "patches/9.2.0-01-handle-protobuf-logic.patch"
       patch_description: "Handle protobuf logic"

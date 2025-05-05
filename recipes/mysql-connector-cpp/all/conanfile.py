@@ -39,11 +39,11 @@ class MysqlConnectorCppConan(ConanFile):
 
     def requirements(self):
         # None of the dependencies are used transitively
-        self.requires("protobuf/3.21.12")  # v4 and newer are not supported as of v9.0.0
+        self.requires("protobuf/3.21.12")  # newer versions are not supported as of v9.0.0
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("rapidjson/1.1.0")
+        self.requires("rapidjson/[^1.1.0]")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("lz4/1.9.4")
+        self.requires("lz4/[^1.9.4]")
         self.requires("zstd/[~1.5]")
 
     def validate(self):
@@ -70,7 +70,7 @@ class MysqlConnectorCppConan(ConanFile):
         tc.cache_variables["IS64BIT"] = True
         tc.cache_variables["use_full_protobuf"] = not self.dependencies["protobuf"].options.lite
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
-        if Version(self.version) > "9.2.0":
+        if Version(self.version) > "9.3.0":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 
