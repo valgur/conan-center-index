@@ -150,7 +150,6 @@ class NcbiCxxToolkit(ConanFile):
     def build_requirements(self):
         if "GRPC" in self._requirements:
             self.tool_requires("grpc/<host_version>")
-            self.tool_requires("protobuf/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
