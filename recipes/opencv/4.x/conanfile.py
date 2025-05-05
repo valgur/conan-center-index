@@ -1260,7 +1260,6 @@ class OpenCVConan(ConanFile):
         tc.variables["OPENCV_BIN_INSTALL_PATH"] = "bin"
         tc.variables["OPENCV_LIB_INSTALL_PATH"] = "lib"
         tc.variables["OPENCV_3P_LIB_INSTALL_PATH"] = "lib"
-        tc.variables["OPENCV_OTHER_INSTALL_PATH"] = "res"
         tc.variables["OPENCV_LICENSES_INSTALL_PATH"] = "licenses"
 
         tc.variables["OPENCV_SKIP_CMAKE_CXX_STANDARD"] = True
@@ -1552,7 +1551,7 @@ class OpenCVConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         if os.path.isfile(os.path.join(self.package_folder, "setup_vars_opencv4.cmd")):
             rename(self, os.path.join(self.package_folder, "setup_vars_opencv4.cmd"),
-                         os.path.join(self.package_folder, "res", "setup_vars_opencv4.cmd"))
+                         os.path.join(self.package_folder, "share", "setup_vars_opencv4.cmd"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
@@ -1627,7 +1626,7 @@ class OpenCVConan(ConanFile):
             if self.options.world:
                 self.cpp_info.components["opencv_world"].set_property("cmake_target_name", "opencv_world")
                 self.cpp_info.components["opencv_world"].libs = get_libs("world")
-                self.cpp_info.components["opencv_world"].resdirs = ["res"]
+                self.cpp_info.components["opencv_world"].resdirs = ["share"]
                 if self.settings.os != "Windows":
                     self.cpp_info.components["opencv_world"].includedirs.append(os.path.join("include", "opencv4"))
                 world_requires = set()
@@ -1643,7 +1642,7 @@ class OpenCVConan(ConanFile):
                 # TODO: we should also define COMPONENTS names of each target for find_package() but
                 # not possible yet in CMakeDeps. See https://github.com/conan-io/conan/issues/10258
                 self.cpp_info.components[conan_component].set_property("cmake_target_name", cmake_target)
-                self.cpp_info.components[conan_component].resdirs = ["res"]
+                self.cpp_info.components[conan_component].resdirs = ["share"]
                 if self.settings.os != "Windows":
                     self.cpp_info.components[conan_component].includedirs.append(os.path.join("include", "opencv4"))
 
