@@ -1,0 +1,26 @@
+diff --git a/cmake/dependencies.cmake b/cmake/dependencies.cmake
+index d06a276d7..61dc85552 100644
+--- a/cmake/dependencies.cmake
++++ b/cmake/dependencies.cmake
+@@ -336,15 +336,12 @@ endif()
+ ################################
+ # Check for the math library so it can be explicitly linked.
+ if(NOT WIN32)
+-  find_library(HAVE_LIBM NAMES math m libm)
++  include(CheckLibraryExists)
++  check_library_exists(m log "" CAN_LINK_LIBM)
++  if(CAN_LINK_LIBM)
++    SET(HAVE_LIBM m)
++  endif()
+   if(NOT HAVE_LIBM)
+-    CHECK_FUNCTION_EXISTS(exp HAVE_LIBM_FUNC)
+-    if(NOT HAVE_LIBM_FUNC)
+-        message(FATAL_ERROR "Unable to find the math library.")
+-    else(NOT HAVE_LIBM_FUNC)
+-        set(HAVE_LIBM "")
+-    endif()
+-  else(NOT HAVE_LIBM)
+     message(STATUS "Found Math library: ${HAVE_LIBM}")
+   endif()
+ endif()
+

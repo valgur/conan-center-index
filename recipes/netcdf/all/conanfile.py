@@ -24,19 +24,33 @@ class NetcdfConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "netcdf4": [True, False],
-        "with_hdf5": [True, False],
         "cdf5": [True, False],
         "dap": [True, False],
         "byterange": [True, False],
+        "logging": [True, False],
+        "with_hdf5": [True, False],
+        "with_szip": [True, False],
+        "with_bz2": [True, False],
+        "with_blosc": [True, False],
+        "with_zstd": [True, False],
+        "with_zip": [True, False],
+        "with_libxml2": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "netcdf4": True,
-        "with_hdf5": True,
         "cdf5": True,
         "dap": True,
         "byterange": False,
+        "logging": False,
+        "with_hdf5": True,
+        "with_szip": False,
+        "with_bz2": True,
+        "with_blosc": True,
+        "with_zstd": True,
+        "with_zip": True,
+        "with_libxml2": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -52,41 +66,64 @@ class NetcdfConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self._with_hdf5:
-            if self.version == "4.7.4" and self.options.byterange:
-                # 4.7.4 was built and tested with hdf5/1.12.0
-                # It would be nice to upgrade to 1.12.1,
-                # but when the byterange feature is enabled,
-                # it triggers a compile error that was later patched in 4.8.x
-                # So we will require the older hdf5 to keep the older behaviour.
-                self.requires("hdf5/1.14.5")
-            else:
-                self.requires("hdf5/1.14.5")
-
+        self.requires("zlib/[>=1.2.11 <2]")
         if self.options.dap or self.options.byterange:
             self.requires("libcurl/[>=7.78.0 <9]")
+        if self._with_hdf5:
+            self.requires("hdf5/[^1.8.15]")
+        if self.options.with_szip:
+            self.requires("szip/[^2.1]")
+        if self.options.with_bz2:
+            self.requires("bzip2/[^1.0.8]")
+        if self.options.with_blosc:
+            self.requires("c-blosc/[^1.21.0]")
+        if self.options.with_zstd:
+            self.requires("zstd/[~1.5]")
+        if self.options.with_zip:
+            self.requires("libzip/[^1.7.3]")
+        if self.options.with_libxml2:
+            self.requires("libxml2/[^2.12.5]")
+
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.20.0 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # This breaks CMakeDeps targets otherwise
+        replace_in_file(self, os.path.join("plugins", "CMakeLists.txt"), 'set(CMAKE_BUILD_TYPE "")', "")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_TESTING"] = False
-        tc.variables["BUILD_UTILITIES"] = False
-        tc.variables["ENABLE_TESTS"] = False
-        tc.variables["ENABLE_FILTER_TESTING"] = False
+        tc.cache_variables["BUILD_TESTING"] = False
+        tc.cache_variables["NETCDF_BUILD_UTILITIES"] = False
+        tc.cache_variables["NETCDF_ENABLE_TESTS"] = False
+        tc.cache_variables["NETCDF_ENABLE_FILTER_TESTING"] = False
 
-        tc.variables["ENABLE_NETCDF_4"] = self.options.netcdf4
-        tc.variables["ENABLE_CDF5"] = self.options.cdf5
-        tc.variables["ENABLE_DAP"] = self.options.dap
-        tc.variables["ENABLE_BYTERANGE"] = self.options.byterange
-        tc.variables["USE_HDF5"] = self.options.with_hdf5
-        tc.variables["NC_FIND_SHARED_LIBS"] = self.options.with_hdf5 and self.dependencies["hdf5"].options.shared
+        tc.cache_variables["NETCDF_ENABLE_LOGGING"] = self.options.logging
+        tc.cache_variables["NETCDF_ENABLE_CDF5"] = self.options.cdf5
+        tc.cache_variables["NETCDF_ENABLE_DAP"] = self.options.dap
+        tc.cache_variables["NETCDF_ENABLE_BYTERANGE"] = self.options.byterange
+        tc.cache_variables["NETCDF_ENABLE_HDF5"] = self.options.with_hdf5
+        tc.cache_variables["NETCDF_ENABLE_FILTER_SZIP"] = self.options.with_szip
+        tc.cache_variables["NETCDF_ENABLE_FILTER_BZ2"] = self.options.with_bz2
+        tc.cache_variables["NETCDF_ENABLE_FILTER_BLOSC"] = self.options.with_blosc
+        tc.cache_variables["NETCDF_ENABLE_FILTER_ZSTD"] = self.options.with_zstd
+        tc.cache_variables["NETCDF_ENABLE_NCZARR_ZIP"] = self.options.with_zip
+        tc.cache_variables["NETCDF_ENABLE_LIBXML2"] = self.options.with_libxml2
+        tc.cache_variables["NETCDF_ENABLE_S3"] = False
+        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.generate()
 
-        tc = CMakeDeps(self)
-        tc.generate()
+        deps = CMakeDeps(self)
+        deps.set_property("c-blosc", "cmake_file_name", "Blosc")
+        deps.set_property("bzip2", "cmake_file_name", "Bz2")
+        deps.set_property("szip", "cmake_file_name", "Szip")
+        deps.set_property("libzip", "cmake_file_name", "Zip")
+        deps.set_property("zlib", "cmake_file_name", "ZLIB")
+        deps.set_property("zstd", "cmake_file_name", "Zstd")
+        deps.set_property("hdf5", "cmake_file_name", "HDF5")
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -106,19 +143,12 @@ class NetcdfConan(ConanFile):
         if self.settings.os == "Windows" and self.options.shared:
             for vc_file in ["concrt*.dll", "msvcp*.dll", "vcruntime*.dll"]:
                 rm(self, vc_file, os.path.join(self.package_folder, "bin"))
-            rm(self, "*[!.dll]", os.path.join(self.package_folder, "bin"))
-        else:
-            rmdir(self, os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "netCDF")
         self.cpp_info.set_property("cmake_target_name", "netCDF::netcdf")
         self.cpp_info.set_property("pkg_config_name", "netcdf")
         self.cpp_info.libs = ["netcdf"]
-        if self._with_hdf5:
-            self.cpp_info.requires.append("hdf5::hdf5")
-        if self.options.dap or self.options.byterange:
-            self.cpp_info.requires.append("libcurl::libcurl")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["dl", "m"]
         elif self.settings.os == "Windows":

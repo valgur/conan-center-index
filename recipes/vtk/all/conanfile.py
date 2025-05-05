@@ -326,7 +326,7 @@ class VtkConan(ConanFile):
         if self.options.with_netcdf:
             # Used in public vtkexodusII/include/exodusII.h
             is_public = bool(self.options.with_exodusII)
-            self.requires("netcdf/4.8.1", transitive_headers=is_public, transitive_libs=is_public)
+            self.requires("netcdf/[^4.9.3]", transitive_headers=is_public, transitive_libs=is_public)
         if self.options.with_nlohmannjson:
             self.requires("nlohmann_json/[^3]")
         if self.options.with_odbc and self.settings.os != "Windows":

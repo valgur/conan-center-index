@@ -253,7 +253,7 @@ class GdalConan(ConanFile):
         if self.options.with_kea:
             self.requires("kealib/1.4.14")
         if self.options.with_netcdf:
-            self.requires("netcdf/4.8.1")
+            self.requires("netcdf/[^4.9.3]")
         if self.options.with_jasper:
             self.requires("jasper/[^4.2]")
         if self.options.with_openjpeg:

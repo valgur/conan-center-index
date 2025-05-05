@@ -254,7 +254,7 @@ class GdalConan(ConanFile):
         elif self.options.with_mysql == "mariadb-connector-c":
             self.requires("mariadb-connector-c/3.3.3")
         if self.options.with_netcdf:
-            self.requires("netcdf/4.8.1")
+            self.requires("netcdf/[^4.9.3]")
         if self.options.with_odbc:
             self.requires("odbc/2.3.11")
         if self.options.with_opencl:

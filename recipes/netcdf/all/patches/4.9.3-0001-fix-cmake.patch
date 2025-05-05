@@ -1,0 +1,75 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 588a2ce4a..152d25ceb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1556,7 +1556,7 @@ endif()
+ # install them in the binary dir. Grab all of the .libs, put them
+ # in the libdir.
+ ##
+-if(MSVC)
++if(0)
+   foreach(CPP ${CMAKE_PREFIX_PATH})
+     file(GLOB COPY_FILES ${CPP}/lib/*.lib)
+   endforeach()
+diff --git a/libdap2/CMakeLists.txt b/libdap2/CMakeLists.txt
+index 9e09abe07..4719b85be 100644
+--- a/libdap2/CMakeLists.txt
++++ b/libdap2/CMakeLists.txt
+@@ -29,10 +29,7 @@ add_library(dap2 OBJECT ${dap2_SOURCES})
+ 
+ target_link_libraries(dap2 PUBLIC CURL::libcurl ${CURL_LIBRARIES})
+ target_include_directories(dap2 PUBLIC ${CURL_INCLUDE_DIRS})
+-target_compile_options(dap2
+-  PRIVATE
+-    -DCURL_STATICLIB=1
+-)
++
+ 
+ if (NETCDF_ENABLE_DLL)
+   target_compile_definitions(dap2 PRIVATE DLL_NETCDF DLL_EXPORT)
+diff --git a/libdap4/CMakeLists.txt b/libdap4/CMakeLists.txt
+index e410977c1..a1d164f8d 100644
+--- a/libdap4/CMakeLists.txt
++++ b/libdap4/CMakeLists.txt
+@@ -22,10 +22,6 @@ set_property(SOURCE d4meta.c
+ add_library(dap4 OBJECT ${dap4_SOURCES})
+ target_link_libraries(dap4 PUBLIC CURL::libcurl ${CURL_LIBRARIES})
+ target_include_directories(dap4 PUBLIC ${CURL_INCLUDE_DIRS})
+-target_compile_options(dap4
+-  PRIVATE
+-    -DCURL_STATICLIB=1
+-)
+ 
+ if (NETCDF_ENABLE_DLL)
+   target_compile_definitions(dap4 PRIVATE DLL_NETCDF DLL_EXPORT)
+diff --git a/libsrc/CMakeLists.txt b/libsrc/CMakeLists.txt
+index b0016249f..9aa23ec45 100644
+--- a/libsrc/CMakeLists.txt
++++ b/libsrc/CMakeLists.txt
+@@ -57,10 +57,6 @@ endif()
+ if (NETCDF_ENABLE_BYTERANGE)
+   target_include_directories(netcdf3 PUBLIC ${CURL_INCLUDE_DIRS})
+   target_link_libraries(netcdf3 PUBLIC CURL::libcurl)
+-  target_compile_options(netcdf3
+-    PRIVATE
+-      -DCURL_STATICLIB=1
+-  )
+ endif (NETCDF_ENABLE_BYTERANGE)
+ 
+ if(STATUS_PARALLEL)
+diff --git a/oc2/CMakeLists.txt b/oc2/CMakeLists.txt
+index 01b2e998e..81460327e 100644
+--- a/oc2/CMakeLists.txt
++++ b/oc2/CMakeLists.txt
+@@ -17,10 +17,6 @@ if(STATUS_PARALLEL)
+ endif(STATUS_PARALLEL)
+ target_link_libraries(oc2 PUBLIC CURL::libcurl ${CURL_LIBRARIES})
+ target_include_directories(oc2 PUBLIC ${CURL_INCLUDE_DIRS})
+-target_compile_options(oc2
+-  PRIVATE
+-    -DCURL_STATICLIB=1
+-)
+ 
+ # Apparently fails under cmake
+ #set(ocprint_FILES ocprint.c )
+
