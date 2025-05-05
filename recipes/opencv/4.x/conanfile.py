@@ -5,7 +5,7 @@ import textwrap
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -1078,7 +1078,10 @@ class OpenCVConan(ConanFile):
         # dnn module dependencies
         if self.options.get_safe("with_protobuf"):
             # Symbols are exposed https://github.com/conan-io/conan-center-index/pull/16678#issuecomment-1507811867
-            self.requires("protobuf/3.21.12", transitive_libs=True)
+            if Version(self.version) >= "4.11.0":
+                self.requires("protobuf/[>=3.21.12]", transitive_libs=True)
+            else:
+                self.requires("protobuf/[>=3.21.12 <6]", transitive_libs=True)
         if self.options.get_safe("with_vulkan"):
             self.requires("vulkan-headers/1.4.309.0")
         if self.options.get_safe("with_openvino"):
