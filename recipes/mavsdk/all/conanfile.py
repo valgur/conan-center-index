@@ -63,9 +63,9 @@ class MavsdkConan(ConanFile):
     def build_requirements(self):
         if self.options.get_safe("regenerate_protobuf", True):
             if self.options.build_server:
-                self.tool_requires("grpc/<host_version>", options={"cpp_plugin": True})
+                self.tool_requires("grpc/<host_version>")
             else:
-                self.tool_requires("grpc/[^1.50.2]", options={"cpp_plugin": True})
+                self.tool_requires("grpc/[^1.50.2]")
             if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):

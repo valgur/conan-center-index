@@ -30,8 +30,8 @@ class GrpcConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "codegen": [True, False],
+        "secure": [True, False],
         "csharp_ext": [True, False],
-        "cpp_plugin": [True, False],
         "csharp_plugin": [True, False],
         "node_plugin": [True, False],
         "objective_c_plugin": [True, False],
@@ -39,23 +39,21 @@ class GrpcConan(ConanFile):
         "python_plugin": [True, False],
         "ruby_plugin": [True, False],
         "otel_plugin": [True, False],
-        "secure": [True, False],
-        "with_libsystemd": [True, False]
+        "with_libsystemd": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "codegen": True,
-        "csharp_ext": False,
-        "cpp_plugin": True,
-        "csharp_plugin": True,
-        "node_plugin": True,
-        "objective_c_plugin": True,
-        "php_plugin": True,
-        "python_plugin": True,
-        "ruby_plugin": True,
-        "otel_plugin": False,
         "secure": False,
+        "csharp_ext": False,
+        "csharp_plugin": False,
+        "node_plugin": False,
+        "objective_c_plugin": False,
+        "php_plugin": False,
+        "python_plugin": False,
+        "ruby_plugin": False,
+        "otel_plugin": False,
         "with_libsystemd": False,
     }
 
@@ -154,7 +152,7 @@ class GrpcConan(ConanFile):
         tc.cache_variables["gRPC_BUILD_TESTS"] = False
         # We need the generated cmake/ files (bc they depend on the list of targets, which is dynamic)
         tc.cache_variables["gRPC_INSTALL"] = True
-        tc.cache_variables["gRPC_BUILD_GRPC_CPP_PLUGIN"] = self.options.cpp_plugin
+        tc.cache_variables["gRPC_BUILD_GRPC_CPP_PLUGIN"] = True
         tc.cache_variables["gRPC_BUILD_GRPC_CSHARP_PLUGIN"] = self.options.csharp_plugin
         tc.cache_variables["gRPC_BUILD_GRPC_NODE_PLUGIN"] = self.options.node_plugin
         tc.cache_variables["gRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN"] = self.options.objective_c_plugin
@@ -221,7 +219,7 @@ class GrpcConan(ConanFile):
         for executable, plugin_info in self._target_info["plugins"].items():
             target = f"gRPC::{executable}"
             option_name = executable.replace("grpc_", "")
-            if self.options.get_safe(option_name):
+            if executable == "grpc_cpp_plugin" or self.options.get_safe(option_name):
                 self._create_executable_module_file(target, executable)
 
     def _create_executable_module_file(self, target, executable):
@@ -269,7 +267,7 @@ class GrpcConan(ConanFile):
         grpc_modules = []
         for executable, plugin_info in self._target_info["plugins"].items():
             option_name = executable.replace("grpc_", "")
-            if self.options.get_safe(option_name):
+            if executable == "grpc_cpp_plugin" or self.options.get_safe(option_name):
                 grpc_modules.append(os.path.join(self._module_path, f"{executable}.cmake"))
         self.cpp_info.set_property("cmake_build_modules", grpc_modules)
 
