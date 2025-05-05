@@ -39,7 +39,7 @@ class Blend2dConan(ConanFile):
 
     def requirements(self):
         if self.options.with_jit:
-            self.requires("asmjit/cci.20240531")
+            self.requires("asmjit/[>=cci.20240531]")
 
     def validate(self):
         check_min_cppstd(self, 11)

@@ -40,7 +40,7 @@ class FbgemmConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("asmjit/cci.20240531", transitive_headers=True, transitive_libs=True)
+        self.requires("asmjit/[>=cci.20240531]", transitive_headers=True, transitive_libs=True)
         self.requires("cpuinfo/[>=cci.20231129]", transitive_headers=True, transitive_libs=True)
         # Not used in any public headers
         self.requires("openmp/system")
