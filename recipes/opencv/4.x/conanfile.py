@@ -1236,6 +1236,24 @@ class OpenCVConan(ConanFile):
                         "")
         replace_in_file(self, install_layout_file, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
 
+        # Respect cppstd from Conan
+        replace_in_file(self, os.path.join("cmake", "OpenCVDetectCXXCompiler.cmake"),
+                        'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")', "")
+        if Version(self.version) <= "4.2":
+            replace_in_file(self, os.path.join("cmake", "OpenCVDetectCXXCompiler.cmake"),
+                            "set(CMAKE_CXX_STANDARD 11)", "")
+        for path, min_ver in [
+            ("cmake/OpenCVPluginStandalone.cmake", "4.5.2"),
+            ("modules/dnn/cmake/plugin.cmake", "4.7.0"),
+            ("modules/gapi/cmake/standalone.cmake", "4.1"),
+            ("modules/highgui/cmake/plugin.cmake", "4.5.3"),
+            ("modules/objc/generator/templates/cmakelists.template", "4.4.0"),
+            ("modules/videoio/cmake/plugin.cmake", "4.1"),
+            ("modules/videoio/cmake/plugin_standalone.cmake", "4.1"),
+        ]:
+            if Version(self.version) >= min_ver and os.path.exists(path):
+                replace_in_file(self, path, "CXX_STANDARD 11", "")
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["OPENCV_CONFIG_INSTALL_PATH"] = "cmake"
@@ -1245,7 +1263,7 @@ class OpenCVConan(ConanFile):
         tc.variables["OPENCV_OTHER_INSTALL_PATH"] = "res"
         tc.variables["OPENCV_LICENSES_INSTALL_PATH"] = "licenses"
 
-        tc.variables["OPENCV_SKIP_CMAKE_CXX_STANDARD"] = valid_min_cppstd(self, 11)
+        tc.variables["OPENCV_SKIP_CMAKE_CXX_STANDARD"] = True
 
         tc.variables["BUILD_CUDA_STUBS"] = False
         tc.variables["BUILD_DOCS"] = False
