@@ -19,35 +19,38 @@ class MicroserviceEssentials(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_tests": [True, False],
-        "with_examples": [True, False]
+        "tests": [True, False],
+        "examples": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_tests": False,
-        "with_examples": False
+        "tests": False,
+        "examples": False,
     }
     implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def build_requirements(self):
-        self.tool_requires("cmake/[>=3.16.3 <5]")
+    def package_id(self):
+        del self.info.options.tests
 
     def requirements(self):
-        if self.options.with_examples:
+        if self.options.examples:
             self.requires("cpp-httplib/0.14.1")
             self.requires("nlohmann_json/[^3]")
             self.requires("openssl/[>=3 <4]")
             self.requires("grpc/[^1.50.2]")
-        if self.options.with_tests:
-            self.requires("catch2/3.4.0")
-            self.requires("nlohmann_json/[^3]")
 
     def validate(self):
         check_min_cppstd(self, 17)
+
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.16.3 <5]")
+        if self.options.tests:
+            self.test_requires("catch2/3.4.0")
+            self.test_requires("nlohmann_json/[^3]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -60,8 +63,8 @@ class MicroserviceEssentials(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        tc.variables["BUILD_TESTING"] = self.options.with_tests
-        tc.variables["BUILD_EXAMPLES"] = self.options.with_examples
+        tc.variables["BUILD_TESTING"] = self.options.tests
+        tc.variables["BUILD_EXAMPLES"] = self.options.examples
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
