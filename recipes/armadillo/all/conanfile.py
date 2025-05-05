@@ -169,7 +169,7 @@ class ArmadilloConan(ConanFile):
         if self.options.use_hdf5 and Version(self.version) < "12":
             # Use the conan dependency if the system lib isn't being used
             # Libraries not required to be propagated transitively when the armadillo run-time wrapper is used
-            self.requires("hdf5/1.14.5", transitive_headers=True, transitive_libs=not self.options.use_wrapper)
+            self.requires("hdf5/[^1.8]", transitive_headers=True, transitive_libs=not self.options.use_wrapper)
 
         if self.options.use_blas == "openblas":
             # Libraries not required to be propagated transitively when the armadillo run-time wrapper is used

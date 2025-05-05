@@ -130,7 +130,7 @@ class OpenUSDConan(ConanFile):
         if self.options.with_alembic:
             self.requires("alembic/1.8.6")
             if self.options.with_hdf5:
-                self.requires("hdf5/1.14.5")
+                self.requires("hdf5/[^1.8]")
         if self.options.with_draco:
             self.requires("draco/1.5.6")
         if self.options.with_materialx:

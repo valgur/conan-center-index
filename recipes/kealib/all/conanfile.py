@@ -48,7 +48,7 @@ class KealibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("hdf5/1.14.5", transitive_headers=True, transitive_libs=True)
+        self.requires("hdf5/[^1.8]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

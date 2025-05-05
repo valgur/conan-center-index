@@ -72,7 +72,7 @@ class MetavisionSdkConan(ConanFile):
             self.requires("protobuf/3.21.12")
             if self.options.get_safe("with_hdf5"):
                 # hdf5_ecf/ecf_h5filter.h
-                self.requires("hdf5/1.14.5", transitive_headers=True)
+                self.requires("hdf5/[^1.8]", transitive_headers=True)
         if self.options.ui:
             # metavision/sdk/ui/utils/opengl_api.h
             self.requires("opengl/system", transitive_headers=True)

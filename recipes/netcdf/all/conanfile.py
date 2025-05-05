@@ -70,7 +70,7 @@ class NetcdfConan(ConanFile):
         if self.options.dap or self.options.byterange:
             self.requires("libcurl/[>=7.78.0 <9]")
         if self._with_hdf5:
-            self.requires("hdf5/[^1.8.15]")
+            self.requires("hdf5/[^1.8]")
         if self.options.with_szip:
             self.requires("szip/[^2.1]")
         if self.options.with_bz2:

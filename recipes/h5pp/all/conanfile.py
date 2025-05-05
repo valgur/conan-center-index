@@ -66,7 +66,7 @@ class H5ppConan(ConanFile):
             del self.options.with_quadmath
 
     def requirements(self):
-        self.requires("hdf5/1.14.5", transitive_headers=True, transitive_libs=True)
+        self.requires("hdf5/[^1.8]", transitive_headers=True, transitive_libs=True)
         if Version(self.version) < "1.10.0" or self.options.get_safe('with_eigen'):
             self.requires("eigen/3.4.0", transitive_headers=True)
         if Version(self.version) < "1.10.0" or self.options.get_safe('with_spdlog'):
