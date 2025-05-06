@@ -24,41 +24,41 @@ class ArrowConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "gandiva":  [True, False],
-        "parquet": ["auto", True, False],
+        "parquet": [True, False],
         "substrait": [True, False],
         "skyhook": [True, False],
         "acero": [True, False],
         "cli": [True, False],
-        "compute": ["auto", True, False],
-        "dataset_modules":  ["auto", True, False],
+        "compute": [True, False],
+        "dataset_modules":  [True, False],
         "deprecated": [True, False],
         "encryption": [True, False],
         "filesystem_layer":  [True, False],
         "hdfs_bridgs": [True, False],
         "plasma": [True, False, "deprecated"],
-        "simd_level": [None, "default", "sse4_2", "avx2", "avx512", "neon", ],
+        "simd_level": [None, "default", "sse4_2", "avx2", "avx512", "neon"],
         "runtime_simd_level": [None, "sse4_2", "avx2", "avx512", "max"],
         "with_backtrace": [True, False],
-        "with_boost": ["auto", True, False],
+        "with_boost": [True, False],
         "with_csv": [True, False],
         "with_cuda": [True, False],
-        "with_flight_rpc":  ["auto", True, False],
+        "with_flight_rpc":  [True, False],
         "with_flight_sql":  [True, False],
         "with_gcs": [True, False],
-        "with_gflags": ["auto", True, False],
-        "with_glog": ["auto", True, False],
-        "with_grpc": ["auto", True, False],
-        "with_jemalloc": ["auto", True, False],
+        "with_gflags": [True, False],
+        "with_glog": [True, False],
+        "with_grpc": [True, False],
+        "with_jemalloc": [True, False],
         "with_mimalloc": [True, False],
         "with_json": [True, False],
-        "with_thrift": ["auto", True, False],
-        "with_openssl": ["auto", True, False],
+        "with_thrift": [True, False],
+        "with_openssl": [True, False],
         "with_opentelemetry": [True, False],
         "with_orc": [True, False],
-        "with_protobuf": ["auto", True, False],
-        "with_re2": ["auto", True, False],
+        "with_protobuf": [True, False],
+        "with_re2": [True, False],
         "with_s3": [True, False],
-        "with_utf8proc": ["auto", True, False],
+        "with_utf8proc": [True, False],
         "with_brotli": [True, False],
         "with_bz2": [True, False],
         "with_lz4": [True, False],
@@ -196,13 +196,6 @@ class ArrowConan(ConanFile):
             self.requires("orc/[^2.0.0]")
 
     def validate(self):
-        # Do not allow options with 'auto' value
-        # TODO: Remove "auto" from the possible values for these options
-        auto_options = [option for option, value in self.options.items() if value == "auto"]
-        if auto_options:
-            raise ConanException("Options with value 'auto' are deprecated. Please set them true/false or use its default value."
-                                 f" Please change the following options: {auto_options}")
-
         # From https://github.com/conan-io/conan-center-index/pull/23163#issuecomment-2039808851
         if self.options.gandiva:
             if not self.options.with_re2:
