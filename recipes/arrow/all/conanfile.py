@@ -1,4 +1,3 @@
-import glob
 import os
 
 from conan import ConanFile
@@ -10,6 +9,7 @@ from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1.0"
+
 
 class ArrowConan(ConanFile):
     name = "arrow"
@@ -52,7 +52,6 @@ class ArrowConan(ConanFile):
         "with_mimalloc": [True, False],
         "with_json": [True, False],
         "with_thrift": ["auto", True, False],
-        "with_llvm": ["auto", True, False],
         "with_openssl": ["auto", True, False],
         "with_opentelemetry": [True, False],
         "with_orc": [True, False],
@@ -101,7 +100,6 @@ class ArrowConan(ConanFile):
         "with_grpc": False,
         "with_json": False,
         "with_thrift": True,
-        "with_llvm": False,
         "with_openssl": False,
         "with_opentelemetry": False,
         "with_orc": False,
@@ -115,12 +113,6 @@ class ArrowConan(ConanFile):
         "with_zstd": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        # arrow >= 10.0.0 requires C++17.
-        # https://github.com/apache/arrow/pull/13991
-        return "11" if Version(self.version) < "10.0.0" else "17"
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_cmake_project_include.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
@@ -128,8 +120,6 @@ class ArrowConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) < "8.0.0":
-            del self.options.substrait
         if is_msvc(self):
             self.options.with_boost = True
         if Version(self.version) >= "19.0.0":
@@ -142,51 +132,55 @@ class ArrowConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    @property
     def _requires_rapidjson(self):
         return self.options.with_json or self.options.encryption
 
+    @property
+    def _requires_xsimd(self):
+        return self.options.simd_level.value is not None or self.options.runtime_simd_level.value is not None
+
     def requirements(self):
         if self.options.with_thrift:
-            self.requires("thrift/0.20.0")
+            self.requires("thrift/[>=0.20.0 <1]")
         if self.options.with_protobuf:
-            self.requires("protobuf/3.21.12")
+            self.requires("protobuf/[>=3.21.12]")
         if self.options.with_jemalloc:
-            self.requires("jemalloc/5.3.0")
+            self.requires("jemalloc/[^5.3.0]")
         if self.options.with_mimalloc:
-            self.requires("mimalloc/1.7.6")
+            self.requires("mimalloc/[^1.7.6]")
         if self.options.with_boost:
             self.requires("boost/1.86.0")
         if self.options.with_gflags:
             self.requires("gflags/2.2.2")
         if self.options.with_glog:
-            self.requires("glog/[>=0.6 <0.7]")
+            if Version(self.version) >= "16.0":
+                self.requires("glog/[>=0.6.0 <1]")
+            else:
+                self.requires("glog/0.6.0")
         if self.options.get_safe("with_gcs"):
             self.requires("google-cloud-cpp/[^1.40.1]")
         if self.options.with_grpc:
             self.requires("grpc/[^1.50.2]")
-        if self._requires_rapidjson():
-            self.requires("rapidjson/1.1.0")
-        if self.options.with_llvm:
-            self.requires("llvm-core/13.0.0")
+        if self._requires_rapidjson:
+            self.requires("rapidjson/[^1.1.0]")
+        if self.options.gandiva:
+            self.requires("llvm-core/[>=19]")
         if self.options.with_openssl:
-            # aws-sdk-cpp requires openssl/1.1.1. it uses deprecated functions in openssl/3.0.0
-            if self.options.with_s3:
-                self.requires("openssl/1.1.1w")
-            else:
-                self.requires("openssl/[>=1.1 <4]")
+            self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_opentelemetry"):
-            self.requires("opentelemetry-cpp/1.7.0")
+            self.requires("opentelemetry-cpp/[^1.8.3]")
         if self.options.with_s3:
             self.requires("aws-sdk-cpp/[^1.9.234]", options={"config": True})
         if self.options.with_brotli:
-            self.requires("brotli/1.1.0")
+            self.requires("brotli/[^1.1.0]")
         if self.options.with_bz2:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_snappy:
             self.requires("snappy/[^1.1.9]")
-        if self.options.simd_level.value is not None or self.options.runtime_simd_level.value is not None:
+        if self._requires_xsimd:
             self.requires("xsimd/[^13.0.0]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
@@ -195,11 +189,11 @@ class ArrowConan(ConanFile):
         if self.options.with_re2:
             self.requires("re2/[>=20220601]")
         if self.options.with_utf8proc:
-            self.requires("utf8proc/2.8.0")
+            self.requires("utf8proc/[^2.8.0]")
         if self.options.with_backtrace:
-            self.requires("libbacktrace/cci.20210118")
+            self.requires("libbacktrace/[>=cci.20210118]")
         if self.options.with_orc:
-            self.requires("orc/2.0.0")
+            self.requires("orc/[^2.0.0]")
 
     def validate(self):
         # Do not allow options with 'auto' value
@@ -225,16 +219,7 @@ class ArrowConan(ConanFile):
         if self.options.with_flight_rpc and not self.options.with_protobuf:
             raise ConanException("'with_protobuf' option should be True when 'with_flight_rpc=True'")
 
-        check_min_cppstd(self, self._min_cppstd)
-
-        if (
-            Version(self.version) < "10.0.0"
-            and self.settings.compiler == "clang"
-            and Version(self.settings.compiler.version) < "3.9"
-        ):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++11, which needs at least clang-3.9"
-            )
+        check_min_cppstd(self, 17)
 
         if self.options.get_safe("skyhook", False):
             raise ConanInvalidConfiguration("CCI has no librados recipe (yet)")
@@ -254,22 +239,35 @@ class ArrowConan(ConanFile):
             raise ConanInvalidConfiguration("arrow:parquet requires arrow:with_thrift")
 
     def build_requirements(self):
-        if Version(self.version) >= "13.0.0":
-            self.tool_requires("cmake/[>=3.16 <5]")
+        self.tool_requires("cmake/[>=3.25 <5]")
+        if self.options.with_grpc:
+            self.tool_requires("grpc/<host_version>")
+        if self.options.gandiva and self.settings.compiler not in ["clang", "apple-clang"]:
+            # Needed for LLVM_LINK_EXECUTABLE
+            self.tool_requires("llvm-core/<host_version>")
+            # Needed for CLANG_EXECUTABLE
+            self.tool_requires("clang/[>=19]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            filename=f"apache-arrow-{self.version}.tar.gz", strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        if Version(self.version) < "21.0":
+            # Protobuf v30 and newer return std::string_view instead of char*.
+            # Backports https://github.com/apache/arrow/pull/46136
+            replace_in_file(self, "cpp/src/arrow/engine/substrait/serde.cc",
+                            "Message::descriptor()->full_name()",
+                            "std::string(Message::descriptor()->full_name())")
+            replace_in_file(self, "cpp/src/arrow/engine/substrait/expression_internal.cc",
+                            "value_desc->name()",
+                            "std::string(value_desc->name())")
+            replace_in_file(self, "cpp/src/arrow/engine/substrait/util_internal.cc",
+                            "value_desc->name()",
+                            "std::string(value_desc->name())")
 
     def generate(self):
         tc = CMakeToolchain(self)
         if cross_building(self):
-            cmake_system_processor = {
-                "armv8": "aarch64",
-                "armv8.3": "aarch64",
-            }.get(str(self.settings.arch), str(self.settings.arch))
-            if cmake_system_processor == "aarch64":
+            if self.settings.arch in ["armv8", "armv8.3"]:
                 tc.variables["ARROW_CPU_FLAG"] = "armv8"
         if is_msvc(self):
             tc.variables["ARROW_USE_STATIC_CRT"] = is_msvc_static_runtime(self)
@@ -370,41 +368,24 @@ class ArrowConan(ConanFile):
         tc.variables["utf8proc_SOURCE"] = "SYSTEM"
         if self.options.with_utf8proc:
             tc.variables["ARROW_UTF8PROC_USE_SHARED"] = bool(self.dependencies["utf8proc"].options.shared)
+        if self.options.gandiva:
+            tc.variables["LLVM_LINK_EXECUTABLE"] = "llvm-link"
+            if self.settings.compiler not in ["clang", "apple-clang"]:
+                tc.variables["CLANG_EXECUTABLE"] = "clang"
         tc.variables["BUILD_WARNING_LEVEL"] = "PRODUCTION"
         if is_msvc(self):
             tc.variables["ARROW_USE_STATIC_CRT"] = is_msvc_static_runtime(self)
-        if self.options.with_llvm:
-            tc.variables["LLVM_DIR"] = self.dependencies["llvm-core"].package_folder.replace("\\", "/")
 
         tc.cache_variables["CMAKE_PROJECT_arrow_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
         tc.generate()
 
         deps = CMakeDeps(self)
+        deps.set_property("llvm-core", "cmake_file_name", "LLVMAlt")
+        deps.set_property("llvm-core", "cmake_target_aliases", ["LLVM::LLVM_HEADERS", "LLVM::LLVM_LIBS"])
         deps.set_property("mimalloc", "cmake_target_name", "mimalloc::mimalloc")
         deps.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) < "10.0.0":
-            for filename in glob.glob(os.path.join(self.source_folder, "cpp", "cmake_modules", "Find*.cmake")):
-                if os.path.basename(filename) not in [
-                    "FindArrow.cmake",
-                    "FindArrowAcero.cmake",
-                    "FindArrowCUDA.cmake",
-                    "FindArrowDataset.cmake",
-                    "FindArrowFlight.cmake",
-                    "FindArrowFlightSql.cmake",
-                    "FindArrowFlightTesting.cmake",
-                    "FindArrowPython.cmake",
-                    "FindArrowPythonFlight.cmake",
-                    "FindArrowSubstrait.cmake",
-                    "FindArrowTesting.cmake",
-                    "FindGandiva.cmake",
-                    "FindParquet.cmake",
-                ]:
-                    os.remove(filename)
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "cpp"))
         cmake.build()
@@ -439,8 +420,6 @@ class ArrowConan(ConanFile):
             alias_map[f"ArrowFlight::arrow_flight_sql_{cmake_suffix}"] = f"arrow::arrow_flight_sql_{cmake_suffix}"
 
     def package_info(self):
-        # FIXME: fix CMake targets of components
-
         self.cpp_info.set_property("cmake_file_name", "Arrow")
 
         suffix = "_static" if is_msvc(self) and not self.options.shared else ""
@@ -459,6 +438,10 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libparquet"].set_property("cmake_target_name", f"Parquet::parquet_{cmake_suffix}")
             self.cpp_info.components["libparquet"].libs = [f"parquet{suffix}"]
             self.cpp_info.components["libparquet"].requires = ["libarrow"]
+            if self.options.with_re2:
+                self.cpp_info.components["libparquet"].requires.append("re2::re2")
+            if self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
+                self.cpp_info.components["libparquet"].requires.append("boost::filesystem")
             if not self.options.shared:
                 self.cpp_info.components["libparquet"].defines = ["PARQUET_STATIC"]
 
@@ -481,7 +464,15 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libgandiva"].set_property("pkg_config_name", "gandiva")
             self.cpp_info.components["libgandiva"].set_property("cmake_target_name", f"Gandiva::gandiva_{cmake_suffix}")
             self.cpp_info.components["libgandiva"].libs = [f"gandiva{suffix}"]
-            self.cpp_info.components["libgandiva"].requires = ["libarrow"]
+            self.cpp_info.components["libgandiva"].requires = ["libarrow", "llvm-core::llvm-core"]
+            if self.options.with_boost:
+                self.cpp_info.components["libgandiva"].requires.append("boost::headers")
+            if self.options.with_re2:
+                self.cpp_info.components["libgandiva"].requires.append("re2::re2")
+            if self.options.with_utf8proc:
+                self.cpp_info.components["libgandiva"].requires.append("utf8proc::utf8proc")
+            if Version(self.version) >= "16.0" and self._requires_xsimd:
+                self.cpp_info.components["libgandiva"].requires.append("xsimd::xsimd")
             if not self.options.shared:
                 self.cpp_info.components["libgandiva"].defines = ["GANDIVA_STATIC"]
 
@@ -508,13 +499,7 @@ class ArrowConan(ConanFile):
                 self.cpp_info.components["dataset"].requires = ["libacero"]
 
         if self.options.with_boost:
-            if self.options.gandiva:
-                # FIXME: only filesystem component is used
-                self.cpp_info.components["libgandiva"].requires.append("boost::boost")
-            if self.options.parquet and self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
-                self.cpp_info.components["libparquet"].requires.append("boost::boost")
-            # FIXME: only headers components is used
-            self.cpp_info.components["libarrow"].requires.append("boost::boost")
+            self.cpp_info.components["libarrow"].requires.append("boost::headers")
         if self.options.with_openssl:
             self.cpp_info.components["libarrow"].requires.append("openssl::openssl")
         if self.options.with_gflags:
@@ -525,14 +510,7 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow"].requires.append("jemalloc::jemalloc")
         if self.options.with_mimalloc:
             self.cpp_info.components["libarrow"].requires.append("mimalloc::mimalloc")
-        if self.options.with_re2:
-            if self.options.gandiva:
-                self.cpp_info.components["libgandiva"].requires.append("re2::re2")
-            if self.options.parquet:
-                self.cpp_info.components["libparquet"].requires.append("re2::re2")
             self.cpp_info.components["libarrow"].requires.append("re2::re2")
-        if self.options.with_llvm:
-            self.cpp_info.components["libgandiva"].requires.append("llvm-core::llvm-core")
         if self.options.with_protobuf:
             self.cpp_info.components["libarrow"].requires.append("protobuf::protobuf")
         if self.options.with_utf8proc:
@@ -543,7 +521,7 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow"].requires.append("libbacktrace::libbacktrace")
         if self.options.with_cuda:
             self.cpp_info.components["libarrow"].requires.append("cuda::cuda")
-        if self._requires_rapidjson():
+        if self._requires_rapidjson:
             self.cpp_info.components["libarrow"].requires.append("rapidjson::rapidjson")
         if self.options.with_s3:
             # https://github.com/apache/arrow/blob/6b268f62a8a172249ef35f093009c740c32e1f36/cpp/src/arrow/CMakeLists.txt#L98
@@ -562,7 +540,7 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow"].requires.append("lz4::lz4")
         if self.options.with_snappy:
             self.cpp_info.components["libarrow"].requires.append("snappy::snappy")
-        if self.options.simd_level.value is not None or self.options.runtime_simd_level.value is not None:
+        if self._requires_xsimd:
             self.cpp_info.components["libarrow"].requires.append("xsimd::xsimd")
         if self.options.with_zlib:
             self.cpp_info.components["libarrow"].requires.append("zlib::zlib")
