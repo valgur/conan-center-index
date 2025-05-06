@@ -101,19 +101,20 @@ class G2oConan(ConanFile):
         # Used in public core/eigen_types.h
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         # Used in stuff/logger.h
-        self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
+        self.requires("spdlog/[>=1.8]", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[>=5 <11]", transitive_headers=True, transitive_libs=True)
         if self.options.with_opengl:
             # Used in stuff/opengl_wrapper.h
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
-            self.requires("freeglut/3.4.0", transitive_headers=True, transitive_libs=True)
+            self.requires("freeglut/[^3.4.0]", transitive_headers=True, transitive_libs=True)
             self.requires("glu/system")
         if self.options.with_openmp:
             # Used in core/openmp_mutex.h, also '#pragma omp' is used in several core public headers
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_cholmod:
-            self.requires("suitesparse-cholmod/5.3.0")
+            self.requires("suitesparse-cholmod/[^5.3.0]")
         if self.options.with_csparse:
-            self.requires("suitesparse-cxsparse/4.4.1")
+            self.requires("suitesparse-cxsparse/[^4.4.1]")
 
         # TODO: optional dependencies
         # self.requires("qt/[~5.15]")
@@ -214,7 +215,7 @@ class G2oConan(ConanFile):
 
         # Core libraries
         self.cpp_info.components["g2o_ceres_ad"].set_property("cmake_target_name", "g2o::g2o_ceres_ad")
-        _add_component("stuff", requires=["spdlog::spdlog", "eigen::eigen"])
+        _add_component("stuff", requires=["spdlog::spdlog", "fmt::fmt", "eigen::eigen"])
         _add_component("core", requires=["stuff", "eigen::eigen", "g2o_ceres_ad"])
         if self.options.with_opengl:
             glu = "glu" if "glu" in self.dependencies else "mesa-glu"
