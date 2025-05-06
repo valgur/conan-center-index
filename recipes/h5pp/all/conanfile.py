@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
@@ -33,18 +32,6 @@ class H5ppConan(ConanFile):
         "with_quadmath": False
     }
 
-    @property
-    def _min_cppstd(self):
-        return "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7.4",
-            "clang": "6",
-            "apple-clang": "10",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -67,12 +54,12 @@ class H5ppConan(ConanFile):
 
     def requirements(self):
         self.requires("hdf5/[^1.8]", transitive_headers=True, transitive_libs=True)
-        if Version(self.version) < "1.10.0" or self.options.get_safe('with_eigen'):
+        if Version(self.version) < "1.10.0" or self.options.get_safe("with_eigen"):
             self.requires("eigen/3.4.0", transitive_headers=True)
-        if Version(self.version) < "1.10.0" or self.options.get_safe('with_spdlog'):
-            self.requires("spdlog/1.13.0", transitive_headers=True, transitive_libs=True)
+        if Version(self.version) < "1.10.0" or self.options.get_safe("with_spdlog"):
+            self.requires("spdlog/[>=1.8]", transitive_headers=True, transitive_libs=True)
         if Version(self.version) >= "1.10.0" and self.options.with_zlib:
-            self.requires("zlib/1.3", transitive_headers=True, transitive_libs=True)
+            self.requires("zlib/[^1.3]", transitive_headers=True, transitive_libs=True)
 
     def layout(self):
         basic_layout(self,src_folder="src")
@@ -81,17 +68,10 @@ class H5ppConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version:
-            if Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration("h5pp requires C++17, which your compiler does not support.")
-        else:
-            self.output.warning("h5pp requires C++17. Your compiler is unknown. Assuming it supports C++17.")
+        check_min_cppstd(self, 17)
 
     def source(self):
-        get(self,**self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(self,**self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def package(self):
@@ -99,8 +79,8 @@ class H5ppConan(ConanFile):
             includedir = os.path.join(self.source_folder, "h5pp", "include")
         else:
             includedir = os.path.join(self.source_folder, "include")
-        copy(self, pattern="*", src=includedir, dst=os.path.join(self.package_folder, "include"))
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "*", includedir, os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
 
 
     def package_info(self):
