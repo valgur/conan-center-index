@@ -1,0 +1,472 @@
+diff --git a/src/compiler/node_plugin.cc b/src/compiler/node_plugin.cc
+index 9334024e41399..f36f08c2beb48 100644
+--- a/src/compiler/node_plugin.cc
++++ b/src/compiler/node_plugin.cc
+@@ -19,6 +19,7 @@
+ // Generates Node gRPC service interface out of Protobuf IDL.
+ 
+ #include <memory>
++#include <string>
+ 
+ #include "src/compiler/config.h"
+ #include "src/compiler/node_generator.h"
+@@ -66,7 +67,7 @@ class NodeGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
+     }
+ 
+     // Get output file name
+-    std::string file_name = GetJSServiceFilename(file->name());
++    std::string file_name = GetJSServiceFilename(std::string(file->name()));
+ 
+     std::unique_ptr<grpc::protobuf::io::ZeroCopyOutputStream> output(
+         context->Open(file_name));
+diff --git a/src/compiler/cpp_generator_helpers.h b/src/compiler/cpp_generator_helpers.h
+index 28592ec87844d..1658ee6d18fd0 100644
+--- a/src/compiler/cpp_generator_helpers.h
++++ b/src/compiler/cpp_generator_helpers.h
+@@ -41,13 +41,13 @@ inline std::string ClassName(const grpc::protobuf::Descriptor* descriptor,
+   const grpc::protobuf::Descriptor* outer = descriptor;
+   while (outer->containing_type() != NULL) outer = outer->containing_type();
+ 
+-  const std::string& outer_name = outer->full_name();
+-  std::string inner_name = descriptor->full_name().substr(outer_name.size());
++  std::string outer_name(outer->full_name());
++  std::string inner_name(descriptor->full_name().substr(outer_name.size()));
+ 
+   if (qualified) {
+     return "::" + DotsToColons(outer_name) + DotsToUnderscores(inner_name);
+   } else {
+-    return outer->name() + DotsToUnderscores(inner_name);
++    return std::string(outer->name()) + DotsToUnderscores(inner_name);
+   }
+ }
+ 
+diff --git a/src/compiler/cpp_plugin.h b/src/compiler/cpp_plugin.h
+index 1e356e9421d69..70d2506f56382 100644
+--- a/src/compiler/cpp_plugin.h
++++ b/src/compiler/cpp_plugin.h
+@@ -136,7 +136,8 @@ class CppGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
+       }
+     }
+ 
+-    std::string file_name = grpc_generator::StripProto(file->name());
++    std::string file_name =
++        grpc_generator::StripProto(std::string(file->name()));
+ 
+     std::string header_code =
+         grpc_cpp_generator::GetHeaderPrologue(&pbfile, generator_parameters) +
+diff --git a/src/compiler/csharp_generator.cc b/src/compiler/csharp_generator.cc
+index 3df1fb21100b4..7f2f4982f02b4 100644
+--- a/src/compiler/csharp_generator.cc
++++ b/src/compiler/csharp_generator.cc
+@@ -189,15 +189,15 @@ void GenerateDocCommentClientMethod(grpc::protobuf::io::Printer* printer,
+ }
+ 
+ std::string GetServiceClassName(const ServiceDescriptor* service) {
+-  return service->name();
++  return std::string(service->name());
+ }
+ 
+ std::string GetClientClassName(const ServiceDescriptor* service) {
+-  return service->name() + "Client";
++  return std::string(service->name()) + "Client";
+ }
+ 
+ std::string GetServerClassName(const ServiceDescriptor* service) {
+-  return service->name() + "Base";
++  return std::string(service->name()) + "Base";
+ }
+ 
+ std::string GetCSharpMethodType(const MethodDescriptor* method) {
+@@ -236,11 +236,12 @@ std::string GetServiceNameFieldName() { return "__ServiceName"; }
+ 
+ std::string GetMarshallerFieldName(const Descriptor* message) {
+   return "__Marshaller_" +
+-         grpc_generator::StringReplace(message->full_name(), ".", "_", true);
++         grpc_generator::StringReplace(std::string(message->full_name()), ".",
++                                       "_", true);
+ }
+ 
+ std::string GetMethodFieldName(const MethodDescriptor* method) {
+-  return "__Method_" + method->name();
++  return "__Method_" + std::string(method->name());
+ }
+ 
+ std::string GetMethodRequestParamMaybe(const MethodDescriptor* method,
+@@ -588,7 +589,7 @@ void GenerateClientStub(Printer* out, const ServiceDescriptor* service) {
+       out->Print("}\n");
+     }
+ 
+-    std::string method_name = method->name();
++    std::string method_name(method->name());
+     if (!method->client_streaming() && !method->server_streaming()) {
+       method_name += "Async";  // prevent name clash with synchronous method.
+     }
+diff --git a/src/compiler/generator_helpers.h b/src/compiler/generator_helpers.h
+index 80649f38758a4..25932f6018471 100644
+--- a/src/compiler/generator_helpers.h
++++ b/src/compiler/generator_helpers.h
+@@ -127,7 +127,8 @@ inline std::string LowerUnderscoreToUpperCamel(std::string str) {
+ 
+ inline std::string FileNameInUpperCamel(
+     const grpc::protobuf::FileDescriptor* file, bool include_package_path) {
+-  std::vector<std::string> tokens = tokenize(StripProto(file->name()), "/");
++  std::vector<std::string> tokens =
++      tokenize(StripProto(std::string(file->name())), "/");
+   std::string result = "";
+   if (include_package_path) {
+     for (unsigned int i = 0; i < tokens.size() - 1; i++) {
+diff --git a/src/compiler/node_generator.cc b/src/compiler/node_generator.cc
+index 8c9f0263087c0..795b3f34bc54d 100644
+--- a/src/compiler/node_generator.cc
++++ b/src/compiler/node_generator.cc
+@@ -101,8 +101,8 @@ map<std::string, const Descriptor*> GetAllMessages(const FileDescriptor* file) {
+       const MethodDescriptor* method = service->method(method_num);
+       const Descriptor* input_type = method->input_type();
+       const Descriptor* output_type = method->output_type();
+-      message_types[input_type->full_name()] = input_type;
+-      message_types[output_type->full_name()] = output_type;
++      message_types[std::string(input_type->full_name())] = input_type;
++      message_types[std::string(output_type->full_name())] = output_type;
+     }
+   }
+   return message_types;
+@@ -113,9 +113,11 @@ std::string MessageIdentifierName(const std::string& name) {
+ }
+ 
+ std::string NodeObjectPath(const Descriptor* descriptor) {
+-  std::string module_alias = ModuleAlias(descriptor->file()->name());
+-  std::string name = descriptor->full_name();
+-  grpc_generator::StripPrefix(&name, descriptor->file()->package() + ".");
++  std::string module_alias =
++      ModuleAlias(std::string(descriptor->file()->name()));
++  std::string name(descriptor->full_name());
++  grpc_generator::StripPrefix(&name,
++                              std::string(descriptor->file()->package()) + ".");
+   return module_alias + "." + name;
+ }
+ 
+@@ -123,7 +125,7 @@ std::string NodeObjectPath(const Descriptor* descriptor) {
+ void PrintMessageTransformer(const Descriptor* descriptor, Printer* out,
+                              const Parameters& params) {
+   map<std::string, std::string> template_vars;
+-  std::string full_name = descriptor->full_name();
++  std::string full_name(descriptor->full_name());
+   template_vars["identifier_name"] = MessageIdentifierName(full_name);
+   template_vars["name"] = full_name;
+   template_vars["node_name"] = NodeObjectPath(descriptor);
+@@ -163,9 +165,11 @@ void PrintMethod(const MethodDescriptor* method, Printer* out) {
+   vars["service_name"] = method->service()->full_name();
+   vars["name"] = method->name();
+   vars["input_type"] = NodeObjectPath(input_type);
+-  vars["input_type_id"] = MessageIdentifierName(input_type->full_name());
++  vars["input_type_id"] =
++      MessageIdentifierName(std::string(input_type->full_name()));
+   vars["output_type"] = NodeObjectPath(output_type);
+-  vars["output_type_id"] = MessageIdentifierName(output_type->full_name());
++  vars["output_type_id"] =
++      MessageIdentifierName(std::string(output_type->full_name()));
+   vars["client_stream"] = method->client_streaming() ? "true" : "false";
+   vars["server_stream"] = method->server_streaming() ? "true" : "false";
+   out->Print("{\n");
+@@ -191,8 +195,8 @@ void PrintService(const ServiceDescriptor* service, Printer* out) {
+   out->Print(template_vars, "var $name$Service = exports.$name$Service = {\n");
+   out->Indent();
+   for (int i = 0; i < service->method_count(); i++) {
+-    std::string method_name =
+-        grpc_generator::LowercaseFirstLetter(service->method(i)->name());
++    std::string method_name = grpc_generator::LowercaseFirstLetter(
++        std::string(service->method(i)->name()));
+     out->Print(GetNodeComments(service->method(i), true).c_str());
+     out->Print("$method_name$: ", "method_name", method_name);
+     PrintMethod(service->method(i), out);
+@@ -211,17 +215,19 @@ void PrintImports(const FileDescriptor* file, Printer* out) {
+   out->Print("var grpc = require('grpc');\n");
+   if (file->message_type_count() > 0) {
+     std::string file_path =
+-        GetRelativePath(file->name(), GetJSMessageFilename(file->name()));
++        GetRelativePath(std::string(file->name()),
++                        GetJSMessageFilename(std::string(file->name())));
+     out->Print("var $module_alias$ = require('$file_path$');\n", "module_alias",
+-               ModuleAlias(file->name()), "file_path", file_path);
++               ModuleAlias(std::string(file->name())), "file_path", file_path);
+   }
+ 
+   for (int i = 0; i < file->dependency_count(); i++) {
+     std::string file_path = GetRelativePath(
+-        file->name(), GetJSMessageFilename(file->dependency(i)->name()));
++        std::string(file->name()),
++        GetJSMessageFilename(std::string(file->dependency(i)->name())));
+     out->Print("var $module_alias$ = require('$file_path$');\n", "module_alias",
+-               ModuleAlias(file->dependency(i)->name()), "file_path",
+-               file_path);
++               ModuleAlias(std::string(file->dependency(i)->name())),
++               "file_path", file_path);
+   }
+   out->Print("\n");
+ }
+diff --git a/src/compiler/objective_c_generator.cc b/src/compiler/objective_c_generator.cc
+index 530dfddedf571..06ab1fd066f40 100644
+--- a/src/compiler/objective_c_generator.cc
++++ b/src/compiler/objective_c_generator.cc
+@@ -386,9 +386,9 @@ ::std::string GetSource(const ServiceDescriptor* service,
+     Printer printer(&output_stream, '$');
+ 
+     map< ::std::string, ::std::string> vars = {
+-        {"service_name", service->name()},
++        {"service_name", std::string(service->name())},
+         {"service_class", ServiceClassName(service)},
+-        {"package", service->file()->package()}};
++        {"package", std::string(service->file()->package())}};
+ 
+     printer.Print(vars,
+                   "@implementation $service_class$\n\n"
+diff --git a/src/compiler/objective_c_generator_helpers.h b/src/compiler/objective_c_generator_helpers.h
+index 1337863f9dd84..0b390b5ec320b 100644
+--- a/src/compiler/objective_c_generator_helpers.h
++++ b/src/compiler/objective_c_generator_helpers.h
+@@ -42,7 +42,7 @@ inline ::std::string ServiceClassName(const ServiceDescriptor* service) {
+   const FileDescriptor* file = service->file();
+   ::std::string prefix =
+       google::protobuf::compiler::objectivec::FileClassPrefix(file);
+-  ::std::string class_name = service->name();
++  ::std::string class_name(service->name());
+   // We add the prefix in the cases where the string is missing a prefix.
+   // We define "missing a prefix" as where 'input':
+   // a) Doesn't start with the prefix or
+diff --git a/src/compiler/objective_c_plugin.cc b/src/compiler/objective_c_plugin.cc
+index 1d886fcf1d59a..250df04220d25 100644
+--- a/src/compiler/objective_c_plugin.cc
++++ b/src/compiler/objective_c_plugin.cc
+@@ -181,7 +181,7 @@ class ObjectiveCGrpcGenerator : public grpc::protobuf::compiler::CodeGenerator {
+     ::std::string file_header =
+         "// Code generated by gRPC proto compiler.  DO NOT EDIT!\n"
+         "// source: " +
+-        file->name() + "\n\n";
++        ::std::string(file->name()) + "\n\n";
+ 
+     {
+       // Generate .pbrpc.h
+diff --git a/src/compiler/php_generator.cc b/src/compiler/php_generator.cc
+index 338b5b602cf7d..d298d6fb86fbe 100644
+--- a/src/compiler/php_generator.cc
++++ b/src/compiler/php_generator.cc
+@@ -50,7 +50,7 @@ std::string PackageName(const FileDescriptor* file) {
+   if (file->options().has_php_namespace()) {
+     return file->options().php_namespace();
+   } else {
+-    return ConvertToPhpNamespace(file->package());
++    return ConvertToPhpNamespace(std::string(file->package()));
+   }
+ }
+ 
+diff --git a/src/compiler/php_generator_helpers.h b/src/compiler/php_generator_helpers.h
+index 9ae69682d808d..937e729cb6219 100644
+--- a/src/compiler/php_generator_helpers.h
++++ b/src/compiler/php_generator_helpers.h
+@@ -29,7 +29,7 @@ namespace grpc_php_generator {
+ inline std::string GetPHPServiceClassname(
+     const grpc::protobuf::ServiceDescriptor* service,
+     const std::string& class_suffix, bool is_server) {
+-  return service->name() +
++  return std::string(service->name()) +
+          (class_suffix == "" ? (is_server ? "" : "Client") : class_suffix) +
+          (is_server ? "Stub" : "");
+ }
+@@ -54,7 +54,7 @@ inline std::string GetPHPServiceFilename(
+     oss << ReplaceAll(file->options().php_namespace(), "\\", "/");
+   } else {
+     std::vector<std::string> tokens =
+-        grpc_generator::tokenize(file->package(), ".");
++        grpc_generator::tokenize(std::string(file->package()), ".");
+     for (unsigned int i = 0; i < tokens.size(); i++) {
+       oss << (i == 0 ? "" : "/")
+           << grpc_generator::CapitalizeFirstLetter(tokens[i]);
+diff --git a/src/compiler/protobuf_plugin.h b/src/compiler/protobuf_plugin.h
+index 0a7aa4141c2bb..0441f02b39c7a 100644
+--- a/src/compiler/protobuf_plugin.h
++++ b/src/compiler/protobuf_plugin.h
+@@ -39,7 +39,7 @@ class ProtoBufMethod : public grpc_generator::Method {
+   ProtoBufMethod(const grpc::protobuf::MethodDescriptor* method)
+       : method_(method) {}
+ 
+-  std::string name() const { return method_->name(); }
++  std::string name() const { return std::string(method_->name()); }
+ 
+   std::string input_type_name() const {
+     return grpc_cpp_generator::ClassName(method_->input_type(), true);
+@@ -49,10 +49,10 @@ class ProtoBufMethod : public grpc_generator::Method {
+   }
+ 
+   std::string get_input_type_name() const {
+-    return method_->input_type()->file()->name();
++    return std::string(method_->input_type()->file()->name());
+   }
+   std::string get_output_type_name() const {
+-    return method_->output_type()->file()->name();
++    return std::string(method_->output_type()->file()->name());
+   }
+ 
+   // TODO(https://github.com/grpc/grpc/issues/18800): Clean this up.
+@@ -107,7 +107,7 @@ class ProtoBufService : public grpc_generator::Service {
+   ProtoBufService(const grpc::protobuf::ServiceDescriptor* service)
+       : service_(service) {}
+ 
+-  std::string name() const { return service_->name(); }
++  std::string name() const { return std::string(service_->name()); }
+ 
+   int method_count() const { return service_->method_count(); }
+   std::unique_ptr<const grpc_generator::Method> method(int i) const {
+@@ -155,12 +155,12 @@ class ProtoBufFile : public grpc_generator::File {
+  public:
+   ProtoBufFile(const grpc::protobuf::FileDescriptor* file) : file_(file) {}
+ 
+-  std::string filename() const { return file_->name(); }
++  std::string filename() const { return std::string(file_->name()); }
+   std::string filename_without_ext() const {
+     return grpc_generator::StripProto(filename());
+   }
+ 
+-  std::string package() const { return file_->package(); }
++  std::string package() const { return std::string(file_->package()); }
+   std::vector<std::string> package_parts() const {
+     return grpc_generator::tokenize(package(), ".");
+   }
+@@ -194,7 +194,7 @@ class ProtoBufFile : public grpc_generator::File {
+     vector<std::string> proto_names;
+     for (int i = 0; i < file_->dependency_count(); ++i) {
+       const auto& dep = *file_->dependency(i);
+-      proto_names.push_back(dep.name());
++      proto_names.emplace_back(dep.name());
+     }
+     return proto_names;
+   }
+diff --git a/src/compiler/python_generator.cc b/src/compiler/python_generator.cc
+index 5d88a722d0690..6213b32527833 100644
+--- a/src/compiler/python_generator.cc
++++ b/src/compiler/python_generator.cc
+@@ -957,8 +957,8 @@
+   static const int proto_suffix_length = strlen(".proto");
+   if (file->name().size() > static_cast<size_t>(proto_suffix_length) &&
+       file->name().find_last_of(".proto") == file->name().size() - 1) {
+-    std::string base =
+-        file->name().substr(0, file->name().size() - proto_suffix_length);
++    std::string base(
++        file->name().substr(0, file->name().size() - proto_suffix_length));
+     std::replace(base.begin(), base.end(), '-', '_');
+     pb2_file_name = base + "_pb2.py";
+     pb2_grpc_file_name = base + "_pb2_grpc.py";
+
+diff --git a/src/compiler/python_generator_helpers.h b/src/compiler/python_generator_helpers.h
+index 8a5d745432039..6162fdc129c85 100644
+--- a/src/compiler/python_generator_helpers.h
++++ b/src/compiler/python_generator_helpers.h
+@@ -100,7 +100,7 @@
+     message_path.push_back(path_elem_type);
+     path_elem_type = path_elem_type->containing_type();
+   } while (path_elem_type);  // implicit nullptr comparison; don't be explicit
+-  std::string file_name = type->file()->name();
++  std::string file_name(type->file()->name());
+   static const int proto_suffix_length = strlen(".proto");
+   if (!(file_name.size() > static_cast<size_t>(proto_suffix_length) &&
+         file_name.find_last_of(".proto") == file_name.size() - 1)) {
+@@ -116,7 +116,7 @@
+   std::string message_type;
+   for (DescriptorVector::reverse_iterator path_iter = message_path.rbegin();
+        path_iter != message_path.rend(); ++path_iter) {
+-    message_type += (*path_iter)->name() + ".";
++    message_type += std::string((*path_iter)->name()) + ".";
+   }
+   // no pop_back prior to C++11
+   message_type.resize(message_type.size() - 1);
+diff --git a/src/compiler/ruby_generator.cc b/src/compiler/ruby_generator.cc
+index b1edc7c618975..1aac6adc8fefe 100644
+--- a/src/compiler/ruby_generator.cc
++++ b/src/compiler/ruby_generator.cc
+@@ -50,7 +50,7 @@ void PrintMethod(const MethodDescriptor* method, Printer* out) {
+   }
+   std::map<std::string, std::string> method_vars = ListToDict({
+       "mth.name",
+-      method->name(),
++      std::string(method->name()),
+       "input.type",
+       input_type,
+       "output.type",
+@@ -70,7 +70,7 @@ void PrintService(const ServiceDescriptor* service, Printer* out) {
+   // Begin the service module
+   std::map<std::string, std::string> module_vars = ListToDict({
+       "module.name",
+-      Modularize(service->name()),
++      Modularize(std::string(service->name())),
+   });
+   out->Print(module_vars, "module $module.name$\n");
+   out->Indent();
+@@ -86,7 +86,7 @@ void PrintService(const ServiceDescriptor* service, Printer* out) {
+   out->Print("self.marshal_class_method = :encode\n");
+   out->Print("self.unmarshal_class_method = :decode\n");
+   std::map<std::string, std::string> pkg_vars =
+-      ListToDict({"service_full_name", service->full_name()});
++      ListToDict({"service_full_name", std::string(service->full_name())});
+   out->Print(pkg_vars, "self.service_name = '$service_full_name$'\n");
+   out->Print("\n");
+   for (int i = 0; i < service->method_count(); ++i) {
+@@ -191,7 +191,7 @@ std::string GetServices(const FileDescriptor* file) {
+     // Write out a file header.
+     std::map<std::string, std::string> header_comment_vars = ListToDict({
+         "file.name",
+-        file->name(),
++        std::string(file->name()),
+         "file.package",
+         package_name,
+     });
+diff --git a/src/compiler/ruby_generator_helpers-inl.h b/src/compiler/ruby_generator_helpers-inl.h
+index bb919439d5589..3d2d9bcc7886b 100644
+--- a/src/compiler/ruby_generator_helpers-inl.h
++++ b/src/compiler/ruby_generator_helpers-inl.h
+@@ -31,9 +31,9 @@ inline bool ServicesFilename(const grpc::protobuf::FileDescriptor* file,
+   static const unsigned proto_suffix_length = 6;  // length of ".proto"
+   if (file->name().size() > proto_suffix_length &&
+       file->name().find_last_of(".proto") == file->name().size() - 1) {
+-    *file_name_or_error =
+-        file->name().substr(0, file->name().size() - proto_suffix_length) +
+-        "_services_pb.rb";
++    *file_name_or_error = std::string(file->name().substr(
++                              0, file->name().size() - proto_suffix_length)) +
++                          "_services_pb.rb";
+     return true;
+   } else {
+     *file_name_or_error = "Invalid proto file name:  must end with .proto";
+@@ -43,7 +43,7 @@ inline bool ServicesFilename(const grpc::protobuf::FileDescriptor* file,
+ 
+ inline std::string MessagesRequireName(
+     const grpc::protobuf::FileDescriptor* file) {
+-  return Replace(file->name(), ".proto", "_pb");
++  return Replace(std::string(file->name()), ".proto", "_pb");
+ }
+ 
+ // Get leading or trailing comments in a string. Comment lines start with "# ".
+diff --git a/src/compiler/ruby_generator_string-inl.h b/src/compiler/ruby_generator_string-inl.h
+index 20cf0902cc77d..207c4984bfaa6 100644
+--- a/src/compiler/ruby_generator_string-inl.h
++++ b/src/compiler/ruby_generator_string-inl.h
+@@ -104,7 +104,7 @@ inline std::string Modularize(std::string s) {
+ 
+ // RubyPackage gets the ruby package in either proto or ruby_package format
+ inline std::string RubyPackage(const grpc::protobuf::FileDescriptor* file) {
+-  std::string package_name = file->package();
++  std::string package_name(file->package());
+   if (file->options().has_ruby_package()) {
+     package_name = file->options().ruby_package();
+ 
+@@ -119,10 +119,10 @@ inline std::string RubyPackage(const grpc::protobuf::FileDescriptor* file) {
+ 
+ // RubyTypeOf updates a proto type to the required ruby equivalent.
+ inline std::string RubyTypeOf(const grpc::protobuf::Descriptor* descriptor) {
+-  std::string proto_type = descriptor->full_name();
++  std::string proto_type(descriptor->full_name());
+   if (descriptor->file()->options().has_ruby_package()) {
+     // remove the leading package if present
+-    ReplacePrefix(&proto_type, descriptor->file()->package(), "");
++    ReplacePrefix(&proto_type, std::string(descriptor->file()->package()), "");
+     ReplacePrefix(&proto_type, ".", "");  // remove the leading . (no package)
+     proto_type = RubyPackage(descriptor->file()) + "." + proto_type;
+   }

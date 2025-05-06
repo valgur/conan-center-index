@@ -18,6 +18,20 @@ sources:
     url: "https://github.com/grpc/grpc/archive/v1.50.2.tar.gz"
     sha256: "e941752638a92f21e27566903e1eb9b4a6380d70ca5ce91116b4cff6cb8fe2f2"
 patches:
+  "1.67.1":
+    - patch_file: "patches/1.67.1/003-protobuf-v30-support.patch"
+      patch_description: "Add support for Protobuf x.30 and newer versions"
+      patch_type: "backport"
+      patch_source:
+        - "https://github.com/grpc/grpc/commit/852ecf7176c904374c2d80d035bad00ff4c28d67"
+        - "https://github.com/grpc/grpc/commit/dfdda9eb9d308640ea6947f3ad16c86d7b89d7fd"
+  "1.65.5":
+    - patch_file: "patches/1.65.5/003-protobuf-v30-support.patch"
+      patch_description: "Add support for Protobuf x.30 and newer versions"
+      patch_type: "backport"
+      patch_source:
+        - "https://github.com/grpc/grpc/commit/852ecf7176c904374c2d80d035bad00ff4c28d67"
+        - "https://github.com/grpc/grpc/commit/dfdda9eb9d308640ea6947f3ad16c86d7b89d7fd"
   "1.54.3":
     - patch_file: "patches/v1.50.x/002-CMake-Add-gRPC_USE_SYSTEMD-option-34384.patch"
       patch_type: "backport"
