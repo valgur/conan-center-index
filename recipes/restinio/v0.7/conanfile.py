@@ -1,11 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -36,12 +34,12 @@ class RestinioConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("llhttp/9.1.3")
-        self.requires("fmt/[^10.2.1]")
-        self.requires("expected-lite/0.6.3")
+        self.requires("llhttp/[^9.1.3]")
+        self.requires("fmt/[^5]")
+        self.requires("expected-lite/[>=0.6.3 <1]")
 
         if self.options.asio == "standalone":
-            self.requires("asio/1.29.0")
+            self.requires("asio/[^1.28.0]")
         else:
             self.requires("boost/1.86.0")
 
@@ -52,7 +50,7 @@ class RestinioConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
 
         if self.options.with_pcre == 1:
-            self.requires("pcre/8.45")
+            self.requires("pcre/[^8.45]")
         elif self.options.with_pcre == 2:
             self.requires("pcre2/[^10.42]")
 
@@ -60,42 +58,19 @@ class RestinioConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        minimal_cpp_standard = "17"
-        check_min_cppstd(self, minimal_cpp_standard)
-
-        minimal_version = {
-            "gcc": "9",
-            "clang": "10",
-            "apple-clang": "11",
-            "msvc": "191"
-        }
-
-        compiler = str(self.settings.compiler)
-        if compiler not in minimal_version:
-            self.output.warning(
-                "%s recipe lacks information about the %s compiler standard version support" % (self.name, compiler))
-            self.output.warning(
-                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
-            return
-
-        version = Version(self.settings.compiler.version)
-        if version < minimal_version[compiler]:
-            raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
-
-    def build(self):
-        pass
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "*.*pp", src=os.path.join(self.source_folder, "dev", "restinio"), dst=os.path.join(self.package_folder, "include", "restinio"))
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
         self.cpp_info.set_property("cmake_file_name", "restinio")
         self.cpp_info.set_property("cmake_target_name", "restinio::restinio")
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
         if self.options.asio == "boost":
             self.cpp_info.defines.append("RESTINIO_USE_BOOST_ASIO")
