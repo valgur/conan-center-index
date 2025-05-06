@@ -52,7 +52,7 @@ class GoogleAPIS(ConanFile):
 
     def requirements(self):
         # https://github.com/conan-io/conan-center-index/pull/15601#issuecomment-1493086506
-        self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
+        self.requires("protobuf/[>=3.21.12]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
