@@ -74,36 +74,15 @@ class SpdlogConan(ConanFile):
         if self.info.options.header_only:
             self.info.clear()
 
-    @property
-    def _std_fmt_compilers_minimum_version(self):
-        return {
-            "gcc": "13",
-            "clang": "14",
-            "apple-clang": "15",
-            "msvc": "192",
-        }
-
     def validate(self):
-        if self.options.get_safe("use_std_fmt"):
-            check_min_cppstd(self, 20)
-        else:
-            check_min_cppstd(self, 11)
+        check_min_cppstd(self, 20 if self.options.get_safe("use_std_fmt") else 11)
         if self.options.get_safe("shared") and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration("Visual Studio build for shared library with MT runtime is not supported")
-
-        if self.options.get_safe("use_std_fmt"):
-            compiler_name = str(self.settings.compiler)
-            minimum_version = self._std_fmt_compilers_minimum_version.get(compiler_name, False)
-            if not minimum_version:
-                self.output.warning(f"{self.name} recipe lacks information about the {compiler_name} compiler support.")
-            elif Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} using std::fmt requires std::fmt, which your compiler does not support."
-                )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, os.path.join(self.source_folder, "cmake", "utils.cmake"), "/WX", "")
 
     def generate(self):
         if not self.options.header_only:
@@ -134,7 +113,6 @@ class SpdlogConan(ConanFile):
 
 
     def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "utils.cmake"), "/WX", "")
         # This is properly set in later versions
         if self.options.get_safe("use_std_fmt") and Version(self.version) < "1.12":
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),

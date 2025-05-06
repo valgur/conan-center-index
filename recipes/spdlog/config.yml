@@ -1,11 +1,7 @@
 versions:
   "1.15.1":
     folder: "all"
-  "1.15.0":
-    folder: "all"
   "1.14.1":
-    folder: "all"
-  "1.14.0":
     folder: "all"
   "1.13.0":
     folder: "all"
@@ -16,8 +12,6 @@ versions:
   "1.10.0":
     folder: "all"
   "1.9.2":
-    folder: "all"
-  "1.9.1":
     folder: "all"
   "1.8.5":
     folder: "all"
