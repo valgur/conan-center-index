@@ -35,7 +35,6 @@ class ArrowConan(ConanFile):
         "encryption": [True, False],
         "filesystem_layer":  [True, False],
         "hdfs_bridgs": [True, False],
-        "plasma": [True, False, "deprecated"],
         "simd_level": [None, "default", "sse4_2", "avx2", "avx512", "neon"],
         "runtime_simd_level": [None, "sse4_2", "avx2", "avx512", "max"],
         "with_backtrace": [True, False],
@@ -81,7 +80,6 @@ class ArrowConan(ConanFile):
         "encryption": False,
         "filesystem_layer": True,
         "hdfs_bridgs": False,
-        "plasma": "deprecated",
         "simd_level": "default",
         "runtime_simd_level": "max",
         "with_backtrace": False,
@@ -446,9 +444,6 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow_substrait"].set_property("cmake_target_name", f"Arrow::arrow_substrait_{cmake_suffix}")
             self.cpp_info.components["libarrow_substrait"].libs = [f"arrow_substrait{suffix}"]
             self.cpp_info.components["libarrow_substrait"].requires = ["libparquet", "dataset"]
-
-        # Plasma was deprecated in Arrow 12.0.0
-        del self.options.plasma
 
         if self.options.acero:
             self.cpp_info.components["libacero"].set_property("pkg_config_name", "acero")
