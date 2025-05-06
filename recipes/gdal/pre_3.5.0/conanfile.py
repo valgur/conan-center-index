@@ -291,7 +291,7 @@ class GdalConan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.with_geos:
-            self.requires("geos/3.11.1")
+            self.requires("geos/[^3.11.1]")
         # if self.options.with_sfcgal:
         #     self.requires("sfcgal/1.3.7")
         if self.options.with_qhull:

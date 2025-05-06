@@ -211,7 +211,7 @@ class GdalConan(ConanFile):
         if self.options.with_freexl:
             self.requires("freexl/2.0.0")
         if self.options.with_geos:
-            self.requires("geos/3.12.0")
+            self.requires("geos/[^3.12.0]")
         if self.options.with_gif:
             self.requires("giflib/[^5.2.1]")
         if self.options.with_gta:

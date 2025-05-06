@@ -59,7 +59,7 @@ class LibosmiumConan(ConanFile):
         if self.options.pbf or self.options.xml:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.geos:
-            self.requires("geos/3.12.0")
+            self.requires("geos/[^3.12.0]")
         if self.options.gdal:
             self.requires("gdalcpp/1.3.0")
         if self.options.proj:

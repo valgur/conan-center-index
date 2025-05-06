@@ -131,7 +131,7 @@ class OsgearthConan(ConanFile):
             self.requires("duktape/2.7.0")
         if self.options.with_geos:
             # https://github.com/gwaldron/osgearth/blob/osgearth-3.6/src/osgEarth/GEOS#L32
-            self.requires("geos/3.12.0", transitive_headers=True, transitive_libs=True)
+            self.requires("geos/[^3.12.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_imgui:
             # TODO: unvendor
             # self.requires("imgui/1.90.2")
