@@ -219,7 +219,7 @@ class GStPluginsBadConan(ConanFile):
         if "libfdk_aac" in reqs:
             self.requires("libfdk_aac/2.0.3")
         if "google-cloud-cpp" in reqs:
-            self.requires("google-cloud-cpp/2.28.0")
+            self.requires("google-cloud-cpp/[^2]")
         if "gtk" in reqs:
             self.requires("gtk/[^3.24]")
         if "json-glib" in reqs:

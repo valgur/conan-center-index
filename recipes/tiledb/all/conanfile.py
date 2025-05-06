@@ -114,7 +114,7 @@ class TileDBConan(ConanFile):
         if self.options.azure:
             self.requires("azure-sdk-for-cpp/1.11.3")
         if self.options.gcs:
-            self.requires("google-cloud-cpp/2.28.0")
+            self.requires("google-cloud-cpp/[^2]")
         if self.options.serialization:
             self.requires("capnproto/1.0.2")
             self.requires("libcurl/[>=7.78 <9]")

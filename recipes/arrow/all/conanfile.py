@@ -161,7 +161,7 @@ class ArrowConan(ConanFile):
         if self.options.with_glog:
             self.requires("glog/[>=0.6 <0.7]")
         if self.options.get_safe("with_gcs"):
-            self.requires("google-cloud-cpp/1.40.1")
+            self.requires("google-cloud-cpp/[^1.40.1]")
         if self.options.with_grpc:
             self.requires("grpc/[^1.50.2]")
         if self._requires_rapidjson():
