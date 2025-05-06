@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 
@@ -32,7 +32,7 @@ class StellaVslamConan(ConanFile):
         "fPIC": True,
         "build_iridescence_viewer": False,
         "build_pangolin_viewer": False,
-        "build_socket_viewer": True,
+        "build_socket_viewer": False,
         "with_gtsam": True,
     }
 
@@ -56,30 +56,30 @@ class StellaVslamConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
-        self.requires("g2o/20230806", transitive_headers=True, transitive_libs=True)
+        self.requires("g2o/[>=20230806]", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
         self.requires("nlohmann_json/[^3]", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True, options={
             "highgui": True,
             "videoio": True,
         })
-        self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
+        self.requires("spdlog/[^1.8]", transitive_headers=True, transitive_libs=True)
         self.requires("sqlite3/[>=3.45.0 <4]", transitive_headers=True, transitive_libs=True)
-        self.requires("stella-cv-fbow/cci.20240508", transitive_headers=True, transitive_libs=True)
-        self.requires("tinycolormap/cci.20230223", transitive_headers=True, transitive_libs=True)
-        self.requires("yaml-cpp/0.8.0", transitive_headers=True, transitive_libs=True)
+        self.requires("stella-cv-fbow/[>=cci.20240508]", transitive_headers=True, transitive_libs=True)
+        self.requires("tinycolormap/[>=cci.20230223]", transitive_headers=True, transitive_libs=True)
+        self.requires("yaml-cpp/[>=0.8.0 <1]", transitive_headers=True, transitive_libs=True)
         if self.options.with_gtsam:
-            self.requires("gtsam/4.2", transitive_headers=True, transitive_libs=True)
+            self.requires("gtsam/[^4.2]", transitive_headers=True, transitive_libs=True)
 
         # TODO: add support for viewers
         if self.options.build_iridescence_viewer:
-            self.requires("iridescence/0.1.3")
+            self.requires("iridescence/[>=0.1.3 <1]")
         if self.options.build_pangolin_viewer:
-            self.requires("pangolin/0.9.1")
+            self.requires("pangolin/[>=0.9.1 <1]")
         if self.options.build_socket_viewer:
             self.requires("protobuf/[>=3.21.12]")
             # TODO: add socket.io-client-cpp to CCI
-            self.requires("socket.io-client-cpp/3.1.0")
+            self.requires("socket.io-client-cpp/[^3.1.0]")
 
     def validate(self):
         check_min_cppstd(self, 17)
