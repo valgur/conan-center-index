@@ -113,7 +113,7 @@ class WhisperCppConan(ConanFile):
             if self.options.with_blas:
                 self.requires("openblas/0.3.28")
         if self.options.get_safe("with_openvino"):
-            self.requires("openvino/2023.2.0")
+            self.requires("openvino/[>=2024.5.0]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
