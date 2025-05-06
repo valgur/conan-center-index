@@ -40,17 +40,6 @@ class XtrConan(ConanFile):
         "sink_capacity_kb": None,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 20
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "10",
-            "clang": "12",
-        }
-
 
     def config_options(self):
         if Version(self.version) >= "2.0.0" and self.settings.os == "Linux":
@@ -70,9 +59,9 @@ class XtrConan(ConanFile):
 
     def requirements(self):
         # INFO: https://github.com/choll/xtr/blob/2.1.0/include/xtr/detail/buffer.hpp#L27
-        self.requires("fmt/[^10.1.1]", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[^6]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("enable_io_uring"):
-            self.requires("liburing/2.4")
+            self.requires("liburing/2.4", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.os not in ["FreeBSD", "Linux"]:
@@ -80,10 +69,8 @@ class XtrConan(ConanFile):
         if self.settings.arch not in ["x86_64"]:
             raise ConanInvalidConfiguration(f"Unsupported arch={self.settings.arch}")
 
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
+        check_min_cppstd(self, 20)
+
         if Version(self.version) < "2.0.0" and str(self.settings.compiler.libcxx) == "libc++":
             raise ConanInvalidConfiguration("Use at least version 2.0.0 for libc++ compatibility")
 
@@ -91,11 +78,6 @@ class XtrConan(ConanFile):
             raise ConanInvalidConfiguration("io_uring must be enabled if io_uring_sqpoll is enabled")
         if self.options.get_safe("sink_capacity_kb") and not str(self.options.get_safe("sink_capacity_kb")).isdigit():
             raise ConanInvalidConfiguration("The option 'sink_capacity_kb' must be an integer")
-
-        if Version(self.dependencies["fmt"].ref.version) < 6:
-            raise ConanInvalidConfiguration("The version of fmt must be >= 6.0.0")
-        if Version(self.dependencies["fmt"].ref.version) == "8.0.0" and self.settings.compiler == "clang":
-            raise ConanInvalidConfiguration("fmt/8.0.0 is known to not work with clang (https://github.com/fmtlib/fmt/issues/2377)")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
