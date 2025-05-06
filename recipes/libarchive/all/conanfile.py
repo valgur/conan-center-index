@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, cmake_layout, CMakeDeps, CMakeToolchain
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -70,8 +69,6 @@ class LibarchiveConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) < "3.7.3":
-            del self.options.with_pcre2
 
     def configure(self):
         if self.options.shared:
@@ -115,8 +112,7 @@ class LibarchiveConan(ConanFile):
             self.requires("pcre2/[^10.42]")
 
     def build_requirements(self):
-        if Version(self.version) >= "3.7.9":
-            self.tool_requires("cmake/[>=3.17 <5]")
+        self.tool_requires("cmake/[>=3.17 <5]")
 
     def validate(self):
         if self.settings.os != "Windows" and self.options.with_cng:
@@ -167,8 +163,7 @@ class LibarchiveConan(ConanFile):
         # too strict check
         tc.variables["ENABLE_WERROR"] = False
         tc.variables["ENABLE_MBEDTLS"] = self.options.with_mbedtls
-        if Version(self.version) >= "3.7.3":
-            tc.variables["ENABLE_PCRE2POSIX"] = self.options.with_pcre2
+        tc.variables["ENABLE_PCRE2POSIX"] = self.options.with_pcre2
         tc.variables["ENABLE_XATTR"] = self.options.with_xattr
         # TODO: Remove after fixing https://github.com/conan-io/conan/issues/12012
         if is_msvc(self):
