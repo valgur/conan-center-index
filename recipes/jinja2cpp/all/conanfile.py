@@ -63,7 +63,7 @@ class Jinja2cppConan(ConanFile):
         self.requires("boost/1.86.0")
         self.requires("expected-lite/0.6.3", transitive_headers=True)
         self.requires("optional-lite/3.5.0", transitive_headers=True)
-        self.requires("rapidjson/cci.20220822")
+        self.requires("rapidjson/[^1.1.0]")
         self.requires("string-view-lite/1.7.0", transitive_headers=True)
         self.requires("variant-lite/2.0.0", transitive_headers=True)
         if self.version == "1.1.0":

@@ -114,7 +114,7 @@ class OsgearthConan(ConanFile):
         self.requires("libzip/1.11.1")
         self.requires("opengl/system")
         self.requires("openscenegraph/3.6.5", transitive_headers=True, transitive_libs=True)
-        self.requires("rapidjson/cci.20230929")
+        self.requires("rapidjson/[^1.1.0]")
 
         if self.options.enable_profiling:
             self.requires("tracy/0.11.1")

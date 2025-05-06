@@ -47,7 +47,7 @@ class SioclientConan(ConanFile):
     def requirements(self):
         self.requires("websocketpp/0.8.2")
         self.requires("asio/1.30.2")
-        self.requires("rapidjson/cci.20230929")
+        self.requires("rapidjson/[^1.1.0]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 
@@ -56,6 +56,7 @@ class SioclientConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "asio asio::asio", "asio::asio")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,12 +68,7 @@ class SioclientConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "asio asio::asio", "asio::asio")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

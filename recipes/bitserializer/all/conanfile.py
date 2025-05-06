@@ -83,7 +83,7 @@ class BitserializerConan(ConanFile):
         if self.options.with_cpprestsdk:
             self.requires("cpprestsdk/2.10.19", transitive_headers=True, transitive_libs=True)
         if self.options.with_rapidjson:
-            self.requires("rapidjson/1.1.0", transitive_headers=True, transitive_libs=True)
+            self.requires("rapidjson/[^1.1.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_pugixml:
             self.requires("pugixml/1.14", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_rapidyaml"):

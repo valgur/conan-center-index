@@ -61,7 +61,7 @@ class LibMysqlClientCConan(ConanFile):
         self.requires("editline/[^3.1]")
         self.requires("libevent/[^2.1.12]")
         self.requires("lz4/[^1.9.4]")
-        self.requires("rapidjson/[>=cci.20230929]")
+        self.requires("rapidjson/[^1.1.0]")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("zstd/[~1.5]")
         # Optional deps
