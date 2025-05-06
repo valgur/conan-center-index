@@ -26,20 +26,17 @@ class MBitsLngsConan(ConanFile):
         "fPIC": True,
         "apps": True,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/[^10.2.1]")
-        self.requires("mbits-utfconv/1.0.3")
-        self.requires("mbits-diags/0.9.6")
-        self.requires("mbits-mstch/1.0.4")
-        self.requires("mbits-args/0.12.3")
+        self.requires("fmt/[>=8 <11]")
+        self.requires("mbits-utfconv/[^1.0.3]")
+        self.requires("mbits-diags/[^0.9.6]")
+        self.requires("mbits-mstch/[^1.0.4]")
+        self.requires("mbits-args/[^0.12.3]")
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -47,8 +44,7 @@ class MBitsLngsConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # CPack support is not needed by Conan and prepare_pack.cmake breaks when can_run() is False
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "include(prepare_pack)", "")
+        replace_in_file(self, "CMakeLists.txt", "include(prepare_pack)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -77,45 +73,26 @@ class MBitsLngsConan(ConanFile):
         return os.path.join(self._cmake_install_base_path, "mbits-lngs-targets.cmake")
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, self._cmake_install_base_path))
 
-
         # Provide relocatable mbits::lngs target and Mbitslngs_LNGS_EXECUTABLE cache variable
-        # TODO: some of the following logic might be disabled when conan will
-        #       allow to create executable imported targets in package_info()
-        module_folder_depth = len(os.path.normpath(self._cmake_install_base_path).split(os.path.sep))
-        lngs_rel_path = "{}bin/{}".format("".join(["../"] * module_folder_depth), "lngs")
         save(self, os.path.join(self.package_folder, self._cmake_targets_module_file),
-             textwrap.dedent(
-                    f"""\
+            textwrap.dedent(f"""\
                 if(NOT TARGET mbits::lngs)
-                    if(CMAKE_CROSSCOMPILING)
-                        find_program(LNGS_PROGRAM lngs PATHS ENV PATH NO_DEFAULT_PATH)
-                    endif()
-                    if(NOT LNGS_PROGRAM)
-                        set(LNGS_PROGRAM "${{CMAKE_CURRENT_LIST_DIR}}/{lngs_rel_path}")
-                    endif()
-                    get_filename_component(LNGS_PROGRAM "${{LNGS_PROGRAM}}" ABSOLUTE)
-                    set(Mbitslngs_LNGS_EXECUTABLE ${{LNGS_PROGRAM}} CACHE FILEPATH "The lngs tool")
-                    add_executable(mbits::lngs IMPORTED)
-                    set_property(TARGET mbits::lngs PROPERTY IMPORTED_LOCATION ${{Mbitslngs_LNGS_EXECUTABLE}})
+                find_program(LNGS_PROGRAM lngs)
+                get_filename_component(LNGS_PROGRAM "${{LNGS_PROGRAM}}" ABSOLUTE)
+                set(Mbitslngs_LNGS_EXECUTABLE ${{LNGS_PROGRAM}} CACHE FILEPATH "The lngs tool")
+                add_executable(mbits::lngs IMPORTED)
+                set_property(TARGET mbits::lngs PROPERTY IMPORTED_LOCATION ${{Mbitslngs_LNGS_EXECUTABLE}})
                 endif()
-            """)
-        )
+        """))
 
     def package_info(self):
-        self.cpp_info.builddirs = [self._cmake_install_base_path ]
-        self.cpp_info.set_property("cmake_build_modules", [self._cmake_targets_module_file])
         self.cpp_info.set_property("cmake_file_name", "mbits-lngs")
-
-        comp = self.cpp_info.components["liblngs"]
-        comp.set_property("cmake_target_name", "mbits::liblngs")
-        comp.libs = ["lngs"]
+        self.cpp_info.set_property("cmake_target_name", "mbits::liblngs")
+        self.cpp_info.libs = ["lngs"]
+        self.cpp_info.builddirs = [self._cmake_install_base_path]
+        self.cpp_info.set_property("cmake_build_modules", [self._cmake_targets_module_file])
