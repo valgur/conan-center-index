@@ -1,12 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import check_min_vs, is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -18,40 +15,17 @@ class PackageConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/OleksandrKvl/sbepp"
     topics = ("trading", "fix", "sbe")
+    package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "with_sbeppc": [True, False]
+        "with_sbeppc": [True, False],
     }
     default_options = {
-        "with_sbeppc": True
+        "with_sbeppc": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        if self.options.with_sbeppc:
-            return 17
-        else:
-            return 11
-
-    @property
-    def _compilers_minimum_version(self):
-        if self.options.with_sbeppc:
-            return {
-                "gcc": "8",
-                "clang": "9",
-                "apple-clang": "11"
-            }
-        else:
-            return {
-                "gcc": "4.8.1",
-                "clang": "3.3",
-                "apple-clang": "9.4"
-            }
-
     def export_sources(self):
-        copy(self, os.path.join("cmake", "sbeppcTargets.cmake"),
-            self.recipe_folder, self.export_sources_folder)
-        export_conandata_patches(self)
+        copy(self, os.path.join("cmake", "sbeppcTargets.cmake"), self.recipe_folder, self.export_sources_folder)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -64,24 +38,11 @@ class PackageConan(ConanFile):
 
     def requirements(self):
         if self.options.with_sbeppc:
-            # sbepp/<1.1.0 requires fmt and pugixml with hardcoded versions
-            if Version(self.version) < "1.1.0":
-                self.requires("fmt/[^9.1.0]")
-                self.requires("pugixml/1.12.1")
-            else:
-                self.requires("fmt/[^10.2.0]")
-                self.requires("pugixml/1.14")
+            self.requires("fmt/[^10.2.0]")
+            self.requires("pugixml/[^1.14]")
 
-    def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        check_min_vs(self, 191)
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
+    def validate_build(self):
+        check_min_cppstd(self, 17 if self.options.with_sbeppc else 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -90,12 +51,9 @@ class PackageConan(ConanFile):
         tc = CMakeToolchain(self)
         if not self.options.with_sbeppc:
             tc.variables["SBEPP_BUILD_SBEPPC"] = False
-
         tc.generate()
-
-        if self.options.with_sbeppc:
-            tc = CMakeDeps(self)
-            tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -103,17 +61,16 @@ class PackageConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE.md", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENS.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         copy(self, "sbeppcTargets.cmake",
             src=os.path.join(self.source_folder, os.pardir, "cmake"),
             dst=os.path.join(self.package_folder, self._module_path))
-        if Version(self.version) >= "1.2.0":
-            copy(self, "sbeppcHelpers.cmake",
-                src=os.path.join(self.source_folder, "cmake"),
-                dst=os.path.join(self.package_folder, self._module_path))
+        copy(self, "sbeppcHelpers.cmake",
+            src=os.path.join(self.source_folder, "cmake"),
+            dst=os.path.join(self.package_folder, self._module_path))
 
     @property
     def _module_path(self):
@@ -122,10 +79,9 @@ class PackageConan(ConanFile):
     def package_info(self):
         # provide sbepp::sbeppc target and CMake helpers from sbeppcHelpers.cmake
         build_modules = [
-            os.path.join(self._module_path, "sbeppcTargets.cmake")
+            os.path.join(self._module_path, "sbeppcTargets.cmake"),
+            os.path.join(self._module_path, "sbeppcHelpers.cmake"),
         ]
-        if Version(self.version) >= "1.2.0":
-            build_modules.append(os.path.join(self._module_path, "sbeppcHelpers.cmake"))
 
         self.cpp_info.builddirs.append(self._module_path)
         self.cpp_info.set_property("cmake_build_modules", build_modules)
