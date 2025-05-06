@@ -59,7 +59,7 @@ class PistacheConan(ConanFile):
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.version != "cci.20201127":
-            self.requires("date/3.0.1")
+            self.requires("date/[^3.0]")
 
     def validate(self):
         if self.settings.os != "Linux":

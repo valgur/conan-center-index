@@ -58,7 +58,7 @@ class ReductCPPConan(ConanFile):
         self.requires("nlohmann_json/[^3.11]")
         self.requires("concurrentqueue/1.0.4")
         if not self.options.with_std_chrono:
-            self.requires("date/3.0.3")
+            self.requires("date/[^3.0]")
 
     def validate(self):
         if self.settings.compiler.get_safe("cppstd"):
