@@ -96,6 +96,8 @@ class FmtConan(ConanFile):
                 tc.cache_variables["FMT_OS"] = bool(self.options.with_os_api)
             if self._has_with_unicode_option:
                 tc.cache_variables["FMT_UNICODE"] = bool(self.options.with_unicode)
+            if Version(self.version) < "7.0":
+                tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
             tc.generate()
 
     def build(self):
