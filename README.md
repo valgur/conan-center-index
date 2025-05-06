@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-05:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-06:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -114,6 +114,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - go/1.16.15
 - go/1.23.5
 - gobject-introspection/1.84.0
+- google-cloud-cpp/1.42.2
 - gpu.cpp/0.1.0
 - grpc/1.50.2
 - grpc/1.65.5
@@ -254,10 +255,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - moltenvk/1.2.11
 - moltenvk/1.2.7
 - mrcal/2.4.1
+- mysql-connector-cpp/9.3.0
 - nanobind/2.4.0
 - nanopb/0.4.9.1
 - nasm/2.16.03
 - ncbi-cxx-toolkit/29.0.0
+- netcdf/4.9.3
 - netpbm/11.6.0
 - nss/3.107
 - nss/3.110
@@ -265,6 +268,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - nvidia-optical-flow-sdk/5.0.7
 - odbc/2.3.12
 - ogre/14.3.4
+- onnxruntime/1.21.1
 - openblas/0.3.28
 - openiap/0.0.33
 - openimageio/3.0.5.0
@@ -300,6 +304,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - portable-file-dialogs/cci.20221111
 - premake/5.0.0-beta6
 - proj/9.6.0
+- protobuf-c/1.5.2
 - protobuf/3.29.4
 - protobuf/4.30.2
 - protobuf/5.29.4
