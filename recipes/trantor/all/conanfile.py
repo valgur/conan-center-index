@@ -10,6 +10,7 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
+
 class TrantorConan(ConanFile):
     name = "trantor"
     description = "a non-blocking I/O tcp network lib based on c++14/17"
@@ -29,22 +30,9 @@ class TrantorConan(ConanFile):
         "fPIC": True,
         "shared": False,
         "with_c_ares": True,
-        "with_spdlog": False,
-        "spdlog/*:header_only": True,
+        "with_spdlog": True,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "5",
-            "msvc": "191",
-            "clang": "5",
-            "apple-clang": "10",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -56,10 +44,6 @@ class TrantorConan(ConanFile):
             del self.options.with_spdlog
             del self.default_options["spdlog/*:header_only"]
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -68,33 +52,22 @@ class TrantorConan(ConanFile):
         if self.options.with_c_ares:
             self.requires("c-ares/1.25.0")
         if self.options.get_safe("with_spdlog"):
-            self.requires("spdlog/1.13.0")
+            self.requires("spdlog/[^1.8]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-        if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
 
         # TODO: Compilation succeeds, but execution of test_package fails on Visual Studio with MDd
         if is_msvc(self) and self.options.shared and "MDd" in msvc_runtime_flag(self):
             raise ConanInvalidConfiguration(f"{self.ref} does not support the MDd runtime on Visual Studio.")
 
-        if self.options.get_safe("with_spdlog") and not self.dependencies["spdlog"].options.header_only:
-            raise ConanInvalidConfiguration(f"{self.ref} requires header_only spdlog.")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
         # fix c-ares imported target
-        replace_in_file(self, cmakelists, "c-ares_lib", "c-ares::cares")
+        replace_in_file(self, "CMakeLists.txt", "c-ares_lib", "c-ares::cares")
         # Cleanup rpath in shared lib
-        replace_in_file(self, cmakelists, "set(CMAKE_INSTALL_RPATH \"${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}\")", "")
-
+        replace_in_file(self, "CMakeLists.txt", 'set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")', "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -105,6 +78,7 @@ class TrantorConan(ConanFile):
         tc.generate()
 
         tc = CMakeDeps(self)
+        tc.set_property("spdlog", "cmake_target_name", "spdlog::spdlog_header_only")
         tc.generate()
 
     def build(self):
