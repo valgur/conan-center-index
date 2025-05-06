@@ -21,12 +21,19 @@ class LevelZeroConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     def requirements(self):
-        self.requires("spdlog/1.14.1")
+        self.requires("spdlog/[^1.8]")
 
     def source(self):
         version_data = self.conan_data["sources"][self.version]
         get(self, **version_data, strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)",
+                        "cmake_minimum_required(VERSION 3.15)")
+        replace_in_file(self, "os_release_info.cmake",
+                        "cmake_minimum_required(VERSION 3.2.0)",
+                        "cmake_minimum_required(VERSION 3.15)")
         replace_in_file(self, os.path.join(self.source_folder, "source", "loader","ze_loader.cpp"),
                         "#ifdef __linux__", "#if defined(__linux__) || defined(__APPLE__)")
 
