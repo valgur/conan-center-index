@@ -26,37 +26,19 @@ class FakerCXXConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_std_format": False,
+        "with_std_format": True,
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 20
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "12",
-            "clang": "16",
-            "apple-clang": "16",
-            "msvc": "193",
-        }
-
     def requirements(self):
         if not self.options.with_std_format:
-            self.requires("fmt/[^10.2.1]")
+            self.requires("fmt/[>=5]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 20)
         if self.settings.os == "Windows" and self.options.shared:
             # https://github.com/cieslarmichal/faker-cxx/issues/753
             raise ConanInvalidConfiguration(f"{self.ref} is not prepared to generated shared library on Windows.")
