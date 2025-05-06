@@ -125,12 +125,18 @@ class OsrmConan(ConanFile):
         # Add missing includes.
         # TODO: submit upstream
         for path in [
-            Path(self.source_folder, "include", "extractor", "suffix_table.hpp"),
-            Path(self.source_folder, "include", "util", "coordinate.hpp"),
-            Path(self.source_folder, "include", "util", "query_heap.hpp"),
-            Path(self.source_folder, "src", "util", "opening_hours.cpp"),
+            Path("include/extractor/suffix_table.hpp"),
+            Path("include/util/coordinate.hpp"),
+            Path("include/util/query_heap.hpp"),
+            Path("src/util/opening_hours.cpp"),
         ]:
             path.write_text("#include <vector>\n" + path.read_text())
+        for path in [
+            Path("include/util/coordinate.hpp"),
+            Path("include/util/opening_hours.hpp"),
+            Path("include/util/query_heap.hpp"),
+        ]:
+            path.write_text("#include <cstdint>\n" + path.read_text())
 
         if self.dependencies["boost"].ref.version >= "1.85":
             # The header has been removed from Boost
