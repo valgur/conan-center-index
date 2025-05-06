@@ -3,7 +3,7 @@ import json
 import os
 import re
 from collections import OrderedDict
-from functools import cached_property
+from functools import cached_property, lru_cache
 from pathlib import Path
 
 from conan import ConanFile
@@ -115,7 +115,7 @@ class VtkConan(ConanFile):
         "smp_implementation": "STDThread",
         "smp_enable_sequential": True,
         "smp_enable_stdthread": True,
-        "smp_enable_openmp": False,  # TODO: #22360
+        "smp_enable_openmp": False,
         "smp_enable_tbb": True,
         ### debugging ###
         "debug_modules": True,
@@ -126,58 +126,58 @@ class VtkConan(ConanFile):
         "use_future_bool": False,
         "use_future_const": False,
         ### external deps ###
-        "with_boost": True,
-        "with_cgns": False,  # FIXME: hdf5 conflict
-        "with_cocoa": True,
-        "with_diy2": True,
-        "with_eigen": True,
-        "with_exodusII": False,  # FIXME: requires netcdf
-        "with_expat": True,
+        "with_boost": False,
+        "with_cgns": False,
+        "with_cocoa": False,
+        "with_diy2": False,
+        "with_eigen": False,
+        "with_exodusII": False,
+        "with_expat": False,
         "with_ffmpeg": False,
-        "with_fontconfig": True,
-        "with_freetype": True,
-        "with_gdal": False,  # TODO #23233
-        "with_gl2ps": False,  # FIXME: missing libglvnd binaries
-        "with_glew": False,  # FIXME: missing libglvnd binaries
-        "with_h5part": True,
-        "with_hdf5": True,
-        "with_holoplaycore": False,  # FIXME: requires glew
+        "with_fontconfig": False,
+        "with_freetype": False,
+        "with_gdal": False,
+        "with_gl2ps": False,
+        "with_glew": False,
+        "with_h5part": False,
+        "with_hdf5": False,
+        "with_holoplaycore": False,
         "with_ioss": False,
         "with_jpeg": "libjpeg",
-        "with_jsoncpp": True,
+        "with_jsoncpp": False,
         "with_kissfft": False,  # Cannot unvendor by default because non-default datatype=double is required
-        "with_libharu": True,
-        "with_libproj": False,  # FIXME: missing binaries
-        "with_libxml2": True,
+        "with_libharu": False,
+        "with_libproj": False,
+        "with_libxml2": False,
         "with_metaio": True,
-        "with_mpi": False,  # Disabled due to openmpi/*:enable_cxx being False by default
-        "with_mysql": False,  # FIXME: missing binaries
-        "with_netcdf": False,  # FIXME: missing binaries
-        "with_nlohmannjson": True,
-        "with_octree": True,
-        "with_odbc": True,
-        "with_ogg": False,  # FIXME: requires theora
-        "with_opencascade": False,  # very heavy
-        "with_opengl": False,  # FIXME: missing libglvnd binaries
-        "with_openslide": False,  # TODO: #21138
-        "with_openvdb": True,
-        "with_openvr": False,  # FIXME: requires glew
-        "with_pdal": False,  # TODO: #21296
-        "with_pegtl": True,
+        "with_mpi": False,
+        "with_mysql": False,
+        "with_netcdf": False,
+        "with_nlohmannjson": False,
+        "with_octree": False,
+        "with_odbc": False,
+        "with_ogg": False,
+        "with_opencascade": False,
+        "with_opengl": True,
+        "with_openslide": False,
+        "with_openvdb": False,
+        "with_openvr": False,
+        "with_pdal": False,
+        "with_pegtl": False,
         "with_png": True,
         "with_postgresql": False,
-        "with_qt": False,  # FIXME: too many version conflicts
+        "with_qt": False,
         "with_sdl2": True,
-        "with_sqlite": True,
-        "with_theora": False,  # FIXME: missing binaries
+        "with_sqlite": False,
+        "with_theora": False,
         "with_tiff": True,
-        "with_vpic": True,
-        "with_vtkm": False,  # FIXME: causes issues in recipe, should unvendor
-        "with_x11": False,  # FIXME: requires opengl
-        "with_xdmf2": True,
-        "with_xdmf3": True,
+        "with_vpic": False,
+        "with_vtkm": False,
+        "with_x11": False,
+        "with_xdmf2": False,
+        "with_xdmf3": False,
         "with_zeromq": False,
-        "with_zspace": True,
+        "with_zspace": False,
     }
     # All non-third-party VTK modules are also available as options.
     # e.g. "IOGeoJSON": ["auto", "YES", "WANT", "DONT_WANT", "NO"], etc.
@@ -253,23 +253,23 @@ class VtkConan(ConanFile):
 
     def requirements(self):
         # These are always required by CommonArchive, CommonCore, CommonMath, CommonDataModel, CommonMisc, IOCore, FiltersCore, FiltersGeneral
-        self.requires("double-conversion/3.3.0")
+        self.requires("double-conversion/[^3.3.0]")
         self.requires("exprtk/0.0.2")
-        self.requires("fast_float/6.1.4")
-        self.requires("libarchive/3.7.4")
+        self.requires("fast_float/[^6.1.4]")
+        self.requires("libarchive/[^3.7.4]")
         self.requires("lz4/[^1.9.4]")
-        self.requires("pugixml/1.14")
-        self.requires("utfcpp/4.0.4")
-        self.requires("xz_utils/[>=5.4.5 <6]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("pugixml/[^1.14]")
+        self.requires("utfcpp/[^4.0.4]")
+        self.requires("xz_utils/[^5.4.5]")
+        self.requires("zlib/[^1.2.11]")
         # Used in public vtkloguru/loguru.hpp
-        self.requires("fmt/[^10.2.1]", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[>=8]", transitive_headers=True, transitive_libs=True)
 
         # kissfft is always required, only replaces the vendored version if enabled.
         # VTK mangles its symbols so not unvendoring it should still not cause conflicts.
         if self.options.with_kissfft:
             # Used in public vtkFFT.h
-            self.requires("kissfft/131.1.0", transitive_headers=True, transitive_libs=True)
+            self.requires("kissfft/[>=131.1.0]", transitive_headers=True, transitive_libs=True)
 
         # The project uses modified loguru for logging, which cannot be unvendored
 
@@ -277,7 +277,7 @@ class VtkConan(ConanFile):
             # Used in public vtkVariantBoostSerialization.h
             self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_cgns:
-            self.requires("cgns/4.3.0")
+            self.requires("cgns/[^4.3.0]")
         if self.options.get_safe("with_dawn"):
             # Dawn option has been disabled because its support is still very experimental.
             # https://gitlab.kitware.com/vtk/vtk/-/blob/v9.3.1/Rendering/WebGPU/README.md?ref_type=tags#how-to-build-vtk-with-dawn-highly-experimental
@@ -290,12 +290,12 @@ class VtkConan(ConanFile):
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[>=6 <8]")
         if self.options.with_fontconfig:
-            self.requires("fontconfig/2.15.0")
+            self.requires("fontconfig/[^2.15.0]")
         if self.options.with_freetype:
             # Used in public vtkFreeTypeTools.h
-            self.requires("freetype/2.13.2", transitive_headers=True, transitive_libs=True)
+            self.requires("freetype/[^2.13.2]", transitive_headers=True, transitive_libs=True)
         if self.options.with_gdal:
-            self.requires("gdal/3.10.0")
+            self.requires("gdal/[^3.10.0]")
         if self.options.with_glew:
             # Used in public vtk_glew.h
             self.requires("glew/2.2.0", transitive_headers=True, transitive_libs=True)
@@ -306,11 +306,11 @@ class VtkConan(ConanFile):
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.3")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.5")
+            self.requires("mozjpeg/[^4.1.5]")
         if self.options.with_jsoncpp:
-            self.requires("jsoncpp/1.9.5")
+            self.requires("jsoncpp/[^1.9.5]")
         if self.options.with_libharu:
-            self.requires("libharu/2.4.4")
+            self.requires("libharu/[^2.4.4]")
         if self.options.with_libproj:
             self.requires("proj/[^9.3.1]")
         if self.options.with_libxml2:
@@ -318,11 +318,11 @@ class VtkConan(ConanFile):
             self.requires("libxml2/[>=2.12.5 <3]", transitive_headers=True, transitive_libs=True)
         if self.options.with_mpi:
             # Used in public vtk_mpi.h
-            self.requires("openmpi/4.1.6", transitive_headers=True, transitive_libs=True, options={"enable_cxx": True})
+            self.requires("openmpi/[^4.1.6]", transitive_headers=True, transitive_libs=True, options={"enable_cxx": True})
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/[^8.1.0]")
         elif self.options.with_mysql == "mariadb-connector-c":
-            self.requires("mariadb-connector-c/3.3.3")
+            self.requires("mariadb-connector-c/[^3.3.3]")
         if self.options.with_netcdf:
             # Used in public vtkexodusII/include/exodusII.h
             is_public = bool(self.options.with_exodusII)
@@ -331,24 +331,24 @@ class VtkConan(ConanFile):
             self.requires("nlohmann_json/[^3]")
         if self.options.with_odbc and self.settings.os != "Windows":
             # odbc is a system lib on Windows
-            self.requires("odbc/2.3.11")
+            self.requires("odbc/[^2.3.11]")
         if self.options.with_ogg:
-            self.requires("ogg/1.3.5")
+            self.requires("ogg/[^1.3.5]")
         if self.options.with_opencascade:
-            self.requires("opencascade/7.6.2")
+            self.requires("opencascade/[^7.6.2]")
         if self.options.with_opengl:
             # Used in public vtk_glew.h
             self.requires("opengl/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_openslide:
             # Used in public vtkOpenSlideReader.h
-            self.requires("openslide/4.0.0", transitive_headers=True, transitive_libs=True)
+            self.requires("openslide/[^4.0.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_openvdb:
-            self.requires("openvdb/11.0.0")
+            self.requires("openvdb/[^11.0.0]")
         if self.options.with_openvr:
             # Used in public vtkOpenVRModel.h
-            self.requires("openvr/1.16.8", transitive_headers=True, transitive_libs=True)
+            self.requires("openvr/[^1.16.8]", transitive_headers=True, transitive_libs=True)
         if self.options.with_pdal:
-            self.requires("pdal/2.7.2")
+            self.requires("pdal/[^2.7.2]")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_postgresql:
@@ -358,18 +358,18 @@ class VtkConan(ConanFile):
             self.requires("qt/[>=5.15 <7]", transitive_headers=True, transitive_libs=True)
         if self.options.with_sdl2:
             # Used in public vtkSDL2OpenGLRenderWindow.h
-            self.requires("sdl/2.30.9", transitive_headers=True, transitive_libs=True)
+            self.requires("sdl/[^2.30.9]", transitive_headers=True, transitive_libs=True)
         if self.options.with_sqlite:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_theora:
-            self.requires("theora/1.1.1")
+            self.requires("theora/[^1.1.1]")
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.get_safe("with_x11"):
             # Used in public vtkXOpenGLRenderWindow.h
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_zeromq:
-            self.requires("zeromq/4.3.5")
+            self.requires("zeromq/[^4.3.5]")
         if self.options.smp_enable_openmp:
             # '#include <omp.h>' is used in public SMP/OpenMP/vtkSMPThreadLocalBackend.h
             # '#pragma omp' is not used in any public headers
@@ -463,7 +463,7 @@ class VtkConan(ConanFile):
             raise ConanInvalidConfiguration(f"Unused dependency options:{''.join(msg)}")
         return available_modules
 
-    @cached_property
+    @lru_cache
     def _compute_module_values(self):
         def _yes_no(value):
             return "YES" if value else "NO"
