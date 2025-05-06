@@ -385,14 +385,9 @@ class MagnumConan(ConanFile):
         os.makedirs(build_modules_folder)
         for executable in self._executables:
             build_module_path = os.path.join(build_modules_folder, f"conan-magnum-{executable}.cmake")
-            save(self, build_module_path, encoding="utf-8", content=textwrap.dedent(f"""\
+            save(self, build_module_path, content=textwrap.dedent(f"""\
                 if(NOT TARGET Magnum::{executable})
-                    if(CMAKE_CROSSCOMPILING)
-                        find_program(MAGNUM_EXEC_PROGRAM magnum-{executable} PATHS ENV PATH NO_DEFAULT_PATH)
-                    endif()
-                    if(NOT MAGNUM_EXEC_PROGRAM)
-                        set(MAGNUM_EXEC_PROGRAM "${{CMAKE_CURRENT_LIST_DIR}}/../../bin/magnum-{executable}")
-                    endif()
+                    find_program(MAGNUM_EXEC_PROGRAM magnum-{executable} PATHS ENV PATH NO_DEFAULT_PATH)
                     get_filename_component(MAGNUM_EXEC_PROGRAM "${{MAGNUM_EXEC_PROGRAM}}" ABSOLUTE)
                     add_executable(Magnum::{executable} IMPORTED)
                     set_property(TARGET Magnum::{executable} PROPERTY IMPORTED_LOCATION ${{MAGNUM_EXEC_PROGRAM}})
@@ -402,12 +397,10 @@ class MagnumConan(ConanFile):
         if not self.options.shared_plugins:
             for component, lib_name, _, _ in self._plugins:
                 build_module_path = os.path.join(build_modules_folder, f"conan-magnum-plugins-{component}.cmake")
-                save(self, build_module_path, encoding="utf-8", content=textwrap.dedent(f"""\
-                    if(NOT ${{CMAKE_VERSION}} VERSION_LESS "3.0")
-                        if(TARGET Magnum::{lib_name})
-                            set_target_properties(Magnum::{lib_name} PROPERTIES INTERFACE_SOURCES
-                                                "${{CMAKE_CURRENT_LIST_DIR}}/../../include/MagnumPlugins/{lib_name}/importStaticPlugin.cpp")
-                        endif()
+                save(self, build_module_path, content=textwrap.dedent(f"""\
+                    if(TARGET Magnum::{lib_name})
+                        set_target_properties(Magnum::{lib_name} PROPERTIES INTERFACE_SOURCES
+                                            "${{CMAKE_CURRENT_LIST_DIR}}/../../include/MagnumPlugins/{lib_name}/importStaticPlugin.cpp")
                     endif()
                 """))
 
