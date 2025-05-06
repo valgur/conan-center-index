@@ -6,7 +6,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -71,7 +70,7 @@ class OsrmConan(ConanFile):
         self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
         self.requires("bzip2/1.0.8")
         self.requires("expat/[>=2.6.2 <3]")
-        self.requires("libosmium/2.20.0")
+        self.requires("libosmium/[^2.20.0]")
         self.requires("lua/5.4.6")
         self.requires("onetbb/[^2021]")
         self.requires("zlib/1.3.1")
@@ -81,7 +80,7 @@ class OsrmConan(ConanFile):
         self.requires("mapbox-geometry/2.0.3")
         self.requires("mapbox-variant/1.2.0", transitive_headers=True)
         self.requires("microtar/0.1.0")
-        self.requires("rapidjson/cci.20230929")
+        self.requires("rapidjson/[^1.1.0]")
         self.requires("sol2/3.3.1")
         # TODO
         # self.requires("mapbox-cheap-ruler/0")
@@ -89,12 +88,6 @@ class OsrmConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
         if not self.dependencies["libosmium"].options.pbf or not self.dependencies["libosmium"].options.xml:
             raise ConanInvalidConfiguration("libosmium must be built with PBF and XML support")
 
@@ -104,6 +97,15 @@ class OsrmConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.2)",
+                        "cmake_minimum_required(VERSION 3.15)")
+        replace_in_file(self, "cmake/JSONParser.cmake",
+                        "cmake_minimum_required(VERSION 3.1)",
+                        "cmake_minimum_required(VERSION 3.15)")
+        replace_in_file(self, "CMakeLists.txt", "cmake_policy(SET CMP0048 OLD)", "")
 
         # Disable subdirs
         save(self, os.path.join(self.source_folder, "unit_tests", "CMakeLists.txt"), "")
