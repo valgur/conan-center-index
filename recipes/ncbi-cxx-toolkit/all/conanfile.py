@@ -55,13 +55,13 @@ class NcbiCxxToolkit(ConanFile):
 
     @cached_property
     def _tk_dependencies(self):
-        dependencies_filepath = Path(self.recipe_folder, "dependencies", self._dependencies_filename)
-        return yaml.safe_load(dependencies_filepath.read_text(encoding="utf-8"))
+        path = Path(self.recipe_folder, "dependencies", self._dependencies_filename)
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
 
     @cached_property
     def _tk_requirements(self):
-        requirements_filepath = Path(self.recipe_folder, "dependencies", self._requirements_filename)
-        return yaml.safe_load(requirements_filepath.read_text(encoding="utf-8"))
+        path = Path(self.recipe_folder, "dependencies", self._requirements_filename)
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
 
     def _parse_option(self, data):
         items = str(data).replace(",", ";").replace(" ", ";").split(";")
@@ -172,6 +172,7 @@ class NcbiCxxToolkit(ConanFile):
         tc.variables["NCBI_PTBCFG_PROJECT_COMPONENTS"] = ";".join(f"-{r}" for r in self._disabled_req)
         if is_msvc(self):
             tc.variables["NCBI_PTBCFG_CONFIGURATION_TYPES"] = self.settings.build_type
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0177"] = "NEW"
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
