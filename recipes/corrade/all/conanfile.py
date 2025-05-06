@@ -1,11 +1,12 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, check_min_vs
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -90,6 +91,11 @@ class CorradeConan(ConanFile):
                 tc.variables["MSVC2017_COMPATIBILITY"] = True
             elif check_min_vs(self, 191, raise_invalid=False):
                 tc.variables["MSVC2015_COMPATIBILITY"] = True
+
+
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
+        if Version(self.version) > "2020.06":
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
 
         tc.generate()
         tc = CMakeDeps(self)

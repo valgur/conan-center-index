@@ -38,20 +38,12 @@ endforeach()
 
 # Corrade::rc, a target with just an executable
 if(NOT TARGET Corrade::rc)
-    if(CMAKE_CROSSCOMPILING)
-        find_program(CORRADE_RC_PROGRAM 
-            NAMES corrade-rc 
-            PATHS ENV 
-            PATH NO_DEFAULT_PATH)
-    else()
-        find_program(CORRADE_RC_PROGRAM 
-            NAMES corrade-rc 
-            PATHS "${CMAKE_CURRENT_LIST_DIR}/../../bin/"
-            NO_DEFAULT_PATH)
-    endif()
-
+    find_program(CORRADE_RC_PROGRAM
+        NAMES corrade-rc
+        PATHS ENV
+        PATH NO_DEFAULT_PATH
+    )
     get_filename_component(CORRADE_RC_PROGRAM "${CORRADE_RC_PROGRAM}" ABSOLUTE)
-
     add_executable(Corrade::rc IMPORTED)
     set_property(TARGET Corrade::rc PROPERTY IMPORTED_LOCATION ${CORRADE_RC_PROGRAM})
 endif()
