@@ -198,7 +198,7 @@ class LibwebsocketsConan(ConanFile):
 
     def requirements(self):
         if self.options.with_libuv:
-            self.requires("libuv/1.47.0")
+            self.requires("libuv/[^1.45.0]")
 
         if self.options.with_libevent == "libevent":
             self.requires("libevent/2.1.12")

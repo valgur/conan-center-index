@@ -87,7 +87,7 @@ class UsocketsConan(ConanFile):
             self.requires("wolfssl/5.6.3")
 
         if self.options.eventloop == "libuv":
-            self.requires("libuv/1.46.0")
+            self.requires("libuv/[^1.45.0]")
         elif self.options.eventloop == "gcd":
             self.requires("libdispatch/5.3.2")
         elif self.options.eventloop == "boost":

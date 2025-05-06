@@ -51,7 +51,7 @@ class TwitchNativeIpcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libuv/1.46.0")
+        self.requires("libuv/[^1.45.0]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

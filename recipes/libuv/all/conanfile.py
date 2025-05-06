@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, check_min_vs
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -46,8 +45,7 @@ class LibuvConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["LIBUV_BUILD_TESTS"] = False
-        if Version(self.version) >= "1.45.0":
-            tc.variables["LIBUV_BUILD_SHARED"] = self.options.shared
+        tc.variables["LIBUV_BUILD_SHARED"] = self.options.shared
         tc.generate()
 
     def build(self):
@@ -66,14 +64,10 @@ class LibuvConan(ConanFile):
 
     @property
     def _target_name(self):
-        if Version(self.version) < "1.45.0":
-            return "uv" if self.options.shared else "uv_a"
         return "uv"
 
     @property
     def _lib_name(self):
-        if Version(self.version) < "1.45.0":
-            return "uv" if self.options.shared else "uv_a"
         if is_msvc(self) and not self.options.shared:
             return "libuv"
         return "uv"
@@ -89,5 +83,4 @@ class LibuvConan(ConanFile):
             self.cpp_info.system_libs = ["dl", "pthread", "rt"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["iphlpapi", "psapi", "userenv", "ws2_32"]
-            if Version(self.version) >= "1.45.0":
-                self.cpp_info.system_libs.append("dbghelp")
+            self.cpp_info.system_libs.append("dbghelp")

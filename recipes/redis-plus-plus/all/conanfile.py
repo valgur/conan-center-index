@@ -65,7 +65,7 @@ class RedisPlusPlusConan(ConanFile):
     def requirements(self):
         self.requires("hiredis/1.2.0", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("build_async"):
-            self.requires("libuv/1.47.0")
+            self.requires("libuv/[^1.45.0]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
