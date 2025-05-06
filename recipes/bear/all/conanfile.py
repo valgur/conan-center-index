@@ -26,7 +26,7 @@ class BearConan(ConanFile):
     def requirements(self):
         self.requires("grpc/[^1.50.2]")
         self.requires("nlohmann_json/[^3]")
-        self.requires("spdlog/[>=1.10]")
+        self.requires("spdlog/[^1.10]")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):

@@ -55,7 +55,7 @@ class OusterSdkConan(ConanFile):
         self.requires("eigen/3.4.0", transitive_headers=True)
         # Used in ouster/sensor_http.h
         self.requires("jsoncpp/[^1.9.5]", transitive_headers=True, transitive_libs=True)
-        self.requires("spdlog/[>=1.8]")
+        self.requires("spdlog/[^1.8]")
         self.requires("fmt/[>=5]")
         self.requires("libcurl/[>=7.78 <9]")
         # Replaces vendored optional-lite

@@ -57,7 +57,7 @@ class H5ppConan(ConanFile):
         if Version(self.version) < "1.10.0" or self.options.get_safe("with_eigen"):
             self.requires("eigen/3.4.0", transitive_headers=True)
         if Version(self.version) < "1.10.0" or self.options.get_safe("with_spdlog"):
-            self.requires("spdlog/[>=1.8]", transitive_headers=True, transitive_libs=True)
+            self.requires("spdlog/[^1.8]", transitive_headers=True, transitive_libs=True)
         if Version(self.version) >= "1.10.0" and self.options.with_zlib:
             self.requires("zlib/[^1.3]", transitive_headers=True, transitive_libs=True)
 

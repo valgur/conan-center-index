@@ -41,7 +41,7 @@ class RmmConan(ConanFile):
 
     def requirements(self):
         self.requires("thrust/[^1.17.2]")
-        self.requires("spdlog/[>=1.9]")
+        self.requires("spdlog/[^1.9]")
         self.requires("fmt/[>=9 <11]")
 
     def package_id(self):

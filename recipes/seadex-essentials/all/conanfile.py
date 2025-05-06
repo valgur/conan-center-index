@@ -41,7 +41,7 @@ class SeadexEssentialsConan(ConanFile):
 
     def requirements(self):
         # Headers are exposed https://github.com/SeadexGmbH/essentials/blob/622a07dc1530f5668f5dde0ce18007d420c371cd/essentials/include/essentials/log/log_level.hpp#L15
-        self.requires("spdlog/[>=1.8]", transitive_headers=True)
+        self.requires("spdlog/[^1.8]", transitive_headers=True)
         # Exposes headers and symbols https://github.com/SeadexGmbH/essentials/blob/622a07dc1530f5668f5dde0ce18007d420c371cd/essentials/include/essentials/type_wrapper.hpp#L282
         self.requires("fmt/[>=6]", transitive_headers=True, transitive_libs=True)
 

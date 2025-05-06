@@ -52,7 +52,7 @@ class SystemcComponentsConan(ConanFile):
         # https://github.com/Minres/SystemC-Components/blob/2023.06/src/common/util/lz4_streambuf.h#L13
         self.requires("lz4/[^1.9.4]", transitive_headers=True, transitive_libs=True)
         self.requires("rapidjson/[^1.1.0]")
-        self.requires("spdlog/[>=1.8]")
+        self.requires("spdlog/[^1.8]")
         # https://github.com/Minres/SystemC-Components/blob/2023.06/src/sysc/tlm/scc/lwtr/tlm2_lwtr.h
         self.requires("systemc-cci/1.0.0", transitive_headers=True, transitive_libs=True)
         self.requires("systemc/2.3.4", transitive_headers=True, transitive_libs=True)

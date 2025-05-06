@@ -101,7 +101,7 @@ class G2oConan(ConanFile):
         # Used in public core/eigen_types.h
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         # Used in stuff/logger.h
-        self.requires("spdlog/[>=1.8]", transitive_headers=True, transitive_libs=True)
+        self.requires("spdlog/[^1.8]", transitive_headers=True, transitive_libs=True)
         self.requires("fmt/[>=5 <11]", transitive_headers=True, transitive_libs=True)
         if self.options.with_opengl:
             # Used in stuff/opengl_wrapper.h

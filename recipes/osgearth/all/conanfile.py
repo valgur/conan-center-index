@@ -143,7 +143,7 @@ class OsgearthConan(ConanFile):
         if self.options.with_rocksdb:
             self.requires("rocksdb/9.5.2")
         if self.options.with_spdlog:
-            self.requires("spdlog/1.14.1")
+            self.requires("spdlog/[^1.8]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.42 <4]")
         if self.options.with_tinyxml:
