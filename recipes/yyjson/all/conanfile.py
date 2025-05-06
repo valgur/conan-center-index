@@ -3,9 +3,8 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class YyjsonConan(ConanFile):
@@ -27,18 +26,8 @@ class YyjsonConan(ConanFile):
         "fPIC": True,
         "with_utf8_validation": True,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-        if Version(self.version) < "0.8.0":
-            del self.options.with_utf8_validation
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -48,8 +37,7 @@ class YyjsonConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if Version(self.version) >= "0.8.0":
-            tc.variables["YYJSON_DISABLE_UTF8_VALIDATION"] = not bool(self.options.with_utf8_validation)
+        tc.variables["YYJSON_DISABLE_UTF8_VALIDATION"] = not bool(self.options.with_utf8_validation)
         tc.generate()
 
     def build(self):
@@ -67,9 +55,7 @@ class YyjsonConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "yyjson")
         self.cpp_info.set_property("cmake_target_name", "yyjson::yyjson")
+        self.cpp_info.set_property("pkg_config_name", "yyjson")
         self.cpp_info.libs = ["yyjson"]
         if self.settings.os == "Windows" and self.options.shared:
             self.cpp_info.defines.append("YYJSON_IMPORTS")
-
-        if Version(self.version) >= "0.9.0":
-            self.cpp_info.set_property("pkg_config_name", "yyjson")
