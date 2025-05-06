@@ -56,22 +56,21 @@ class LiefConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("mbedtls/3.2.1")
+        self.requires("mbedtls/[^3.2.1]")
 
         if Version(self.version) >= "0.15.1":
-            self.requires("utfcpp/4.0.5")
+            self.requires("utfcpp/[^4.0.5]")
         else:
-            self.requires("utfcpp/3.2.3")
-        # lief doesn't supprot spdlog/1.11.0 with fmt/9.x yet.
-        self.requires("spdlog/1.10.0")
+            self.requires("utfcpp/[^3.2.3]")
+        self.requires("spdlog/[^1.9]")
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("tcb-span/cci.20220616", transitive_headers=True)
         if self.options.with_json:
             self.requires("nlohmann_json/[^3]")
         if self.options.with_frozen:
-            self.requires("frozen/1.1.1")
+            self.requires("frozen/[^1.1.1]")
         if Version(self.version) >= "0.15.1":
-            self.requires("tl-expected/1.1.0", transitive_headers=True)
+            self.requires("tl-expected/[^1.1.0]", transitive_headers=True)
 
     def validate(self):
         skip_ci_reason = self.conf.get("user.conancenter:skip_ci_build", check_type=str)
