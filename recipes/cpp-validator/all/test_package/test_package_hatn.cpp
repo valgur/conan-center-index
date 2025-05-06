@@ -1,12 +1,9 @@
-#include <iostream>
-
-#include "hatn/validator/validator.hpp"
-#include "hatn/validator/validate.hpp"
+#include <hatn/validator/validator.hpp>
+#include <hatn/validator/validate.hpp>
 using namespace HATN_VALIDATOR_NAMESPACE;
 
 int main()
 {
-
     // define validator
     auto v=validator(gt,100); // value must be greater than 100
 
@@ -18,8 +15,4 @@ int main()
 
     validate(200,v,err);
     assert(!err); // validation succeeded, 200 is greater than 100
-
-    std::cout << "Example 1 done" << std::endl;
-
-    return 0;
 }

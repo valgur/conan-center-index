@@ -64,7 +64,7 @@ class SerdeppConan(ConanFile):
         if self.options.with_rapidjson:
             self.requires("rapidjson/[^1.1.0]")
         if self.options.with_fmt:
-            self.requires("fmt/[^10.2.1]")
+            self.requires("fmt/[>=5]")
         if self.options.with_nlohmann_json:
             self.requires("nlohmann_json/[^3]")
 

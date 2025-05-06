@@ -35,7 +35,6 @@ class LoguruConan(ConanFile):
         "filename_width": [None, "ANY"],
         "threadname_width": [None, "ANY"],
     }
-
     default_options = {
         "shared": False,
         "fPIC": True,
@@ -57,7 +56,7 @@ class LoguruConan(ConanFile):
 
     def requirements(self):
         if self.options.with_fmt:
-            self.requires("fmt/[^9.1.0]", transitive_headers=True)
+            self.requires("fmt/[>=5]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
@@ -71,7 +70,7 @@ class LoguruConan(ConanFile):
         apply_conandata_patches(self)
 
     def layout(self):
-        cmake_layout(self, src_folder='src')
+        cmake_layout(self, src_folder="src")
 
     def generate(self):
         tc = CMakeToolchain(self)

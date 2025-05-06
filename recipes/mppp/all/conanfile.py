@@ -41,17 +41,10 @@ class MpppConan(ConanFile):
         "with_boost": False,
         "with_fmt": False,
     }
-
-    @property
-    def _min_cppstd(self):
-        return 11
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -73,12 +66,12 @@ class MpppConan(ConanFile):
         if self.options.with_boost:
             self.requires("boost/1.86.0")
         if self.options.get_safe("with_fmt"):
-            self.requires("fmt/[^10.2.1]", transitive_headers=True)
+            self.requires("fmt/[>=5]", transitive_headers=True)
         if self.options.get_safe("with_flint"):
             self.requires("flint/3.0.1")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
         if self.options.get_safe("with_arb"):
             raise ConanInvalidConfiguration(f"{self.ref}:with_arb=True is not supported because `fredrik-johansson/arb` is not packaged in CCI. (yet)")
         if self.options.with_quadmath:

@@ -30,44 +30,20 @@ class SimfilRecipe(ConanFile):
         "fPIC": True,
         "with_json": True,
     }
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "10",
-            "clang": "10",
-            "apple-clang": "14",
-        }
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def validate(self):
         check_min_cppstd(self, 20)
-
-        min_version = self._minimum_compilers_version.get(str(self.settings.compiler))
-        if not min_version:
-            self.output.warning(f"{self.name} recipe lacks information about the {self.settings.compiler} compiler support.")
-        else:
-            if Version(self.settings.compiler.version) < min_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires Concepts support. The current compiler {self.settings.compiler} {self.settings.compiler.version} does not support it.")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>3.19 <5]")
 
     def requirements(self):
-        self.requires("sfl/1.2.4", transitive_headers=True)
-        self.requires("fmt/[^10.0.0]", transitive_headers=True)
-        self.requires("bitsery/5.2.3", transitive_headers=True)
+        self.requires("sfl/[^1.2.4]", transitive_headers=True)
+        self.requires("fmt/[>=5]", transitive_headers=True)
+        self.requires("bitsery/[^5.2.3]", transitive_headers=True)
         if self.options.with_json:
             self.requires("nlohmann_json/[^3]", transitive_headers=True)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -78,7 +54,7 @@ class SimfilRecipe(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["SIMFIL_CONAN"] = True
-        tc.cache_variables["SIMFIL_SHARED"] = self.options.get_safe("shared")
+        tc.cache_variables["SIMFIL_SHARED"] = self.options.shared
         tc.cache_variables["SIMFIL_WITH_REPL"] = False
         tc.cache_variables["SIMFIL_WITH_COVERAGE"] = False
         tc.cache_variables["SIMFIL_WITH_TESTS"] = False
@@ -94,9 +70,9 @@ class SimfilRecipe(ConanFile):
         cmake.build()
 
     def package(self):
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
 
     def package_info(self):
         self.cpp_info.libs = ["simfil"]

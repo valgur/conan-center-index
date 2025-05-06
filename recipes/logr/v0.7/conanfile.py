@@ -1,12 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import check_min_vs
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -36,33 +33,17 @@ class LogrConan(ConanFile):
         "with_boostlog": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "gcc": "10",
-            "clang": "11",
-            "apple-clang": "12",
-        }
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/[^10.2.1]")
-
+        self.requires("fmt/[>=10]")
         if self.options.with_spdlog:
-            self.requires("spdlog/1.12.0")
-
+            self.requires("spdlog/[^1.12]")
         if self.options.with_glog:
             self.requires("glog/[>=0.6.0 <1]")
-
         if self.options.with_log4cplus:
             self.requires("log4cplus/2.1.0")
-
         if self.options.with_boostlog:
             self.requires("boost/1.86.0")
 
@@ -70,22 +51,10 @@ class LogrConan(ConanFile):
         self.info.settings.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        check_min_vs(self, 192)
-
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires minimum {self.settings.compiler} version of {minimum_version}"
-            )
-
-    def build(self):
-        pass
+        check_min_cppstd(self, 17)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

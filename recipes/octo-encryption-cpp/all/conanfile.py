@@ -1,11 +1,11 @@
+import os
+
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
-from conan.tools.build import check_min_cppstd
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc_static_runtime
-import os
 
 required_conan_version = ">=2.1"
 
@@ -19,19 +19,6 @@ class OctoEncryptionCPPConan(ConanFile):
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "9",
-            "apple-clang": "11",
-            "msvc": "192",
-        }
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -39,12 +26,7 @@ class OctoEncryptionCPPConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-        if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
         if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
             raise ConanInvalidConfiguration(f"{self.name} does not support clang with libc++. Use libstdc++ instead.")
         if is_msvc_static_runtime(self):

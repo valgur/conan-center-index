@@ -5,7 +5,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain, CMakeDeps
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -29,19 +28,6 @@ class SamariumConan(ConanFile):
         "fPIC": True,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 20
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "11",
-            "clang": "13",
-            "apple-clang": "13",
-            "msvc": "192",
-        }
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -59,7 +45,7 @@ class SamariumConan(ConanFile):
 
     def requirements(self):
         # Undefined symbols for architecture arm64: "void fmt::v10::detail::vformat_to..." when using sm::print
-        self.requires("fmt/[^10.2.1]", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[>=9 <11]", transitive_headers=True, transitive_libs=True)
         # Undefined symbols for architecture arm64: "sf::Keyboard::isKeyPressed(sf::Keyboard::Key)"
         # when using inlined is_key_pressed function
         self.requires("sfml/2.6.1", transitive_headers=True, transitive_libs=True)
@@ -68,12 +54,7 @@ class SamariumConan(ConanFile):
         self.requires("tl-expected/20190710", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 20)
 
         if self.dependencies["sfml"].options.shared:
             raise ConanInvalidConfiguration("SFML dependency must be built as a static library")

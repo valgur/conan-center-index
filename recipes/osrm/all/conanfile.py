@@ -76,7 +76,7 @@ class OsrmConan(ConanFile):
         self.requires("zlib/1.3.1")
         # unvendored deps
         self.requires("flatbuffers/1.12.0", transitive_headers=True, transitive_libs=True) # newer versions are not compatible
-        self.requires("fmt/[^10.2.1]")
+        self.requires("fmt/[>=7]")
         self.requires("mapbox-geometry/2.0.3")
         self.requires("mapbox-variant/1.2.0", transitive_headers=True)
         self.requires("microtar/0.1.0")

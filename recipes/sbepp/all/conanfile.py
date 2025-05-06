@@ -38,7 +38,7 @@ class PackageConan(ConanFile):
 
     def requirements(self):
         if self.options.with_sbeppc:
-            self.requires("fmt/[^10.2.0]")
+            self.requires("fmt/[>=9]")
             self.requires("pugixml/[^1.14]")
 
     def validate_build(self):
@@ -49,8 +49,7 @@ class PackageConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not self.options.with_sbeppc:
-            tc.variables["SBEPP_BUILD_SBEPPC"] = False
+        tc.variables["SBEPP_BUILD_SBEPPC"] = self.options.with_sbeppc
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

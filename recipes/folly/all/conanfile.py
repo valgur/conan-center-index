@@ -85,11 +85,11 @@ class FollyConan(ConanFile):
             self.requires("libunwind/1.8.0")
         if self.settings.os == "Linux":
             self.requires("liburing/2.6")
-        # INFO: Folly does not support fmt 11 on MSVC: https://github.com/facebook/folly/issues/2250
-        self.requires("fmt/[^10.2.1]", transitive_headers=True, transitive_libs=True)
+        # Folly does not support fmt 11 on MSVC: https://github.com/facebook/folly/issues/2250
+        self.requires("fmt/[>=8]", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
-        # INFO: Required due ZIP_LISTS CMake feature in conan_deps.cmake
+        # Required due ZIP_LISTS CMake feature in conan_deps.cmake
         self.tool_requires("cmake/[>=3.17 <5]")
 
     @property

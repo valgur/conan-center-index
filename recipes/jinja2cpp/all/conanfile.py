@@ -6,7 +6,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import msvc_runtime_flag, is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -29,32 +28,10 @@ class Jinja2cppConan(ConanFile):
         "fPIC": True,
         "with_regex": "boost",
     }
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "6",
-            "clang": "5",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-        if Version(self.version) < "1.3.2":
-            del self.options.with_regex
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -66,34 +43,27 @@ class Jinja2cppConan(ConanFile):
         self.requires("rapidjson/[^1.1.0]")
         self.requires("string-view-lite/1.7.0", transitive_headers=True)
         self.requires("variant-lite/2.0.0", transitive_headers=True)
-        if self.version == "1.1.0":
-            self.requires("fmt/[^6.2.1]") # not compatible with fmt >= 7.0.0
-        else:
-            self.requires("nlohmann_json/[^3]")
-            self.requires("fmt/[^10.2.0]")
+        self.requires("nlohmann_json/[^3]")
+        self.requires("fmt/[>=9]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-        if Version(self.version) >= "1.3.1" and self.dependencies["boost"].options.without_json:
+        check_min_cppstd(self, 14)
+        if self.dependencies["boost"].options.without_json:
             raise ConanInvalidConfiguration(f"{self.ref} require Boost::json.")
 
     def build_requirements(self):
-        if Version(self.version) >= "1.3.1":
-            self.tool_requires("cmake/[>=3.23 <5]")
+        self.tool_requires("cmake/[>=3.23 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Don't force MD for shared lib, allow to honor runtime from profile
+        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                        'set(JINJA2CPP_MSVC_RUNTIME_TYPE "/MD")', "")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if Version(self.version) >= "1.3.2":
-            tc.cache_variables["JINJA2CPP_USE_REGEX"] = self.options.with_regex
+        tc.cache_variables["JINJA2CPP_USE_REGEX"] = self.options.with_regex
         tc.variables["JINJA2CPP_BUILD_TESTS"] = False
         tc.variables["JINJA2CPP_STRICT_WARNINGS"] = False
         tc.variables["JINJA2CPP_BUILD_SHARED"] = self.options.shared
@@ -108,19 +78,13 @@ class Jinja2cppConan(ConanFile):
         deps.set_property("expected-lite", "cmake_target_name", "nonstd::expected-lite")
         deps.generate()
 
-    def _patch_sources(self):
-        # Don't force MD for shared lib, allow to honor runtime from profile
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(JINJA2CPP_MSVC_RUNTIME_TYPE \"/MD\")", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "jinja2cpp"))

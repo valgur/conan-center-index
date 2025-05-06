@@ -31,7 +31,7 @@ class CPPValidatorConan(ConanFile):
 
     def requirements(self):
         self.requires("boost/1.86.0")
-        self.requires("fmt/[^10.2.1]")
+        self.requires("fmt/[>=5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -54,3 +54,4 @@ class CPPValidatorConan(ConanFile):
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
+        self.cpp_info.defines = ["HATN_VALIDATOR_FMT"]

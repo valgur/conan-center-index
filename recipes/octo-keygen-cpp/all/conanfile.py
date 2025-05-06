@@ -1,11 +1,12 @@
+import os
+
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
-from conan.tools.build import check_min_cppstd
-from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc_static_runtime
-from conan.errors import ConanInvalidConfiguration
-import os
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -37,9 +38,9 @@ class OctoKeygenCPPConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("octo-logger-cpp/1.1.0", transitive_headers=True)
-        self.requires("octo-encryption-cpp/1.1.0", transitive_headers=True)
-        self.requires("fmt/[^10.2.1]")
+        self.requires("octo-logger-cpp/[^1.1.0]", transitive_headers=True)
+        self.requires("octo-encryption-cpp/[^1.1.0]", transitive_headers=True)
+        self.requires("fmt/[>=8 <11]")
         self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):

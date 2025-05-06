@@ -50,9 +50,8 @@ class CcacheConan(ConanFile):
         self.requires("zstd/[>=1.5 <1.6]")
         if self.options.redis_storage_backend:
             self.requires("hiredis/1.2.0")
-
         if Version(self.version) >= "4.10":
-            self.requires("fmt/[>=10.2.1 <=11.1.1]") # Explicitly tested with all versions in this range
+            self.requires("fmt/[>=10]") # Explicitly tested with all versions in this range
             self.requires("xxhash/[>=0.8.1 <0.9]")
 
     def validate(self):

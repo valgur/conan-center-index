@@ -11,10 +11,7 @@ required_conan_version = ">=2.1"
 
 
 def loose_lt_semver(v1, v2):
-    lv1 = [int(v) for v in v1.split(".")]
-    lv2 = [int(v) for v in v2.split(".")]
-    min_length = min(len(lv1), len(lv2))
-    return lv1[:min_length] < lv2[:min_length]
+    return all(int(p1) < int(p2) for p1, p2 in zip(v1.split("."), v2.split(".")))
 
 
 class MPUnitsConan(ConanFile):
@@ -183,7 +180,7 @@ class MPUnitsConan(ConanFile):
             elif self.options.contracts == "ms-gsl":
                 self.requires("ms-gsl/4.0.0", transitive_headers=True)
             if not self.options.std_format:
-                self.requires("fmt/[^11.0.1]", transitive_headers=True)
+                self.requires("fmt/[>=9]", transitive_headers=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.30 <5]")
@@ -248,12 +245,7 @@ class MPUnitsConan(ConanFile):
             self.info.clear()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.md",
-            self.source_folder,
-            os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         # TODO remove the below when Conan will learn to handle C++ modules

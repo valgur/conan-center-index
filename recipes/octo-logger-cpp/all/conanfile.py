@@ -1,3 +1,5 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
@@ -5,7 +7,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=2.1"
 
@@ -27,19 +28,6 @@ class OctoLoggerCPPConan(ConanFile):
     }
 
     @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "9",
-            "apple-clang": "11",
-            "msvc": "192",
-        }
-
-    @property
     def _aws_supported(self):
         return Version(self.version) >= "1.2.0"
 
@@ -51,18 +39,13 @@ class OctoLoggerCPPConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/[^10.2.1]", transitive_headers=True)
+        self.requires("fmt/[>=8]", transitive_headers=True)
         if self.options.get_safe("with_aws"):
             self.requires("nlohmann_json/[^3]")
             self.requires("aws-sdk-cpp/[^1.9.234]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
         if self.settings.compiler == "clang" and self.settings.compiler.get_safe("libcxx") == "libc++":
             raise ConanInvalidConfiguration(f"{self.ref} does not support clang with libc++. Use libstdc++ instead.")
         if is_msvc_static_runtime(self):
@@ -93,7 +76,7 @@ class OctoLoggerCPPConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 

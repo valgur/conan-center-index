@@ -81,7 +81,7 @@ class OpenImageIOConan(ConanFile):
             self.requires("libjpeg-turbo/[~3.0]")
         self.requires("pugixml/1.15")
         self.requires("tsl-robin-map/1.3.0")
-        self.requires("fmt/[^[^10]]", transitive_headers=True)
+        self.requires("fmt/[>=7]", transitive_headers=True)
         self.requires("opencolorio/2.4.2")
 
         # Optional libraries

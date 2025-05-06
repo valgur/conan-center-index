@@ -44,19 +44,6 @@ class OusterSdkConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -67,15 +54,15 @@ class OusterSdkConan(ConanFile):
         # Used in ouster/types.h
         self.requires("eigen/3.4.0", transitive_headers=True)
         # Used in ouster/sensor_http.h
-        self.requires("jsoncpp/1.9.5", transitive_headers=True, transitive_libs=True)
-        self.requires("spdlog/1.13.0")
-        self.requires("fmt/[^10.2.1]")
+        self.requires("jsoncpp/[^1.9.5]", transitive_headers=True, transitive_libs=True)
+        self.requires("spdlog/[>=1.8]")
+        self.requires("fmt/[>=5]")
         self.requires("libcurl/[>=7.78 <9]")
         # Replaces vendored optional-lite
-        self.requires("optional-lite/3.6.0", transitive_headers=True)
+        self.requires("optional-lite/[^3.6.0]", transitive_headers=True)
 
         if self.options.build_pcap:
-            self.requires("libtins/4.5")
+            self.requires("libtins/[^4.5]")
 
         if self.options.build_osf:
             # Used in fb_generated/*.h
@@ -88,12 +75,7 @@ class OusterSdkConan(ConanFile):
             self.requires("glfw/3.4")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler))
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if self.options.build_osf and not self.options.build_pcap:
             raise ConanInvalidConfiguration("build_osf=True requires build_pcap=True")
@@ -108,10 +90,19 @@ class OusterSdkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Unvendor optional-lite
+        rmdir(self, "ouster_client/include/optional-lite")
+        replace_in_file(self, "ouster_client/CMakeLists.txt", " include/optional-lite", "")
+        save(self, "ouster_client/CMakeLists.txt",
+             "find_package(optional-lite REQUIRED)\n"
+             "target_link_libraries(ouster_client PUBLIC nonstd::optional-lite)\n",
+             append=True)
+        # Allow non-static ouster_osf for consistency with other components
+        replace_in_file(self, "ouster_osf/CMakeLists.txt",
+                        "add_library(ouster_osf STATIC",
+                        "add_library(ouster_osf")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         tc.variables["BUILD_VIZ"] = self.options.build_viz
         tc.variables["BUILD_PCAP"] = self.options.build_pcap
@@ -123,28 +114,13 @@ class OusterSdkConan(ConanFile):
         deps.set_property("flatbuffers", "cmake_target_name", "flatbuffers::flatbuffers")
         deps.generate()
 
-    def _patch_sources(self):
-        # Unvendor optional-lite
-        rmdir(self, os.path.join(self.source_folder, "ouster_client", "include", "optional-lite"))
-        replace_in_file(self, os.path.join(self.source_folder, "ouster_client", "CMakeLists.txt"),
-                        " include/optional-lite", "")
-        save(self, os.path.join(self.source_folder, "ouster_client", "CMakeLists.txt"),
-             "find_package(optional-lite REQUIRED)\n"
-             "target_link_libraries(ouster_client PUBLIC nonstd::optional-lite)\n",
-             append=True)
-
-        # Allow non-static ouster_osf for consistency with other components
-        replace_in_file(self, os.path.join(self.source_folder, "ouster_osf", "CMakeLists.txt"),
-                        "add_library(ouster_osf STATIC", "add_library(ouster_osf")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))

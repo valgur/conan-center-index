@@ -40,9 +40,9 @@ class RmmConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("thrust/1.17.2")
-        self.requires("spdlog/1.13.0")
-        self.requires("fmt/[^10.2.1]")
+        self.requires("thrust/[^1.17.2]")
+        self.requires("spdlog/[>=1.9]")
+        self.requires("fmt/[>=9 <11]")
 
     def package_id(self):
         self.info.clear()

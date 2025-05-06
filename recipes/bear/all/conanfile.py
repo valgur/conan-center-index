@@ -6,7 +6,6 @@ from conan.tools.build import check_min_cppstd, check_max_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -27,13 +26,7 @@ class BearConan(ConanFile):
     def requirements(self):
         self.requires("grpc/[^1.50.2]")
         self.requires("nlohmann_json/[^3]")
-        if Version(self.version) >= "3.1":
-            self.requires("fmt/[^10.2.1]")
-            self.requires("spdlog/1.14.1")
-        else:
-            # fmt < v10 is required, but v9 is not compatible with spdlog recipe versions
-            self.requires("fmt/[^8.1.1]")
-            self.requires("spdlog/1.10.0")
+        self.requires("spdlog/[>=1.10]")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
