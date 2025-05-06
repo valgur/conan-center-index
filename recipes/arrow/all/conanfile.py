@@ -251,6 +251,9 @@ class ArrowConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        if Version(self.version) < "20.0":
+            # Backports https://github.com/apache/arrow/pull/45567
+            replace_in_file(self, "cpp/cmake_modules/FindThriftAlt.cmake", "if(NOT WIN32)", "if(TRUE)")
         if Version(self.version) < "21.0":
             # Protobuf v30 and newer return std::string_view instead of char*.
             # Backports https://github.com/apache/arrow/pull/46136
