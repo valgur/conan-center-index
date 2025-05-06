@@ -44,7 +44,7 @@ class TileDBConan(ConanFile):
         "s3": False,
         "azure": False,
         "gcs": False,
-        "serialization": False,
+        "serialization": True,
         "webp": True,
         "tools": False,
         "remove_deprecations": False,
@@ -110,18 +110,18 @@ class TileDBConan(ConanFile):
         self.requires("zstd/[^1.5]")
         if self.settings.os != "Windows":
             self.requires("openssl/[>=1.1 <4]")
-        self.requires("libmagic/5.45")
+        self.requires("libmagic/[^5.45]")
         if self.options.azure:
-            self.requires("azure-sdk-for-cpp/1.11.3")
+            self.requires("azure-sdk-for-cpp/[^1.11.3]")
         if self.options.gcs:
             self.requires("google-cloud-cpp/[^2]")
         if self.options.serialization:
-            self.requires("capnproto/1.0.2")
+            self.requires("capnproto/1.0.1")
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.s3:
             self.requires("aws-sdk-cpp/[^1.9.234]")
         if self.options.tools:
-            self.requires("clipp/1.2.3")
+            self.requires("clipp/[^1.2.3]")
         if self.options.webp:
             self.requires("libwebp/[^1.3.2]")
 
