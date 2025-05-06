@@ -68,11 +68,11 @@ class GlogConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if self.version == "0.6.0":
+            # CMake v4 support
+            replace_in_file(self, "cmake/GetCacheVariables.cmake", "cmake_policy (VERSION 3.3)", "")
 
     def generate(self):
-        tc = VirtualBuildEnv(self)
-        tc.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["WITH_GFLAGS"] = self.options.with_gflags
         tc.variables["WITH_THREADS"] = self.options.with_threads
