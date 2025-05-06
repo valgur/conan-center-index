@@ -76,20 +76,12 @@ class OpenvinoConan(ConanFile):
         return self.settings.arch == "x86_64"
 
     @property
-    def _gna_option_available(self):
-        return self.settings.os in ["Linux", "Windows"] and self._target_x86_64 and Version(self.version) < "2024.0.0"
-
-    @property
     def _npu_option_available(self):
-        return self.settings.os in ["Linux", "Windows"] and self._target_x86_64 and Version(self.version) >= "2024.1.0"
+        return self.settings.os in ["Linux", "Windows"] and self._target_x86_64
 
     @property
     def _gpu_option_available(self):
         return self.settings.os != "Macos" and self._target_x86_64
-
-    @property
-    def _preprocessing_available(self):
-        return "ade" in self._dependency_versions
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -130,18 +122,8 @@ class OpenvinoConan(ConanFile):
             self.requires(self._require("onnx"))
         if self.options.enable_tf_lite_frontend:
             self.requires("flatbuffers/23.5.26")
-        if self._preprocessing_available:
-            self.requires(self._require("ade"))
 
     def validate(self):
-        if (self.options.get_safe("enable_gpu") and self.options.enable_cpu
-                and Version(self.version) < "2024.4.0" and not self.options.shared):
-            # GPU and CPU plugins cannot be simultaneously built statically, because they use different oneDNN versions
-            self.output.warning(f"{self.name} recipe builds GPU plugin without oneDNN (dGPU) support during static build, "
-                                "because CPU plugin compiled with different oneDNN version may cause ODR violation. "
-                                "To enable oneDNN support for GPU plugin, please, either use shared build configuration "
-                                "or disable CPU plugin by setting 'enable_cpu' option to False.")
-
         if self.settings.os == "Emscripten":
             raise ConanInvalidConfiguration(f"{self.ref} does not support Emscripten")
 
@@ -181,10 +163,9 @@ class OpenvinoConan(ConanFile):
         replace_in_file(self, "src/plugins/intel_cpu/thirdparty/onednn/CMakeLists.txt",
                         "cmake_minimum_required(VERSION 2.8.12)",
                         "cmake_minimum_required(VERSION 3.15)")
-        if Version(self.version) == "2023.3.0":
-            replace_in_file(self, "thirdparty/fluid/modules/gapi/CMakeLists.txt",
-                            "cmake_minimum_required(VERSION 3.3)",
-                            "cmake_minimum_required(VERSION 3.15)")
+        # Disable docs
+        save(self, "src/plugins/intel_cpu/thirdparty/onednn/cmake/doc.cmake", "")
+        save(self, "src/plugins/intel_gpu/thirdparty/onednn_gpu/cmake/doc.cmake", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -193,12 +174,10 @@ class OpenvinoConan(ConanFile):
         if self._gpu_option_available:
             tc.cache_variables["ENABLE_INTEL_GPU"] = self.options.enable_gpu
             tc.cache_variables["ENABLE_ONEDNN_FOR_GPU"] = (
-                Version(self.version) >= "2024.4.0" and self.options.enable_gpu
+                self.options.enable_gpu
                 or not self.options.enable_cpu
                 or self.options.shared
             )
-        if self._gna_option_available:
-            tc.cache_variables["ENABLE_INTEL_GNA"] = False
         if self._npu_option_available:
             tc.cache_variables["ENABLE_INTEL_NPU"] = False
         # SW plugins
@@ -213,8 +192,7 @@ class OpenvinoConan(ConanFile):
         tc.cache_variables["ENABLE_OV_TF_LITE_FRONTEND"] = self.options.enable_tf_lite_frontend
         tc.cache_variables["ENABLE_OV_ONNX_FRONTEND"] = self.options.enable_onnx_frontend
         tc.cache_variables["ENABLE_OV_PYTORCH_FRONTEND"] = self.options.enable_pytorch_frontend
-        if Version(self.version) >= "2024.3.0":
-            tc.cache_variables["ENABLE_OV_JAX_FRONTEND"] = False
+        tc.cache_variables["ENABLE_OV_JAX_FRONTEND"] = False
         # Dependencies
         tc.cache_variables["ENABLE_SYSTEM_TBB"] = True
         tc.cache_variables["ENABLE_TBBBIND_2_5"] = False
@@ -228,8 +206,6 @@ class OpenvinoConan(ConanFile):
         if self.options.get_safe("enable_gpu"):
             tc.cache_variables["ENABLE_SYSTEM_OPENCL"] = True
         # misc
-        if self._preprocessing_available:
-            tc.cache_variables["ENABLE_GAPI_PREPROCESSING"] = True
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.cache_variables["CPACK_GENERATOR"] = "CONAN"
         tc.cache_variables["ENABLE_PROFILING_ITT"] = False
@@ -267,18 +243,12 @@ class OpenvinoConan(ConanFile):
         openvino_runtime.set_property("cmake_target_name", "openvino::runtime")
         openvino_runtime.requires = ["onetbb::libtbb", "pugixml::pugixml"]
         openvino_runtime.libs = ["openvino"]
-        if self._preprocessing_available:
-            openvino_runtime.requires.append("ade::ade")
         if self._target_x86_64:
             openvino_runtime.requires.append("xbyak::xbyak")
         if self.settings.os in ["Linux", "Android", "FreeBSD", "SunOS", "AIX"]:
             openvino_runtime.system_libs = ["m", "dl", "pthread"]
         if self.settings.os == "Windows":
             openvino_runtime.system_libs.append("shlwapi")
-            if self._preprocessing_available:
-                openvino_runtime.system_libs.extend(["wsock32", "ws2_32"])
-        if Version(self.version) < "2024.0.0":
-            openvino_runtime.includedirs.append(os.path.join("include", "ie"))
 
         # Have to expose all internal libraries for static libraries case
         if not self.options.shared:
@@ -292,8 +262,7 @@ class OpenvinoConan(ConanFile):
             if self.options.get_safe("enable_gpu"):
                 openvino_runtime.libs.extend(["openvino_intel_gpu_plugin", "openvino_intel_gpu_graph",
                                               "openvino_intel_gpu_runtime", "openvino_intel_gpu_kernels"])
-                if not self.options.enable_cpu or Version(self.version) >= "2024.4.0":
-                    openvino_runtime.libs.append("openvino_onednn_gpu")
+                openvino_runtime.libs.append("openvino_onednn_gpu")
             # SW plugins
             if self.options.enable_auto:
                 openvino_runtime.libs.append("openvino_auto_plugin")
@@ -301,9 +270,6 @@ class OpenvinoConan(ConanFile):
                 openvino_runtime.libs.append("openvino_hetero_plugin")
             if self.options.enable_auto_batch:
                 openvino_runtime.libs.append("openvino_auto_batch_plugin")
-            # Preprocessing should come after plugins, because plugins depend on it
-            if self._preprocessing_available:
-                openvino_runtime.libs.extend(["openvino_gapi_preproc", "fluid"])
             # Frontends
             if self.options.enable_ir_frontend:
                 openvino_runtime.libs.append("openvino_ir_frontend")
@@ -324,8 +290,6 @@ class OpenvinoConan(ConanFile):
             if self.options.enable_pytorch_frontend:
                 openvino_runtime.libs.append("openvino_pytorch_frontend")
             # Common private dependencies should go last, because they satisfy dependencies for all other libraries
-            if Version(self.version) < "2024.0.0":
-                openvino_runtime.libs.append("openvino_builders")
             openvino_runtime.libs.extend(["openvino_reference", "openvino_shape_inference", "openvino_itt",
                                           # utils goes last since all others depend on it
                                           "openvino_util"])
