@@ -32,7 +32,7 @@ class GRPCProto(ConanFile):
     exports = "helpers.py"
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -50,8 +50,8 @@ class GRPCProto(ConanFile):
     def requirements(self):
        # protobuf symbols are exposed from generated structures
        # https://github.com/conan-io/conan-center-index/pull/16185#issuecomment-1501174215
-        self.requires("protobuf/3.21.12", transitive_headers=True, transitive_libs=True)
-        self.requires("googleapis/cci.20230501")
+        self.requires("protobuf/[>=3.21.12]", transitive_headers=True, transitive_libs=True)
+        self.requires("googleapis/[>=cci.20230501]")
 
     def validate(self):
         check_min_cppstd(self, 11)
@@ -71,8 +71,8 @@ class GRPCProto(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        googleapis_resdirs = self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs
-        tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join([p.replace("\\", "/") for p in googleapis_resdirs])
+        googleapis_resdirs = sorted(set(self.dependencies["googleapis"].cpp_info.aggregated_components().resdirs))
+        tc.cache_variables["GOOGLEAPIS_PROTO_DIRS"] = ";".join(p.replace("\\", "/") for p in googleapis_resdirs)
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -80,7 +80,7 @@ class GRPCProto(ConanFile):
     @lru_cache
     def _parse_proto_libraries(self):
         # Generate the libraries to build dynamically
-        proto_libraries = parse_proto_libraries(os.path.join(self.source_folder, 'BUILD.bazel'), self.source_folder, self.output.error)
+        proto_libraries = parse_proto_libraries(os.path.join(self.source_folder, "BUILD.bazel"), self.source_folder, self.output.error)
 
         # Validate that all files exist and all dependencies are found
         all_deps = [it.cmake_target for it in proto_libraries]
@@ -103,7 +103,7 @@ class GRPCProto(ConanFile):
         return proto_libraries
 
     def build(self):
-        copy(self, "CMakeLists.txt", src=os.path.join(self.source_folder, os.pardir), dst=self.source_folder)
+        copy(self, "CMakeLists.txt", os.path.join(self.source_folder, os.pardir), self.source_folder)
         proto_libraries = self._parse_proto_libraries()
         with open(os.path.join(self.source_folder, "CMakeLists.txt"), "a", encoding="utf-8") as f:
             for it in filter(lambda u: u.is_used, proto_libraries):
@@ -113,19 +113,17 @@ class GRPCProto(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, pattern="*.proto", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
-        copy(self, pattern="*.pb.h", src=self.build_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.proto", self.source_folder, os.path.join(self.package_folder, "share", "grpc-proto"))
+        copy(self, "*.pb.h", self.build_folder, os.path.join(self.package_folder, "include"))
 
-        copy(self, pattern="*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
-        copy(self, pattern="*.so*", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.dylib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
-        copy(self, pattern="*.a", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
+        for pattern in ["*.lib", "*.a", "*.so*", "*.dylib"]:
+            copy(self, pattern, self.build_folder, os.path.join(self.package_folder, "lib"), keep_path=False)
+        copy(self, "*.dll", self.build_folder, os.path.join(self.package_folder, "bin"), keep_path=False)
 
     def package_info(self):
         # We are not creating components, we can just collect the libraries
         self.cpp_info.libs = collect_libs(self)
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = [os.path.join("share", "grpc-proto")]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m"])
