@@ -126,6 +126,9 @@ class ArrowConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.gandiva and not self.options.compute:
+            del self.options.with_re2
+            del self.options.with_utf8proc
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -184,9 +187,9 @@ class ArrowConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:
             self.requires("zstd/[>=1.5 <1.6]")
-        if self.options.with_re2:
+        if self.options.get_safe("with_re2"):
             self.requires("re2/[>=20220601]")
-        if self.options.with_utf8proc:
+        if self.options.get_safe("with_utf8proc"):
             self.requires("utf8proc/[^2.8.0]")
         if self.options.with_backtrace:
             self.requires("libbacktrace/[>=cci.20210118]")
@@ -214,8 +217,6 @@ class ArrowConan(ConanFile):
 
         if self.options.get_safe("skyhook", False):
             raise ConanInvalidConfiguration("CCI has no librados recipe (yet)")
-        if self.options.with_cuda:
-            raise ConanInvalidConfiguration("CCI has no cuda recipe (yet)")
         if self.options.with_s3 and not self.dependencies["aws-sdk-cpp"].options.config:
             raise ConanInvalidConfiguration("arrow:with_s3 requires aws-sdk-cpp:config is True.")
 
@@ -302,7 +303,7 @@ class ArrowConan(ConanFile):
         tc.variables["GLOG_SOURCE"] = "SYSTEM"
         tc.variables["ARROW_WITH_BACKTRACE"] = bool(self.options.with_backtrace)
         tc.variables["ARROW_WITH_BROTLI"] = bool(self.options.with_brotli)
-        tc.variables["ARROW_WITH_RE2"] = bool(self.options.with_re2)
+        tc.variables["ARROW_WITH_RE2"] = bool(self.options.get_safe("with_re2"))
         tc.variables["brotli_SOURCE"] = "SYSTEM"
         if self.options.with_brotli:
             tc.variables["ARROW_BROTLI_USE_SHARED"] = bool(self.dependencies["brotli"].options.shared)
@@ -357,10 +358,10 @@ class ArrowConan(ConanFile):
         tc.variables["ARROW_ENABLE_TIMING_TESTS"] = False
         tc.variables["ARROW_BUILD_BENCHMARKS"] = False
         tc.variables["LLVM_SOURCE"] = "SYSTEM"
-        tc.variables["ARROW_WITH_UTF8PROC"] = self.options.with_utf8proc
-        tc.variables["ARROW_BOOST_REQUIRED"] = self.options.with_boost
+        tc.variables["ARROW_WITH_UTF8PROC"] = bool(self.options.get_safe("with_utf8proc"))
+        tc.variables["ARROW_BOOST_REQUIRED"] = bool(self.options.with_boost)
         tc.variables["utf8proc_SOURCE"] = "SYSTEM"
-        if self.options.with_utf8proc:
+        if self.options.get_safe("with_utf8proc"):
             tc.variables["ARROW_UTF8PROC_USE_SHARED"] = bool(self.dependencies["utf8proc"].options.shared)
         if self.options.gandiva:
             tc.variables["LLVM_LINK_EXECUTABLE"] = "llvm-link"
@@ -427,12 +428,20 @@ class ArrowConan(ConanFile):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libarrow"].system_libs = ["pthread", "m", "dl", "rt"]
 
+        if self.options.with_cuda:
+            self.cpp_info.components["libarrow_cuda"].set_property("pkg_config_name", "arrow_cuda")
+            self.cpp_info.components["libarrow_cuda"].set_property("cmake_target_name", f"Arrow::arrow_cuda_{cmake_suffix}")
+            self.cpp_info.components["libarrow_cuda"].libs = [f"arrow_cuda{suffix}"]
+            self.cpp_info.components["libarrow_cuda"].requires = ["libarrow"]
+            if not self.options.shared:
+                self.cpp_info.components["libarrow_cuda"].system_libs.append("cuda")
+
         if self.options.parquet:
             self.cpp_info.components["libparquet"].set_property("pkg_config_name", "parquet")
             self.cpp_info.components["libparquet"].set_property("cmake_target_name", f"Parquet::parquet_{cmake_suffix}")
             self.cpp_info.components["libparquet"].libs = [f"parquet{suffix}"]
             self.cpp_info.components["libparquet"].requires = ["libarrow"]
-            if self.options.with_re2:
+            if self.options.get_safe("with_re2"):
                 self.cpp_info.components["libparquet"].requires.append("re2::re2")
             if self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
                 self.cpp_info.components["libparquet"].requires.append("boost::filesystem")
@@ -458,9 +467,9 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libgandiva"].requires = ["libarrow", "llvm-core::llvm-core"]
             if self.options.with_boost:
                 self.cpp_info.components["libgandiva"].requires.append("boost::headers")
-            if self.options.with_re2:
+            if self.options.get_safe("with_re2"):
                 self.cpp_info.components["libgandiva"].requires.append("re2::re2")
-            if self.options.with_utf8proc:
+            if self.options.get_safe("with_utf8proc"):
                 self.cpp_info.components["libgandiva"].requires.append("utf8proc::utf8proc")
             if Version(self.version) >= "16.0" and self._requires_xsimd:
                 self.cpp_info.components["libgandiva"].requires.append("xsimd::xsimd")
@@ -501,17 +510,14 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow"].requires.append("jemalloc::jemalloc")
         if self.options.with_mimalloc:
             self.cpp_info.components["libarrow"].requires.append("mimalloc::mimalloc")
-            self.cpp_info.components["libarrow"].requires.append("re2::re2")
         if self.options.with_protobuf:
             self.cpp_info.components["libarrow"].requires.append("protobuf::protobuf")
-        if self.options.with_utf8proc:
+        if self.options.get_safe("with_utf8proc"):
             self.cpp_info.components["libarrow"].requires.append("utf8proc::utf8proc")
         if self.options.with_thrift:
             self.cpp_info.components["libarrow"].requires.append("thrift::thrift")
         if self.options.with_backtrace:
             self.cpp_info.components["libarrow"].requires.append("libbacktrace::libbacktrace")
-        if self.options.with_cuda:
-            self.cpp_info.components["libarrow"].requires.append("cuda::cuda")
         if self._requires_rapidjson:
             self.cpp_info.components["libarrow"].requires.append("rapidjson::rapidjson")
         if self.options.with_s3:
