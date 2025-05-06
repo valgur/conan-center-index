@@ -27,12 +27,15 @@ class EtcdCppApiv3Conan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("grpc/[<=1.65.5]")
+        self.requires("grpc/[^1.50.2]")
         self.requires("cpprestsdk/2.10.19", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
@@ -43,6 +46,7 @@ class EtcdCppApiv3Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         # For CMake v4 support
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required (VERSION 3.3 FATAL_ERROR)",
