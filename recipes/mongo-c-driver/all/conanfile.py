@@ -70,7 +70,7 @@ class MongoCDriverConan(ConanFile):
         if self.options.with_sasl == "cyrus":
             self.requires("cyrus-sasl/2.1.28")
         if self.options.with_snappy:
-            self.requires("snappy/1.1.10")
+            self.requires("snappy/[^1.1.9]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:

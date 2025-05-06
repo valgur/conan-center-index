@@ -42,7 +42,7 @@ class ForestDBConan(ConanFile):
 
     def requirements(self):
         if self.options.with_snappy:
-            self.requires("snappy/1.1.10")
+            self.requires("snappy/[^1.1.9]")
 
     def validate(self):
         if self.settings.os == "Windows":

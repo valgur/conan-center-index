@@ -60,7 +60,7 @@ class CbloscConan(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_snappy:
-            self.requires("snappy/1.1.10")
+            self.requires("snappy/[^1.1.9]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:

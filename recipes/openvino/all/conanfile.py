@@ -117,7 +117,7 @@ class OpenvinoConan(ConanFile):
         if self._protobuf_required:
             self.requires("protobuf/[>=3.21.12]")
         if self.options.enable_tf_frontend:
-            self.requires("snappy/1.1.10")
+            self.requires("snappy/[^1.1.9]")
         if self.options.enable_onnx_frontend:
             self.requires(self._require("onnx"))
         if self.options.enable_tf_lite_frontend:

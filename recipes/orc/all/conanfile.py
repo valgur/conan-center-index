@@ -57,7 +57,7 @@ class OrcRecipe(ConanFile):
     def requirements(self):
         self.requires("protobuf/[>=3.21.12]")
         self.requires("lz4/[^1.9.4]")
-        self.requires("snappy/1.1.9")
+        self.requires("snappy/[^1.1.9]")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("zstd/[~1.5]")
 
