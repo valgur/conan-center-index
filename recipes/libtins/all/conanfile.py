@@ -47,7 +47,7 @@ class LibTinsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpcap/1.10.4", transitive_headers=True, transitive_libs=True)
+        self.requires("libpcap/[^1.10.4]", transitive_headers=True, transitive_libs=True)
         if self.options.with_ack_tracker or self.options.with_tcp_stream_custom_data:
             # Used in two public headers:
             # - https://github.com/mfontanini/libtins/blob/v4.4/include/tins/tcp_ip/ack_tracker.h#L38
@@ -61,6 +61,11 @@ class LibTinsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.15)")
+        replace_in_file(self, "cmake/Modules/CheckCXXFeatures.cmake",
+                        "cmake_minimum_required(VERSION 2.8.3)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -84,16 +89,9 @@ class LibTinsConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            pattern="LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
-        rmdir(self, os.path.join(self.package_folder, "CMake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
