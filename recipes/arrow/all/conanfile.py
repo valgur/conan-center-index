@@ -185,13 +185,9 @@ class ArrowConan(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_snappy:
-            self.requires("snappy/1.1.9")
-        if self.options.get_safe("simd_level") != None or \
-                self.options.get_safe("runtime_simd_level") != None:
-            if Version(self.version) < 8:
-                self.requires("xsimd/9.0.1")
-            else:
-                self.requires("xsimd/13.0.0")
+            self.requires("snappy/[^1.1.9]")
+        if self.options.simd_level.value is not None or self.options.runtime_simd_level.value is not None:
+            self.requires("xsimd/[^13.0.0]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:
@@ -566,7 +562,7 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libarrow"].requires.append("lz4::lz4")
         if self.options.with_snappy:
             self.cpp_info.components["libarrow"].requires.append("snappy::snappy")
-        if self.options.get_safe("simd_level") is not None or self.options.get_safe("runtime_simd_level") is not None:
+        if self.options.simd_level.value is not None or self.options.runtime_simd_level.value is not None:
             self.cpp_info.components["libarrow"].requires.append("xsimd::xsimd")
         if self.options.with_zlib:
             self.cpp_info.components["libarrow"].requires.append("zlib::zlib")
