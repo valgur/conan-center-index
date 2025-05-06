@@ -45,13 +45,13 @@ class GlimPackage(ConanFile):
         self.requires("boost/1.86.0", transitive_headers=True, force=True)
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True)
-        self.requires("gtsam/4.2", transitive_headers=True, transitive_libs=True)
-        self.requires("gtsam_points/1.0.6", transitive_headers=True, transitive_libs=True, options={"cuda": self.options.cuda})
+        self.requires("gtsam/[~4.2]", transitive_headers=True, transitive_libs=True)
+        self.requires("gtsam_points/[^1.0.6]", transitive_headers=True, transitive_libs=True, options={"cuda": self.options.cuda})
         self.requires("nlohmann_json/[^3]", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
-        self.requires("spdlog/1.14.1", transitive_headers=True, transitive_libs=True)
+        self.requires("spdlog/[^1.8]", transitive_headers=True, transitive_libs=True)
         if self.options.viewer:
-            self.requires("iridescence/0.1.3", transitive_headers=True, transitive_libs=True)
+            self.requires("iridescence/[>=0.1.3 <1]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
