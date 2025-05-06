@@ -6,6 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -47,7 +48,7 @@ class LightGBMConan(ConanFile):
     def requirements(self):
         self.requires("eigen/3.4.0")
         self.requires("fast_double_parser/0.7.0", transitive_headers=True, transitive_libs=True)
-        self.requires("fmt/[^10.1.1]", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[>=5]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_openmp"):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
@@ -61,6 +62,15 @@ class LightGBMConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Fix vendored dependency includes
+        for lib in ["fmt", "fast_double_parser"]:
+            replace_in_file(self, "include/LightGBM/utils/common.h", f"../../../external_libs/{lib}/include/", "")
+        # Unvendor Eigen3
+        replace_in_file(self, "CMakeLists.txt", "include_directories(${EIGEN_DIR})", "")
+        # Avoid OpenMP_CXX_FLAGS
+        replace_in_file(self, "CMakeLists.txt",
+                        'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")',
+                        'link_libraries(OpenMP::OpenMP_CXX)')
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -75,32 +85,22 @@ class LightGBMConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Fix vendored dependency includes
-        common_h = os.path.join(self.source_folder, "include", "LightGBM", "utils", "common.h")
-        for lib in ["fmt", "fast_double_parser"]:
-            replace_in_file(self, common_h, f"../../../external_libs/{lib}/include/", "")
-        # Unvendor Eigen3
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "include_directories(${EIGEN_DIR})", "")
-        # Avoid OpenMP_CXX_FLAGS
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")',
-                        'link_libraries(OpenMP::OpenMP_CXX)')
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure(build_script_folder=Path(self.source_folder).parent)
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LightGBM")
         self.cpp_info.set_property("cmake_target_name", "LightGBM::LightGBM")
+        self.cpp_info.libs = ["lib_lightgbm" if is_msvc(self) else "_lightgbm"]
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
+        elif self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs.append("pthread")
+
