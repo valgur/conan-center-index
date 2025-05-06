@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.20)
 # CMake >= 3.20 is required. There is a proto with dots in the name 'k8s.min.proto' and CMake fails to generate project files
-
+cmake_minimum_required(VERSION 3.20)
 project(googleapis)
 
 find_package(Protobuf REQUIRED CONFIG)

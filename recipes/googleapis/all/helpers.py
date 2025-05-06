@@ -97,9 +97,9 @@ class _ProtoLibrary:
 
 def parse_proto_libraries(filename, source_folder, error):
     # Generate the libraries to build dynamically
-    re_name = re.compile(r'name = "(.*)"')
-    re_srcs_oneline = re.compile(r'srcs = \["(.*)"\],')
-    re_deps_oneline = re.compile(r'deps = \["(.*)"\],')
+    re_name = re.compile(r'name = "(.*?)"')
+    re_srcs_oneline = re.compile(r'srcs = \["(.*?)"\],')
+    re_deps_oneline = re.compile(r'deps = \["(.*?)"\],')
     re_add_varname = re.compile(r'] \+ (.*),')
 
     proto_libraries = []
@@ -139,24 +139,24 @@ def parse_proto_libraries(filename, source_folder, error):
         action = None
         parsing_variable = None
         variables = {}
-        for line in f.readlines():
+        for line in f:
             line = line.strip()
 
             if line == "proto_library(":
-                assert proto_library == None
+                assert proto_library is None
                 proto_library = _ProtoLibrary(is_cc=False)
             elif line == "cc_proto_library(":
-                assert proto_library == None
+                assert proto_library is None
                 proto_library = _ProtoLibrary(is_cc=True)
             elif line == '_PROTO_SUBPACKAGE_DEPS = [':
                 variables["_PROTO_SUBPACKAGE_DEPS"] = []
                 parsing_variable = lambda u: collecting_items(variables["_PROTO_SUBPACKAGE_DEPS"], u)
-            elif parsing_variable != None:
+            elif parsing_variable is not None:
                 if line == "]":
                     parsing_variable = None
                 else:
                     parsing_variable(line)
-            elif proto_library != None:
+            elif proto_library is not None:
                 if line.startswith("name ="):
                     proto_library.name = re_name.search(line).group(1)
                     proto_library.qname = f"//{current_folder_str}"
