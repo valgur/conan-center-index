@@ -39,20 +39,19 @@ class GoogleCloudCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("grpc/[<1.70]")
+        self.requires("protobuf/[*]")
+        self.requires("abseil/[>=20230125.3]", transitive_headers=True)
         self.requires("crc32c/[^1.1.2]")
         self.requires("libcurl/[>=7.78.0 <9]")
         self.requires("nlohmann_json/[^3]")
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("protobuf/3.21.12")
-        self.requires("grpc/[<1.62.0]")
-        self.requires("abseil/[>=20230125.3]", transitive_headers=True)
         # TODO: googleapis is hard to unvendorize, as it creates google-cloud-cpp:: targets
         #  and it's not trivial to replace them with the googleapis:: targets,
         #  there's not clean 1:1 mapping between them either way
         # self.requires("googleapis/cci.20220531")
 
     def build_requirements(self):
-        self.tool_requires("protobuf/<host_version>")
         self.tool_requires("grpc/<host_version>")
 
     def validate(self):
