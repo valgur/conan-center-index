@@ -5,10 +5,8 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -32,27 +30,11 @@ class LibqasmConan(ConanFile):
         "fPIC": True,
         "build_python": False
     }
+    implements = ["auto_shared_fpic"]
 
     @property
     def _should_build_test(self):
         return not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
-
-    @property
-    def _min_cppstd(self):
-        return "20"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "10",
-            "clang": "13",
-            "apple-clang": "14",
-            "msvc": "192"
-        }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def configure(self):
         if self.options.shared:
@@ -63,36 +45,27 @@ class LibqasmConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def build_requirements(self):
-        self.tool_requires("tree-gen/<host_version>")
-        self.tool_requires("zulu-openjdk/21.0.1")
-        if self.settings.arch == "wasm":
-            self.tool_requires("emsdk/[^4]")
-        if self._should_build_test:
-            self.test_requires("gtest/1.15.0")
-        if self.options.build_python:
-            self.tool_requires("cpython/3.12.2")
+    def requirements(self):
+        self.requires("fmt/[>=9]", transitive_headers=True)
+        self.requires("tree-gen/[^1.0.8]", transitive_headers=True, transitive_libs=True)
+        self.requires("range-v3/[>=0.12.0 <1]", transitive_headers=True)
+        if not self.settings.arch == "wasm":
+            self.requires("antlr4-cppruntime/[^4.13.1]", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd},"
-                                            f"which your compiler does not support.")
-
+        check_min_cppstd(self, 20)
         if self.settings.arch != "wasm" and self.dependencies["antlr4-cppruntime"].options.shared != self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} requires antlr4-cppruntime to be built with the same shared option value.")
 
-    def requirements(self):
-        if Version(self.version) < "0.6.7":
-            self.requires("fmt/[^10.2.1]", transitive_headers=True)
-            self.requires("tree-gen/1.0.7", transitive_headers=True, transitive_libs=True)
-        else:
-            self.requires("fmt/[^11.0.2]", transitive_headers=True)
-            self.requires("tree-gen/1.0.8", transitive_headers=True, transitive_libs=True)
-        self.requires("range-v3/0.12.0", transitive_headers=True)
-        if not self.settings.arch == "wasm":
-            self.requires("antlr4-cppruntime/4.13.1", transitive_headers=True)
+    def build_requirements(self):
+        self.tool_requires("tree-gen/<host_version>")
+        self.tool_requires("zulu-openjdk/[^21.0.1]")
+        if self.settings.arch == "wasm":
+            self.tool_requires("emsdk/[^4]")
+        if self._should_build_test:
+            self.test_requires("gtest/[^1.15.0]")
+        if self.options.build_python:
+            self.tool_requires("cpython/[^3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -104,8 +77,6 @@ class LibqasmConan(ConanFile):
         tc.variables["LIBQASM_BUILD_PYTHON"] = self.options.build_python
         tc.variables["LIBQASM_BUILD_TESTS"] = self._should_build_test
         tc.generate()
-        env = VirtualBuildEnv(self)
-        env.generate()
 
     def _patch_sources(self):
         werror = "/WX" if is_msvc(self) else "-Werror"
