@@ -1141,7 +1141,7 @@ class OpenCVConan(ConanFile):
         # sfm module dependencies
         if self.options.sfm:
             self.requires("gflags/2.2.2")
-            self.requires("glog/0.7.0")
+            self.requires("glog/[>=0.6 <1]")
         # text module dependencies
         if self.options.get_safe("with_tesseract"):
             self.requires("tesseract/5.3.3")

@@ -159,7 +159,7 @@ class ArrowConan(ConanFile):
         if self.options.with_gflags:
             self.requires("gflags/2.2.2")
         if self.options.with_glog:
-            self.requires("glog/0.6.0")
+            self.requires("glog/[>=0.6 <0.7]")
         if self.options.get_safe("with_gcs"):
             self.requires("google-cloud-cpp/1.40.1")
         if self.options.with_grpc:

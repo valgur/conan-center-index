@@ -58,7 +58,7 @@ class LogrConan(ConanFile):
             self.requires("spdlog/1.12.0")
 
         if self.options.with_glog:
-            self.requires("glog/0.6.0")
+            self.requires("glog/[>=0.6.0 <1]")
 
         if self.options.with_log4cplus:
             self.requires("log4cplus/2.1.0")
