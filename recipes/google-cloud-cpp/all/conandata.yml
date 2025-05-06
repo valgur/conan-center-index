@@ -2,3 +2,9 @@ sources:
   "1.42.2":
     url: "https://github.com/googleapis/google-cloud-cpp/archive/refs/tags/v1.42.2.tar.gz"
     sha256: "d74f10e97cb5f3d764d763cf94decb076d00c5affb675ee22e3f6d4855e140d1"
+patches:
+  "1.42.2":
+    - patch_file: "patches/002-protobuf-6.30-compatibility.patch"
+      patch_description: "Add compatibility with protobuf 6.30"
+      patch_type: "backport"
+      patch_source: "https://github.com/googleapis/google-cloud-cpp/pull/14828"

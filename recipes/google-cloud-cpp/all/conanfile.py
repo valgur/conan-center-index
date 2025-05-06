@@ -35,11 +35,14 @@ class GoogleCloudCppConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("grpc/[<1.70]")
+        self.requires("grpc/[^1.50.2]")
         self.requires("protobuf/[*]")
         self.requires("abseil/[>=20230125.3]", transitive_headers=True)
         self.requires("crc32c/[^1.1.2]")
@@ -64,6 +67,7 @@ class GoogleCloudCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
         if Version(self.version) < "1.33.0":
             # Do not override CMAKE_CXX_STANDARD if provided
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),

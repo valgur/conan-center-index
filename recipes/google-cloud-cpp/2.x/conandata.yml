@@ -7,3 +7,7 @@ patches:
     - patch_file: "patches/2.28.0/001-add-find-package-threads.patch"
       patch_description: "Missing find_package() in CMake files"
       patch_type: "conan"
+    - patch_file: "patches/2.28.0/002-protobuf-6.30-compatibility.patch"
+      patch_description: "Add compatibility with protobuf 6.30"
+      patch_type: "backport"
+      patch_source: "https://github.com/googleapis/google-cloud-cpp/pull/14828"
