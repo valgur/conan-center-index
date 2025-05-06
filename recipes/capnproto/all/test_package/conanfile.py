@@ -1,9 +1,8 @@
 import os
 
 from conan import ConanFile
-from conan.tools.build import can_run, cross_building
+from conan.tools.build import can_run
 from conan.tools.cmake import CMake, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 
 
 class TestPackageConan(ConanFile):
@@ -14,14 +13,10 @@ class TestPackageConan(ConanFile):
         cmake_layout(self)
 
     def requirements(self):
-        self.requires(self.tested_reference_str, run=True)
+        self.requires(self.tested_reference_str)
 
-    def generate(self):
-        VirtualRunEnv(self).generate()
-        if cross_building(self):
-            VirtualBuildEnv(self).generate()
-        else:
-            VirtualRunEnv(self).generate(scope="build")
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
 
     def build(self):
         cmake = CMake(self)

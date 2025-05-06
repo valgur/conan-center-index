@@ -86,8 +86,6 @@ class CapnprotoConan(ConanFile):
             )
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} doesn't support shared libraries for Visual Studio")
-        if self.settings.os == "Windows" and Version(self.version) < "0.8.0" and self.options.with_openssl:
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support OpenSSL on Windows pre 0.8.0")
         # MSVC Release build is not supported in 1.0.0
         # https://github.com/capnproto/capnproto/issues/1740
         if Version(self.version) == "1.0.0" and is_msvc(self) and self.settings.build_type == "Release":
@@ -112,7 +110,7 @@ class CapnprotoConan(ConanFile):
             tc.variables["EXTERNAL_CAPNP"] = False
             tc.variables["CAPNP_LITE"] = False
             tc.variables["WITH_OPENSSL"] = self.options.with_openssl
-            if Version(self.version) < "2": # pylint: disable=conan-condition-evals-to-constant
+            if Version(self.version) > "1.1.0":
                 tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support (v2 branch does not need this)
             tc.generate()
             deps = CMakeDeps(self)
@@ -169,18 +167,10 @@ class CapnprotoConan(ConanFile):
             if os.path.basename(cmake_file) != "CapnProtoMacros.cmake":
                 os.remove(cmake_file)
         # inject mandatory variables so that CAPNP_GENERATE_CPP function can
-        # work in a robust way (build from source or from pre build package)
+        # work in a robust way (build from source or from pre-built package)
         find_execs = textwrap.dedent("""\
-            if(CMAKE_CROSSCOMPILING)
-                find_program(CAPNP_EXECUTABLE capnp PATHS ENV PATH NO_DEFAULT_PATH)
-                find_program(CAPNPC_CXX_EXECUTABLE capnpc-c++ PATHS ENV PATH NO_DEFAULT_PATH)
-            endif()
-            if(NOT CAPNP_EXECUTABLE)
-                set(CAPNP_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/../../../bin/capnp${CMAKE_EXECUTABLE_SUFFIX}")
-            endif()
-            if(NOT CAPNPC_CXX_EXECUTABLE)
-                set(CAPNPC_CXX_EXECUTABLE "${CMAKE_CURRENT_LIST_DIR}/../../../bin/capnpc-c++${CMAKE_EXECUTABLE_SUFFIX}")
-            endif()
+            find_program(CAPNP_EXECUTABLE capnp PATHS ENV PATH NO_DEFAULT_PATH)
+            find_program(CAPNPC_CXX_EXECUTABLE capnpc-c++ PATHS ENV PATH NO_DEFAULT_PATH)
             set(CAPNP_INCLUDE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/../../../include")
             function(CAPNP_GENERATE_CPP SOURCES HEADERS)
         """)
