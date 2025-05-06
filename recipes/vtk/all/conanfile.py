@@ -312,7 +312,7 @@ class VtkConan(ConanFile):
         if self.options.with_libharu:
             self.requires("libharu/2.4.4")
         if self.options.with_libproj:
-            self.requires("proj/9.3.1")
+            self.requires("proj/[^9.3.1]")
         if self.options.with_libxml2:
             # Used in public vtk_libxml2.h
             self.requires("libxml2/[>=2.12.5 <3]", transitive_headers=True, transitive_libs=True)

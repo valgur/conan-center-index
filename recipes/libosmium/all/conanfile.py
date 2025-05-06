@@ -63,7 +63,7 @@ class LibosmiumConan(ConanFile):
         if self.options.gdal:
             self.requires("gdalcpp/1.3.0")
         if self.options.proj:
-            self.requires("proj/9.3.1")
+            self.requires("proj/[^9.3.1]")
         if self.options.lz4:
             self.requires("lz4/[^1.9.4]")
 
