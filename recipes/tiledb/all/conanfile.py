@@ -119,7 +119,7 @@ class TileDBConan(ConanFile):
             self.requires("capnproto/1.0.2")
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.s3:
-            self.requires("aws-sdk-cpp/1.11.352")
+            self.requires("aws-sdk-cpp/[^1.9.234]")
         if self.options.tools:
             self.requires("clipp/1.2.3")
         if self.options.webp:

@@ -54,10 +54,7 @@ class OctoLoggerCPPConan(ConanFile):
         self.requires("fmt/[^10.2.1]", transitive_headers=True)
         if self.options.get_safe("with_aws"):
             self.requires("nlohmann_json/[^3]")
-            if Version(self.version) >= "2.0.0":
-                self.requires("aws-sdk-cpp/1.11.352")
-            else:
-                self.requires("aws-sdk-cpp/1.9.234")
+            self.requires("aws-sdk-cpp/[^1.9.234]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
