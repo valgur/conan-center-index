@@ -61,7 +61,7 @@ class LibdbConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tcl:
-            self.requires("tcl/8.6.16")
+            self.requires("tcl/[^8.6.16]")
 
     def validate(self):
         if is_msvc(self) and check_min_vs(self, "192", raise_invalid=False):

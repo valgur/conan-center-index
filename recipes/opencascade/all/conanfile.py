@@ -94,7 +94,7 @@ class OpenCascadeConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("tcl/8.6.16")
+        self.requires("tcl/[^8.6.16]")
         if self._link_tk:
             self.requires("tk/8.6.16")
         self.requires("freetype/[^2.13.2]")
