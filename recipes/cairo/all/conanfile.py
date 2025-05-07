@@ -78,7 +78,7 @@ class CairoConan(ConanFile):
         if self.options.with_zlib and self.options.with_png:
             self.requires("expat/[>=2.6.2 <3]")
         if self.options.with_lzo:
-            self.requires("lzo/2.10")
+            self.requires("lzo/[^2.10]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_freetype:

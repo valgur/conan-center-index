@@ -101,7 +101,7 @@ class LibarchiveConan(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_lzo:
-            self.requires("lzo/2.10")
+            self.requires("lzo/[^2.10]")
         if self.options.with_lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.with_zstd:

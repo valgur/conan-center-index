@@ -41,7 +41,7 @@ class TarConan(ConanFile):
         self.requires("lzip/1.23", run=True, headers=False, libs=False)
         self.requires("xz_utils/5.4.5", run=True, headers=False, libs=False)
         self.requires("zstd/[~1.5]", run=True, headers=False, libs=False)
-        # self.requires("lzo/2.10", run=True, headers=False, libs=False)
+        # self.requires("lzo/[^2.10]", run=True, headers=False, libs=False)
 
     def build_requirements(self):
         if Version(self.version) == "1.35":
