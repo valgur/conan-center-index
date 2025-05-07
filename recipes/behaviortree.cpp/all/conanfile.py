@@ -140,7 +140,7 @@ class BehaviorTreeCPPConan(ConanFile):
         if self._with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self._with_tinyxml2:
-            self.requires("tinyxml2/10.0.0")
+            self.requires("tinyxml2/[^10.0.0]")
         if self._with_zeromq:
             self.requires("zeromq/[^4.3.5]")
 

@@ -47,7 +47,7 @@ class FastDDSConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("tinyxml2/10.0.0")
+        self.requires("tinyxml2/[^10.0.0]")
         self.requires("asio/[>=1.29.0 <1.32]")
         # Fast-DDS < 2.12 uses Fast-CDR 1.x
         if Version(self.version) < "2.12.0":

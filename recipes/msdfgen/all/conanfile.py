@@ -47,7 +47,7 @@ class MsdfgenConan(ConanFile):
             self.requires("lodepng/cci.20200615")
         else:
             self.requires("libpng/[~1.6]")
-        self.requires("tinyxml2/10.0.0")
+        self.requires("tinyxml2/[^10.0.0]")
         if self.options.with_openmp:
             # Used only in .cpp files
             self.requires("openmp/system")

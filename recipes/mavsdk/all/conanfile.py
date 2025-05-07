@@ -51,7 +51,7 @@ class MavsdkConan(ConanFile):
     def requirements(self):
         self.requires("mavlink/1.0.12.cci.20240530", transitive_headers=True)
         self.requires("jsoncpp/[^1.9.6]")
-        self.requires("tinyxml2/10.0.0")
+        self.requires("tinyxml2/[^10.0.0]")
         self.requires("libcurl/[>=7.86 <9]")
         self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.build_server:

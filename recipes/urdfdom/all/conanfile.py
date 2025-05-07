@@ -38,7 +38,7 @@ class PackageConan(ConanFile):
         self.requires("urdfdom_headers/1.1.1", transitive_headers=True)
         self.requires("console_bridge/1.0.2")
         if Version(self.version) >= "4.0":
-            self.requires("tinyxml2/10.0.0")
+            self.requires("tinyxml2/[^10.0.0]")
         else:
             self.requires("tinyxml/2.6.2", transitive_headers=True, transitive_libs=True)
 

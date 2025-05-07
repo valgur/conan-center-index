@@ -32,7 +32,7 @@ class TinyEXIFConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("tinyxml2/9.0.0")
+        self.requires("tinyxml2/[^9.0.0]")
 
     def validate(self):
         check_min_cppstd(self, 11)

@@ -130,7 +130,7 @@ class PackageConan(ConanFile):
         if self.options.with_osqp:
             self.requires("osqp/0.6.3")
         if self.options.with_tinyxml:
-            self.requires("tinyxml2/10.0.0")
+            self.requires("tinyxml2/[^10.0.0]")
         if self.options.with_lapack:
             self.requires("openblas/[>=0.3.28 <1]")
         if self.options.with_ipopt:
