@@ -63,9 +63,9 @@ class OpenColorIOConan(ConanFile):
             self.requires("yaml-cpp/0.8.0")
 
         if Version(self.version) >= "2.3.0":
-            self.requires("minizip-ng/4.0.3")
+            self.requires("minizip-ng/[^4.0.3]")
         elif Version(self.version) >= "2.2.0":
-            self.requires("minizip-ng/3.0.9")
+            self.requires("minizip-ng/[^3.0.9]")
 
         # for tools only
         self.requires("lcms/2.16")
