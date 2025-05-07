@@ -119,7 +119,7 @@ class OsgearthConan(ConanFile):
         if self.options.enable_profiling:
             self.requires("tracy/0.11.1")
         if self.options.with_basisu:
-            self.requires("libbasisu/1.16.4")
+            self.requires("libbasisu/[^1.16.4]")
         if self.options.with_blend2d:
             # v0.10+ is not compatible as of v3.7
             self.requires("blend2d/0.9")

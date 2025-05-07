@@ -188,7 +188,7 @@ class GdalConan(ConanFile):
         if self.options.with_arrow:
             self.requires("arrow/18.1.0")
         if self.options.with_basisu:
-            self.requires("libbasisu/1.15.0")
+            self.requires("libbasisu/[^1.15.0]")
         if self.options.with_blosc:
             self.requires("c-blosc/[^1.21.5]")
         if self.options.with_brunsli:
