@@ -105,7 +105,7 @@ class DirectfbConan(ConanFile):
         if self.options.with_egl:
             self.requires("egl/system")
         if self.options.with_sdl:
-            self.requires("sdl/2.32.2")
+            self.requires("sdl/[^2.32.2]")
         if self.options.with_mesa:
             self.requires("opengl/system")
         if self.options.with_drm:

@@ -235,7 +235,7 @@ class MagnumConan(ConanFile):
 
         if self.options.sdl2_application:
             # https://github.com/mosra/magnum/blob/v2020.06/src/Magnum/Platform/Sdl2Application.h#L60-L64
-            self.requires("sdl/2.30.9", transitive_headers=True, transitive_libs=True)
+            self.requires("sdl/[^2.30.9]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

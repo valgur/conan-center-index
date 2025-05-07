@@ -167,7 +167,7 @@ class wxWidgetsConan(ConanFile):
             if self.options.libiconv:
                 self.requires("libiconv/1.17")
             if self.options.sound:
-                self.requires("sdl/2.30.9")
+                self.requires("sdl/[^2.30.9]")
         if self.settings.os != "Windows" and not is_apple_os(self):
             if self.options.secretstore:
                 self.requires("libsecret/0.21.4")

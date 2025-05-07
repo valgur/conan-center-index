@@ -163,9 +163,9 @@ class ImguiConan(ConanFile):
         if self.options.get_safe("backend_glut") and self.settings.os != "Emscripten":
             self.requires("freeglut/3.4.0")
         if self.options.get_safe("backend_sdl2") or self.options.get_safe("backend_sdlrenderer2"):
-            self.requires("sdl/2.30.7")
+            self.requires("sdl/[^2.30.7]")
         # elif self.options.get_safe("backend_sdlrenderer3"):
-        #     self.requires("sdl/3.x")
+        #     self.requires("sdl/[^3.x]")
         if self.options.get_safe("backend_vulkan"):
             self.requires("vulkan-headers/1.4.309.0", transitive_headers=True)
             self.requires("vulkan-loader/1.4.309.0")
