@@ -1,13 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, check_min_vs
-from conan.tools.scm import Version
+from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
 
 required_conan_version = ">=2.1"
 
@@ -32,52 +30,14 @@ class Antlr4CppRuntimeConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        # Antlr 4.9.3 requires C++11 while newer versions require C++17
-        return "17" if Version(self.version) >= "4.10" else "11"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "17": {
-                "gcc": "7",
-                "clang": "5",
-                "apple-clang": "9.1",
-            },
-        }.get(self._min_cppstd, {})
-
     def export_sources(self):
         export_conandata_patches(self)
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def requirements(self):
-        # 1. As of 4.10, antlr4-cppruntime no longer requires `utfcpp`.
-        # Reference: [C++] Implement standalone Unicode encoding and decoding handling
-        #      Link: https://github.com/antlr/antlr4/pull/3398
-        # 2. As of 4.11, antlr4-cppruntime no longer requires `libuuid`.
-        # Reference: [C++] Remove libuuid dependency
-        #      Link: https://github.com/antlr/antlr4/pull/3787
-        # Note that the above PR points that libuuid can be removed from 4.9.3, 4.10 and 4.10.1 as well.
-        # We have patched the CMakeLists.txt to drop the dependency on libuuid from aforementioned antlr versions.
-        if Version(self.version) < "4.10":
-            self.requires("utfcpp/3.2.3")
-
     def validate(self):
-        # Compilation of this library on version 15 claims C2668 Error.
-        # This could be Bogus error or malformed Antlr4 library.
-        # Guard: The minimum MSVC version is 16 or 1920 (which already supports C++17)
-        check_min_vs(self, "192")
-
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -94,9 +54,8 @@ class Antlr4CppRuntimeConan(ConanFile):
         # As of ANTLR 4.12.0, one can choose to build the shared/static library only instead of both of them
         # Related Issue: https://github.com/antlr/antlr4/issues/3993
         # Related PR: https://github.com/antlr/antlr4/pull/3996
-        if Version(self.version) >= "4.12":
-            tc.variables["ANTLR_BUILD_SHARED"] = self.options.shared
-            tc.variables["ANTLR_BUILD_STATIC"] = not self.options.shared
+        tc.variables["ANTLR_BUILD_SHARED"] = self.options.shared
+        tc.variables["ANTLR_BUILD_STATIC"] = not self.options.shared
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
