@@ -109,7 +109,7 @@ class PopplerConan(ConanFile):
         if self.options.get_safe("with_gtk"):
             self.requires("gtk/[^4.15]")
         if self.options.with_openjpeg:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.with_lcms:
             self.requires("lcms/2.16")
         if self.options.with_libjpeg == "libjpeg":

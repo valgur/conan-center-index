@@ -264,7 +264,7 @@ class GStPluginsBadConan(ConanFile):
         if "openh264" in reqs:
             self.requires("openh264/[^2.5.0]")
         if "openjpeg" in reqs:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if "openni2" in reqs:
             self.requires("openni2/2.2.0.33")
         if "opus" in reqs:

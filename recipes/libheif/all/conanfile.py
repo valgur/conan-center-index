@@ -80,7 +80,7 @@ class LibheifConan(ConanFile):
         if self.options.get_safe("with_jpeg"):
             self.requires("libjpeg/9f")
         if self.options.get_safe("with_openjpeg"):
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.get_safe("with_openjph"):
             self.requires("openjph/0.16.0", transitive_headers=False)
         if self.options.get_safe("with_openh264"):

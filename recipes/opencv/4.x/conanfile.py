@@ -1109,7 +1109,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_jpeg2000") == "jasper":
             self.requires("jasper/[^4.2]")
         elif self.options.get_safe("with_jpeg2000") == "openjpeg":
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.get_safe("with_png"):
             self.requires("libpng/[~1.6]")
         if self.options.get_safe("with_openexr"):

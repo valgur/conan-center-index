@@ -74,7 +74,7 @@ class FreeImageConan(ConanFile):
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/[^4.1.1]")
         if self.options.with_jpeg2000:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_webp:

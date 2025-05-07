@@ -80,7 +80,7 @@ class LeptonicaConan(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_openjpeg:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
 

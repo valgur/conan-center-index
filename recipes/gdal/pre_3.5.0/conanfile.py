@@ -257,7 +257,7 @@ class GdalConan(ConanFile):
         if self.options.with_jasper:
             self.requires("jasper/[^4.2]")
         if self.options.with_openjpeg:
-            self.requires("openjpeg/2.5.0")
+            self.requires("openjpeg/[^2.5.0]")
         # if self.options.with_fgdb:
         #     self.requires("file-geodatabase-api/x.x.x")
         if self.options.with_mysql == "libmysqlclient":

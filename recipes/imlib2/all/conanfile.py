@@ -97,7 +97,7 @@ class Imlib2Conan(ConanFile):
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/[^4.1.5]")
         if self.options.with_j2k:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.with_jxl:
             self.requires("libjxl/0.10.3")
         if self.options.with_lzma:

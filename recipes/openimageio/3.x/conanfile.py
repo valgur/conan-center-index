@@ -108,7 +108,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_raw:
             self.requires("libraw/[>=0.21.3 <1]")
         if self.options.with_openjpeg:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.with_openvdb:
             self.requires("openvdb/[^11.0.0]")
         if self.options.with_ptex:

@@ -99,7 +99,7 @@ class ImageMagicConan(ConanFile):
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         if self.options.with_openjp2:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.with_pango:
             self.requires("pango/[^1.54.0]")
         if self.options.with_png:

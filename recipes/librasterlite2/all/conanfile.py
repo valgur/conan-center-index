@@ -66,7 +66,7 @@ class Librasterlite2Conan(ConanFile):
         self.requires("sqlite3/[>=3.42 <4]", transitive_headers=True, transitive_libs=True)
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_openjpeg:
-            self.requires("openjpeg/2.5.2")
+            self.requires("openjpeg/[^2.5.2]")
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.with_lzma:

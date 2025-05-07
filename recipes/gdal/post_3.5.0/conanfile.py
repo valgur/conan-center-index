@@ -260,7 +260,7 @@ class GdalConan(ConanFile):
         if self.options.with_opencl:
             self.requires("opencl-icd-loader/2023.12.14")
         if self.options.with_openjpeg:
-            self.requires("openjpeg/2.5.0")
+            self.requires("openjpeg/[^2.5.0]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_pcre:
