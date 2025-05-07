@@ -142,7 +142,7 @@ class BehaviorTreeCPPConan(ConanFile):
         if self._with_tinyxml2:
             self.requires("tinyxml2/10.0.0")
         if self._with_zeromq:
-            self.requires("zeromq/4.3.5")
+            self.requires("zeromq/[^4.3.5]")
 
         # TODO: other vendored dependencies
         # - cppzmq is customized and not compatible with Conan version
