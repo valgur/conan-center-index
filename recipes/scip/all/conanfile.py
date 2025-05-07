@@ -82,7 +82,7 @@ class SCIPConan(ConanFile):
             self.requires(f"{dep}/{required_version}", **kwargs)
 
         if self.options.with_gmp:
-            self.requires("gmp/6.3.0")
+            self.requires("gmp/[^6.3.0]")
         if self.options.with_sym == "bliss":
             self.requires("bliss/0.77")
         _mapping_requires("soplex")

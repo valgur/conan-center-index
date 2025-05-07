@@ -64,7 +64,7 @@ class SoPlexConan(ConanFile):
         if self.options.with_gmp:
             # transitive libs as anything using soplex requires __gmpz_init_set_si
             # see https://github.com/conan-io/conan-center-index/pull/16017#issuecomment-1495688452
-            self.requires("gmp/6.3.0", transitive_headers=True, transitive_libs=True)
+            self.requires("gmp/[^6.3.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_boost:
             self.requires("boost/1.86.0", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
 

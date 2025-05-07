@@ -52,7 +52,7 @@ class SymengineConan(ConanFile):
             # symengine/mp_class.h:12
             self.requires("boost/1.86.0", transitive_headers=True)
         else:
-            self.requires("gmp/6.3.0", transitive_headers=True, transitive_libs=True)
+            self.requires("gmp/[^6.3.0]", transitive_headers=True, transitive_libs=True)
         if self._needs_fast_float:
             self.requires("fast_float/[^6.1.5]")
 

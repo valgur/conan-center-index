@@ -39,7 +39,7 @@ class Z3Conan(ConanFile):
 
     def requirements(self):
         if self.options.use_gmp:
-            self.requires("gmp/6.3.0")
+            self.requires("gmp/[^6.3.0]")
 
     def validate(self):
         check_min_cppstd(self, 11)

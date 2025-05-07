@@ -80,7 +80,7 @@ class RubyConan(ConanFile):
         if self.options.get_safe("with_readline"):
             self.requires("readline/[^8.2]")
         if self.options.with_gmp:
-            self.requires("gmp/6.3.0")
+            self.requires("gmp/[^6.3.0]")
 
     def validate(self):
         if is_msvc(self) and is_msvc_static_runtime(self):

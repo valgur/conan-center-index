@@ -51,7 +51,7 @@ class MpfrConan(ConanFile):
 
     def requirements(self):
         if self.options.exact_int == "gmp":
-            self.requires("gmp/6.3.0", transitive_headers=True)
+            self.requires("gmp/[^6.3.0]", transitive_headers=True)
         elif self.options.exact_int == "mpir":
             self.requires("mpir/3.0.0")
 

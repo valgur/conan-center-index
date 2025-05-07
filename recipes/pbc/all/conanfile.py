@@ -42,7 +42,7 @@ class PbcConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gmp/6.3.0", transitive_headers=True, transitive_libs=True)
+        self.requires("gmp/[^6.3.0]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if is_msvc(self):

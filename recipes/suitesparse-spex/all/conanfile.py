@@ -39,7 +39,7 @@ class SuiteSparseSpexConan(ConanFile):
         self.requires("suitesparse-amd/3.3.3")
         self.requires("suitesparse-colamd/3.3.4")
         # https://github.com/DrTimothyAldenDavis/SuiteSparse/blob/v7.7.0/SPEX/Include/SPEX.h#L96-L97
-        self.requires("gmp/6.3.0", transitive_headers=True, transitive_libs=True)
+        self.requires("gmp/[^6.3.0]", transitive_headers=True, transitive_libs=True)
         self.requires("mpfr/4.2.1", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):

@@ -47,7 +47,7 @@ class IslConan(ConanFile):
 
     def requirements(self):
         if self.options.with_int == "gmp":
-            self.requires("gmp/6.3.0")
+            self.requires("gmp/[^6.3.0]")
         elif self.options.with_int == "imath":
             self.requires("imath/3.1.9")
 

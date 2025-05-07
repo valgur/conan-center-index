@@ -48,7 +48,7 @@ class MpcConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gmp/6.3.0", transitive_headers=True)
+        self.requires("gmp/[^6.3.0]", transitive_headers=True)
         self.requires("mpfr/4.2.1", transitive_headers=True)
 
     def validate(self):

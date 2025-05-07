@@ -40,7 +40,7 @@ class GlpkConan(ConanFile):
 
     def requirements(self):
         if self.options.with_gmp:
-            self.requires("gmp/6.3.0")
+            self.requires("gmp/[^6.3.0]")
 
     def build_requirements(self):
         self.tool_requires("libtool/[^2.4.7]")
