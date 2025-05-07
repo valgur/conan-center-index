@@ -139,7 +139,7 @@ class LibpqConan(ConanFile):
         if self.options.with_libxml:
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_libxslt:
-            self.requires("libxslt/1.1.42")
+            self.requires("libxslt/[^1.1.42]")
         if self.options.get_safe("with_lz4"):
             self.requires("lz4/[^1.9.4]")
         if self.options.with_nls:
