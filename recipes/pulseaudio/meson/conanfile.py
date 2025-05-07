@@ -30,7 +30,7 @@ class PulseAudioConan(ConanFile):
         "with_dbus": [True, False],
     }
     default_options = {
-        "with_glib": False,
+        "with_glib": True,
         "with_fftw": False,
         "with_x11": True,
         "with_openssl": True,
@@ -38,7 +38,7 @@ class PulseAudioConan(ConanFile):
     }
 
     def config_options(self):
-        if self.settings.os not in ['Linux', 'FreeBSD']:
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_x11
 
     def configure(self):
@@ -118,16 +118,16 @@ class PulseAudioConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "bash-completion"))
-        rmdir(self, os.path.join(self.package_folder, "share", "vala"))
         rmdir(self, os.path.join(self.package_folder, "share", "zsh"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
 
     def package_info(self):
         self.cpp_info.components["pulse"].set_property("pkg_config_name", "libpulse")
+        self.cpp_info.components["pulse"].set_property("cmake_file_name", "PulseAudio")
+        self.cpp_info.components["pulse"].set_property("cmake_additional_variables_prefixes", "PULSEAUDIO")
         self.cpp_info.components["pulse"].libs = ["pulse", f"pulsecommon-{self.version}"]
         self.cpp_info.components["pulse"].libdirs.append(os.path.join("lib", "pulseaudio"))
-        self.cpp_info.components["pulse"].resdirs = ["res"]
+        self.cpp_info.components["pulse"].resdirs = ["share"]
         self.cpp_info.components["pulse"].requires = ["libiconv::libiconv", "libsndfile::libsndfile", "gettext::gettext"]
         if self.options.get_safe("with_fftw"):
             self.cpp_info.components["pulse"].requires.append("fftw::fftw")
@@ -148,5 +148,3 @@ class PulseAudioConan(ConanFile):
             self.cpp_info.components["pulse-mainloop-glib"].libs = ["pulse-mainloop-glib"]
             self.cpp_info.components["pulse-mainloop-glib"].defines.append("_REENTRANT")
             self.cpp_info.components["pulse-mainloop-glib"].requires = ["pulse", "glib::glib-2.0"]
-
-        # FIXME: add cmake generators when conan can generate PULSEAUDIO_INCLUDE_DIR PULSEAUDIO_LIBRARY vars
