@@ -26,7 +26,7 @@ class PackageConan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        self.requires("tsl-robin-map/1.3.0")
+        self.requires("tsl-robin-map/[^1.3.0]")
 
     def validate(self):
         check_min_cppstd(self, 17)
