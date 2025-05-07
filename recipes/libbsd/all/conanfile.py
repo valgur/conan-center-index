@@ -39,7 +39,7 @@ class LibBsdConan(ConanFile):
             self.requires("libmd/1.1.0")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
 
     def generate(self):
         tc = AutotoolsToolchain(self)

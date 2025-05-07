@@ -58,7 +58,7 @@ class GFortranConan(ConanFile):
             # binutils recipe is broken for Macos, and Windows uses tools
             # distributed with msys/mingw
             self.tool_requires("binutils/2.42")
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         self.tool_requires("flex/2.6.4")
 
     def source(self):

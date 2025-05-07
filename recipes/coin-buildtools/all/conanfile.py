@@ -33,7 +33,7 @@ class CoinBuildtoolsConan(ConanFile):
         self.requires("autoconf/2.72", run=True)
         self.requires("autoconf-archive/2023.02.20", run=True)
         self.requires("automake/1.16.5", run=True)
-        self.requires("libtool/2.4.7", run=True)
+        self.requires("libtool/[^2.4.7]", run=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["source"], strip_root=True)

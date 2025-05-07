@@ -57,7 +57,7 @@ class IslConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if self.options.autogen:
-            self.tool_requires("libtool/2.4.7")
+            self.tool_requires("libtool/[^2.4.7]")
 
     def package_id(self):
         del self.info.options.autogen

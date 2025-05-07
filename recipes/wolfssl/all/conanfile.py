@@ -90,7 +90,7 @@ class WolfSSLConan(ConanFile):
             raise ConanInvalidConfiguration("The option 'opensslall' requires 'opensslextra=True'")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         self.tool_requires("cmake/[>=3.22 <5]")
         if self.settings_build.os == "Windows":
             self.win_bash = True

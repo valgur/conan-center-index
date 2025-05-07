@@ -49,7 +49,7 @@ class LibalsaConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} only supports Linux")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

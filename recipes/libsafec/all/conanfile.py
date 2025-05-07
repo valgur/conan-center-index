@@ -66,7 +66,7 @@ class LibSafeCConan(ConanFile):
             raise ConanException(f"{self.ref} option 'strmax' must be a valid integer number.")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         if self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

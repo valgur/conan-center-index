@@ -53,7 +53,7 @@ class LibEstConan(ConanFile):
         self.requires("openssl/1.1.1w", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

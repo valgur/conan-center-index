@@ -48,7 +48,7 @@ class LibmagicConan(ConanFile):
             raise ConanInvalidConfiguration("Windows is not supported yet")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         if cross_building(self):
             self.tool_requires(str(self.ref))
 

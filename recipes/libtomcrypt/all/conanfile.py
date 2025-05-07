@@ -49,7 +49,7 @@ class LibTomCryptConan(ConanFile):
     def build_requirements(self):
         if not is_msvc(self):
             if self.options.shared:
-                self.tool_requires("libtool/2.4.7")
+                self.tool_requires("libtool/[^2.4.7]")
             if self.settings_build.os == "Windows":
                 self.tool_requires("make/4.4.1")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):

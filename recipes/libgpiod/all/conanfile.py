@@ -49,7 +49,7 @@ class LibgpiodConan(ConanFile):
         self.requires("linux-headers-generic/[^6.5]")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         self.tool_requires("autoconf-archive/2022.09.03")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")

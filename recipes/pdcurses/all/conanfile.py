@@ -75,7 +75,7 @@ class PDCursesConan(ConanFile):
                 raise ConanInvalidConfiguration("Cross-building is not supported for with_sdl option")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         if not is_msvc(self):
             if not self.conf.get("tools.gnu:make_program", check_type=str):
                 self.tool_requires("make/4.4.1")

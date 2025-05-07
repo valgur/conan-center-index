@@ -44,7 +44,7 @@ class Asn1cConan(ConanFile):
         else:
             self.tool_requires("bison/3.8.2")
             self.tool_requires("flex/2.6.4")
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
 
     def validate(self):
         if is_msvc(self):

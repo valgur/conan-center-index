@@ -53,7 +53,7 @@ class LibmemcachedConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}.")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
 
     def _patch_source(self):
         # Disable tests. This avoids a test dependency on libuuid as well.

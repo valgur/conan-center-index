@@ -84,7 +84,7 @@ class ZbarConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if Version(self.version) >= "0.22":
             self.tool_requires("gettext/[>=0.21 <1]")
-            self.tool_requires("libtool/2.4.7")
+            self.tool_requires("libtool/[^2.4.7]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

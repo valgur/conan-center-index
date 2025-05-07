@@ -57,7 +57,7 @@ class MpirConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         self.tool_requires("yasm/1.3.0")
         if not is_msvc(self):
             self.tool_requires("m4/1.4.19")

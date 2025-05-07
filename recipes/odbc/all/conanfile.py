@@ -44,7 +44,7 @@ class OdbcConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libtool/2.4.7")
+        self.requires("libtool/[^2.4.7]")
         if self.options.with_libiconv:
             self.requires("libiconv/[^1.17]")
 

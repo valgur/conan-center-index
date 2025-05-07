@@ -80,7 +80,7 @@ class MozjpegConan(ConanFile):
 
     def build_requirements(self):
         if not self._use_cmake:
-            self.tool_requires("libtool/2.4.7")
+            self.tool_requires("libtool/[^2.4.7]")
         if self.options.get_safe("SIMD"):
             self.tool_requires("nasm/[^2.16]")
 

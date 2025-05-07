@@ -61,7 +61,7 @@ class PulseAudioConan(ConanFile):
         self.requires("libiconv/[^1.17]")
         self.requires("libsndfile/[^1.2.2]")
         self.requires("libcap/[^2.69]")
-        self.requires("libtool/2.4.7")
+        self.requires("libtool/[^2.4.7]")
         if self.options.with_alsa:
             self.requires("libalsa/[~1.2.10]")
         if self.options.with_glib:
@@ -88,7 +88,7 @@ class PulseAudioConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("gettext/[>=0.21 <1]")
-        self.tool_requires("libtool/2.4.7")
+        self.tool_requires("libtool/[^2.4.7]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
