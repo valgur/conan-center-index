@@ -47,7 +47,7 @@ class Libnetfilter_queueConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libmnl/1.0.4", transitive_headers=True, transitive_libs=True)
+        self.requires("libmnl/[^1.0.4]", transitive_headers=True, transitive_libs=True)
         self.requires("libnfnetlink/1.0.2", transitive_headers=True)
 
     def build_requirements(self):
