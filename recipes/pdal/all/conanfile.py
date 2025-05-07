@@ -128,7 +128,7 @@ class PdalConan(ConanFile):
         tc.variables["WITH_BACKTRACE"] = self.options.get_safe("with_unwind", False)
         tc.variables["WITH_COMPLETION"] = False
         tc.variables["WITH_TESTS"] = False
-        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_PostgreSQL"] = True
+        tc.variables["CMAKE_DISABLE_FIND_PACKAGE_PostgreSQL"] = not self.dependencies["gdal"].options.with_pg
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Libexecinfo"] = True
         if cross_building(self):
             tc.variables["DIMBUILDER_EXECUTABLE"] = os.path.join(self.build_folder, "bin", "dimbuilder")
