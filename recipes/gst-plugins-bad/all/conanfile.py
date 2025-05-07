@@ -262,7 +262,7 @@ class GStPluginsBadConan(ConanFile):
         if "opengl" in reqs:
             self.requires("opengl/system")
         if "openh264" in reqs:
-            self.requires("openh264/2.5.0")
+            self.requires("openh264/[^2.5.0]")
         if "openjpeg" in reqs:
             self.requires("openjpeg/2.5.2")
         if "openni2" in reqs:

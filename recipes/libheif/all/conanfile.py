@@ -84,7 +84,7 @@ class LibheifConan(ConanFile):
         if self.options.get_safe("with_openjph"):
             self.requires("openjph/0.16.0", transitive_headers=False)
         if self.options.get_safe("with_openh264"):
-            self.requires("openh264/2.4.1")
+            self.requires("openh264/[^2.4.1]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
