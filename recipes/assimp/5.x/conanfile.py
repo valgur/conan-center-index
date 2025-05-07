@@ -180,7 +180,7 @@ class AssimpConan(ConanFile):
         self.requires("utfcpp/[^4.0.1]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self._depends_on_kuba_zip:
-            self.requires("kuba-zip/0.3.0")
+            self.requires("kuba-zip/[>=0.3.0 <1]")
         if self._depends_on_poly2tri:
             self.requires("poly2tri/cci.20130502")
         if self._depends_on_rapidjson:

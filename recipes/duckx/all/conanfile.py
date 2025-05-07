@@ -35,7 +35,7 @@ class DuckxConan(ConanFile):
 
     def requirements(self):
         self.requires("pugixml/[^1.14]", transitive_headers=True)
-        self.requires("kuba-zip/0.3.1", transitive_headers=True)
+        self.requires("kuba-zip/[>=0.3.1 <1]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
