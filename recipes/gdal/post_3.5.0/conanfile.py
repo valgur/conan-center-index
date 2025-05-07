@@ -236,7 +236,7 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_libaec"):
             self.requires("libaec/1.0.6")
         if self.options.with_libarchive:
-            self.requires("libarchive/3.7.4")
+            self.requires("libarchive/[^3.7.4]")
         if self.options.with_libdeflate:
             self.requires("libdeflate/[>=1.19 <=1.22]") #tested with these
         if self.options.with_libiconv:

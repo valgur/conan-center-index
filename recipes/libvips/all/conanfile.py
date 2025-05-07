@@ -136,7 +136,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_introspection:
             self.requires("glib-gir/[^2.82]")
         if self.options.get_safe("with_archive"):
-            self.requires("libarchive/3.7.2")
+            self.requires("libarchive/[^3.7.2]")
         if self.options.with_cfitsio:
             self.requires("cfitsio/[^4.3.0]")
         if self.options.with_cgif:

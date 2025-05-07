@@ -78,7 +78,7 @@ class DpdkConan(ConanFile):
             # rte_metrics_telemetry.h
             self.requires("jansson/2.14", transitive_headers=True, transitive_libs=True)
         if self.options.with_libarchive:
-            self.requires("libarchive/3.7.6")
+            self.requires("libarchive/[^3.7.6]")
         if self.options.with_libbpf:
             self.requires("libbpf/1.4.6")
         if self.options.with_libbsd:
