@@ -88,7 +88,7 @@ class OpenCVConan(ConanFile):
             self.requires("jasper/[^4.2]")
         if self.options.with_openexr:
             # opencv 3.x doesn't support openexr >= 3
-            self.requires("openexr/2.5.7")
+            self.requires("openexr/[^2.5.7]")
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_eigen:

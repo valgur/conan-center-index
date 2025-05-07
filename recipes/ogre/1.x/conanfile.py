@@ -290,7 +290,7 @@ class OgreConanFile(ConanFile):
             self.requires("assimp/5.4.2")
         if self.options.build_plugin_exrcodec:
             # OpenEXR 3.x is not compatible
-            self.requires("openexr/2.5.7")
+            self.requires("openexr/[^2.5.7]")
         if self.options.build_plugin_freeimage:
             self.requires("freeimage/3.18.0")
         if self.options.build_plugin_glslang:
