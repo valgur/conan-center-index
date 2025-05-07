@@ -3,11 +3,9 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.cmake import CMakeDeps
-from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain
+from conan.tools.cmake import CMakeDeps, cmake_layout, CMake, CMakeToolchain
 from conan.tools.files import get, replace_in_file, rmdir, copy
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import is_msvc
 
 
 class DbusCXX(ConanFile):
@@ -34,6 +32,15 @@ class DbusCXX(ConanFile):
         "with_uv": False,
     }
 
+    def requirements(self):
+        self.requires("libsigcpp/[^3.0.7]", transitive_headers=True)
+        if self.options.get_safe("with_glib"):
+            self.requires("glib/[^2.70.0]", transitive_headers=True)
+        if self.options.get_safe("with_uv"):
+            self.requires("libuv/[>=1 <2]", transitive_headers=True)
+        if self.options.with_qt:
+            self.requires("qt/[~5.15]", transitive_headers=True)
+
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("The recipe only supports Linux.")
@@ -42,15 +49,6 @@ class DbusCXX(ConanFile):
         if self.options.get_safe("with_uv") and not self.dependencies["libuv"].options.shared:
             raise ConanInvalidConfiguration(f"libuv needs to be shared for "
                                             f"{self.name}/{self.version}: \"libuv/*:shared=True\"")
-
-    def requirements(self):
-        self.requires("libsigcpp/3.0.7", transitive_headers=True)
-        if self.options.get_safe("with_glib"):
-            self.requires("glib/[^2.70.0]", transitive_headers=True)
-        if self.options.get_safe("with_uv"):
-            self.requires("libuv/[>=1 <2]", transitive_headers=True)
-        if self.options.with_qt:
-            self.requires("qt/[~5.15]", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -100,28 +98,28 @@ class DbusCXX(ConanFile):
     def package_info(self):
         # dbus-cxx
         self.cpp_info.components["dbus-cxx"].libs = ["dbus-cxx"]
-        self.cpp_info.components["dbus-cxx"].requires = ["libsigcpp::sigc++"]
+        self.cpp_info.components["dbus-cxx"].requires = ["libsigcpp::libsigcpp"]
         self.cpp_info.components["dbus-cxx"].includedirs = ['include/dbus-cxx-2.0']
         self.cpp_info.components["dbus-cxx"].set_property("cmake_target_name", "dbus-cxx")
         self.cpp_info.components["dbus-cxx"].set_property("pkg_config_name", "dbus-cxx-2.0")
         # dbus-cxx-glib
         if self.options.with_glib:
             self.cpp_info.components["dbus-cxx-glib"].libs = ["dbus-cxx-glib"]
-            self.cpp_info.components["dbus-cxx-glib"].requires = ["dbus-cxx", "libsigcpp::sigc++", "glib::glib-2.0"]
+            self.cpp_info.components["dbus-cxx-glib"].requires = ["dbus-cxx", "libsigcpp::libsigcpp", "glib::glib-2.0"]
             self.cpp_info.components["dbus-cxx-glib"].includedirs = ['include/dbus-cxx-glib-2.0']
             self.cpp_info.components["dbus-cxx-glib"].set_property("cmake_target_name", "dbus-cxx-glib")
             self.cpp_info.components["dbus-cxx-glib"].set_property("pkg_config_name", "dbus-cxx-glib-2.0")
         # dbus-cxx-qt
         if self.options.with_qt:
             self.cpp_info.components["dbus-cxx-qt"].libs = ["dbus-cxx-qt"]
-            self.cpp_info.components["dbus-cxx-qt"].requires = ["dbus-cxx", "libsigcpp::sigc++", "qt::qtCore"]
+            self.cpp_info.components["dbus-cxx-qt"].requires = ["dbus-cxx", "libsigcpp::libsigcpp", "qt::qtCore"]
             self.cpp_info.components["dbus-cxx-qt"].includedirs = ['include/dbus-cxx-qt-2.0']
             self.cpp_info.components["dbus-cxx-qt"].set_property("cmake_target_name", "dbus-cxx-qt")
             self.cpp_info.components["dbus-cxx-qt"].set_property("pkg_config_name", "dbus-cxx-qt-2.0")
         # dbus-cxx-uv
         if self.options.get_safe("with_uv"):
             self.cpp_info.components["dbus-cxx-uv"].libs = ["dbus-cxx-uv"]
-            self.cpp_info.components["dbus-cxx-uv"].requires = ["dbus-cxx", "libsigcpp::sigc++", "libuv::libuv"]
+            self.cpp_info.components["dbus-cxx-uv"].requires = ["dbus-cxx", "libsigcpp::libsigcpp", "libuv::libuv"]
             self.cpp_info.components["dbus-cxx-uv"].includedirs = ['include/dbus-cxx-uv-2.0']
             self.cpp_info.components["dbus-cxx-uv"].set_property("cmake_target_name", "dbus-cxx-uv")
             self.cpp_info.components["dbus-cxx-uv"].set_property("pkg_config_name", "dbus-cxx-uv-2.0")
