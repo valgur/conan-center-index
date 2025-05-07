@@ -27,7 +27,7 @@ class GurkenlaeuferConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gtest/1.12.1", transitive_headers=True)
+        self.requires("gtest/[^1.12.1]", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()
