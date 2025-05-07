@@ -153,7 +153,7 @@ class CImgConan(ConanFile):
             self.requires("mozjpeg/[^4.1.5]")
         if self.options.enable_openexr:
             self.requires("openexr/3.3.3")
-            self.requires("imath/3.1.9")
+            self.requires("imath/[^3.1.9]")
         if self.options.enable_png:
             self.requires("libpng/[~1.6]")
         if self.options.enable_tiff:

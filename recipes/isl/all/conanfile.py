@@ -49,7 +49,7 @@ class IslConan(ConanFile):
         if self.options.with_int == "gmp":
             self.requires("gmp/[^6.3.0]")
         elif self.options.with_int == "imath":
-            self.requires("imath/3.1.9")
+            self.requires("imath/[^3.1.9]")
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":

@@ -53,7 +53,7 @@ class OpenColorIOConan(ConanFile):
             self.requires("openexr/2.5.7")
         else:
             self.requires("openexr/3.3.3")
-            self.requires("imath/3.1.9")
+            self.requires("imath/[^3.1.9]")
 
         if Version(self.version) < "2.0.0":
             self.requires("tinyxml/2.6.2")
