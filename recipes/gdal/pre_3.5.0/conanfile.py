@@ -245,7 +245,7 @@ class GdalConan(ConanFile):
         # if self.options.with_sosi:
         #     self.requires("fyba/4.1.1")
         if self.options.with_mongocxx:
-            self.requires("mongo-cxx-driver/3.6.7")
+            self.requires("mongo-cxx-driver/[^3.6.7]")
         if self.options.with_hdf4:
             self.requires("hdf4/[^4.2.15]")
         if self.options.with_hdf5:
