@@ -300,7 +300,7 @@ class GdalConan(ConanFile):
             self.requires("opencl-headers/2022.09.30")
             self.requires("opencl-icd-loader/2022.09.30")
         if self.options.with_freexl:
-            self.requires("freexl/1.0.6")
+            self.requires("freexl/[^1.0.6]")
         if self.options.with_poppler:
             self.requires("poppler/21.07.0")
         if self.options.with_podofo:

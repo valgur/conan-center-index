@@ -209,7 +209,7 @@ class GdalConan(ConanFile):
             self.requires("openexr/3.3.3")
             self.requires("imath/3.1.9")
         if self.options.with_freexl:
-            self.requires("freexl/2.0.0")
+            self.requires("freexl/[^2.0.0]")
         if self.options.with_geos:
             self.requires("geos/[^3.12.0]")
         if self.options.with_gif:
