@@ -78,7 +78,7 @@ class OpenmvgConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cereal/1.3.2", transitive_headers=True)
+        self.requires("cereal/[^1.3.2]", transitive_headers=True)
         if Version(self.version) >= "2.1":
             self.requires("ceres-solver/2.2.0")
         else:

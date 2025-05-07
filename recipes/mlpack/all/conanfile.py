@@ -45,7 +45,7 @@ class MlpackConan(ConanFile):
 
     def requirements(self):
         self.requires("armadillo/[^12.6.4]")
-        self.requires("cereal/1.3.2")
+        self.requires("cereal/[^1.3.2]")
         self.requires("ensmallen/2.21.0")
         self.requires("stb/cci.20250314")
         # https://github.com/mlpack/mlpack/blob/4.4.0/src/mlpack/methods/det/dt_utils_impl.hpp#L184
