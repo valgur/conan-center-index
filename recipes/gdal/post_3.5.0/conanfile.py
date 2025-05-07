@@ -271,7 +271,7 @@ class GdalConan(ConanFile):
         # if self.options.with_pdfium:
         #     self.requires("pdfium/95.0.4629")
         if self.options.with_pg:
-            self.requires("libpq/15.5")
+            self.requires("libpq/[>=15]")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_podofo:

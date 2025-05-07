@@ -215,7 +215,7 @@ class GdalConan(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_pg:
-            self.requires("libpq/15.4")
+            self.requires("libpq/[>=15]")
         # if self.options.with_libgrass:
         #     self.requires("libgrass/x.x.x")
         if self.options.with_cfitsio:
