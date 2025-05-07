@@ -61,7 +61,7 @@ class PDCursesConan(ConanFile):
             self.requires("sdl/[^2.30.9]", transitive_libs=True)
         if self.options.get_safe("with_x11"):
             self.requires("xorg/system")
-            self.requires("libxpm/3.5.17")
+            self.requires("libxpm/[^3.5.17]")
 
     def validate(self):
         if self.options.with_sdl and self.settings.os == "Windows":

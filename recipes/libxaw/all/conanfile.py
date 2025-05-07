@@ -47,7 +47,7 @@ class LibXawConan(ConanFile):
         self.requires("libxmu/1.2.1", transitive_headers=True)
         self.requires("libxext/1.3.6")
         if self.options.build_xaw7:
-            self.requires("libxpm/3.5.17")
+            self.requires("libxpm/[^3.5.17]")
 
     def validate(self):
         if is_msvc(self):

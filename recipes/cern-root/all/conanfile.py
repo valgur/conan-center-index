@@ -78,7 +78,7 @@ class CernRootConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")
             self.requires("libxft/2.3.8")
-            self.requires("libxpm/3.5.17")
+            self.requires("libxpm/[^3.5.17]")
             self.requires("util-linux-libuuid/2.41")
 
         if self.options.asimage:

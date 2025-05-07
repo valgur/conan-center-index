@@ -75,7 +75,7 @@ class LibgdConan(ConanFile):
         if self.options.with_freetype:
             self.requires("freetype/[^2.13.2]")
         if self.options.with_xpm:
-            self.requires("libxpm/3.5.13")
+            self.requires("libxpm/[^3.5.13]")
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.get_safe("with_heif"):

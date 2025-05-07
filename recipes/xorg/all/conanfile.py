@@ -39,7 +39,7 @@ class XorgConan(ConanFile):
         self.requires("libxinerama/1.1.5", transitive_headers=True, transitive_libs=True)
         self.requires("libxkbfile/1.1.3", transitive_headers=True, transitive_libs=True)
         self.requires("libxmu/1.2.1", transitive_headers=True, transitive_libs=True)
-        self.requires("libxpm/3.5.17", transitive_headers=True, transitive_libs=True)
+        self.requires("libxpm/[^3.5.17]", transitive_headers=True, transitive_libs=True)
         self.requires("libxrandr/1.5.4", transitive_headers=True, transitive_libs=True)
         self.requires("libxrender/0.9.11", transitive_headers=True, transitive_libs=True)
         self.requires("libxres/1.2.2", transitive_headers=True, transitive_libs=True)
