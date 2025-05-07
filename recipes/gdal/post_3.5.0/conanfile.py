@@ -177,7 +177,7 @@ class GdalConan(ConanFile):
 
     def requirements(self):
         self.requires("json-c/[^0.17]")
-        self.requires("libgeotiff/1.7.1")
+        self.requires("libgeotiff/[^1.7.1]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("proj/[^9.3.1]")
         # Used in a public header here:

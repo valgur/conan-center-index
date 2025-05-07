@@ -53,7 +53,7 @@ class PdalConan(ConanFile):
         self.requires("h3/4.1.0")
         self.requires("json-schema-validator/2.3.0")
         self.requires("libcurl/[>=7.78 <9]") # for arbiter
-        self.requires("libgeotiff/1.7.1")
+        self.requires("libgeotiff/[^1.7.1]")
         self.requires("nanoflann/1.6.0", transitive_headers=True, transitive_libs=True)
         self.requires("nlohmann_json/[^3]", transitive_headers=True, transitive_libs=True)
         self.requires("openssl/[>=1.1 <4]") # for arbiter
