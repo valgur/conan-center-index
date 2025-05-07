@@ -12,6 +12,11 @@ sources:
     url: "https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.bz2"
     sha256: "501c299145c3e86c74ea73046286eb8313d0d36b6b405c03cf26455799a47910"
 patches:
+  "7.1.1":
+    - patch_file: "patches/0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch"
+      patch_description: "Add backwards compatibility with Chromium"
+      patch_type: "portability"
+      patch_source: "https://github.com/microsoft/vcpkg/blob/fdd63dd662a542a91df65ca776d80e35e31e67be/ports/ffmpeg/0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch"
   "4.4.5":
     - patch_file: "patches/4.4-0001-fix-aom_codec_av1_dx_algo.patch"
       patch_description: "Compatibility with shared libaom"
