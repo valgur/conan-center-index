@@ -61,7 +61,7 @@ class XtrConan(ConanFile):
         # INFO: https://github.com/choll/xtr/blob/2.1.0/include/xtr/detail/buffer.hpp#L27
         self.requires("fmt/[^6]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("enable_io_uring"):
-            self.requires("liburing/2.4", transitive_headers=True, transitive_libs=True)
+            self.requires("liburing/[^2.4]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.os not in ["FreeBSD", "Linux"]:

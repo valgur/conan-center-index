@@ -61,7 +61,7 @@ class LibunifexConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_liburing"):
-            self.requires("liburing/2.4", transitive_headers=True, transitive_libs=True)
+            self.requires("liburing/[^2.4]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, self._minimum_standard)
