@@ -71,7 +71,7 @@ class DarknetConan(ConanFile):
     def requirements(self):
         if self.options.with_opencv:
             # Requires OpenCV 2.x
-            self.requires("opencv/2.4.13.7")
+            self.requires("opencv/[^2.4.13.7]")
 
     def validate(self):
         if self.settings.os == "Windows":
