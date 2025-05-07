@@ -148,7 +148,7 @@ class LinuxPamConan(ConanFile):
         self.cpp_info.components["pam"].libdirs.append(os.path.join("lib", "security"))
         self.cpp_info.components["pam"].resdirs = ["res"]
         if self.options.with_intl:
-            self.cpp_info.components["pam"].requires.append("libgettext::libgettext")
+            self.cpp_info.components["pam"].requires.append("gettext::gettext")
 
         self.cpp_info.components["pamc"].set_property("pkg_config_name", "pamc")
         self.cpp_info.components["pamc"].libs = ["pamc"]

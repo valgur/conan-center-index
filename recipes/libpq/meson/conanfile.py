@@ -328,7 +328,7 @@ class LibpqConan(ConanFile):
 
         mod_requires = []
         if self.options.with_nls:
-            mod_requires.append("libgettext::libgettext")
+            mod_requires.append("gettext::gettext")
         if self.options.get_safe("with_selinux"):
             mod_requires.append("libselinux::libselinux")
         if self.options.with_uuid:
@@ -341,7 +341,7 @@ class LibpqConan(ConanFile):
 
         tool_requires = []
         if self.options.with_nls:
-            tool_requires.append("libgettext::libgettext")
+            tool_requires.append("gettext::gettext")
         if self.options.with_gssapi:
             tool_requires.append("krb5::krb5-gssapi")
         if self.options.get_safe("with_icu"):

@@ -224,7 +224,7 @@ class GLibConan(ConanFile):
         if self.settings.os == "Linux":
             self.cpp_info.components["gio-2.0"].system_libs.append("resolv")
         else:
-            self.cpp_info.components["glib-2.0"].requires.append("libgettext::libgettext")
+            self.cpp_info.components["glib-2.0"].requires.append("gettext::gettext")
 
         if self.options.get_safe("with_mount"):
             self.cpp_info.components["gio-2.0"].requires.append("libmount::libmount")
