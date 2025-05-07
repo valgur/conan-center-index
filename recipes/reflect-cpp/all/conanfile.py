@@ -94,7 +94,7 @@ class ReflectCppConan(ConanFile):
             self.requires("msgpack-c/6.0.0", transitive_headers=True)
         if self.options.with_toml:
             if Version(self.version) >= Version("0.18.0"):
-                self.requires("toml11/4.4.0", transitive_headers=True)
+                self.requires("toml11/[^4.4.0]", transitive_headers=True)
             else:
                 self.requires("tomlplusplus/3.4.0", transitive_headers=True)
         if self.options.with_ubjson:

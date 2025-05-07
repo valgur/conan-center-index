@@ -58,7 +58,7 @@ class SerdeppConan(ConanFile):
         self.requires("nameof/[^0.10.3]")
         self.requires("magic_enum/[^0.9.5]")
         if self.options.with_toml11:
-            self.requires("toml11/3.8.1")
+            self.requires("toml11/[>=3.8.1 <5]")
         if self.options.with_yamlcpp:
             self.requires("yaml-cpp/[>=0.8.0 <1]")
         if self.options.with_rapidjson:
