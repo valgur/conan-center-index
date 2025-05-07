@@ -44,7 +44,7 @@ class LibbpfConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} is only available on Linux")
 
     def build_requirements(self):
-        self.tool_requires("make/4.4.1")
+        self.tool_requires("make/[^4.4.1]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 

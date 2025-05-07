@@ -48,7 +48,7 @@ class Cc65Conan(ConanFile):
 
     def build_requirements(self):
         if is_msvc(self) and not self.conf.get("tools.gnu:make_program", check_type=str):
-            self.tool_requires("make/4.4.1")
+            self.tool_requires("make/[^4.4.1]")
         if not can_run(self):
             self.tool_requires(str(self.ref))
 

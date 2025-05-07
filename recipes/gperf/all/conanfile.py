@@ -38,7 +38,7 @@ class GperfConan(ConanFile):
 
         # gperf makefile relies on GNU Make behaviour
         if self.settings_build.os == "FreeBSD":
-            self.tool_requires("make/4.4.1")
+            self.tool_requires("make/[^4.4.1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

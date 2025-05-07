@@ -51,7 +51,7 @@ class LibTomCryptConan(ConanFile):
             if self.options.shared:
                 self.tool_requires("libtool/[^2.4.7]")
             if self.settings_build.os == "Windows":
-                self.tool_requires("make/4.4.1")
+                self.tool_requires("make/[^4.4.1]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 

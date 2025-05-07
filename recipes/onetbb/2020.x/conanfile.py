@@ -75,7 +75,7 @@ class OneTBBConan(ConanFile):
     def build_requirements(self):
         if self.settings_build.os == "Windows":
             if not self.conf_info.get("tools.gnu:make_program", check_type=str):
-                self.tool_requires("make/4.4.1")
+                self.tool_requires("make/[^4.4.1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

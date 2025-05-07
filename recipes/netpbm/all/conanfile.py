@@ -83,7 +83,7 @@ class NetpbmConan(ConanFile):
             raise ConanInvalidConfiguration("Windows is not supported. Contributions are welcome!")
 
     def build_requirements(self):
-        self.tool_requires("make/4.4.1")
+        self.tool_requires("make/[^4.4.1]")
         if self.options.tools:
             if not self.conf.get("tools.gnu:pkg_config", check_type=str):
                 self.tool_requires("pkgconf/[>=2.2 <3]")
