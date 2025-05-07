@@ -66,7 +66,7 @@ class ComputeLibraryConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.tool_requires("scons/4.3.0")
+        self.tool_requires("scons/[^4.3.0]")
 
     def requirements(self):
         if self.options.get_safe("enable_opencl"):

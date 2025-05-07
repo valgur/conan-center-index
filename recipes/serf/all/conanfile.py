@@ -53,7 +53,7 @@ class SerfConan(ConanFile):
             raise ConanInvalidConfiguration("Debug build is not supported for GCC 11")
 
     def build_requirements(self):
-        self.tool_requires("scons/4.6.0")
+        self.tool_requires("scons/[^4.6.0]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

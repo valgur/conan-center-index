@@ -131,7 +131,7 @@ class OpenvinoConan(ConanFile):
 
     def build_requirements(self):
         if self._target_arm:
-            self.tool_requires("scons/4.3.0")
+            self.tool_requires("scons/[^4.3.0]")
         if self._protobuf_required:
             self.tool_requires("protobuf/<host_version>")
         if self.options.enable_tf_lite_frontend:
