@@ -128,7 +128,7 @@ class OsgearthConan(ConanFile):
         if self.options.with_draco:
             self.requires("draco/1.5.6")
         if self.options.with_duktape:
-            self.requires("duktape/2.7.0")
+            self.requires("duktape/[^2.7.0]")
         if self.options.with_geos:
             # https://github.com/gwaldron/osgearth/blob/osgearth-3.6/src/osgEarth/GEOS#L32
             self.requires("geos/[^3.12.0]", transitive_headers=True, transitive_libs=True)
