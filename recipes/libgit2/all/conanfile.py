@@ -82,7 +82,7 @@ class LibGit2Conan(ConanFile):
         if Version(self.version) < "1.8.1" or self.options.get_safe("with_http_parser") == "http-parser":
             self.requires("http_parser/2.9.4")
         else:
-            self.requires("llhttp/9.1.3")
+            self.requires("llhttp/[^9.1.3]")
 
         if self.options.with_libssh2:
             self.requires("libssh2/[^1.11.0]")
