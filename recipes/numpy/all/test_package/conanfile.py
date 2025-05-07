@@ -16,7 +16,7 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
-        self.tool_requires("cpython/3.12.2")
+        self.tool_requires("cpython/[~3.12.2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
