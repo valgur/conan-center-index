@@ -41,7 +41,7 @@ class GccConan(ConanFile):
         self.tool_requires("flex/[^2.6.4]")
 
     def requirements(self):
-        self.requires("mpc/1.2.0")
+        self.requires("mpc/[^1.2.0]")
         self.requires("mpfr/4.2.0")
         self.requires("gmp/[^6.3.0]")
         self.requires("zlib/[>=1.2.13 <2]")

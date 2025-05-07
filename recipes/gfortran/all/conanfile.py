@@ -37,7 +37,7 @@ class GFortranConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("mpc/1.3.1")
+        self.requires("mpc/[^1.3.1]")
         self.requires("mpfr/4.2.1")
         self.requires("gmp/[^6.3.0]")
         self.requires("zlib/[>=1.2.11 <2]")

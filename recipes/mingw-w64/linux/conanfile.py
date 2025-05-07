@@ -63,7 +63,7 @@ class MingwConan(ConanFile):
         self.tool_requires("m4/1.4.19")
         self.tool_requires("gmp/[^6.3.0]")
         self.tool_requires("mpfr/4.2.0")
-        self.tool_requires("mpc/1.3.1")
+        self.tool_requires("mpc/[^1.3.1]")
 
     def source(self):
         # Source is downloaded in the build step since it depends on specific option values
