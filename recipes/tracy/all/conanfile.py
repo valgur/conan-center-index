@@ -20,44 +20,63 @@ class TracyConan(ConanFile):
     topics = ("profiler", "performance", "gamedev")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
-
-    # Existing CMake tracy options with default value
-    _tracy_options = {
-        "enable": ([True, False], True),
-        "on_demand": ([True, False], False),
-        "callstack": ([True, False], False),
-        "no_callstack": ([True, False], False),
-        "no_callstack_inlines": ([True, False], False),
-        "only_localhost": ([True, False], False),
-        "no_broadcast": ([True, False], False),
-        "only_ipv4": ([True, False], False),
-        "no_code_transfer": ([True, False], False),
-        "no_context_switch": ([True, False], False),
-        "no_exit": ([True, False], False),
-        "no_sampling": ([True, False], False),
-        "no_verify": ([True, False], False),
-        "no_vsync_capture": ([True, False], False),
-        "no_frame_image": ([True, False], False),
-        "no_system_tracing": ([True, False], False),
-        "delayed_init": ([True, False], False),
-        "manual_lifetime": ([True, False], False),
-        "fibers": ([True, False], False),
-        "no_crash_handler": ([True, False], False),
-        "timer_fallback": ([True, False], False),
-        "libunwind_backtrace": ([True, False], False),
-        "symbol_offline_resolve": ([True, False], False),
-        "libbacktrace_elf_dynload_support": ([True, False], False),
-        "verbose": ([True, False], False),
-    }
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        **{k: v[0] for k, v in _tracy_options.items()},
+        "enable": [True, False],
+        "on_demand": [True, False],
+        "callstack": [True, False],
+        "no_callstack": [True, False],
+        "no_callstack_inlines": [True, False],
+        "only_localhost": [True, False],
+        "no_broadcast": [True, False],
+        "only_ipv4": [True, False],
+        "no_code_transfer": [True, False],
+        "no_context_switch": [True, False],
+        "no_exit": [True, False],
+        "no_sampling": [True, False],
+        "no_verify": [True, False],
+        "no_vsync_capture": [True, False],
+        "no_frame_image": [True, False],
+        "no_system_tracing": [True, False],
+        "delayed_init": [True, False],
+        "manual_lifetime": [True, False],
+        "fibers": [True, False],
+        "no_crash_handler": [True, False],
+        "timer_fallback": [True, False],
+        "libunwind_backtrace": [True, False],
+        "symbol_offline_resolve": [True, False],
+        "libbacktrace_elf_dynload_support": [True, False],
+        "verbose": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        **{k: v[1] for k, v in _tracy_options.items()},
+        "enable": True,
+        "on_demand": False,
+        "callstack": False,
+        "no_callstack": False,
+        "no_callstack_inlines": False,
+        "only_localhost": False,
+        "no_broadcast": False,
+        "only_ipv4": False,
+        "no_code_transfer": False,
+        "no_context_switch": False,
+        "no_exit": False,
+        "no_sampling": False,
+        "no_verify": False,
+        "no_vsync_capture": False,
+        "no_frame_image": False,
+        "no_system_tracing": False,
+        "delayed_init": False,
+        "manual_lifetime": False,
+        "fibers": False,
+        "no_crash_handler": False,
+        "timer_fallback": False,
+        "libunwind_backtrace": False,
+        "symbol_offline_resolve": False,
+        "libbacktrace_elf_dynload_support": False,
+        "verbose": False,
     }
 
     def config_options(self):
@@ -70,23 +89,13 @@ class TracyConan(ConanFile):
             self.options.rm_safe("no_crash_handler")
             self.options.rm_safe("timer_fallback")
 
-            del self._tracy_options["manual_lifetime"]
-            del self._tracy_options["fibers"]
-            del self._tracy_options["no_crash_handler"]
-            del self._tracy_options["timer_fallback"]
-
         if Version(self.version) < "0.11.0":
             self.options.rm_safe("libunwind_backtrace")
             self.options.rm_safe("symbol_offline_resolve")
             self.options.rm_safe("libbacktrace_elf_dynload_support")
 
-            del self._tracy_options["libunwind_backtrace"]
-            del self._tracy_options["symbol_offline_resolve"]
-            del self._tracy_options["libbacktrace_elf_dynload_support"]
-
         if Version(self.version) < "0.11.1":
             self.options.rm_safe("verbose")
-            del self._tracy_options["verbose"]
 
     def configure(self):
         if self.options.shared:
@@ -118,10 +127,10 @@ class TracyConan(ConanFile):
         tc = CMakeToolchain(self)
         # Set all tracy options in the correct form
         # For example, TRACY_NO_EXIT
-        for opt in self._tracy_options.keys():
-            switch = getattr(self.options, opt)
-            opt = f"TRACY_{opt.upper()}"
-            tc.variables[opt] = switch
+        for opt, switch in self.options.items():
+            if opt in ["shared", "fPIC"]:
+                continue
+            tc.variables[f"TRACY_{opt.upper()}"] = switch
         tc.generate()
         if self.options.get_safe("libunwind_backtrace"):
             deps = PkgConfigDeps(self)
@@ -133,8 +142,7 @@ class TracyConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder,
-             dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
@@ -155,8 +163,8 @@ class TracyConan(ConanFile):
             self.cpp_info.requires.append("libunwind::libunwind")
 
         # Tracy CMake adds options set to ON as public
-        for opt in self._tracy_options.keys():
-            switch = getattr(self.options, opt)
-            opt = f"TRACY_{opt.upper()}"
+        for opt, switch in self.options.items():
+            if opt in ["shared", "fPIC"]:
+                continue
             if switch:
-                self.cpp_info.defines.append(opt)
+                self.cpp_info.defines.append(f"TRACY_{opt.upper()}")
