@@ -86,7 +86,7 @@ class DpdkConan(ConanFile):
         if self.options.with_libibverbs:
             self.requires("rdma-core/52.0")
         if self.options.with_libpcap:
-            self.requires("libpcap/1.10.4")
+            self.requires("libpcap/[^1.10.4]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         # missing:
