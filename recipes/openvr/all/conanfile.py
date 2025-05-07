@@ -41,7 +41,7 @@ class OpenvrConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("jsoncpp/1.9.5", transitive_headers=True, transitive_libs=True)
+        self.requires("jsoncpp/[^1.9.5]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
