@@ -141,7 +141,7 @@ class DirectfbConan(ConanFile):
             if self.options.with_vdpau:
                 self.requires("libvdpau/1.5")
         if self.options.get_safe("with_alsa"):
-            self.requires("libalsa/1.2.13")
+            self.requires("libalsa/[^1.2.13]")
         if self.options.get_safe("with_vorbis"):
             self.requires("vorbis/1.3.7")
         if self.options.get_safe("with_mad"):
