@@ -138,7 +138,7 @@ class GtsamConan(ConanFile):
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if Version(self.version) >= "4.1":
-            self.requires("spectra/1.1.0")
+            self.requires("spectra/[^1.1.0]")
         if self.options.with_TBB:
             if Version(self.version) >= "4.1":
                 self.requires("onetbb/[^2021]", transitive_headers=True, transitive_libs=True)
