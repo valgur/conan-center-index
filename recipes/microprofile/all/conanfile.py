@@ -82,7 +82,7 @@ class MicroprofileConan(ConanFile):
 
     def requirements(self):
         if self.options.with_miniz:
-            self.requires("miniz/3.0.2")
+            self.requires("miniz/[^3.0.2]")
         if self.options.enable_timer == "gl":
             self.requires("opengl/system")
         if self.options.enable_timer == "vulkan":

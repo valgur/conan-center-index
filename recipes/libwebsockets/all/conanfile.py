@@ -208,7 +208,7 @@ class LibwebsocketsConan(ConanFile):
         if self.options.with_zlib == "zlib":
             self.requires("zlib/[>=1.2.11 <2]")
         elif self.options.with_zlib == "miniz":
-            self.requires("miniz/3.0.2")
+            self.requires("miniz/[^3.0.2]")
 
         if self.options.with_libmount:
             self.requires("libmount/2.41")

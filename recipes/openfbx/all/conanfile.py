@@ -33,7 +33,7 @@ class OpenfbxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("miniz/3.0.1")
+        self.requires("miniz/[^3.0.1]")
 
     def validate(self):
         check_min_cppstd(self, 11)
