@@ -135,7 +135,7 @@ class CeresSolverConan(ConanFile):
         if self._require_metis:
             self.requires("metis/5.2.1")
         if self.options.get_safe("use_TBB"):
-            self.requires("onetbb/2020.3")
+            self.requires("onetbb/[^2020.3]")
         if self.options.get_safe("use_OpenMP"):
             self.requires("openmp/system")
 

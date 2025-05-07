@@ -28,7 +28,7 @@ class TinyDnnConan(ConanFile):
         self.requires("cereal/[^1.3.1]")
         self.requires("stb/cci.20250314")
         if self.options.with_tbb:
-            self.requires("onetbb/2020.3")
+            self.requires("onetbb/[^2020.3]")
 
     def package_id(self):
         self.info.clear()

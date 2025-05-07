@@ -79,12 +79,12 @@ class OpenSubdivConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tbb:
-            # OpenSubdiv < 3.6.0 support only onettbb/2020.x.x
-            # https://github.com/PixarAnimationStudios/OpenSubdiv/pull/1317
-            if Version(self.version) < "3.6.0":
-                self.requires("onetbb/2020.3.3", transitive_headers=True)
-            else:
+            if Version(self.version) >= "3.6.0":
                 self.requires("onetbb/[^2021]", transitive_headers=True)
+            else:
+                # OpenSubdiv < 3.6.0 support only onettbb/2020.x.x
+                # https://github.com/PixarAnimationStudios/OpenSubdiv/pull/1317
+                self.requires("onetbb/[^2020.3]", transitive_headers=True)
         if self.options.with_opengl:
             self.requires("opengl/system")
             self.requires("glfw/[^3.4]")

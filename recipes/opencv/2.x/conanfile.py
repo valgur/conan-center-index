@@ -359,7 +359,7 @@ class OpenCVConan(ConanFile):
             self.requires("eigen/3.4.0")
         if self.options.with_tbb:
             # opencv 2.x doesn't support onetbb >= 2021
-            self.requires("onetbb/2020.3.3")
+            self.requires("onetbb/[^2020.3]")
         # highgui module options
         if self.options.get_safe("with_jpeg") == "libjpeg":
             self.requires("libjpeg/[>=9e]")

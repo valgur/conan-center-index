@@ -98,7 +98,7 @@ class OpenCVConan(ConanFile):
             self.requires("openmp/system")
         elif self.options.parallel == "tbb":
             # opencv 3.x doesn't support onetbb >= 2021
-            self.requires("onetbb/2020.3.3")
+            self.requires("onetbb/[^2020.3]")
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.contrib:

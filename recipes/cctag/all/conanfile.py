@@ -66,7 +66,7 @@ class CCTagConan(ConanFile):
         if Version(self.version) >= "1.0.3":
             self.requires("onetbb/[^2021]")
         else:
-            self.requires("onetbb/2020.3.3")
+            self.requires("onetbb/[^2020.3]")
         extra_opts = {comp: True for comp in self._apps_opencv_components} if self.options.apps else {}
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True, options=extra_opts)
 

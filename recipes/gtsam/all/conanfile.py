@@ -143,7 +143,7 @@ class GtsamConan(ConanFile):
             if Version(self.version) >= "4.1":
                 self.requires("onetbb/[^2021]", transitive_headers=True, transitive_libs=True)
             else:
-                self.requires("onetbb/2020.3.3", transitive_headers=True, transitive_libs=True)
+                self.requires("onetbb/[^2020.3]", transitive_headers=True, transitive_libs=True)
         if self.options.default_allocator == "tcmalloc":
             self.requires("gperftools/[^2.16]")
         if self.options.support_nested_dissection:
