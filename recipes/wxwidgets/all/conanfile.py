@@ -170,7 +170,7 @@ class wxWidgetsConan(ConanFile):
                 self.requires("sdl/[^2.30.9]")
         if self.settings.os != "Windows" and not is_apple_os(self):
             if self.options.secretstore:
-                self.requires("libsecret/0.21.4")
+                self.requires("libsecret/[>=0.21.4 <1]")
             if self.options.mediactrl and self._toolkit.startswith("gtk"):
                 self.requires("gst-plugins-base/[^1.24]")
             if self._toolkit.startswith("gtk"):

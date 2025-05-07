@@ -62,7 +62,7 @@ class QtKeychainConan(ConanFile):
         self.requires("qt/[>=5 <7]", transitive_headers=True, transitive_libs=True, options=self._qt_options)
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_libsecret:
-                self.requires("libsecret/0.21.4")
+                self.requires("libsecret/[>=0.21.4 <1]")
 
     def validate(self):
         check_min_cppstd(self, 17 if self.settings.os == "Windows" else 11)
