@@ -249,7 +249,7 @@ class LibtorchConan(ConanFile):
         self.requires("onnx/1.17.0", transitive_headers=True, transitive_libs=True)
         self.requires("protobuf/[>=3.21.12]")
         self.requires("fp16/[>=cci.20210320]")
-        self.requires("cpp-httplib/0.18.0")
+        self.requires("cpp-httplib/[^0.18.0]")
         self.requires("libbacktrace/cci.20240730")
         if self._depends_on_sleef:
             self.requires("sleef/3.6.1")
