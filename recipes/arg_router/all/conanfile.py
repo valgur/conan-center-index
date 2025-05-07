@@ -16,7 +16,7 @@ class arg_routerRecipe(ConanFile):
 
     # CMake >= 3.18 is required https://github.com/cmannett85/arg_router/blob/449567723d6c0e9db0a4c89277066c9a53b299fa/CMakeLists.txt#L5
     tool_requires = "cmake/3.25.3"
-    requires = "boost/1.86.0", "span-lite/0.10.3"
+    requires = "boost/1.86.0", "span-lite/[>=0.10.3 <1]"
 
     settings = "os", "arch", "compiler", "build_type"
     package_type = "header-library"

@@ -46,7 +46,7 @@ class QuickcpplibCodeConan(ConanFile):
 
     def requirements(self):
         if self._needs_span_lite:
-            self.requires("span-lite/0.10.3")
+            self.requires("span-lite/[>=0.10.3 <1]")
 
     def package_id(self):
         self.info.clear()
