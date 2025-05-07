@@ -35,7 +35,7 @@ class AtSpi2CoreConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_x11": True,
-        "with_introspection": True,
+        "with_introspection": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
