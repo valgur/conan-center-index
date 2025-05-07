@@ -124,7 +124,7 @@ class OpenTelemetryCppConan(ConanFile):
 
     def requirements(self):
         if self.options.with_gsl:
-            self.requires("ms-gsl/4.0.0")
+            self.requires("ms-gsl/[^4.0.0]")
 
         if self.options.with_abseil:
             self.requires("abseil/[>=20230125.3]", transitive_headers=True)

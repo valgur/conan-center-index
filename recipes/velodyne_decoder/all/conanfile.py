@@ -49,7 +49,7 @@ class PackageConan(ConanFile):
 
     def requirements(self):
         self.requires("yaml-cpp/0.8.0")
-        self.requires("ms-gsl/4.0.0", transitive_headers=True)
+        self.requires("ms-gsl/[^4.0.0]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

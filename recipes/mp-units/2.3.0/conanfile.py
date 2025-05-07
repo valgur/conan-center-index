@@ -178,7 +178,7 @@ class MPUnitsConan(ConanFile):
             if self.options.contracts == "gsl-lite":
                 self.requires("gsl-lite/0.41.0", transitive_headers=True)
             elif self.options.contracts == "ms-gsl":
-                self.requires("ms-gsl/4.0.0", transitive_headers=True)
+                self.requires("ms-gsl/[^4.0.0]", transitive_headers=True)
             if not self.options.std_format:
                 self.requires("fmt/[>=9]", transitive_headers=True)
 

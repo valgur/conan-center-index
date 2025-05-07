@@ -49,7 +49,7 @@ class TwitchTvLibSoundtrackUtilConan(ConanFile):
 
     def requirements(self):
         self.requires("twitch-native-ipc/3.1.1", transitive_headers=True, transitive_libs=True)
-        self.requires("ms-gsl/4.0.0", transitive_headers=True)
+        self.requires("ms-gsl/[^4.0.0]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
