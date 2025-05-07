@@ -44,7 +44,7 @@ class MlpackConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("armadillo/12.6.4")
+        self.requires("armadillo/[^12.6.4]")
         self.requires("cereal/1.3.2")
         self.requires("ensmallen/2.21.0")
         self.requires("stb/cci.20250314")

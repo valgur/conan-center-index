@@ -60,7 +60,7 @@ class OptimLibConan(ConanFile):
 
     def requirements(self):
         if self.options.linear_alg_lib == "arma":
-            self.requires("armadillo/12.6.4", transitive_headers=True, transitive_libs=True)
+            self.requires("armadillo/[^12.6.4]", transitive_headers=True, transitive_libs=True)
         elif self.options.linear_alg_lib == "eigen":
             self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_openmp:

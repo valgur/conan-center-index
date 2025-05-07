@@ -312,7 +312,7 @@ class GdalConan(ConanFile):
         # if self.options.with_rasdaman:
         #     self.requires("raslib/x.x.x")
         # if self.options.with_armadillo:
-        #     self.requires("armadillo/9.880.1")
+        #     self.requires("armadillo/[^9.880.1]")
         if self.options.with_cryptopp:
             self.requires("cryptopp/[^8.7.0]")
         if self.options.with_crypto:
