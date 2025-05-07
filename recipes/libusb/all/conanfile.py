@@ -64,7 +64,7 @@ class LibUSBConan(ConanFile):
     def requirements(self):
         if self.settings.os == "Linux":
             if self.options.enable_udev:
-                self.requires("libudev/255.18")
+                self.requires("libudev/[^255.18]")
 
     def build_requirements(self):
         if self.settings_build.os == "Windows" and not is_msvc(self):

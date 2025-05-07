@@ -49,7 +49,7 @@ class Openni2Conan(ConanFile):
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/[^4.1.5]")
         if self.settings.os == "Linux":
-            self.requires("libudev/255.18")
+            self.requires("libudev/[^255.18]")
         if self.settings.os != "Windows":
             self.requires("libusb/1.0.26")
 

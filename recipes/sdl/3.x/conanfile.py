@@ -221,7 +221,7 @@ class SDLConan(ConanFile):
         if self._supports_opengl:
             self.requires("opengl/system")
         if self.options.get_safe("libudev"):
-            self.requires("libudev/255.18")
+            self.requires("libudev/[^255.18]")
         if self._supports_dbus:
             self.requires("dbus/[^1.15]")
         if self.options.get_safe("pulseaudio"):

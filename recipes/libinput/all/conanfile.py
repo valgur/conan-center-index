@@ -62,7 +62,7 @@ class LibinputConan(ConanFile):
                 self.requires("xorg/system")
 
         if self.options.with_libudev == "systemd":
-            self.requires("libudev/255.18", transitive_libs=True)
+            self.requires("libudev/[^255.18]", transitive_libs=True)
         elif self.options.with_libudev == "eudev":
             self.requires("eudev/3.2.14", transitive_libs=True)
 
