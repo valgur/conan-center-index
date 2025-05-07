@@ -50,7 +50,7 @@ class AvahiConan(ConanFile):
         self.requires("libdaemon/0.14")
         self.requires("dbus/[^1.15]")
         self.requires("gdbm/1.23")
-        self.requires("libevent/2.1.12")
+        self.requires("libevent/[^2.1.12]")
         self.requires("libcap/[^2.69]")
 
     def validate(self):

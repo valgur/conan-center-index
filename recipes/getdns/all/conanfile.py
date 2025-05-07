@@ -50,7 +50,7 @@ class GetDnsConan(ConanFile):
         if self.options.with_libev:
             self.requires("libev/4.33")
         if self.options.with_libevent:
-            self.requires("libevent/2.1.12")
+            self.requires("libevent/[^2.1.12]")
         if self.options.with_libuv:
             self.requires("libuv/[^1.45.0]")
         if self.options.with_libidn2:

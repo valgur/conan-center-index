@@ -201,7 +201,7 @@ class LibwebsocketsConan(ConanFile):
             self.requires("libuv/[^1.45.0]")
 
         if self.options.with_libevent == "libevent":
-            self.requires("libevent/2.1.12")
+            self.requires("libevent/[^2.1.12]")
         elif self.options.with_libevent == "libev":
             self.requires("libev/4.33")
 

@@ -83,7 +83,7 @@ class OpenMPIConan(ConanFile):
         # transitive_headers=True is not needed for any dependencies.
         self.requires("hwloc/2.11.1")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("libevent/2.1.12")
+        self.requires("libevent/[^2.1.12]")
         if self.settings.os == "Linux":
             self.requires("libnl/3.8.0")
         if self.options.get_safe("with_curl"):
