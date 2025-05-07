@@ -48,7 +48,7 @@ class DaggyConan(ConanFile):
         if self.options.with_yaml:
             self.requires("yaml-cpp/[>=0.8.0 <1]")
         if self.options.with_ssh2:
-            self.requires("libssh2/1.11.0")
+            self.requires("libssh2/[^1.11.0]")
 
     def validate(self):
         check_min_cppstd(self, 17)
