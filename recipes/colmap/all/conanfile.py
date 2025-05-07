@@ -62,7 +62,7 @@ class ColmapConan(ConanFile):
         if self.options.openmp:
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.cgal:
-            self.requires("cgal/5.6.1")
+            self.requires("cgal/[^5.6.1]")
         if self.options.gui:
             # Qt6 is not supported
             self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
