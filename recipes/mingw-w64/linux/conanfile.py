@@ -62,7 +62,7 @@ class MingwConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("m4/1.4.19")
         self.tool_requires("gmp/[^6.3.0]")
-        self.tool_requires("mpfr/4.2.0")
+        self.tool_requires("mpfr/[^4.2.0]")
         self.tool_requires("mpc/[^1.3.1]")
 
     def source(self):

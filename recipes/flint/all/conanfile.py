@@ -38,7 +38,7 @@ class FlintConan(ConanFile):
 
     def requirements(self):
         self.requires("gmp/[^6.3.0]", transitive_headers=True, transitive_libs=True)
-        self.requires("mpfr/4.2.1", transitive_headers=True, transitive_libs=True)
+        self.requires("mpfr/[^4.2.1]", transitive_headers=True, transitive_libs=True)
         if is_msvc(self):
             self.requires("pthreads4w/3.0.0")
 
