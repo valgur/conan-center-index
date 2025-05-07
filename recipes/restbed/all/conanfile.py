@@ -35,18 +35,6 @@ class RestbedConan(ConanFile):
         "with_openssl": True,
     }
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "5",
-            "clang": "7",
-            "apple-clang": "10",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -63,22 +51,20 @@ class RestbedConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("asio/1.27.0")
+        self.requires("asio/[^1.27.0]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.info.settings.compiler), False)
-            if minimum_version and Version(self.info.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
-                )
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required( VERSION 3.1.0 FATAL_ERROR )",
+                        "cmake_minimum_required( VERSION 3.15 )")
 
     def generate(self):
         tc = CMakeToolchain(self)
