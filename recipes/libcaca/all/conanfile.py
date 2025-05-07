@@ -72,7 +72,7 @@ class LibcacaConan(ConanFile):
             self.requires("xorg/system")
         if self.options.get_safe("with_opengl"):
             self.requires("opengl/system")
-            self.requires("freeglut/3.4.0")
+            self.requires("freeglut/[^3.4.0]")
         if self.options.get_safe("with_imlib2"):
             self.requires("imlib2/1.12.3")
         if self.options.get_safe("with_slang"):

@@ -374,7 +374,7 @@ class PclConan(ConanFile):
         if self._is_enabled("opengl"):
             # OpenGL is only used if VTK is available
             self.requires("opengl/system", transitive_headers=True)
-            self.requires("freeglut/3.4.0", transitive_headers=True)
+            self.requires("freeglut/[^3.4.0]", transitive_headers=True)
             self.requires("glew/2.2.0", transitive_headers=True)
             self.requires("glu/system", transitive_headers=True)
         if self._is_enabled("opencv"):

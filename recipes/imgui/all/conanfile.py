@@ -161,7 +161,7 @@ class ImguiConan(ConanFile):
         if self.options.get_safe("backend_opengl2") or self.options.get_safe("backend_opengl3"):
             self.requires("opengl/system")
         if self.options.get_safe("backend_glut") and self.settings.os != "Emscripten":
-            self.requires("freeglut/3.4.0")
+            self.requires("freeglut/[^3.4.0]")
         if self.options.get_safe("backend_sdl2") or self.options.get_safe("backend_sdlrenderer2"):
             self.requires("sdl/[^2.30.7]")
         # elif self.options.get_safe("backend_sdlrenderer3"):
