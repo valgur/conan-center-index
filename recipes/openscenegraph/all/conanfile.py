@@ -46,6 +46,7 @@ class OpenSceneGraphConanFile(ConanFile):
         "with_gta": [True, False],
         "with_jasper": [True, False],
         "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", False],
+        "with_liblas": [True, False],
         "with_openexr": [True, False],
         "with_png": [True, False],
         "with_tiff": [True, False],
@@ -75,6 +76,7 @@ class OpenSceneGraphConanFile(ConanFile):
         "with_gta": False,
         "with_jasper": False,
         "with_jpeg": "libjpeg",
+        "with_liblas": False,
         "with_openexr": False,
         "with_png": True,
         "with_tiff": True,
@@ -153,6 +155,8 @@ class OpenSceneGraphConanFile(ConanFile):
             self.requires("libjpeg-turbo/[^3.0.2]")
         elif self.options.get_safe("with_jpeg") == "mozjpeg":
             self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_liblas:
+            self.requires("liblas/[^1.8.1]")
         if self.options.get_safe("with_openexr"):
             self.requires("openexr/[^3.3.3]")
         if self.options.get_safe("with_png"):
@@ -223,7 +227,7 @@ class OpenSceneGraphConanFile(ConanFile):
         tc.variables["OSG_WITH_NVTT"] = False
         tc.variables["OSG_WITH_ASIO"] = self.options.get_safe("with_asio", False)
         tc.variables["OSG_WITH_ZEROCONF"] = False
-        tc.variables["OSG_WITH_LIBLAS"] = False
+        tc.variables["OSG_WITH_LIBLAS"] = self.options.with_liblas
         tc.variables["OSG_WITH_GIFLIB"] = self.options.get_safe("with_gif", False)
         tc.variables["OSG_WITH_JPEG"] = self.options.get_safe("with_jpeg", False)
         tc.variables["OSG_WITH_PNG"] = self.options.get_safe("with_png", False)
@@ -270,6 +274,7 @@ class OpenSceneGraphConanFile(ConanFile):
         deps.set_property("libjpeg-turbo::jpeg", "cmake_target_name", "JPEG::JPEG")
         deps.set_property("mozjpeg", "cmake_file_name", "JPEG")
         deps.set_property("mozjpeg::libjpeg", "cmake_target_name", "JPEG::JPEG")
+        deps.set_property("liblas", "cmake_file_name", "LIBLAS")
         deps.generate()
 
     def _patch_sources(self):
@@ -601,7 +606,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if is_apple_os(self):
             setup_plugin("imageio").frameworks = ["Accelerate"]
 
-        if (self.options.get_safe("with_avfoundation")):
+        if self.options.get_safe("with_avfoundation"):
             plugin = setup_plugin("avfoundation")
             plugin.requires.append("osgViewer")
             plugin.frameworks = ["AVFoundation", "Cocoa", "CoreVideo", "CoreMedia", "QuartzCore"]
@@ -618,6 +623,10 @@ class OpenSceneGraphConanFile(ConanFile):
             plugin = setup_plugin("QTKit")
             plugin.requires.append("osgViewer")
             plugin.frameworks = ["QTKit", "Cocoa", "QuickTime", "CoreVideo"]
+
+        if self.options.with_liblas:
+            plugin = setup_plugin("las")
+            plugin.requires.extend(["liblas::liblas"])
 
         # with_nvtt
         # setup_plugin("nvtt")
