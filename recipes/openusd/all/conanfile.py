@@ -120,7 +120,7 @@ class OpenUSDConan(ConanFile):
             if self.options.with_ptex:
                 self.requires("ptex/2.4.2")
             if self.options.with_openvdb:
-                self.requires("openvdb/11.0.0")
+                self.requires("openvdb/[^11.0.0]")
             if self.options.with_embree:
                 self.requires("embree3/3.13.5")
             if self.options.get_safe("with_openimageio") or self.options.with_openvdb:
