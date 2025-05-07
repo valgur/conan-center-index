@@ -49,7 +49,7 @@ class PdalConan(ConanFile):
 
     def requirements(self):
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
-        self.requires("gdal/3.10.0", transitive_headers=True, transitive_libs=True)
+        self.requires("gdal/[^3.10.0]", transitive_headers=True, transitive_libs=True)
         self.requires("h3/4.1.0")
         self.requires("json-schema-validator/2.3.0")
         self.requires("libcurl/[>=7.78 <9]") # for arbiter

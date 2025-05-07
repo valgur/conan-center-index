@@ -1119,7 +1119,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_webp"):
             self.requires("libwebp/[^1.3.2]")
         if self.options.get_safe("with_gdal"):
-            self.requires("gdal/3.10.0")
+            self.requires("gdal/[^3.10.0]")
         if self.options.get_safe("with_gdcm"):
             self.requires("gdcm/3.0.23")
         # objdetect module dependencies

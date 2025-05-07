@@ -106,7 +106,7 @@ class OsgearthConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gdal/3.10.0")
+        self.requires("gdal/[^3.10.0]")
         self.requires("glew/2.2.0")
         self.requires("imgui/1.90.9")
         self.requires("lerc/[^4.0.1]")
