@@ -59,7 +59,7 @@ class FreetypeConan(ConanFile):
         if self.options.with_bzip2:
             self.requires("bzip2/1.0.8")
         if self.options.get_safe("with_brotli"):
-            self.requires("brotli/1.1.0")
+            self.requires("brotli/[^1.1.0]")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")

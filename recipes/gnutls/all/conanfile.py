@@ -70,7 +70,7 @@ class GnuTLSConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.with_brotli:
-            self.requires("brotli/1.1.0")
+            self.requires("brotli/[^1.1.0]")
 
     def validate(self):
         if is_msvc(self):

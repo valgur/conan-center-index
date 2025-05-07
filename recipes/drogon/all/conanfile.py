@@ -89,7 +89,7 @@ class DrogonConan(ConanFile):
         if self.options.with_boost:
             self.requires("boost/1.86.0", transitive_headers=True)
         if self.options.with_brotli:
-            self.requires("brotli/1.1.0")
+            self.requires("brotli/[^1.1.0]")
         if self.options.get_safe("with_postgres"):
             self.requires("libpq/[^17.0]")
         if self.options.get_safe("with_mysql"):

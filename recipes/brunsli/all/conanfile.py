@@ -35,7 +35,7 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("brotli/1.0.9", transitive_libs=True, options={"shared": True})
+        self.requires("brotli/[^1.0.9]", transitive_libs=True, options={"shared": True})
 
     def validate(self):
         check_min_cppstd(self, 11)
