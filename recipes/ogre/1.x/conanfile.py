@@ -260,7 +260,7 @@ class OgreConanFile(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("pugixml/1.14")
+        self.requires("pugixml/[^1.14]")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("zziplib/0.13.72")
         if self.options.get_safe("build_component_bites") or self.options.get_safe("build_rendersystem_tiny"):

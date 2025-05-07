@@ -46,7 +46,7 @@ class LiblslConan(ConanFile):
 
     def requirements(self):
         self.requires("boost/1.86.0")
-        self.requires("pugixml/1.13")
+        self.requires("pugixml/[^1.13]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

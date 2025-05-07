@@ -42,7 +42,7 @@ class TmxliteConan(ConanFile):
         else:
             self.requires("zlib/[>=1.2.11 <2]")
             self.requires("zstd/[~1.5]")
-        self.requires("pugixml/1.14")
+        self.requires("pugixml/[^1.14]")
 
     def validate(self):
         check_min_cppstd(self, 14)
