@@ -38,6 +38,9 @@ class CnCborStackConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.0.0)",
+                        "cmake_minimum_required(VERSION 3.15)")
 
     def generate(self):
         tc = CMakeToolchain(self)
