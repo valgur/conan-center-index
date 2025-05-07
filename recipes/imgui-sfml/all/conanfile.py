@@ -34,7 +34,7 @@ class ImGuiSFMLConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("sfml/2.6.2", transitive_headers=True)
+        self.requires("sfml/[^2.6.2]", transitive_headers=True)
         self.requires("imgui/1.91.8", transitive_headers=True, transitive_libs=True)
         self.requires("opengl/system")
 
