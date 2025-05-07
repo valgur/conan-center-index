@@ -111,7 +111,7 @@ class OsgearthConan(ConanFile):
         self.requires("imgui/1.90.9")
         self.requires("lerc/4.0.1")
         self.requires("libcurl/[>=7.78 <9]")
-        self.requires("libzip/1.11.1")
+        self.requires("libzip/[^1.11.1]")
         self.requires("opengl/system")
         self.requires("openscenegraph/3.6.5", transitive_headers=True, transitive_libs=True)
         self.requires("rapidjson/[^1.1.0]")

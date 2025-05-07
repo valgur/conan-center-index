@@ -47,7 +47,7 @@ class PremakeConan(ConanFile):
 
     def requirements(self):
         self.requires("libcurl/[>=7.78.0 <9]")
-        self.requires("libzip/1.10.1")
+        self.requires("libzip/[^1.10.1]")
         self.requires("zlib/[>=1.2.13 <2]")
         if self.settings.os == "Linux":
             self.requires("util-linux-libuuid/2.41")
