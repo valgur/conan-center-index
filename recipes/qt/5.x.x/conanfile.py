@@ -484,10 +484,10 @@ class QtConan(ConanFile):
             self.tool_requires("gperf/3.1")
             # gperf, bison, flex, python >= 2.7.5 & < 3
             if self.settings_build.os == "Windows":
-                self.tool_requires("winflexbison/2.5.25")
+                self.tool_requires("winflexbison/[^2.5.25]")
             else:
-                self.tool_requires("bison/3.8.2")
-                self.tool_requires("flex/2.6.4")
+                self.tool_requires("bison/[^3.8.2]")
+                self.tool_requires("flex/[^2.6.4]")
         if self.options.qtwayland:
             self.tool_requires("wayland/<host_version>")
 

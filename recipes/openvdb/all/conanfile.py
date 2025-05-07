@@ -163,10 +163,10 @@ class OpenVDBConan(ConanFile):
             self.tool_requires("cmake/[>=3.18 <5]")
         if self.options.build_ax:
             if self.settings_build.os == "Windows":
-                self.tool_requires("winflexbison/2.5.25")
+                self.tool_requires("winflexbison/[^2.5.25]")
             else:
-                self.tool_requires("bison/3.8.2")
-                self.tool_requires("flex/2.6.4")
+                self.tool_requires("bison/[^3.8.2]")
+                self.tool_requires("flex/[^2.6.4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

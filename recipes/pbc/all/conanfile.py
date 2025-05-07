@@ -49,8 +49,8 @@ class PbcConan(ConanFile):
             raise ConanInvalidConfiguration("pbc is not compatible with MSVC due to use of GNU extensions")
 
     def build_requirements(self):
-        self.tool_requires("flex/2.6.4")
-        self.tool_requires("bison/3.8.2")
+        self.tool_requires("flex/[^2.6.4]")
+        self.tool_requires("bison/[^3.8.2]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

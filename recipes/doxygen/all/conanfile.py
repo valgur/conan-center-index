@@ -55,10 +55,10 @@ class DoxygenConan(ConanFile):
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":
-            self.tool_requires("winflexbison/2.5.24")
+            self.tool_requires("winflexbison/[^2.5.24]")
         else:
-            self.tool_requires("flex/2.6.4")
-            self.tool_requires("bison/3.8.2")
+            self.tool_requires("flex/[^2.6.4]")
+            self.tool_requires("bison/[^3.8.2]")
 
         self.tool_requires("cmake/[>=3.19 <5]")
 

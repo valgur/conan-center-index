@@ -43,10 +43,10 @@ class FtjamConan(ConanFile):
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":
-            self.tool_requires("winflexbison/2.5.24")
+            self.tool_requires("winflexbison/[^2.5.24]")
         else:
             self.tool_requires("libtool/[^2.4.7]")
-            self.tool_requires("bison/3.8.2")
+            self.tool_requires("bison/[^3.8.2]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

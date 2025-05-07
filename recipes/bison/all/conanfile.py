@@ -58,7 +58,7 @@ class BisonConan(ConanFile):
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
         if self.settings.os != "Windows":
-            self.tool_requires("flex/2.6.4")
+            self.tool_requires("flex/[^2.6.4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

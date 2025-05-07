@@ -69,8 +69,8 @@ class GdbmConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.name} is not supported on Windows")
 
     def build_requirements(self):
-        self.tool_requires("bison/3.8.2")
-        self.tool_requires("flex/2.6.4")
+        self.tool_requires("bison/[^3.8.2]")
+        self.tool_requires("flex/[^2.6.4]")
         self.tool_requires("gnu-config/cci.20210814")
 
     def source(self):

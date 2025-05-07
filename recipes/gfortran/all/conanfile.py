@@ -59,7 +59,7 @@ class GFortranConan(ConanFile):
             # distributed with msys/mingw
             self.tool_requires("binutils/2.42")
         self.tool_requires("libtool/[^2.4.7]")
-        self.tool_requires("flex/2.6.4")
+        self.tool_requires("flex/[^2.6.4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["sources"], strip_root=True)

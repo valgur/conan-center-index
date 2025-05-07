@@ -39,10 +39,10 @@ class TreeGenConan(ConanFile):
             self.test_requires("gtest/[^1.15.0]")
         self.tool_requires("m4/1.4.19")
         if self.settings.os == "Windows":
-            self.tool_requires("winflexbison/2.5.24")
+            self.tool_requires("winflexbison/[^2.5.24]")
         else:
-            self.tool_requires("flex/2.6.4")
-            self.tool_requires("bison/3.8.2")
+            self.tool_requires("flex/[^2.6.4]")
+            self.tool_requires("bison/[^3.8.2]")
 
     def validate(self):
         check_min_cppstd(self, 17)

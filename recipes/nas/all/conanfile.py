@@ -50,8 +50,8 @@ class NasRecipe(ConanFile):
         self.requires("xorg/system")
 
     def build_requirements(self):
-        self.tool_requires("bison/3.8.2")
-        self.tool_requires("flex/2.6.4")
+        self.tool_requires("bison/[^3.8.2]")
+        self.tool_requires("flex/[^2.6.4]")
         self.tool_requires("imake/1.0.9")
         self.tool_requires("xorg-cf-files/1.0.8")
         self.tool_requires("xorg-makedepend/1.0.8")

@@ -72,9 +72,9 @@ class B2Conan(ConanFile):
             self.tool_requires(f"b2/{self.version}")
         if self.options.build_grammar:
             if self.settings_build.os == "Windows":
-                self.tool_requires("winflexbison/2.5.25")
+                self.tool_requires("winflexbison/[^2.5.25]")
             else:
-                self.tool_requires("bison/3.8.2")
+                self.tool_requires("bison/[^3.8.2]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

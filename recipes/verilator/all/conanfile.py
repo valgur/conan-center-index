@@ -33,9 +33,9 @@ class VerilatorConan(ConanFile):
             if is_msvc(self):
                 self.requires("dirent/1.24", visible=False)
         if self.settings.os == "Windows":
-            self.requires("winflexbison/2.5.25", visible=False)
+            self.requires("winflexbison/[^2.5.25]", visible=False)
         else:
-            self.requires("flex/2.6.4", visible=False)
+            self.requires("flex/[^2.6.4]", visible=False)
 
     def package_id(self):
         # Verilator is an executable-only package, so the compiler does not matter
@@ -55,10 +55,10 @@ class VerilatorConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
             self.tool_requires("automake/1.16.5")
             self.tool_requires("strawberryperl/<host_version>")
-            self.tool_requires("winflexbison/2.5.25")
+            self.tool_requires("winflexbison/[^2.5.25]")
         else:
-            self.tool_requires("flex/2.6.4")
-            self.tool_requires("bison/3.8.2")
+            self.tool_requires("flex/[^2.6.4]")
+            self.tool_requires("bison/[^3.8.2]")
         if Version(self.version) >= "4.224":
             self.tool_requires("autoconf/2.72")
 
