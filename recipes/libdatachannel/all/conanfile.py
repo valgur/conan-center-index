@@ -41,7 +41,7 @@ class libdatachannelConan(ConanFile):
         elif self.options.with_ssl == "mbedtls":
             self.requires("mbedtls/[^3.6.2]")
         elif self.options.with_ssl == "gnutls":
-            self.requires("gnutls/3.8.7")
+            self.requires("gnutls/[^3.8.7]")
             if self.options.with_websocket:
                 self.requires("nettle/3.9.1")
         self.requires("plog/1.1.10")
