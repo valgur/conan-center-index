@@ -205,7 +205,7 @@ class GStPluginsBadConan(ConanFile):
             self.requires("glib-gir/[^2.82]")
 
         if "libaom-av1" in reqs:
-            self.requires("libaom-av1/3.8.0")
+            self.requires("libaom-av1/[^3.8.0]")
         if "bzip2" in reqs:
             self.requires("bzip2/[^1.0.8]")
         if "cairo" in reqs:

@@ -68,7 +68,7 @@ class LibAVIFConan(ConanFile):
         return self.options.with_decoder == "dav1d"
 
     def requirements(self):
-        self.requires("libaom-av1/3.6.1")
+        self.requires("libaom-av1/[^3.6.1]")
         self.requires("libyuv/1854")
         if self._has_dav1d:
             self.requires("dav1d/[^1.2.1]")
