@@ -196,7 +196,7 @@ class GdalConan(ConanFile):
         if self.options.with_cfitsio:
             self.requires("cfitsio/[^4.3.1]")
         if self.options.with_cryptopp:
-            self.requires("cryptopp/8.9.0")
+            self.requires("cryptopp/[^8.9.0]")
         if self.options.with_curl:
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.with_dds:

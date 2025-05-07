@@ -314,7 +314,7 @@ class GdalConan(ConanFile):
         # if self.options.with_armadillo:
         #     self.requires("armadillo/9.880.1")
         if self.options.with_cryptopp:
-            self.requires("cryptopp/8.7.0")
+            self.requires("cryptopp/[^8.7.0]")
         if self.options.with_crypto:
             self.requires("openssl/[>=1.1 <4]")
         # if not self.options.without_lerc:
