@@ -85,7 +85,7 @@ class FreeImageConan(ConanFile):
             self.requires("imath/3.1.9")
         if self.options.with_raw:
             # can't upgrade to libraw >= 0.21 (error: no member named 'shot_select' in 'libraw_output_params_t')
-            self.requires("libraw/0.20.2")
+            self.requires("libraw/[>=0.20.2 <1]")
         if self.options.with_jxr:
             self.requires("jxrlib/cci.20170615")
         if self.options.with_tiff:

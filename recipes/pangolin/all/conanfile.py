@@ -146,7 +146,7 @@ class PangolinConan(ConanFile):
             self.requires("cpython/3.12.2")
             self.requires("pybind11/[^2.12.0]")
         if self.options.with_raw:
-            self.requires("libraw/0.21.2")
+            self.requires("libraw/[>=0.21.2 <1]")
         if self.options.with_realsense:
             self.requires("librealsense/2.53.1")
         if self.options.with_tiff:

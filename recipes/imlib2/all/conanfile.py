@@ -105,7 +105,7 @@ class Imlib2Conan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_raw:
-            self.requires("libraw/0.21.2")
+            self.requires("libraw/[>=0.21.2 <1]")
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_webp:
