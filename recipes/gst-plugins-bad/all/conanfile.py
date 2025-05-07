@@ -233,7 +233,7 @@ class GStPluginsBadConan(ConanFile):
         if "libqrencode" in reqs:
             self.requires("libqrencode/4.1.1")
         if "libde265" in reqs:
-            self.requires("libde265/1.0.15")
+            self.requires("libde265/[^1.0.15]")
         if self._is_enabled("curl") and self.options.with_libssh2:
             self.requires("libssh2/1.11.1", options={"shared": True})
         if "libusb" in reqs:
