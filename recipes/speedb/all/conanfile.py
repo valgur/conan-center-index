@@ -69,7 +69,7 @@ class SpeedbConan(ConanFile):
             self.requires("zstd/[~1.5]")
         if self.options.with_core_tools:
             self.requires("gflags/2.2.2")
-            self.requires("readline/8.2")
+            self.requires("readline/[^8.2]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

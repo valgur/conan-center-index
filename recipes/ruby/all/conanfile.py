@@ -78,7 +78,7 @@ class RubyConan(ConanFile):
         if self.options.with_libffi:
             self.requires("libffi/3.4.6")
         if self.options.get_safe("with_readline"):
-            self.requires("readline/8.2")
+            self.requires("readline/[^8.2]")
         if self.options.with_gmp:
             self.requires("gmp/6.3.0")
 

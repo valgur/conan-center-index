@@ -95,7 +95,7 @@ class PipeWireConan(ConanFile):
         if self.options.with_pulseaudio:
             self.requires("pulseaudio/[^17.0]")
         if self.options.with_readline:
-            self.requires("readline/8.2")
+            self.requires("readline/[^8.2]")
         if self.options.with_selinux:
             self.requires("libselinux/3.6")
         if self.options.with_vulkan:

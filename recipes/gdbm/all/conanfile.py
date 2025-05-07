@@ -62,7 +62,7 @@ class GdbmConan(ConanFile):
         if self.options.get_safe("with_libiconv"):
             self.requires("libiconv/[^1.17]")
         if self.options.with_readline:
-            self.requires("readline/8.1.2")
+            self.requires("readline/[^8.1.2]")
 
     def validate(self):
         if self.settings.os == "Windows":

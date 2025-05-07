@@ -53,7 +53,7 @@ class LuaConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tools and self.options.with_readline:
-            self.requires("readline/8.2")
+            self.requires("readline/[^8.2]")
 
     def validate(self):
         if not self.options.with_tools and self.options.with_readline:
