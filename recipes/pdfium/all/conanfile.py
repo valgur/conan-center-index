@@ -47,7 +47,7 @@ class PdfiumConan(ConanFile):
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/[>=9e]")
         elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.1")
+            self.requires("libjpeg-turbo/[^3.0.1]")
 
     def validate(self):
         check_min_cppstd(self, 14)

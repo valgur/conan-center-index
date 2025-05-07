@@ -78,7 +78,7 @@ class LibCVDConan(ConanFile):
         if self.options.with_libdc1394:
             self.requires("libdc1394/2.2.7")
         if self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.2")
+            self.requires("libjpeg-turbo/[^3.0.2]")
         elif self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/[>=9e]")
         elif self.options.with_libjpeg == "mozjpeg":

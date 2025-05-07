@@ -185,7 +185,7 @@ class GStPluginsBaseConan(ConanFile):
             if self.options.with_libjpeg == "libjpeg":
                 self.requires("libjpeg/[>=9e]")
             elif self.options.with_libjpeg == "libjpeg-turbo":
-                self.requires("libjpeg-turbo/3.0.2")
+                self.requires("libjpeg-turbo/[^3.0.2]")
         if "ogg" in reqs:
             self.requires("ogg/[^1.3.5]")
         if "opus" in reqs:

@@ -112,7 +112,7 @@ class ThorvgConan(ConanFile):
     def requirements(self):
         loaders_opt = str(self.options.with_loaders)
         if loaders_opt in ("all", "jpg"):
-            self.requires("libjpeg-turbo/3.0.2")
+            self.requires("libjpeg-turbo/[^3.0.2]")
         if loaders_opt in ("all", "png"):
             self.requires("libpng/[~1.6]")
         if loaders_opt in ("all", "webp"):

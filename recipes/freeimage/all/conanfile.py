@@ -70,7 +70,7 @@ class FreeImageConan(ConanFile):
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/[>=9e]")
         elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.2")
+            self.requires("libjpeg-turbo/[^3.0.2]")
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/[^4.1.1]")
         if self.options.with_jpeg2000:

@@ -49,7 +49,7 @@ class DjVuLibreConan(ConanFile):
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/[>=9e]")
         elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.2")
+            self.requires("libjpeg-turbo/[^3.0.2]")
         elif self.options.with_libjpeg == "mozjpeg":
             self.requires("mozjpeg/[^4.1.5]")
         self.requires("libtiff/[>=4.5 <5]")

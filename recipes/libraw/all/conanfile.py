@@ -58,7 +58,7 @@ class LibRawConan(ConanFile):
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/[>=9e]")
         elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/3.0.0")
+            self.requires("libjpeg-turbo/[^3.0.0]")
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/[^4.1.3]")
         if self.options.with_lcms:
