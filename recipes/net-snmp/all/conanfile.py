@@ -68,7 +68,7 @@ class NetSnmpConan(ConanFile):
             self.tool_requires("pkgconf/2.2.0")
         if self.settings.os != "Windows":
             # libtool requires file executable
-            self.tool_requires("libmagic/5.45")
+            self.tool_requires("libmagic/[^5.45]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
