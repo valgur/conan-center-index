@@ -49,7 +49,7 @@ class MicroserviceEssentials(ConanFile):
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.16.3 <5]")
         if self.options.tests:
-            self.test_requires("catch2/3.4.0")
+            self.test_requires("catch2/[^3.4.0]")
             self.test_requires("nlohmann_json/[^3]")
 
     def source(self):
