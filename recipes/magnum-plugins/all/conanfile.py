@@ -128,7 +128,7 @@ class MagnumConan(ConanFile):
         if self.options.harfbuzz_font:
             self.requires("harfbuzz/[*]")
         if self.options.freetype_font:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
         if self.options.jpeg_importer or self.options.jpeg_imageconverter:
             self.requires("libjpeg/9e")
         if self.options.meshoptimizer_sceneconverter:

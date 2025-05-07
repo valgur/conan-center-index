@@ -97,7 +97,7 @@ class OpenCascadeConan(ConanFile):
         self.requires("tcl/8.6.16")
         if self._link_tk:
             self.requires("tk/8.6.16")
-        self.requires("freetype/2.13.2")
+        self.requires("freetype/[^2.13.2]")
         if self._link_opengl:
             self.requires("opengl/system")
         if self._is_linux:

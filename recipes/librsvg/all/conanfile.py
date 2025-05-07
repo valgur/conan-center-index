@@ -57,7 +57,7 @@ class LibrsvgConan(ConanFile):
         if self.options.with_introspection:
             self.requires("gobject-introspection/[^1.82]", options={"build_introspection_data": True})
             self.requires("glib-gir/[^2.82]")
-        self.requires("freetype/2.13.2")
+        self.requires("freetype/[^2.13.2]")
         self.requires("fontconfig/[^2.15.0]")
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)
         self.requires("harfbuzz/[*]")

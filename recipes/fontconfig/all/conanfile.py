@@ -36,7 +36,7 @@ class FontconfigConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("freetype/2.13.2")
+        self.requires("freetype/[^2.13.2]")
         self.requires("expat/[>=2.6.2 <3]")
 
     def build_requirements(self):

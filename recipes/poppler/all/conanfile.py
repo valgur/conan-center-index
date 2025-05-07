@@ -93,7 +93,7 @@ class PopplerConan(ConanFile):
     def requirements(self):
         self.requires("poppler-data/0.4.11", transitive_headers=True, transitive_libs=True)
         # https://gitlab.freedesktop.org/poppler/poppler/-/blob/poppler-22.04.0/splash/SplashFTFont.h#L30
-        self.requires("freetype/2.13.2", transitive_headers=True, transitive_libs=True)
+        self.requires("freetype/[^2.13.2]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_libiconv"):
             self.requires("libiconv/[^1.17]")
         if self.options.fontconfiguration == "fontconfig":

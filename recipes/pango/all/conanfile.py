@@ -80,7 +80,7 @@ class PangoConan(ConanFile):
             # "pango/pangocairo.h" includes "cairo.h"
             self.requires("cairo/[^1.18.0]", transitive_headers=True)
         if self.options.with_freetype:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
         if self.options.with_fontconfig:
             self.requires("fontconfig/[^2.15.0]")
         if self.options.get_safe("with_xft"):

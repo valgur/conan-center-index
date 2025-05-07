@@ -129,7 +129,7 @@ class DirectfbConan(ConanFile):
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[>=4 <8]")
         if self.options.with_freetype:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
         if self.options.with_v4l2:
             self.requires("libv4l/1.28.1")
         if self.options.with_webp:

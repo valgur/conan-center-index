@@ -55,7 +55,7 @@ class CernRootConan(ConanFile):
         self.requires("arrow/17.0.0")
         self.requires("cfitsio/[^4.4.0]")
         self.requires("fftw/3.3.10")
-        self.requires("freetype/2.13.2")
+        self.requires("freetype/[^2.13.2]")
         self.requires("glew/2.2.0")
         self.requires("gsl/2.7.1")
         self.requires("libcurl/[>=7.78 <9]")

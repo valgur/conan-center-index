@@ -54,7 +54,7 @@ class RmluiConan(ConanFile):
 
     def requirements(self):
         if self.options.font_interface == "freetype":
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
 
         if self.options.with_lua_bindings:
             self.requires("lua/[^5.4.6]")

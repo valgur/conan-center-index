@@ -282,7 +282,7 @@ class OgreConanFile(ConanFile):
         if self.options.build_component_bullet:
             self.requires("bullet3/3.25")
         if self.options.build_component_overlay:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
             if self.options.build_component_overlay_imgui:
                 # Used in Overlay/OgreImGuiOverlay.h public header
                 self.requires("imgui/1.91.8", transitive_headers=True, transitive_libs=True)

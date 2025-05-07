@@ -76,7 +76,7 @@ class HarfbuzzConan(ConanFile):
                 self.requires("gobject-introspection/[^1.82]", options={"build_introspection_data": True})
                 self.requires("glib-gir/[^2.82]")
         if self.options.with_freetype:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
         if self.options.with_icu:
             self.requires("icu/[*]")
 

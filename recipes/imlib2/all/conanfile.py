@@ -81,7 +81,7 @@ class Imlib2Conan(ConanFile):
 
     def requirements(self):
         if self.options.enable_text:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
         if self.options.with_bz2:
             self.requires("bzip2/[^1.0.8]")
         if self.options.with_gif:

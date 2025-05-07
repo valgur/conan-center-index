@@ -52,7 +52,7 @@ class SdlttfConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("freetype/2.13.2")
+        self.requires("freetype/[^2.13.2]")
         # https://github.com/conan-io/conan-center-index/pull/18366#issuecomment-1625464996
         self.requires("sdl/[^2.30.9]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_harfbuzz"):

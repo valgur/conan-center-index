@@ -138,7 +138,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.get_safe("with_dcmtk"):
             self.requires("dcmtk/[^3.6.8]")
         if self.options.with_freetype:
-            self.requires("freetype/2.13.2")
+            self.requires("freetype/[^2.13.2]")
         if self.options.with_gdal:
             self.requires("gdal/3.10.0")
         if self.options.get_safe("with_gif"):

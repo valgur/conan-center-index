@@ -30,7 +30,7 @@ class Games101CglConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("freetype/2.13.2")
+        self.requires("freetype/[^2.13.2]")
         self.requires("glew/2.2.0", transitive_headers=True)
         self.requires("glfw/3.4", transitive_headers=True)
 

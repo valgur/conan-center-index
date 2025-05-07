@@ -43,7 +43,7 @@ class SkiaConan(ConanFile):
         self.requires("spirv-tools/1.4.309.0")
         self.requires("spirv-cross/1.4.309.0")
         self.requires("expat/[>=2.6.2 <3]")
-        self.requires("freetype/2.13.2")
+        self.requires("freetype/[^2.13.2]")
         self.requires("fontconfig/[^2.15.0]")
         self.requires("icu/[*]")
 
