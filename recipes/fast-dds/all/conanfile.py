@@ -51,9 +51,9 @@ class FastDDSConan(ConanFile):
         self.requires("asio/[>=1.29.0 <1.32]")
         # Fast-DDS < 2.12 uses Fast-CDR 1.x
         if Version(self.version) < "2.12.0":
-            self.requires("fast-cdr/1.1.0", transitive_headers=True, transitive_libs=True)
+            self.requires("fast-cdr/[^1.1.0]", transitive_headers=True, transitive_libs=True)
         else:
-            self.requires("fast-cdr/2.1.0", transitive_headers=True, transitive_libs=True)
+            self.requires("fast-cdr/[^2.1.0]", transitive_headers=True, transitive_libs=True)
         self.requires("foonathan-memory/0.7.3")
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")

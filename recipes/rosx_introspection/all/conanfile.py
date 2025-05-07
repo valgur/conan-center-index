@@ -45,7 +45,7 @@ class RosxIntrospectionConan(ConanFile):
 
     def requirements(self):
         self.requires("rapidjson/[^1.1.0]")
-        self.requires("fast-cdr/2.2.0")
+        self.requires("fast-cdr/[^2.2.0]")
 
     def validate(self):
         check_min_cppstd(self, 17)
