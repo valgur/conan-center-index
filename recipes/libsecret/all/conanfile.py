@@ -49,7 +49,7 @@ class LibsecretConan(ConanFile):
     def requirements(self):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("crypto") == "libgcrypt":
-            self.requires("libgcrypt/1.10.3")
+            self.requires("libgcrypt/[^1.10.3]")
         elif self.options.get_safe("crypto") == "gnutls":
             self.requires("gnutls/[^3.8.2]")
         if self.options.with_introspection:
