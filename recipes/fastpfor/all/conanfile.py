@@ -41,7 +41,7 @@ class FastPFORConan(ConanFile):
 
     def requirements(self):
         if self._has_simde:
-            self.requires("simde/0.8.0", transitive_headers=True)
+            self.requires("simde/[>=0.8.0 <1]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

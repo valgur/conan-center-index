@@ -56,7 +56,7 @@ class Box2dConan(ConanFile):
 
     def requirements(self):
         if Version(self.version) >= "3.0.0":
-            self.requires("simde/0.8.2")
+            self.requires("simde/[>=0.8.2 <1]")
 
     def validate(self):
         if Version(self.version) < "3.0.0":

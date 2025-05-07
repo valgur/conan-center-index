@@ -162,7 +162,7 @@ class PackageConan(ConanFile):
 
         # FIXME: unvendor simde
         # if self.options.with_proxqp:
-        #     self.requires("simde/0.8.2")
+        #     self.requires("simde/[>=0.8.2 <1]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
