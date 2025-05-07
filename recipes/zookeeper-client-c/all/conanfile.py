@@ -43,7 +43,7 @@ class ZookeeperClientCConan(ConanFile):
 
     def requirements(self):
         if self.options.with_cyrus_sasl:
-            self.requires("cyrus-sasl/2.1.28")
+            self.requires("cyrus-sasl/[^2.1.28]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 
