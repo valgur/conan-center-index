@@ -78,7 +78,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/[>=9e]")
         elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[~3.0]")
+            self.requires("libjpeg-turbo/[^3.0]")
         self.requires("pugixml/[^1.15]")
         self.requires("tsl-robin-map/[^1.3.0]")
         self.requires("fmt/[>=7]", transitive_headers=True)
