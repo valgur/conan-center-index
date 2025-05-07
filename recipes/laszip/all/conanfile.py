@@ -54,6 +54,11 @@ class LaszipConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        if Version(self.version) < "3.0":
+            # CMake v4 support
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 2.6.0)",
+                            "cmake_minimum_required(VERSION 3.15)")
 
     def generate(self):
         tc = CMakeToolchain(self)
