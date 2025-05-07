@@ -284,7 +284,7 @@ class LibtorchConan(ConanFile):
             self.requires("vulkan-headers/1.4.309.0")
             self.requires("vulkan-loader/1.4.309.0")
         if self.options.with_mimalloc:
-            self.requires("mimalloc/2.1.7")
+            self.requires("mimalloc/[^2.1.7]")
 
         # miniz cannot be unvendored due to being slightly modified
 

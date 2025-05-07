@@ -44,7 +44,7 @@ class MoldConan(ConanFile):
         self.requires("zstd/[~1.5]")
         self.requires("xxhash/[>=0.8.1 <0.9]")
         if self.options.with_mimalloc:
-            self.requires("mimalloc/2.1.7")
+            self.requires("mimalloc/[^2.1.7]")
         if Version(self.version) < "2.2.0":
             # Newer versions use vendored-in BLAKE3
             self.requires("openssl/[>=1.1 <4]")
