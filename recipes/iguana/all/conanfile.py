@@ -37,7 +37,7 @@ class IguanaConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("frozen/1.1.1", transitive_headers=True)
+        self.requires("frozen/[^1.1.1]", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()
