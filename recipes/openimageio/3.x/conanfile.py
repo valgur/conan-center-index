@@ -98,7 +98,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_tbb:
             self.requires("onetbb/[^2021]")
         if self.options.with_dicom:
-            self.requires("dcmtk/3.6.8")
+            self.requires("dcmtk/[^3.6.8]")
         if self.options.with_ffmpeg:
             self.requires("ffmpeg/[>=6 <8]")
         if self.options.with_giflib:

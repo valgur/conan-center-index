@@ -136,7 +136,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.with_curl:
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_dcmtk"):
-            self.requires("dcmtk/3.6.8")
+            self.requires("dcmtk/[^3.6.8]")
         if self.options.with_freetype:
             self.requires("freetype/2.13.2")
         if self.options.with_gdal:

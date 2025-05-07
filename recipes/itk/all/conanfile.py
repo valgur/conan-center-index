@@ -46,7 +46,7 @@ class ITKConan(ConanFile):
         # - mkl
         # - vtk
         #todo: enable after fixing dcmtk compatibility with openssl on Windows
-        #self.requires("dcmtk/3.6.8")
+        #self.requires("dcmtk/[^3.6.8]")
         self.requires("double-conversion/3.3.0")
         self.requires("eigen/3.4.0")
         self.requires("expat/[>=2.6.2 <3]")
