@@ -91,7 +91,7 @@ class LibGit2Conan(ConanFile):
         if self._need_mbedtls:
             self.requires("mbedtls/[>=2.28 <4]")
         if self.options.get_safe("with_iconv"):
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
         if self.options.with_regex == "pcre":
             self.requires("pcre/8.45")
         elif self.options.with_regex == "pcre2":

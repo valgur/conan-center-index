@@ -64,7 +64,7 @@ class GnuTLSConan(ConanFile):
     def requirements(self):
         self.requires("nettle/3.9.1")
         self.requires("gmp/6.3.0")
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_zstd:

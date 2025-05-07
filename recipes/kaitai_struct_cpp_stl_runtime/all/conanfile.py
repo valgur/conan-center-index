@@ -33,7 +33,7 @@ class KaitaiStructCppStlRuntimeConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_iconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

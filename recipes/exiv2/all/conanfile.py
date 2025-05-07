@@ -70,7 +70,7 @@ class Exiv2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
             self.requires("zlib/[>=1.2.11 <2]")

@@ -43,7 +43,7 @@ class LibIdn(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":

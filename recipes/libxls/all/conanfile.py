@@ -43,7 +43,7 @@ class LibxlsConan(ConanFile):
 
     def requirements(self):
         if not is_apple_os(self):
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def validate(self):
         if is_msvc(self):

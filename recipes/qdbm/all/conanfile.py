@@ -51,7 +51,7 @@ class QDBMConan(ConanFile):
 
     def requirements(self):
         if self.options.with_iconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
 

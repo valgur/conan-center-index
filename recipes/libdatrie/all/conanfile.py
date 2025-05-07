@@ -43,7 +43,7 @@ class LibdatrieConan(ConanFile):
         export_conandata_patches(self)
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
 
     def validate(self):
         if is_apple_os(self) and self.options.shared:

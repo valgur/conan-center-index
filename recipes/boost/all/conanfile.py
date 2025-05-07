@@ -583,7 +583,7 @@ class BoostConan(ConanFile):
         if self._with_icu:
             self.requires("icu/[*]")
         if self._with_iconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def package_id(self):
         del self.info.options.i18n_backend

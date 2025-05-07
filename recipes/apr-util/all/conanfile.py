@@ -82,7 +82,7 @@ class AprUtilConan(ConanFile):
             # https://github.com/conan-io/conan-center-index/pull/16142#issuecomment-1494282164
             # transitive_libs needs to be set because some sys-frameworks on the old mac images for c3i
             # are pulling it in - discovered in https://github.com/conan-io/conan-center-index/pull/16266
-            self.requires("libiconv/1.17", transitive_libs=True)
+            self.requires("libiconv/[^1.17]", transitive_libs=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libxcrypt/4.4.36", transitive_headers=True, transitive_libs=True)
         if self.options.with_openssl:

@@ -59,7 +59,7 @@ class ZbarConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         if self.options.with_jpeg:
             self.requires("libjpeg/9e")
         if self.options.with_imagemagick:

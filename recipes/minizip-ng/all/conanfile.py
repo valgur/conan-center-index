@@ -91,7 +91,7 @@ class MinizipNgConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
         if self.settings.os != "Windows":
             if self.options.get_safe("with_iconv"):
-                self.requires("libiconv/1.17")
+                self.requires("libiconv/[^1.17]")
 
     def build_requirements(self):
         if self._needs_pkg_config:

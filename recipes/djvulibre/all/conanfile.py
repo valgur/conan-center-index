@@ -45,7 +45,7 @@ class DjVuLibreConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         if self.options.with_libjpeg == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.with_libjpeg == "libjpeg-turbo":

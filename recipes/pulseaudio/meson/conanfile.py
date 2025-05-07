@@ -52,7 +52,7 @@ class PulseAudioConan(ConanFile):
 
     def requirements(self):
         self.requires("gettext/[>=0.21 <1]")
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         self.requires("libsndfile/[^1.2.2]")
         if self.options.with_glib:
             self.requires("glib/[^2.70.0]")

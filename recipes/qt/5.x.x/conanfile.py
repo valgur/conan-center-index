@@ -399,7 +399,7 @@ class QtConan(ConanFile):
         if self.options.with_glib:
             self.requires("glib/[^2.70.0]")
         # if self.options.with_libiconv: # QTBUG-84708
-        #     self.requires("libiconv/1.16")# QTBUG-84708
+        #     self.requires("libiconv/[^1.16]")# QTBUG-84708
         if self.options.with_doubleconversion and not self.options.multiconfiguration:
             self.requires("double-conversion/3.3.0")
         if self.options.get_safe("with_freetype", False) and not self.options.multiconfiguration:

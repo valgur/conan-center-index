@@ -89,7 +89,7 @@ class LibarchiveConan(ConanFile):
         if self.options.with_expat:
             self.requires("expat/[>=2.6.2 <3]")
         if self.options.with_iconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
         if self.options.with_pcreposix:
             self.requires("pcre/8.45")
         if self.options.with_nettle:

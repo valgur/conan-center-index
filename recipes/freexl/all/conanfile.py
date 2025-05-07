@@ -41,7 +41,7 @@ class FreexlConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         if Version(self.version) >= "2.0.0":
             self.requires("expat/[>=2.6.2 <3]")
             self.requires("minizip/1.2.13")

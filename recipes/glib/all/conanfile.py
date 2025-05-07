@@ -73,7 +73,7 @@ class GLibConan(ConanFile):
             # for Linux, libintl is provided by libc
             self.requires("gettext/[>=0.21 <1]", transitive_headers=True, transitive_libs=True)
         if is_apple_os(self):
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")

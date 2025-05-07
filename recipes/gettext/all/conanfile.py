@@ -71,7 +71,7 @@ class GettextConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         if self.options.with_openmp:
             self.requires("openmp/system")
 

@@ -83,7 +83,7 @@ class LibtorrentConan(ConanFile):
         if self.options.enable_encryption:
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
         if self.options.enable_iconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

@@ -53,7 +53,7 @@ class Log4cplusConan(ConanFile):
 
     def requirements(self):
         if self.options.with_iconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def validate(self):
         check_min_cppstd(self, 11)

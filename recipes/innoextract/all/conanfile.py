@@ -28,7 +28,7 @@ class InnoextractConan(ConanFile):
     def requirements(self):
         self.requires("boost/1.86.0")
         self.requires("xz_utils/[>=5.4.5 <6]")
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
 
     def validate(self):
         check_max_cppstd(self, "14")

@@ -42,7 +42,7 @@ class DoxygenConan(ConanFile):
             self.requires("xapian-core/1.4.19")
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.enable_app or self.options.enable_parse:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def validate(self):
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":

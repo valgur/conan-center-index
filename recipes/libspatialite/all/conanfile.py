@@ -85,7 +85,7 @@ class LibspatialiteConan(ConanFile):
         if self.options.with_proj:
             self.requires("proj/[^9.3.1]")
         if self.options.with_iconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
         if self.options.with_freexl:
             self.requires("freexl/2.0.0")
         if self.options.with_geos:

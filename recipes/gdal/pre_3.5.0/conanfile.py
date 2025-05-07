@@ -207,7 +207,7 @@ class GdalConan(ConanFile):
         if self.options.with_libdeflate:
             self.requires("libdeflate/1.22")
         if self.options.with_libiconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
         if self.options.get_safe("with_zstd"):
             self.requires("zstd/[~1.5]")
         if self.options.with_blosc:

@@ -58,7 +58,7 @@ class PulseAudioConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
         self.requires("libsndfile/[^1.2.2]")
         self.requires("libcap/[^2.69]")
         self.requires("libtool/2.4.7")

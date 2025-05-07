@@ -46,7 +46,7 @@ class OdbcConan(ConanFile):
     def requirements(self):
         self.requires("libtool/2.4.7")
         if self.options.with_libiconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
 
     def validate(self):
         if self.settings.os == "Windows":

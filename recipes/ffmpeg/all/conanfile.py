@@ -291,7 +291,7 @@ class FFMpegConan(ConanFile):
         if self.options.with_lzma:
             self.requires("xz_utils/5.4.5")
         if self.options.with_libiconv:
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
         if self.options.with_freetype:
             self.requires("freetype/2.13.2")
         if self.options.with_openjpeg:

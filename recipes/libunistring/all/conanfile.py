@@ -39,7 +39,7 @@ class LibUnistringConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libiconv/1.17")
+        self.requires("libiconv/[^1.17]")
 
     def validate(self):
         if is_msvc(self):

@@ -35,7 +35,7 @@ class GLibGIRConan(ConanFile):
         self.requires("libffi/3.4.4")
         self.requires("pcre2/[^10.42]")
         if is_apple_os(self):
-            self.requires("libiconv/1.17")
+            self.requires("libiconv/[^1.17]")
         # just to ensure that the versions match
         self.requires(f"glib/{self.version}", headers=False, libs=False, options={"shared": True})
 
