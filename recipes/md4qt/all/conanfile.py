@@ -39,7 +39,7 @@ class Md4QtConan(ConanFile):
 
     def requirements(self):
         self.requires("icu/[*]")
-        self.requires("uriparser/0.9.7")
+        self.requires("uriparser/[>=0.9.7 <1]")
 
     def package_id(self):
         self.info.clear()

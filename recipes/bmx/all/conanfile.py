@@ -38,7 +38,7 @@ class BmxConan(ConanFile):
 
     def requirements(self):
         # Required libraries
-        self.requires("uriparser/0.9.8")
+        self.requires("uriparser/[>=0.9.8 <1]")
         self.requires("expat/[>=2.6.2 <3]")
 
         if not (self.settings.os == 'Windows' or self.settings.os == 'Macos'):
