@@ -58,7 +58,7 @@ class LibSSHRecipe(ConanFile):
         elif self.options.crypto_backend == "gcrypt":
             self.requires("libgcrypt/1.8.4")
         elif self.options.crypto_backend == "mbedtls":
-            self.requires("mbedtls/3.6.0")
+            self.requires("mbedtls/[>=2.28 <4]", options={"enable_threading": True})
 
     def validate(self):
         if self.options.crypto_backend == "mbedtls" and not self.dependencies["mbedtls"].options.enable_threading:

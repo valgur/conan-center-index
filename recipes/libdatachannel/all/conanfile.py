@@ -1,12 +1,11 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.apple import fix_apple_shared_install_name
 
 required_conan_version = ">=2.1"
 
@@ -40,7 +39,7 @@ class libdatachannelConan(ConanFile):
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         elif self.options.with_ssl == "mbedtls":
-            self.requires("mbedtls/3.6.2")
+            self.requires("mbedtls/[^3.6.2]")
         elif self.options.with_ssl == "gnutls":
             self.requires("gnutls/3.8.7")
             if self.options.with_websocket:
@@ -55,18 +54,14 @@ class libdatachannelConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        if self.options.with_ssl == "mbedtls":
-            # dtlstransport.cpp:414:3: error: use of undeclared identifier 'mbedtls_ssl_conf_dtls_srtp_protection_profiles'
-            raise ConanInvalidConfiguration("Compilation error with mbedtls. Contributions are welcome.")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # Let Conan handle fpic
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+        # Let Conan handle fPIC
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,6 +85,7 @@ class libdatachannelConan(ConanFile):
         deps.set_property("libsrtp", "cmake_file_name", "libSRTP")
         deps.set_property("libsrtp", "cmake_target_name", "libSRTP::srtp2")
         if self.options.with_ssl == "mbedtls":
+            deps.set_property("mbedtls", "cmake_file_name", "MbedTLS")
             deps.set_property("mbedtls", "cmake_target_name", "MbedTLS::MbedTLS")
         elif self.options.with_ssl == "gnutls" and self.options.with_websocket:
             deps.set_property("nettle", "cmake_file_name", "Nettle")

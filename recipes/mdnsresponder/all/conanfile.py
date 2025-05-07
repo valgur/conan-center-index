@@ -37,11 +37,11 @@ class MdnsResponderConan(ConanFile):
     def configure(self):
         if self.options.use_tls:
             #The target(libdns_sd) is a shared lib, so mbedtls enable 'shared' option
-            self.options['mbedtls'].shared = True
+            self.options["mbedtls"].shared = True
 
     def requirements(self):
         if self.options.use_tls:
-            self.requires("mbedtls/2.25.0")
+            self.requires("mbedtls/[>=2.28 <4]")
 
     def layout(self):
         basic_layout(self, src_folder="src")

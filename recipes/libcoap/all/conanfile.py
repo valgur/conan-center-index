@@ -40,7 +40,7 @@ class LibCoapConan(ConanFile):
         if self.options.dtls_backend == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         elif self.options.dtls_backend == "mbedtls":
-            self.requires("mbedtls/3.2.1")
+            self.requires("mbedtls/[>=2.28 <4]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.settings.os == "Windows" or is_apple_os(self):

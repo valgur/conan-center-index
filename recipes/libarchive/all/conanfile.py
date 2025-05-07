@@ -107,7 +107,7 @@ class LibarchiveConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[>=1.5 <1.6]")
         if self.options.get_safe("with_mbedtls"):
-            self.requires("mbedtls/3.6.1")
+            self.requires("mbedtls/[>=2.28 <4]")
         if self.options.get_safe("with_pcre2"):
             self.requires("pcre2/[^10.42]")
 

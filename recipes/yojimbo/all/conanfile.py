@@ -5,7 +5,6 @@ from pathlib import Path
 import yaml
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -43,8 +42,8 @@ class YojimboConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libsodium/1.0.19")
-        self.requires("mbedtls/2.28.4")  # v3+ is not supported
+        self.requires("libsodium/[^1.0.19]")
+        self.requires("mbedtls/[^2.28.4]")
 
     def validate_build(self):
         if self.settings_build.build_type == "Debug":
@@ -52,7 +51,7 @@ class YojimboConan(ConanFile):
                 raise ConanInvalidConfiguration("Debug build requires GCC >= 8 due to util-linux-libuuid")
 
     def build_requirements(self):
-        self.tool_requires("premake/5.0.0-alpha15")
+        self.tool_requires("premake/[^5.0.0, include_prerelease]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -70,8 +69,6 @@ class YojimboConan(ConanFile):
         return os.path.join(self.generators_folder, "conan_paths.lua")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
         if is_msvc(self):
             tc = MSBuildToolchain(self)
             tc.generate()
