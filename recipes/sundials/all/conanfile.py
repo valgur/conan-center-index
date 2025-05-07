@@ -107,7 +107,7 @@ class SundialsConan(ConanFile):
         if self.options.get_safe("with_lapack"):
             self.requires("openblas/0.3.28")
         if self.options.get_safe("with_mpi"):
-            self.requires("openmpi/4.1.6", transitive_headers=True, transitive_libs=True)
+            self.requires("openmpi/[^4.1.6]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_openmp"):
             self.requires("openmp/system")
 
