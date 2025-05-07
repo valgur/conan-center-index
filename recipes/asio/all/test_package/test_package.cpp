@@ -2,6 +2,6 @@
 
 int main()
 {
-	auto && service = asio::io_service{};
+	auto && service = asio::io_context{};
 	(void)service;
 }
