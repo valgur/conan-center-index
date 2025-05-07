@@ -42,7 +42,7 @@ class PackageConan(ConanFile):
         self.requires("tomlplusplus/3.4.0")
         if self.options.with_python:
             self.requires("cpython/3.12.7")
-            self.requires("pybind11/2.13.6")
+            self.requires("pybind11/[^2.13.6]")
 
     def validate(self):
         if is_apple_os(self):

@@ -24,7 +24,7 @@ class Pybind11JsonConan(ConanFile):
 
     def requirements(self):
         self.requires("nlohmann_json/[^3]")
-        self.requires("pybind11/2.10.4")
+        self.requires("pybind11/[^2.10.4]")
 
     def package_id(self):
         self.info.clear()
