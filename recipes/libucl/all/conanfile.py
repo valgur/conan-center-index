@@ -44,7 +44,7 @@ class LibuclConan(ConanFile):
         if self.options.enable_url_sign:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_lua == "lua":
-            self.requires("lua/5.4.6")
+            self.requires("lua/[^5.4.6]")
         elif self.options.with_lua == "luajit":
             self.requires("luajit/2.0.5")
 

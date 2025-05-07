@@ -57,7 +57,7 @@ class RmluiConan(ConanFile):
             self.requires("freetype/2.13.2")
 
         if self.options.with_lua_bindings:
-            self.requires("lua/5.4.6")
+            self.requires("lua/[^5.4.6]")
 
         if self.options.with_thirdparty_containers:
             self.requires("robin-hood-hashing/3.11.5", transitive_headers=True)

@@ -71,7 +71,7 @@ class OsrmConan(ConanFile):
         self.requires("bzip2/[^1.0.8]")
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("libosmium/[^2.20.0]")
-        self.requires("lua/5.4.6")
+        self.requires("lua/[^5.4.6]")
         self.requires("onetbb/[^2021]")
         self.requires("zlib/1.3.1")
         # unvendored deps
