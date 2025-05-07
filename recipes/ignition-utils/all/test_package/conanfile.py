@@ -15,7 +15,7 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("ignition-cmake/<host_version>")
-        self.tool_requires("doxygen/1.9.4")
+        self.tool_requires("doxygen/[^1.9.4]")
 
     def layout(self):
         cmake_layout(self)
