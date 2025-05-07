@@ -283,7 +283,7 @@ class GdalConan(ConanFile):
         if self.options.with_rasterlite2:
             self.requires("librasterlite2/1.1.0-beta1")
         if self.options.with_spatialite:
-            self.requires("libspatialite/5.1.0")
+            self.requires("libspatialite/[^5.1.0]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.44 <4]")
         if self.options.with_tiledb:
