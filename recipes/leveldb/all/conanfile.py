@@ -48,7 +48,7 @@ class LevelDBCppConan(ConanFile):
         if self.options.with_snappy:
             self.requires("snappy/[^1.1.9]")
         if self.options.with_crc32c:
-            self.requires("crc32c/1.1.2")
+            self.requires("crc32c/[^1.1.2]")
 
     def validate(self):
         check_min_cppstd(self, 11)
