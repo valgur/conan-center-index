@@ -68,7 +68,7 @@ class Nghttp2Conan(ConanFile):
             if self.options.with_jemalloc:
                 self.requires("jemalloc/5.3.0")
         if self.options.with_hpack:
-            self.requires("jansson/2.14")
+            self.requires("jansson/[^2.14]")
         if self.options.get_safe("with_asio"):
             self.requires("boost/1.86.0")
 

@@ -90,7 +90,7 @@ class OpenMPIConan(ConanFile):
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_jansson"):
             # v2.14 is not compatible as of v5.0.5
-            self.requires("jansson/2.13.1")
+            self.requires("jansson/[^2.13.1]")
         if self.options.get_safe("with_libfabric"):
             self.requires("libfabric/1.21.0")
         if self.options.get_safe("with_verbs"):

@@ -61,7 +61,7 @@ class UlfiusConan(ConanFile):
         if self.options.with_yder:
             self.requires("yder/1.4.18", transitive_headers=True)
         if self.options.with_jansson:
-            self.requires("jansson/2.14", transitive_headers=True)
+            self.requires("jansson/[^2.14]", transitive_headers=True)
         if self.options.with_libcurl:
             self.requires("libcurl/[>=7.78.0 <9]")
         if self.options.with_gnutls:

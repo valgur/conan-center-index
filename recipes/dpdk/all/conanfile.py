@@ -76,7 +76,7 @@ class DpdkConan(ConanFile):
         # self.requires("linux-headers-generic/[^6.5]", transitive_headers=True)
         if self.options.with_jansson:
             # rte_metrics_telemetry.h
-            self.requires("jansson/2.14", transitive_headers=True, transitive_libs=True)
+            self.requires("jansson/[^2.14]", transitive_headers=True, transitive_libs=True)
         if self.options.with_libarchive:
             self.requires("libarchive/[^3.7.6]")
         if self.options.with_libbpf:
