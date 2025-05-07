@@ -49,7 +49,7 @@ class LibaomAv1Conan(ConanFile):
         if self.options.get_safe("assembly", False):
             self.tool_requires("nasm/[^2.16]")
         if self.settings_build.os == "Windows":
-            self.tool_requires("strawberryperl/5.32.1.1")
+            self.tool_requires("strawberryperl/[^5.32.1.1]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

@@ -60,7 +60,7 @@ class NetSnmpConan(ConanFile):
 
     def build_requirements(self):
         if is_msvc(self):
-            self.tool_requires("strawberryperl/5.32.1.1")
+            self.tool_requires("strawberryperl/[^5.32.1.1]")
         else:
             self.tool_requires("gnu-config/cci.20210814")
             self.tool_requires("libtool/[^2.4.7]")

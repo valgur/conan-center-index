@@ -112,7 +112,7 @@ class LLVMOpenMpConan(ConanFile):
         if self._version_major >= 17:
             self.tool_requires("cmake/[>=3.20 <5]")
         if is_msvc(self):
-            self.tool_requires("strawberryperl/5.32.1.1")
+            self.tool_requires("strawberryperl/[^5.32.1.1]")
 
     def source(self):
         if self._version_major >= 15:

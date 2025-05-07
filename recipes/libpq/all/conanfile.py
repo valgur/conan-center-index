@@ -71,7 +71,7 @@ class LibpqConan(ConanFile):
 
     def build_requirements(self):
         if is_msvc(self):
-            self.tool_requires("strawberryperl/5.32.1.1")
+            self.tool_requires("strawberryperl/[^5.32.1.1]")
         elif self.settings_build.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):

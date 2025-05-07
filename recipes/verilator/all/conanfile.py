@@ -29,7 +29,7 @@ class VerilatorConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == "Windows":
-            self.requires("strawberryperl/5.32.1.1", visible=False)
+            self.requires("strawberryperl/[^5.32.1.1]", visible=False)
             if is_msvc(self):
                 self.requires("dirent/1.24", visible=False)
         if self.settings.os == "Windows":
