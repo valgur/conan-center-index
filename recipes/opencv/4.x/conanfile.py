@@ -1101,7 +1101,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_avif"):
             self.requires("libavif/[^1.0.4]")
         if self.options.get_safe("with_jpeg") == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.get_safe("with_jpeg") == "mozjpeg":

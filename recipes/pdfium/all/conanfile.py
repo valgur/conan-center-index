@@ -45,7 +45,7 @@ class PdfiumConan(ConanFile):
         self.requires("openjpeg/[^2.5.0]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.with_libjpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.1")
 

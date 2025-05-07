@@ -40,7 +40,7 @@ class ButteraugliConan(ConanFile):
     def requirements(self):
         if self.options.tool:
             self.requires("libpng/[~1.6]")
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
 
     def validate(self):
         check_min_cppstd(self, 11)

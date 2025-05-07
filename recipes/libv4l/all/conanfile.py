@@ -47,7 +47,7 @@ class Libv4lConan(ConanFile):
         if self.options.build_libdvbv5:
             self.requires("libudev/[^255.18]")
         if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.with_jpeg == "mozjpeg":

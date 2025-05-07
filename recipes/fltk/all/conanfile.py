@@ -77,7 +77,7 @@ class FltkConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("libjpeg/9e")
+        self.requires("libjpeg/[>=9e]")
         self.requires("libpng/[~1.6]")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_gl:

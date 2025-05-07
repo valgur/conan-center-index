@@ -42,7 +42,7 @@ class LibrasterliteConan(ConanFile):
 
     def requirements(self):
         self.requires("libgeotiff/1.7.1")
-        self.requires("libjpeg/9e")
+        self.requires("libjpeg/[>=9e]")
         self.requires("libpng/[~1.6]")
         self.requires("libspatialite/[^5.0.1]")
         self.requires("libtiff/[>=4.5 <5]")

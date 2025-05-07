@@ -56,7 +56,7 @@ class OpenSlideConan(ConanFile):
         self.requires("sqlite3/[>=3.45.0 <4]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.jpeg == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.jpeg == "mozjpeg":

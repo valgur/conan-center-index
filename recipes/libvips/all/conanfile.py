@@ -152,7 +152,7 @@ class LibvipsConan(ConanFile):
         if self.options.get_safe("with_highway"):
             self.requires("highway/[^1.0.7]")
         if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.with_jpeg == "mozjpeg":

@@ -34,7 +34,7 @@ class LibmngConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("lcms/2.16")
-        self.requires("libjpeg/9e")
+        self.requires("libjpeg/[>=9e]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

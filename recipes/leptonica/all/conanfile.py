@@ -70,7 +70,7 @@ class LeptonicaConan(ConanFile):
         if self.options.with_gif:
             self.requires("giflib/[^5.2.1]")
         if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.with_jpeg == "mozjpeg":

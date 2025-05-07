@@ -111,7 +111,7 @@ class DirectfbConan(ConanFile):
         if self.options.with_drm:
             self.requires("libdrm/[~2.4.124]")
         if self.options.with_jpeg:
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_mng:

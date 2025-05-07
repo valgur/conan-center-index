@@ -76,7 +76,7 @@ class LibtiffConan(ConanFile):
         if self.options.lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.jpeg == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.jpeg == "mozjpeg":

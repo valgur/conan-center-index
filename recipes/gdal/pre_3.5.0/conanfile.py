@@ -231,7 +231,7 @@ class GdalConan(ConanFile):
         # if self.options.with_pcidsk:
         #     self.requires("pcidsk/x.x.x")
         if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.0")
         elif self.options.with_jpeg == "mozjpeg":

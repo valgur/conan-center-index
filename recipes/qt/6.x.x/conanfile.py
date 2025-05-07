@@ -440,7 +440,7 @@ class QtConan(ConanFile):
         if self.options.with_libb2:
             self.requires("libb2/20190723")
         if self.options.get_safe("with_libjpeg") == "libjpeg":
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         elif self.options.get_safe("with_libjpeg") == "libjpeg-turbo":
             self.requires("libjpeg-turbo/[>=3.0 <3.1]")
         if self.options.get_safe("with_libpng"):

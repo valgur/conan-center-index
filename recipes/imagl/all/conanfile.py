@@ -68,7 +68,7 @@ class ImaglConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self._supports_jpeg and self.options.with_jpeg:
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

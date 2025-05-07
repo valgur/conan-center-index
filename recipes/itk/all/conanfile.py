@@ -53,7 +53,7 @@ class ITKConan(ConanFile):
         self.requires("fftw/3.3.10")
         self.requires("gdcm/3.0.23")
         self.requires("hdf5/[^1.8]")
-        self.requires("libjpeg/9e")
+        self.requires("libjpeg/[>=9e]")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("openjpeg/[^2.5.2]")

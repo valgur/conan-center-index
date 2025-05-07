@@ -207,7 +207,7 @@ class GStPluginsGoodConan(ConanFile):
             self.requires("gtk/[^3.24]")
         if "libjpeg" in reqs:
             if self.options.with_jpeg == "libjpeg":
-                self.requires("libjpeg/9e")
+                self.requires("libjpeg/[>=9e]")
             elif self.options.with_jpeg == "libjpeg-turbo":
                 self.requires("libjpeg-turbo/3.0.4")
             elif self.options.with_jpeg == "mozjpeg":

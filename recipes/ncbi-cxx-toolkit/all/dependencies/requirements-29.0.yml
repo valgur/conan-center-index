@@ -5,7 +5,7 @@ requirements:
     BZ2:        ["bzip2/[^1]"]
     GIF:        ["giflib/[^5.2.1]"]
     GRPC:       ["grpc/[^1.50.2]"]
-    JPEG:       ["libjpeg/9e"]
+    JPEG:       ["libjpeg/[>=9e]"]
     LMDB:       ["lmdb/[>=0.9.29 <1]"]
     LZO:        ["lzo/[^2.10]"]
     NGHTTP2:    ["libnghttp2/[^1.51.0]"]

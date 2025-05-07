@@ -38,7 +38,7 @@ class AafConan(ConanFile):
 
     def requirements(self):
         self.requires("expat/[>=2.6.2 <3]")
-        self.requires("libjpeg/9e")
+        self.requires("libjpeg/[>=9e]")
         if self.settings.os in ("FreeBSD", "Linux"):
             self.requires("util-linux-libuuid/2.41")
 

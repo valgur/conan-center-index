@@ -44,7 +44,7 @@ class PDFWriterConan(ConanFile):
         self.requires("libaesgm/2013.1.1")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_png:
-            self.requires("libjpeg/9e")
+            self.requires("libjpeg/[>=9e]")
         if self.options.with_jpeg:
             self.requires("libpng/[~1.6]")
         if self.options.with_tiff:
