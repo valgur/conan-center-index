@@ -38,9 +38,9 @@ class XlntConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libstudxml/1.1.0")
-        self.requires("miniz/3.0.2")
-        self.requires("utfcpp/3.2.3")
+        self.requires("libstudxml/[^1.1.0]")
+        self.requires("miniz/[^3.0.2]")
+        self.requires("utfcpp/[>=3.2.3 <4]")
 
     def validate(self):
         check_min_cppstd(self, 11)
@@ -79,7 +79,7 @@ class XlntConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
