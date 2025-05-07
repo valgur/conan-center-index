@@ -49,7 +49,7 @@ class GDCMConan(ConanFile):
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("openjpeg/[^2.5.2]")
         if self.options.with_zlibng:
-            self.requires("zlib-ng/2.2.0")
+            self.requires("zlib-ng/[^2.2.0]")
         else:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.settings.os != "Windows":
