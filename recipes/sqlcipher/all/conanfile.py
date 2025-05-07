@@ -63,7 +63,7 @@ class SqlcipherConan(ConanFile):
         if self.options.crypto_library == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         elif self.options.crypto_library == "libressl":
-            self.requires("libressl/3.5.3")
+            self.requires("libressl/[^3.5.3]")
 
     def validate(self):
         if self.options.crypto_library == "commoncrypto" and not is_apple_os(self):

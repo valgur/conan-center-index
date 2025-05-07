@@ -37,7 +37,7 @@ class OatppLibresslConan(ConanFile):
         # There's a 1 to 1 match between versions of oatpp and oatpp-libressl
         # oatpp-libressl/oatpp-libressl/Config.hpp:28 and 30 contain includes to these libraries
         self.requires(f"oatpp/{self.version}", transitive_headers=True)
-        self.requires("libressl/3.5.3", transitive_headers=True)
+        self.requires("libressl/[^3.5.3]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

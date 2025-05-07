@@ -66,7 +66,7 @@ class MongoCDriverConan(ConanFile):
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         elif self.options.with_ssl == "libressl":
-            self.requires("libressl/3.5.3")
+            self.requires("libressl/[^3.5.3]")
         if self.options.with_sasl == "cyrus":
             self.requires("cyrus-sasl/[^2.1.28]")
         if self.options.with_snappy:
