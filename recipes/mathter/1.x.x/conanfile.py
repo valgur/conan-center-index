@@ -63,7 +63,7 @@ class MathterConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_xsimd"):
-            self.requires("xsimd/11.1.0")
+            self.requires("xsimd/[^11.1.0]")
 
     def package(self):
         if self.version == "1.0.0":

@@ -57,7 +57,7 @@ class MathterConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_xsimd"):
-            self.requires("xsimd/13.0.0")
+            self.requires("xsimd/[^13.0.0]")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.25 <5]")
