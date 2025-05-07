@@ -50,7 +50,7 @@ class HyperscanConan(ConanFile):
     def requirements(self):
         self.requires("boost/1.86.0")
         if self.options.build_chimera:
-            self.requires("pcre/8.45")
+            self.requires("pcre/[^8.45]")
 
     def validate(self):
         check_min_cppstd(self, 11)

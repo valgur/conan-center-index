@@ -70,7 +70,7 @@ class VectorscanConan(ConanFile):
         self.requires("boost/1.86.0")
         self.requires("simde/0.8.2")
         if self.options.with_chimera:
-            self.requires("pcre/8.45")
+            self.requires("pcre/[^8.45]")
 
     def validate(self):
         check_min_cppstd(self, 17)

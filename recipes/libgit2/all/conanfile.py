@@ -93,7 +93,7 @@ class LibGit2Conan(ConanFile):
         if self.options.get_safe("with_iconv"):
             self.requires("libiconv/[^1.17]")
         if self.options.with_regex == "pcre":
-            self.requires("pcre/8.45")
+            self.requires("pcre/[^8.45]")
         elif self.options.with_regex == "pcre2":
             self.requires("pcre2/[^10.42]")
 

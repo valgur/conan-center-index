@@ -285,7 +285,7 @@ class GdalConan(ConanFile):
         # if self.options.with_rasterlite2:
         #     self.requires("rasterlite2/x.x.x")
         if self.options.get_safe("with_pcre"):
-            self.requires("pcre/8.45")
+            self.requires("pcre/[^8.45]")
         if self.options.get_safe("with_pcre2"):
             self.requires("pcre2/[^10.42]")
         if self.options.with_webp:

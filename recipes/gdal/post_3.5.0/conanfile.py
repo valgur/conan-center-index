@@ -264,7 +264,7 @@ class GdalConan(ConanFile):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_pcre:
-            self.requires("pcre/8.45")
+            self.requires("pcre/[^8.45]")
         if self.options.with_pcre2:
             self.requires("pcre2/[^10.42]")
         # TODO: pdfium recipe needs to be compatible with https://github.com/rouault/pdfium_build_gdal_3_8

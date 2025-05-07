@@ -32,7 +32,7 @@ class CppcheckConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("have_rules"):
-            self.requires("pcre/8.45")
+            self.requires("pcre/[^8.45]")
 
     def package_id(self):
         del self.info.settings.compiler
