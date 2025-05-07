@@ -42,7 +42,7 @@ class HictkConan(ConanFile):
         else:
             self.requires("bshoshany-thread-pool/5.0.0")
         self.requires("concurrentqueue/1.0.4")
-        self.requires("fast_float/6.1.1")
+        self.requires("fast_float/[^6.1.1]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
         self.requires("fmt/[>=10]")
