@@ -287,7 +287,7 @@ class GdalConan(ConanFile):
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.44 <4]")
         if self.options.with_tiledb:
-            self.requires("tiledb/2.21.0")
+            self.requires("tiledb/[^2.21.0]")
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.with_xerces:

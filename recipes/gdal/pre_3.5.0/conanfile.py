@@ -308,7 +308,7 @@ class GdalConan(ConanFile):
         # if self.options.with_pdfium:
         #     self.requires("pdfium/x.x.x")
         # if self.options.get_safe("with_tiledb"):
-        #     self.requires("tiledb/2.0.2")
+        #     self.requires("tiledb/[^2.0.2]")
         # if self.options.with_rasdaman:
         #     self.requires("raslib/x.x.x")
         # if self.options.with_armadillo:
