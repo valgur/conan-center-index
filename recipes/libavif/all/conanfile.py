@@ -69,7 +69,7 @@ class LibAVIFConan(ConanFile):
 
     def requirements(self):
         self.requires("libaom-av1/[^3.6.1]")
-        self.requires("libyuv/1854")
+        self.requires("libyuv/[>=1854]")
         if self._has_dav1d:
             self.requires("dav1d/[^1.2.1]")
         if self._depends_on_sharpyuv:

@@ -114,7 +114,7 @@ class Imlib2Conan(ConanFile):
             # Only xorg::x11 is used.
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_y4m:
-            self.requires("libyuv/1892")
+            self.requires("libyuv/[>=1892]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
 
