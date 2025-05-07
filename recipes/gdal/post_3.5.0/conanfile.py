@@ -217,7 +217,7 @@ class GdalConan(ConanFile):
         if self.options.with_gta:
             self.requires("libgta/1.2.1")
         if self.options.with_hdf4:
-            self.requires("hdf4/4.2.16-2")
+            self.requires("hdf4/[^4.2.16-2]")
         if self.options.with_hdf5:
             self.requires("hdf5/[^1.8]")
         if self.options.with_heif:
