@@ -47,7 +47,7 @@ class FrugenConan(ConanFile):
 
     def requirements(self):
         if self.options.with_json:
-            self.requires("json-c/0.18")
+            self.requires("json-c/[^0.18]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

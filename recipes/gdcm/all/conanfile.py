@@ -57,7 +57,7 @@ class GDCMConan(ConanFile):
             if Version(self.version) >= Version("3.0.20"):
                 self.requires("libiconv/1.17")
         if self.options.with_json:
-            self.requires("json-c/0.17")
+            self.requires("json-c/[^0.17]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 
