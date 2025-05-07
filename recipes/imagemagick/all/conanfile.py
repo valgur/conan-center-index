@@ -91,7 +91,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_openexr:
             self.requires("openexr/3.3.3")
         if self.options.with_heic:
-            self.requires("libheif/1.18.2")
+            self.requires("libheif/[^1.18.2]")
         if self.options.with_jbig:
             self.requires("jbig/20160605")
         if self.options.with_jpeg == "libjpeg":

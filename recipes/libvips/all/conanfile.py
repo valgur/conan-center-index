@@ -148,7 +148,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_fontconfig:
             self.requires("fontconfig/[^2.15.0]")
         if self.options.with_heif:
-            self.requires("libheif/1.16.2")
+            self.requires("libheif/[^1.16.2]")
         if self.options.get_safe("with_highway"):
             self.requires("highway/1.0.7")
         if self.options.with_jpeg == "libjpeg":

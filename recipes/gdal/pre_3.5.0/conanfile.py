@@ -322,7 +322,7 @@ class GdalConan(ConanFile):
         if self.options.with_exr:
             self.requires("openexr/3.3.3")
         if self.options.with_heif:
-            self.requires("libheif/1.13.0")
+            self.requires("libheif/[^1.13.0]")
 
     def validate(self):
         min_cppstd = 14 if self.options.with_charls else 11

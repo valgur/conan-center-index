@@ -169,7 +169,7 @@ class CImgConan(ConanFile):
         if self.options.enable_openmp:
             self.requires("openmp/system")
         if self.options.enable_heif:
-            self.requires("libheif/1.16.2")
+            self.requires("libheif/[^1.16.2]")
         if self.options.enable_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.enable_curl:

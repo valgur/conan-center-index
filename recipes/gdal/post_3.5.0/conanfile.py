@@ -221,7 +221,7 @@ class GdalConan(ConanFile):
         if self.options.with_hdf5:
             self.requires("hdf5/[^1.8]")
         if self.options.with_heif:
-            self.requires("libheif/1.16.2")
+            self.requires("libheif/[^1.16.2]")
         if self.options.with_jpeg == "libjpeg":
             self.requires("libjpeg/[>=9e]")
         elif self.options.with_jpeg == "libjpeg-turbo":

@@ -104,7 +104,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_giflib:
             self.requires("giflib/[^5.2.1]")
         if self.options.with_libheif:
-            self.requires("libheif/1.19.5")
+            self.requires("libheif/[^1.19.5]")
         if self.options.with_raw:
             self.requires("libraw/0.21.3")
         if self.options.with_openjpeg:
