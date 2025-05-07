@@ -41,7 +41,7 @@ class OpenPMIxConan(ConanFile):
 
     def requirements(self):
         # Used in a pmix/src/hwloc/pmix_hwloc.h public header
-        self.requires("hwloc/2.11.1", transitive_headers=True)
+        self.requires("hwloc/[^2.11.1]", transitive_headers=True)
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("libevent/[^2.1.12]")
         if self.options.get_safe("with_curl"):
