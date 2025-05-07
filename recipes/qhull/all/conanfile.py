@@ -43,6 +43,10 @@ class QhullConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.0)",
+                        "cmake_minimum_required(VERSION 3.15)")
         if self.version == "8.1.alpha4":
             # Fix an accidental incorrect version number in CMakeLists.txt
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "8.1-alpha3", "8.1.alpha4")
