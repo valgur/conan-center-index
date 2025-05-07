@@ -68,7 +68,7 @@ class OsrmConan(ConanFile):
 
     def requirements(self):
         self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
-        self.requires("bzip2/1.0.8")
+        self.requires("bzip2/[^1.0.8]")
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("libosmium/[^2.20.0]")
         self.requires("lua/5.4.6")

@@ -62,7 +62,7 @@ class CfitsioConan(ConanFile):
            self.settings.compiler.get_safe("threads") != "posix":
             self.requires("pthreads4w/3.0.0")
         if self.options.with_bzip2:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.get_safe("with_curl"):
             self.requires("libcurl/[>=7.78.0 <9]")
 

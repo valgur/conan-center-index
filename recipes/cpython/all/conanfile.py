@@ -121,7 +121,7 @@ class CPythonConan(ConanFile):
                 self.requires("util-linux-libuuid/2.41")
             self.requires("libxcrypt/4.4.36")
         if self.options.get_safe("with_bz2"):
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.get_safe("with_gdbm", False):
             self.requires("gdbm/1.23")
         if self.options.get_safe("with_sqlite3"):

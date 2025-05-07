@@ -207,7 +207,7 @@ class GStPluginsBadConan(ConanFile):
         if "libaom-av1" in reqs:
             self.requires("libaom-av1/3.8.0")
         if "bzip2" in reqs:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if "cairo" in reqs:
             self.requires("cairo/[^1.18.0]")
         if "directfb" in reqs:

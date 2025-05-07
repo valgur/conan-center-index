@@ -29,7 +29,7 @@ class MkfontscaleConan(ConanFile):
         del self.info.settings.compiler
 
     def requirements(self):
-        self.requires("bzip2/1.0.8")
+        self.requires("bzip2/[^1.0.8]")
         self.requires("libfontenc/1.1.8")
         self.requires("freetype/2.13.2")
         self.requires("xorg-proto/2024.1")

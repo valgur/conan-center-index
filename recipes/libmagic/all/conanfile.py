@@ -36,7 +36,7 @@ class LibmagicConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("bzip2/1.0.8")
+        self.requires("bzip2/[^1.0.8]")
         self.requires("xz_utils/[>=5.4.5 <6]")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("zstd/[^1.5]")

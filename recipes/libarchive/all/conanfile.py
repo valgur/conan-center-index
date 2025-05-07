@@ -83,7 +83,7 @@ class LibarchiveConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_bzip2:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.with_libxml2:
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_expat:

@@ -55,7 +55,7 @@ class LibosmiumConan(ConanFile):
             self.requires("protozero/1.7.1")
         if self.options.xml:
             self.requires("expat/[>=2.6.2 <3]")
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.pbf or self.options.xml:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.geos:

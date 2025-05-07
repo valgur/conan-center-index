@@ -70,7 +70,7 @@ class LibSolvConan(ConanFile):
         if self.options.enable_lzma_compression:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.enable_bzip2_compression:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.enable_zstd_compression:
             self.requires("zstd/[~1.5]")
         if self.options.with_libxml2:

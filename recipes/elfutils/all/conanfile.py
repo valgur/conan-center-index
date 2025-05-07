@@ -67,7 +67,7 @@ class ElfutilsConan(ConanFile):
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_bzlib:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.with_lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.get_safe("with_zstd"):

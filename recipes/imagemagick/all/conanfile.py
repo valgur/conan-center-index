@@ -83,7 +83,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_bzlib:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if self.options.with_lzma:
             self.requires("xz_utils/5.4.5")
         if self.options.with_lcms:

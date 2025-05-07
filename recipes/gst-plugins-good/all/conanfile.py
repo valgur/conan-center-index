@@ -195,7 +195,7 @@ class GStPluginsGoodConan(ConanFile):
         if "zlib" in reqs:
             self.requires("zlib/[>=1.2.11 <2]")
         if "bzip2" in reqs:
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
         if "cairo" in reqs:
             self.requires("cairo/[^1.18.0]")
         if "flac" in reqs:

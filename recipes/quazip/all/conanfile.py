@@ -46,7 +46,7 @@ class QuaZIPConan(ConanFile):
         self.requires("qt/[~5.15]", transitive_headers=True, transitive_libs=True)
         self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True)
         if Version(self.version) >= "1.4":
-            self.requires("bzip2/1.0.8")
+            self.requires("bzip2/[^1.0.8]")
 
     def validate(self):
         if self.dependencies["qt"].ref.version.major == 6 and not self.dependencies["qt"].options.qt5compat:
