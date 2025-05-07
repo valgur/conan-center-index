@@ -221,7 +221,7 @@ class LibwebsocketsConan(ConanFile):
         elif self.options.with_ssl == "mbedtls":
             self.requires("mbedtls/[>=2.28 <4]")
         elif self.options.with_ssl == "wolfssl":
-            self.requires("wolfssl/5.6.3")
+            self.requires("wolfssl/[^5.6.3]")
 
     def validate(self):
         if self.options.shared and self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "5":

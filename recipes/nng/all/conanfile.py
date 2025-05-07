@@ -76,7 +76,7 @@ class NngConan(ConanFile):
             if tls_engine == "mbed":
                 self.requires("mbedtls/[>=2.28 <4]")
             elif tls_engine == "wolf":
-                self.requires("wolfssl/5.7.2")
+                self.requires("wolfssl/[^5.7.2]")
 
     def validate(self):
         compiler_minimum_version = {
