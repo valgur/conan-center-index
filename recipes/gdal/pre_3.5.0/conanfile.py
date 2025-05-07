@@ -219,7 +219,7 @@ class GdalConan(ConanFile):
         # if self.options.with_libgrass:
         #     self.requires("libgrass/x.x.x")
         if self.options.with_cfitsio:
-            self.requires("cfitsio/4.1.0")
+            self.requires("cfitsio/[^4.1.0]")
         # if self.options.with_pcraster:
         #     self.requires("pcraster-rasterformat/1.3.2")
         if self.options.get_safe("with_png", True):

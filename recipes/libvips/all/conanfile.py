@@ -138,7 +138,7 @@ class LibvipsConan(ConanFile):
         if self.options.get_safe("with_archive"):
             self.requires("libarchive/3.7.2")
         if self.options.with_cfitsio:
-            self.requires("cfitsio/4.3.0")
+            self.requires("cfitsio/[^4.3.0]")
         if self.options.with_cgif:
             self.requires("cgif/0.3.2")
         if self.options.with_exif:

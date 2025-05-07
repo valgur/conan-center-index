@@ -42,7 +42,7 @@ class S2let(ConanFile):
     def requirements(self):
         self.requires("astro-informatics-so3/1.3.6", transitive_headers=True, transitive_libs=True)
         if self.options.with_cfitsio:
-            self.requires("cfitsio/4.3.1")
+            self.requires("cfitsio/[^4.3.1]")
 
     def validate(self):
         if is_msvc(self):

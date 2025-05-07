@@ -194,7 +194,7 @@ class GdalConan(ConanFile):
         if self.options.with_brunsli:
             self.requires("brunsli/cci.20231024")
         if self.options.with_cfitsio:
-            self.requires("cfitsio/4.3.1")
+            self.requires("cfitsio/[^4.3.1]")
         if self.options.with_cryptopp:
             self.requires("cryptopp/8.9.0")
         if self.options.with_curl:
