@@ -62,7 +62,7 @@ class LibjxlConan(ConanFile):
         self.requires("highway/1.1.0")
         self.requires("lcms/2.16")
         if self.options.with_tcmalloc:
-            self.requires("gperftools/2.15")
+            self.requires("gperftools/[^2.15]")
 
     def validate(self):
         check_min_cppstd(self, 11)
