@@ -139,7 +139,7 @@ class OpenVDBConan(ConanFile):
             self.requires("c-blosc/[^1.21.5]")
         if self.options.with_log4cplus:
             # log4cplus 2.x is not supported
-            self.requires("log4cplus/1.2.2", transitive_headers=True)
+            self.requires("log4cplus/[^1.2.2]", transitive_headers=True)
 
     def _check_compiler_version(self):
         compiler = str(self.settings.compiler)

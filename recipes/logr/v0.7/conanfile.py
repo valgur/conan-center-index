@@ -43,7 +43,7 @@ class LogrConan(ConanFile):
         if self.options.with_glog:
             self.requires("glog/[>=0.6.0 <1]")
         if self.options.with_log4cplus:
-            self.requires("log4cplus/2.1.0")
+            self.requires("log4cplus/[^2.1.0]")
         if self.options.with_boostlog:
             self.requires("boost/1.86.0")
 

@@ -52,7 +52,7 @@ class AnyRPCConan(ConanFile):
 
     def requirements(self):
         if self.options.with_log4cplus:
-            self.requires("log4cplus/2.0.7")
+            self.requires("log4cplus/[^2.0.7]")
 
     def validate(self):
         check_min_cppstd(self, 11)
