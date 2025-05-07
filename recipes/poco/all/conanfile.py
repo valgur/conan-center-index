@@ -149,7 +149,7 @@ class PocoConan(ConanFile):
         if self.options.get_safe("enable_data_mysql"):
             self.requires("libmysqlclient/[^8.1.0]")
         if Version(self.version) >= "1.14":
-            self.requires("utf8proc/2.9.0")
+            self.requires("utf8proc/[^2.9.0]")
 
     def package_id(self):
         del self.info.options.log_debug
