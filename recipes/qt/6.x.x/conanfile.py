@@ -428,7 +428,7 @@ class QtConan(ConanFile):
         if self.options.with_glib:
             self.requires("glib/[^2.70.0]")
         if self.options.with_doubleconversion:
-            self.requires("double-conversion/3.3.0")
+            self.requires("double-conversion/[^3.3.0]")
         if self.options.get_safe("with_freetype"):
             self.requires("freetype/2.13.2")
         if self.options.get_safe("with_fontconfig"):
