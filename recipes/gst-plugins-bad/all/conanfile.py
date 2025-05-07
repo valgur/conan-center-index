@@ -243,7 +243,7 @@ class GStPluginsBadConan(ConanFile):
         if self._is_enabled("va"):
             self.requires("libva/[^2.21]")
         if "libxml2" in reqs:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         if "lcms" in reqs:
             self.requires("lcms/2.16")
         if "libmodplug" in reqs:

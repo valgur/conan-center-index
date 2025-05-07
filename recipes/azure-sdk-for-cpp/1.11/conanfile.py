@@ -41,7 +41,7 @@ class AzureSDKForCppConan(ConanFile):
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]")
         self.requires("libcurl/[>=7.78 <9]")
-        self.requires("libxml2/[>=2.12.5 <3]")
+        self.requires("libxml2/[^2.12.5]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

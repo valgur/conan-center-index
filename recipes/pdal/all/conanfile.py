@@ -62,7 +62,7 @@ class PdalConan(ConanFile):
         self.requires("utfcpp/4.0.5")
         self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True) # for arbiter
         if self.options.with_xml:
-            self.requires("libxml2/[>=2.12.5 <3]", transitive_headers=True, transitive_libs=True)
+            self.requires("libxml2/[^2.12.5]", transitive_headers=True, transitive_libs=True)
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.with_lzma:

@@ -66,7 +66,7 @@ class NetpbmConan(ConanFile):
             self.requires("jbig/20160605")
             self.requires("libpng/[~1.6]")
             self.requires("libtiff/[>=4.5 <5]")
-            self.requires("libxml2/2.12.5")
+            self.requires("libxml2/[^2.12.5]")
             self.requires("zlib/[>=1.2.11 <2]")
             if self.options.with_libjpeg == "libjpeg":
                 self.requires("libjpeg/9e")

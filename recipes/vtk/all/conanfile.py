@@ -315,7 +315,7 @@ class VtkConan(ConanFile):
             self.requires("proj/[^9.3.1]")
         if self.options.with_libxml2:
             # Used in public vtk_libxml2.h
-            self.requires("libxml2/[>=2.12.5 <3]", transitive_headers=True, transitive_libs=True)
+            self.requires("libxml2/[^2.12.5]", transitive_headers=True, transitive_libs=True)
         if self.options.with_mpi:
             # Used in public vtk_mpi.h
             self.requires("openmpi/[^4.1.6]", transitive_headers=True, transitive_libs=True, options={"enable_cxx": True})

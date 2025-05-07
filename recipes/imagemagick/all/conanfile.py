@@ -109,7 +109,7 @@ class ImageMagicConan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.with_xml2:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         if self.options.with_freetype:
             self.requires("freetype/2.13.2")
         if self.options.with_djvu:

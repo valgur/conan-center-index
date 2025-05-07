@@ -137,7 +137,7 @@ class LibpqConan(ConanFile):
         if self.options.with_ldap:
             self.requires("openldap/2.6.7")
         if self.options.with_libxml:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         if self.options.with_libxslt:
             self.requires("libxslt/1.1.42")
         if self.options.get_safe("with_lz4"):

@@ -33,7 +33,7 @@ class HwlocConan(ConanFile):
 
     def requirements(self):
         if self.options.with_libxml2:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):

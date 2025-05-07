@@ -70,7 +70,7 @@ class XkbcommonConan(ConanFile):
             else:
                 self.requires("libxcb/1.17.0")
         if self.options.get_safe("xkbregistry"):
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         if self.options.get_safe("with_wayland"):
             self.requires("wayland/[^1.22.0]")
 

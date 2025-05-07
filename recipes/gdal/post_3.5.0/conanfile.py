@@ -293,7 +293,7 @@ class GdalConan(ConanFile):
         if self.options.with_xerces:
             self.requires("xerces-c/3.2.5")
         if self.options.with_xml2:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         if self.options.with_zstd:
             self.requires("zstd/[>=1.5 <1.6]")
         # Use of external shapelib is not recommended and is currently broken.

@@ -44,7 +44,7 @@ class LibmetalinkConan(ConanFile):
         if self.options.xml_backend == "expat":
             self.requires("expat/[>=2.6.2 <3]")
         elif self.options.xml_backend == "libxml2":
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
 
     def validate(self):
         if is_msvc(self):

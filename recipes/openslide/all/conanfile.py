@@ -51,7 +51,7 @@ class OpenSlideConan(ConanFile):
         self.requires("libdicom/1.0.5")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
-        self.requires("libxml2/[>=2.12.5 <3]")
+        self.requires("libxml2/[^2.12.5]")
         self.requires("openjpeg/2.5.2")
         self.requires("sqlite3/[>=3.45.0 <4]")
         self.requires("zlib/[>=1.2.11 <2]")

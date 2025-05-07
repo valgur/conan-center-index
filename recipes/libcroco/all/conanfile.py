@@ -48,7 +48,7 @@ class LibcrocoConan(ConanFile):
     def requirements(self):
         # Both are used in several public headers
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
-        self.requires("libxml2/[>=2.12.5 <3]", transitive_headers=True, transitive_libs=True)
+        self.requires("libxml2/[^2.12.5]", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):

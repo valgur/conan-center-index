@@ -74,7 +74,7 @@ class LibSolvConan(ConanFile):
         if self.options.enable_zstd_compression:
             self.requires("zstd/[~1.5]")
         if self.options.with_libxml2:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         else:
             self.requires("expat/[>=2.6.2 <3]")
 

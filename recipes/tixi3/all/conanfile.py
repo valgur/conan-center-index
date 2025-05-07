@@ -33,7 +33,7 @@ class Tixi3Conan(ConanFile):
         deps.generate()
 
     def requirements(self):
-        self.requires("libxml2/[>=2.12.5 <3]")
+        self.requires("libxml2/[^2.12.5]")
         self.requires("libxslt/1.1.42")
         self.requires("libcurl/[>=7.78.0 <9]")
 

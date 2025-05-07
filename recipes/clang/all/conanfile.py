@@ -49,7 +49,7 @@ class ClangConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.20 <5]")
         # needed to build c-index-test but not actually required by any components
-        self.test_requires("libxml2/[>=2.12.4 <3]")
+        self.test_requires("libxml2/[^2.12.5]")
         # llvm-tblgen
         if not can_run(self):
             self.tool_requires("llvm-core/<host_version>")

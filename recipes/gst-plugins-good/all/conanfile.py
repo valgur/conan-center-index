@@ -215,7 +215,7 @@ class GStPluginsGoodConan(ConanFile):
         if "libcaca" in reqs:
             self.requires("libcaca/0.99.beta20")
         if "libxml2" in reqs:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         if "libmp3lame" in reqs:
             self.requires("libmp3lame/3.100")
         if "mpg123" in reqs:

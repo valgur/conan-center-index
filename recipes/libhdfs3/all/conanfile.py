@@ -37,7 +37,7 @@ class Libhdfs3Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libxml2/[>=2.12.5 <3]")
+        self.requires("libxml2/[^2.12.5]")
         self.requires("protobuf/5.27.0")
         self.requires("krb5/1.21.2")
         # self.requires("gsasl/0")

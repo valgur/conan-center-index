@@ -55,7 +55,7 @@ class AzureSDKForCppConan(ConanFile):
         if self.settings.os in ["Windows", "WindowsStore"]:
             self.requires("wil/1.0.240803.1")
         else:
-            self.requires("libxml2/[>=2.12.5 <3]")
+            self.requires("libxml2/[^2.12.5]")
         if self.options.build_transport_curl:
             self.requires("libcurl/[>=7.78 <9]")
 
