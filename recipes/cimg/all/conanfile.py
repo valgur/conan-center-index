@@ -144,7 +144,7 @@ class CImgConan(ConanFile):
 
     def requirements(self):
         if self.options.enable_fftw:
-            self.requires("fftw/3.3.10")
+            self.requires("fftw/[^3.3.10]")
         if self.options.enable_jpeg == "libjpeg" or self.options.enable_jpeg.value is True:
             self.requires("libjpeg/[>=9e]")
         elif self.options.enable_jpeg == "libjpeg-turbo":
