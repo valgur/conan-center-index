@@ -47,7 +47,7 @@ class SQLiteCppConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_sqlcipher"):
-            self.requires("sqlcipher/4.6.1")
+            self.requires("sqlcipher/[^4.6.1]")
         else:
             self.requires("sqlite3/[>=3.45 <4]")
 
