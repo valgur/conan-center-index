@@ -80,7 +80,7 @@ class ReflectCppConan(ConanFile):
         self.requires("ctre/3.9.0", transitive_headers=True)
         # INFO: include/rfl/json/Writer.hpp includes yyjson.h
         # INFO: Transitive lib needed to avoid undefined reference to symbol 'yyjson_mut_doc_new'
-        self.requires("yyjson/0.10.0", transitive_headers=True, transitive_libs=True)
+        self.requires("yyjson/[>=0.10.0 <1]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_capnproto"):
             self.requires("capnproto/1.1.0", transitive_headers=True)
         if self.options.with_cbor:
