@@ -45,7 +45,7 @@ class CoinCbcConan(ConanFile):
         self.requires("coin-clp/1.17.9", transitive_headers=True, transitive_libs=True)
         self.requires("coin-cgl/0.60.8")
         self.requires("glpk/4.48")
-        self.requires("openblas/0.3.28")
+        self.requires("openblas/[>=0.3.28 <1]")
         if is_msvc(self) and self.options.parallel:
             self.requires("pthreads4w/3.0.0")
 

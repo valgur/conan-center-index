@@ -58,7 +58,7 @@ class PackageConan(ConanFile):
     def requirements(self):
         self.requires("openmpi/[^5.0.5]")
         if self.options.with_lapack:
-            self.requires("openblas/0.3.28")
+            self.requires("openblas/[>=0.3.28 <1]")
         if self.options.with_metis:
             self.requires("metis/5.2.1")
         if self.options.with_openmp:

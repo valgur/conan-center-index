@@ -65,7 +65,7 @@ class CernRootConan(ConanFile):
         self.requires("lz4/[^1.9.4]")
         self.requires("odbc/2.3.11")
         self.requires("onetbb/2020.3.3")
-        self.requires("openblas/0.3.27")
+        self.requires("openblas/[>=0.3.27 <1]")
         self.requires("opengl/system")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/8.45")

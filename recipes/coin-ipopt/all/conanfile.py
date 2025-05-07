@@ -47,7 +47,7 @@ class CoinClpConan(ConanFile):
 
     def requirements(self):
         if self.options.with_lapack:
-            self.requires("openblas/0.3.28")
+            self.requires("openblas/[>=0.3.28 <1]")
         if self.options.with_mumps:
             self.requires("coin-mumps/3.0.5")
 

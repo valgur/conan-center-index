@@ -34,7 +34,7 @@ class SuiteSparseConfigConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("openblas/0.3.28", transitive_headers=True, transitive_libs=True)
+        self.requires("openblas/[>=0.3.28 <1]", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
     def build_requirements(self):

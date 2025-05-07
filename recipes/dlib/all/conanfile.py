@@ -97,7 +97,7 @@ class DlibConan(ConanFile):
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_openblas:
-            self.requires("openblas/0.3.28")
+            self.requires("openblas/[>=0.3.28 <1]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)

@@ -48,7 +48,7 @@ class CoinUtilsConan(ConanFile):
     def requirements(self):
         self.requires("bzip2/[^1.0.8]")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("openblas/0.3.28")
+        self.requires("openblas/[>=0.3.28 <1]")
         if self.options.with_glpk:
             self.requires("glpk/4.48")  # v4.49+ are not supported due to dropped lpx_* functions
 
