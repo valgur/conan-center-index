@@ -85,7 +85,7 @@ class OpenMPIConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("libevent/[^2.1.12]")
         if self.settings.os == "Linux":
-            self.requires("libnl/3.8.0")
+            self.requires("libnl/[^3.8.0]")
         if self.options.get_safe("with_curl"):
             self.requires("libcurl/[>=7.78 <9]")
         if self.options.get_safe("with_jansson"):

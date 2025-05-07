@@ -48,7 +48,7 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libnl/3.8.0")
+        self.requires("libnl/[^3.8.0]")
         self.requires("libudev/255.18")
 
     def validate(self):

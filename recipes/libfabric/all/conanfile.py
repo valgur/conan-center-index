@@ -93,7 +93,7 @@ class LibfabricConan(ConanFile):
 
     def requirements(self):
         if self._is_enabled("usnic"):
-            self.requires("libnl/3.8.0")
+            self.requires("libnl/[^3.8.0]")
         if self._is_enabled("efa") or self._is_enabled("usnic") or self._is_enabled("verbs"):
             self.requires("rdma-core/52.0")
 
