@@ -29,7 +29,7 @@ class CppYyjsonConan(ConanFile):
         else:
             self.requires("yyjson/0.10.0")
         self.requires("fmt/[>=5]")
-        self.requires("nameof/0.10.4")
+        self.requires("nameof/[^0.10.4]")
 
     def package_id(self):
         self.info.clear()
