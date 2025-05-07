@@ -83,7 +83,7 @@ class Hdf5Conan(ConanFile):
         if self.options.szip_support == "with_libaec":
             self.requires("libaec/1.0.6")
         elif self.options.szip_support == "with_szip":
-            self.requires("szip/2.1.1")
+            self.requires("szip/[^2.1.1]")
         if self.options.parallel:
             self.requires("openmpi/[^4.1.0]")
 
