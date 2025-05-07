@@ -43,7 +43,7 @@ class IceoryxConan(ConanFile):
 
     def requirements(self):
         if self.options.toml_config:
-            self.requires("cpptoml/0.1.1", transitive_headers=True)
+            self.requires("cpptoml/[>=0.1.1 <1]", transitive_headers=True)
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("acl/2.3.1", transitive_headers=True)
 
