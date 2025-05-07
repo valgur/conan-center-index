@@ -40,7 +40,7 @@ class IgnitionUtilsConan(ConanFile):
     def requirements(self):
         self.requires("ignition-cmake/2.17.1", visible=False)
         if self.options.ign_utils_vendor_cli11:
-            self.requires("cli11/2.4.2")
+            self.requires("cli11/[^2.4.2]")
 
     def validate(self):
         check_min_cppstd(self, 17)
