@@ -32,7 +32,7 @@ class Games101CglConan(ConanFile):
     def requirements(self):
         self.requires("freetype/[^2.13.2]")
         self.requires("glew/2.2.0", transitive_headers=True)
-        self.requires("glfw/3.4", transitive_headers=True)
+        self.requires("glfw/[^3.4]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

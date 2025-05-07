@@ -72,7 +72,7 @@ class OusterSdkConan(ConanFile):
 
         if self.options.build_viz:
             self.requires("glad/0.1.36")
-            self.requires("glfw/3.4")
+            self.requires("glfw/[^3.4]")
 
     def validate(self):
         check_min_cppstd(self, 17)

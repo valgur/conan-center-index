@@ -58,7 +58,7 @@ class PolyscopeConan(ConanFile):
 
     def requirements(self):
         if self.options.backend_glfw:
-            self.requires("glfw/3.4", transitive_headers=True, transitive_libs=True)
+            self.requires("glfw/[^3.4]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("backend_egl"):
             self.requires("egl/system", transitive_headers=True, transitive_libs=True)
         if self.options.backend_glfw or self.options.get_safe("backend_egl"):

@@ -50,7 +50,7 @@ class IridescenceConan(ConanFile):
         self.requires("imgui/1.90.5", transitive_headers=True, transitive_libs=True)
         self.requires("imguizmo/cci.20231114")
         self.requires("implot/0.16")
-        self.requires("glfw/3.4", transitive_headers=True, transitive_libs=True)
+        self.requires("glfw/[^3.4]", transitive_headers=True, transitive_libs=True)
         self.requires("opengl/system")
         # https://github.com/koide3/iridescence/blob/7034275ee6516eb4d155f645cd8327173edfeb9d/thirdparty/gl3w/GL/glcorearb.h#L82
         self.requires("khrplatform/cci.20200529", transitive_headers=True)

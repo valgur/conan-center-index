@@ -63,7 +63,7 @@ class MatplotplusplusCppConan(ConanFile):
         self.requires("cimg/[^3.3.5]")
         self.requires("nodesoup/cci.20200905")
         self.requires("opengl/system")
-        self.requires("glfw/3.4")
+        self.requires("glfw/[^3.4]")
         self.requires("glad/0.1.36")
         # Matplot++ also requires gnuplot to run, which is not available on CCI
 

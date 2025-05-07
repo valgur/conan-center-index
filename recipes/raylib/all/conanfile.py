@@ -91,7 +91,7 @@ class RaylibConan(ConanFile):
 
     def requirements(self):
         if self.settings.os not in ["Android", "Emscripten"]:
-            self.requires("glfw/3.4")
+            self.requires("glfw/[^3.4]")
             self.requires("opengl/system")
 
     def source(self):

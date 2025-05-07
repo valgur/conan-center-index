@@ -170,7 +170,7 @@ class ImguiConan(ConanFile):
             self.requires("vulkan-headers/1.4.309.0", transitive_headers=True)
             self.requires("vulkan-loader/1.4.309.0")
         if self.options.get_safe("backend_glfw") and self.settings.os != "Emscripten":
-            self.requires("glfw/3.4")
+            self.requires("glfw/[^3.4]")
         # if self.options.get_safe("backend_wgpu"):
         #     self.requires("dawn/cci.20240726")
         if self.options.enable_freetype:

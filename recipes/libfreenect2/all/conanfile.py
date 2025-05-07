@@ -64,7 +64,7 @@ class Libfreenect2Conan(ConanFile):
             self.requires("opencl-icd-loader/2023.02.06")
         if self.options.with_opengl:
             self.requires("opengl/system")
-            self.requires("glfw/3.3.8")
+            self.requires("glfw/[^3.3.8]")
         if self.options.get_safe("with_vaapi"):
             self.requires("libva/[^2.21]")
         if self.options.with_cuda:

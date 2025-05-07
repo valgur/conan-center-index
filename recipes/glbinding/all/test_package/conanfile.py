@@ -14,7 +14,7 @@ class TestPackageConan(ConanFile):
 
     def requirements(self):
         self.requires(self.tested_reference_str)
-        self.requires("glfw/3.3.8")
+        self.requires("glfw/[^3.3.8]")
 
     def build(self):
         cmake = CMake(self)

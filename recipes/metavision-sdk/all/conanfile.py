@@ -77,7 +77,7 @@ class MetavisionSdkConan(ConanFile):
             # metavision/sdk/ui/utils/opengl_api.h
             self.requires("opengl/system", transitive_headers=True)
             self.requires("glew/2.2.0", transitive_headers=True)
-            self.requires("glfw/3.4", transitive_headers=True)
+            self.requires("glfw/[^3.4]", transitive_headers=True)
 
         if self.options.advanced_sdk_repo_url:
             self.requires("eigen/3.4.0", transitive_headers=True)

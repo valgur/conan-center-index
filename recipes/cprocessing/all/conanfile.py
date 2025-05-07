@@ -38,7 +38,7 @@ class CProcessingConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("glfw/3.3.8")
+        self.requires("glfw/[^3.3.8]")
         self.requires("glm/0.9.9.8")
         self.requires("glew/2.2.0")
         self.requires("stb/cci.20250314")

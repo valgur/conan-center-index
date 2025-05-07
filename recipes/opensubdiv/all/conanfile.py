@@ -87,7 +87,7 @@ class OpenSubdivConan(ConanFile):
                 self.requires("onetbb/[^2021]", transitive_headers=True)
         if self.options.with_opengl:
             self.requires("opengl/system")
-            self.requires("glfw/3.4")
+            self.requires("glfw/[^3.4]")
         if self.options.get_safe("with_metal"):
             self.requires("metal-cpp/14.2")
 
