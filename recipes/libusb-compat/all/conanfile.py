@@ -45,7 +45,7 @@ class LibUSBCompatConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
+        self.requires("libusb/[^1.0.26]")
         if is_msvc(self):
             self.requires("dirent/1.24", transitive_headers=True, transitive_libs=True)
 

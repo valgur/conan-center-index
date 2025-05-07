@@ -52,7 +52,7 @@ class LibrealsenseConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
+        self.requires("libusb/[^1.0.26]")
         if Version(self.version) >= "2.50.0":
             self.requires("libudev/[^255.18]")
         # Used only in .cpp files

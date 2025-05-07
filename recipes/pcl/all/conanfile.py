@@ -368,7 +368,7 @@ class PclConan(ConanFile):
         if self._is_enabled("qt"):
             self.requires("qt/[>=6.6 <7]")
         if self._is_enabled("libusb"):
-            self.requires("libusb/1.0.26", transitive_headers=True)
+            self.requires("libusb/[^1.0.26]", transitive_headers=True)
         if self._is_enabled("pcap"):
             self.requires("libpcap/[^1.10.4]")
         if self._is_enabled("opengl"):

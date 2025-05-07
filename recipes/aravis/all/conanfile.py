@@ -71,7 +71,7 @@ class AravisConan(ConanFile):
         self.requires("libxml2/[^2.12.5]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.usb:
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
         if self.options.gst_plugin:
             self.requires("gst-plugins-base/[^1.24]")
         if self.options.with_introspection:

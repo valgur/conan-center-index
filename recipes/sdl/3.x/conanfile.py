@@ -217,7 +217,7 @@ class SDLConan(ConanFile):
         if self.options.get_safe("libiconv"):
             self.requires("libiconv/[^1.17]")
         if self._needs_libusb:
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
         if self._supports_opengl:
             self.requires("opengl/system")
         if self.options.get_safe("libudev"):

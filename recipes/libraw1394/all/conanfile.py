@@ -34,7 +34,7 @@ class Libraw1394Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
+        self.requires("libusb/[^1.0.26]")
 
     def validate(self):
         if self.settings.os != "Linux":

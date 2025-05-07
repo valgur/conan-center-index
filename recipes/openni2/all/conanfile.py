@@ -51,7 +51,7 @@ class Openni2Conan(ConanFile):
         if self.settings.os == "Linux":
             self.requires("libudev/[^255.18]")
         if self.settings.os != "Windows":
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
 
     def validate(self):
         check_min_cppstd(self, 11)

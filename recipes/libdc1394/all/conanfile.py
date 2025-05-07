@@ -35,7 +35,7 @@ class Libdc1394Conan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
+        self.requires("libusb/[^1.0.26]")
         if self.settings.os == "Linux":
             self.requires("libraw1394/2.1.2")
 

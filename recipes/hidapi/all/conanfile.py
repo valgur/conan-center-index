@@ -52,7 +52,7 @@ class HidapiConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("build_hidapi_libusb"):
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
             self.requires("libiconv/[^1.17]")
         if self.settings.os == "Linux" and self.options.build_hidapi_hidraw:
             self.requires("libudev/[^255.18]")

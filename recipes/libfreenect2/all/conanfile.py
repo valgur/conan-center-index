@@ -56,7 +56,7 @@ class Libfreenect2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
+        self.requires("libusb/[^1.0.26]")
         self.requires("libjpeg-turbo/3.0.0")
         if self.options.with_opencl:
             # 2023.02.06 is the latest compatible version

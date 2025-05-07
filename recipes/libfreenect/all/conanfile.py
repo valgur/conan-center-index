@@ -35,7 +35,7 @@ class LibfreenectConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libusb/1.0.26")
+        self.requires("libusb/[^1.0.26]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

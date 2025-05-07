@@ -50,7 +50,7 @@ class LibGphoto2(ConanFile):
     def requirements(self):
         self.requires("libtool/[^2.4.7]")
         if self.options.with_libusb:
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
         if self.options.with_libcurl:
             self.requires("libcurl/[>=7.78.0 <9]")
         if self.options.with_libxml2:

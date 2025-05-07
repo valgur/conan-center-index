@@ -237,7 +237,7 @@ class GStPluginsBadConan(ConanFile):
         if self._is_enabled("curl") and self.options.with_libssh2:
             self.requires("libssh2/[^1.11.1]", options={"shared": True})
         if "libusb" in reqs:
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
         if "libgudev" in reqs or (self._is_enabled("va") and self.options.get_safe("with_libudev")):
             self.requires("libgudev/238")
         if self._is_enabled("va"):

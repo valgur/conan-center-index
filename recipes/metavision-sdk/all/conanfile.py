@@ -59,7 +59,7 @@ class MetavisionSdkConan(ConanFile):
 
     def requirements(self):
         # metavision/psee_hw_layer/boards/utils/psee_libusb.h
-        self.requires("libusb/1.0.26", transitive_headers=True)
+        self.requires("libusb/[^1.0.26]", transitive_headers=True)
         # several headers, e.g. metavision/sdk/core/preprocessors/json_parser.h
         self.requires("boost/1.86.0", transitive_headers=True)
         # OpenCV is used in many public headers

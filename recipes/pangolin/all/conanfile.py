@@ -157,7 +157,7 @@ class PangolinConan(ConanFile):
         if self.options.with_uvc:
             # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_video/include/pangolin/video/drivers/uvc.h#L41
             self.requires("libuvc/0.0.7", transitive_headers=True, transitive_libs=True)
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
 

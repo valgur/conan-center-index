@@ -63,7 +63,7 @@ class LibcupsConan(ConanFile):
         if self.options.with_dbus:
             self.requires("dbus/[^1.15]")
         if self.options.with_libusb:
-            self.requires("libusb/1.0.26")
+            self.requires("libusb/[^1.0.26]")
         if self.options.with_gssapi:
             self.requires("krb5/[^1.21]")
         if self.options.with_systemd:
