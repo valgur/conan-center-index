@@ -81,7 +81,7 @@ class BackwardCppConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD", "Android"]:
             if self._has_stack_walking("libunwind"):
                 # transitive_headers: backward.hpp:301 Requires unwind.h
-                self.requires("libunwind/1.7.2", transitive_headers=True)
+                self.requires("libunwind/[^1.7.2]", transitive_headers=True, transitive_libs=True)
             if self._has_stack_details("dw"):
                 # transitive_headers: backward.hpp:215 Requires elfuleils/libdw.h elfutils/libdwfl.h and dwarf.h
                 # transitive_libs: backward.hpp:1547 consumes dwarf_ranges() from libdw directly

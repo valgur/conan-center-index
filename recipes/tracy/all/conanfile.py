@@ -97,7 +97,7 @@ class TracyConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("libunwind_backtrace"):
-            self.requires("libunwind/1.8.1", transitive_headers=True, transitive_libs=True)
+            self.requires("libunwind/[^1.8.1]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

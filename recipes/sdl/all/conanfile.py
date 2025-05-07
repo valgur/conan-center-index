@@ -161,7 +161,7 @@ class SDLConan(ConanFile):
                 self.requires("xkbcommon/1.6.0")
                 self.requires("egl/system")
             if self.options.libunwind:
-                self.requires("libunwind/1.8.0")
+                self.requires("libunwind/[^1.8.0]")
             if self.options.directfb:
                 self.requires("directfb/1.7.7")
 

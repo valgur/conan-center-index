@@ -116,7 +116,7 @@ class WtConan(ConanFile):
         if self.options.get_safe("with_mssql") and self.settings.os != "Windows":
             self.requires("odbc/2.3.11")
         if self.options.get_safe("with_unwind"):
-            self.requires("libunwind/1.7.2")
+            self.requires("libunwind/[^1.7.2]")
         if self.options.with_haru:
             self.requires("libharu/2.4.3")
 

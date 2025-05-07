@@ -39,7 +39,7 @@ class CpptraceConan(ConanFile):
         else:
             self.requires("libdwarf/0.8.0")
         if self.options.unwind == "libunwind":
-            self.requires("libunwind/1.8.0", transitive_libs=True)
+            self.requires("libunwind/[^1.8.0]", transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 11)

@@ -68,7 +68,7 @@ class PdalConan(ConanFile):
         if self.options.with_lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.get_safe("with_unwind"):
-            self.requires("libunwind/1.8.1")
+            self.requires("libunwind/[^1.8.1]")
         # TODO: unvendor kazhdan (not on CCI, https://github.com/mkazhdan/PoissonRecon)
         # TODO: unvendor lazperf (not on CCI, https://github.com/hobuinc/laz-perf)
         # TODO: unvendor lepcc (not on CCI, https://github.com/Esri/lepcc)
