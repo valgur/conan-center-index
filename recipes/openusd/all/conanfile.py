@@ -109,7 +109,7 @@ class OpenUSDConan(ConanFile):
             self.requires("opengl/system")
             self.requires("opensubdiv/3.6.0")
             if self.options.with_openimageio:
-                self.requires("openimageio/2.5.18.0")
+                self.requires("openimageio/[^2.5.18.0]")
             elif self.options.with_opencolorio:
                 self.requires("opencolorio/[^2.4.2]")
             if self.options.with_vulkan:
