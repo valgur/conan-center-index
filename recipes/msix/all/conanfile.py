@@ -81,7 +81,7 @@ class MsixConan(ConanFile):
         if self.options.use_external_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.get_safe("with_xerces", True):
-            self.requires("xerces-c/3.2.5")
+            self.requires("xerces-c/[^3.2.5]")
 
     def _validate_compiler_settings(self):
         check_min_cppstd(self, 14)

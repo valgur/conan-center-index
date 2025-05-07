@@ -74,7 +74,7 @@ class Opene57Conan(ConanFile):
         if self.settings.os != "Windows":
             self.requires("icu/[*]")
 
-        self.requires("xerces-c/3.2.4")
+        self.requires("xerces-c/[^3.2.4]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
