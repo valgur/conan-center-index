@@ -57,7 +57,7 @@ class NSSConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if self.settings.os == "Windows":
-            self.tool_requires("mozilla-build/4.0.2")
+            self.tool_requires("mozilla-build/[^4.0.2]")
         self.tool_requires("ninja/[>=1.10.2 <2]")
         self.tool_requires("sqlite3/<host_version>")
         if not can_run(self):
