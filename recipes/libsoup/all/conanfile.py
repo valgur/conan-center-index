@@ -48,7 +48,7 @@ class LibSoupConan(ConanFile):
         self.requires("libpsl/0.21.5")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.gssapi:
-            self.requires("krb5/1.21.2")
+            self.requires("krb5/[^1.21.2]")
         if self.options.with_introspection:
             self.requires("glib-gir/[^2.82]")
 

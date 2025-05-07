@@ -39,7 +39,7 @@ class Libhdfs3Conan(ConanFile):
     def requirements(self):
         self.requires("libxml2/[^2.12.5]")
         self.requires("protobuf/5.27.0")
-        self.requires("krb5/1.21.2")
+        self.requires("krb5/[^1.21.2]")
         # self.requires("gsasl/0")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("util-linux-libuuid/2.41")

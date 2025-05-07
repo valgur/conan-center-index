@@ -93,7 +93,7 @@ class CyrusSaslConan(ConanFile):
         if is_msvc(self) or self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_gssapi"):
-            self.requires("krb5/1.21.2")
+            self.requires("krb5/[^1.21.2]")
         if self.options.get_safe("with_postgresql"):
             self.requires("libpq/[^17.0]")
         if self.options.get_safe("with_mysql"):
