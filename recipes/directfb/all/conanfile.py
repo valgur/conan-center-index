@@ -109,7 +109,7 @@ class DirectfbConan(ConanFile):
         if self.options.with_mesa:
             self.requires("opengl/system")
         if self.options.with_drm:
-            self.requires("libdrm/2.4.124")
+            self.requires("libdrm/[~2.4.124]")
         if self.options.with_jpeg:
             self.requires("libjpeg/9e")
         if self.options.with_png:
