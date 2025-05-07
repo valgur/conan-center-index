@@ -56,7 +56,7 @@ class SerdeppConan(ConanFile):
 
     def requirements(self):
         self.requires("nameof/0.10.3")
-        self.requires("magic_enum/0.9.5")
+        self.requires("magic_enum/[^0.9.5]")
         if self.options.with_toml11:
             self.requires("toml11/3.8.1")
         if self.options.with_yamlcpp:
