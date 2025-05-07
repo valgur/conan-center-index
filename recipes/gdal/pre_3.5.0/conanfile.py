@@ -251,7 +251,7 @@ class GdalConan(ConanFile):
         if self.options.with_hdf5:
             self.requires("hdf5/[^1.8]")
         if self.options.with_kea:
-            self.requires("kealib/1.4.14")
+            self.requires("kealib/[^1.4.14]")
         if self.options.with_netcdf:
             self.requires("netcdf/[^4.9.3]")
         if self.options.with_jasper:

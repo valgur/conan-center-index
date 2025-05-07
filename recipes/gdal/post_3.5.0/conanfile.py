@@ -230,7 +230,7 @@ class GdalConan(ConanFile):
             # 0.9+ is not compatible as of v3.8.4
             self.requires("libjxl/0.8.2")
         if self.options.with_kea:
-            self.requires("kealib/1.5.2")
+            self.requires("kealib/[^1.5.2]")
         if self.options.with_lerc:
             self.requires("lerc/[^4.0.1]")
         if self.options.get_safe("with_libaec"):
