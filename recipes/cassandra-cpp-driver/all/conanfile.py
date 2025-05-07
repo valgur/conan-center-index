@@ -66,7 +66,7 @@ class CassandraCppDriverConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
         if self.options.with_zlib:
-            self.requires("minizip/1.2.13")
+            self.requires("minizip/[^1.2.13]")
             self.requires("zlib/[>=1.2.11 <2]")
 
         if self.options.use_atomic == "boost":

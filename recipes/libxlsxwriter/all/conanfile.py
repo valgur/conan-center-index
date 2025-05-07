@@ -55,7 +55,7 @@ class LibxlsxwriterConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("minizip/1.2.13")
+        self.requires("minizip/[^1.2.13]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.md5 == "openssl":
             self.requires("openssl/[>=1.1 <4]")

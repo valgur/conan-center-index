@@ -62,7 +62,7 @@ class XlsxioConan(ConanFile):
         elif Version(self.version) >= "0.2.34" and self.options.with_minizip_ng :
             self.requires("minizip-ng/[^4.0.1]")
         else:
-            self.requires("minizip/1.2.13")
+            self.requires("minizip/[^1.2.13]")
         self.requires("expat/[>=2.6.2 <3]")
 
     def validate(self):

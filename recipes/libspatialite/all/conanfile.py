@@ -95,7 +95,7 @@ class LibspatialiteConan(ConanFile):
         if self.options.with_libxml2:
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_minizip:
-            self.requires("minizip/1.2.13")
+            self.requires("minizip/[^1.2.13]")
 
     def build_requirements(self):
         if not is_msvc(self):
