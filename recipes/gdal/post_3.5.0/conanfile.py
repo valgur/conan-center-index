@@ -232,7 +232,7 @@ class GdalConan(ConanFile):
         if self.options.with_kea:
             self.requires("kealib/1.5.2")
         if self.options.with_lerc:
-            self.requires("lerc/4.0.1")
+            self.requires("lerc/[^4.0.1]")
         if self.options.get_safe("with_libaec"):
             self.requires("libaec/1.0.6")
         if self.options.with_libarchive:

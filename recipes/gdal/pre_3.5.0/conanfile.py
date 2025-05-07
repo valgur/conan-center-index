@@ -318,7 +318,7 @@ class GdalConan(ConanFile):
         if self.options.with_crypto:
             self.requires("openssl/[>=1.1 <4]")
         # if not self.options.without_lerc:
-        #     self.requires("lerc/2.1") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
+        #     self.requires("lerc/[^2.1]") # TODO: use conan recipe (not possible yet because lerc API is broken for GDAL)
         if self.options.with_exr:
             self.requires("openexr/3.3.3")
         if self.options.with_heif:

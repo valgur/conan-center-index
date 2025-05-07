@@ -109,7 +109,7 @@ class OsgearthConan(ConanFile):
         self.requires("gdal/3.10.0")
         self.requires("glew/2.2.0")
         self.requires("imgui/1.90.9")
-        self.requires("lerc/4.0.1")
+        self.requires("lerc/[^4.0.1]")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("libzip/[^1.11.1]")
         self.requires("opengl/system")
