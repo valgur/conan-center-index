@@ -151,7 +151,7 @@ class SDLConan(ConanFile):
             if self.options.alsa:
                 self.requires("libalsa/[~1.2.10]")
             if self.options.pulse:
-                self.requires("pulseaudio/17.0")
+                self.requires("pulseaudio/[^17.0]")
             if self.options.opengl:
                 self.requires("opengl/system")
             if self.options.nas:

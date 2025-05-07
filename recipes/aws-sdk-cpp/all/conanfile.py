@@ -536,7 +536,7 @@ class AwsSdkCppConan(ConanFile):
             # Pulseaudio -> libcap, libalsa only support linux, don't use pulseaudio on other platforms
             if self.options.get_safe("text-to-speech"):
                 # Used transitively in text-to-speech/PulseAudioPCMOutputDriver.h public header
-                self.requires("pulseaudio/17.0", transitive_headers=True, transitive_libs=True)
+                self.requires("pulseaudio/[^17.0]", transitive_headers=True, transitive_libs=True)
         # zlib is used if ENABLE_ZLIB_REQUEST_COMPRESSION is enabled, set ot ON by default
         self.requires("zlib/[>=1.2.11 <2]")
 

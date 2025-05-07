@@ -452,7 +452,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_gstreamer", False):
             self.requires("gst-plugins-base/[^1.24]")
         if self.options.get_safe("with_pulseaudio", False):
-            self.requires("pulseaudio/17.0")
+            self.requires("pulseaudio/[^17.0]")
         if self.options.with_dbus:
             self.requires("dbus/[^1.15]")
         if self.options.qtwayland:

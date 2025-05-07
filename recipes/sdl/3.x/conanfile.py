@@ -225,7 +225,7 @@ class SDLConan(ConanFile):
         if self._supports_dbus:
             self.requires("dbus/[^1.15]")
         if self.options.get_safe("pulseaudio"):
-            self.requires("pulseaudio/17.0")
+            self.requires("pulseaudio/[^17.0]")
         if self.options.get_safe("alsa"):
             self.requires("libalsa/[~1.2.10]")
         if self.options.get_safe("sndio"):

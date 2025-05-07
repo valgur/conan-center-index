@@ -225,7 +225,7 @@ class GStPluginsGoodConan(ConanFile):
         if "opengl" in reqs:
             self.requires("opengl/system")
         if "pulseaudio" in reqs:
-            self.requires("pulseaudio/17.0")
+            self.requires("pulseaudio/[^17.0]")
         if "qt" in reqs:
             ref = "qt/[>=6.7 <7]" if self.options.qt6 else "qt/[~5.15]"
             self.requires(ref, options={
