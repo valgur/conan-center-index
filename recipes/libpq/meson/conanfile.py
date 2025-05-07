@@ -151,7 +151,7 @@ class LibpqConan(ConanFile):
         if self.options.get_safe("with_readline") == "readline":
             self.requires("readline/[^8.2]")
         elif self.options.get_safe("with_readline") == "editline":
-            self.requires("editline/3.1")
+            self.requires("editline/[^3.1]")
         if self.options.get_safe("with_selinux"):
             self.requires("libselinux/3.6")
         if self.options.get_safe("with_systemd"):

@@ -61,7 +61,7 @@ class PackageConan(ConanFile):
         if self.options.with_pam == "openpam":
             self.requires("openpam/20190224")
         if self.options.with_libedit:
-            self.requires("editline/3.1")
+            self.requires("editline/[^3.1]")
 
     def validate(self):
         if self.settings.os in ["baremetal", "Windows"]:
