@@ -45,7 +45,7 @@ class LibSoupConan(ConanFile):
         self.requires("libnghttp2/[^1.61.0]")
         self.requires("sqlite3/[>=3.45.0 <4]")
         self.requires("brotli/[^1.1.0]")
-        self.requires("libpsl/0.21.5")
+        self.requires("libpsl/[>=0.21.5 <1]")
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.gssapi:
             self.requires("krb5/[^1.21.2]")
