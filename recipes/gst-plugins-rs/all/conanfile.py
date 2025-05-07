@@ -147,7 +147,7 @@ class GStPluginsRsConan(ConanFile):
         if "cairo" in reqs:
             self.requires("cairo/[^1.18.0]")
         if "dav1d" in reqs:
-            self.requires("dav1d/1.4.3")
+            self.requires("dav1d/[^1.4.3]")
         if "gtk" in reqs:
             self.requires("gtk/[^4.15]")
         if "openssl" in reqs:
