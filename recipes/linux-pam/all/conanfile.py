@@ -64,7 +64,7 @@ class LinuxPamConan(ConanFile):
 
     def requirements(self):
         if self.options.with_db == "db":
-            self.requires("libdb/5.3.28")
+            self.requires("libdb/[^5.3.28]")
         elif self.options.with_db == "gdbm":
             self.requires("gdbm/1.23")
         if self.options.with_intl:
