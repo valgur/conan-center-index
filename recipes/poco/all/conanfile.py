@@ -143,7 +143,7 @@ class PocoConan(ConanFile):
            self.options.get_safe("enable_jwt"):
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
         if self.options.enable_data_odbc and self.settings.os != "Windows":
-            self.requires("odbc/2.3.11")
+            self.requires("odbc/[^2.3.11]")
         if self.options.get_safe("enable_data_postgresql"):
             self.requires("libpq/[^17.0]")
         if self.options.get_safe("enable_data_mysql"):

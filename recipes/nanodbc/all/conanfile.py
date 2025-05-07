@@ -58,7 +58,7 @@ class NanodbcConan(ConanFile):
         if self.options.with_boost:
             self.requires("boost/1.86.0")
         if self.settings.os != "Windows":
-            self.requires("odbc/2.3.11")
+            self.requires("odbc/[^2.3.11]")
 
     def validate(self):
         check_min_cppstd(self, 14)

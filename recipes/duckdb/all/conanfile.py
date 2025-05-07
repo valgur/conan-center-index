@@ -84,7 +84,7 @@ class DuckdbConan(ConanFile):
     def requirements(self):
         # FIXME: duckdb vendors a bunch of deps by modify the source code to have their own namespace
         if self.options.get_safe("with_odbc"):
-            self.requires("odbc/2.3.11")
+            self.requires("odbc/[^2.3.11]")
         if self.options.with_httpfs:
             self.requires("openssl/[>=1.1 <4]")
 

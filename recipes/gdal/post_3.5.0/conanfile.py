@@ -256,7 +256,7 @@ class GdalConan(ConanFile):
         if self.options.with_netcdf:
             self.requires("netcdf/[^4.9.3]")
         if self.options.with_odbc:
-            self.requires("odbc/2.3.11")
+            self.requires("odbc/[^2.3.11]")
         if self.options.with_opencl:
             self.requires("opencl-icd-loader/2023.12.14")
         if self.options.with_openjpeg:
