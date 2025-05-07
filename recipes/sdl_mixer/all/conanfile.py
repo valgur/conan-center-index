@@ -75,7 +75,7 @@ class SDLMixerConan(ConanFile):
     def requirements(self):
         self.requires("sdl/[^2.30.9]", transitive_headers=True, transitive_libs=True)
         if self.options.flac:
-            self.requires("flac/1.4.2")
+            self.requires("flac/[^1.4.2]")
         if self.options.mpg123:
             self.requires("mpg123/1.31.2")
         if self.options.mad:

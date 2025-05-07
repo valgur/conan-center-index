@@ -199,7 +199,7 @@ class GStPluginsGoodConan(ConanFile):
         if "cairo" in reqs:
             self.requires("cairo/[^1.18.0]")
         if "flac" in reqs:
-            self.requires("flac/1.4.2")
+            self.requires("flac/[^1.4.2]")
         if "gdk-pixbuf" in reqs:
             self.requires("gdk-pixbuf/[^2.42.10]")
         if "gtk" in reqs:

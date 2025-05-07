@@ -91,7 +91,7 @@ class SDLMixerConan(ConanFile):
     def requirements(self):
         self.requires("sdl/[^2.30.9]", transitive_headers=True, transitive_libs=True)
         if self.options.flac:
-            self.requires("flac/1.4.2")
+            self.requires("flac/[^1.4.2]")
         elif self.options.gme:
             # TODO: not available on CCI
             # self.requires("gme/x.y.z")
