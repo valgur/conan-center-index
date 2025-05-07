@@ -64,7 +64,7 @@ class CilantroConan(ConanFile):
             # '#pragma omp' is used in public headers
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_pangolin:
-            self.requires("pangolin/0.9.1", transitive_headers=True, transitive_libs=True)
+            self.requires("pangolin/[>=0.9.1 <1]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 17)
