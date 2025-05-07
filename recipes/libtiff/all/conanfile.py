@@ -72,7 +72,7 @@ class LibtiffConan(ConanFile):
         if self.options.zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.libdeflate:
-            self.requires("libdeflate/[>=1.19 <=1.22]") #tested with this range
+            self.requires("libdeflate/[^1.19]")
         if self.options.lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.jpeg == "libjpeg":

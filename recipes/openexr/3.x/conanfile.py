@@ -59,7 +59,7 @@ class OpenEXRConan(ConanFile):
         # Note: OpenEXR and Imath are versioned independently.
         self.requires("imath/[^3.1.9]", transitive_headers=True)
         if self._with_libdeflate:
-            self.requires("libdeflate/[>=1.19 <=1.22]")
+            self.requires("libdeflate/[^1.19]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
