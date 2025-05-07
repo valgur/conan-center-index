@@ -81,6 +81,9 @@ class GtkmmConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        rmdir(self, "demos")
+        save(self, "demos/meson.build", "")
+        save(self, "demos/gtk-demo/meson.build", "")
 
     def generate(self):
         tc = MesonToolchain(self)
