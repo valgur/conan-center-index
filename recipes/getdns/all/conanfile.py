@@ -48,7 +48,7 @@ class GetDnsConan(ConanFile):
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]")
         if self.options.with_libev:
-            self.requires("libev/4.33")
+            self.requires("libev/[^4.33]")
         if self.options.with_libevent:
             self.requires("libevent/[^2.1.12]")
         if self.options.with_libuv:

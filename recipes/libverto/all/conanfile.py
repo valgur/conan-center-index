@@ -75,7 +75,7 @@ class LibVertoConan(ConanFile):
         if self.options.with_libevent:
             self.requires("libevent/[^2.1.12]")
         if self.options.with_libev:
-            self.requires("libev/4.33")
+            self.requires("libev/[^4.33]")
 
     def package_id(self):
         del self.info.options.default
