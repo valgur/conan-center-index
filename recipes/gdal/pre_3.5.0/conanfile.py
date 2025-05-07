@@ -237,7 +237,7 @@ class GdalConan(ConanFile):
         elif self.options.with_jpeg == "mozjpeg":
             self.requires("mozjpeg/[^4.1.1]")
         if self.options.with_charls:
-            self.requires("charls/2.4.1")
+            self.requires("charls/[^2.4.1]")
         if self.options.with_gif:
             self.requires("giflib/[^5.2.1]")
         # if self.options.with_ogdi:

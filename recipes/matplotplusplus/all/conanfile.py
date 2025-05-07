@@ -60,7 +60,7 @@ class MatplotplusplusCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cimg/3.3.5")
+        self.requires("cimg/[^3.3.5]")
         self.requires("nodesoup/cci.20200905")
         self.requires("opengl/system")
         self.requires("glfw/3.4")
