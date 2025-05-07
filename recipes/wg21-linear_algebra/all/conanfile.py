@@ -20,7 +20,7 @@ class LAConan(ConanFile):
     no_copy_source = True
 
     def requirements(self):
-        self.requires("mdspan/0.5.0")
+        self.requires("mdspan/[>=0.5.0 <1]")
 
     @property
     def _minimum_cpp_standard(self):

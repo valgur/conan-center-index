@@ -67,7 +67,7 @@ class KokkosConan(ConanFile):
 
     def requirements(self):
         # Kokkos uses an unreleased version of mdspan
-        # self.requires("mdspan/0.7.0", transitive_headers=True, transitive_libs=True)
+        # self.requires("mdspan/[>=0.7.0 <1]", transitive_headers=True, transitive_libs=True)
         if self.options.enable_openmp or self.options.backend == "openmptarget":
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
 
