@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-06:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-07:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -21,6 +21,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
+- arrow/20.0.0
 - autoconf-archive/2024.10.16
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
@@ -115,6 +116,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - go/1.23.5
 - gobject-introspection/1.84.0
 - google-cloud-cpp/1.42.2
+- googleapis/cci.20250506
 - gpu.cpp/0.1.0
 - grpc/1.50.2
 - grpc/1.65.5
@@ -423,6 +425,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - xkeyboard-config/2.43
 - xorg-macros/1.20.2
 - xorg/1.8.10
+- xpack/1.0.6
 - xtrans/1.5.0
 - zenoh-c/1.2.0
 - zenoh-c/1.3.2
