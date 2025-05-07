@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc, msvc_runtime_flag
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc, msvc_runtime_flag
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -31,25 +31,6 @@ class FastDDSConan(ConanFile):
         "with_ssl": False,
     }
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    @property
-    def _compilers_minimum_version(self):
-        if Version(self.version) < "2.11.0":
-            return {
-                "gcc": "8",
-                "clang": "12",
-                "apple-clang": "12",
-            }
-        else:
-            return {
-                "gcc": "9",
-                "clang": "15",
-                "apple-clang": "15",
-            }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -67,7 +48,7 @@ class FastDDSConan(ConanFile):
 
     def requirements(self):
         self.requires("tinyxml2/10.0.0")
-        self.requires("asio/1.29.0")  # This is now a package_type = header
+        self.requires("asio/[>=1.29.0 <1.32]")
         # Fast-DDS < 2.12 uses Fast-CDR 1.x
         if Version(self.version) < "2.12.0":
             self.requires("fast-cdr/1.1.0", transitive_headers=True, transitive_libs=True)
@@ -78,20 +59,12 @@ class FastDDSConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
-        # fast-dds requires C++11
-        check_min_cppstd(self, self._min_cppstd)
-        check_min_vs(self, "192")
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
+        check_min_cppstd(self, 11)
 
         if self.options.shared and is_msvc(self) and "MT" in msvc_runtime_flag(self):
             # This combination leads to an fast-dds error when linking
             # linking dynamic '*.dll' and static MT runtime
-            raise ConanInvalidConfiguration("Mixing a dll {} library with a static runtime is not supported".format(self.name))
+            raise ConanInvalidConfiguration(f"Mixing a dll {self.name} library with a static runtime is not supported")
 
     def build_requirements(self):
         if Version(self.version) >= "2.7.0":

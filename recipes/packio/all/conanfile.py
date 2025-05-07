@@ -52,7 +52,7 @@ class PackioConan(ConanFile):
         if self._use_boost_json or not self.options.standalone_asio:
             self.requires("boost/1.86.0")
         if self.options.standalone_asio:
-            self.requires("asio/1.32.0")
+            self.requires("asio/[^1.32.0]")
 
     def validate(self):
         check_min_cppstd(self, 17)

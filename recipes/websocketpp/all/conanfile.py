@@ -22,7 +22,7 @@ class WebsocketPPConan(ConanFile):
         "with_zlib": [True, False],
     }
     default_options = {
-        "asio": "boost",
+        "asio": "standalone",
         "with_openssl": True,
         "with_zlib": True,
     }
@@ -41,7 +41,7 @@ class WebsocketPPConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
 
         if self.options.asio == "standalone":
-            self.requires("asio/1.28.1", transitive_headers=True)
+            self.requires("asio/[>=1.28.1 <1.32]", transitive_headers=True)
         elif self.options.asio == "boost":
             self.requires("boost/1.86.0", transitive_headers=True)
 
@@ -53,8 +53,8 @@ class WebsocketPPConan(ConanFile):
         apply_conandata_patches(self)
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, os.path.join("websocketpp","*.hpp"), src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, os.path.join("websocketpp","*.hpp"), self.source_folder, os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "websocketpp")

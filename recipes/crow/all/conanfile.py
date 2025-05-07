@@ -32,7 +32,7 @@ class CrowConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("asio/1.29.0", transitive_headers=True)
+        self.requires("asio/[>=1.29.0 <1.34]", transitive_headers=True)
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <3]")
         if self.options.with_compression:
