@@ -72,7 +72,7 @@ class FreeImageConan(ConanFile):
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.1")
+            self.requires("mozjpeg/[^4.1.1]")
         if self.options.with_jpeg2000:
             self.requires("openjpeg/2.5.2")
         if self.options.with_png:

@@ -47,7 +47,7 @@ class LibuvcConan(ConanFile):
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.0")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.3")
+            self.requires("mozjpeg/[^4.1.3]")
 
     def validate(self):
         if is_msvc(self):

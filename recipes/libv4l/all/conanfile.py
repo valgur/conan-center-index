@@ -51,7 +51,7 @@ class Libv4lConan(ConanFile):
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.5")
+            self.requires("mozjpeg/[^4.1.5]")
 
     def validate(self):
         if self.settings.os != "Linux":

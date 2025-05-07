@@ -211,7 +211,7 @@ class GStPluginsGoodConan(ConanFile):
             elif self.options.with_jpeg == "libjpeg-turbo":
                 self.requires("libjpeg-turbo/3.0.4")
             elif self.options.with_jpeg == "mozjpeg":
-                self.requires("mozjpeg/4.1.5")
+                self.requires("mozjpeg/[^4.1.5]")
         if "libcaca" in reqs:
             self.requires("libcaca/0.99.beta20")
         if "libxml2" in reqs:

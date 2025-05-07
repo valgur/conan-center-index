@@ -73,7 +73,7 @@ class NetpbmConan(ConanFile):
             elif self.options.with_libjpeg == "libjpeg-turbo":
                 self.requires("libjpeg-turbo/3.0.2")
             elif self.options.with_libjpeg == "mozjpeg":
-                self.requires("mozjpeg/4.1.5")
+                self.requires("mozjpeg/[^4.1.5]")
             if self.options.get_safe("with_x11"):
                 self.requires("xorg/system")
             # TODO: add ghostscript to CCI

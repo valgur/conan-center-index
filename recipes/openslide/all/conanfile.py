@@ -60,7 +60,7 @@ class OpenSlideConan(ConanFile):
         elif self.options.jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.5")
+            self.requires("mozjpeg/[^4.1.5]")
 
     def validate(self):
         if is_msvc(self):

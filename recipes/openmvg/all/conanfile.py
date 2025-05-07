@@ -94,7 +94,7 @@ class OpenmvgConan(ConanFile):
         elif self.options.with_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/[>=3.0 <3.1]")
         elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.1")
+            self.requires("mozjpeg/[^4.1.1]")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_openmp:

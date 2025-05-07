@@ -150,7 +150,7 @@ class CImgConan(ConanFile):
         elif self.options.enable_jpeg == "libjpeg-turbo":
             self.requires("libjpeg-turbo/3.0.2")
         elif self.options.enable_jpeg == "mozjpeg":
-            self.requires("mozjpeg/4.1.5")
+            self.requires("mozjpeg/[^4.1.5]")
         if self.options.enable_openexr:
             self.requires("openexr/3.3.3")
             self.requires("imath/3.1.9")
