@@ -124,7 +124,7 @@ class OsgearthConan(ConanFile):
             # v0.10+ is not compatible as of v3.7
             self.requires("blend2d/0.9")
         if self.options.with_blosc:
-            self.requires("c-blosc/1.21.5")
+            self.requires("c-blosc/[^1.21.5]")
         if self.options.with_draco:
             self.requires("draco/1.5.6")
         if self.options.with_duktape:

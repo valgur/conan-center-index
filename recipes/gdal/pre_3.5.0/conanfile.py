@@ -211,7 +211,7 @@ class GdalConan(ConanFile):
         if self.options.get_safe("with_zstd"):
             self.requires("zstd/[~1.5]")
         if self.options.with_blosc:
-            self.requires("c-blosc/1.21.3")
+            self.requires("c-blosc/[^1.21.3]")
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_pg:

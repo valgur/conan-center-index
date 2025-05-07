@@ -136,7 +136,7 @@ class OpenVDBConan(ConanFile):
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_blosc:
-            self.requires("c-blosc/1.21.5")
+            self.requires("c-blosc/[^1.21.5]")
         if self.options.with_log4cplus:
             # log4cplus 2.x is not supported
             self.requires("log4cplus/1.2.2", transitive_headers=True)

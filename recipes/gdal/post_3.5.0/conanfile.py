@@ -190,7 +190,7 @@ class GdalConan(ConanFile):
         if self.options.with_basisu:
             self.requires("libbasisu/1.15.0")
         if self.options.with_blosc:
-            self.requires("c-blosc/1.21.5")
+            self.requires("c-blosc/[^1.21.5]")
         if self.options.with_brunsli:
             self.requires("brunsli/cci.20231024")
         if self.options.with_cfitsio:
