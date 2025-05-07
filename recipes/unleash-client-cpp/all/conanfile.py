@@ -46,7 +46,7 @@ class UnleashConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cpr/1.10.5")
+        self.requires("cpr/[^1.10.5]")
         self.requires("nlohmann_json/[^3]")
 
     def validate(self):

@@ -47,7 +47,7 @@ class InfluxdbCxxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("cpr/1.10.4")
+        self.requires("cpr/[^1.10.4]")
         if self.options.boost:
             self.requires("boost/1.86.0")
 
