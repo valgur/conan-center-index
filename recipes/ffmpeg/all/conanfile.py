@@ -849,7 +849,7 @@ class FFMpegConan(ConanFile):
             if self.options.get_safe("with_videotoolbox"):
                 avcodec.frameworks.append("VideoToolbox")
             if self.options.get_safe("with_libsvtav1"):
-                avcodec.requires.extend(["libsvtav1::decoder", "libsvtav1::encoder"])
+                avcodec.requires.append("libsvtav1::libsvtav1")
             if self.options.get_safe("with_libaom"):
                 avcodec.requires.append("libaom-av1::libaom-av1")
             if self.options.get_safe("with_libdav1d"):
