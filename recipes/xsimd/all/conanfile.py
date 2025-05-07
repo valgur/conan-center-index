@@ -45,7 +45,7 @@ class XsimdConan(ConanFile):
 
     def requirements(self):
         if self.options.xtl_complex:
-            self.requires("xtl/0.7.5")
+            self.requires("xtl/[>=0.7.5 <1]")
 
     def package_id(self):
         self.info.clear()
