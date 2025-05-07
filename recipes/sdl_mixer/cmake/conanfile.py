@@ -128,7 +128,7 @@ class SDLMixerConan(ConanFile):
             self.requires("tinymidi/cci.20130325")
         # https://github.com/libsdl-org/SDL_mixer/blob/release-2.6.3/CMakeLists.txt#L148-L162
         if self.options.vorbis or self.options.flac or self.options.opus:
-            self.requires("ogg/1.3.5")
+            self.requires("ogg/[^1.3.5]")
         if self.options.wavpack:
             # TODO: not available on CCI
             # self.requires("wavpack/x.y.z")

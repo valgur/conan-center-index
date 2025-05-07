@@ -32,7 +32,7 @@ class FlacConan(ConanFile):
         export_conandata_patches(self)
 
     def requirements(self):
-        self.requires("ogg/1.3.5")
+        self.requires("ogg/[^1.3.5]")
 
     def build_requirements(self):
         if Version(self.version) < "1.4.2" and self.settings.arch in ["x86", "x86_64"]:

@@ -35,7 +35,7 @@ class TheoraConan(ConanFile):
 
     def requirements(self):
         # ogg_packet* and integer types are used in the public headers
-        self.requires("ogg/1.3.5", transitive_headers=True)
+        self.requires("ogg/[^1.3.5]", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
