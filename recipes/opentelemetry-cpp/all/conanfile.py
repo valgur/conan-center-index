@@ -157,7 +157,7 @@ class OpenTelemetryCppConan(ConanFile):
             self.requires("prometheus-cpp/1.1.0")
 
         if self.options.get_safe("with_jaeger"):
-            self.requires("thrift/0.17.0")
+            self.requires("thrift/[>=0.17.0 <1]")
             self.requires("boost/1.86.0")
 
     @property
