@@ -109,7 +109,7 @@ class OpenCascadeConan(ConanFile):
         if self.options.with_freeimage:
             self.requires("freeimage/3.18.0")
         if self.options.with_openvr:
-            self.requires("openvr/1.16.8")
+            self.requires("openvr/[^1.16.8]")
         if self.options.with_rapidjson:
             self.requires("rapidjson/[^1.1.0]")
         if self.options.get_safe("with_draco"):
