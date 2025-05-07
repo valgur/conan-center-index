@@ -276,7 +276,7 @@ class LibtorchConan(ConanFile):
         if self._depends_on_pthreadpool:
             self.requires("pthreadpool/cci.20231129")
         if self.options.get_safe("with_numa"):
-            self.requires("libnuma/2.0.16")
+            self.requires("libnuma/[^2.0.16]")
         if self.options.with_opencl:
             self.requires("opencl-headers/2023.12.14")
             self.requires("opencl-icd-loader/2023.12.14")

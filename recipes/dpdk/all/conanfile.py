@@ -70,7 +70,7 @@ class DpdkConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libnuma/2.0.16", options={"shared": True})
+        self.requires("libnuma/[^2.0.16]", options={"shared": True})
         self.requires("libelf/0.8.13")
         self.requires("zlib/[>=1.2.11 <2]")
         # self.requires("linux-headers-generic/[^6.5]", transitive_headers=True)

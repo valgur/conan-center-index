@@ -63,7 +63,7 @@ class Libx265Conan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_numa", False):
-            self.requires("libnuma/2.0.14")
+            self.requires("libnuma/[^2.0.14]")
 
     def validate_build(self):
         if cross_building(self) and self.settings.os == "Android" and self.options.assembly:
