@@ -93,7 +93,7 @@ class DrogonConan(ConanFile):
         if self.options.get_safe("with_postgres"):
             self.requires("libpq/[^17.0]")
         if self.options.get_safe("with_mysql"):
-            self.requires("mariadb-connector-c/3.4.3")
+            self.requires("mariadb-connector-c/[^3.4.3]")
         if self.options.get_safe("with_sqlite"):
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_redis"):

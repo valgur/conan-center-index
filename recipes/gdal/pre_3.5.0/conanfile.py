@@ -263,7 +263,7 @@ class GdalConan(ConanFile):
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/[^8.1.0]")
         elif self.options.with_mysql == "mariadb-connector-c":
-            self.requires("mariadb-connector-c/3.1.12")
+            self.requires("mariadb-connector-c/[^3.1.12]")
         if self.options.with_xerces:
             self.requires("xerces-c/3.2.4")
         if self.options.with_expat:
