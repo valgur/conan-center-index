@@ -63,7 +63,7 @@ class SAILConan(ConanFile):
             if Version(self.version) >= "0.9.1":
                 self.requires("nanosvg/cci.20231025")
         if self.options.with_medium_priority_codecs:
-            self.requires("libavif/1.0.4")
+            self.requires("libavif/[^1.0.4]")
             self.requires("jasper/[^4.2]")
             self.requires("libjxl/0.8.2")
             self.requires("libwebp/[^1.3.2]")

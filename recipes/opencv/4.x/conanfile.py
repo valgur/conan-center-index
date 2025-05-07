@@ -1099,7 +1099,7 @@ class OpenCVConan(ConanFile):
             self.requires("xkbcommon/1.6.0")
         # imgcodecs module dependencies
         if self.options.get_safe("with_avif"):
-            self.requires("libavif/1.0.4")
+            self.requires("libavif/[^1.0.4]")
         if self.options.get_safe("with_jpeg") == "libjpeg":
             self.requires("libjpeg/9e")
         elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":

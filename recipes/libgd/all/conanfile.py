@@ -81,7 +81,7 @@ class LibgdConan(ConanFile):
         if self.options.get_safe("with_heif"):
             self.requires("libheif/[^1.16.2]")
         if self.options.get_safe("with_avif"):
-            self.requires("libavif/1.0.4")
+            self.requires("libavif/[^1.0.4]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
