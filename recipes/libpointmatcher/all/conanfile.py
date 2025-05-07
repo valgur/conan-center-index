@@ -69,7 +69,7 @@ class LibpointmatcherConan(ConanFile):
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("libnabo/1.0.7")
-        self.requires("yaml-cpp/0.7.0", transitive_headers=True)
+        self.requires("yaml-cpp/[>=0.7.0 <1]", transitive_headers=True)
         if self.options.with_openmp:
             # https://github.com/norlab-ulaval/libpointmatcher/blob/1.4.3/pointmatcher/DataPointsFilters/utils/sparsetv.hpp#L73
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)

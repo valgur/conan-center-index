@@ -45,7 +45,7 @@ class GiciConan(ConanFile):
         # svo/common/types.h
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True)
         # gici/utility/option.h
-        self.requires("yaml-cpp/0.8.0", transitive_headers=True, transitive_libs=True)
+        self.requires("yaml-cpp/[>=0.8.0 <1]", transitive_headers=True, transitive_libs=True)
         # gici/utility/option.h
         self.requires("glog/0.6.0", transitive_headers=True, transitive_libs=True)
         # gici/imu/imu_error.h

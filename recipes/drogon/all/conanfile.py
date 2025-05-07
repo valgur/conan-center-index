@@ -99,7 +99,7 @@ class DrogonConan(ConanFile):
         if self.options.get_safe("with_redis"):
             self.requires("hiredis/1.2.0")
         if self.options.get_safe("with_yaml_cpp"):
-            self.requires("yaml-cpp/0.8.0")
+            self.requires("yaml-cpp/[>=0.8.0 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

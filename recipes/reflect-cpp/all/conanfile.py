@@ -102,7 +102,7 @@ class ReflectCppConan(ConanFile):
         if self.options.with_xml:
             self.requires("pugixml/[^1.14]", transitive_headers=True)
         if self.options.with_yaml:
-            self.requires("yaml-cpp/0.8.0", transitive_headers=True)
+            self.requires("yaml-cpp/[>=0.8.0 <1]", transitive_headers=True)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.23 <5]")

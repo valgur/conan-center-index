@@ -48,7 +48,7 @@ class PackageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("yaml-cpp/0.8.0")
+        self.requires("yaml-cpp/[>=0.8.0 <1]")
         self.requires("ms-gsl/[^4.0.0]", transitive_headers=True)
 
     def validate(self):
