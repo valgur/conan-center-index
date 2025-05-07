@@ -67,7 +67,7 @@ class USearchConan(ConanFile):
         if self.options.with_fp16:
             self.requires("fp16/[>=cci.20210320]", transitive_headers=True)
         if self.options.with_jemalloc:
-            self.requires("jemalloc/5.3.0")
+            self.requires("jemalloc/[^5.3.0]")
         # if self.options.with_openmp:
         #     self.requires("llvm-openmp/17.0.6")
 

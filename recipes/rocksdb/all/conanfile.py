@@ -95,7 +95,7 @@ class RocksDBConan(ConanFile):
         if self.options.get_safe("with_tbb"):
             self.requires("onetbb/[^2021]")
         if self.options.with_jemalloc:
-            self.requires("jemalloc/5.3.0")
+            self.requires("jemalloc/[^5.3.0]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
