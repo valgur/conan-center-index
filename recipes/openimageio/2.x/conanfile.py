@@ -99,7 +99,7 @@ class OpenImageIOConan(ConanFile):
         if self.options.with_hdf5:
             self.requires("hdf5/[^1.8]")
         if self.options.with_opencolorio:
-            self.requires("opencolorio/2.4.1")
+            self.requires("opencolorio/[^2.4.1]")
         if self.options.with_opencv:
             # INFO: https://github.com/AcademySoftwareFoundation/OpenImageIO/blob/v2.5.4.0/src/libOpenImageIO/CMakeLists.txt#L131
             self.requires("opencv/[^4.5]", transitive_headers=True)

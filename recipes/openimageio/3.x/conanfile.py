@@ -82,7 +82,7 @@ class OpenImageIOConan(ConanFile):
         self.requires("pugixml/[^1.15]")
         self.requires("tsl-robin-map/1.3.0")
         self.requires("fmt/[>=7]", transitive_headers=True)
-        self.requires("opencolorio/2.4.2")
+        self.requires("opencolorio/[^2.4.2]")
 
         # Optional libraries
         if self.options.with_libjxl:

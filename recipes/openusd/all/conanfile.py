@@ -111,7 +111,7 @@ class OpenUSDConan(ConanFile):
             if self.options.with_openimageio:
                 self.requires("openimageio/2.5.18.0")
             elif self.options.with_opencolorio:
-                self.requires("opencolorio/2.4.2")
+                self.requires("opencolorio/[^2.4.2]")
             if self.options.with_vulkan:
                 self.requires("vulkan-loader/1.4.309.0")
                 self.requires("vulkan-memory-allocator/3.2.1")
