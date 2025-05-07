@@ -159,7 +159,7 @@ class wxWidgetsConan(ConanFile):
         if self.options.cairo and not self._toolkit.startswith("gtk"):
             self.requires("cairo/[^1.18.0]")
         if self.options.get_safe("private_fonts"):
-            self.requires("fontconfig/2.15.0")
+            self.requires("fontconfig/[^2.15.0]")
 
         if self.settings.os != "Windows":
             if self.options.get_safe("glcanvas_egl"):

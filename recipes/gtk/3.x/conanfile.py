@@ -114,7 +114,7 @@ class GtkConan(ConanFile):
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.37/gdk/x11/gdkx11display.h#L34-35
             # Only the xorg::x11 component actually requires transitive headers/libs.
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
-            self.requires("fontconfig/2.15.0")
+            self.requires("fontconfig/[^2.15.0]")
 
         # TODO: fix libintl support on macOS by using gnuintl from gettext
         # if self.settings.os != "Linux":

@@ -43,7 +43,7 @@ class LibrsvgConan(ConanFile):
 
     def requirements(self):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
-        self.requires("fontconfig/2.15.0")
+        self.requires("fontconfig/[^2.15.0]")
         self.requires("cairo/[^1.18.0]", transitive_headers=True, transitive_libs=True)
         self.requires("pango/[^1.54.0]")
         self.requires("libxml2/[^2.12.5]")

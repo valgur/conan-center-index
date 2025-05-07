@@ -43,7 +43,7 @@ class libxftConan(ConanFile):
             self.requires("xorg-proto/2024.1", transitive_headers=True)
             self.requires("libxrender/0.9.11", transitive_headers=True)
         self.requires("freetype/2.13.2", transitive_headers=True)
-        self.requires("fontconfig/2.15.0", transitive_headers=True)
+        self.requires("fontconfig/[^2.15.0]", transitive_headers=True)
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):

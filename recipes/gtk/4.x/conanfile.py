@@ -135,7 +135,7 @@ class GtkConan(ConanFile):
             # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.10.0/gdk/x11/gdkx11display.h#L35-36
             # Only the xorg::x11 component actually requires transitive headers/libs.
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
-            self.requires("fontconfig/2.15.0")
+            self.requires("fontconfig/[^2.15.0]")
         if self.options.with_vulkan:
             self.requires("vulkan-loader/1.4.309.0")
         if self.options.get_safe("with_ffmpeg"):

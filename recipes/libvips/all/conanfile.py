@@ -146,7 +146,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_fftw:
             self.requires("fftw/3.3.10")
         if self.options.with_fontconfig:
-            self.requires("fontconfig/2.15.0")
+            self.requires("fontconfig/[^2.15.0]")
         if self.options.with_heif:
             self.requires("libheif/1.16.2")
         if self.options.get_safe("with_highway"):
