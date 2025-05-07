@@ -48,7 +48,7 @@ class CunitConan(ConanFile):
 
     def requirements(self):
         if self.options.with_curses == "ncurses":
-            self.requires("ncurses/6.4")
+            self.requires("ncurses/[^6.4]")
 
     def validate(self):
         if self.options.shared and not self.options.with_curses:

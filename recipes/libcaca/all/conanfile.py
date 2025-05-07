@@ -67,7 +67,7 @@ class LibcacaConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.get_safe("with_ncurses"):
-            self.requires("ncurses/6.5")
+            self.requires("ncurses/[^6.4]")
         if self.options.get_safe("with_x11"):
             self.requires("xorg/system")
         if self.options.get_safe("with_opengl"):

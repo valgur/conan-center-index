@@ -41,7 +41,7 @@ class EditlineConan(ConanFile):
         if self.options.terminal_db == "termcap":
             self.requires("termcap/1.3.1")
         elif self.options.terminal_db == "ncurses":
-            self.requires("ncurses/6.4")
+            self.requires("ncurses/[^6.4]")
 
     def validate(self):
         if self.settings.os == "Windows":

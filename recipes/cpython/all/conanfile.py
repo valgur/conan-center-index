@@ -131,7 +131,7 @@ class CPythonConan(ConanFile):
         if self.options.get_safe("with_curses", False):
             # Used in a public header
             # https://github.com/python/cpython/blob/v3.10.13/Include/py_curses.h#L34
-            self.requires("ncurses/6.4", transitive_headers=True, transitive_libs=True)
+            self.requires("ncurses/[^6.4]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_lzma", False):
             self.requires("xz_utils/5.4.5")
 
