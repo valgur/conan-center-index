@@ -294,7 +294,7 @@ class GStPluginsBadConan(ConanFile):
         if "openssl" in reqs:
             self.requires("openssl/[>=1.1 <4]")
         if "libsvtav1" in reqs:
-            self.requires("libsvtav1/2.2.1")
+            self.requires("libsvtav1/[^2.2.1]")
         if "tinyalsa" in reqs:
             self.requires("tinyalsa/2.0.0")
         if "vo-amrwbenc" in reqs:
