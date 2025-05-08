@@ -2,6 +2,3 @@ sources:
   "0.9":
     url: "https://github.com/litehtml/litehtml/archive/refs/tags/v0.9.tar.gz"
     sha256: "ef957307da15b1258a70961942840bcf54225a8d75315dcbc156186eba35b1a7"
-  "0.8":
-    url: "https://github.com/litehtml/litehtml/archive/refs/tags/v0.8.tar.gz"
-    sha256: "b19edc049c0174f53941469a3c13f1f3210e8877c9c022ace93ac9cd6566b9f0"

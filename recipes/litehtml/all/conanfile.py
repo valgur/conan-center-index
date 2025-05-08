@@ -37,8 +37,14 @@ class LitehtmlConan(ConanFile):
         # FIXME: create conan recipe for xxd, and use it unconditionally (returning False means cross build doesn't work)
         return self.settings.os != "Windows"
 
+    def export_sources(self):
+        copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+
     def layout(self):
         cmake_layout(self, src_folder="src")
+
+    def requirements(self):
+        self.requires("gumbo-parser/[>=0.13 <1]")
 
     def validate(self):
         check_min_cppstd(self, 11)
@@ -54,12 +60,10 @@ class LitehtmlConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if Version(self.version) >= "0.9":
-            tc.variables["LITEHTML_BUILD_TESTING"] = False
-        else:
-            tc.variables["BUILD_TESTING"] = False
+        tc.variables["CMAKE_PROJECT_litehtml_INCLUDE"] = "conan_deps.cmake"
+        tc.variables["LITEHTML_BUILD_TESTING"] = False
         tc.variables["LITEHTML_UTF8"] = self.options.utf8
-        tc.variables["EXTERNAL_GUMBO"] = False # FIXME: add cci recipe, and use it unconditionally (option value should be True)
+        tc.variables["EXTERNAL_GUMBO"] = True
         tc.variables["EXTERNAL_XXD"] = self._with_xxd  # FIXME: should be True unconditionally
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
         if Version(self.version) > "0.9":
@@ -82,12 +86,5 @@ class LitehtmlConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "litehtml")
         self.cpp_info.set_property("cmake_target_name", "litehtml")
-
-        self.cpp_info.components["litehtml_litehtml"].set_property("cmake_target_name", "litehtml")
-        self.cpp_info.components["litehtml_litehtml"].libs = ["litehtml"]
-        self.cpp_info.components["litehtml_litehtml"].includedirs.append(os.path.join("include", "litehtml"))
-        self.cpp_info.components["litehtml_litehtml"].requires = ["gumbo"]
-
-        if True: # FIXME: remove once we use a vendored gumbo library
-            self.cpp_info.components["gumbo"].set_property("cmake_target_name", "gumbo")
-            self.cpp_info.components["gumbo"].libs = ["gumbo"]
+        self.cpp_info.libs = ["litehtml"]
+        self.cpp_info.includedirs.append(os.path.join("include", "litehtml"))
