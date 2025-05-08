@@ -1,4 +1,4 @@
 sources:
-  "0.10.1":
-    url: "https://github.com/google/gumbo-parser/archive/v0.10.1.tar.gz"
-    sha256: "28463053d44a5dfbc4b77bcf49c8cee119338ffa636cc17fc3378421d714efad"
+  "0.13.0":
+    url: "https://codeberg.org/gumbo-parser/gumbo-parser/archive/81338be836665da612fddd173a40d18da4254ee5.tar.gz"
+    sha256: "ea46815cb6e5c587cc48321dd6a3c3b9071ca605efb19fc1c1735b2cecc0aac6"

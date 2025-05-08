@@ -1,13 +1,10 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, unix_path
+from conan.tools.meson import MesonToolchain, Meson
 
 required_conan_version = ">=2.4"
 
@@ -15,11 +12,11 @@ required_conan_version = ">=2.4"
 class GumboParserConan(ConanFile):
     name = "gumbo-parser"
     description = "An HTML5 parsing library in pure C99"
-    topics = ("parser", "html")
+    topics = ("parser", "html", "html5")
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/google/gumbo-parser"
+    homepage = "https://codeberg.org/gumbo-parser/gumbo-parser"
     license = "Apache-2.0"
-
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -35,40 +32,26 @@ class GumboParserConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def validate(self):
-        if is_msvc(self):
-            raise ConanInvalidConfiguration("gumbo-parser recipe does not support Visual Studio yet")
-
     def build_requirements(self):
-        self.tool_requires("libtool/[^2.4.7]")
-        if self.settings_build.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
+        self.tool_requires("meson/[^1.2.3]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-        tc = AutotoolsToolchain(self)
+        tc = MesonToolchain(self)
         tc.generate()
 
     def build(self):
-        autotools = Autotools(self)
-        autotools.autoreconf()
-        autotools.configure()
-        autotools.make()
+        meson = Meson(self)
+        meson.configure()
+        meson.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
-        # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
-        autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])
+        copy(self, "COPYING", os.path.join(self.source_folder, "doc"), os.path.join(self.package_folder, "licenses"))
+        meson = Meson(self)
+        meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
