@@ -13,15 +13,17 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-07:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-08:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
+- antlr4/4.13.2
 - apr-util/1.6.3
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
 - arrow/20.0.0
+- asio/1.34.2
 - autoconf-archive/2024.10.16
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
@@ -88,7 +90,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - freertos-kernel/11.1.0
 - g2o/20230806
 - gbm/system
-- gdal/3.10.0
+- gdal/3.10.3
 - gdalcpp/1.3.0
 - gdk-pixbuf/2.42.12
 - gettext/0.24
@@ -118,6 +120,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - google-cloud-cpp/1.42.2
 - googleapis/cci.20250506
 - gpu.cpp/0.1.0
+- grass/8.5.0-cci.20240507
 - grpc/1.50.2
 - grpc/1.65.5
 - grpc/1.72.0
@@ -168,6 +171,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - klib/cci.20250205
 - kokkos/4.3.1
 - lapack/3.12.0
+- laszip/2.0.2
 - libbasisu/1.16.4
 - libbpf/1.4.6
 - libbsd/0.12.2
@@ -188,6 +192,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libhdfs3/cci.20191105
 - libice/1.1.1
 - libjwt/3.2.1
+- liblas/1.8.1.cci.20240916
 - libmediainfo/23.11
 - libmng/2.0.3
 - libmount/2.41
@@ -250,6 +255,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20240530
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
+- mbedtls/2.28.10
 - meson/1.6.1
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.0
@@ -304,7 +310,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - polyscope/2.3.0
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
-- premake/5.0.0-beta6
+- premake/5.0.0-beta2
 - proj/9.6.0
 - protobuf-c/1.5.2
 - protobuf/3.29.4
@@ -382,6 +388,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tz/2024b
 - usearch/2.9.1
 - userspace-rcu/0.15.2
+- utfcpp/4.0.6
 - util-linux-libuuid/2.39.3
 - util-linux-libuuid/2.41
 - vc/1.4.5
