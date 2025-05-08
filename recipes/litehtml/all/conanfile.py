@@ -85,6 +85,7 @@ class LitehtmlConan(ConanFile):
 
         self.cpp_info.components["litehtml_litehtml"].set_property("cmake_target_name", "litehtml")
         self.cpp_info.components["litehtml_litehtml"].libs = ["litehtml"]
+        self.cpp_info.components["litehtml_litehtml"].includedirs.append(os.path.join("include", "litehtml"))
         self.cpp_info.components["litehtml_litehtml"].requires = ["gumbo"]
 
         if True: # FIXME: remove once we use a vendored gumbo library
