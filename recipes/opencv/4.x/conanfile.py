@@ -1160,7 +1160,7 @@ class OpenCVConan(ConanFile):
             self.requires("hdf5/[^1.8]")
         # ovis module dependencies
         if self.options.ovis:
-            self.requires("ogre/1.10.2")
+            self.requires("ogre/[>=14.3]")
         # sfm module dependencies
         if self.options.sfm:
             self.requires("gflags/2.2.2")
