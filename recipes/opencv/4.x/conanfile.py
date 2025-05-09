@@ -151,6 +151,11 @@ class OpenCVConan(ConanFile):
         "with_v4l": [True, False],
         # text module options
         "with_tesseract": [True, False],
+
+        # Force all main module options to True
+        "build_all_base": [True, False],
+        # Force all contrib module options to True
+        "build_all_contrib": [True, False],
     }
     options.update({_name: [True, False] for _name in OPENCV_MAIN_MODULES_OPTIONS})
     options.update({_name: [True, False] for _name in OPENCV_EXTRA_MODULES_OPTIONS})
@@ -222,6 +227,9 @@ class OpenCVConan(ConanFile):
         "stitching": True,
         "video": True,
         "videoio": False,
+
+        "build_all_base": False,
+        "build_all_contrib": False,
     }
     default_options.update({_name: False for _name in OPENCV_EXTRA_MODULES_OPTIONS})
 
@@ -1058,6 +1066,21 @@ class OpenCVConan(ConanFile):
                 self.options["jasper"].with_libjpeg = self.options.with_jpeg
             if self.options.get_safe("with_tiff"):
                 self.options["libtiff"].jpeg = self.options.with_jpeg
+
+        if self.options.build_all_base:
+            self.options.update(
+                options={module: [True, False] for module in OPENCV_MAIN_MODULES_OPTIONS},
+                options_values={module: True for module in OPENCV_MAIN_MODULES_OPTIONS},
+            )
+        if self.options.build_all_contrib:
+            self.options.update(
+                options={module: [True, False] for module in OPENCV_EXTRA_MODULES_OPTIONS},
+                options_values={module: True for module in OPENCV_EXTRA_MODULES_OPTIONS},
+            )
+
+    def package_id(self):
+        del self.info.options.build_all_base
+        del self.info.options.build_all_contrib
 
     def layout(self):
         cmake_layout(self, src_folder="src")
