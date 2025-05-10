@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-09:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-10:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -23,7 +23,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - armadillo/12.6.7
 - armadillo/12.8.1
 - arrow/20.0.0
-- asio/1.34.2
 - autoconf-archive/2024.10.16
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
@@ -149,6 +148,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam/4.3-pre.20250201
 - gtsam_gnss/0.0.0.cci.20250213
 - gtsam_points/1.0.6
+- gumbo-parser/0.13.0
 - harfbuzz/11.2.0
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
