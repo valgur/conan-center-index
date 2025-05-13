@@ -55,15 +55,14 @@ class OpusConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        if Version(self.version) >= "1.5.2":
-            env = VirtualBuildEnv(self)
-            env.generate()
         tc = CMakeToolchain(self)
         tc.cache_variables["OPUS_BUILD_SHARED_LIBRARY"] = self.options.shared
         tc.cache_variables["OPUS_FIXED_POINT"] = self.options.fixed_point
         tc.cache_variables["OPUS_STACK_PROTECTOR"] = self.options.stack_protector
         if Version(self.version) >= "1.5.2" and is_msvc(self):
             tc.cache_variables["OPUS_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
+        if Version(self.version) < "1.5":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
         tc.generate()
 
     def build(self):

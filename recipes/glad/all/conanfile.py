@@ -6,6 +6,8 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 
 
+required_conan_version = ">=2.1"
+
 class GladConan(ConanFile):
     name = "glad"
     description = "Multi-Language GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs."
@@ -14,6 +16,7 @@ class GladConan(ConanFile):
     homepage = "https://github.com/Dav1dde/glad"
     license = "MIT"
     settings = "os", "arch", "compiler", "build_type"
+    package_type = "library"
 
     options = {
         "shared": [True, False],

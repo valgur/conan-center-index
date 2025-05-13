@@ -318,6 +318,8 @@ class wxWidgetsConan(ConanFile):
         ]:
             tc.variables[f"CMAKE_REQUIRE_FIND_PACKAGE_{pkg}"] = True
 
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
+
         tc.generate()
 
         deps = CMakeDeps(self)

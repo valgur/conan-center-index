@@ -5,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -71,6 +72,8 @@ class Md4cConan(ConanFile):
             tc.preprocessor_definitions["MD4C_USE_UTF16"] = "1"
         elif self.options.encoding == "ascii":
             tc.preprocessor_definitions["MD4C_USE_ASCII"] = "1"
+        if Version(self.version) < "0.5.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
         tc.generate()
 
     def build(self):
