@@ -1080,6 +1080,7 @@ class QtConan(ConanFile):
             assert name not in self.cpp_info.components, f"Module {module} already present in self.cpp_info.components"
             component = self.cpp_info.components[name]
             component.set_property("cmake_target_name", f"Qt6::{module}")
+            component.set_property("cmake_target_aliases", [f"Qt::{module}"])
             component.set_property("pkg_config_name", f"Qt6{module}")
             libname = module[:-7] if module.endswith("Private") else module
             component.libs = [f"Qt6{libname}{libsuffix}"]
