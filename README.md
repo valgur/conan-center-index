@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-14:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-15:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -281,6 +281,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openblas/0.3.28
 - openiap/0.0.33
 - openimageio/3.0.5.0
+- openjph/0.17.0
 - openmp/system
 - openmpi/5.0.5
 - openmvg/2.1
