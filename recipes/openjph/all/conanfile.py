@@ -82,6 +82,12 @@ class OpenJPH(ConanFile):
         cm = CMake(self)
         cm.install()
 
+        if Version(self.version) >= "0.21.2":
+            # Introduced with version 0.21.*, there is now cmake exports added upstream.
+            rm(self, "*.cmake", os.path.join(self.package_folder, "lib", "cmake"), recursive=True)
+            rmdir(self, os.path.join(self.package_folder, "lib", "cmake", "openjph"))
+            rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+
         # Cleanup package own pkgconfig
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 

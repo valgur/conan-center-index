@@ -39,6 +39,7 @@ class AutoconfConan(ConanFile):
         # distinguish between Windows and other OS-s to ensure that +x attributes are kept
         if self.info.settings.os != "Windows":
             del self.info.settings.os
+        self.info.requires.clear()
 
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")

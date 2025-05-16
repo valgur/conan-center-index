@@ -47,6 +47,8 @@ class libdmtxConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_TESTING"] = False
+        tc.variables["DMTX_SHARED"] = bool(self.options.shared)
+        tc.variables["DMTX_STATIC"] = not bool(self.options.shared)
         tc.generate()
 
     def build(self):
