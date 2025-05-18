@@ -3,7 +3,6 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -176,10 +175,16 @@ class LibpqConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Strictly require any explicitly enabled dependencies is meson.build
+        for dep in ["krb5-gssapi", "icu-uc", "libxml-2.0", "libxslt", "liblz4", "pam", "openssl", "libzstd"]:
+            replace_in_file(self, "meson.build",
+                            f"dependency('{dep}', required: false",
+                            f"dependency('{dep}', required: true")
+        replace_in_file(self, "meson.build",
+                        "dependency('ldap', method: 'pkg-config', required: false)",
+                        "dependency('ldap', method: 'pkg-config', required: true)")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         feature = lambda option: "enabled" if option else "disabled"
         true_false = lambda option: "true" if option else "false"
 
@@ -215,7 +220,6 @@ class LibpqConan(ConanFile):
         deps.generate()
 
     def build(self):
-        apply_conandata_patches(self)
         meson = Meson(self)
         meson.configure()
         meson.build()
