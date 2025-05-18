@@ -395,25 +395,6 @@ class ArrowConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
-        cmake_suffix = "shared" if self.options.shared else "static"
-
-        alias_map = { f"Arrow::arrow_{cmake_suffix}": f"arrow::arrow_{cmake_suffix}" }
-
-        if self.options.parquet:
-            alias_map[f"Parquet::parquet_{cmake_suffix}"] = f"arrow::parquet_{cmake_suffix}"
-
-        if self.options.get_safe("substrait"):
-            alias_map[f"Arrow::arrow_substrait_{cmake_suffix}"] = f"arrow::arrow_substrait_{cmake_suffix}"
-
-        if self.options.acero:
-            alias_map[f"Arrow::arrow_acero_{cmake_suffix}"] = f"arrow::arrow_acero_{cmake_suffix}"
-
-        if self.options.gandiva:
-            alias_map[f"Gandiva::gandiva_{cmake_suffix}"] = f"arrow::gandiva_{cmake_suffix}"
-
-        if self.options.with_flight_rpc:
-            alias_map[f"ArrowFlight::arrow_flight_sql_{cmake_suffix}"] = f"arrow::arrow_flight_sql_{cmake_suffix}"
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Arrow")
 

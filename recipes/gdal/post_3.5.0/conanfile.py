@@ -3,6 +3,7 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -172,6 +173,11 @@ class GdalConan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
+        # Newer gdal requires this flag for
+        # ogr/ogrsf_frmts/parquet build correctly
+        if self.options.with_arrow and Version(self.version) >= "3.10.0":
+            self.options["arrow"].filesystem_layer = True
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -308,6 +314,11 @@ class GdalConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def validate(self):
+        if Version(self.version) >= "3.10.0":
+            check_min_cppstd(self, 17)
+        else:
+            check_min_cppstd(self, 11)
+
         for option in ["crypto", "zlib", "proj", "libtiff"]:
             if self.options.get_safe(f"with_{option}") != "deprecated":
                 self.output.warning(f"{self.ref}:with_{option} option is deprecated. The {option} dependecy is always enabled now.")
