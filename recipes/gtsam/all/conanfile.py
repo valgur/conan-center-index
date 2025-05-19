@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import check_min_vs, is_msvc, msvc_runtime_flag
@@ -61,7 +62,7 @@ class GtsamConan(ConanFile):
         "default_allocator": None,
         "disable_new_timers": False,
         "enable_consistency_checks": False,
-        "install_cppunitlite": True,
+        "install_cppunitlite": False,
         "install_matlab_toolbox": False,
         "pose3_expmap": True,
         "rot3_expmap": True,
@@ -169,6 +170,11 @@ class GtsamConan(ConanFile):
         ]
 
     def validate(self):
+        if Version(self.version, qualifier=True) >= "4.3":
+            check_min_cppstd(self, 17)
+        else:
+            check_min_cppstd(self, 11)
+
         miss_boost_required_comp = any(
             self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
             for boost_comp in self._required_boost_components
@@ -190,7 +196,7 @@ class GtsamConan(ConanFile):
 
         check_min_vs(self, "191")
 
-        if Version(self.version) >= "4.1" and is_msvc(self) and self.options.shared:
+        if "4.1" <= Version(self.version) < "4.2" and is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(
                 f"{self.ref} does not support shared builds with MSVC. See"
                 "https://github.com/borglab/gtsam/issues/1087"
@@ -349,8 +355,9 @@ class GtsamConan(ConanFile):
         copy(self, "LICENSE.BSD", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "CMake"))
+        # Keep lib/cmake/GTSAMCMakeTools
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake", "GTSAM"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake", "GTSAM_UNSTABLE"))
 
     def package_info(self):
         # GTSAM uses targets without a namespace prefix:
@@ -360,6 +367,7 @@ class GtsamConan(ConanFile):
         gtsam = self.cpp_info.components["libgtsam"]
         gtsam.set_property("cmake_target_name", "gtsam")
         gtsam.libs = ["gtsam"]
+        gtsam.builddirs = [os.path.join("lib", "cmake", "GTSAMCMakeTools")]
         gtsam.requires = [f"boost::{component}" for component in self._required_boost_components]
         gtsam.requires.append("eigen::eigen")
         if Version(self.version) >= "4.1":
@@ -370,6 +378,8 @@ class GtsamConan(ConanFile):
             gtsam.requires.append("openmp::openmp")
         if self.options.default_allocator == "tcmalloc":
             gtsam.requires.append("gperftools::gperftools")
+        if self.options.support_nested_dissection:
+            gtsam.requires.append("metis::metis")
         if self.settings.os == "Windows":
             gtsam.system_libs = ["dbghelp"]
         if Version(self.version) < "4.1":
@@ -382,14 +392,21 @@ class GtsamConan(ConanFile):
             gtsam_unstable.libs = ["gtsam_unstable"]
             gtsam_unstable.requires = ["libgtsam"]
 
-        if self.options.support_nested_dissection:
-            gtsam.requires.append("metis::metis")
-
         if self.options.install_cppunitlite:
             cppunitlite = self.cpp_info.components["gtsam_CppUnitLite"]
             cppunitlite.set_property("cmake_target_name", "CppUnitLite")
             cppunitlite.libs = ["CppUnitLite"]
             cppunitlite.requires = ["boost::boost"]
+
+        if Version(self.version, qualifier=True) >= "4.3":
+            cephes = self.cpp_info.components["cephes-gtsam"]
+            cephes.set_property("cmake_target_name", "cephes-gtsam")
+            cephes.set_property("cmake_target_alias", ["cephes-gtsam-if"])
+            cephes.libs = ["cephes-gtsam"]
+            cephes.requires = ["spectra::spectra"]
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                cephes.system_libs = ["m"]
+            gtsam.requires.append("cephes-gtsam")
 
         if is_msvc(self) and not self.options.shared:
             for component in self.cpp_info.components.values():

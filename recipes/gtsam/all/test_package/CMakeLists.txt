@@ -3,6 +3,9 @@ project(test_package LANGUAGES CXX)
 
 find_package(GTSAM REQUIRED CONFIG)
 
+find_package(GTSAMCMakeTools REQUIRED CONFIG)
+include(GtsamPrinting)
+
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE gtsam)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
