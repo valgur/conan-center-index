@@ -8,9 +8,6 @@ sources:
   "4.1.1":
     url: "https://github.com/borglab/gtsam/archive/4.1.1.tar.gz"
     sha256: "c7b5e6cdad52b141c272778f47baf628975457be3e26ed96a7bc2ae685a00af0"
-  "4.0.3":
-    url: "https://github.com/borglab/gtsam/archive/4.0.3.tar.gz"
-    sha256: "eaa561749edf7a2d402981828253e28aed6c717dae35738301c5ab23e2595f25"
 patches:
   "4.3-a0":
     - patch_file: "patches/4.3.0-cmake-boost.patch"
@@ -53,16 +50,3 @@ patches:
       patch_description: "Update Spectra to v1.0 for C++20 support"
       patch_type: "portability"
       patch_source: "https://github.com/borglab/gtsam/pull/1871"
-  "4.0.3":
-    - patch_file: "patches/4.0.3-0001-cmake-boost.patch"
-      patch_description: "Use boost targets"
-      patch_type: "conan"
-    - patch_file: "patches/4.0.3-0002-cmake-eigen.patch"
-      patch_description: "Use Eigen include variable from CMakeDeps"
-      patch_type: "conan"
-    - patch_file: "patches/4.0.3-0003-macos-rpath.patch"
-      patch_description: "Relocatable shared libs on Apple OS"
-      patch_type: "conan"
-    - patch_file: "patches/4.0.3-0004-cmake-project.patch"
-      patch_description: "CMake: move project() after cmake_minimum_required()"
-      patch_type: "conan"

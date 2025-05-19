@@ -45,12 +45,6 @@ class GtsamConan(ConanFile):
         "with_TBB": [True, False],
         "with_eigen_MKL": [True, False],
         "with_eigen_MKL_OPENMP": [True, False],
-
-        # Removed since v4.1
-        "build_wrap": [True, False],
-        "install_cython_toolbox": [True, False],
-        "typedef_points_to_vectors": [True, False],
-        "wrap_serialization": [True, False],
     }
     default_options = {
         "shared": False,
@@ -74,12 +68,6 @@ class GtsamConan(ConanFile):
         "with_TBB": True,
         "with_eigen_MKL": False,
         "with_eigen_MKL_OPENMP": False,
-
-        # < v4.1 only
-        "build_wrap": False,
-        "install_cython_toolbox": False,
-        "typedef_points_to_vectors": False,
-        "wrap_serialization": True,
     }
     options_description = {
         "allow_deprecated": "Allow use of deprecated methods/functions",
@@ -103,12 +91,6 @@ class GtsamConan(ConanFile):
         "with_TBB": "Use Intel Threaded Building Blocks (TBB)",
         "with_eigen_MKL": "Eigen will use Intel MKL if available",
         "with_eigen_MKL_OPENMP": "Eigen, when using Intel MKL, will also use OpenMP for multithreading if available",
-
-        # < v4.1 only
-        "build_wrap": "Build Matlab/Cython wrap utility (necessary for Matlab/Cython interface)",
-        "install_cython_toolbox": "Install Cython toolbox",
-        "typedef_points_to_vectors": "Typedef Point2 and Point3 to Eigen::Vector equivalents",
-        "wrap_serialization": "Allow wrapped objects to be saved via boost.serialization",
     }
 
     def export_sources(self):
@@ -118,13 +100,6 @@ class GtsamConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if Version(self.version) >= "4.1":
-            del self.options.build_wrap
-            del self.options.install_cython_toolbox
-            del self.options.typedef_points_to_vectors
-            del self.options.wrap_serialization
-        else:
-            del self.options.slow_but_correct_betweenfactor
 
     def configure(self):
         if self.options.shared:
@@ -138,13 +113,9 @@ class GtsamConan(ConanFile):
     def requirements(self):
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
-        if Version(self.version) >= "4.1":
-            self.requires("spectra/[^1.1.0]")
+        self.requires("spectra/[^1.1.0]")
         if self.options.with_TBB:
-            if Version(self.version) >= "4.1":
-                self.requires("onetbb/[^2021]", transitive_headers=True, transitive_libs=True)
-            else:
-                self.requires("onetbb/[^2020.3]", transitive_headers=True, transitive_libs=True)
+            self.requires("onetbb/[^2021]", transitive_headers=True, transitive_libs=True)
         if self.options.default_allocator == "tcmalloc":
             self.requires("gperftools/[^2.16]")
         if self.options.support_nested_dissection:
@@ -213,8 +184,7 @@ class GtsamConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if Version(self.version) >= "4.1":
-            tc.variables["CMAKE_PROJECT_GTSAM_INCLUDE"] = "conan_deps.cmake"
+        tc.variables["CMAKE_PROJECT_GTSAM_INCLUDE"] = "conan_deps.cmake"
         # https://github.com/borglab/gtsam/blob/4.2.0/cmake/HandleGeneralOptions.cmake
         tc.variables["GTSAM_BUILD_UNSTABLE"] = self.options.build_unstable
         tc.variables["GTSAM_UNSTABLE_BUILD_PYTHON"] = False
@@ -234,9 +204,7 @@ class GtsamConan(ConanFile):
         tc.variables["GTSAM_ALLOW_DEPRECATED_SINCE_V42"] = self.options.allow_deprecated
         tc.variables["GTSAM_SUPPORT_NESTED_DISSECTION"] = self.options.support_nested_dissection
         tc.variables["GTSAM_TANGENT_PREINTEGRATION"] = self.options.tangent_preintegration
-        # Added in 4.1+
-        if Version(self.version) >= "4.1":
-            tc.variables["GTSAM_SLOW_BUT_CORRECT_BETWEENFACTOR"] = self.options.slow_but_correct_betweenfactor
+        tc.variables["GTSAM_SLOW_BUT_CORRECT_BETWEENFACTOR"] = self.options.slow_but_correct_betweenfactor
         tc.variables["GTSAM_BUILD_WITH_CCACHE"] = False
         # https://github.com/borglab/gtsam/blob/4.2.0/cmake/HandleAllocators.cmake
         if self.options.default_allocator is not None:
@@ -266,21 +234,8 @@ class GtsamConan(ConanFile):
         tc.variables["GTSAM_BUILD_DOC_HTML"] = False
         tc.variables["GTSAM_BUILD_DOC_LATEX"] = False
 
-        # Removed in 4.1+
-        if Version(self.version) < "4.1":
-            # https://github.com/borglab/gtsam/blob/4.0.3/CMakeLists.txt
-            tc.variables["GTSAM_BUILD_WRAP"] = self.options.build_wrap
-            tc.variables["GTSAM_INSTALL_CYTHON_TOOLBOX"] = self.options.install_cython_toolbox
-            tc.variables["GTSAM_TYPEDEF_POINTS_TO_VECTORS"] = self.options.typedef_points_to_vectors
-            # https://github.com/borglab/gtsam/blob/4.0.3/wrap/CMakeLists.txt#L15
-            tc.variables["GTSAM_WRAP_SERIALIZATION"] = self.options.wrap_serialization
-
         tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
         tc.variables["Boost_NO_SYSTEM_PATHS"] = True
-
-        if Version(self.version) < "4.1":
-            # Fix "The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated"
-            tc.preprocessor_definitions["BOOST_BIND_GLOBAL_PLACEHOLDERS"] = ""
 
         tc.generate()
 
@@ -308,8 +263,6 @@ class GtsamConan(ConanFile):
         # Fix tcmalloc / gperftools handling
         if self.options.default_allocator == "tcmalloc":
             handle_allocators_path = os.path.join(self.source_folder, "cmake", "HandleAllocators.cmake")
-            if Version(self.version) < "4.1":
-                handle_allocators_path = os.path.join(self.source_folder, "CMakeLists.txt")
             replace_in_file(self, handle_allocators_path,
                             "if(GOOGLE",
                             ("find_package(gperftools REQUIRED)\n"
@@ -325,8 +278,6 @@ class GtsamConan(ConanFile):
 
         # Fix TBB handling
         handle_tbb_path = os.path.join(self.source_folder, "cmake", "HandleTBB.cmake")
-        if Version(self.version) < "4.1":
-            handle_tbb_path = os.path.join(self.source_folder, "CMakeLists.txt")
         replace_in_file(self, handle_tbb_path, "find_package(TBB 4.4 ", "find_package(TBB ")
         if Version(self.version) < "4.2.1":
             replace_in_file(self, handle_tbb_path,
@@ -334,11 +285,10 @@ class GtsamConan(ConanFile):
                             "list(APPEND GTSAM_ADDITIONAL_LIBRARIES TBB::tbb TBB::tbbmalloc)")
 
         # Unvendor Spectra
-        if Version(self.version) >= "4.1":
-            rmdir(self, os.path.join(self.source_folder, "gtsam", "3rdparty", "Spectra"))
-            replace_in_file(self, os.path.join(self.source_folder, "gtsam", "sfm", "ShonanAveraging.cpp"),
-                            "#include <SymEigsSolver.h>",
-                            "#include <Spectra/SymEigsSolver.h>")
+        rmdir(self, os.path.join(self.source_folder, "gtsam", "3rdparty", "Spectra"))
+        replace_in_file(self, os.path.join(self.source_folder, "gtsam", "sfm", "ShonanAveraging.cpp"),
+                        "#include <SymEigsSolver.h>",
+                        "#include <Spectra/SymEigsSolver.h>")
 
         if Version(self.version, qualifier=True) >= "4.3":
             replace_in_file(self, os.path.join(self.source_folder, "cmake", "GtsamBuildTypes.cmake"),
@@ -370,8 +320,7 @@ class GtsamConan(ConanFile):
         gtsam.builddirs = [os.path.join("lib", "cmake", "GTSAMCMakeTools")]
         gtsam.requires = [f"boost::{component}" for component in self._required_boost_components]
         gtsam.requires.append("eigen::eigen")
-        if Version(self.version) >= "4.1":
-            gtsam.requires.append("spectra::spectra")
+        gtsam.requires.append("spectra::spectra")
         if self.options.with_TBB:
             gtsam.requires.append("onetbb::onetbb")
         if self.options.with_eigen_MKL_OPENMP:
@@ -382,9 +331,6 @@ class GtsamConan(ConanFile):
             gtsam.requires.append("metis::metis")
         if self.settings.os == "Windows":
             gtsam.system_libs = ["dbghelp"]
-        if Version(self.version) < "4.1":
-            # Fix "The practice of declaring the Bind placeholders (_1, _2, ...) in the global namespace is deprecated"
-            gtsam.defines.append("BOOST_BIND_GLOBAL_PLACEHOLDERS")
 
         if self.options.build_unstable:
             gtsam_unstable = self.cpp_info.components["libgtsam_unstable"]
