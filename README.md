@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-18:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-19:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -198,6 +198,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libmysqlclient/8.2.0
 - libosmium/2.20.0
 - libpq/17.0
+- libpq/17.5
 - libprotobuf-mutator/1.5
 - libproxy/0.5.9
 - libraw1394/2.1.2
