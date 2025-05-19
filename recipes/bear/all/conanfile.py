@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, check_max_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -32,7 +32,7 @@ class BearConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("grpc/<host_version>")
-        # Older version of CMake fails to build object libraries in the correct order
+        # Older versions of CMake fail to build object libraries in the correct order
         self.tool_requires("cmake/[>=3.20 <5]")
 
     def package_id(self):
@@ -41,26 +41,21 @@ class BearConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        # fmt/ranges.h fails to compile with C++20
-        check_max_cppstd(self, 17)
         if self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built on windows.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["ENABLE_UNIT_TESTS"] = False
         tc.variables["ENABLE_FUNC_TESTS"] = False
         tc.generate()
-
-        tc = CMakeDeps(self)
-        tc.generate()
-
-        pc = PkgConfigDeps(self)
-        pc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)
@@ -68,20 +63,32 @@ class BearConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
-        # some files extensions and folders are not allowed. Please, read the FAQs to get informed.
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
-        rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
+
+        # Bear is not really relocatable at the moment due to relying on hard-coded CMake install paths.
+        # https://github.com/rizsotto/Bear/blob/3.1.5/source/config.h.in#L110-L111
+        # Relocated paths can only be provided via command line arguments as of v3.1.6.
+        bear = os.path.join(self.package_folder, "bin", "bear")
+        wrapper = os.path.join(self.package_folder, "lib", "bear", "wrapper")
+        wrapper_dir = os.path.join(self.package_folder, "lib", "bear", "wrapper.d")
+        preload_library = os.path.join(self.package_folder, "lib", "bear", "libexec.so")
+        self.conf_info.define_path("user.bear:bear", bear)
+        self.conf_info.define_path("user.bear:wrapper", wrapper)
+        self.conf_info.define_path("user.bear:wrapper-dir", wrapper_dir)
+        self.conf_info.define_path("user.bear:preload-library", preload_library)
+        self.conf_info.define("user.bear:command", " ".join([
+            "bear",
+            "--bear-path", f"'{bear}'",
+            "--library", f"'{preload_library}'",
+            "--wrapper", f"'{wrapper}'",
+            "--wrapper-dir", f"'{wrapper_dir}'",
+        ]))
