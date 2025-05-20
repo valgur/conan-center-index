@@ -1,7 +1,5 @@
-import errno
 import os
 import shutil
-import subprocess
 from pathlib import Path
 
 from conan import ConanFile
@@ -24,15 +22,13 @@ class MSYS2Conan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     # "exclude_files", "packages" values are a comma-separated list
     options = {
-        "exclude_files": ["ANY"],
         "packages": ["ANY"],
-        "no_kill": [True, False],
+        "exclude_files": ["ANY"],
     }
     default_options = {
-        "exclude_files": "*/link.exe",
         # https://packages.msys2.org/packages/base-devel
         "packages": "base-devel",
-        "no_kill": False,
+        "exclude_files": "*/link.exe",
     }
 
     @property
@@ -53,7 +49,6 @@ class MSYS2Conan(ConanFile):
     def package_id(self):
         del self.info.settings.compiler
         del self.info.settings.build_type
-        del self.info.options.no_kill
 
     def validate(self):
         if self.settings.os != "Windows":
@@ -66,7 +61,7 @@ class MSYS2Conan(ConanFile):
 
     def _pacman(self, args, **kwargs):
         try:
-            return self._run_bash(f"pacman --noconfirm {args}", **kwargs)
+            result = self._run_bash(f"pacman --noconfirm {args}", **kwargs)
         except ConanException:
             self.output.warning(f"'pacman --noconfirm {args}' failed")
             packman_log = load(self, os.path.join(self._msys_root, "var", "log", "pacman.log"))
@@ -74,8 +69,8 @@ class MSYS2Conan(ConanFile):
             raise
         finally:
             # https://github.com/msys2/MSYS2-packages/issues/1966
-            if not self.options.no_kill:
-                _kill_pacman()
+            self.run('taskkill /F /FI "MODULES eq msys-2.0.dll"', ignore_errors=True, env=None)
+        return result
 
     def _upgrade_packages(self):
         self._pacman("--sync --refresh --sysupgrade --sysupgrade")
@@ -94,10 +89,12 @@ class MSYS2Conan(ConanFile):
     def package(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._msys_root)
 
-        # Follows https://www.msys2.org/docs/ci/
+        # Don't generate a home dir with empty .bashrc etc.
+        rm(self, "05-home-dir.post", os.path.join(self._msys_root, "etc", "post-install"))
 
         self._run_bash("echo") # Run automatic initial MSYS2 setup
 
+        # Follows https://www.msys2.org/docs/ci/
         self._upgrade_packages() # Core update (in case any core packages are outdated)
         self._upgrade_packages() # Normal update
 
@@ -105,10 +102,9 @@ class MSYS2Conan(ConanFile):
 
         self._force_remove_package("pkgconf")
 
-        # Clear pacman cache
+        # Clear pacman DB entirely
         rmdir(self, os.path.join(self._msys_root, "var"))
-        # Don't package /home/%USER%
-        rmdir(self, os.path.join(self._msys_root, "home"))
+
         # Remove any other unwanted files
         for exclude in self._exclude_files:
             for path in Path(self._msys_root).rglob(exclude):
@@ -122,41 +118,14 @@ class MSYS2Conan(ConanFile):
         save(self, os.path.join(self._msys_root, "tmp", "dummy"), "")
 
         # Remove an annoying 'system' flag from /etc/mtab, which raises a prompt when deleting msys2 package files
-        self.run(f"attrib -S {os.path.join(self._msys_root, 'etc', 'mtab')}")
+        self.run(f"attrib -S {os.path.join(self._msys_root, 'etc', 'mtab')}", env=None)
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
-
-        msys_bin = os.path.join(self._msys_root, "usr", "bin")
-        self.cpp_info.bindirs = [msys_bin]
+        self.cpp_info.bindirs = [os.path.join(self._msys_root, "usr", "bin")]
 
         self.buildenv_info.define_path("MSYS_ROOT", self._msys_root)
-        self.buildenv_info.define_path("MSYS_BIN", msys_bin)
 
         self.conf_info.define("tools.microsoft.bash:subsystem", "msys2")
-        self.conf_info.define("tools.microsoft.bash:path", os.path.join(msys_bin, "bash.exe"))
-
-
-def _kill_pacman(log_out=True):
-    taskkill_exe = os.path.join(os.environ["SystemRoot"], "system32", "taskkill.exe")
-    if not os.path.exists(taskkill_exe):
-        raise ConanException("Cannot find taskkill.exe")
-    if log_out:
-        out = subprocess.PIPE
-        err = subprocess.STDOUT
-    else:
-        out = subprocess.DEVNULL
-        err = subprocess.PIPE
-    for taskkill_cmd in [
-        f"{taskkill_exe} /f /t /im pacman.exe",
-        f"{taskkill_exe} /f /im gpg-agent.exe",
-        f"{taskkill_exe} /f /im dirmngr.exe",
-        f'{taskkill_exe} /fi "MODULES eq msys-2.0.dll"',
-    ]:
-        try:
-            proc = subprocess.Popen(taskkill_cmd, stdout=out, stderr=err, bufsize=1)
-            proc.wait(timeout=10)
-        except OSError as e:
-            if e.errno == errno.ENOENT:
-                raise ConanException("Cannot kill pacman") from e
+        self.conf_info.define("tools.microsoft.bash:path", os.path.join(self._msys_root, "usr", "bin", "bash.exe"))
