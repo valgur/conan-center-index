@@ -1,10 +1,11 @@
-from conan import ConanFile
-from conan.tools.build import check_min_cppstd
-from conan.tools.files import copy, get
-from conan.tools.layout import basic_layout
 import os
 
-required_conan_version = ">=2"
+from conan import ConanFile
+from conan.tools.build import check_min_cppstd
+from conan.tools.files import *
+from conan.tools.layout import basic_layout
+
+required_conan_version = ">=2.1"
 
 
 class GraafConan(ConanFile):
@@ -33,10 +34,8 @@ class GraafConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*",
-                  src=os.path.join(self.source_folder, "include"),
-                  dst=os.path.join(self.package_folder, "include"))
+        copy(self, "LICENSE.md", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

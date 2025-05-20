@@ -4,8 +4,10 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeDeps, cmake_layout, CMake, CMakeToolchain
-from conan.tools.files import get, replace_in_file, rmdir, copy
+from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
+
+required_conan_version = ">=2.1"
 
 
 class DbusCXX(ConanFile):
