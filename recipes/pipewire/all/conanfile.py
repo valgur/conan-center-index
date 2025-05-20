@@ -100,8 +100,8 @@ class PipeWireConan(ConanFile):
             self.requires("libselinux/3.6")
         if self.options.with_vulkan:
             self.requires("libdrm/[~2.4.119]")
-            self.requires("vulkan-headers/1.4.309.0")
-            self.requires("vulkan-loader/1.4.309.0")
+            self.requires("vulkan-headers/[~1.4.309.0]")
+            self.requires("vulkan-loader/[~1.4.309.0]")
         if self.options.with_x11 or self.options.with_xfixes:
             self.requires("xorg/system")
 

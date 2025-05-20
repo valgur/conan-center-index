@@ -86,7 +86,7 @@ class MicroprofileConan(ConanFile):
         if self.options.enable_timer == "gl":
             self.requires("opengl/system")
         if self.options.enable_timer == "vulkan":
-            self.requires("vulkan-loader/1.4.309.0")
+            self.requires("vulkan-loader/[~1.4.309.0]")
         if Version(self.version) >= "4.0":
             self.requires("stb/cci.20250314")
 

@@ -113,9 +113,9 @@ class OpenUSDConan(ConanFile):
             elif self.options.with_opencolorio:
                 self.requires("opencolorio/[^2.4.2]")
             if self.options.with_vulkan:
-                self.requires("vulkan-loader/1.4.309.0")
+                self.requires("vulkan-loader/[~1.4.309.0]")
                 self.requires("vulkan-memory-allocator/3.2.1")
-                self.requires("spirv-cross/1.4.309.0")
+                self.requires("spirv-cross/[~1.4.309.0]")
                 self.requires("shaderc/2025.2")
             if self.options.with_ptex:
                 self.requires("ptex/2.4.2")

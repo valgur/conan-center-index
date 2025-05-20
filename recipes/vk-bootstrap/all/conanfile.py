@@ -48,7 +48,7 @@ class VkBootstrapConan(ConanFile):
         if Version(self.version) >= "1.0":
             self.requires(f"vulkan-headers/{self._headers_version}", transitive_headers=True)
         else:
-            self.requires("vulkan-headers/1.4.309.0", transitive_headers=True)
+            self.requires("vulkan-headers/[~1.4.309.0]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
