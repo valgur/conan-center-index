@@ -1,6 +1,7 @@
 sources:
   "cci.latest":
     url:
-      - "https://github.com/msys2/msys2-installer/releases/download/2025-02-21/msys2-base-x86_64-20250221.tar.xz"
-      - "https://repo.msys2.org/distrib/x86_64/msys2-base-x86_64-20250221.tar.xz"
-    sha256: "850589091e731d14b234447084737ca62aee1cc1e3c10be62fcdc12b8263d70b"
+      # Use the nightly release, since all MSYS2 packages will be upgraded and potentially downloaded again anyway
+      - "https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.tar.xz"
+      - "https://mirror.msys2.org/distrib/msys2-x86_64-latest.tar.xz"
+      - "https://repo.msys2.org/distrib/msys2-x86_64-latest.tar.xz"
