@@ -1,13 +1,12 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
-import os
-
 
 required_conan_version = ">=2.1"
 
@@ -22,31 +21,13 @@ class DirectXHeadersConan(ConanFile):
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "5",
-            "gcc": "6",
-            "msvc": "191",
-        }
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def validate(self):
         if not self.settings.os in ["Linux", "Windows"]:
             raise ConanInvalidConfiguration(f"{self.name} is not supported on {self.settings.os}")
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -58,8 +39,6 @@ class DirectXHeadersConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["build-test"] = False
         tc.generate()
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
 
     def build(self):
         meson = Meson(self)
@@ -73,12 +52,14 @@ class DirectXHeadersConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
-        if self.settings.os == "Linux" or self.settings.get_safe("os.subsystem") == "wsl":
-            self.cpp_info.includedirs.append(os.path.join("include", "wsl", "stubs"))
-        self.cpp_info.libs = ["d3dx12-format-properties", "DirectX-Guids"]
         self.cpp_info.set_property("cmake_file_name", "DirectX-Headers")
         self.cpp_info.set_property("cmake_target_name", "Microsoft::DirectX-Headers")
         self.cpp_info.set_property("pkg_config_name", "DirectX-Headers")
+        if self.settings.os == "Linux" or self.settings.get_safe("os.subsystem") == "wsl":
+            self.cpp_info.includedirs.append(os.path.join("include", "wsl", "stubs"))
+        self.cpp_info.libs = ["DirectX-Guids"]
+        if Version(self.version) >= "1.608.2":
+            self.cpp_info.libs.append("d3dx12-format-properties")
         if self.settings.os == "Windows":
             self.cpp_info.system_libs.append("d3d12")
         if self.settings.compiler == "msvc":

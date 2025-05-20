@@ -3,5 +3,5 @@
 
 int main()
 {
-    return sizeof(IID_IUnknown) == 0;
+    InlineIsEqualGUID(GUID{}, GUID{});
 }
