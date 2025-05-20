@@ -40,15 +40,8 @@ class VkBootstrapConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    @property
-    def _headers_version(self):
-        return {}.get(self.version, f"{self.version}.0")
-
     def requirements(self):
-        if Version(self.version) >= "1.0":
-            self.requires(f"vulkan-headers/{self._headers_version}", transitive_headers=True)
-        else:
-            self.requires("vulkan-headers/[~1.4.309.0]", transitive_headers=True)
+        self.requires(f"vulkan-headers/[{self.version}.*]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -58,21 +51,14 @@ class VkBootstrapConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        if Version(self.version) >= "1.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "add_library(vk-bootstrap STATIC ", "add_library(vk-bootstrap ")
+        replace_in_file(self, "CMakeLists.txt",
+                        "add_library(vk-bootstrap STATIC ",
+                        "add_library(vk-bootstrap ")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["VK_BOOTSTRAP_TEST"] = False
         tc.variables["VK_BOOTSTRAP_WERROR"] = False
-        if Version(self.version) < "1.0":
-            vulkan_headers = self.dependencies["vulkan-headers"]
-            includedirs = ";".join(
-                os.path.join(vulkan_headers.package_folder, includedir).replace("\\", "/")
-                for includedir in vulkan_headers.cpp_info.includedirs
-            )
-            tc.variables["VK_BOOTSTRAP_VULKAN_HEADER_DIR"] = includedirs
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
