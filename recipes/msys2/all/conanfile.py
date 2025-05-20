@@ -35,6 +35,18 @@ class MSYS2Conan(ConanFile):
         "no_kill": False,
     }
 
+    @property
+    def _packages(self):
+        if self.options.packages:
+            return str(self.options.packages).replace(",", " ").split(" ")
+        return []
+
+    @property
+    def _exclude_files(self):
+        if self.options.exclude_files:
+            return str(self.options.exclude_files).split(",")
+        return []
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -49,18 +61,15 @@ class MSYS2Conan(ConanFile):
         if self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Only Windows x64 is supported")
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def _run_bash(self, cmd, **kwargs):
-        return self.run(f'bash -l -c "{cmd}"', cwd=os.path.join(self.source_folder, "usr", "bin"), **kwargs)
+        return self.run(f'bash -l -c "{cmd}"', cwd=os.path.join(self._msys_root, "usr", "bin"), **kwargs)
 
     def _pacman(self, args, **kwargs):
         try:
             return self._run_bash(f"pacman --noconfirm {args}", **kwargs)
         except ConanException:
             self.output.warning(f"'pacman --noconfirm {args}' failed")
-            packman_log = load(self, os.path.join(self.source_folder, "var", "log", "pacman.log"))
+            packman_log = load(self, os.path.join(self._msys_root, "var", "log", "pacman.log"))
             self.output.warning(f"pacman.log contents:\n{packman_log}")
             raise
         finally:
@@ -68,61 +77,61 @@ class MSYS2Conan(ConanFile):
             if not self.options.no_kill:
                 _kill_pacman()
 
-    def build(self):
-        # Follows https://www.msys2.org/docs/ci/
+    def _upgrade_packages(self):
+        self._pacman("--sync --refresh --sysupgrade --sysupgrade")
 
-        # Run automatic initial MSYS2 setup
-        self._run_bash("echo")
+    def _install_packages(self, packages):
+        self._pacman(f"--sync {' '.join(packages)}")
 
-        self._run_bash("echo ParallelDownloads = 6 >> /etc/pacman.conf")
-
-        # Update pacman database
-        self._pacman("--sync --refresh --sysupgrade --sysupgrade")  # Core update (in case any core packages are outdated)
-        self._pacman("--sync --refresh --sysupgrade --sysupgrade")  # Normal update
-
-        packages = str(self.options.packages).replace(",", " ")
-        self._pacman(f"--sync {packages}")
-
-        for package in ["pkgconf"]:
-            if self._pacman(f"--query --quiet {package}", ignore_errors=True, quiet=True) == 0:
-                self._pacman(f"--remove --recursive --nodeps --nodeps {package}")
-
-        # Clear pacman cache
-        self._run_bash("rm -rf /var")
-        # Don't package /home/%USER%
-        self._run_bash("rm -rf /home")
+    def _force_remove_package(self, package):
+        if self._pacman(f"--query --quiet {package}", ignore_errors=True, quiet=True) == 0:
+            self._pacman(f"--remove --recursive --nodeps --nodeps {package}")
 
     @property
-    def _msys2_package_root(self):
+    def _msys_root(self):
         return os.path.join(self.package_folder, "bin", "msys64")
 
     def package(self):
-        shutil.copytree(os.path.join(self.source_folder, "usr", "share", "licenses"),
-                        os.path.join(self.package_folder, "licenses"))
+        get(self, **self.conan_data["sources"][self.version], strip_root=True, destination=self._msys_root)
 
-        excludes = []
-        if self.options.exclude_files:
-            excludes = str(self.options.exclude_files).split(",")
-        for exclude in excludes:
-            for path in Path(self.source_folder).rglob(exclude):
+        # Follows https://www.msys2.org/docs/ci/
+
+        self._run_bash("echo") # Run automatic initial MSYS2 setup
+
+        self._upgrade_packages() # Core update (in case any core packages are outdated)
+        self._upgrade_packages() # Normal update
+
+        self._install_packages(self._packages)
+
+        self._force_remove_package("pkgconf")
+
+        # Clear pacman cache
+        rmdir(self, os.path.join(self._msys_root, "var"))
+        # Don't package /home/%USER%
+        rmdir(self, os.path.join(self._msys_root, "home"))
+        # Remove any other unwanted files
+        for exclude in self._exclude_files:
+            for path in Path(self._msys_root).rglob(exclude):
                 path.unlink()
 
-        # See https://github.com/conan-io/conan-center-index/blob/master/docs/error_knowledge_base.md#kb-h013-default-package-layout
-        copy(self, "*", self.source_folder, self._msys2_package_root, excludes=excludes)
+        shutil.copytree(os.path.join(self._msys_root, "usr", "share", "licenses"),
+                        os.path.join(self.package_folder, "licenses"))
 
         # create /tmp dir to avoid
         #   bash.exe: warning: could not find /tmp, please create!
-        save(self, os.path.join(self._msys2_package_root, "tmp", "dummy"), "")
+        save(self, os.path.join(self._msys_root, "tmp", "dummy"), "")
+
+        # Remove an annoying 'system' flag from /etc/mtab, which raises a prompt when deleting msys2 package files
+        self.run(f"attrib -S {os.path.join(self._msys_root, 'etc', 'mtab')}")
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 
-        msys_root = self._msys2_package_root
-        msys_bin = os.path.join(msys_root, "usr", "bin")
-        self.cpp_info.bindirs.append(msys_bin)
+        msys_bin = os.path.join(self._msys_root, "usr", "bin")
+        self.cpp_info.bindirs = [msys_bin]
 
-        self.buildenv_info.define_path("MSYS_ROOT", msys_root)
+        self.buildenv_info.define_path("MSYS_ROOT", self._msys_root)
         self.buildenv_info.define_path("MSYS_BIN", msys_bin)
 
         self.conf_info.define("tools.microsoft.bash:subsystem", "msys2")
