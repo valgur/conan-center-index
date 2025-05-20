@@ -43,6 +43,9 @@ class MSYS2Conan(ConanFile):
             return str(self.options.exclude_files).split(",")
         return []
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -91,6 +94,14 @@ class MSYS2Conan(ConanFile):
 
         # Don't generate a home dir with empty .bashrc etc.
         rm(self, "05-home-dir.post", os.path.join(self._msys_root, "etc", "post-install"))
+
+        # Apply speed-up-key-refresh.patch, which speeds up the install quite a bit but is not critical.
+        try:
+            patch(self, base_path=self._msys_root, patch_file=self.conan_data["patches"][0]["patch_file"])
+        except ConanException:
+            # Don't fail if the patch is broken due to changes in the nightly release.
+            self.output.warning("Could not patch /usr/bin/pacman-key to run key refresh in parallel")
+            pass
 
         self._run_bash("echo") # Run automatic initial MSYS2 setup
 

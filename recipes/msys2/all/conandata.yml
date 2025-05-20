@@ -5,3 +5,5 @@ sources:
       - "https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.tar.xz"
       - "https://mirror.msys2.org/distrib/msys2-x86_64-latest.tar.xz"
       - "https://repo.msys2.org/distrib/msys2-x86_64-latest.tar.xz"
+patches:
+  - patch_file: "patches/speed-up-key-refresh.patch"

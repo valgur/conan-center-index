@@ -1,0 +1,40 @@
+The refreshing of pacman keys on MSYS2 init is very slow.
+Run it in parallel instead.
+
+--- usr/bin/pacman-key
++++ usr/bin/pacman-key
+@@ -557,21 +557,32 @@
+ 		<("${GPG_PACMAN[@]}" --list-keys --with-colons "$@" |
+ 			awk -F: '$1 == "pub" { print $5 }' | grep -vx "$masterkey")
+ 
++	local pids=()
+ 	for id in "${ids[@]}"; do
++		(
+ 		mapfile -t emails < \
+ 			<("${GPG_PACMAN[@]}" --list-keys --list-options show-only-fpr-mbox "$id" |
+ 				awk '{print $2 }')
+ 
+ 		# first try looking up the key in a WKD (only works by email address)
+ 		for email in "${emails[@]}"; do
+-			"${GPG_PACMAN[@]}" --locate-external-keys "$email" && break
++			"${GPG_PACMAN[@]}" --locate-external-keys "$email" && exit 0
+ 		done
+ 
+ 		# if no key was found, fall back to using the keyservers (with the key fingerprint instead)
+ 		# FIXME: --allow-weak-key-signatures is a workaround for
+ 		# https://github.com/msys2/MSYS2-keyring/issues/45
+-		if (( $? )) &&  ! "${GPG_PACMAN[@]}" --allow-weak-key-signatures --refresh-keys "$id"; then
++		if ! "${GPG_PACMAN[@]}" --allow-weak-key-signatures --refresh-keys "$id"; then
+ 			error "$(gettext "Could not update key: %s")" "$id"
++			exit 1
++		fi
++		exit 0
++		) &
++		pids+=($!)
++	done
++
++	for pid in "${pids[@]}"; do
++		if ! wait "$pid"; then
+ 			ret=1
+ 		fi
+ 	done
