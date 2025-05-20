@@ -1,0 +1,25 @@
+sources:
+  "1.4.313.0":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/vulkan-sdk-1.4.313.0.tar.gz"
+    sha256: "a72129e23ffdf98978b0e60fcf24a14039503383cb077462677a1c59ffd168f0"
+  "1.4.309.0":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/vulkan-sdk-1.4.309.0.tar.gz"
+    sha256: "ee57238d4a2c0abf7f0641fb5143bde211e8e31a94194458bab2b6b0a97cb282"
+  "1.3.296.0":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/vulkan-sdk-1.3.296.0.tar.gz"
+    sha256: "4a8a43a1210e9eb086174a3d6e4087eb393bf1f2ff3495a91c7386b862cbe193"
+  "1.3.290.0":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/vulkan-sdk-1.3.290.0.tar.gz"
+    sha256: "289b8ba405a2854c5b5231e50034b511a99dd4a6fabd159fd3b30b35a87876a6"
+  "1.3.268.0":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/vulkan-sdk-1.3.268.0.tar.gz"
+    sha256: "677a61e6d40044169d027179b440d68a0928b8b95a6e9b887fcd4e893273ffa6"
+  "1.3.250.1":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/sdk-1.3.250.1.tar.gz"
+    sha256: "aa0f202227d6e6f3f78c0e181ca57184c4491069588b284809c5ea99ef6f0440"
+  "1.3.243.0":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/sdk-1.3.243.0.tar.gz"
+    sha256: "7c27eab26a7b499d113069b168de5428eface84f5835cbb6915a003308f3407d"
+  "1.3.239.0":
+    url: "https://github.com/KhronosGroup/SPIRV-Reflect/archive/refs/tags/sdk-1.3.239.0.tar.gz"
+    sha256: "2c8873bb59524f70e027e69e8d5ad37ec23065e03a1820e101255c49d2e0ef9c"
