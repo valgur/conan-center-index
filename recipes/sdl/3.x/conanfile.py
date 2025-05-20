@@ -7,8 +7,9 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2"
 
 _subsystems = [
     ("audio", []),
@@ -432,8 +433,11 @@ class SDLConan(ConanFile):
                 else:
                     self.cpp_info.components["sdl3"].frameworks.append("UniformTypeIdentifiers")
 
-            if self.options.get_safe("camera") and self.settings.os in ("Macos", "iOS"):
-                self.cpp_info.components["sdl3"].frameworks.append("CoreMedia")
+            if self.options.get_safe("camera"):
+                if self.settings.os in ("Macos", "iOS"):
+                    self.cpp_info.components["sdl3"].frameworks.append("CoreMedia")
+                if Version(self.version) >= "3.2.14":
+                    self.cpp_info.components["sdl3"].frameworks.append("AVFoundation")
 
             if self.options.get_safe("joystick"):
                 self.cpp_info.components["sdl3"].frameworks.append("GameController")
