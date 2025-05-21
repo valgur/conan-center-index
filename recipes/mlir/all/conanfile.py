@@ -74,6 +74,7 @@ class MLIRConan(ConanFile):
         tc.cache_variables["LLVM_INCLUDE_TESTS"] = False
         tc.cache_variables["MLIR_INSTALL_AGGREGATE_OBJECTS"] = self.options.install_aggregate_objects
         tc.cache_variables["LLVM_BUILD_TOOLS"] = self.options.tools
+        tc.cache_variables["LLVM_BUILD_UTILS"] = self.options.tools
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -154,10 +155,13 @@ class MLIRConan(ConanFile):
         cmake_folder = package_folder / self._cmake_module_path
         rm(self, "MLIRConfigVersion.cmake", cmake_folder)
         rm(self, "MLIRTargets*", cmake_folder)
-        rename(self, cmake_folder / "MLIRConfig.cmake", cmake_folder / "MLIRConfigVars.cmake")
-        replace_in_file(self, cmake_folder / "MLIRConfigVars.cmake",
-                        'include("${MLIR_CMAKE_DIR}/MLIRTargets.cmake")',
-                        '# include("${MLIR_CMAKE_DIR}/MLIRTargets.cmake")')
+        config_vars_cmake = cmake_folder / "MLIRConfig.cmake"
+        rename(self, cmake_folder / "MLIRConfig.cmake", config_vars_cmake)
+
+        replace_in_file(self, config_vars_cmake, 'include("${MLIR_CMAKE_DIR}/MLIRTargets.cmake")', "")
+        # AddMLIR.cmake breaks if tablegen executables are not absolute paths
+        for exe in ["MLIR_TABLEGEN_EXE", "MLIR_PDLL_TABLEGEN_EXE", "MLIR_SRC_SHARDER_TABLEGEN_EXE"]:
+            replace_in_file(self, config_vars_cmake, f"set({exe} ", f"find_program({exe} ")
 
         rmdir(self, package_folder / "share" / "man")
 
