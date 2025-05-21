@@ -184,7 +184,7 @@ class MLIRConan(ConanFile):
             self.output.warning(f"Some libraries were not declared as components: {found_libs - component_libs}")
 
         self.cpp_info.builddirs.append(self._cmake_module_path)
-        self.cpp_info.components["libmlir"].set_property("cmake_build_modules", [
+        self.cpp_info.components["MLIRSupport"].set_property("cmake_build_modules", [
             self._cmake_module_path / "MLIRConfigVars.cmake"
         ])
 
