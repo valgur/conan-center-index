@@ -155,7 +155,7 @@ class MLIRConan(ConanFile):
         cmake_folder = package_folder / self._cmake_module_path
         rm(self, "MLIRConfigVersion.cmake", cmake_folder)
         rm(self, "MLIRTargets*", cmake_folder)
-        config_vars_cmake = cmake_folder / "MLIRConfig.cmake"
+        config_vars_cmake = cmake_folder / "MLIRConfigVars.cmake"
         rename(self, cmake_folder / "MLIRConfig.cmake", config_vars_cmake)
 
         replace_in_file(self, config_vars_cmake, 'include("${MLIR_CMAKE_DIR}/MLIRTargets.cmake")', "")
