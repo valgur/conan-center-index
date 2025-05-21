@@ -149,6 +149,9 @@ class ClangConan(ConanFile):
         rm(self, "ClangConfigVersion.cmake", cmake_folder)
         rm(self, "ClangTargets*", cmake_folder)
         rename(self, cmake_folder / "ClangConfig.cmake", cmake_folder / "ClangConfigVars.cmake")
+        replace_in_file(self, cmake_folder / "ClangConfigVars.cmake",
+                        'include("${CLANG_CMAKE_DIR}/ClangTargets.cmake")',
+                        '# include("${CLANG_CMAKE_DIR}/ClangTargets.cmake")')
 
         rmdir(self, package_folder / "share" / "man")
 
