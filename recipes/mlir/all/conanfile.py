@@ -171,6 +171,7 @@ class MLIRConan(ConanFile):
             component.set_property("cmake_target_name", name)
             if name not in {"MLIRSparseTensorEnums"}:
                 component.libs = [name]
+            component.builddirs.append(self._cmake_module_path)
             component.requires = data["requires"]
             component.system_libs = data["system_libs"]
             if not self.dependencies["llvm-core"].options.rtti:
@@ -184,9 +185,7 @@ class MLIRConan(ConanFile):
             self.output.warning(f"Some libraries were not declared as components: {found_libs - component_libs}")
 
         self.cpp_info.builddirs.append(self._cmake_module_path)
-        self.cpp_info.components["MLIRSupport"].set_property("cmake_build_modules", [
-            self._cmake_module_path / "MLIRConfigVars.cmake"
-        ])
+        self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "MLIRConfigVars.cmake"])
 
 
 def parse_dotfile(dotfile, label_replacements=None):

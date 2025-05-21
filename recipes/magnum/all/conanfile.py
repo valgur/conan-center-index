@@ -410,8 +410,6 @@ class MagnumConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Magnum")
-        self.cpp_info.names["cmake_find_package"] = "Magnum"
-        self.cpp_info.names["cmake_find_package_multi"] = "Magnum"
 
         magnum_plugin_libdir = "magnum-d" if self.settings.build_type == "Debug" and self.options.shared_plugins else "magnum"
         plugin_lib_suffix = "-d" if self.settings.build_type == "Debug" and not self.options.shared_plugins else ""
@@ -425,26 +423,20 @@ class MagnumConan(ConanFile):
             component.libs = [f"Magnum{lib_name}{lib_suffix}"]
             component.requires = requires + ["_magnum"]
 
-        build_modules = []
-
-        def _add_cmake_module(component, module_name):
-            cmake_mod = os.path.join("lib", "cmake", module_name)
-            build_modules.append(cmake_mod)
-            self.cpp_info.components[component].set_property("cmake_build_modules", [cmake_mod])
-            self.cpp_info.components[component].build_modules["cmake_find_package"].append(cmake_mod)
-            self.cpp_info.components[component].build_modules["cmake_find_package_multi"].append(cmake_mod)
-
-        # The FindMagnum.cmake file provided by the library populates some extra stuff
-        _add_cmake_module("_magnum", "conan-magnum-vars.cmake")
-
         # Magnum contains just the main library
         self.cpp_info.components["magnum_main"].set_property("cmake_target_name", "Magnum::Magnum")
         self.cpp_info.components["magnum_main"].libs = [f"Magnum{lib_suffix}"]
         self.cpp_info.components["magnum_main"].requires = ["_magnum", "corrade::utility"]
+        self.cpp_info.components["magnum_main"].builddirs = [os.path.join("lib", "cmake")]
 
+        build_modules = []
+        def _add_cmake_module(module_name):
+            build_modules.append(os.path.join("lib", "cmake", module_name))
+
+        # The FindMagnum.cmake file provided by the library populates some extra stuff
+        _add_cmake_module("conan-magnum-vars.cmake")
         # Bugfix for the legacy cmake_find_package generator only
-        cmake_mod = os.path.join("lib", "cmake", "conan-bugfix-global-target.cmake")
-        self.cpp_info.components["magnum_main"].build_modules["cmake_find_package"].append(cmake_mod)
+        _add_cmake_module("conan-bugfix-global-target.cmake")
 
         if self.options.audio:
             _add_component("audio", "Audio", ["magnum_main", "corrade::plugin_manager", "openal-soft::openal-soft"])
@@ -529,20 +521,17 @@ class MagnumConan(ConanFile):
             self.cpp_info.components[component].libdirs = [os.path.join(self.package_folder, "lib", magnum_plugin_libdir, folder)]
             self.cpp_info.components[component].requires = deps
             if not self.options.shared_plugins:
-                _add_cmake_module(component, f"conan-magnum-plugins-{component}.cmake")
+                _add_cmake_module(f"conan-magnum-plugins-{component}.cmake")
 
         plugin_dir = "bin" if self.settings.os == "Windows" else "lib"
         self.user_info.plugins_basepath = os.path.join(self.package_folder, plugin_dir, magnum_plugin_libdir)
         self.conf_info.define("user.magnum:plugins_basepath", self.user_info.plugins_basepath)
 
-        #### EXECUTABLES ####
-        bindir = os.path.join(self.package_folder, "bin")
-        self.env_info.PATH.append(bindir)
-
         for executable in self._executables:
-            _add_cmake_module("_magnum", f"conan-magnum-{executable}.cmake")
+            _add_cmake_module(f"conan-magnum-{executable}.cmake")
 
         # build modules for CMakeDeps
+        self.cpp_info.builddirs = [os.path.join("lib", "cmake")]
         self.cpp_info.set_property("cmake_build_modules", build_modules)
 
     @property

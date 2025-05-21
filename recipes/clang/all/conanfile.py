@@ -157,21 +157,20 @@ class ClangConan(ConanFile):
 
         build_info = self._read_build_info()
         components = build_info["components"]
-        for component, data in components.items():
-            self.cpp_info.components[component].set_property("cmake_target_name", component)
-            lib_name = "clang" if component == "libclang" else component
-            self.cpp_info.components[component].libs = [lib_name]
-            self.cpp_info.components[component].requires = data["requires"]
-            self.cpp_info.components[component].system_libs = data["system_libs"]
+        for name, data in components.items():
+            component = self.cpp_info.components[name]
+            component.set_property("cmake_target_name", name)
+            lib_name = "clang" if name == "libclang" else name
+            component.libs = [lib_name]
+            component.builddirs.append(self._cmake_module_path)
+            component.requires = data["requires"]
+            component.system_libs = data["system_libs"]
             if not self.dependencies["llvm-core"].options.rtti:
                 no_rtti_flag = "/GR-" if is_msvc(self) else "-fno-rtti"
-                self.cpp_info.components[component].cxxflags.append(no_rtti_flag)
+                component.cxxflags.append(no_rtti_flag)
 
         self.cpp_info.builddirs.append(self._cmake_module_path)
-        self.cpp_info.components["libclang"].set_property("cmake_build_modules", [
-            self._cmake_module_path / "ClangConfigVars.cmake",
-            self._cmake_module_path / "AddClang.cmake"
-        ])
+        self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "ClangConfigVars.cmake"])
 
 
 def parse_dotfile(dotfile, label_replacements=None):

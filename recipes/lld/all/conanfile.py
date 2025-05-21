@@ -180,9 +180,7 @@ class LLDConan(ConanFile):
             self.output.warning(f"Some libraries were not declared as components: {found_libs - component_libs}")
 
         self.cpp_info.builddirs.append(self._cmake_module_path)
-        self.cpp_info.components["lldCommon"].set_property("cmake_build_modules", [
-            self._cmake_module_path / "LLDConfigVars.cmake"
-        ])
+        self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "LLDConfigVars.cmake"])
 
 
 def parse_dotfile(dotfile, label_replacements=None):
