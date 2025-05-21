@@ -1,0 +1,5 @@
+find_package(DirectXShaderCompiler REQUIRED)
+find_package(cxxopts REQUIRED)
+find_package(spirv-cross REQUIRED)
+find_package(SPIRV-Headers REQUIRED)
+find_package(SPIRV-Tools REQUIRED)

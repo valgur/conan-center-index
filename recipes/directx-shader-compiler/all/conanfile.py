@@ -20,6 +20,13 @@ class DirectXShaderCompilerConan(ConanFile):
     topics = ("directx", "shader", "compiler", "hlsl", "dxil")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        # Intended only for the ShaderConductor recipe
+        "install_internal_libs": [True, False],
+    }
+    default_options = {
+        "install_internal_libs": False,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -125,10 +132,13 @@ class DirectXShaderCompilerConan(ConanFile):
         copy(self, "LICENSE.TXT", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rm(self, "llvm-*", os.path.join(self.package_folder, "bin"))
-        rm(self, "*.a", os.path.join(self.package_folder, "lib"))
-        for subdir in ["clang", "clang-c", "llvm", "llvm-c"]:
-            rmdir(self, os.path.join(self.package_folder, "include", subdir))
+        if self.options.install_internal_libs:
+            copy(self, "*.h", os.path.join(self.source_folder, "include", "dxc"), os.path.join(self.package_folder, "include", "dxc"))
+        else:
+            for subdir in ["clang", "clang-c", "llvm", "llvm-c"]:
+                rmdir(self, os.path.join(self.package_folder, "include", subdir))
+            rm(self, "llvm-*", os.path.join(self.package_folder, "bin"))
+            rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
@@ -158,3 +168,11 @@ class DirectXShaderCompilerConan(ConanFile):
             "miniz::miniz",
             "directx-headers::directx-headers",
         ]
+
+        if self.options.install_internal_libs:
+            other_libs = collect_libs(self)
+            other_libs.remove("dxcompiler")
+            other_libs.remove("dxil")
+            for lib in other_libs:
+                self.cpp_info.components[lib].set_property("cmake_target_name", lib)
+                self.cpp_info.components[lib].libs = [lib]

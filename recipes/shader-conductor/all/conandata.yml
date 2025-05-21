@@ -1,0 +1,7 @@
+sources:
+  "0.3.0-post.20221128":
+    url: "https://github.com/microsoft/ShaderConductor/archive/f18f7b5c370bae157a6b7377155f758f6441cfea.tar.gz"
+    sha256: "98ac9e4b0bae613ae50827575715a144c6e868d7eb2e6e1b4997b44956090a5f"
+patches:
+  "0.3.0-post.20221128":
+    - patch_file: "patches/unvendor-cxxopts.patch"
