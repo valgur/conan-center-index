@@ -1,0 +1,26 @@
+sources:
+  "20.1.3":
+    "mlir":
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.3/mlir-20.1.3.src.tar.xz"
+      sha256: "7755003659c50016916c3eff6f32c2d7832a6098f449f683ca10f914c77b4b97"
+    "cmake":
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.3/cmake-20.1.3.src.tar.xz"
+      sha256: "d5423ec180f14df6041058a2b66e321e4420499e111235577e09515a38a03451"
+  "19.1.7":
+    "mlir":
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/mlir-19.1.7.src.tar.xz"
+      sha256: "4e1ea9ed9a60589466ad89d4b739f12a3a51fb828caaebc3bfc59172c6ce0eee"
+    "cmake":
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/cmake-19.1.7.src.tar.xz"
+      sha256: "11c5a28f90053b0c43d0dec3d0ad579347fc277199c005206b963c19aae514e3"
+patches:
+  "20.1.3":
+    - patch_file: "patches/fix-missing-tool-lib-install.patch"
+      patch_description: "Add missing add_mlir_library_install() to tool libraries"
+      patch_type: "portability"
+      patch_source: "https://github.com/llvm/llvm-project/pull/140880"
+  "19.1.7":
+    - patch_file: "patches/fix-missing-tool-lib-install.patch"
+      patch_description: "Add missing add_mlir_library_install() to tool libraries"
+      patch_type: "portability"
+      patch_source: "https://github.com/llvm/llvm-project/pull/140880"

@@ -1,0 +1,43 @@
+From 4a727bc4785a668a63974e32867d48ad8ca74cb8 Mon Sep 17 00:00:00 2001
+From: Martin Valgur <martin.valgur@gmail.com>
+Date: Wed, 21 May 2025 13:40:43 +0300
+Subject: [PATCH] [mlir] Add missing add_mlir_library_install() to tool
+ libraries
+
+Can only run the corresponding tools when the libraries are built as static without this.
+---
+ mlir/lib/Tools/PDLL/Parser/CMakeLists.txt          | 2 ++
+ mlir/lib/Tools/mlir-pdll-lsp-server/CMakeLists.txt | 2 ++
+ mlir/lib/Tools/tblgen-lsp-server/CMakeLists.txt    | 2 ++
+ 3 files changed, 6 insertions(+)
+
+diff --git a/mlir/lib/Tools/PDLL/Parser/CMakeLists.txt b/mlir/lib/Tools/PDLL/Parser/CMakeLists.txt
+index 7953677d1957e..6cf2ba5f864bc 100644
+--- a/mlir/lib/Tools/PDLL/Parser/CMakeLists.txt
++++ b/mlir/lib/Tools/PDLL/Parser/CMakeLists.txt
+@@ -15,3 +15,5 @@ llvm_add_library(MLIRPDLLParser STATIC
+   MLIRSupport
+   MLIRTableGen
+   )
++
++add_mlir_library_install(MLIRPDLLParser)
+diff --git a/mlir/lib/Tools/mlir-pdll-lsp-server/CMakeLists.txt b/mlir/lib/Tools/mlir-pdll-lsp-server/CMakeLists.txt
+index bf25b7e0a64f3..c81c147e32223 100644
+--- a/mlir/lib/Tools/mlir-pdll-lsp-server/CMakeLists.txt
++++ b/mlir/lib/Tools/mlir-pdll-lsp-server/CMakeLists.txt
+@@ -12,3 +12,5 @@ llvm_add_library(MLIRPdllLspServerLib
+   MLIRPDLLParser
+   MLIRLspServerSupportLib
+   )
++
++add_mlir_library_install(MLIRPdllLspServerLib)
+diff --git a/mlir/lib/Tools/tblgen-lsp-server/CMakeLists.txt b/mlir/lib/Tools/tblgen-lsp-server/CMakeLists.txt
+index 80fc1ffe4029a..4e7b3310fee65 100644
+--- a/mlir/lib/Tools/tblgen-lsp-server/CMakeLists.txt
++++ b/mlir/lib/Tools/tblgen-lsp-server/CMakeLists.txt
+@@ -18,3 +18,5 @@ llvm_add_library(TableGenLspServerLib
+   MLIRLspServerSupportLib
+   MLIRSupport
+   )
++
++add_mlir_library_install(TableGenLspServerLib)
