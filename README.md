@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-20:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-21:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -70,6 +70,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - debugbreak/1.0
 - diligent-engine/2.5.6.8
 - directfb/1.7.7
+- directx-headers/1.602.0
+- directx-headers/1.615.0
+- directx-shader-compiler/1.8.2502
 - dotconf/1.4.1
 - dpdk/24.07
 - elfutils/0.191
@@ -108,6 +111,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glslang/1.3.290.0
 - glslang/1.3.296.0
 - glslang/1.4.309.0
+- glslang/1.4.313.0
 - gn/qt-6.9.0
 - gnsstk/14.3.0
 - gnu-getopt/2.40
@@ -153,7 +157,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/9.0.0
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
-- icu/77.1
 - icu4x/1.4.1
 - icu4x/1.5.1
 - imagemagick/7.1.1.38
@@ -201,6 +204,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libpq/17.5
 - libprotobuf-mutator/1.5
 - libproxy/0.5.9
+- libraw/0.21.4
+- libraw/0.22.0-devel202502
 - libraw1394/2.1.2
 - librsvg/2.40.21
 - librsvg/2.60.0
@@ -343,16 +348,28 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - skia/132
 - sleef/3.6.1
 - small_gicp/0.1.2
+- smtpclient/1.1.10
 - spectra/1.1.0
 - speech-dispatcher/0.12
 - spirv-cross/1.3.290.0
+- spirv-cross/1.4.313.0
 - spirv-headers/1.3.250.1
 - spirv-headers/1.3.290.0
+- spirv-headers/1.4.313.0
 - spirv-llvm-translator/19.1.6
 - spirv-llvm-translator/20.1.1
+- spirv-reflect/1.3.239.0
+- spirv-reflect/1.3.243.0
+- spirv-reflect/1.3.250.1
+- spirv-reflect/1.3.268.0
+- spirv-reflect/1.3.290.0
+- spirv-reflect/1.3.296.0
+- spirv-reflect/1.4.309.0
+- spirv-reflect/1.4.313.0
 - spirv-tools/1.3.250.1
 - spirv-tools/1.3.290.0
 - spirv-tools/1.3.296.0
+- spirv-tools/1.4.313.0
 - splinter/3.0
 - stb/cci.20250314
 - steamworks_sdk/1.60
@@ -394,16 +411,20 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vc/1.4.5
 - vilib/cci.20210625
 - vk-bootstrap/1.3.268
+- vk-bootstrap/1.4.313
 - vlfeat/0.9.21
 - volk/1.3.250.1
 - volk/1.3.290.0
 - volk/1.4.309.0
+- volk/1.4.313.0
 - vswhere/3.1.7
 - vtk-m/2.2.0
 - vtk/9.3.1
 - vulkan-headers/1.3.250.1
+- vulkan-headers/1.4.313.0
 - vulkan-loader/1.3.250.1
 - vulkan-loader/1.3.296.0
+- vulkan-loader/1.4.313.0
 - vulkan-memory-allocator/3.1.0
 - vulkan-memory-allocator/3.2.1
 - vulkan-utility-libraries/1.3.261.1
@@ -411,11 +432,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-utility-libraries/1.3.290.0
 - vulkan-utility-libraries/1.3.296.0
 - vulkan-utility-libraries/1.4.309.0
+- vulkan-utility-libraries/1.4.313.0
 - vulkan-validationlayers/1.3.250.1
 - vulkan-validationlayers/1.3.268.0
 - vulkan-validationlayers/1.3.290.0
 - vulkan-validationlayers/1.3.296.0
 - vulkan-validationlayers/1.4.309.0
+- vulkan-validationlayers/1.4.313.0
 - wuffs/0.3.4
 - wxwidgets/3.2.8
 - xcb-proto/1.17.0
