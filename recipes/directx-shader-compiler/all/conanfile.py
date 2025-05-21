@@ -28,6 +28,7 @@ class DirectXShaderCompilerConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("miniz/[>=2.1.0 <4]")
         self.requires("zlib/[>=1.2.11 <2]")
         self.requires("spirv-headers/[~1.4.309.0]")
         self.requires("spirv-tools/[~1.4.309.0]")
@@ -46,6 +47,8 @@ class DirectXShaderCompilerConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+
         replace_in_file(self, "CMakeLists.txt",
                         "set(CMAKE_CXX_STANDARD 17)", "")
 
@@ -62,6 +65,9 @@ class DirectXShaderCompilerConan(ConanFile):
 
         path = Path("tools/clang/lib/SPIRV/CMakeLists.txt")
         path.write_text("find_package(SPIRV-Tools REQUIRED)\n\n" + path.read_text())
+
+        rm(self, "miniz.*", "lib/DxilCompression")
+        rmdir(self, "include/miniz")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -147,4 +153,8 @@ class DirectXShaderCompilerConan(ConanFile):
         self.cpp_info.components["dxil"].set_property("cmake_target_name", "dxil")
         self.cpp_info.components["dxil"].set_property("cmake_target_aliases", ["Microsoft::DXIL"])
         self.cpp_info.components["dxil"].libs = ["dxil"]
-        self.cpp_info.components["dxil"].requires = ["zlib::zlib", "directx-headers::directx-headers"]
+        self.cpp_info.components["dxil"].requires = [
+            "zlib::zlib",
+            "miniz::miniz",
+            "directx-headers::directx-headers",
+        ]

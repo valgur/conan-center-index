@@ -1,0 +1,16 @@
+diff --git a/lib/DxilCompression/CMakeLists.txt b/lib/DxilCompression/CMakeLists.txt
+--- a/lib/DxilCompression/CMakeLists.txt
++++ b/lib/DxilCompression/CMakeLists.txt
+@@ -4,10 +4,11 @@
+ 
+ add_llvm_library(LLVMDxilCompression
+   DxilCompression.cpp
+-  miniz.c
+ 
+   ADDITIONAL_HEADER_DIRS
+ )
+ 
+ add_dependencies(LLVMDxilCompression intrinsics_gen)
+ 
++find_package(miniz REQUIRED)
++target_link_libraries(LLVMDxilCompression PUBLIC miniz::miniz)

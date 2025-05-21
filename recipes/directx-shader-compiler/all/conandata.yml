@@ -2,3 +2,6 @@ sources:
   "1.8.2502":
     url: "https://github.com/microsoft/DirectXShaderCompiler/archive/refs/tags/v1.8.2502.tar.gz"
     sha256: "1318cbe4860d5ee82b447b12391ee7a8d881fbb286914075a099415b741e0c13"
+patches:
+  "1.8.2502":
+    - patch_file: "patches/unvendor-miniz.patch"
