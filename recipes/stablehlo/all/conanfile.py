@@ -46,9 +46,9 @@ class StableHLOConan(ConanFile):
 
     def requirements(self):
         self.requires(f"mlir/{self._llvm_version}", transitive_headers=True, transitive_libs=True,
-                      options={"tools": can_run(self)}, run=can_run(self))
+                      options={"tools": can_run(self)})
         self.requires(f"llvm-core/{self._llvm_version}", transitive_headers=True, transitive_libs=True,
-                      options={"utils": can_run(self)}, run=can_run(self))
+                      options={"utils": can_run(self)})
 
     def validate(self):
         check_min_cppstd(self, 17)
