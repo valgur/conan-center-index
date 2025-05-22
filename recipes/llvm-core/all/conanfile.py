@@ -451,10 +451,12 @@ class LLVMCoreConan(ConanFile):
         bin_dir = Path(self.package_folder, "bin")
         exe_pattern = "*.exe" if self.settings.os == "Windows" else "*"
         save(self, cmake_dir / "conan_add_executable_targets.cmake",
-            'get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n'
+            'get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n\n'
             + "\n".join(
-                f"add_executable({x.stem} IMPORTED)\n"
-                f'set_target_properties({x.stem} PROPERTIES IMPORTED_LOCATION "${{_IMPORT_PREFIX}}/bin/{x.name}")\n'
+                f"if(NOT TARGET {x.stem})\n"
+                f"  add_executable({x.stem} IMPORTED)\n"
+                f'  set_target_properties({x.stem} PROPERTIES IMPORTED_LOCATION "${{_IMPORT_PREFIX}}/bin/{x.name}")\n'
+                "endif()\n"
                 for x in sorted(bin_dir.glob(exe_pattern))
             ),
         )
