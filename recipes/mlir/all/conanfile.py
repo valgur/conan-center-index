@@ -212,7 +212,10 @@ class MLIRConan(ConanFile):
         #   )
         build_type_upper = str(self.settings.build_type).upper()
         components = self._build_info["components"]
-        content = ['get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n']
+        content = [
+            "include_guard()\n",
+            'get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n',
+        ]
         for name, object_files in self._obj_libs.items():
             content.append(f"add_library(obj.{name} OBJECT IMPORTED)")
             content.append(f"set_property(TARGET obj.{name} APPEND PROPERTY IMPORTED_CONFIGURATIONS {build_type_upper})")
