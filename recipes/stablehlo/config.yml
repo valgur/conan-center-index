@@ -1,0 +1,4 @@
+versions:
+  # The last version compatible with LLVM 19
+  "1.6.3":
+    folder: all
