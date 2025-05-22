@@ -44,6 +44,11 @@ class MLIRConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        # Enable tools when building as a tool_requires dependency
+        if self.settings_target is not None:
+            self.options.tools = True
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
