@@ -1,0 +1,4 @@
+sources:
+  "3.7.5":
+    url: "https://github.com/novatel/novatel_edie/archive/refs/tags/CPP-v3.7.5.tar.gz"
+    sha256: "0945e02bdf1b3d3f56e093778131a01bbf641f5c8d60f2e6710c9ed00a62ed4b"
