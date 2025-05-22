@@ -36,7 +36,7 @@ class freeglutConan(ConanFile):
         "print_errors_at_runtime": True,
         "print_warnings_at_runtime": True,
         "replace_glut": True,
-        "with_wayland": True,
+        "with_wayland": False,
     }
 
     @property
