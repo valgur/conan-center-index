@@ -1106,7 +1106,7 @@ class OpenCVConan(ConanFile):
             else:
                 self.requires("protobuf/[>=3.21.12 <6]", transitive_libs=True)
         if self.options.get_safe("with_vulkan"):
-            self.requires("vulkan-headers/[~1.4.309.0]")
+            self.requires("vulkan-headers/[^1.3.239.0]")
         if self.options.get_safe("with_openvino"):
             self.requires("openvino/[>=2024.5.0]")
         # gapi module dependencies

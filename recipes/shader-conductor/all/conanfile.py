@@ -39,9 +39,9 @@ class ShaderConductorConan(ConanFile):
     def requirements(self):
         self.requires("cxxopts/[^3.0]")
         self.requires("directx-shader-compiler/[^1.8.2502]", options={"install_internal_libs": True})
-        self.requires("spirv-cross/[~1.4.309.0]", options={"shared": False})
-        self.requires("spirv-headers/[~1.4.309.0]")
-        self.requires("spirv-tools/[~1.4.309.0]")
+        self.requires("spirv-cross/[^1.3.239.0]", options={"shared": False})
+        self.requires("spirv-headers/[^1.3.239.0]")
+        self.requires("spirv-tools/[^1.3.239.0]")
 
     def validate(self):
         check_min_cppstd(self, 17)

@@ -37,8 +37,8 @@ class DirectXShaderCompilerConan(ConanFile):
     def requirements(self):
         self.requires("miniz/[>=2.1.0 <4]")
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("spirv-headers/[~1.4.309.0]")
-        self.requires("spirv-tools/[~1.4.309.0]")
+        self.requires("spirv-headers/[^1.3.239.0]")
+        self.requires("spirv-tools/[^1.3.239.0]")
         # Newer versions have a conflict in wsl/stubs/basetsd.h
         self.requires("directx-headers/[<1.603]", libs=False)
 

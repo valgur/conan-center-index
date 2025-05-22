@@ -90,7 +90,7 @@ class OpenXRConan(ConanFile):
             if self.options.get_safe("with_opengles"):
                 self.requires("egl/system")
             if self.options.get_safe("with_vulkan"):
-                self.requires("vulkan-loader/[~1.4.309.0]")
+                self.requires("vulkan-loader/[^1.3.239.0]")
             if self.settings.os == "Linux":
                 if self.options.presentation_backend in ["xlib", "xcb"]:
                     self.requires("xorg/system")

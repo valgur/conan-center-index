@@ -50,14 +50,14 @@ class DiligentEngineConan(ConanFile):
         self.requires("opengl/system")
         if self.settings.os in ["Linux", "FreeBSD", "Macos", "Windows"]:
             self.requires("glew/2.2.0")
-        self.requires("spirv-headers/[~1.4.309.0]")
-        self.requires("spirv-cross/[~1.4.309.0]", options={"shared": False})
-        self.requires("spirv-tools/[~1.4.309.0]")
+        self.requires("spirv-headers/[^1.3.239.0]")
+        self.requires("spirv-cross/[^1.3.239.0]", options={"shared": False})
+        self.requires("spirv-tools/[^1.3.239.0]")
         if self.options.with_glslang:
-            self.requires("glslang/[~1.4.309.0]")
-        self.requires("vulkan-headers/[~1.4.309.0]")
-        self.requires("vulkan-validationlayers/[~1.4.309.0]")
-        self.requires("volk/[~1.4.309.0]")
+            self.requires("glslang/[^1.3.239.0]")
+        self.requires("vulkan-headers/[^1.3.239.0]")
+        self.requires("vulkan-validationlayers/[^1.3.239.0]")
+        self.requires("volk/[^1.3.239.0]")
         self.requires("xxhash/[>=0.8.1 <0.9]")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("xorg/system")

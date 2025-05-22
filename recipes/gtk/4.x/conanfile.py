@@ -137,7 +137,7 @@ class GtkConan(ConanFile):
             self.requires("xorg/system", transitive_headers=True, transitive_libs=True)
             self.requires("fontconfig/[^2.15.0]")
         if self.options.with_vulkan:
-            self.requires("vulkan-loader/[~1.4.309.0]")
+            self.requires("vulkan-loader/[^1.3.239.0]")
         if self.options.get_safe("with_ffmpeg"):
             self.requires("ffmpeg/[>=6 <8]")
 

@@ -36,9 +36,9 @@ class SpirvLlvmTranslatorConan(ConanFile):
     def requirements(self):
         llvm_major = Version(self.version).major
         self.requires(f"llvm-core/[^{llvm_major}]")
-        self.requires("spirv-headers/[~1.4.309.0]")
+        self.requires("spirv-headers/[^1.3.239.0]")
         if self.options.with_spirv_tools:
-            self.requires("spirv-tools/[~1.4.309.0]")
+            self.requires("spirv-tools/[^1.3.239.0]")
 
     def validate(self):
         check_min_cppstd(self, 17)
