@@ -1,8 +1,18 @@
 sources:
+  "1.10.0":
+    url: "https://github.com/openxla/stablehlo/archive/refs/tags/v1.10.0.tar.gz"
+    sha256: "063d3b891d12daff764973e016d8959347968fb13b8298366ecbbc3f81f36770"
   "1.6.3":
     url: "https://github.com/openxla/stablehlo/archive/refs/tags/v1.6.3.tar.gz"
     sha256: "3fef356ea326639c1a03e9e5c6f164b10507bac90634de0ff807d5ef1ad30342"
 patches:
+  "1.10.0":
+    - patch_file: "patches/1.10.0-revert-const-shape-casts.patch"
+      patch_description: "Revert getTosaConstShape() calls for compatibility with official MLIR 20.x releases"
+      patch_type: "portability"
+    - patch_file: "patches/disable-test.patch"
+      patch_description: "Disable a test that would require LLVM tools to run"
+      patch_type: "conan"
   "1.6.3":
     - patch_file: "patches/disable-test.patch"
       patch_description: "Disable a test that would require LLVM tools to run"

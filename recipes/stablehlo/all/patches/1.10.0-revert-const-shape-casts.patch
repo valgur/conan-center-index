@@ -1,0 +1,77 @@
+diff --git a/stablehlo/conversions/tosa/transforms/StablehloLegalizeToTosa.cpp b/stablehlo/conversions/tosa/transforms/StablehloLegalizeToTosa.cpp
+--- a/stablehlo/conversions/tosa/transforms/StablehloLegalizeToTosa.cpp
++++ b/stablehlo/conversions/tosa/transforms/StablehloLegalizeToTosa.cpp
+@@ -169,15 +169,15 @@
+ 
+   auto lhsReshapeType =
+       RankedTensorType::get(lhsReshape, lhsType.getElementType());
+-  auto lhsReshapeValue = getTosaConstShape(rewriter, op->getLoc(), lhsReshape);
+   auto lhsReshapeOp = rewriter.create<tosa::ReshapeOp>(
+-      op->getLoc(), lhsReshapeType, op.getLhs(), lhsReshapeValue);
++      op->getLoc(), lhsReshapeType, op.getLhs(),
++      rewriter.getDenseI64ArrayAttr(lhsReshape));
+ 
+   auto rhsReshapeType =
+       RankedTensorType::get(rhsReshape, rhsType.getElementType());
+-  auto rhsReshapeValue = getTosaConstShape(rewriter, op->getLoc(), rhsReshape);
+   auto rhsReshapeOp = rewriter.create<tosa::ReshapeOp>(
+-      op->getLoc(), rhsReshapeType, op.getRhs(), rhsReshapeValue);
++      op->getLoc(), rhsReshapeType, op.getRhs(),
++      rewriter.getDenseI64ArrayAttr(rhsReshape));
+ 
+   auto matMulType =
+       RankedTensorType::get(matMulShape, lhsType.getElementType());
+@@ -185,10 +185,8 @@
+                                                   lhsReshapeOp, rhsReshapeOp);
+ 
+   // Reshape the matmul result back to the original result shape.
+-  auto resultReshapeValue =
+-      getTosaConstShape(rewriter, op->getLoc(), resultShape);
+-  rewriter.replaceOpWithNewOp<tosa::ReshapeOp>(op, resultType, matMulOp,
+-                                               resultReshapeValue);
++  rewriter.replaceOpWithNewOp<tosa::ReshapeOp>(
++      op, resultType, matMulOp, rewriter.getDenseI64ArrayAttr(resultShape));
+   return success();
+ }
+ 
+@@ -385,10 +383,9 @@
+       }
+     }
+ 
+-    auto outputShapeValue =
+-        getTosaConstShape(rewriter, op.getLoc(), outputShape);
+     rewriter.replaceOpWithNewOp<tosa::ReshapeOp>(
+-        op, op.getResultTypes().front(), reduceOpResult, outputShapeValue);
++        op, op.getResultTypes().front(), reduceOpResult,
++        rewriter.getDenseI64ArrayAttr(outputShape));
+ 
+     return success();
+   }
+@@ -439,8 +436,8 @@
+ 
+     rewriter.replaceOpWithNewOp<tosa::SliceOp>(
+         op, op.getType(), op.getOperand(),
+-        getTosaConstShape(rewriter, op.getLoc(), startIndicesI64),
+-        getTosaConstShape(rewriter, op.getLoc(), size));
++        rewriter.getDenseI64ArrayAttr(startIndicesI64),
++        rewriter.getDenseI64ArrayAttr(size));
+     return success();
+   }
+ };
+@@ -458,10 +455,13 @@
+     }
+ 
+     auto perms = op.getPermutation();
++    auto type = RankedTensorType::get({static_cast<int64_t>(perms.size())},
++                                      rewriter.getI32Type());
+     std::vector<int32_t> perms_int32(perms.begin(), perms.end());
+-    rewriter.replaceOpWithNewOp<tosa::TransposeOp>(
+-        op, op.getType(), op.getOperand(),
+-        rewriter.getDenseI32ArrayAttr(perms_int32));
++    auto constOp = rewriter.create<tosa::ConstOp>(
++        op->getLoc(), type, DenseIntElementsAttr::get(type, perms_int32));
++    rewriter.replaceOpWithNewOp<tosa::TransposeOp>(op, op.getType(),
++                                                   op.getOperand(), constOp);
+     return success();
+   }
+ };
