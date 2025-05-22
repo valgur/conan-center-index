@@ -78,6 +78,7 @@ class LLVMCoreConan(ConanFile):
         "expensive_checks": [True, False],
         "use_perf": [True, False],
         "use_sanitizer": ["Address", "Memory", "MemoryWithOrigins", "Undefined", "Thread", "DataFlow", "Address;Undefined", "None"],
+        "utils": [True, False],
         "with_ffi": [True, False],
         "with_libedit": [True, False],
         "with_zlib": [True, False],
@@ -99,6 +100,7 @@ class LLVMCoreConan(ConanFile):
         "expensive_checks": False,
         "use_perf": False,
         "use_sanitizer": "None",
+        "utils": True,
         "with_libedit": True,
         "with_ffi": False,
         "with_xml2": True,
@@ -263,6 +265,10 @@ class LLVMCoreConan(ConanFile):
         tc.cache_variables["LLVM_LINK_LLVM_DYLIB"] = self.options.get_safe("monolithic", False)
         tc.cache_variables["LLVM_ENABLE_PIC"] = self.options.get_safe("fPIC", True)
 
+        tc.cache_variables["LLVM_BUILD_UTILS"] = self.options.utils
+        tc.cache_variables["LLVM_INCLUDE_UTILS"] = self.options.utils
+        tc.cache_variables["LLVM_INSTALL_UTILS"] = self.options.utils
+
         tc.cache_variables["LLVM_ABI_BREAKING_CHECKS"] = "WITH_ASSERTS"
         tc.cache_variables["LLVM_INCLUDE_BENCHMARKS"] = False
         tc.cache_variables["LLVM_INCLUDE_TOOLS"] = True
@@ -415,23 +421,34 @@ class LLVMCoreConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-        self._write_build_info(self._build_info_file)
-
-        cmake_folder = self._package_path / "lib" / "cmake" / "llvm"
-        rm(self, "LLVMConfigVersion.cmake", cmake_folder)
-        rm(self, "LLVMExports*", cmake_folder)
-        rm(self, "Find*", cmake_folder)
-        # need to rename this as Conan will flag it, but it's not actually a Config file and is needed by downstream packages
-        rename(self, cmake_folder / "LLVMConfig.cmake", cmake_folder / "LLVM-ConfigInternal.cmake")
-        rename(self, cmake_folder / "LLVM-Config.cmake", cmake_folder / "LLVM-ConfigUtils.cmake")
-        replace_in_file(self, cmake_folder / "AddLLVM.cmake", "LLVM-Config", "LLVM-ConfigUtils")
-
         if self.options.get_safe("monolithic"):
             # Keep only libLLVM.so
             rm(self, "*.a", self._package_path / "lib")
 
         rm(self, "*.pdb", self._package_path / "lib")
         rm(self, "*.pdb", self._package_path / "bin")
+
+
+        # Back up original cmake files for debugging purposes
+        cmake_dir = self._package_path / "lib" / "cmake" / "llvm"
+        copy(self, "*", cmake_dir, os.path.join(self.package_folder, "share", "conan", "llvm", "cmake_original"))
+
+        # Remove CMake files that are handled by Conan
+        rm(self, "LLVMConfigVersion.cmake", cmake_dir)
+        rm(self, "LLVMExports*", cmake_dir)
+        rm(self, "Find*", cmake_dir)
+        # Rename *Config.cmake to not conflict with LLVMConfig.cmake generated Conan
+        rename(self,
+               cmake_dir / "LLVMConfig.cmake",
+               cmake_dir / "LLVM-ConfigInternal.cmake")
+        rename(self,
+               cmake_dir / "LLVM-Config.cmake",
+               cmake_dir / "LLVM-ConfigUtils.cmake")
+        replace_in_file(self, cmake_dir / "AddLLVM.cmake",
+                        "LLVM-Config",
+                        "LLVM-ConfigUtils")
+
+        self._write_build_info(self._build_info_file)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LLVM")
@@ -444,6 +461,13 @@ class LLVMCoreConan(ConanFile):
                 self.cpp_info.components[component_name].libs = [component_name]
                 self.cpp_info.components[component_name].requires = data["requires"]
                 self.cpp_info.components[component_name].system_libs = data["system_libs"]
+
+        found_libs = set(collect_libs(self))
+        component_libs = set(sum((c.libs for _, c in self.cpp_info.components.items()), []))
+        if component_libs - found_libs:
+            self.output.warning(f"Some component libraries were not found in lib/: {component_libs - found_libs}")
+        if found_libs - component_libs:
+            self.output.warning(f"Some libraries were not declared as components: {found_libs - component_libs}")
 
         self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "LLVM-ConfigInternal.cmake"])
         self.cpp_info.components["LLVMSupport"].builddirs.append(self._cmake_module_path)
