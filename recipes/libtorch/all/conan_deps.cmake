@@ -11,15 +11,10 @@ set(Caffe2_DEPENDENCY_LIBS)
 set(Caffe2_CUDA_DEPENDENCY_LIBS)
 
 find_package(cpuinfo REQUIRED CONFIG)
-find_package(fp16 REQUIRED CONFIG)
 find_package(fmt REQUIRED CONFIG)
 find_package(httplib REQUIRED CONFIG)
 
-list(APPEND Caffe2_DEPENDENCY_LIBS
-    cpuinfo
-    fp16::fp16
-)
-add_library(fp16 ALIAS fp16::fp16)
+list(APPEND Caffe2_DEPENDENCY_LIBS cpuinfo)
 
 if(CONAN_LIBTORCH_USE_PTHREADPOOL)
     find_package(pthreadpool REQUIRED CONFIG)
@@ -49,8 +44,12 @@ if(USE_FBGEMM)
 endif()
 
 if(USE_PYTORCH_QNNPACK)
+    find_package(fp16 REQUIRED CONFIG)
     find_package(fxdiv REQUIRED CONFIG)
     find_package(psimd REQUIRED CONFIG)
+else()
+    # Add a dummy fp16 target to disable a check in Dependencies.cmake
+    add_library(fp16 INTERFACE)
 endif()
 
 if(USE_MIMALLOC)

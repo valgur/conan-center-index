@@ -241,14 +241,13 @@ class LibtorchConan(ConanFile):
         return any(self.options.get_safe(f"with_{name}") for name in ["nnpack", "qnnpack", "xnnpack"])
 
     def requirements(self):
-        self.requires("cpuinfo/[>=cci.20231129]")
+        self.requires("cpuinfo/[*]")
         self.requires("eigen/3.4.0")
         # fmt/11.x is not yet supported as of v2.4.0
         self.requires("fmt/[^10.2.1]", transitive_headers=True, transitive_libs=True)
         self.requires("foxi/cci.20210217", libs=False)
         self.requires("onnx/1.17.0", transitive_headers=True, transitive_libs=True)
         self.requires("protobuf/[>=3.21.12]")
-        self.requires("fp16/[>=cci.20210320]")
         self.requires("cpp-httplib/[^0.18.0]")
         self.requires("libbacktrace/cci.20240730")
         if self._depends_on_sleef:
@@ -267,6 +266,7 @@ class LibtorchConan(ConanFile):
         if self.options.with_glog:
             self.requires("glog/[>=0.7 <1]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_qnnpack"):
+            self.requires("fp16/[>=cci.20210320]")
             self.requires("fxdiv/cci.20200417")
             self.requires("psimd/cci.20200517")
         if self.options.with_xnnpack:
@@ -444,6 +444,7 @@ class LibtorchConan(ConanFile):
         deps.set_property("cpuinfo", "cmake_target_name", "cpuinfo")
         deps.set_property("flatbuffers", "cmake_target_name", "flatbuffers::flatbuffers")
         deps.set_property("fmt", "cmake_target_name", "fmt::fmt-header-only")
+        deps.set_property("fp16", "cmake_target_aliases", ["fp16"])
         deps.set_property("foxi", "cmake_target_name", "foxi_loader")
         deps.set_property("gflags", "cmake_target_name", "gflags")
         deps.set_property("ittapi", "cmake_file_name", "ITT")
@@ -550,13 +551,13 @@ class LibtorchConan(ConanFile):
             return ["glog::glog"] if self.options.with_glog else []
 
         def _nnpack():
-            return []  # TODO
+            return ["pthreadpool::pthreadpool"]  if self.options.get_safe("with_nnpack") else []  # TODO
 
         def _xnnpack():
-            return ["xnnpack::xnnpack"] if self.options.with_xnnpack else []
+            return ["xnnpack::xnnpack", "pthreadpool::pthreadpool"] if self.options.with_xnnpack else []
 
         def _qnnpack():
-            return ["pytorch_qnnpack"] if self.options.get_safe("with_qnnpack") else []
+            return ["pytorch_qnnpack", "pthreadpool::pthreadpool"] if self.options.get_safe("with_qnnpack") else []
 
         def _libnuma():
             return ["libnuma::libnuma"] if self.options.get_safe("with_numa") else []
@@ -646,7 +647,7 @@ class LibtorchConan(ConanFile):
             if _lib_exists("Caffe2_perfkernels_avx512"):
                 _add_whole_archive_lib("caffe2_perfkernels_avx512", "Caffe2_perfkernels_avx512", shared=self.options.shared)
                 self.cpp_info.components["caffe2_perfkernels_avx512"].requires.append("c10")
-                self.cpp_info.components["torch_cpu"].requires.append("caffe2_perfkernels_avx512")
+                self.cpp_info.components["fp16torch_cpu"].requires.append("caffe2_perfkernels_avx512")
 
         if self.options.observers:
             _add_whole_archive_lib("caffe2_observers", "caffe2_observers", shared=self.options.shared)
