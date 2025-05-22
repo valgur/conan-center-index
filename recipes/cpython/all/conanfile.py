@@ -222,6 +222,10 @@ class CPythonConan(ConanFile):
         if not is_apple_os(self):
             tc.extra_ldflags.append('-Wl,--as-needed')
 
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            # Add -lrt to fix _posixshmem.cpython-312-x86_64-linux-gnu.so: undefined symbol: shm_unlink
+            tc.configure_args.append("POSIXSHMEM_LIBS=-lrt")
+
         if not can_run(self):
             build_python = unix_path(self, os.path.join(self.dependencies.build["cpython"].package_folder, "bin", "python"))
             tc.configure_args.append(f"--with-build-python={build_python}")
