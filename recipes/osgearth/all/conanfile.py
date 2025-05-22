@@ -117,7 +117,7 @@ class OsgearthConan(ConanFile):
         self.requires("rapidjson/[^1.1.0]")
 
         if self.options.enable_profiling:
-            self.requires("tracy/0.11.1")
+            self.requires("tracy/[>=0.11.1 <1]")
         if self.options.with_basisu:
             self.requires("libbasisu/[^1.16.4]")
         if self.options.with_blend2d:
