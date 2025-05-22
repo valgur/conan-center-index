@@ -428,7 +428,6 @@ class LLVMCoreConan(ConanFile):
         rm(self, "*.pdb", self._package_path / "lib")
         rm(self, "*.pdb", self._package_path / "bin")
 
-
         # Back up original cmake files for debugging purposes
         cmake_dir = self._package_path / "lib" / "cmake" / "llvm"
         copy(self, "*", cmake_dir, os.path.join(self.package_folder, "share", "conan", "llvm", "cmake_original"))
@@ -447,6 +446,18 @@ class LLVMCoreConan(ConanFile):
         replace_in_file(self, cmake_dir / "AddLLVM.cmake",
                         "LLVM-Config",
                         "LLVM-ConfigUtils")
+
+        # LLVM export utils as CMake targets. Add a helper .cmake file to reproduce this in Conan.
+        bin_dir = Path(self.package_folder, "bin")
+        exe_pattern = "*.exe" if self.settings.os == "Windows" else "*"
+        save(self, cmake_dir / "conan_add_executable_targets.cmake",
+            'get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n'
+            + "\n".join(
+                f"add_executable({x.stem} IMPORTED)\n"
+                f'set_target_properties({x.stem} PROPERTIES IMPORTED_LOCATION "${{_IMPORT_PREFIX}}/bin/{x.name}")\n'
+                for x in sorted(bin_dir.glob(exe_pattern))
+            ),
+        )
 
         self._write_build_info(self._build_info_file)
 
@@ -469,7 +480,10 @@ class LLVMCoreConan(ConanFile):
         if found_libs - component_libs:
             self.output.warning(f"Some libraries were not declared as components: {found_libs - component_libs}")
 
-        self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "LLVM-ConfigInternal.cmake"])
+        self.cpp_info.set_property("cmake_build_modules", [
+            self._cmake_module_path / "LLVM-ConfigInternal.cmake",
+            self._cmake_module_path / "conan_add_executable_targets.cmake",
+        ])
         self.cpp_info.components["LLVMSupport"].builddirs.append(self._cmake_module_path)
 
 
