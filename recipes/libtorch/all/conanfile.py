@@ -80,16 +80,16 @@ class LibtorchConan(ConanFile):
         "with_fbgemm": True,
         "with_gflags": False,
         "with_glog": False,
-        "with_itt": True,
-        "with_kineto": True,
+        "with_itt": False,
+        "with_kineto": False,
         "with_mimalloc": False,
-        "with_nnpack": True,
-        "with_numa": True,
+        "with_nnpack": False,
+        "with_numa": False,
         "with_opencl": False,
-        "with_openmp": True,
-        "with_qnnpack": True,
-        "with_vulkan": True,
-        "with_xnnpack": True,
+        "with_openmp": False,
+        "with_qnnpack": False,
+        "with_vulkan": False,
+        "with_xnnpack": False,
         # TODO
         # "build_lazy_cuda_linalg": False,
         # "debug_cuda": False,
@@ -334,7 +334,7 @@ class LibtorchConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.18 <5]")
-        self.tool_requires("cpython/[~3.12]")
+        # self.tool_requires("cpython/[~3.12]")
         if self._depends_on_flatbuffers:
             self.tool_requires("flatbuffers/<host_version>")
 
