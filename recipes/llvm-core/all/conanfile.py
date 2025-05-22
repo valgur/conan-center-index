@@ -449,7 +449,6 @@ class LLVMCoreConan(ConanFile):
 
         # LLVM export utils as CMake targets. Add a helper .cmake file to reproduce this in Conan.
         bin_dir = Path(self.package_folder, "bin")
-        exe_pattern = "*.exe" if self.settings.os == "Windows" else "*"
         save(self, cmake_dir / "conan_add_executable_targets.cmake",
             'get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n\n'
             + "\n".join(
@@ -457,7 +456,7 @@ class LLVMCoreConan(ConanFile):
                 f"  add_executable({x.stem} IMPORTED)\n"
                 f'  set_target_properties({x.stem} PROPERTIES IMPORTED_LOCATION "${{_IMPORT_PREFIX}}/bin/{x.name}")\n'
                 "endif()\n"
-                for x in sorted(bin_dir.glob(exe_pattern))
+                for x in sorted(bin_dir.iterdir()) if not x.suffix not in {".dll", ".pdb"}
             ),
         )
 
