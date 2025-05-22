@@ -194,7 +194,7 @@ class MLIRConan(ConanFile):
             f"  add_executable({x.stem} IMPORTED)\n"
             f'  set_target_properties({x.stem} PROPERTIES IMPORTED_LOCATION "${{_IMPORT_PREFIX}}/bin/{x.name}")\n'
             "endif()\n"
-            for x in sorted(bin_dir.iterdir()) if not x.suffix not in {".dll", ".pdb"}
+            for x in sorted(bin_dir.iterdir()) if x.suffix not in {".dll", ".pdb"}
         )
         save(self, cmake_file_path, content)
 
