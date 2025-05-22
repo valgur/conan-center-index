@@ -78,6 +78,7 @@ class LLVMCoreConan(ConanFile):
         "expensive_checks": [True, False],
         "use_perf": [True, False],
         "use_sanitizer": ["Address", "Memory", "MemoryWithOrigins", "Undefined", "Thread", "DataFlow", "Address;Undefined", "None"],
+        "tools": [True, False],
         "utils": [True, False],
         "with_ffi": [True, False],
         "with_libedit": [True, False],
@@ -100,6 +101,7 @@ class LLVMCoreConan(ConanFile):
         "expensive_checks": False,
         "use_perf": False,
         "use_sanitizer": "None",
+        "tools": True,
         "utils": True,
         "with_libedit": True,
         "with_ffi": False,
@@ -264,6 +266,10 @@ class LLVMCoreConan(ConanFile):
         tc.cache_variables["LLVM_BUILD_LLVM_DYLIB"] = self.options.get_safe("monolithic", False)
         tc.cache_variables["LLVM_LINK_LLVM_DYLIB"] = self.options.get_safe("monolithic", False)
         tc.cache_variables["LLVM_ENABLE_PIC"] = self.options.get_safe("fPIC", True)
+
+        tc.cache_variables["LLVM_BUILD_TOOLS"] = self.options.tools
+        tc.cache_variables["LLVM_INCLUDE_TOOLS"] = self.options.tools
+        tc.cache_variables["LLVM_INSTALL_TOOLS"] = self.options.tools
 
         tc.cache_variables["LLVM_BUILD_UTILS"] = self.options.utils
         tc.cache_variables["LLVM_INCLUDE_UTILS"] = self.options.utils
