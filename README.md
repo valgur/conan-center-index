@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-21:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-22:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -42,7 +42,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cilantro/cci.20230816
 - cimg/3.3.5
 - clang/19.1.7
-- clang/20.1.3
+- clang/20.1.5
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -179,7 +179,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libbsd/0.12.2
 - libcaca/0.99.beta20
 - libclc/19.1.7
-- libclc/20.1.3
+- libclc/20.1.5
 - libcmaes/0.10.0
 - libcroco/0.6.13
 - libcudacxx/2.7.0
@@ -204,7 +204,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libpq/17.5
 - libprotobuf-mutator/1.5
 - libproxy/0.5.9
-- libraw/0.21.4
 - libraw/0.22.0-devel202502
 - libraw1394/2.1.2
 - librsvg/2.40.21
@@ -252,7 +251,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - linux-headers-generic/6.14.2
 - linux-pam/1.6.1
 - litehtml/0.9
-- llvm-core/20.1.3
+- lld/19.1.7
+- lld/20.1.5
+- llvm-core/20.1.5
+- llvm-libunwind/19.1.7
+- llvm-libunwind/20.1.5
 - llvm-openmp/18.1.8
 - lttng-ust/2.13.9
 - matplotlib-cpp/cci.20210423
@@ -265,11 +268,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.0
 - mkfontscale/1.2.3
+- mlir/19.1.7
+- mlir/20.1.5
 - moltenvk/1.2.11
 - moltenvk/1.2.7
 - mrcal/2.4.1
 - mysql-connector-cpp/9.3.0
 - nanobind/2.4.0
+- nanobind/2.7.0
 - nanopb/0.4.9.1
 - nasm/2.16.03
 - ncbi-cxx-toolkit/29.0.0
@@ -343,6 +349,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - secsipidx/1.3.2
 - serf/1.3.10
 - sfcgal/1.5.0
+- shader-conductor/0.3.0-post.20221128
 - shader-slang/2024.11.1
 - shaderc/2025.2
 - skia/132
