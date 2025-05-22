@@ -357,7 +357,6 @@ class LibtorchConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_PROJECT_Torch_INCLUDE"] = "conan_deps.cmake"
-        tc.variables["USE_SYSTEM_LIBS"] = True
         tc.variables["BUILD_TEST"] = False
         tc.variables["ATEN_NO_TEST"] = True
         tc.variables["BUILD_BINARY"] = self.options.utilities
@@ -387,8 +386,6 @@ class LibtorchConan(ConanFile):
         tc.variables["USE_MPS"] = self.options.get_safe("with_mps", False)
         tc.variables["USE_NCCL"] = self.options.get_safe("with_nccl", False)
         tc.variables["USE_RCCL"] = self.options.get_safe("with_nccl", False) and self.options.get_safe("with_rocm", False)
-        tc.variables["USE_STATIC_NCCL"] = False
-        tc.variables["USE_SYSTEM_NCCL"] = True
         tc.variables["USE_NNAPI"] = self.options.get_safe("with_nnapi", False)
         tc.variables["USE_NNPACK"] = self.options.get_safe("with_nnpack", False)
         tc.variables["USE_NUMA"] = self.options.get_safe("with_numa", False)
@@ -400,7 +397,6 @@ class LibtorchConan(ConanFile):
         tc.variables["USE_PROF"] = False  # requires htrace
         tc.variables["USE_PYTORCH_QNNPACK"] = self.options.get_safe("with_qnnpack", False)
         tc.variables["USE_SNPE"] = self.options.get_safe("with_snpe", False)
-        tc.variables["USE_SYSTEM_EIGEN_INSTALL"] = True
         tc.variables["USE_VALGRIND"] = False
         tc.variables["USE_VULKAN"] = self.options.with_vulkan
         tc.variables["USE_VULKAN_FP16_INFERENCE"] = self.options.get_safe("vulkan_fp16_inference", False)
@@ -419,6 +415,21 @@ class LibtorchConan(ConanFile):
         tc.variables["USE_MIMALLOC"] = self.options.with_mimalloc
 
         tc.variables["BLAS"] = self._blas_cmake_option_value
+
+        tc.variables["BUILD_CUSTOM_PROTOBUF"] = False
+        tc.variables["USE_SYSTEM_BENCHMARK"] = True
+        tc.variables["USE_SYSTEM_CPUINFO"] = True
+        tc.variables["USE_SYSTEM_EIGEN_INSTALL"] = True
+        tc.variables["USE_SYSTEM_FP16"] = True
+        tc.variables["USE_SYSTEM_FXDIV"] = True
+        tc.variables["USE_SYSTEM_GLOO"] = True
+        tc.variables["USE_SYSTEM_NCCL"] = True
+        tc.variables["USE_SYSTEM_ONNX"] = True
+        tc.variables["USE_SYSTEM_PSIMD"] = True
+        tc.variables["USE_SYSTEM_PTHREADPOOL"] = True
+        tc.variables["USE_SYSTEM_PYBIND11"] = True
+        tc.variables["USE_SYSTEM_SLEEF"] = True
+        tc.variables["USE_SYSTEM_XNNPACK"] = self.options.with_xnnpack
 
         tc.variables["MSVC_Z7_OVERRIDE"] = False
 
