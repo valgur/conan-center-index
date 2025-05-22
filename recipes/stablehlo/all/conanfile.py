@@ -45,8 +45,10 @@ class StableHLOConan(ConanFile):
         return "[~20.1]"
 
     def requirements(self):
-        self.requires(f"llvm-core/{self._llvm_version}", transitive_headers=True, transitive_libs=True)
-        self.requires(f"mlir/{self._llvm_version}", transitive_headers=True, transitive_libs=True, options={"tools": can_run(self)})
+        self.requires(f"mlir/{self._llvm_version}", transitive_headers=True, transitive_libs=True,
+                      options={"tools": can_run(self)}, run=can_run(self))
+        self.requires(f"llvm-core/{self._llvm_version}", transitive_headers=True, transitive_libs=True,
+                      options={"utils": can_run(self)}, run=can_run(self))
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -56,6 +58,7 @@ class StableHLOConan(ConanFile):
     def build_requirements(self):
         if not can_run(self):
             self.tool_requires("mlir/<host_version>", options={"tools": True})
+            self.tool_requires("llvm-core/<host_version>", options={"utils": True})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -73,7 +76,6 @@ class StableHLOConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
-        deps.set_property("llvm-core::LLVMFileCheck", "cmake_target_name", "FileCheck")
         deps.generate()
 
     def build(self):
@@ -204,9 +206,8 @@ def components_from_dotfile(dotfile):
     by the LLVM build system
     """
     known_system_libs = {"dl", "m", "pthread", "rt"}
-    label_replacements = {"FileCheck": "LLVMFileCheck"}
     components = {}
-    for component, deps in parse_dotfile(dotfile, label_replacements).items():
+    for component, deps in parse_dotfile(dotfile).items():
         if component.startswith("LLVM") or component.startswith("MLIR") or "::" in component or component in known_system_libs:
             continue
         requires = []

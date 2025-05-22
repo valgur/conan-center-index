@@ -10,10 +10,3 @@ patches:
     - patch_file: "patches/1.10.0-revert-const-shape-casts.patch"
       patch_description: "Revert getTosaConstShape() calls for compatibility with official MLIR 20.x releases"
       patch_type: "portability"
-    - patch_file: "patches/disable-test.patch"
-      patch_description: "Disable a test that would require LLVM tools to run"
-      patch_type: "conan"
-  "1.6.3":
-    - patch_file: "patches/disable-test.patch"
-      patch_description: "Disable a test that would require LLVM tools to run"
-      patch_type: "conan"
