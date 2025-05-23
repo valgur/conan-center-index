@@ -147,6 +147,11 @@ class LLDConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
+        # Back up original cmake files for debugging purposes
+        package_folder = Path(self.package_folder)
+        cmake_dir = package_folder / self._cmake_module_path
+        copy(self, "*", cmake_dir, os.path.join(self.package_folder, "share", "conan", self.name, "cmake_original"))
+
         self._write_build_info(self._build_info_file)
 
         package_folder = Path(self.package_folder)
@@ -157,6 +162,22 @@ class LLDConan(ConanFile):
         replace_in_file(self, cmake_folder / "LLDConfigVars.cmake",
                         'include("${LLD_CMAKE_DIR}/LLDTargets.cmake")',
                         '# include("${LLD_CMAKE_DIR}/LLDTargets.cmake")')
+
+        self._write_export_executables_cmake(cmake_dir / "conan_add_executable_targets.cmake")
+
+        rmdir(self, package_folder / "share" / "man")
+
+    def _write_export_executables_cmake(self, cmake_file_path):
+        bin_dir = Path(self.package_folder, "bin")
+        content = 'get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n\n'
+        content += "\n".join(
+            f"if(NOT TARGET {x.stem})\n"
+            f"  add_executable({x.stem} IMPORTED)\n"
+            f'  set_target_properties({x.stem} PROPERTIES IMPORTED_LOCATION "${{_IMPORT_PREFIX}}/bin/{x.name}")\n'
+            "endif()\n"
+            for x in sorted(bin_dir.iterdir()) if x.suffix not in {".dll", ".pdb"}
+        )
+        save(self, cmake_file_path, content)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LLD")
@@ -180,7 +201,10 @@ class LLDConan(ConanFile):
             self.output.warning(f"Some libraries were not declared as components: {found_libs - component_libs}")
 
         self.cpp_info.builddirs.append(self._cmake_module_path)
-        self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "LLDConfigVars.cmake"])
+        self.cpp_info.set_property("cmake_build_modules", [
+            self._cmake_module_path / "LLDConfigVars.cmake",
+            self._cmake_module_path / "conan_add_executable_targets.cmake",
+        ])
 
 
 def parse_dotfile(dotfile, label_replacements=None):
