@@ -11,6 +11,7 @@ from conan.tools.build import check_min_cstd, check_min_cppstd, can_run, stdcpp_
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -82,6 +83,11 @@ class TorchMlirConan(ConanFile):
         deps.generate()
 
     def build(self):
+        if Version(self.dependencies["stablehlo"].ref.version) >= "1.9":
+            replace_in_file(self, os.path.join(self.source_folder, "lib", "InitAll.cpp"),
+                            '#include "stablehlo/transforms/Passes.h"',
+                            '#include "stablehlo/transforms/Passes.h"'
+                            '#include "stablehlo/transforms/optimization/Passes.h"')
         cmake = CMake(self)
         self._configure_and_extract_build_info(cmake)
         cmake.build()
