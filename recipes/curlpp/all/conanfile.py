@@ -46,7 +46,8 @@ class CurlppConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CURLPP_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.cache_variables["CURLPP_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
