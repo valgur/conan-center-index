@@ -2,6 +2,12 @@ sources:
   "1.10.0":
     url: "https://github.com/openxla/stablehlo/archive/refs/tags/v1.10.0.tar.gz"
     sha256: "063d3b891d12daff764973e016d8959347968fb13b8298366ecbbc3f81f36770"
+  "1.9.7":
+    url: "https://github.com/openxla/stablehlo/archive/refs/tags/v1.9.7.tar.gz"
+    sha256: "e7caeb66e205a5b824b052307c11ffa2ec5c7790f5d3ded1af90f3552dbcf9ec"
+  "1.8.11":
+    url: "https://github.com/openxla/stablehlo/archive/refs/tags/v1.8.11.tar.gz"
+    sha256: "2bd8cde8a7193e4832a0a8d9bade53988e0a10344780cb8ea1e78c90e5346b44"
   "1.6.3":
     url: "https://github.com/openxla/stablehlo/archive/refs/tags/v1.6.3.tar.gz"
     sha256: "3fef356ea326639c1a03e9e5c6f164b10507bac90634de0ff807d5ef1ad30342"
@@ -10,3 +16,11 @@ patches:
     - patch_file: "patches/1.10.0-revert-const-shape-casts.patch"
       patch_description: "Revert getTosaConstShape() calls for compatibility with official MLIR 20.x releases"
       patch_type: "portability"
+  "1.9.7":
+    - patch_file: "patches/1.10.0-revert-const-shape-casts.patch"
+      patch_description: "Revert getTosaConstShape() calls for compatibility with official MLIR 20.x releases"
+      patch_type: "portability"
+  "1.8.11":
+    - patch_file: "patches/1.8.11-llvm-20-compatibility.patch"
+      patch_description: "Backport changes from 1.9.7 for compatibility with LLVM 20"
+      patch_type: "backport"

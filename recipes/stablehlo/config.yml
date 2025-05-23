@@ -2,6 +2,10 @@ versions:
   # The last version compatible with LLVM 20.1
   "1.10.0":
     folder: all
+  "1.9.7":
+    folder: all
+  "1.8.11":
+    folder: all
   # The last version compatible with LLVM 19
   "1.6.3":
     folder: all
