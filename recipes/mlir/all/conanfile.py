@@ -7,7 +7,7 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanException
-from conan.tools.build import check_min_cppstd, can_run
+from conan.tools.build import check_min_cppstd, can_run, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
@@ -235,6 +235,7 @@ class MLIRConan(ConanFile):
 
         build_info = self._read_build_info()
         components = build_info["components"]
+        libcxx = stdcpp_library(self)
         for name, data in components.items():
             component = self.cpp_info.components[name]
             component.set_property("cmake_target_name", name)
@@ -243,6 +244,8 @@ class MLIRConan(ConanFile):
             component.builddirs.append(self._cmake_module_path)
             component.requires = data["requires"]
             component.system_libs = data["system_libs"]
+            if name.startswith("MLIRCAPI") and not self.options.shared and libcxx:
+                component.system_libs.append(libcxx)
             if not self.dependencies["llvm-core"].options.rtti:
                 component.cxxflags.append("/GR-" if is_msvc(self) else "-fno-rtti")
 
