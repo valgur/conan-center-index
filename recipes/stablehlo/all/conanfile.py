@@ -149,7 +149,7 @@ class StableHLOConan(ConanFile):
         copy(self, "*.h.inc", os.path.join(self.build_folder, "stablehlo"), os.path.join(self.package_folder, "include", "stablehlo"))
 
         # TableGen (.td) files
-        copy(self, "*.td", os.path.join(self.source_folder, "stablehlo"), os.path.join(self.package_folder, "share", "td", "stablehlo"))
+        copy(self, "*.td", os.path.join(self.source_folder, "stablehlo"), os.path.join(self.package_folder, "include", "stablehlo"))
 
         # Tools
         copy(self, "*", os.path.join(self.build_folder, "bin"), os.path.join(self.package_folder, "bin"))
@@ -170,7 +170,6 @@ class StableHLOConan(ConanFile):
             component = self.cpp_info.components[name]
             component.set_property("cmake_target_name", name)
             component.libs = [name]
-            component.resdirs = ["share"]
             component.requires = data["requires"]
             component.system_libs = data["system_libs"]
 
