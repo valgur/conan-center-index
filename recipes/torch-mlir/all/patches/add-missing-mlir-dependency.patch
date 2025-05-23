@@ -1,0 +1,11 @@
+diff --git a/lib/Dialect/Torch/IR/CMakeLists.txt b/lib/Dialect/Torch/IR/CMakeLists.txt
+--- a/lib/Dialect/Torch/IR/CMakeLists.txt
++++ b/lib/Dialect/Torch/IR/CMakeLists.txt
+@@ -22,6 +22,7 @@
+   MLIRControlFlowInterfaces
+   MLIRInferTypeOpInterface
+   MLIRSideEffectInterfaces
++  MLIRCastInterfaces
+ )
+ 
+ torch_mlir_target_includes(TorchMLIRTorchDialect)

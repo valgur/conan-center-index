@@ -1,0 +1,25 @@
+diff --git a/projects/onnx_c_importer/CMakeLists.txt b/projects/onnx_c_importer/CMakeLists.txt
+--- a/projects/onnx_c_importer/CMakeLists.txt
++++ b/projects/onnx_c_importer/CMakeLists.txt
+@@ -1,20 +1,6 @@
+ message(STATUS "Enabling onnx_c_importer...")
+ 
+-include(FetchContent)
+-
+-find_package(Protobuf REQUIRED CONFIG)
+-
+-option(ONNX_DISABLE_EXCEPTIONS "For compatibility with LLVM build" ON)
+-
+-FetchContent_Declare(
+-    onnx
+-    EXCLUDE_FROM_ALL
+-    GIT_REPOSITORY https://github.com/onnx/onnx.git
+-    GIT_TAG v1.15.0
+-    GIT_SHALLOW ON
+-    GIT_PROGRESS ON
+-)
+-FetchContent_MakeAvailable(onnx)
++find_package(ONNX REQUIRED)
+ 
+ add_llvm_executable(
+     torch-mlir-import-onnx
