@@ -69,6 +69,8 @@ class ClangConan(ConanFile):
             VirtualRunEnv(self).generate(scope="build")
         tc = CMakeToolchain(self)
         tc.cache_variables["LLVM_INCLUDE_TESTS"] = False
+        tc.cache_variables["LLVM_BUILD_TOOLS"] = True
+        tc.cache_variables["LLVM_BUILD_UTILS"] = True
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -142,18 +144,37 @@ class ClangConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
+        # Back up original cmake files for debugging purposes
+        package_folder = Path(self.package_folder)
+        cmake_dir = package_folder / self._cmake_module_path
+        copy(self, "*", cmake_dir, os.path.join(self.package_folder, "share", "conan", self.name, "cmake_original"))
+
         self._write_build_info(self._build_info_file)
 
-        package_folder = Path(self.package_folder)
-        cmake_folder = package_folder / self._cmake_module_path
-        rm(self, "ClangConfigVersion.cmake", cmake_folder)
-        rm(self, "ClangTargets*", cmake_folder)
-        rename(self, cmake_folder / "ClangConfig.cmake", cmake_folder / "ClangConfigVars.cmake")
-        replace_in_file(self, cmake_folder / "ClangConfigVars.cmake",
+        rm(self, "ClangConfigVersion.cmake", cmake_dir)
+        rm(self, "ClangTargets*", cmake_dir)
+        rename(self,
+               cmake_dir / "ClangConfig.cmake",
+               cmake_dir / "ClangConfigVars.cmake")
+        replace_in_file(self, cmake_dir / "ClangConfigVars.cmake",
                         'include("${CLANG_CMAKE_DIR}/ClangTargets.cmake")',
                         '# include("${CLANG_CMAKE_DIR}/ClangTargets.cmake")')
 
+        self._write_export_executables_cmake(cmake_dir / "conan_add_executable_targets.cmake")
+
         rmdir(self, package_folder / "share" / "man")
+
+    def _write_export_executables_cmake(self, cmake_file_path):
+        bin_dir = Path(self.package_folder, "bin")
+        content = 'get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)\n\n'
+        content += "\n".join(
+            f"if(NOT TARGET {x.stem})\n"
+            f"  add_executable({x.stem} IMPORTED)\n"
+            f'  set_target_properties({x.stem} PROPERTIES IMPORTED_LOCATION "${{_IMPORT_PREFIX}}/bin/{x.name}")\n'
+            "endif()\n"
+            for x in sorted(bin_dir.iterdir()) if x.suffix not in {".dll", ".pdb"}
+        )
+        save(self, cmake_file_path, content)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Clang")
@@ -173,7 +194,10 @@ class ClangConan(ConanFile):
                 component.cxxflags.append(no_rtti_flag)
 
         self.cpp_info.builddirs.append(self._cmake_module_path)
-        self.cpp_info.set_property("cmake_build_modules", [self._cmake_module_path / "ClangConfigVars.cmake"])
+        self.cpp_info.set_property("cmake_build_modules", [
+            self._cmake_module_path / "ClangConfigVars.cmake",
+            self._cmake_module_path / "conan_add_executable_targets.cmake",
+        ])
 
 
 def parse_dotfile(dotfile, label_replacements=None):
