@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-22:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-23:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -27,6 +27,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.6
+- benchmark/1.9.4
 - blis/0.9.0
 - bluez/5.82
 - boost/1.71.0
@@ -55,6 +56,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cose-c/cci.20200603
 - cpp-validator/2.1.1
 - cppserver/1.0.4.1
+- cpuinfo/cci.20250522
 - cpython/3.10.17
 - cpython/3.11.12
 - cpython/3.12.10
@@ -281,6 +283,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ncbi-cxx-toolkit/29.0.0
 - netcdf/4.9.3
 - netpbm/11.6.0
+- novatel_edie/3.7.5
 - nss/3.107
 - nss/3.110
 - numpy/1.26.4
@@ -308,6 +311,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - pangolin/0.9.3
 - pangomm/2.46.4
 - pangomm/2.54.0
+- partio/1.19.0
 - pcl/1.14.1
 - pcre2/10.45
 - pcsc-lite/2.3.3
@@ -378,6 +382,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-tools/1.3.296.0
 - spirv-tools/1.4.313.0
 - splinter/3.0
+- stablehlo/1.10.0
+- stablehlo/1.6.3
 - stb/cci.20250314
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
