@@ -103,5 +103,5 @@ class FlatccConan(ConanFile):
     def package_info(self):
         debug_suffix = "_d" if self.settings.build_type == "Debug" else ""
         if not self.options.runtime_lib_only:
-            self.cpp_info.libs.append(f"flatcc{debug_suffix}")
-        self.cpp_info.libs.append(f"flatccrt{debug_suffix}")
+            self.cpp_info.components["parsing"].libs = [f"flatcc{debug_suffix}"]
+        self.cpp_info.components["runtime"].libs = [f"flatccrt{debug_suffix}"]
