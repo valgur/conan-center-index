@@ -176,7 +176,7 @@ class MPUnitsConan(ConanFile):
     def requirements(self):
         if not self.options.freestanding:
             if self.options.contracts == "gsl-lite":
-                self.requires("gsl-lite/0.41.0", transitive_headers=True)
+                self.requires("gsl-lite/[>=0.41.0 <2]", transitive_headers=True)
             elif self.options.contracts == "ms-gsl":
                 self.requires("ms-gsl/[^4.0.0]", transitive_headers=True)
             if not self.options.std_format:
@@ -265,31 +265,22 @@ class MPUnitsConan(ConanFile):
         else:
             # handle contracts
             if self.options.contracts == "none":
-                self.cpp_info.components["core"].defines.append(
-                    "MP_UNITS_API_CONTRACTS=0"
-                )
+                self.cpp_info.components["core"].defines.append("MP_UNITS_API_CONTRACTS=0")
             elif self.options.contracts == "gsl-lite":
                 self.cpp_info.components["core"].requires.append("gsl-lite::gsl-lite")
-                self.cpp_info.components["core"].defines.append(
-                    "MP_UNITS_API_CONTRACTS=2"
-                )
+                self.cpp_info.components["core"].defines.append("MP_UNITS_API_CONTRACTS=2")
+                # TODO: remove this once mp-units has been ported to gsl-lite 1.0 API
+                self.cpp_info.components["core"].defines.append("gsl_FEATURE_GSL_COMPATIBILITY_MODE=1")
             elif self.options.contracts == "ms-gsl":
                 self.cpp_info.components["core"].requires.append("ms-gsl::ms-gsl")
-                self.cpp_info.components["core"].defines.append(
-                    "MP_UNITS_API_CONTRACTS=3"
-                )
+                self.cpp_info.components["core"].defines.append("MP_UNITS_API_CONTRACTS=3")
 
             # handle API options
-            self.cpp_info.components["core"].defines.append(
-                "MP_UNITS_API_STRING_VIEW_RET="
-                + str(int(self.options.string_view_ret == True))
-            )
-            self.cpp_info.components["core"].defines.append(
-                "MP_UNITS_API_NO_CRTP=" + str(int(self.options.no_crtp == True))
-            )
-            self.cpp_info.components["core"].defines.append(
-                "MP_UNITS_API_STD_FORMAT=" + str(int(self.options.std_format == True))
-            )
+            self.cpp_info.components["core"].defines.extend([
+                f"MP_UNITS_API_STRING_VIEW_RET={int(self.options.string_view_ret == True)}",
+                f"MP_UNITS_API_NO_CRTP={int(self.options.no_crtp == True)}",
+                f"MP_UNITS_API_STD_FORMAT={int(self.options.std_format == True)}",
+            ])
             if not self.options.std_format:
                 self.cpp_info.components["core"].requires.append("fmt::fmt")
 
@@ -301,9 +292,7 @@ class MPUnitsConan(ConanFile):
             if self.options.import_std:
                 self.cpp_info.components["core"].defines.append("MP_UNITS_IMPORT_STD")
                 if compiler == "clang" and Version(compiler.version) < 19:
-                    self.cpp_info.components["core"].cxxflags.append(
-                        "-Wno-deprecated-declarations"
-                    )
+                    self.cpp_info.components["core"].cxxflags.append("-Wno-deprecated-declarations")
 
             if compiler == "msvc":
                 self.cpp_info.components["core"].cxxflags.append("/utf-8")
