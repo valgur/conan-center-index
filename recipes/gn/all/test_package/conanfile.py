@@ -14,7 +14,7 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires(self.tested_reference_str)
-        self.tool_requires("ninja/1.11.1")
+        self.tool_requires("ninja/[^1.10]")
 
     def layout(self):
         basic_layout(self)

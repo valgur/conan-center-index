@@ -55,7 +55,7 @@ class LibclcConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.20 <5]")
-        self.tool_requires("ninja/[>=1.10.2 <2]")
+        self.tool_requires("ninja/[^1.10]")
         # Also requires Python during build
         if not self._is_compatible_compiler():
             self.tool_requires("llvm-core/<host_version>", options={

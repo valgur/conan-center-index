@@ -82,7 +82,7 @@ class CrashpadConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        self.tool_requires("ninja/1.12.0")
+        self.tool_requires("ninja/[^1.10]")
         self.tool_requires("gn/cci.20210429")
         self.tool_requires("cpython/[~3.12]")
         if self.settings_build.os == "Windows":
