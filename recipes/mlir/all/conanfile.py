@@ -85,13 +85,38 @@ class MLIRConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    @property
-    def _source_path(self):
-        return Path(self.source_folder) / "mlir"
+    def build(self):
+        cmake = CMake(self)
+        self._configure_and_extract_build_info(cmake)
+        cmake.build()
+
+    def _configure_and_extract_build_info(self, cmake, **configure_kwargs):
+        exclude_patterns = [
+            "CONAN_LIB.*",
+            "llvm-core.*",
+            ".*_DEPS_TARGET",
+            ".+-resource-headers",
+        ]
+        save(self, Path(self.build_folder) / "CMakeGraphVizOptions.cmake", textwrap.dedent(f"""
+            set(GRAPHVIZ_EXECUTABLES OFF)
+            set(GRAPHVIZ_MODULE_LIBS OFF)
+            set(GRAPHVIZ_OBJECT_LIBS OFF)
+            set(GRAPHVIZ_IGNORE_TARGETS "{';'.join(exclude_patterns)}")
+        """))
+        graphviz_args = configure_kwargs.pop("cli_args", []) + [f"--graphviz={self._graphviz_file}"]
+        cmake.configure(build_script_folder="mlir", **configure_kwargs, cli_args=graphviz_args)
+        self._write_build_info("_conan_build_info.json")
+        self._validate_components(self._build_info["components"])
 
     @property
     def _graphviz_file(self):
-        return Path(self.build_folder) / "mlir.dot"
+        return Path(self.build_folder) / f"{self.name}.dot"
+
+    @cached_property
+    def _build_info(self):
+        return {
+            "components": components_from_dotfile(self._graphviz_file.read_text()),
+        }
 
     def _validate_components(self, components):
         for component, info in components.items():
@@ -103,51 +128,21 @@ class MLIRConan(ConanFile):
                     if dep not in self.dependencies.direct_host:
                         raise ConanException(f"Unexpected dependency for {component}: {req}")
 
-    @cached_property
-    def _build_info(self):
-        return {
-            "components": components_from_dotfile(self._graphviz_file.read_text()),
-        }
-
-    def _write_build_info(self, path):
-        Path(path).write_text(json.dumps(self._build_info, indent=2))
-
-    def _read_build_info(self) -> dict:
-        return json.loads(self._build_info_file.read_text())
-
-    def build(self):
-        cmake = CMake(self)
-        graphviz_args = [f"--graphviz={self._graphviz_file}"]
-
-        # components not exported or not of interest
-        exclude_patterns = [
-            "CONAN_LIB*",
-            "llvm-core*",
-            # The *-resource-headers targets are not exported by the official MLIRConfig.cmake.
-            ".+-resource-headers",
-        ]
-        save(self, Path(self.build_folder) / "CMakeGraphVizOptions.cmake", textwrap.dedent(f"""
-            set(GRAPHVIZ_EXECUTABLES OFF)
-            set(GRAPHVIZ_MODULE_LIBS OFF)
-            set(GRAPHVIZ_OBJECT_LIBS OFF)
-            set(GRAPHVIZ_IGNORE_TARGETS "{';'.join(exclude_patterns)}")
-        """))
-        cmake.configure(build_script_folder="mlir", cli_args=graphviz_args)
-        self._write_build_info(self._build_info_file.name)
-        self._validate_components(self._build_info["components"])
-        cmake.build()
-
-    @property
-    def _package_path(self):
-        return Path(self.package_folder)
-
     @property
     def _cmake_module_path(self):
-        return Path("lib") / "cmake" / "mlir"
+        return Path("lib") / "cmake" / self.name
 
     @property
-    def _build_info_file(self):
-        return self._package_path / self._cmake_module_path / "conan_mlir_build_info.json"
+    def _package_build_info_file(self):
+        return Path(self.package_folder) / self._cmake_module_path / "conan_build_info.json"
+
+    def _write_build_info(self, path):
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(self._build_info, indent=2))
+
+    def _read_build_info(self) -> dict:
+        return json.loads(self._package_build_info_file.read_text())
 
     @cached_property
     def _obj_dir(self):
@@ -158,7 +153,7 @@ class MLIRConan(ConanFile):
         return {d.name.replace("obj.", ""): sorted(d.glob("*.o")) for d in self._obj_dir.iterdir() if d.is_dir()}
 
     def package(self):
-        copy(self, "LICENSE.TXT", self._source_path, os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.TXT", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -167,7 +162,7 @@ class MLIRConan(ConanFile):
         cmake_dir = package_folder / self._cmake_module_path
         copy(self, "*", cmake_dir, os.path.join(self.package_folder, "share", "conan", self.name, "cmake_original"))
 
-        self._write_build_info(self._build_info_file)
+        self._write_build_info(self._package_build_info_file)
 
         rm(self, "MLIRConfigVersion.cmake", cmake_dir)
         rm(self, "MLIRTargets*", cmake_dir)
