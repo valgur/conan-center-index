@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-23:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-24:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -44,6 +44,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cimg/3.3.5
 - clang/19.1.7
 - clang/20.1.5
+- cmake/4.0.2
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -413,6 +414,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - thrust/2.7.0
 - tk/8.6.13
 - tk/8.6.16
+- torch-mlir/cci.20250203
 - tpl/cci.20210302
 - tslib/1.23
 - tz/2024b
