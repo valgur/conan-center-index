@@ -22,11 +22,13 @@ class StkConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "install_data": [True, False],
         "with_alsa": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "install_data": True,
         "with_alsa": True,
     }
     implements = ["auto_shared_fpic"]
@@ -83,13 +85,13 @@ class StkConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
-        copy(self, "*.raw",
-             os.path.join(self.source_folder, "rawwaves"),
-             os.path.join(self.package_folder, "share", "stk", "rawwaves"))
-
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
+
+        if self.options.install_data:
+            copy(self, "*.raw",
+                 os.path.join(self.source_folder, "rawwaves"),
+                 os.path.join(self.package_folder, "share", "stk", "rawwaves"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "stk")
@@ -106,5 +108,6 @@ class StkConan(ConanFile):
         elif is_apple_os(self):
             self.cpp_info.frameworks = ["CoreAudio", "CoreFoundation", "CoreMIDI"]
 
-        # Not an official env var
-        self.runenv_info.define_path("STK_RAWWAVE_PATH", os.path.join(self.package_folder, "share", "stk", "rawwaves"))
+        if self.options.install_data:
+            # Not an official env var
+            self.runenv_info.define_path("STK_RAWWAVE_PATH", os.path.join(self.package_folder, "share", "stk", "rawwaves"))
