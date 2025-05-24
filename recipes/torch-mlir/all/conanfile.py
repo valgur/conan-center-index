@@ -156,6 +156,11 @@ class TorchMlirConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
+        # torch-mlir-dialects is not installed for some reason
+        copy(self, "*.h", os.path.join(self.source_folder, "include", "torch-mlir-dialects"), os.path.join(self.package_folder, "include", "torch-mlir-dialects"))
+        copy(self, "*.td", os.path.join(self.source_folder, "include", "torch-mlir-dialects"), os.path.join(self.package_folder, "include", "torch-mlir-dialects"))
+        copy(self, "*.h.inc", os.path.join(self.build_folder, "include", "torch-mlir-dialects"), os.path.join(self.package_folder, "include", "torch-mlir-dialects"))
+
         self._write_build_info(self._package_build_info_file)
 
         cmake_dir = Path(self.package_folder) / self._cmake_module_path
