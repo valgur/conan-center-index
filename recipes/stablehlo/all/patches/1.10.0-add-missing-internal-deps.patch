@@ -1,0 +1,12 @@
+diff --git a/stablehlo/conversions/tosa/transforms/CMakeLists.txt b/stablehlo/conversions/tosa/transforms/CMakeLists.txt
+--- a/stablehlo/conversions/tosa/transforms/CMakeLists.txt
++++ b/stablehlo/conversions/tosa/transforms/CMakeLists.txt
+@@ -39,4 +39,8 @@
+   MLIRIR
+   MLIRPass
+   MLIRTransforms
++  MLIRParser
++  MLIRTosaDialect
++  MLIRQuantDialect
++  StablehloOps
+ )

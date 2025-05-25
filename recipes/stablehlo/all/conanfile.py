@@ -27,12 +27,30 @@ class StableHLOConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/openxla/stablehlo"
     topics = ("machine-learning", "hlo", "compiler", "mlir", "onnx", "jax", "tensorflow")
-    # FIXME: shared build fails with linker errors
-    package_type = "static-library"
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+        if Version(self.version) >= "1.9":
+            # Can only build as static due to a circular dependency in the internal components
+            self.options.rm_safe("shared")
+            self.options.rm_safe("fPIC")
+            self.package_type = "static-library"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -56,6 +74,7 @@ class StableHLOConan(ConanFile):
             check_min_cstd(self, 11)
 
     def build_requirements(self):
+        self.tool_requires("ninja/[^1.10]")
         if not can_run(self):
             self.tool_requires("mlir/<host_version>", options={"tools": True})
             self.tool_requires("llvm-core/<host_version>", options={"utils": True})
@@ -64,13 +83,14 @@ class StableHLOConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
+        save(self, "examples/CMakeLists.txt", "")
 
     def generate(self):
         if can_run(self):
             venv = VirtualRunEnv(self)
             venv.generate(scope="build")
 
-        tc = CMakeToolchain(self)
+        tc = CMakeToolchain(self, generator="Ninja")
         tc.cache_variables["LLVM_ENABLE_LLD"] = self.settings.compiler in ["clang", "apple-clang"]
         tc.cache_variables["STABLEHLO_ENABLE_BINDINGS_PYTHON"] = False
         tc.generate()
@@ -144,11 +164,9 @@ class StableHLOConan(ConanFile):
         # The CMake project does not install anything besides the library files.
         # Copy the missing artifacts based on the Bazel project.
 
-        # Header files
+        # Header and TableGen files
         copy(self, "*.h", os.path.join(self.source_folder, "stablehlo"), os.path.join(self.package_folder, "include", "stablehlo"))
         copy(self, "*.h.inc", os.path.join(self.build_folder, "stablehlo"), os.path.join(self.package_folder, "include", "stablehlo"))
-
-        # TableGen (.td) files
         copy(self, "*.td", os.path.join(self.source_folder, "stablehlo"), os.path.join(self.package_folder, "include", "stablehlo"))
 
         # Tools

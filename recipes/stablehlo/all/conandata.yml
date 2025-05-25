@@ -16,11 +16,16 @@ patches:
     - patch_file: "patches/1.10.0-revert-const-shape-casts.patch"
       patch_description: "Revert getTosaConstShape() calls for compatibility with official MLIR 20.x releases"
       patch_type: "portability"
+    - patch_file: "patches/1.10.0-add-missing-internal-deps.patch"
   "1.9.7":
     - patch_file: "patches/1.10.0-revert-const-shape-casts.patch"
       patch_description: "Revert getTosaConstShape() calls for compatibility with official MLIR 20.x releases"
       patch_type: "portability"
+    - patch_file: "patches/1.8.11-add-missing-internal-deps.patch"
   "1.8.11":
     - patch_file: "patches/1.8.11-llvm-20-compatibility.patch"
       patch_description: "Backport changes from 1.9.7 for compatibility with LLVM 20"
       patch_type: "backport"
+    - patch_file: "patches/1.8.11-add-missing-internal-deps.patch"
+  "1.6.3":
+    - patch_file: "patches/1.6.3-add-missing-internal-deps.patch"
