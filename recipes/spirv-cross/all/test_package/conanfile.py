@@ -22,5 +22,10 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            bin_path = os.path.join(self.cpp.build.bindir, "test_package")
-            self.run(bin_path, env="conanrun")
+            opts = self.dependencies["spirv-cross"].options
+            if not opts.get_safe("shared", False):
+                bin_path = os.path.join(self.cpp.build.bindir, "test_package_cpp")
+                self.run(bin_path, env="conanrun")
+            if opts.c_api:
+                bin_path = os.path.join(self.cpp.build.bindir, "test_package_c")
+                self.run(bin_path, env="conanrun")

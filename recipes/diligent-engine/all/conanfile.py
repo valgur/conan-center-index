@@ -82,9 +82,9 @@ class DiligentEngineConan(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio build with MT runtime is not supported")
         if self._diligent_platform is None:
             raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
-        if self.dependencies["spirv-cross"].options.shared:
-            # Otherwise fails with many spirv_cross::Compiler::* linker errors in SPIRVShaderResources.cpp
-            raise ConanInvalidConfiguration("spirv-cross must be built as static (-o spirv-cross/*:shared=False)")
+        if self.dependencies["spirv-cross"].options.get_safe("shared"):
+            # Shared spirv-cross does not export a C++ API
+            raise ConanInvalidConfiguration("spirv-cross must be built as static")
 
     def build_requirements(self):
         self.tool_requires("cmake/[^4]")

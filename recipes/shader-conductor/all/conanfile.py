@@ -45,7 +45,7 @@ class ShaderConductorConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        if self.dependencies["spirv-cross"].options.shared:
+        if self.dependencies["spirv-cross"].options.get_safe("shared"):
             raise ConanInvalidConfiguration("spirv-cross must be built as a static library")
 
     def build_requirements(self):

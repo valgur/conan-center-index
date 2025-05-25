@@ -70,7 +70,7 @@ class MoltenVKConan(ConanFile):
         if Version(self.settings.compiler.version) < "12.0":
             raise ConanInvalidConfiguration(f"{self.ref} requires XCode 12.0 or higher")
         spirv_cross = self.dependencies["spirv-cross"]
-        if spirv_cross.options.shared or not (spirv_cross.options.msl and spirv_cross.options.reflect):
+        if spirv_cross.options.get_safe("shared") or not (spirv_cross.options.msl and spirv_cross.options.reflect):
             raise ConanInvalidConfiguration(f"{self.ref} requires spirv-cross static with msl & reflect enabled")
 
     def source(self):
