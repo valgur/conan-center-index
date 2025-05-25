@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-24:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-25:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -130,6 +130,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - grpc/1.65.5
 - grpc/1.72.0
 - gsettings-desktop-schemas/48.0
+- gsl-lite/0.43.0
+- gsl-lite/1.0.1
 - gst-libav/1.24.12
 - gst-libav/1.26.0
 - gst-orc/0.4.40
@@ -326,6 +328,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - polyscope/2.3.0
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
+- portaudio/19.7.0
 - premake/5.0.0-beta2
 - proj/9.6.0
 - protobuf-c/1.5.2
@@ -385,9 +388,12 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - splinter/3.0
 - stablehlo/1.10.0
 - stablehlo/1.6.3
+- stablehlo/1.8.11
+- stablehlo/1.9.7
 - stb/cci.20250314
 - steamworks_sdk/1.60
 - stella_vslam/0.5.0
+- stk/5.0.1
 - suitesparse-amd/3.3.3
 - suitesparse-btf/2.3.2
 - suitesparse-camd/3.3.3
