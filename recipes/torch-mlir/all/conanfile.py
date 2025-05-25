@@ -23,6 +23,7 @@ class TorchMlirConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/llvm/torch-mlir"
     topics = ("compiler", "pytorch", "mlir")
+    # Circular internal dependencies in the project limit the build to static-only.
     package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -53,6 +54,7 @@ class TorchMlirConan(ConanFile):
             check_min_cstd(self, 11)
 
     def build_requirements(self):
+        self.tool_requires("ninja/[^1.10]")
         if not can_run(self):
             self.requires("llvm-core/<host_version>", options={"utils": True})
             self.requires("mlir/<host_version>", options={"tools": True, "install_aggregate_objects": True})
@@ -71,7 +73,7 @@ class TorchMlirConan(ConanFile):
             venv = VirtualRunEnv(self)
             venv.generate(scope="build")
 
-        tc = CMakeToolchain(self)
+        tc = CMakeToolchain(self, generator="Ninja")
         tc.cache_variables["CMAKE_PROJECT_torch-mlir_INCLUDE"] = "conan_deps.cmake"
         tc.cache_variables["TORCH_MLIR_ENABLE_ONNX_C_IMPORTER"] = self.options.onnx_c_importer
         tc.cache_variables["TORCH_MLIR_USE_EXTERNAL_STABLEHLO"] = True
