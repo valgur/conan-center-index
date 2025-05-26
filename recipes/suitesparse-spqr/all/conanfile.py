@@ -42,7 +42,8 @@ class SuiteSparseSpqrConan(ConanFile):
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
         self.requires("suitesparse-config/[^7.8.3]", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True,
+                      options={"build_supernodal": True, "build_matrixops": True})
 
     def validate(self):
         if self.options.cuda and not self.dependencies["suitesparse-cholmod"].options.cuda:
