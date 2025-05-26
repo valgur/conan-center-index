@@ -51,7 +51,7 @@ class LibcapConan(ConanFile):
     def build_requirements(self):
         if cross_building(self):
             # Get arch-specific objcopy
-            self.tool_requires("binutils/2.42")
+            self.tool_requires("binutils/[^2.42]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -2,16 +2,16 @@ import os
 import re
 import typing
 import unittest
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 # This recipe includes a selftest to test conversion of os/arch to triplets (and vice verse)
 # Run it using `python -m unittest conanfile.py`
@@ -47,6 +47,8 @@ class BinutilsConan(ConanFile):
         "add_unprefixed_to_path": True,
     }
 
+    languages = ["C"]
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -54,13 +56,7 @@ class BinutilsConan(ConanFile):
     def _settings_target(self):
         return getattr(self, "settings_target", None) or self.settings
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
         if not self.options.target_triplet:
             if not self.options.target_arch:
                 # If target triplet and target arch are not set, initialize it from the target settings
@@ -139,16 +135,15 @@ class BinutilsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        for makefile in Path(self.source_folder).glob("*/Makefile.in"):
+            replace_in_file(self, makefile, "install-info-am:", "install-info-am:;\n_disabled_:", strict=False)
+            replace_in_file(self, makefile, "INFO_DEPS = ", "INFO_DEPS = # ", strict=False)
 
     @property
     def _exec_prefix(self):
         return os.path.join("bin", "exec_prefix")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         def yes_no(opt): return "yes" if opt else "no"
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--disable-nls")
@@ -167,16 +162,9 @@ class BinutilsConan(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
-
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
-        copy(
-            self,
-            pattern="COPYING*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            keep_path=False,
-        )
+        copy(self, "COPYING*", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False,)
 
     def package_info(self):
         target_bindir = os.path.join(self._exec_prefix, str(self.options.target_triplet), "bin")

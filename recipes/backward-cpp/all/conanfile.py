@@ -88,7 +88,7 @@ class BackwardCppConan(ConanFile):
                 self.requires("elfutils/0.191", transitive_headers=True, transitive_libs=True)
             if self._has_stack_details("bfd"):
                 # transitive_headers: backward.hpp:205 Requires bfd.h
-                self.requires("binutils/2.42", transitive_headers=True)
+                self.requires("binutils/[^2.42]", transitive_headers=True)
 
     def validate(self):
         if self.settings.os not in self._supported_os:
