@@ -28,7 +28,7 @@ class GccArmPrebuiltConan(ConanFile):
     }
     default_options = {
         "target_triplet": None,
-        "add_unprefixed_to_path": False,
+        "add_unprefixed_to_path": True,
     }
     provides = ["gcc"]
 
@@ -92,18 +92,21 @@ class GccArmPrebuiltConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
+        def _tool_path(tool_name):
+            return os.path.join(self.package_folder, "bin", f"{self._triplet}-{tool_name}")
+
         def _add_env_var(var, tool_name):
-            self.buildenv_info.define_path(var, os.path.join(self.package_folder, "bin", f"{self._triplet}-{tool_name}"))
+            self.buildenv_info.define_path(var, _tool_path(tool_name))
 
         _add_env_var("CC", "gcc")
         _add_env_var("CXX", "g++")
-        _add_env_var("FC", "gfortran")
         _add_env_var("CPP", "cpp")
         _add_env_var("CXXCPP", "cpp")
+        _add_env_var("FC", "gfortran")
+        _add_env_var("AS", "as")
 
         _add_env_var("ADDR2LINE", "addr2line")
         _add_env_var("AR", "ar")
-        _add_env_var("AS", "as")
         _add_env_var("DWP", "dwp")
         _add_env_var("GDB", "gdb")
         _add_env_var("GPROF", "gprof")
@@ -122,6 +125,20 @@ class GccArmPrebuiltConan(ConanFile):
         if self.options.add_unprefixed_to_path:
             target_bindir = os.path.join(self.package_folder, self._triplet, "bin")
             self.buildenv_info.prepend_path("PATH", target_bindir)
+
+        self.conf_info.update("tools.build:compiler_executables", {
+            "c": _tool_path("gcc"),
+            "cpp": _tool_path("g++"),
+            "fortran": _tool_path("gfortran"),
+            "asm": _tool_path("as"),
+            "ar": _tool_path("ar"),
+            "ld": _tool_path("ld"),
+            "nm": _tool_path("nm"),
+            "objcopy": _tool_path("objcopy"),
+            "objdump": _tool_path("objdump"),
+            "ranlib": _tool_path("ranlib"),
+            "strip": _tool_path("strip"),
+        })
 
 
 def is_aarch64(arch):
