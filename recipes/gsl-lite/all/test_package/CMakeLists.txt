@@ -10,4 +10,4 @@ else()
     target_sources(${PROJECT_NAME} PRIVATE test_package_v0.cpp)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE gsl-lite::gsl-lite)
+target_link_libraries(${PROJECT_NAME} PRIVATE gsl::gsl-lite)

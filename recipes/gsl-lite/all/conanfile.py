@@ -48,13 +48,12 @@ class GslLiteConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "gsl-lite")
-        self.cpp_info.set_property("cmake_target_name", "gsl-lite::gsl-lite")
+        self.cpp_info.set_property("cmake_target_name", "gsl::gsl-lite")
         version_major = Version(self.version).major
-        self.cpp_info.set_property("cmake_target_aliases", [f"gsl-lite::gsl-lite-v{version_major}"])
+        self.cpp_info.set_property("cmake_target_aliases", [f"gsl::gsl-lite-v{version_major}"])
 
-        # The official CMake config also defines both gsl-lite::gsl-lite-v0 and gsl-lite::gsl-lite-v1 targets,
+        # The official CMake config also defines both gsl::gsl-lite-v0 and gsl::gsl-lite-v1 targets,
         # and adds a -Dgsl_CONFIG_DEFAULTS_VERSION=0 define to the v0 one.
         # Not reproducing this here to not accidentally break recipes
-        # that are (implicitly) adding gsl-lite::gsl-lite to self.cpp_info.requires,
-        # which would unintentionally link against both targets.
+        # that are (implicitly) adding gsl-lite::gsl-lite to self.cpp_info.requires.
         # The user can still add that define manually, if necessary.
