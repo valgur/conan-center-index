@@ -33,3 +33,6 @@ class TestPackageConan(ConanFile):
         self.run(f"protoc --proto_path={self.source_folder} --cpp_out={self.build_folder} {self.source_folder}/addressbook.proto")
         assert os.path.exists(os.path.join(self.build_folder,"addressbook.pb.cc"))
         assert os.path.exists(os.path.join(self.build_folder,"addressbook.pb.h"))
+
+        if self.dependencies["protobuf"].options.python_bindings:
+            self.run('python -c "import google.protobuf; print(google.protobuf.__version__, google.protobuf.__file__)"')

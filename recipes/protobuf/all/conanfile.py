@@ -32,6 +32,7 @@ class ProtobufConan(ConanFile):
         "lite": [True, False],
         "upb": [True, False],
         "debug_suffix": [True, False],
+        "python_bindings": [True, False],
     }
     default_options = {
         "shared": False,
@@ -41,6 +42,7 @@ class ProtobufConan(ConanFile):
         "lite": False,
         "upb": True,
         "debug_suffix": True,
+        "python_bindings": False,
     }
     options_description = {
         "with_zlib": "Enable zlib support",
@@ -48,6 +50,7 @@ class ProtobufConan(ConanFile):
         "lite": "Build lite version",
         "upb": "Build upb version",
         "debug_suffix": "Add 'd' suffix to debug libraries",
+        "python_bindings": "Build Python bindings",
     }
     implements = ["auto_shared_fpic"]
 
@@ -84,6 +87,8 @@ class ProtobufConan(ConanFile):
             self.requires("abseil/[>=20240722.0]", transitive_headers=True, transitive_libs=True)
         elif self._protobuf_release >= "22.0":
             self.requires("abseil/[>=20230802.1]", transitive_headers=True, transitive_libs=True)
+        if self.options.python_bindings:
+            self.requires("cpython/[^3.9]")
 
     @property
     def _compilers_minimum_version(self):
@@ -135,6 +140,8 @@ class ProtobufConan(ConanFile):
     def build_requirements(self):
         if self._protobuf_release >= "30.1":
             self.tool_requires("cmake/[>=3.16 <5]")
+        if self.options.python_bindings:
+            self.tool_requires("cpython/<host_version>")
 
     @cached_property
     def _cmake_install_base_path(self):
@@ -172,11 +179,26 @@ class ProtobufConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
+    @property
+    def _python_build_dir(self):
+        return os.path.join(self.build_folder, "python_bdist")
+
+    @property
+    def _python_package_dir(self):
+        v = self.dependencies["cpython"].ref.version
+        return os.path.join(self.package_folder, "lib", f"python{v.major}.{v.minor}", "site-packages")
+
     def build(self):
         cmake = CMake(self)
         cmake_root = "cmake" if Version(self.version) < "3.21" else None
         cmake.configure(build_script_folder=cmake_root)
         cmake.build()
+
+        if self.options.python_bindings:
+            if self._protobuf_release >= 27:
+                copy(self, "setup.py", os.path.join(self.source_folder, "python", "dist"), os.path.join(self.source_folder, "python"))
+            self.run(f"python -m pip install . -v --no-cache-dir --target={self._python_build_dir}",
+                     cwd=os.path.join(self.source_folder, "python"))
 
     def _read_abseil_targets(self):
         # Read and convert https://github.com/protocolbuffers/protobuf/blob/v30.2/cmake/abseil-cpp.cmake#L56-L94
@@ -212,6 +234,9 @@ class ProtobufConan(ConanFile):
         if not self.options.lite:
             rm(self, "libprotobuf-lite*", os.path.join(self.package_folder, "lib"))
             rm(self, "libprotobuf-lite*", os.path.join(self.package_folder, "bin"))
+
+        if self.options.python_bindings:
+            copy(self, "*", self._python_build_dir, self._python_package_dir)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
@@ -301,3 +326,8 @@ class ProtobufConan(ConanFile):
                 self.cpp_info.components["libprotobuf-lite"].requires.extend(absl_deps)
                 if not self.options.shared:
                     self.cpp_info.components["libprotobuf-lite"].requires.extend(["utf8_validity"])
+
+        if self.options.python_bindings:
+            self.cpp_info.components["_python"].requires = ["cpython::cpython"]
+            self.buildenv_info.prepend_path("PYTHONPATH", self._python_package_dir)
+            self.runenv_info.prepend_path("PYTHONPATH", self._python_package_dir)
