@@ -1,5 +1,5 @@
-#include <iostream>
 #include <pmp/surface_mesh.h>
+#include <iostream>
 
 int main() {
     try {
