@@ -1,0 +1,4 @@
+sources:
+  "3.0.0":
+    url: "https://github.com/pmp-library/pmp-library/archive/refs/tags/3.0.0.tar.gz"
+    sha256: "4533676c7ff8fe816253cb47e1a330e07e044101bdeb9b7b3a1fb437fdc0e4a1"
