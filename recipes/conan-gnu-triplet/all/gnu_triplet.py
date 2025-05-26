@@ -183,13 +183,10 @@ class GNUTriplet:
 
     @classmethod
     def calculate_gnu_os(cls, archos: ArchOs) -> typing.Optional[str]:
-        if archos.os in ("baremetal",):
-            if archos.arch in (
-                "x86",
-                "x86_64",
-            ):
+        if archos.os in {"baremetal"}:
+            if archos.arch in {"x86", "x86_64"}:
                 return None
-            elif archos.arch in ("riscv32", "riscv64"):
+            elif archos.arch in {"riscv32", "riscv64"}:
                 return "unknown"
         return cls.OS_TO_GNU_OS_LUT[archos.os]
 
@@ -200,33 +197,33 @@ class GNUTriplet:
 
     @classmethod
     def calculate_gnu_vendor(cls, archos: ArchOs) -> typing.Optional[str]:
-        if archos.os in ("baremetal", "Android"):
+        if archos.os in {"baremetal", "Android"}:
             return None
-        if archos.os in ("Macos", "iOS", "tvOS", "watchOS"):
+        if archos.os in {"Macos", "iOS", "tvOS", "watchOS"}:
             return "apple"
         return cls.OS_TO_GNU_VENDOR_LUT.get(archos.os)
 
     @staticmethod
     def calculate_gnu_abi(archos: ArchOs) -> typing.Optional[str]:
-        if archos.os in ("baremetal",):
-            if archos.arch in ("armv7",):
+        if archos.os in {"baremetal"}:
+            if archos.arch in {"armv7"}:
                 return "eabi"
             else:
                 return "elf"
         abi_start = None
-        if archos.os in ("Linux",):
+        if archos.os in {"Linux"}:
             abi_start = "gnu"
-        elif archos.os in ("Android",):
+        elif archos.os in {"Android"}:
             abi_start = "android"
         else:
             return None
-        if archos.arch in ("armv7",):
+        if archos.arch in {"armv7"}:
             abi_suffix = "eabi"
-        elif archos.arch in ("armv7hf",):
+        elif archos.arch in {"armv7hf"}:
             abi_suffix = "eabihf"
         else:
             abi_suffix = ""
-        if archos.os in ("Android",):
+        if archos.os in {"Android"}:
             abi_suffix += str(archos.extra.get("os.api_level", ""))
 
         return abi_start + abi_suffix
