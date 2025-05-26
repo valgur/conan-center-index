@@ -17,8 +17,8 @@ class GccArmPrebuiltConan(ConanFile):
         "C++, Objective-C, Fortran, Ada, Go, and D, as well as "
         "libraries for these languages (libstdc++,...). "
     )
-    topics = ("gcc", "gnu", "compiler", "pre-built")
-    homepage = "https://gcc.gnu.org"
+    topics = ("gcc", "gnu", "compiler", "arm", "cortex", "pre-built")
+    homepage = "https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads"
     license = "GPL-3.0-only"
     settings = "os", "arch", "compiler", "build_type"
     package_type = "application"
