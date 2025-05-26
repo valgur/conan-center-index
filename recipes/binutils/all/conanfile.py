@@ -8,8 +8,6 @@ from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 
-from gnu_triplet import get_gnu_triplet
-
 required_conan_version = ">=2.4"
 
 
@@ -33,19 +31,20 @@ class BinutilsConan(ConanFile):
     default_options = {
         "multilib": True,
         "with_libquadmath": True,
-        "target_triplet": [None, "ANY"],
+        "target_triplet": None,
         "prefix": None,
         "add_unprefixed_to_path": True,
     }
     languages = ["C"]
-    exports = ["gnu_triplet.py"]
+
+    python_requires = "conan-gnu-triplet/latest"
+    python_requires_extend = "conan-gnu-triplet.TripletMixin"
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def config_options(self):
-        settings_target = self.settings_target or self.settings
-        self.options.target_triplet = get_gnu_triplet(settings_target)
+        self.options.target_triplet = self.gnu_triplet_target or self.gnu_triplet_host
         self.options.prefix = f"{self.options.target_triplet}-"
         self.output.info(f"binutils:target_triplet={self.options.target_triplet}")
 
