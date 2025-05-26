@@ -204,7 +204,7 @@ class GNUTriplet:
             return None
         if archos.os in ("Macos", "iOS", "tvOS", "watchOS"):
             return "apple"
-        return cls.OS_TO_GNU_VENDOR_LUT.get(archos.os, "pc")
+        return cls.OS_TO_GNU_VENDOR_LUT.get(archos.os)
 
     @staticmethod
     def calculate_gnu_abi(archos: ArchOs) -> typing.Optional[str]:
@@ -261,7 +261,7 @@ class GNUTriplet:
 class _TestOsArch2GNUTriplet(unittest.TestCase):
     def test_linux_x86(self):
         archos = ArchOs(arch="x86", os="Linux")
-        self._test_osarch_toGNUTriplet(archos, GNUTriplet(machine="i686", vendor="pc", os="linux", abi="gnu"), "i686-pc-linux-gnu")
+        self._test_osarch_toGNUTriplet(archos, GNUTriplet(machine="i686", vendor=None, os="linux", abi="gnu"), "i686-linux-gnu")
         self.assertEqual(ArchOs("x86", "Linux"), ArchOs.from_triplet(GNUTriplet.from_text("i386-linux")))
         self.assertEqual(ArchOs("x86", "Linux"), ArchOs.from_triplet(GNUTriplet.from_text("i686-linux")))
         self.assertEqual(GNUTriplet("i486", None, "linux", None), GNUTriplet.from_text("i486-linux"))
@@ -271,30 +271,30 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
     def test_linux_x86_64(self):
         self._test_osarch_toGNUTriplet(
             ArchOs(arch="x86_64", os="Linux"),
-            GNUTriplet(machine="x86_64", vendor="pc", os="linux", abi="gnu"),
-            "x86_64-pc-linux-gnu",
+            GNUTriplet(machine="x86_64", vendor=None, os="linux", abi="gnu"),
+            "x86_64-linux-gnu",
         )
 
     def test_linux_armv7(self):
         archos = ArchOs(arch="armv7", os="Linux")
-        self._test_osarch_toGNUTriplet(archos, GNUTriplet(machine="arm", vendor="pc", os="linux", abi="gnueabi"), "arm-pc-linux-gnueabi")
-        self.assertEqual(GNUTriplet("arm", "pc", None, "gnueabi"), GNUTriplet.from_text("arm-pc-gnueabi"))
-        self.assertEqual(GNUTriplet("arm", "pc", None, "eabi"), GNUTriplet.from_text("arm-pc-eabi"))
-        self.assertEqual(ArchOs("armv7hf", "baremetal"), ArchOs.from_triplet(GNUTriplet.from_text("arm-pc-gnueabihf")))
+        self._test_osarch_toGNUTriplet(archos, GNUTriplet(machine="arm", vendor=None, os="linux", abi="gnueabi"), "arm-linux-gnueabi")
+        self.assertEqual(GNUTriplet("arm", None, None, "gnueabi"), GNUTriplet.from_text("arm-gnueabi"))
+        self.assertEqual(GNUTriplet("arm", None, None, "eabi"), GNUTriplet.from_text("arm-eabi"))
+        self.assertEqual(ArchOs("armv7hf", "baremetal"), ArchOs.from_triplet(GNUTriplet.from_text("arm-gnueabihf")))
         self.assertTrue(archos.is_compatible(GNUTriplet.from_text("arm-linux-gnueabi")))
         self.assertTrue(archos.is_compatible(GNUTriplet.from_text("arm-linux-eabi")))
-        self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-pc-linux-gnueabihf")))
-        self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-pc-gnueabihf")))
+        self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-linux-gnueabihf")))
+        self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-gnueabihf")))
 
     def test_linux_armv7hf(self):
         archos = ArchOs(arch="armv7hf", os="Linux")
-        self._test_osarch_toGNUTriplet(archos, GNUTriplet(machine="arm", vendor="pc", os="linux", abi="gnueabihf"), "arm-pc-linux-gnueabihf")
-        self.assertEqual(GNUTriplet("arm", "pc", None, "gnueabihf"), GNUTriplet.from_text("arm-pc-gnueabihf"))
-        self.assertEqual(ArchOs("armv7", "baremetal"), ArchOs.from_triplet(GNUTriplet.from_text("arm-pc-gnueabi")))
+        self._test_osarch_toGNUTriplet(archos, GNUTriplet(machine="arm", vendor=None, os="linux", abi="gnueabihf"), "arm-linux-gnueabihf")
+        self.assertEqual(GNUTriplet("arm", None, None, "gnueabihf"), GNUTriplet.from_text("arm-gnueabihf"))
+        self.assertEqual(ArchOs("armv7", "baremetal"), ArchOs.from_triplet(GNUTriplet.from_text("arm-gnueabi")))
         self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-linux-gnueabi")))
         self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-linux-eabi")))
-        self.assertTrue(archos.is_compatible(GNUTriplet.from_text("arm-pc-linux-gnueabihf")))
-        self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-pc-gnueabihf")))
+        self.assertTrue(archos.is_compatible(GNUTriplet.from_text("arm-linux-gnueabihf")))
+        self.assertFalse(archos.is_compatible(GNUTriplet.from_text("arm-gnueabihf")))
 
     def test_windows_x86(self):
         self._test_osarch_toGNUTriplet(
@@ -320,8 +320,8 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
     def test_freebsd_x86_64(self):
         self._test_osarch_toGNUTriplet(
             ArchOs(arch="x86_64", os="FreeBSD"),
-            GNUTriplet(machine="x86_64", vendor="pc", os="freebsd", abi=None),
-            "x86_64-pc-freebsd",
+            GNUTriplet(machine="x86_64", vendor=None, os="freebsd", abi=None),
+            "x86_64-freebsd",
         )
 
     def test_baremetal_x86(self):
@@ -396,9 +396,9 @@ class _TestOsArch2GNUTriplet(unittest.TestCase):
             ArchOs.from_triplet(GNUTriplet.from_text("x86_64-linux-android29")),
         )
 
-    def _test_osarch_toGNUTriplet(self, archos: ArchOs, gnuobj_ref: GNUTriplet, triplet_ref: str):
+    def _test_osarch_toGNUTriplet(self, archos: ArchOs, gnuobj_expected: GNUTriplet, triplet_expected: str):
         gnuobj = GNUTriplet.from_archos(archos)
-        self.assertEqual(gnuobj_ref, gnuobj)
-        self.assertEqual(triplet_ref, gnuobj.triplet)
-        self.assertEqual(gnuobj_ref, GNUTriplet.from_text(triplet_ref))
+        self.assertEqual(gnuobj_expected, gnuobj)
+        self.assertEqual(triplet_expected, gnuobj.triplet)
+        self.assertEqual(gnuobj_expected, GNUTriplet.from_text(triplet_expected))
         # self.assertEqual(triplet_ref, tools.get_gnu_triplet(archos.os, archos.arch, compiler="gcc"))
