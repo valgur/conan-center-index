@@ -43,8 +43,8 @@ class CoinClpConan(ConanFile):
         # TODO:
         # self.requires("metis/5.2.1")
         # self.requires("coin-mumps/3.0.5")
-        # self.requires("suitesparse-amd/3.3.2")
-        # self.requires("suitesparse-cholmod/5.2.1")
+        # self.requires("suitesparse-amd/[^3.3.2]")
+        # self.requires("suitesparse-cholmod/[^5.2.1]")
         # Not yet available on CCI: ASL, WSMP
 
     def build_requirements(self):

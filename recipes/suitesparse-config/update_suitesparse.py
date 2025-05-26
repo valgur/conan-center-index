@@ -122,7 +122,8 @@ def main(suitesparse_version):
                 update_conandata_yml(pkg_name, new_version, graphblas_url, graphblas_hash)
             else:
                 update_conandata_yml(pkg_name, new_version, suitesparse_url, suitesparse_hash)
-        update_conanfile_py(pkg_name, versions)
+        # No longer needed as we are using version ranges instead
+        # update_conanfile_py(pkg_name, versions)
 
 
 if __name__ == "__main__":

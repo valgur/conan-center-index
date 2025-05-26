@@ -148,7 +148,7 @@ class PackageConan(ConanFile):
         if self.options.with_spral:
             self.requires("metis/5.2.1")
         if self.options.with_csparse:
-            self.requires("suitesparse-cxsparse/4.4.1")
+            self.requires("suitesparse-cxsparse/[^4.4.1]")
 
         # FIXME: SUNDIALS v5+ available from CCI is not compatible
         # CasADi vendors v2.6.1

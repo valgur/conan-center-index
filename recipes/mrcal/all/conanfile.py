@@ -36,7 +36,7 @@ class MrcalConan(ConanFile):
 
     def requirements(self):
         # https://github.com/dkogan/libdogleg/blob/master/dogleg.h#L8
-        self.requires("suitesparse-cholmod/5.3.0", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
         self.requires("freeimage/3.18.0")
         if self.options.with_libelas:
             self.requires("libelas/cci.20150630")

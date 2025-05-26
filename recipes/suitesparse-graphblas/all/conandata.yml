@@ -1,4 +1,7 @@
 sources:
+  "10.0.5":
+    url: "https://github.com/DrTimothyAldenDavis/GraphBLAS/archive/refs/tags/v10.0.5.tar.gz"
+    sha256: "7821afe7964143fe42a22cc30250fa0bb369a12330d5a9432425108221d28a2b"
   "9.3.1":
     url: "https://github.com/DrTimothyAldenDavis/GraphBLAS/archive/refs/tags/v9.3.1.tar.gz"
     sha256: "d4b526fa09cdee45fdd468e6b68986c202dc9ff5558fed613233ce95da830682"

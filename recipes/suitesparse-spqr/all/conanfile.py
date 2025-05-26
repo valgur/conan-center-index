@@ -3,10 +3,9 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class SuiteSparseSpqrConan(ConanFile):
@@ -29,16 +28,12 @@ class SuiteSparseSpqrConan(ConanFile):
         "fPIC": True,
         "cuda": False,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
         self.options["openblas"].build_lapack = True
 
     def layout(self):
@@ -46,8 +41,8 @@ class SuiteSparseSpqrConan(ConanFile):
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.8.3", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-cholmod/5.3.0", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-config/[^7.8.3]", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         if self.options.cuda and not self.dependencies["suitesparse-cholmod"].options.cuda:
@@ -62,9 +57,6 @@ class SuiteSparseSpqrConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_VERBOSE_MAKEFILE"] = True
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared

@@ -2,10 +2,10 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import *
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class SuiteSparseGraphBlasConan(ConanFile):
@@ -34,17 +34,9 @@ class SuiteSparseGraphBlasConan(ConanFile):
                     "performance will be the same. JIT-compiled kernels are placed in <package_folder>/share. "
                     "Non-compact builds are significantly slower to compile and produce a larger library (both about 15x).")
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # note: C++ is used if CUDA is enabled
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
+    # note: C++ is used if CUDA is enabled
+    languages = ["C"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -64,9 +56,6 @@ class SuiteSparseGraphBlasConan(ConanFile):
         return os.path.join(self.package_folder, "share")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared

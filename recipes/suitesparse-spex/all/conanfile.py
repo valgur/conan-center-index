@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.files.files import replace_in_file
 
@@ -35,9 +34,9 @@ class SuiteSparseSpexConan(ConanFile):
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.8.3", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-amd/3.3.3")
-        self.requires("suitesparse-colamd/3.3.4")
+        self.requires("suitesparse-config/[^7.8.3]", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-amd/[^3.3.3]")
+        self.requires("suitesparse-colamd/[^3.3.4]")
         # https://github.com/DrTimothyAldenDavis/SuiteSparse/blob/v7.7.0/SPEX/Include/SPEX.h#L96-L97
         self.requires("gmp/[^6.3.0]", transitive_headers=True, transitive_libs=True)
         self.requires("mpfr/[^4.2.1]", transitive_headers=True, transitive_libs=True)
@@ -49,9 +48,6 @@ class SuiteSparseSpexConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared

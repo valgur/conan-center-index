@@ -3,16 +3,15 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class SuiteSparseCholmodConan(ConanFile):
     name = "suitesparse-cholmod"
     description = "CHOLMOD: Routines for factorizing sparse symmetric positive definite matrices in SuiteSparse"
-    license = "LGPL-2.1-or-later AND GPL-2.0-or-later AND Apache-2.0"
+    license = "LGPL-2.1-or-later AND Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://people.engr.tamu.edu/davis/suitesparse.html"
     topics = ("mathematics", "sparse-matrix", "linear-algebra", "matrix-factorization")
@@ -32,18 +31,16 @@ class SuiteSparseCholmodConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "cuda": False,
-        "build_matrixops": True,
-        "build_modify": True,
+        "build_matrixops": False,
+        "build_modify": False,
         "build_partition": True,
-        "build_supernodal": True,
+        "build_supernodal": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         copy(self, "cholmod-conan-cuda-support.cmake", self.recipe_folder, self.export_sources_folder)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     @property
     def _license_is_gpl(self):
@@ -52,21 +49,19 @@ class SuiteSparseCholmodConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-        if not self._license_is_gpl:
-            self.license = "LGPL-2.1-or-later AND Apache-2.0"
+        if self._license_is_gpl:
+            self.license = "LGPL-2.1-or-later AND GPL-2.0-or-later AND Apache-2.0"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # OpenBLAS and OpenMP are provided via suitesparse-config
-        self.requires("suitesparse-config/7.8.3", transitive_headers=True, transitive_libs=True)
-        self.requires("suitesparse-amd/3.3.3")
-        self.requires("suitesparse-camd/3.3.3")
-        self.requires("suitesparse-colamd/3.3.4")
-        self.requires("suitesparse-ccolamd/3.3.4")
+        self.requires("suitesparse-config/[^7.8.3]", transitive_headers=True, transitive_libs=True)
+        self.requires("suitesparse-amd/[^3.3.3]")
+        self.requires("suitesparse-camd/[^3.3.3]")
+        self.requires("suitesparse-colamd/[^3.3.4]")
+        self.requires("suitesparse-ccolamd/[^3.3.4]")
 
         # A modified vendored version of METIS v5.1.0 is included,
         # but it has been modified to not conflict with the general version
@@ -84,9 +79,6 @@ class SuiteSparseCholmodConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_STATIC_LIBS"] = not self.options.shared
