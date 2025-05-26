@@ -1,0 +1,413 @@
+sources:
+  14.2.rel1:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-aarch64-none-elf.tar.xz
+      sha256: c4f0daab43f78e0d56ec2bdad76b98a0223ce12ce7fc51a6ce82f9cc6c6dfba0
+    aarch64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-aarch64-none-linux-gnu.tar.xz
+      sha256: 299c56db1644c135670afabbf801b97a42e5ef6069d73157ab869458cbda2096
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-eabi.tar.xz
+      sha256: 87330bab085dd8749d4ed0ad633674b9dc48b237b61069e3b481abd364d0a684
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-aarch64-arm-none-linux-gnueabihf.tar.xz
+      sha256: 3fe832f9c831323a37ff54bfb5ac7a083acdd473f2c93feaf0cb3c1ac690d739
+    darwin-arm64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-arm64-aarch64-none-elf.tar.xz
+      sha256: fc111bb4bb4871e521e3c8a89bd0af51cddfd00fe3f526f4faa09398b7c613f5
+    darwin-arm64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-arm64-arm-none-eabi.tar.xz
+      sha256: c7c78ffab9bebfce91d99d3c24da6bf4b81c01e16cf551eb2ff9f25b9e0a3818
+    darwin-x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-x86_64-aarch64-none-elf.tar.xz
+      sha256: c02735606d69ed000cc8fae2c1467e489e1325c14a7874f553c42f7ef193fc21
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: 2d9e717dd4f7751d18936ae1365d25916534105ebcb7583039eff1092b824505
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-elf.tar.xz
+      sha256: eb54c4727440d03199a6af9a6d021e77f45410cad39effce4e5a1c10a88b7f04
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+      sha256: 47aeefc02b0ee39f6d4d1812110952975542d365872a7474b5306924bca4faa1
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      sha256: 0ea5d00d0ba4c5d16bc8e140d434c54367516b568a146d724936c589a2f56aaf
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+      sha256: 62a63b981fe391a9cbad7ef51b17e49aeaa3e7b0d029b36ca1e9c3b2a9b78823
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+      sha256: 32301a5a33aab47810837cdab848a5a513ca22804d3168d3ada5833828b07912
+  13.2.rel1:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-aarch64-aarch64-none-elf.tar.xz
+      sha256: f3871c0d91a7375834eb43eb758f4df6d8dadf20ad9deca2eb569d5599d98e89
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-aarch64-arm-none-eabi.tar.xz
+      sha256: 8fd8b4a0a8d44ab2e195ccfbeef42223dfb3ede29d80f14dcf2183c34b8d199a
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-aarch64-arm-none-linux-gnueabihf.tar.xz
+      sha256: 8ad384bb328bccc44396d85c8f8113b7b8c5e11bcfef322e77cda3ebe7baadb5
+    darwin-arm64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-darwin-arm64-aarch64-none-elf.tar.xz
+      sha256: 6263301c2a4a99f2f98fc06ce4689ced9e353ad53d575136a9c26b78b699ce40
+    darwin-arm64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-darwin-arm64-arm-none-eabi.tar.xz
+      sha256: 39c44f8af42695b7b871df42e346c09fee670ea8dfc11f17083e296ea2b0d279
+    darwin-x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-darwin-x86_64-aarch64-none-elf.tar.xz
+      sha256: 8473b67285af0f883004e5364c835b43af8d83ed148f493dd21c4c1067b1a0a8
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: 075faa4f3e8eb45e59144858202351a28706f54a6ec17eedd88c9fb9412372cc
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-aarch64-none-elf.tar.xz
+      sha256: 7fe7b8548258f079d6ce9be9144d2a10bd2bf93b551dafbf20fe7f2e44e014b8
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+      sha256: 12fcdf13a7430655229b20438a49e8566e26551ba08759922cdaf4695b0d4e23
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      sha256: fe864b2b15127f58867a171cfcd639318609e734fbc8b78bb40258312a21a097
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz
+      sha256: 6cd1bbc1d9ae57312bcd169ae283153a9572bd6a8e4eeae2fedfbc33b115fdbb
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+      sha256: df0f4927a67d1fd366ff81e40bd8c385a9324fbdde60437a512d106215f257b3
+  12.3.rel1:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-aarch64-aarch64-none-elf.tar.xz
+      sha256: 76ba68db4390b50f0a16386c6a011ec611a35a517ae40b7be008ca7920cfa59f
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-aarch64-arm-none-eabi.tar.xz
+      sha256: 14c0487d5753f6071d24e568881f7c7e67f80dd83165dec5164b3731394af431
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-aarch64-arm-none-linux-gnueabihf.tar.xz
+      sha256: ac2806f4c1ba772817aded18a5b730b5004592b1f1224d8296de69942e3704bd
+    darwin-arm64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-darwin-arm64-aarch64-none-elf.tar.xz
+      sha256: 797b463a148b7b920ed4445d0d5aecd51b12a4c16a40afe87aff19279f4f5b37
+    darwin-arm64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-darwin-arm64-arm-none-eabi.tar.xz
+      sha256: 3b2eee0bdf71c1bbeb3c3b7424fbf7bd9d5c3f0f5a3a4a78159c9e3ad219e7bd
+    darwin-x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-darwin-x86_64-aarch64-none-elf.tar.xz
+      sha256: a3b5795cbf6ad4c6beacbacd0d7b4b98c9ea8c6b91f40c9a40a20753e749712b
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: e6ed8bf930fad9ce33e120ab90b36957b1f779fccaa6de6c9ca9a58982c04291
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-x86_64-aarch64-none-elf.tar.xz
+      sha256: 382c8c786285e415bc0ff4df463e101f76d6f69a894b03f132368147c37f0ba7
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+      sha256: 960ec0bce309528f603639d8228ef39e6fb9185289ff42b01aa3b4de315accef
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      sha256: 5f32933e085974c41329d0c08e3ebc269967cc9dff2ce1d6924ba3142d64dfa2
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi.tar.xz
+      sha256: 12a2815644318ebcceaf84beabb665d0924b6e79e21048452c5331a56332b309
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.3.rel1/binrel/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+      sha256: f5f3c1cfcb429833d363e8fec31bb1282974b119ca8169d6277ce8a549e26d54
+  12.2.rel1:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-aarch64-aarch64-none-elf.tar.xz
+      sha256: 570a9bd42e2067d79d59b0747891681ebec66f30d989d17a05856563fe38f78b
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-aarch64-arm-none-eabi.tar.xz
+      sha256: 7ee332f7558a984e239e768a13aed86c6c3ac85c90b91d27f4ed38d7ec6b3e8c
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-aarch64-arm-none-linux-gnueabihf.tar.xz
+      sha256: 860f49bc60d559f06408f07a24bc2a09e5b8f9118cfe1daed521ab321c03c78e
+    darwin-arm64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-darwin-arm64-aarch64-none-elf.tar.xz
+      sha256: 2434d966d8f170e9a8f6bd412e003b955caf30d9125ba3f51b80039193b029a4
+    darwin-arm64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-darwin-arm64-arm-none-eabi.tar.xz
+      sha256: 21a9e875250bcb0db8df4cb23dd43c94c00a1d3b98ecba9cdd6ed51586b12248
+    darwin-x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-darwin-x86_64-aarch64-none-elf.tar.xz
+      sha256: 91e063b3a07ee915fbbfdf03b98899e6b239ed0f69c705f4b5bc66ec03879e1a
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: 00c0eeb57ae92332f216151ac66df6ba17d2d3b306dac86f4006006f437b2902
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-aarch64-none-elf.tar.xz
+      sha256: 62d66e0ad7bd7f2a183d236ee301a5c73c737c886c7944aa4f39415aab528daf
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+      sha256: 6e8112dce0d4334d93bd3193815f16abe6a2dd5e7872697987a0b12308f876a4
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      sha256: 47632b5594ed6c3efda92a55c4c330263fc22f5d845d9e1c7d969ce24fcedeea
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-eabi.tar.xz
+      sha256: 84be93d0f9e96a15addd490b6e237f588c641c8afdf90e7610a628007fc96867
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.rel1/binrel/arm-gnu-toolchain-12.2.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+      sha256: d73f230bb946231b648a960b719f2cc1afc792ec2e36f9abc25552f00923a926
+  12.2.mpacbti-rel1:
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-aarch64-arm-none-eabi.tar.xz
+      sha256: c05f827f8a2b706edccd622716f52a7b1c2a30f3e4ec6a95f187b323ee83109c
+    darwin-arm64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-darwin-arm64-arm-none-eabi.tar.xz
+      sha256: 0569c8379e3335a8de104ef0d19f0b79c8644c571a9aa005049f0300664a68a1
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: febcb19108a400576a7cfa312b46c2393b78ab41cfcc450d219e9485b0d8e375
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz
+      sha256: 17455a06c816031cc2c66243c117cba48463cd6a3a3fdfac7275b4e9c40eb314
+  12.2.mpacbti-bet1:
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-bet1/binrel/arm-gnu-toolchain-12.2.mpacbti-bet1-aarch64-arm-none-eabi.tar.xz
+      sha256: af61803dbf2972ce2236e937ffc0a2f5cb3d86ddc6c14cd935e274fc1c6c69a1
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-bet1/binrel/arm-gnu-toolchain-12.2.mpacbti-bet1-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: 946e5b1b93d48ac71a83bb907a0f8aaa05041ba8eb1007792cc2921475460d4e
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-bet1/binrel/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi.tar.xz
+      sha256: 51d99d11950446ac64a5664c860b9e03b3241757db8dc9f673dbd8fa4a830b18
+  11.3.rel1:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-aarch64-aarch64-none-elf.tar.xz
+      sha256: c5ed3d8123a1afd67df59b7de520b91a0aeecd75b708ba757c706fcb4823e85a
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-aarch64-arm-none-eabi.tar.xz
+      sha256: 6c713c11d018dcecc16161f822517484a13af151480bbb722badd732412eb55e
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-aarch64-arm-none-linux-gnueabihf.tar.xz
+      sha256: 2a12d92fcb7aadb059f42b9f18396c5d22ef76624225a855f4c28fa7fd888654
+    darwin-x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-darwin-x86_64-aarch64-none-elf.tar.xz
+      sha256: cb8ee50df1d54135dc0e57a1787eda8c090fa5561aaa20fcbcc0548dfb8dceb2
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: 826353d45e7fbaa9b87c514e7c758a82f349cb7fc3fd949423687671539b29cf
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-x86_64-aarch64-none-elf.tar.xz
+      sha256: fb9e562a90de1b3a2961b952193c1c6520872aa1482c0a5e0ab79970ec6e7690
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+      sha256: 50cdef6c5baddaa00f60502cc8b59cc11065306ae575ad2f51e412a9b2a90364
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      sha256: 5d52d4592b1b856b33fffe015f8ff37c8d1897fbc90e900d31cc6eb3809c46f0
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi.tar.xz
+      sha256: d420d87f68615d9163b99bbb62fe69e85132dc0a8cd69fca04e813597fe06121
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz
+      sha256: 3f76650b1d048036473b16b647b8fd005ffccd1a2869c10994967e0e49f26ac2
+  11.2-2022.02:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-aarch64-aarch64-none-elf.tar.xz
+      sha256: 3b15725545a0211a17b63e72d4f10241f7ffbe7ce94cb9612590ceacde16992c
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-aarch64-arm-none-eabi.tar.xz
+      sha256: ef1d82e5894e3908cb7ed49c5485b5b95deefa32872f79c2b5f6f5447cabf55f
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-aarch64-arm-none-linux-gnueabihf.tar.xz
+      sha256: c5603772af016008ddacb7e475dc226d0cccdf069925dfded43e452a59774fc3
+    darwin-x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-darwin-x86_64-aarch64-none-elf.tar.xz
+      sha256: 12ba942a0b939783cd76d7839ee06404cbc0871b9b8d27afef646abb5d073025
+    darwin-x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-darwin-x86_64-arm-none-eabi.tar.xz
+      sha256: 31d6d3b400db89e204ab1a7ff3f4bb6230d2cdf5a551514ae9deedeebbb07bac
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-aarch64-none-elf.tar.xz
+      sha256: b0a015a9e8cbb44ed2fe5ad755a7a7ae254d54f93df3bf47378485b0ba8b828b
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-aarch64-none-linux-gnu.tar.xz
+      sha256: 52dbac3eb71dbe0916f60a8c5ab9b7dc9b66b3ce513047baa09fae56234e53f3
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      sha256: cc834d22fd8eff98d18cf3f464e30f5e4aee0966e51f9e09514e948f1eb9884b
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-arm-none-eabi.tar.xz
+      sha256: 8c5acd5ae567c0100245b0556941c237369f210bceb196edfe5a2e7532c60326
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu/11.2-2022.02/binrel/gcc-arm-11.2-2022.02-x86_64-arm-none-linux-gnueabihf.tar.xz
+      sha256: c254f7199261fe76c32ef42187502839bda7efad0a66646cf739d074eff45fad
+  10.3-2021.07:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-aarch64-aarch64-none-elf.tar.xz
+      md5: c4de73d5dae8bfaf69b667225fcb5028
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-aarch64-arm-none-eabi.tar.xz
+      md5: f5e4a8d5279c8ddcc691976b6e35f76e
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-aarch64-arm-none-linux-gnueabihf.tar.xz
+      md5: 0f1c5c90f5c62e1d1066f75fb3e51e21
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-aarch64-none-elf.tar.xz
+      md5: 0b3df9b763899d66a00b21a51a5b27b1
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu.tar.xz
+      md5: 07bbe2b5277b75ba36a924e9136366a4
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      md5: 54cbaef7db7eb3de27732500f9da9c6f
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz
+      md5: ef168601dc56dcc10befb4c2fe9ba03a
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-linux-gnueabihf.tar.xz
+      md5: 87ec580b290df2febc7c476f59484635
+  10.2-2020.11:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-aarch64-aarch64-none-elf.tar.xz
+      md5: 6e6bb5c2ebc6a4d48dd8d7a461efe877
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-aarch64-arm-none-eabi.tar.xz
+      md5: bf5a7a6d4234d453211447a2c160106f
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-aarch64-arm-none-linux-gnueabihf.tar.xz
+      md5: 4729cb75d75d53a0cc866e3b6c3a272a
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-aarch64-none-elf.tar.xz
+      md5: e16953f27942e5073fe895c742583d60
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu.tar.xz
+      md5: d6e6676d31c51405ae0fc7687ef0a224
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      md5: 5da75bca337de5adade5b339709f8b16
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-arm-none-eabi.tar.xz
+      md5: 9179e4ccd700c3ec1f904c04facb7e7e
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf.tar.xz
+      md5: 14f706db78cfb43aafed9056174572b0
+  9.2-2019.12:
+    aarch64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-aarch64-aarch64-none-elf.tar.xz
+      md5: cbd10766febb4a501108c0c1a2f779b4
+    aarch64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-aarch64-arm-none-eabi.tar.xz
+      md5: 3a09e6df42ae44b969dc548f75382d08
+    aarch64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-aarch64-arm-none-linux-gnueabihf.tar.xz
+      md5: 571432175db6e28442e4610da92fe5cc
+    x86_64-aarch64-none-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-x86_64-aarch64-none-elf.tar.xz
+      md5: a6019ac8c92be55a7253eacf13e64c2a
+    x86_64-aarch64-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz
+      md5: 23ecc1dc528253c43e43365c6d923ec3
+    x86_64-aarch64_be-none-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-x86_64-aarch64_be-none-linux-gnu.tar.xz
+      md5: f9885977e7f949f35bc0820f4bf99ab2
+    x86_64-arm-none-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-x86_64-arm-none-eabi.tar.xz
+      md5: f7cc38b807c9b9815e5b0fb8440e3657
+    x86_64-arm-none-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/9.2-2019.12/binrel/gcc-arm-9.2-2019.12-x86_64-arm-none-linux-gnueabihf.tar.xz
+      md5: ae539d09dadacf7f22fcd6f54870e5ad
+  8.3-2019.03:
+    x86_64-aarch64-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-aarch64-elf.tar.xz
+      md5: b19ca6c5b3f6c506092c404d26e7cc41
+    x86_64-aarch64-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz
+      md5: c7e2ae4fd6a66df642d59e8453775b4c
+    x86_64-aarch64_be-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-aarch64_be-linux-gnu.tar.xz
+      md5: 51301481db36aa743213e8cd16dfa1e7
+    x86_64-arm-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-arm-eabi.tar.xz
+      md5: ec472c511675949ec7541e4b39e7b35e
+    x86_64-arm-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.03/binrel/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf.tar.xz
+      md5: 650dc30f7e937fa12e37ea70ff6e10dd
+  8.3-2019.02:
+    x86_64-aarch64-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.02/gcc-arm-8.3-2019.02-x86_64-aarch64-elf.tar.xz
+      md5: d97d396110bb0fafce09d0e297f032eb
+    x86_64-aarch64-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.02/gcc-arm-8.3-2019.02-x86_64-aarch64-linux-gnu.tar.xz
+      md5: 456048545984d4c031565df676a324f7
+    x86_64-aarch64_be-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.02/gcc-arm-8.3-2019.02-x86_64-aarch64_be-elf.tar.xz
+      md5: 2cd49dce954bdfee98fd7f4056316e9c
+    x86_64-aarch64_be-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.02/gcc-arm-8.3-2019.02-x86_64-aarch64_be-linux-gnu.tar.xz
+      md5: 3020cefcc829784ad1296e70741956dc
+    x86_64-arm-linux-gnueabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.02/gcc-arm-8.3-2019.02-x86_64-arm-linux-gnueabi.tar.xz
+      md5: 39921bbe619a1fa09e1bcecdcc63a970
+    x86_64-arm-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.3-2019.02/gcc-arm-8.3-2019.02-x86_64-arm-linux-gnueabihf.tar.xz
+      md5: 2de6edc0fd63ebaedf1b59533c4fc130
+  8.2-2019.01:
+    x86_64-aarch64-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2019.01/gcc-arm-8.2-2019.01-x86_64-aarch64-elf.tar.xz
+      md5: 69f870ffde49f859f9c323267b0bde94
+    x86_64-aarch64-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2019.01/gcc-arm-8.2-2019.01-x86_64-aarch64-linux-gnu.tar.xz
+      md5: ed467a18abc7cf81d53c0cf6014b1867
+    x86_64-aarch64_be-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2019.01/gcc-arm-8.2-2019.01-x86_64-aarch64_be-elf.tar.xz
+      md5: b5f3d952e0411af473a731b90079f3c2
+    x86_64-aarch64_be-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2019.01/gcc-arm-8.2-2019.01-x86_64-aarch64_be-linux-gnu.tar.xz
+      md5: b5ed80c5d4407e02df8e7711b1c2764b
+    x86_64-arm-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2019.01/gcc-arm-8.2-2019.01-x86_64-arm-eabi.tar.xz
+      md5: fc11c4f55085c613133d7527a00fed8a
+    x86_64-arm-linux-gnueabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2019.01/gcc-arm-8.2-2019.01-x86_64-arm-linux-gnueabi.tar.xz
+      md5: c68b3252952dd342951ebdea6f1aead8
+    x86_64-arm-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2019.01/gcc-arm-8.2-2019.01-x86_64-arm-linux-gnueabihf.tar.xz
+      md5: 123887bdaa27b362f0f428dc36af5693
+  8.2-2018.11:
+    x86_64-aarch64-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-aarch64-elf.tar.xz
+      md5: 333620de1d0da4cd417a3b36a1cade9b
+    x86_64-aarch64-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-aarch64-linux-gnu.tar.xz
+      md5: 319ca548ff05b0ec1008988a7e5ab619
+    x86_64-aarch64_be-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-aarch64_be-elf.tar.xz
+      md5: 7d29a21e5c99627bbe537b4bc71b8ce3
+    x86_64-aarch64_be-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-aarch64_be-linux-gnu.tar.xz
+      md5: ab9a31ebe529b0a0cae78e610a9ffa0b
+    x86_64-arm-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-arm-eabi.tar.xz
+      md5: 55b1819fcdebb1fa2fc0290f2b6ec2a5
+    x86_64-arm-linux-gnueabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-arm-linux-gnueabi.tar.xz
+      md5: e0a9966113d4aa85e5263623be4282c3
+    x86_64-arm-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.11/gcc-arm-8.2-2018.11-x86_64-arm-linux-gnueabihf.tar.xz
+      md5: 59ccf965837ed1c5ba59e5ad4b688b21
+  8.2-2018.08:
+    x86_64-aarch64-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-aarch64-elf.tar.xz
+      md5: 6f0ccbb6662e1bec7c023409b3cdc3a4
+    x86_64-aarch64-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-aarch64-linux-gnu.tar.xz
+      md5: 1c47f4edc431cf19604a9f1b09975269
+    x86_64-aarch64_be-elf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-aarch64_be-elf.tar.xz
+      md5: e9e17804f925cfefc3e0dd7c85540c13
+    x86_64-aarch64_be-linux-gnu:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-aarch64_be-linux-gnu.tar.xz
+      md5: 789171dc11bc2e37e90ea3c6de46c719
+    x86_64-arm-eabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-arm-eabi.tar.xz
+      md5: 97726115bb5fb93cf66baf88e0c08152
+    x86_64-arm-linux-gnueabi:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-arm-linux-gnueabi.tar.xz
+      md5: 64d02dbabb801b596b3dd26ef9e11690
+    x86_64-arm-linux-gnueabihf:
+      url: https://developer.arm.com/-/media/Files/downloads/gnu-a/8.2-2018.08/gcc-arm-8.2-2018.08-x86_64-arm-linux-gnueabihf.tar.xz
+      md5: dc7455746d90259337fb88c3e67f8855

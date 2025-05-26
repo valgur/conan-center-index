@@ -1,0 +1,33 @@
+versions:
+  14.2.rel1:
+    folder: all
+  13.2.rel1:
+    folder: all
+  12.3.rel1:
+    folder: all
+  12.2.rel1:
+    folder: all
+  12.2.mpacbti-rel1:
+    folder: all
+  12.2.mpacbti-bet1:
+    folder: all
+  11.3.rel1:
+    folder: all
+  11.2-2022.02:
+    folder: all
+  10.3-2021.07:
+    folder: all
+  10.2-2020.11:
+    folder: all
+  9.2-2019.12:
+    folder: all
+  8.3-2019.03:
+    folder: all
+  8.3-2019.02:
+    folder: all
+  8.2-2019.01:
+    folder: all
+  8.2-2018.11:
+    folder: all
+  8.2-2018.08:
+    folder: all
