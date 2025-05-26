@@ -33,8 +33,8 @@ class GccArmPrebuiltConan(ConanFile):
     provides = ["gcc"]
 
     def config_options(self):
-        target_arch = self.settings_target.arch if self.settings_target else self.settings.arch
-        triplet = guess_triplet(str(self.settings.os), str(target_arch))
+        settings_target = self.settings_target or self.settings
+        triplet = guess_triplet(str(settings_target.os), str(settings_target.arch))
         self.options.target_triplet = triplet
         self.output.info(f"target_triplet={self.options.target_triplet}")
 
@@ -66,11 +66,9 @@ class GccArmPrebuiltConan(ConanFile):
         return f"{self._host_id}-{self._triplet}"
 
     def validate(self):
-        if self.settings.os not in ["Linux", "Macos"]:
+        if self.settings.os not in ["Linux", "Macos", "Windows"]:
             raise ConanInvalidConfiguration(f"Unsupported host OS: {self.settings.os}")
-        if Version(self.version) >= "11" and self.settings.arch == "x86":
-            raise ConanInvalidConfiguration(f"x86 is not supported by GCC {self.version}.")
-        if self.settings.arch not in ["x86_64", "armv8"]:
+        if self.settings.arch not in ["x86_64", "x86", "armv8"]:
             raise ConanInvalidConfiguration(f"Unsupported host architecture: {self.settings.arch}")
         if self._platform_id not in self.conan_data["sources"][self.version]:
             ids = list(self.conan_data["sources"][self.version])
@@ -93,7 +91,8 @@ class GccArmPrebuiltConan(ConanFile):
 
     def package_info(self):
         def _tool_path(tool_name):
-            return os.path.join(self.package_folder, "bin", f"{self._triplet}-{tool_name}")
+            suffix = ".exe" if self.settings.os == "Windows" else ""
+            return os.path.join(self.package_folder, "bin", f"{self._triplet}-{tool_name}{suffix}")
 
         def _add_env_var(var, tool_name):
             self.buildenv_info.define_path(var, _tool_path(tool_name))
@@ -158,19 +157,26 @@ def get_host_id(host_os, host_arch):
             return "darwin-x86_64"
         elif is_aarch64(host_arch):
             return "darwin-arm64"
+    elif host_os == "Windows":
+        if host_arch == "x86_64":
+            return "mingw-w64-x86_64"
+        elif host_arch == "x86":
+            return "mingw-w64-i686"
     return None
 
 
-def guess_triplet(host_os, target_arch):
-    if host_os == "Linux":
+def guess_triplet(target_os, target_arch):
+    if target_os == "Linux":
         if is_aarch64(target_arch):
             return "aarch64-none-linux-gnu"
+        elif target_arch == "armv8_32":
+            return "aarch64-none-linux-gnu_ilp32"
+        elif "hf" in target_arch:
+            return "arm-none-linux-gnueabihf"
         else:
-            triplet = "arm-none-linux-gnueabi"
-            if "hf" in target_arch or target_arch == "armv8_32":
-                triplet += "hf"
-            return triplet
+            return "arm-none-linux-gnueabi"
     else:
+        # baremetal
         if is_aarch64(target_arch):
             return "aarch64-none-elf"
         else:

@@ -17,13 +17,12 @@ def load_urls(downloads_url):
     urls = []
     for url in raw_urls:
         url = urllib.parse.urljoin(downloads_url, url.split("?")[0])
-        if not url.endswith(".tar.xz") or "gcc-arm" not in url and "gnu-toolchain-" not in url or "src-snapshot" in url:
+        if "src-snapshot" in url:
             continue
-        version = re.search(r"gnu(?:-a)?/(.+?)/", url)[1]
-        triplet = re.search(fr"{version}-(.+?)\.tar\.xz", url)[1]
-        if "mingw" in triplet:
-            continue  # TODO: add Windows support
-        urls.append((version, triplet, url))
+        if (url.endswith(".tar.xz") or url.endswith(".zip")) and ("gcc-arm" in url or "gnu-toolchain-" in url):
+            version = re.search(r"gnu(?:-a)?/(.+?)/", url)[1]
+            triplet = re.search(fr"{version}-(.+?)\.(?:tar\.xz|zip)", url)[1]
+            urls.append((version, triplet, url))
     return sorted(urls)
 
 
