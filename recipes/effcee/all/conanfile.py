@@ -40,13 +40,20 @@ class EffceeConan(ConanFile):
         self.requires("re2/[>=20220601]", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, "11")
+        check_min_cppstd(self, 11)
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
             raise ConanInvalidConfiguration(f"{self.ref} shared with MT runtime not supported by msvc")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1)",
+                        "cmake_minimum_required(VERSION 3.5)")
+        # Respect cppstd from Conan
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 11)", "")
+        replace_in_file(self, "cmake/utils.cmake", "-std=c++11", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
