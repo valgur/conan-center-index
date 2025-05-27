@@ -107,23 +107,6 @@ class AssimpConan(ConanFile):
     options.update(dict.fromkeys(_format_option_map, [True, False]))
     default_options.update(dict.fromkeys(_format_option_map, True))
 
-    @property
-    def _min_cppstd(self):
-        if Version(self.version) < "5.2.0":
-            return 11
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        if Version(self.version) < "5.2.0":
-            return {}
-        return {
-            "gcc": "7",
-            "clang": "6",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
@@ -131,6 +114,17 @@ class AssimpConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+
+        # Disable importers/that require external deps by default
+        self.options.with_3mf_exporter = False
+        self.options.with_blend = False
+        self.options.with_gltf = False
+        self.options.with_gltf_exporter = False
+        self.options.with_ifc = False
+        self.options.with_m3d = False
+        self.options.with_m3d_exporter = False
+        self.options.with_opengex = False
+        self.options.with_pbrt_exporter = False
 
         for option, (_, min_version) in self._format_option_map.items():
             if Version(self.version) < Version(min_version):
@@ -198,11 +192,7 @@ class AssimpConan(ConanFile):
             self.requires("openddl-parser/0.5.1")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
-
+        check_min_cppstd(self, 17 if Version(self.version) >= "5.2.0" else 11)
         if Version(self.version) < "5.3.0" and self._depends_on_clipper and Version(self.dependencies["clipper"].ref.version).major != "4":
             raise ConanInvalidConfiguration("Only 'clipper/4.x' is supported")
 

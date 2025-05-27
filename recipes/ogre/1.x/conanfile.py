@@ -287,7 +287,7 @@ class OgreConanFile(ConanFile):
                 # Used in Overlay/OgreImGuiOverlay.h public header
                 self.requires("imgui/1.91.8", transitive_headers=True, transitive_libs=True)
         if self.options.build_plugin_assimp:
-            self.requires("assimp/5.4.2")
+            self.requires("assimp/[^5.1.6]")
         if self.options.build_plugin_exrcodec:
             # OpenEXR 3.x is not compatible
             self.requires("openexr/[^2.5.7]")

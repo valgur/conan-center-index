@@ -124,7 +124,7 @@ class MagnumConan(ConanFile):
     def requirements(self):
         self.requires(f"magnum/{self.version}", transitive_headers=True, transitive_libs=True)
         if self.options.assimp_importer:
-            self.requires("assimp/5.2.2")
+            self.requires("assimp/[^5.1.6]")
         if self.options.harfbuzz_font:
             self.requires("harfbuzz/[*]")
         if self.options.freetype_font:

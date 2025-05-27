@@ -39,7 +39,7 @@ class IridescenceConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("assimp/5.4.2")
+        self.requires("assimp/[^5.1.6]")
         self.requires("boost/1.86.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("glm/1.0.1")
