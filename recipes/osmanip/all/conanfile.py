@@ -76,6 +76,13 @@ class OsmanipConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) >= "4.5.0":
+            replace_in_file(self, "CMakeLists.txt", " STATIC ", " ")
+            replace_in_file(self, "CMakeLists.txt",
+                            "    DESTINATION lib\n",
+                            "    RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib\n")
+        save(self, "examples/CMakeLists.txt", "")
+        save(self, "deps/doctest/CMakeLists.txt", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,18 +97,7 @@ class OsmanipConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) >= "4.5.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            " STATIC ", " ")
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "    DESTINATION lib\n",
-                            "    RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib\n")
-        save(self, os.path.join(self.source_folder, "examples", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "deps", "doctest", "CMakeLists.txt"), "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

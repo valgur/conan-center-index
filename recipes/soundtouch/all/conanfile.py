@@ -64,8 +64,7 @@ class SoundTouchConan(ConanFile):
         apply_conandata_patches(self)
         if Version(self.version) >= "2.3.3":
             # Let Conan handle the C++ standard
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "set(CMAKE_CXX_STANDARD 17)", "")
+            replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

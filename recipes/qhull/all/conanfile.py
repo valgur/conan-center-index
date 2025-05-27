@@ -49,7 +49,7 @@ class QhullConan(ConanFile):
                         "cmake_minimum_required(VERSION 3.5)")
         if self.version == "8.1.alpha4":
             # Fix an accidental incorrect version number in CMakeLists.txt
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "8.1-alpha3", "8.1.alpha4")
+            replace_in_file(self, "CMakeLists.txt", "8.1-alpha3", "8.1.alpha4")
 
     def generate(self):
         tc = CMakeToolchain(self)

@@ -34,6 +34,9 @@ class LibdxfrwConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) >= "2.2.0":
+            replace_in_file(self, "CMakeLists.txt", "-Werror", "")
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -41,9 +44,6 @@ class LibdxfrwConan(ConanFile):
         tc.generate()
 
     def build(self):
-        if Version(self.version) >= "2.2.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-Werror", "")
-
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

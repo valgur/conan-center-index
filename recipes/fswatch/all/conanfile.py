@@ -50,20 +50,12 @@ class WatcherConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("gettext/<host_version>")
 
-    def _apply_patches(self):
-        # Remove hardcoded CXX standard
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_CXX_STANDARD 11)",
-                        "")
-
-        # Dont compile tests
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "add_subdirectory(test/src)",
-                        "")
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        self._apply_patches()
+        # Remove hardcoded CXX standard
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 11)", "")
+        # Dont compile tests
+        replace_in_file(self, "CMakeLists.txt", "add_subdirectory(test/src)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

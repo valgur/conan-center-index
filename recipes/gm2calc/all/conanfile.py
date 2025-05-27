@@ -45,6 +45,14 @@ class Gm2calcConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        if Version(self.version) < "2.2.0":
+            replace_in_file(self, "src/CMakeLists.txt", "EIGEN3", "Eigen3")
+        # Fix src/slhaea.h:25:10: fatal error: boost/algorithm/string/classification.hpp: No such file or directory
+        save(self, "src/CMakeLists.txt", "\ninclude_directories(${Boost_INCLUDE_DIRS})", append=True)
+        # Disable examples, test and doc
+        for subdir in ["examples", "test", "doc"]:
+            replace_in_file(self, "CMakeLists.txt", f"add_subdirectory({subdir})", "")
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -53,18 +61,7 @@ class Gm2calcConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) < "2.2.0":
-            replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"), "EIGEN3", "Eigen3")
-        # Fix src/slhaea.h:25:10: fatal error: boost/algorithm/string/classification.hpp: No such file or directory
-        save(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-             "\ninclude_directories(${Boost_INCLUDE_DIRS})", append=True)
-        # Disable examples, test and doc
-        for subdir in ["examples", "test", "doc"]:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), f"add_subdirectory({subdir})", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

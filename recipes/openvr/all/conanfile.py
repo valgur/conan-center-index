@@ -54,12 +54,12 @@ class OpenvrConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # Honor fPIC=False
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-fPIC", "")
+        replace_in_file(self, "CMakeLists.txt", "-fPIC", "")
         # Unvendor jsoncpp
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"), "jsoncpp.cpp", "")
-        rmdir(self, os.path.join(self.source_folder, "src", "json"))
+        replace_in_file(self, "src/CMakeLists.txt", "jsoncpp.cpp", "")
+        rmdir(self, "src/json")
         # Add jsoncpp dependency from Conan
-        save(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
+        save(self, "src/CMakeLists.txt",
              "find_package(jsoncpp REQUIRED CONFIG)\n"
              "target_link_libraries(${LIBNAME} JsonCpp::JsonCpp)",
              append=True)

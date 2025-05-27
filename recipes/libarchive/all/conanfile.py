@@ -125,7 +125,7 @@ class LibarchiveConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # Not correctly identified when cross-compiling.
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+        replace_in_file(self, "CMakeLists.txt",
                         'CHECK_FUNCTION_EXISTS_GLIBC(locale_charset HAVE_LOCALE_CHARSET)',
                         'CHECK_SYMBOL_EXISTS(locale_charset "localcharset.h" HAVE_LOCALCHARSET_H)')
 

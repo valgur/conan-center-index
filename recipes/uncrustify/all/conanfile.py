@@ -32,6 +32,10 @@ class UncrustifyConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Use a more robust regex to convert file paths into sanitized CMake target names.
+        replace_in_file(self, "CMakeLists.txt",
+                        'string(REGEX REPLACE "[/:]" "_" source_target ${source})',
+                        'string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" source_target ${source})')
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -41,14 +45,7 @@ class UncrustifyConan(ConanFile):
             tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
-    def _patch_sources(self):
-        # Use a more robust regex to convert file paths into sanitized CMake target names.
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        'string(REGEX REPLACE "[/:]" "_" source_target ${source})',
-                        'string(REGEX REPLACE "[^a-zA-Z0-9_]" "_" source_target ${source})')
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

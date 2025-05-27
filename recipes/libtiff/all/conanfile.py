@@ -101,6 +101,22 @@ class LibtiffConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+
+        # remove all FindXXXX for conan dependencies
+        for module in Path("cmake").glob("Find*.cmake"):
+            if module.name != "FindCMath.cmake":
+                module.unlink()
+
+        # Export symbols of tiffxx for msvc shared
+        replace_in_file(self, "libtiff/CMakeLists.txt",
+                        "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})",
+                        "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} WINDOWS_EXPORT_ALL_SYMBOLS ON)")
+
+        # Disable tools, test, contrib, man & html generation
+        if Version(self.version) < "4.5.0":
+            for subdir in ["tools", "test", "contrib", "build", "man", "html"]:
+                save(self, os.path.join(subdir, "CMakeLists.txt"), "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -136,27 +152,7 @@ class LibtiffConan(ConanFile):
         deps.set_property("lerc", "cmake_target_name", "LERC::LERC")
         deps.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        # remove all FindXXXX for conan dependencies
-        for module in Path(self.source_folder, "cmake").glob("Find*.cmake"):
-            if module.name != "FindCMath.cmake":
-                module.unlink()
-
-        # Export symbols of tiffxx for msvc shared
-        replace_in_file(self, os.path.join(self.source_folder, "libtiff", "CMakeLists.txt"),
-                              "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})",
-                              "set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} WINDOWS_EXPORT_ALL_SYMBOLS ON)")
-
-        # Disable tools, test, contrib, man & html generation
-        if Version(self.version) < "4.5.0":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                                  "add_subdirectory(tools)\nadd_subdirectory(test)\nadd_subdirectory(contrib)\nadd_subdirectory(build)\n"
-                                  "add_subdirectory(man)\nadd_subdirectory(html)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

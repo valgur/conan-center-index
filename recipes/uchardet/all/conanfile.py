@@ -50,6 +50,14 @@ class UchardetConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) < "0.0.8":
+            # fix problem with macOS
+            replace_in_file(self, "CMakeLists.txt",
+                            "string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} TARGET_ARCHITECTURE)",
+                            'string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TARGET_ARCHITECTURE)')
+        # disable building of tests
+        save(self, "doc/CMakeLists.txt", "")
+        save(self, "test/CMakeLists.txt", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -58,18 +66,7 @@ class UchardetConan(ConanFile):
         tc.variables["BUILD_STATIC"] = not self.options.shared
         tc.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) < "0.0.8":
-            # fix problem with macOS
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} TARGET_ARCHITECTURE)",
-                            'string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TARGET_ARCHITECTURE)')
-        # disable building of tests
-        save(self, os.path.join(self.source_folder, "doc", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "test", "CMakeLists.txt"), "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

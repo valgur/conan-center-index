@@ -103,8 +103,7 @@ class StellaVslamConan(ConanFile):
         apply_conandata_patches(self)
         rmdir(self, os.path.join(self.source_folder, "3rd"))
         # Latest g2o requires C++17 or newer. Let Conan set the C++ standard.
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_CXX_STANDARD 11)", "")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 11)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

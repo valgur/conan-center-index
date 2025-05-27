@@ -42,6 +42,12 @@ class PthreadpoolConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def _patch_sources(self):
+        replace_in_file(self, "CMakeLists.txt",
+                        "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}",
+                        "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
+
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["PTHREADPOOL_LIBRARY_TYPE"] = "default"
@@ -55,13 +61,7 @@ class PthreadpoolConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}",
-                              "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()

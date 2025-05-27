@@ -79,8 +79,7 @@ class OrToolsConan(ConanFile):
         # protoc is available from Conan when cross-compiling, no need to fetch and build it
         save(self, os.path.join(self.source_folder, "cmake", "host.cmake"), "")
         # Let Conan set the C++ standard
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_CXX_STANDARD", "# set(CMAKE_CXX_STANDARD")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD", "# set(CMAKE_CXX_STANDARD")
 
     def generate(self):
         tc = CMakeToolchain(self)

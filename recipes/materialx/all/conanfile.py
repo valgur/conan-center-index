@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -40,15 +39,6 @@ class MaterialXConan(ConanFile):
         else:
             return 14
 
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "apple-clang": "10",
-            "clang": "7",
-            "gcc": "7",
-            "msvc": "191",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -65,17 +55,18 @@ class MaterialXConan(ConanFile):
     def validate(self):
         # validate the minimum cpp standard supported. For C++ projects only
         check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.24 <5]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt",
+                        "set(CMAKE_CXX_STANDARD",
+                        "# set(CMAKE_CXX_STANDARD")
+        replace_in_file(self, "CMakeLists.txt",
+                        "set(CMAKE_POSITION_INDEPENDENT_CODE",
+                        "# set(CMAKE_POSITION_INDEPENDENT_CODE")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -89,16 +80,7 @@ class MaterialXConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_CXX_STANDARD",
-                        "# set(CMAKE_CXX_STANDARD")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_POSITION_INDEPENDENT_CODE",
-                        "# set(CMAKE_POSITION_INDEPENDENT_CODE")
-
     def build(self):
-
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

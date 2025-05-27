@@ -149,6 +149,25 @@ class PopplerConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Use upper-case package names to force CMakeDeps to define upper-case variables
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(Freetype",
+                        "find_package(FREETYPE")
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(Cairo",
+                        "find_package(CAIRO")
+        # Ignore package versions in find_soft_mandatory_package()
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(${_package_name} ${_package_version})",
+                        "find_package(${_package_name})")
+        replace_in_file(self, "CMakeLists.txt",
+                        "FREETYPE ${FREETYPE_VERSION} REQUIRED",
+                        "FREETYPE REQUIRED")
+        # Fix host-context gir tools being used even when cross-compiling
+        for tool in ["scanner", "compiler", "generate"]:
+            replace_in_file(self, "cmake/modules/FindGObjectIntrospection.cmake",
+                            f"_gir_get_pkgconfig_var(INTROSPECTION_{tool.upper()} ",
+                            f'set(INTROSPECTION_{tool.upper()} "g-ir-{tool}") #')
 
     @property
     def _dct_decoder(self):
@@ -231,25 +250,7 @@ class PopplerConan(ConanFile):
             env.prepend_path("PKG_CONFIG_PATH", self.generators_folder)
             env.vars(self).save_script("pkg_config_env")
 
-    def _patch_sources(self):
-        # Use upper-case package names to force CMakeDeps to define upper-case variables
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(Freetype", "find_package(FREETYPE")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(Cairo", "find_package(CAIRO")
-        # Ignore package versions in find_soft_mandatory_package()
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(${_package_name} ${_package_version})", "find_package(${_package_name})")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "FREETYPE ${FREETYPE_VERSION} REQUIRED", "FREETYPE REQUIRED")
-        # Fix host-context gir tools being used even when cross-compiling
-        for tool in ["scanner", "compiler", "generate"]:
-            replace_in_file(self, os.path.join(self.source_folder, "cmake", "modules", "FindGObjectIntrospection.cmake"),
-                            f"_gir_get_pkgconfig_var(INTROSPECTION_{tool.upper()} ",
-                            f'set(INTROSPECTION_{tool.upper()} "g-ir-{tool}") #')
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

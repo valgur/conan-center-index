@@ -71,6 +71,12 @@ class HidapiConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Move project() right after cmake_minimum_required()
+        replace_in_file(self, "CMakeLists.txt",
+                        "project(hidapi LANGUAGES C)", "")
+        replace_in_file(self, "CMakeLists.txt",
+                        " FATAL_ERROR)",
+                        " FATAL_ERROR)\nproject(hidapi LANGUAGES C)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -84,15 +90,7 @@ class HidapiConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # Move project() right after cmake_minimum_required()
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "project(hidapi LANGUAGES C)", "")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        " FATAL_ERROR)", " FATAL_ERROR)\nproject(hidapi LANGUAGES C)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

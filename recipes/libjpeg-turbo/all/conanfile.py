@@ -89,6 +89,14 @@ class LibjpegTurboConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # use standard GNUInstallDirs.cmake - custom one is broken
+        replace_in_file(self, "CMakeLists.txt",
+                        "include(cmakescripts/GNUInstallDirs.cmake)",
+                        "include(GNUInstallDirs)")
+        # do not override /MT by /MD if shared
+        replace_in_file(self, "sharedlib/CMakeLists.txt",
+                        """string(REGEX REPLACE "/MT" "/MD" ${var} "${${var}}")""",
+                        "")
 
     @property
     def _is_arithmetic_encoding_enabled(self):
@@ -125,18 +133,7 @@ class LibjpegTurboConan(ConanFile):
             tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
-    def _patch_sources(self):
-        # use standard GNUInstallDirs.cmake - custom one is broken
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "include(cmakescripts/GNUInstallDirs.cmake)",
-                              "include(GNUInstallDirs)")
-        # do not override /MT by /MD if shared
-        replace_in_file(self, os.path.join(self.source_folder, "sharedlib", "CMakeLists.txt"),
-                              """string(REGEX REPLACE "/MT" "/MD" ${var} "${${var}}")""",
-                              "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

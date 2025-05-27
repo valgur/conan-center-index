@@ -108,8 +108,9 @@ class RocksDBConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(uring)", "find_package(uring REQUIRED CONFIG)")
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(uring)",
+                        "find_package(uring REQUIRED CONFIG)")
 
     def generate(self):
         tc = CMakeToolchain(self)

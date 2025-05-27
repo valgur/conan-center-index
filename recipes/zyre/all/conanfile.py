@@ -45,11 +45,12 @@ class ZyreConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(libzmq REQUIRED)", "find_package(LIBZMQ REQUIRED CONFIG)")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(czmq REQUIRED)", "find_package(CZMQ REQUIRED CONFIG)")
-
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(libzmq REQUIRED)",
+                        "find_package(LIBZMQ REQUIRED CONFIG)")
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(czmq REQUIRED)",
+                        "find_package(CZMQ REQUIRED CONFIG)")
 
     def generate(self):
         tc = CMakeToolchain(self)

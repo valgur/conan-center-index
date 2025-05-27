@@ -1,6 +1,7 @@
 import os
 import re
 import textwrap
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -276,6 +277,15 @@ class MagnumConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt",
+                        'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})', "")
+        # Get rid of cmake_dependent_option, it can activate features when we try to disable them,
+        #   let the Conan user decide what to use and what not.
+        cmakelists = Path("CMakeLists.txt")
+        text = cmakelists.read_text(encoding="utf8")
+        text = re.sub(r"cmake_dependent_option\(([0-9A-Z_]+) .+\)", r'option(\1 "Option \1 disabled by Conan" OFF)', text)
+        cmakelists.write_text(text, encoding="utf8")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -359,20 +369,7 @@ class MagnumConan(ConanFile):
         tc.set_property("egl", "cmake_target_name", "EGL::EGL")
         tc.generate()
 
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        'set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules/" ${CMAKE_MODULE_PATH})', "")
-        # Get rid of cmake_dependent_option, it can activate features when we try to disable them,
-        #   let the Conan user decide what to use and what not.
-        cmakelists = self.source_path.joinpath("CMakeLists.txt")
-        text = cmakelists.read_text(encoding="utf8")
-        text = re.sub(r"cmake_dependent_option\(([0-9A-Z_]+) .+\)", r'option(\1 "Option \1 disabled by Conan" OFF)', text)
-        cmakelists.write_text(text, encoding="utf8")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

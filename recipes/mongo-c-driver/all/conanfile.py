@@ -1,13 +1,13 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=2.1"
 
@@ -94,6 +94,16 @@ class MongoCDriverConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        libmongoc_cmake = os.path.join("src", "libmongoc", "CMakeLists.txt")
+        replace_in_file(self, libmongoc_cmake,
+                        "include (FindSnappy)\nif (SNAPPY_INCLUDE_DIRS)",
+                        'if(ENABLE_SNAPPY MATCHES "ON")\n  find_package(Snappy REQUIRED)')
+        replace_in_file(self, libmongoc_cmake, "SNAPPY_LIBRARIES", "Snappy_LIBRARIES")
+        replace_in_file(self, libmongoc_cmake, "SNAPPY_INCLUDE_DIRS", "Snappy_INCLUDE_DIRS")
+        if Version(self.version) < "1.25":
+            replace_in_file(self, libmongoc_cmake, "set (SSL_LIBRARIES -ltls -lcrypto)", "")
+        # cleanup rpath
+        replace_in_file(self, "CMakeLists.txt", "set (CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)", "")
 
     @property
     def _ssl_cmake_value(self):
@@ -166,24 +176,8 @@ class MongoCDriverConan(ConanFile):
         if self.options.with_ssl == "libressl" or self.options.with_zstd:
             deps = PkgConfigDeps(self)
             deps.generate()
-            env = VirtualBuildEnv(self)
-            env.generate()
-
-    def _patch_sources(self):
-        libmongoc_cmake = os.path.join(self.source_folder, "src", "libmongoc", "CMakeLists.txt")
-        replace_in_file(self, libmongoc_cmake,
-                        "include (FindSnappy)\nif (SNAPPY_INCLUDE_DIRS)",
-                        'if(ENABLE_SNAPPY MATCHES "ON")\n  find_package(Snappy REQUIRED)')
-        replace_in_file(self, libmongoc_cmake, "SNAPPY_LIBRARIES", "Snappy_LIBRARIES")
-        replace_in_file(self, libmongoc_cmake, "SNAPPY_INCLUDE_DIRS", "Snappy_INCLUDE_DIRS")
-        if Version(self.version) < "1.25":
-            replace_in_file(self, libmongoc_cmake, "set (SSL_LIBRARIES -ltls -lcrypto)", "")
-        # cleanup rpath
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "set (CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)", "")
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -99,6 +99,20 @@ class CernRootConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt",
+                        "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
+                        "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)")
+        # Fix execute permissions on scripts
+        for pattern in ["**/configure", "**/*.sh", "**/*.csh", "**/*.bat",]:
+            for filename in glob.glob(pattern, recursive=True):
+                self._make_file_executable(filename)
+        # Relax TBB version check
+        replace_in_file(self, "cmake/modules/SearchInstalledSoftware.cmake", "TBB 2018", "TBB")
+        rm(self, "Find*.cmake", "cmake/modules")
+        # Let Conan set the C++ standard
+        replace_in_file(self, "cmake/modules/CheckCompiler.cmake",
+                        'set(CMAKE_CXX_STANDARD 11 CACHE STRING "")\n', "")
 
     @staticmethod
     def _make_file_executable(filename):
@@ -235,40 +249,11 @@ class CernRootConan(ConanFile):
         tc.set_property("lz4", "cmake_target_name", "LZ4::LZ4")
         tc.generate()
 
-    def _patch_source_cmake(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-            "set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)",
-            "list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)")
-
-    def _fix_source_permissions(self):
-        # Fix execute permissions on scripts
-        for pattern in [
-            os.path.join(self.source_folder, "**", "configure"),
-            os.path.join(self.source_folder, "**", "*.sh"),
-            os.path.join(self.source_folder, "**", "*.csh"),
-            os.path.join(self.source_folder, "**", "*.bat"),
-        ]:
-            for filename in glob.glob(os.path.join(self.source_folder, pattern), recursive=True):
-                self._make_file_executable(filename)
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        self._patch_source_cmake()
-        self._fix_source_permissions()
-        # Relax TBB version check
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "modules", "SearchInstalledSoftware.cmake"),
-                        "TBB 2018", "TBB")
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake", "modules"))
-        # Let Conan set the C++ standard
-        replace_in_file(self, os.path.join(self.source_folder, "cmake", "modules", "CheckCompiler.cmake"),
-                        'set(CMAKE_CXX_STANDARD 11 CACHE STRING "")\n', "")
-
     @property
     def _cmake_pyrootopt(self):
         return self.options.python != "off"
 
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

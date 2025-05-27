@@ -75,6 +75,12 @@ class SdlttfConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # missing from distribution (only in 2.0.15?)
+        save(self, "SDL2_ttfConfig.cmake", "")
+        # workaround for a side effect of CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in conan toolchain
+        replace_in_file(self, "CMakeLists.txt",
+                        "find_package(Freetype REQUIRED)",
+                        "find_package(Freetype REQUIRED MODULE)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -88,17 +94,7 @@ class SdlttfConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        # missing from distribution (only in 2.0.15?)
-        save(self, os.path.join(self.source_folder, "SDL2_ttfConfig.cmake"), "")
-
-        # workaround for a side effect of CMAKE_FIND_PACKAGE_PREFER_CONFIG ON in conan toolchain
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "find_package(Freetype REQUIRED)",
-                        "find_package(Freetype REQUIRED MODULE)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

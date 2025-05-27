@@ -128,6 +128,19 @@ class FollyConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=False)
+        # Make sure will consume Conan dependencies
+        folly_deps = os.path.join(self.source_folder, "CMake", "folly-deps.cmake")
+        replace_in_file(self, folly_deps, " MODULE", " REQUIRED CONFIG")
+        replace_in_file(self, folly_deps, "${Boost_LIBRARIES}", f"{' '.join(self._required_boost_cmake_targets)}")
+        replace_in_file(self, folly_deps, "OpenSSL 1.1.1", "OpenSSL")
+        # Disable example
+        save(self, os.path.join(self.source_folder, "folly", "logging", "example", "CMakeLists.txt"), "")
+        # Disable custom find modules to use Conan CMakeDeps instead
+        rm(self, "Find*.cmake", os.path.join(self.source_folder, "CMake"))
+        rm(self, "Find*.cmake", os.path.join(self.source_folder, "build", "fbcode_builder", "CMake"))
+        # Skip generating .pc file to avoid Windows errors when trying to compile with pkg-config
+        replace_in_file(self, "CMakeLists.txt", "gen_pkgconfig_vars(FOLLY_PKGCONFIG folly_deps)", "")
+
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -192,22 +205,7 @@ class FollyConan(ConanFile):
         deps.set_property("zstd", "cmake_file_name", "Zstd")
         deps.generate()
 
-    def _patch_sources(self):
-        # Make sure will consume Conan dependencies
-        folly_deps = os.path.join(self.source_folder, "CMake", "folly-deps.cmake")
-        replace_in_file(self, folly_deps, " MODULE", " REQUIRED CONFIG")
-        replace_in_file(self, folly_deps, "${Boost_LIBRARIES}", f"{' '.join(self._required_boost_cmake_targets)}")
-        replace_in_file(self, folly_deps, "OpenSSL 1.1.1", "OpenSSL")
-        # Disable example
-        save(self, os.path.join(self.source_folder, "folly", "logging", "example", "CMakeLists.txt"), "")
-        # Disable custom find modules to use Conan CMakeDeps instead
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "CMake"))
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "build", "fbcode_builder", "CMake"))
-        # Skip generating .pc file to avoid Windows errors when trying to compile with pkg-config
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "gen_pkgconfig_vars(FOLLY_PKGCONFIG folly_deps)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

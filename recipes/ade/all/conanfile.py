@@ -39,6 +39,9 @@ class AdeConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt",
+            "    if(UNIX)",
+            "    if(UNIX OR CYGWIN OR MINGW OR MSYS)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -48,7 +51,6 @@ class AdeConan(ConanFile):
         tc.generate()
 
     def build(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "    if(UNIX)", "    if(UNIX OR CYGWIN OR MINGW OR MSYS)")
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

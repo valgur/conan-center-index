@@ -55,7 +55,11 @@ class MysqlConnectorCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        self._patch_sources()
+        apply_conandata_patches(self)
+        # Disable boostrap(), which is unnecessary and fragile with variables set by Conan
+        # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/CMakeLists.txt#L69-L71
+        # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/cdk/cmake/bootstrap.cmake#L55
+        replace_in_file(self, "CMakeLists.txt", "bootstrap()", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -82,13 +86,6 @@ class MysqlConnectorCppConan(ConanFile):
         deps.set_property("lz4", "cmake_target_name", "ext::lz4")
         deps.set_property("zstd", "cmake_target_name", "ext::zstd")
         deps.generate()
-
-    def _patch_sources(self):
-        apply_conandata_patches(self)
-        # Disable boostrap(), which is unnecessary and fragile with variables set by Conan
-        # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/CMakeLists.txt#L69-L71
-        # https://github.com/mysql/mysql-connector-cpp/blob/9.0.0/cdk/cmake/bootstrap.cmake#L55
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "bootstrap()", "")
 
     def build(self):
         cmake = CMake(self)

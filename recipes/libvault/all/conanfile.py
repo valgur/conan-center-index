@@ -74,6 +74,10 @@ class LibvaultConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # INFO: https://github.com/abedra/libvault/pull/123
+        replace_in_file(self, "CMakeLists.txt",
+                        "target_link_libraries(vault curl)",
+                        "target_link_libraries(vault CURL::libcurl)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -90,14 +94,7 @@ class LibvaultConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        # INFO: https://github.com/abedra/libvault/pull/123
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                         "target_link_libraries(vault curl)",
-                         "target_link_libraries(vault CURL::libcurl)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -130,7 +130,32 @@ class LLVMOpenMpConan(ConanFile):
                  dst=os.path.join(self.source_folder, "cmake"))
         else:
             get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
         apply_conandata_patches(self)
+
+        if self._version_major < 17:
+            # Fix CMake version and policies not being propagated in linker tests
+            replace_in_file(self, "runtime/cmake/LibompCheckLinkerFlag.cmake",
+                            "cmake_minimum_required(",
+                            "cmake_minimum_required(VERSION 3.15) #")
+            # Ensure sufficient CMake policy version is used for tc.variables
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(",
+                            "cmake_minimum_required(VERSION 3.15) #")
+        # Disable tests
+        save(self, "runtime/test/CMakeLists.txt", "")
+        # v12 can be built without LLVM includes
+        if self._version_major == 12:
+            replace_in_file(self, "libomptarget/CMakeLists.txt",
+                            "if (NOT LIBOMPTARGET_LLVM_INCLUDE_DIRS)",
+                             "if (FALSE)")
+        # TODO: looks like a bug, should ask upstream
+        # The built import lib is named "libomp.dll.lib" otherwise, which also causes install() to fail
+        if self._version_major >= 14:
+            replace_in_file(self, "runtime/src/CMakeLists.txt",
+                            "set(LIBOMP_GENERATED_IMP_LIB_FILENAME ${LIBOMP_LIB_FILE}${CMAKE_STATIC_LIBRARY_SUFFIX})",
+                            "set(LIBOMP_GENERATED_IMP_LIB_FILENAME ${LIBOMP_LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX})")
+
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -145,32 +170,7 @@ class LLVMOpenMpConan(ConanFile):
         tc.variables["LIBOMP_INSTALL_ALIASES"] = False
         tc.generate()
 
-    def _patch_sources(self):
-        if self._version_major < 17:
-            # Fix CMake version and policies not being propagated in linker tests
-            replace_in_file(self, os.path.join(self.source_folder, "runtime", "cmake", "LibompCheckLinkerFlag.cmake"),
-                            "cmake_minimum_required(",
-                            "cmake_minimum_required(VERSION 3.5) #")
-            # Ensure sufficient CMake policy version is used for tc.variables
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            "cmake_minimum_required(",
-                            "cmake_minimum_required(VERSION 3.15) #")
-        # Disable tests
-        replace_in_file(self, os.path.join(self.source_folder, "runtime", "CMakeLists.txt"),
-                        "add_subdirectory(test)", "")
-        # v12 can be built without LLVM includes
-        if self._version_major == 12:
-            replace_in_file(self, os.path.join(self.source_folder, "libomptarget", "CMakeLists.txt"),
-                            "if (NOT LIBOMPTARGET_LLVM_INCLUDE_DIRS)", "if (FALSE)")
-        # TODO: looks like a bug, should ask upstream
-        # The built import lib is named "libomp.dll.lib" otherwise, which also causes install() to fail
-        if self._version_major >= 14:
-            replace_in_file(self, os.path.join(self.source_folder, "runtime", "src", "CMakeLists.txt"),
-                            "set(LIBOMP_GENERATED_IMP_LIB_FILENAME ${LIBOMP_LIB_FILE}${CMAKE_STATIC_LIBRARY_SUFFIX})",
-                            "set(LIBOMP_GENERATED_IMP_LIB_FILENAME ${LIBOMP_LIB_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX})")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

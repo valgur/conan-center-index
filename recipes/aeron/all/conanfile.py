@@ -53,6 +53,12 @@ class AeronConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "/MTd", "")
+        replace_in_file(self, "CMakeLists.txt", "/MT", "")
+        if Version(self.version) >= "1.42.0":
+            replace_in_file(self, "build.gradle",
+                            "def gitCommitHash = ",
+                            'def gitCommitHash = "" //')
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -78,15 +84,7 @@ class AeronConan(ConanFile):
         env.define_path("GRADLE_USER_HOME", self.build_folder)
         env.vars(self).save_script("conanbuild_gradle_home")
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "/MTd", "")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "/MT", "")
-        if Version(self.version) >= "1.42.0":
-            replace_in_file(self, os.path.join(self.source_folder, "build.gradle"),
-                            "def gitCommitHash = ", 'def gitCommitHash = "" //')
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

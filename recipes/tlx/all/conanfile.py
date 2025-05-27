@@ -43,6 +43,8 @@ class TlxConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Do not force PIC
+        replace_in_file(self, "CMakeLists.txt", "-fPIC", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -60,12 +62,7 @@ class TlxConan(ConanFile):
             tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
-    def _patch_sources(self):
-        # Do not force PIC
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-fPIC", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

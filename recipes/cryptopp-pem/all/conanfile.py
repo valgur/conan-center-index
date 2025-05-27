@@ -58,7 +58,7 @@ class CryptoPPPEMConan(ConanFile):
         # Get CMakeLists
         get(self, **self.conan_data["sources"][self.version]["cmake"])
         src_folder = os.path.join(self.source_folder, "cryptopp-cmake-" + suffix)
-        shutil.move(os.path.join(src_folder, "CMakeLists.txt"), os.path.join(self.source_folder, "CMakeLists.txt"))
+        shutil.move(os.path.join(src_folder, "CMakeLists.txt"), "CMakeLists.txt")
         shutil.move(os.path.join(src_folder, "cryptopp-config.cmake"), os.path.join(self.source_folder, "cryptopp-config.cmake"))
         rmdir(self, src_folder)
         # LICENSE not packaged with release tar
@@ -72,7 +72,7 @@ class CryptoPPPEMConan(ConanFile):
                 os.path.join(os.environ.get("ANDROID_NDK_HOME"), "sources", "android", "cpufeatures", "cpu-features.h"),
                 os.path.join(self.source_folder, "cpu-features.h"))
         # Honor fPIC option
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
+        replace_in_file(self, "CMakeLists.txt", "SET(CMAKE_POSITION_INDEPENDENT_CODE 1)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

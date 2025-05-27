@@ -44,7 +44,7 @@ class OisConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+        replace_in_file(self, "CMakeLists.txt",
                         "target_link_libraries(OIS X11)",
                         "target_link_libraries(OIS X11::X11)")
 

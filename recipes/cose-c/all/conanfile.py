@@ -47,6 +47,8 @@ class CoseCConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # For ${OPENSSL_LIBRARIES} and ${OPENSSL_INCLUDE_DIR}
+        replace_in_file(self, "CMakeLists.txt", "OpenSSL", "OPENSSL")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -64,13 +66,7 @@ class CoseCConan(ConanFile):
         deps.set_property("mbedtls", "cmake_target_name", "mbedtls")
         deps.generate()
 
-    def _patch_sources(self):
-        # For ${OPENSSL_LIBRARIES} and ${OPENSSL_INCLUDE_DIR}
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "OpenSSL", "OPENSSL")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

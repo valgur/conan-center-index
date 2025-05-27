@@ -43,6 +43,8 @@ class LibsamplerateConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Disable upstream logic about msvc runtime policy, called before conan toolchain resolution
+        replace_in_file(self, "CMakeLists.txt", "cmake_policy(SET CMP0091 OLD)", "")
 
     def generate(self):
         env = VirtualBuildEnv(self)
@@ -53,13 +55,7 @@ class LibsamplerateConan(ConanFile):
         tc.variables["BUILD_TESTING"] = False
         tc.generate()
 
-    def _patch_sources(self):
-        # Disable upstream logic about msvc runtime policy, called before conan toolchain resolution
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "cmake_policy(SET CMP0091 OLD)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

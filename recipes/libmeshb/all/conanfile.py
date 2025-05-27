@@ -49,6 +49,11 @@ class LibmeshbConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "add_subdirectory (examples)", "")
+        replace_in_file(self, "CMakeLists.txt", "install (FILES LICENSE.txt copyright.txt DESTINATION share/libMeshb)", "")
+        replace_in_file(self, "CMakeLists.txt", "install (DIRECTORY sample_meshes DESTINATION share/libMeshb)", "")
+        replace_in_file(self, "sources/CMakeLists.txt", "install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/ DESTINATION include)", "")
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -57,14 +62,7 @@ class LibmeshbConan(ConanFile):
             tc.variables["CMAKE_Fortran_COMPILER"] = ""
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory (examples)", "")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "install (FILES LICENSE.txt copyright.txt DESTINATION share/libMeshb)", "")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "install (DIRECTORY sample_meshes DESTINATION share/libMeshb)", "")
-        replace_in_file(self, os.path.join(self.source_folder, "sources/CMakeLists.txt"), "install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/ DESTINATION include)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -119,7 +119,7 @@ class ReflectCppConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # INFO: Let Conan handle the C++ standard used via settings.compiler.cppstd
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "set(CMAKE_CXX_STANDARD 20)", "")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 20)", "")
 
     def generate(self):
         env = VirtualBuildEnv(self)

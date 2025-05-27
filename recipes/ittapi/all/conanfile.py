@@ -49,17 +49,12 @@ class IttApiConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
-
-    def _patch_sources(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # Don't force PIC
         if Version(self.version) < "3.24.1":
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                            'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")', "")
+            replace_in_file(self, "CMakeLists.txt", 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")', "")
 
     def generate(self):
-        self._patch_sources()
         toolchain = CMakeToolchain(self)
         toolchain.variables["ITT_API_IPT_SUPPORT"] = self.options.ptmark
         if Version(self.version) < "3.25.1":

@@ -66,7 +66,7 @@ class LimereportConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # Avoid using vendorized zint
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(3rdparty)", "")
+        replace_in_file(self, "CMakeLists.txt", "add_subdirectory(3rdparty)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

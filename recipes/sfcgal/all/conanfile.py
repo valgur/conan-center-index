@@ -65,6 +65,9 @@ class SfcgalConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", 'add_definitions( "-fPIC" )', "")
+        # CGAL::CGAL_Core is redundant, already covered by CGAL::CGAL
+        replace_in_file(self, "src/CMakeLists.txt", " CGAL::CGAL_Core", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -76,15 +79,7 @@ class SfcgalConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        'add_definitions( "-fPIC" )', "")
-        # CGAL::CGAL_Core is redundant, already covered by CGAL::CGAL
-        replace_in_file(self, os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-                        " CGAL::CGAL_Core", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

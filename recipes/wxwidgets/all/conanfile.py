@@ -208,11 +208,11 @@ class wxWidgetsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # Don't change library names when cross-compiling
-        replace_in_file(self, os.path.join(self.source_folder, "build", "cmake", "functions.cmake"),
+        replace_in_file(self, "build/cmake/functions.cmake",
                         'set(cross_target "-${CMAKE_SYSTEM_NAME}")',
                         'set(cross_target)')
         # Don't override Conan's toolchain
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+        replace_in_file(self, "CMakeLists.txt",
                         "CMAKE_OSX_DEPLOYMENT_TARGET",
                         "CMAKE_OSX_DEPLOYMENT_TARGET_IGNORED")
 

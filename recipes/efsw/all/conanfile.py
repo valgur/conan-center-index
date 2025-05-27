@@ -36,6 +36,9 @@ class EfswConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # INFO: Honor fPIC option. The upstream sets fPIC to ON always
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -45,12 +48,7 @@ class EfswConan(ConanFile):
         tc.variables["BUILD_STATIC_LIBS"] = False
         tc.generate()
 
-    def _patch_sources(self):
-        # INFO: Honor fPIC option. The upstream sets fPIC to ON always
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

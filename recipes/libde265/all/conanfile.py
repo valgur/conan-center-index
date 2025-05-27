@@ -51,8 +51,7 @@ class Libde265Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

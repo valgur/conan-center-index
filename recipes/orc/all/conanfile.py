@@ -70,7 +70,7 @@ class OrcRecipe(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         if self._should_patch_thirdparty_toolchain:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+            replace_in_file(self, "CMakeLists.txt",
                             "ThirdpartyToolchain",
                             "ConanThirdpartyToolchain")
         # Allow shared builds

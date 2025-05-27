@@ -112,15 +112,16 @@ class OsrmConan(ConanFile):
         save(self, os.path.join(self.source_folder, "src", "benchmarks", "CMakeLists.txt"), "")
 
         # Fix an irrelevant generator expression error during .pc file generation
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        '"$<TARGET_LINKER_FILE:${engine_lib}>"', '"${engine_lib}"')
+        replace_in_file(self, "CMakeLists.txt",
+                        '"$<TARGET_LINKER_FILE:${engine_lib}>"',
+                        '"${engine_lib}"')
 
         # Disable vendored deps
         for subdir in Path(self.source_folder, "third_party").iterdir():
             if subdir.name not in ["vtzero", "microtar"] and not subdir.name.startswith("cheap-ruler"):
                 rmdir(self, subdir)
                 save(self, subdir.joinpath("CMakeLists.txt"), "")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " $<TARGET_OBJECTS:MICROTAR>", "")
+        replace_in_file(self, "CMakeLists.txt", " $<TARGET_OBJECTS:MICROTAR>", "")
 
         # Add missing includes.
         # TODO: submit upstream

@@ -44,7 +44,7 @@ class ClipboardLiteConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # Add X11 as targets, since include dir vars don't propagate deps
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+        replace_in_file(self, "CMakeLists.txt",
                         "find_package(X11 REQUIRED)",
                         "find_package(X11 REQUIRED)\n"
                         "link_libraries(X11::xcb X11::X11 X11::Xfixes)\n")

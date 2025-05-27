@@ -10,7 +10,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class AprUtilConan(ConanFile):
@@ -54,20 +54,11 @@ class AprUtilConan(ConanFile):
         "with_lber": False,
         "with_ldap": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-        self.options["apr"].shared = self.options.shared
 
     def layout(self):
         if self.settings.os == "Windows":
@@ -76,7 +67,7 @@ class AprUtilConan(ConanFile):
             basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("apr/[^1.7.4]", transitive_headers=True)
+        self.requires("apr/[^1.7.4]", transitive_headers=True, options={"shared": self.options.shared})
         if self.settings.os != "Windows":
             #cmake build doesn't allow injection of iconv yet
             # https://github.com/conan-io/conan-center-index/pull/16142#issuecomment-1494282164
@@ -119,7 +110,7 @@ class AprUtilConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " SHARED ", " ")
+        replace_in_file(self, "CMakeLists.txt", " SHARED ", " ")
 
     @property
     def _with_crypto(self):

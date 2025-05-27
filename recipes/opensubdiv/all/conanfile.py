@@ -149,7 +149,7 @@ class OpenSubdivConan(ConanFile):
             path = os.path.join(self.source_folder, "opensubdiv", "CMakeLists.txt")
             replace_in_file(self, path, "$<TARGET_OBJECTS:osd_gpu_obj>", "")
         # No warnings as errors
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "/WX", "")
+        replace_in_file(self, "CMakeLists.txt", "/WX", "")
 
     def build(self):
         self._patch_sources()

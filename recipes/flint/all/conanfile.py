@@ -45,7 +45,7 @@ class FlintConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "MPFR_", "mpfr_")
+        replace_in_file(self, "CMakeLists.txt", "MPFR_", "mpfr_")
 
     def generate(self):
         tc = CMakeToolchain(self)

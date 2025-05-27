@@ -51,6 +51,13 @@ class GNSSTkConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Disable examples and tests
+        save(self, "examples/CMakeLists.txt", "")
+        save(self, "core/tests/CMakeLists.txt", "")
+        # Disable warnings as errors
+        replace_in_file(self, "BuildSetup.cmake", "-Werror=return-type -Werror=deprecated", "")
+        # Allow static library output
+        replace_in_file(self, "CMakeLists.txt", " SHARED ", " ")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -65,19 +72,7 @@ class GNSSTkConan(ConanFile):
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         tc.generate()
 
-    def _patch_sources(self):
-        # Disable examples and tests
-        save(self, os.path.join(self.source_folder, "examples", "CMakeLists.txt"), "")
-        save(self, os.path.join(self.source_folder, "core", "tests", "CMakeLists.txt"), "")
-        # Disable warnings as errors
-        replace_in_file(self, os.path.join(self.source_folder, "BuildSetup.cmake"),
-                        "-Werror=return-type -Werror=deprecated", "")
-        # Allow static library output
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        " SHARED ", " ")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

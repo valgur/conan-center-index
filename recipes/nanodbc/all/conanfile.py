@@ -79,7 +79,7 @@ class NanodbcConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # No warnings as errors
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "-Werror", "")
+        replace_in_file(self, "CMakeLists.txt", "-Werror", "")
 
     def generate(self):
         tc = CMakeToolchain(self)

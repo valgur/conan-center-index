@@ -57,12 +57,19 @@ class SymengineConan(ConanFile):
             self.requires("fast_float/[^6.1.5]")
 
     def source(self):
-        get(
-            self,
-            **self.conan_data["sources"][self.version],
-            strip_root=True,
-            destination=self.source_folder,
-        )
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Disable hardcoded C++11
+        replace_in_file(self, "CMakeLists.txt",
+                        'set(CMAKE_CXX_FLAGS "${CXX11_OPTIONS} ${CMAKE_CXX_FLAGS}")',
+                        '')
+        # Let Conan choose fPIC
+        replace_in_file(self, "CMakeLists.txt",
+                        'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${common}")',
+                        '')
+        # cmake_target_name not working?
+        replace_in_file(self, "CMakeLists.txt",
+                        "set(LIBS ${LIBS} ${GMP_TARGETS})",
+                        "set(LIBS ${LIBS} gmp::gmp)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -84,22 +91,7 @@ class SymengineConan(ConanFile):
             deps.set_property("fast_float", "cmake_file_name", "FASTFLOAT")
         deps.generate()
 
-    def _patch_sources(self):
-        # Disable hardcoded C++11
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        'set(CMAKE_CXX_FLAGS "${CXX11_OPTIONS} ${CMAKE_CXX_FLAGS}")',
-                        '')
-        # Let Conan choose fPIC
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${common}")',
-                        '')
-        # cmake_target_name not working?
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "set(LIBS ${LIBS} ${GMP_TARGETS})",
-                        "set(LIBS ${LIBS} gmp::gmp)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

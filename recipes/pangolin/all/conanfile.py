@@ -187,7 +187,7 @@ class PangolinConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"))
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), " -Werror", "")
+        replace_in_file(self, "CMakeLists.txt", " -Werror", "")
         # Use build-context wayland-scanner
         replace_in_file(self, os.path.join(self.source_folder, "components", "pango_windowing", "CMakeLists.txt"),
                         "pkg_get_variable(WAYLAND_SCANNER wayland-scanner wayland_scanner)",

@@ -80,6 +80,7 @@ class AsyncSimpleConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt", "-D_GLIBCXX_USE_CXX11_ABI=1", "")
 
     def generate(self):
         if not self.options.header_only:
@@ -93,7 +94,6 @@ class AsyncSimpleConan(ConanFile):
 
     def build(self):
         if not self.options.header_only:
-            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), '-D_GLIBCXX_USE_CXX11_ABI=1', '')
             cmake = CMake(self)
             cmake.configure()
             cmake.build()

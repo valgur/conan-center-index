@@ -56,6 +56,8 @@ class IgnitionUtilsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "${CMAKE_SOURCE_DIR}", "${PROJECT_SOURCE_DIR}")
+        replace_in_file(self, "CMakeLists.txt", "${CMAKE_BINARY_DIR}", "${PROJECT_BINARY_DIR}")
 
     def generate(self):
         venv = VirtualBuildEnv(self)
@@ -68,14 +70,7 @@ class IgnitionUtilsConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "${CMAKE_SOURCE_DIR}", "${PROJECT_SOURCE_DIR}")
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "${CMAKE_BINARY_DIR}", "${PROJECT_BINARY_DIR}")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

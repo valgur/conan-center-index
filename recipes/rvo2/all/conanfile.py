@@ -33,29 +33,20 @@ class Rvo2Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "add_subdirectory(examples)", "")
+        replace_in_file(self, "src/CMakeLists.txt",
+                        "DESTINATION include",
+                        "DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}")
+        replace_in_file(self, "src/CMakeLists.txt",
+                        "RVO DESTINATION lib",
+                        "RVO RUNTIME LIBRARY ARCHIVE")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "add_subdirectory(examples)", "")
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-            "DESTINATION include",
-            "DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}",
-        )
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "src", "CMakeLists.txt"),
-            "RVO DESTINATION lib",
-            "RVO RUNTIME LIBRARY ARCHIVE",
-        )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

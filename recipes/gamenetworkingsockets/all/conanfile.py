@@ -58,7 +58,7 @@ class GameNetworkingSocketsConan(ConanFile):
         replace_in_file(self, "CMakeLists.txt", "CXX_STANDARD 11", "FOLDER xyz")
         replace_in_file(self, os.path.join("src", "external", "steamwebrtc", "CMakeLists.txt"), "CXX_STANDARD 14", "FOLDER xyz")
         # Disable MSVC runtime override
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), "configure_msvc_runtime()", "")
+        replace_in_file(self, "CMakeLists.txt", "configure_msvc_runtime()", "")
         # Add support for Protobuf v30, which returns std::string_view instead of std::string
         replace_in_file(self, "src/steamnetworkingsockets/steamnetworkingsockets_internal.h",
                         "msg.GetTypeName().c_str()",

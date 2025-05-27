@@ -60,7 +60,7 @@ class Open62541ppConan(ConanFile):
         #   INTERFACE_LIBRARY targets may only have whitelisted properties.  The
         #   property "INTERPROCEDURAL_OPTIMIZATION" is not allowed.
         # Set this in CMakeToolchain instead
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+        replace_in_file(self, "CMakeLists.txt",
                         "get_target_property(open62541_ipo open62541::open62541 INTERPROCEDURAL_OPTIMIZATION)", "")
 
     def build(self):

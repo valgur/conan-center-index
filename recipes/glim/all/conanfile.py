@@ -65,6 +65,12 @@ class GlimPackage(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Make sure third-party deps are unvendored
+        rmdir(self, "thirdparty")
+        # Forbid building as a ROS package with ROS deps
+        replace_in_file(self, "CMakeLists.txt", "DEFINED ENV{ROS_VERSION}", "FALSE")
+        # Avoid overlinking of OpenCV
+        replace_in_file(self, "CMakeLists.txt", "${OpenCV_LIBRARIES}", "opencv_core")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -77,18 +83,7 @@ class GlimPackage(ConanFile):
         deps.set_property("gtsam", "cmake_target_name", "GTSAM::GTSAM")
         deps.generate()
 
-    def _patch_sources(self):
-        # Make sure third-party deps are unvendored
-        rmdir(self, os.path.join(self.source_folder, "thirdparty"))
-        # Forbid building as a ROS package with ROS deps
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "DEFINED ENV{ROS_VERSION}", "FALSE")
-        # Avoid overlinking of OpenCV
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "${OpenCV_LIBRARIES}", "opencv_core")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -77,6 +77,13 @@ class LibmikmodConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Ensure missing dependencies yields errors
+        replace_in_file(self, "CMakeLists.txt",
+                        "MESSAGE(WARNING",
+                        "MESSAGE(FATAL_ERROR")
+        replace_in_file(self, "drivers/drv_alsa.c",
+                        "alsa_pcm_close(pcm_h);",
+                        "if (pcm_h) alsa_pcm_close(pcm_h);")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -97,18 +104,7 @@ class LibmikmodConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-    def _patch_sources(self):
-         # Ensure missing dependencies yields errors
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                              "MESSAGE(WARNING",
-                              "MESSAGE(FATAL_ERROR")
-
-        replace_in_file(self, os.path.join(self.source_folder, "drivers", "drv_alsa.c"),
-                              "alsa_pcm_close(pcm_h);",
-                              "if (pcm_h) alsa_pcm_close(pcm_h);")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

@@ -60,6 +60,11 @@ class LibsolaceConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt",
+                        "include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)\nconan_basic_setup()",
+                        "")
+        path = Path(self.source_folder, "include/solace/array.hpp")
+        path.write_text("#include <utility>\n" + path.read_text())
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -67,15 +72,7 @@ class LibsolaceConan(ConanFile):
         tc.cache_variables["SOLACE_GTEST_SUPPORT"] = False
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)\nconan_basic_setup()",
-                        "")
-        path = Path(self.source_folder, "include/solace/array.hpp")
-        path.write_text("#include <utility>\n" + path.read_text())
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
