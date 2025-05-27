@@ -38,6 +38,10 @@ class LZ4Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        if Version(self.version) < "1.10.0":
+            replace_in_file(self, "build/cmake/CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 2.8.12)",
+                            "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -46,12 +50,8 @@ class LZ4Conan(ConanFile):
             tc.variables["LZ4_BUILD_LEGACY_LZ4C"] = False
         tc.variables["LZ4_BUNDLED_MODE"] = False
         tc.variables["LZ4_POSITION_INDEPENDENT_LIB"] = self.options.get_safe("fPIC", True)
-        # Generate a relocatable shared lib on Macos
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         # Honor BUILD_SHARED_LIBS (see https://github.com/conan-io/conan/issues/11840)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        if Version(self.version) < "1.10.0":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
 
     def build(self):
