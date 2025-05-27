@@ -15,7 +15,7 @@ class ConanGTK(ConanFile):
     topics = ("gui", "widget", "graphical")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"version": [2, 3]}
+    options = {"version": [2, 3, 4]}
     default_options = {"version": 4}
 
     def layout(self):
