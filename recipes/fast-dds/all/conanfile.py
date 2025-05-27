@@ -30,13 +30,10 @@ class FastDDSConan(ConanFile):
         "fPIC": True,
         "with_ssl": False,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
 
     def configure(self):
         self.options["fast-cdr"].shared = self.options.shared
@@ -92,21 +89,11 @@ class FastDDSConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-
         rmdir(self, os.path.join(self.package_folder, "share"))
-        rename(
-            self,
-            os.path.join(self.package_folder, "tools"),
-            os.path.join(os.path.join(self.package_folder, "bin", "tools")),
-        )
+        rename(self, os.path.join(self.package_folder, "tools"), os.path.join(self.package_folder, "bin", "tools"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
