@@ -523,8 +523,8 @@ def components_from_dotfile(dotfile):
         "LibXml2::LibXml2": "libxml2::libxml2",
         "z3::libz3": "z3::z3",
         "ZLIB::ZLIB": "zlib::zlib",
-        "zstd::libzstd_shared": "zstd::zstdlib",
-        "zstd::libzstd_static": "zstd::zstdlib",
+        "zstd::libzstd_shared": "zstd::zstd",
+        "zstd::libzstd_static": "zstd::zstd",
     }
     known_system_libs = {
         "ole32",

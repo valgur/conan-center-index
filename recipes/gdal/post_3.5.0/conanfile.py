@@ -813,7 +813,7 @@ class GdalConan(ConanFile):
         if self.options.with_xml2:
             self.cpp_info.requires.extend(["libxml2::libxml2"])
         if self.options.with_zstd:
-            self.cpp_info.requires.extend(["zstd::zstdlib"])
+            self.cpp_info.requires.extend(["zstd::zstd"])
 
         # Based on https://github.com/OSGeo/gdal/blob/v3.7.2/port/CMakeLists.txt
         if self.settings.os in ["Linux", "FreeBSD"]:

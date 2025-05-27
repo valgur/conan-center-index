@@ -235,8 +235,8 @@ def components_from_dotfile(dotfile):
     }
     label_replacements = {
         "ZLIB::ZLIB": "zlib::zlib",
-        "zstd::libzstd_shared": "zstd::zstdlib",
-        "zstd::libzstd_static": "zstd::zstdlib",
+        "zstd::libzstd_shared": "zstd::zstd",
+        "zstd::libzstd_static": "zstd::zstd",
     }
     components = {}
     for component, deps in parse_dotfile(dotfile, label_replacements).items():
