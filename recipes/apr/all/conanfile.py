@@ -1,8 +1,9 @@
 import os
 import re
+from pathlib import Path
 
 from conan import ConanFile
-from conan.errors import ConanException, ConanInvalidConfiguration
+from conan.errors import ConanException
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
@@ -11,7 +12,6 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -41,12 +41,6 @@ class AprConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    @property
-    def _should_call_autoreconf(self):
-        return self.settings.compiler == "apple-clang" and \
-               Version(self.settings.compiler.version) >= "12" and \
-               self.version == "1.7.0"
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -60,27 +54,8 @@ class AprConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("libxcrypt/4.4.36", transitive_headers=True, transitive_libs=True)
 
-    def validate_build(self):
-        if cross_building(self) and not is_msvc(self):
-            msg = ("apr recipe doesn't support cross-build for all the platforms"
-                   " due to runtime checks in autoconf. You can provide"
-                   " a pre-built cached file as an user Conan conf variable to try it.\n\n"
-                   "Via host profile:\n"
-                   "[conf]\nuser.apr:cache_file=/path/to/cache_file\n\n"
-                   "Via CLI: \n"
-                   "-c \"user.apr:cache_file='/path/to/cache_file'\"")
-            # Cross-building for apr < 1.7.4 is not supported without a pre-built cached file
-            if Version(self.version) < "1.7.4" and self.conf.get("user.apr:cache_file") is None:
-                raise ConanInvalidConfiguration(msg)
-            # Conan provides for apr >= 1.7.4 and Linux some configuration flags to avoid
-            # entering a pre-built cached file
-            if self.settings.os != "Linux" and self.conf.get("user.apr:cache_file") is None:
-                raise ConanInvalidConfiguration(msg)
-
     def build_requirements(self):
         if not is_msvc(self):
-            if self._should_call_autoreconf:
-                self.tool_requires("libtool/[^2.4.7]")
             if self.settings_build.os == "Windows":
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
@@ -89,47 +64,21 @@ class AprConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 2.8)",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5)")
 
     def _get_cross_building_configure_args(self):
-        """
-        The vast majority of projects that use autotools and make use of the AC_TRY_RUN macro,
-        do provide a default fallback when cross-compiling, as per the documentation here:
-
-            * https://ftp.gnu.org/old-gnu/Manuals/autoconf-2.53/html_node/Test-Programs.html
-
-        In that regard, APR cannot be cross-compiled by traditional means, and the only fallback
-        is to use a cache file. Indeed, the only way to cross-compile that is documented by upstream
-        is by pre-empting the configuration checks with a cache file that needs to be generated on
-        the target system:
-
-            ./configure --cache-file={gnu_host_triplet}.cache
-
-        The generated cache file can be repeatedly used to cross-compile to the targeted host system
-        by including it with the recipe data.
-
-        This recipe is reading this custom user conf variable:
-
-            [conf]
-            user.apr:cache_file=/path/to/{gnu_host_triplet}.cache
-
-        So you can use it to cross-compile on your system.
-        """
-        configure_args = []
-        user_cache_file = self.conf.get("user.apr:cache_file", check_type=str)
-        if user_cache_file:
-            configure_args.append(f"--cache-file={user_cache_file}")
-            return configure_args
-
-        self.output.warning("Trying to set some configuration arguments, but it"
-                            " could fail. The best approach is to provide a"
-                            " pre-built cached file.")
         if self.settings.os == "Linux":
             # Mandatory cross-building configuration flags (tested on Linux ARM and Intel)
-            configure_args.extend(["apr_cv_mutex_robust_shared=yes",
-                                   "ac_cv_file__dev_zero=yes",
-                                   "apr_cv_process_shared_works=yes",
-                                   "apr_cv_tcp_nodelay_with_cork=yes"])
-        return configure_args
+            return [
+                "apr_cv_mutex_robust_shared=yes",
+                "ac_cv_file__dev_zero=yes",
+                "apr_cv_process_shared_works=yes",
+                "apr_cv_tcp_nodelay_with_cork=yes",
+            ]
+        return []
 
     def generate(self):
         if is_msvc(self):
@@ -161,8 +110,6 @@ class AprConan(ConanFile):
             cmake.build(target="libapr-1" if self.options.shared else "apr-1")
         else:
             autotools = Autotools(self)
-            if self._should_call_autoreconf:
-                autotools.autoreconf()
             autotools.configure()
             autotools.make()
 
@@ -179,13 +126,13 @@ class AprConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             fix_apple_shared_install_name(self)
 
-            apr_rules_mk = os.path.join(self.package_folder, "res", "build-1", "apr_rules.mk")
-            apr_rules_cnt = open(apr_rules_mk).read()
+            apr_rules_mk = Path(self.package_folder, "res", "build-1", "apr_rules.mk")
+            apr_rules_cnt = apr_rules_mk.read_text()
             for key in ("apr_builddir", "apr_builders", "top_builddir"):
                 apr_rules_cnt, nb = re.subn(f"^{key}=[^\n]*\n", f"{key}=$(_APR_BUILDDIR)\n", apr_rules_cnt, flags=re.MULTILINE)
                 if nb == 0:
                     raise ConanException(f"Could not find/replace {key} in {apr_rules_mk}")
-            open(apr_rules_mk, "w").write(apr_rules_cnt)
+            apr_rules_mk.write_text(apr_rules_cnt)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name",  "apr-1")

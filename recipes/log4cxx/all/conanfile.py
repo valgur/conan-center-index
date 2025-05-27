@@ -73,7 +73,7 @@ class Log4cxxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("apr/1.7.4")
+        self.requires("apr/[^1.7.4]")
         self.requires("apr-util/1.6.1")
         self.requires("expat/[>=2.6.2 <3]")
         if self.options.get_safe("with_odbc_appender") and self.settings.os != "Windows":
