@@ -14,15 +14,7 @@ class LibTinsConan(ConanFile):
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/mfontanini/libtins"
-    topics = (
-        "pcap",
-        "packets",
-        "network",
-        "packet-analyser",
-        "packet-parsing",
-        "libpcap",
-        "sniffing",
-    )
+    topics = ("pcap", "packets", "network", "packet-analyser", "packet-parsing", "libpcap", "sniffing")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
