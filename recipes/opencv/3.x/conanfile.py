@@ -42,12 +42,12 @@ class OpenCVConan(ConanFile):
         "contrib": False,
         "with_jpeg": "libjpeg",
         "with_png": True,
-        "with_tiff": True,
-        "with_jasper": True,
-        "with_openexr": True,
+        "with_tiff": False,
+        "with_jasper": False,
+        "with_openexr": False,
         "with_eigen": True,
         "with_webp": True,
-        "with_gtk": True,
+        "with_gtk": False,
         "nonfree": False,
     }
 
