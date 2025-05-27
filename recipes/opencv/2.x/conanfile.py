@@ -4,7 +4,7 @@ import textwrap
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import valid_min_cppstd, check_max_cppstd
+from conan.tools.build import valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
@@ -76,10 +76,10 @@ class OpenCVConan(ConanFile):
         # highgui module options
         "with_jpeg": "libjpeg",
         "with_png": True,
-        "with_tiff": True,
-        "with_jasper": True,
-        "with_openexr": True,
-        "with_gtk": True,
+        "with_tiff": False,
+        "with_jasper": False,
+        "with_openexr": False,
+        "with_gtk": False,
     }
     default_options.update({_name: True for _name in OPENCV_MAIN_MODULES_OPTIONS})
     default_options.update({_name: False for _name in OPENCV_EXTRA_MODULES_OPTIONS})
@@ -377,7 +377,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_tiff"):
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.get_safe("with_gtk"):
-            self.requires("gtk/system")
+            self.requires("gtk/[^3]")
 
     def _check_mandatory_options(self, opencv_modules):
         disabled_options = self._get_mandatory_disabled_options(opencv_modules)
@@ -411,7 +411,6 @@ class OpenCVConan(ConanFile):
             raise ConanInvalidConfiguration(
                 "viz module can't be enabled yet. It requires VTK which is not available in conan-center."
             )
-        check_max_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
