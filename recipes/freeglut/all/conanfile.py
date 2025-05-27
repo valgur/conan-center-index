@@ -132,7 +132,7 @@ class freeglutConan(ConanFile):
         # CMake v4 support
         replace_in_file(self, "CMakeLists.txt",
                         "CMAKE_MINIMUM_REQUIRED(VERSION 3.1 FATAL_ERROR)",
-                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.15)")
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)

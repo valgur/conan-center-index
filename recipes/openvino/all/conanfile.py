@@ -167,7 +167,7 @@ class OpenvinoConan(ConanFile):
         # For CMake v4 support
         replace_in_file(self, "src/plugins/intel_cpu/thirdparty/onednn/CMakeLists.txt",
                         "cmake_minimum_required(VERSION 2.8.12)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         # Disable docs
         save(self, "src/plugins/intel_cpu/thirdparty/onednn/cmake/doc.cmake", "")
         save(self, "src/plugins/intel_gpu/thirdparty/onednn_gpu/cmake/doc.cmake", "")

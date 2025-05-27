@@ -99,7 +99,7 @@ class DateConan(ConanFile):
                 ((self.settings.compiler == "gcc" and Version(self.settings.compiler.version) <= "7.0") or
                  (self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "5.0")):
             tc.variables["DISABLE_STRING_VIEW"] = True
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         tc.generate()
 
         deps = CMakeDeps(self)

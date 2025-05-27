@@ -64,7 +64,7 @@ class RestbedConan(ConanFile):
         # CMake v4 support
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required( VERSION 3.1.0 FATAL_ERROR )",
-                        "cmake_minimum_required( VERSION 3.15 )")
+                        "cmake_minimum_required( VERSION 3.5 )")
 
     def generate(self):
         tc = CMakeToolchain(self)

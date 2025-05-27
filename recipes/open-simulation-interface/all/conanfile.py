@@ -54,7 +54,7 @@ class OpenSimulationInterfaceConan(ConanFile):
         apply_conandata_patches(self)
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.5)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         if Version(self.version) < "3.7.0":
             replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 11)", "")
 

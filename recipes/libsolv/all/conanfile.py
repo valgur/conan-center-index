@@ -80,6 +80,13 @@ class LibSolvConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "CMakeLists.txt", "${LZMA_LIBRARY}", "LibLZMA::LibLZMA")
+        replace_in_file(self, "CMakeLists.txt", "${EXPAT_LIBRARY}", "expat::expat")
+        replace_in_file(self, "CMakeLists.txt", "${LIBXML2_LIBRARIES}", "LibXml2::LibXml2")
+        # Workaround for "The CMake policy CMP0091 must be NEW, but is ''"
+        replace_in_file(self, "CMakeLists.txt",
+                        "CMAKE_MINIMUM_REQUIRED (VERSION 2.8.5)",
+                        "CMAKE_MINIMUM_REQUIRED (VERSION 3.15)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -124,18 +131,7 @@ class LibSolvConan(ConanFile):
         deps.set_property("xz_utils", "cmake_file_name", "LZMA")
         deps.generate()
 
-        VirtualBuildEnv(self).generate()
-
-    def _patch_sources(self):
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "${LZMA_LIBRARY}", "LibLZMA::LibLZMA")
-        replace_in_file(self, cmakelists, "${EXPAT_LIBRARY}", "expat::expat")
-        replace_in_file(self, cmakelists, "${LIBXML2_LIBRARIES}", "LibXml2::LibXml2")
-        # Workaround for "The CMake policy CMP0091 must be NEW, but is ''"
-        replace_in_file(self, cmakelists, "CMAKE_MINIMUM_REQUIRED (VERSION 2.8.5)", "CMAKE_MINIMUM_REQUIRED (VERSION 3.15)")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()

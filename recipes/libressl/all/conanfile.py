@@ -69,7 +69,7 @@ class LibreSSLConan(ConanFile):
             replace_in_file(
                 self, os.path.join(self.source_folder, "CMakeLists.txt"),
                 "cmake_minimum_required (VERSION 3.16.4)",
-                "cmake_minimum_required (VERSION 3.15.6)",
+                "cmake_minimum_required (VERSION 3.5.6)",
             )
 
     def build(self):

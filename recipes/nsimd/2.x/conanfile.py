@@ -50,7 +50,7 @@ class NsimdConan(ConanFile):
         if self.settings.arch == "armv7hf":
             tc.cache_variables["NSIMD_ARM32_IS_ARMEL"] = False
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         tc.generate()
 
     def build(self):

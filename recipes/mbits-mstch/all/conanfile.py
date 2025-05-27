@@ -34,7 +34,7 @@ class MBitsMstchConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.0.2)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)

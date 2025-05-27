@@ -150,7 +150,7 @@ class LLVMOpenMpConan(ConanFile):
             # Fix CMake version and policies not being propagated in linker tests
             replace_in_file(self, os.path.join(self.source_folder, "runtime", "cmake", "LibompCheckLinkerFlag.cmake"),
                             "cmake_minimum_required(",
-                            "cmake_minimum_required(VERSION 3.15) #")
+                            "cmake_minimum_required(VERSION 3.5) #")
             # Ensure sufficient CMake policy version is used for tc.variables
             replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
                             "cmake_minimum_required(",

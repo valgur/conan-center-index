@@ -37,7 +37,7 @@ class FoxiConan(ConanFile):
         apply_conandata_patches(self)
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.1)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, "CMakeLists.txt", "add_msvc_runtime_flag(foxi_loader)", "")
         replace_in_file(self, "CMakeLists.txt", "add_msvc_runtime_flag(foxi_dummy)", "")
         replace_in_file(self, "CMakeLists.txt", "DESTINATION lib", "RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib")

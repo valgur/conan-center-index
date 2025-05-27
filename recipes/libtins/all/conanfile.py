@@ -63,7 +63,7 @@ class LibTinsConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         replace_in_file(self, "CMakeLists.txt",
                         "CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)",
-                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.15)")
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5)")
         replace_in_file(self, "cmake/Modules/CheckCXXFeatures.cmake",
                         "cmake_minimum_required(VERSION 2.8.3)", "")
 

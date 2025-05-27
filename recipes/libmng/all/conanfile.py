@@ -40,7 +40,7 @@ class LibmngConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         replace_in_file(self, "CMakeLists.txt",
                         "CMAKE_MINIMUM_REQUIRED(VERSION 2.6)",
-                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.15)")
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5)")
         replace_in_file(self, "CMakeLists.txt", '"lib64"', '"lib"')
         replace_in_file(self, "CMakeLists.txt", "${JPEG_LIBRARY}", "JPEG::JPEG")
         replace_in_file(self, "CMakeLists.txt", "${ZLIB_LIBRARY}", "ZLIB::ZLIB")

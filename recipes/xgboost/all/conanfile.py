@@ -101,7 +101,7 @@ class XgboostConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version]["gputreeshap"], strip_root=True, destination="gputreeshap")
         replace_in_file(self, os.path.join("dmlc-core", "CMakeLists.txt"),
                         "cmake_minimum_required(VERSION 3.2)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         # Don't build the 'xgboost' executable,
         # which has been deprecated in the upcoming release anyway
         save(self, "CMakeLists.txt", "\nset_target_properties(runxgboost PROPERTIES EXCLUDE_FROM_ALL TRUE)\n", append=True)

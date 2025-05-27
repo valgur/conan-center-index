@@ -345,7 +345,7 @@ class LibtorchConan(ConanFile):
         # For CMake v4 support
         replace_in_file(self, "aten/src/ATen/native/quantized/cpu/qnnpack/deps/clog/CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.1 FATAL_ERROR)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
 
         # Keep only a restricted set of vendored dependencies.
         # Do it before build() to limit the amount of files to copy.

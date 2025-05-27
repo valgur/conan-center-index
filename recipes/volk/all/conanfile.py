@@ -66,7 +66,7 @@ class VolkConan(ConanFile):
         tc.variables["VOLK_PULL_IN_VULKAN"] = True
         tc.variables["VOLK_INSTALL"] = True
         if Version(self.version) < "1.3.270":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15" # CMake 4 support
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

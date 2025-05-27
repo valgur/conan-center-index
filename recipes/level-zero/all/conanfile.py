@@ -30,10 +30,10 @@ class LevelZeroConan(ConanFile):
         # CMake v4 support
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, "os_release_info.cmake",
                         "cmake_minimum_required(VERSION 3.2.0)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, os.path.join(self.source_folder, "source", "loader","ze_loader.cpp"),
                         "#ifdef __linux__", "#if defined(__linux__) || defined(__APPLE__)")
 

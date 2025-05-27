@@ -150,7 +150,7 @@ class EasyloggingppConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["build_static_lib"] = True
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"  # CMake 4 support
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"  # CMake 4 support
         if Version(self.version) > "9.97.1":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.15, check if new version supports CMake 4")
         for d in self._public_defines:

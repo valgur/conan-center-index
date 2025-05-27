@@ -96,7 +96,7 @@ class SystemcComponentsConan(ConanFile):
         # CMake v4 support
         replace_in_file(self, "third_party/fst/CMakeLists.txt",
                         "cmake_minimum_required (VERSION 3.0)",
-                        "cmake_minimum_required (VERSION 3.15)")
+                        "cmake_minimum_required (VERSION 3.5)")
         replace_in_file(self, "third_party/axi_chi/CMakeLists.txt", " STATIC", "")
         path = Path("src/common/util/io-redirector.h")
         path.write_text("#include <string>\n" + path.read_text())

@@ -43,7 +43,7 @@ class LibSigCppConan(ConanFile):
         # CMake v4 support
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required (VERSION 3.2)",
-                        "cmake_minimum_required (VERSION 3.15)")
+                        "cmake_minimum_required (VERSION 3.5)")
         # Avoid 'short_paths=True required' warning due to an unused folder
         rmdir(self, os.path.join(self.source_folder, "untracked"))
         # Disable subdirs

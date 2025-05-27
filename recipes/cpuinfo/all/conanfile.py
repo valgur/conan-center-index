@@ -52,7 +52,7 @@ class CpuinfoConan(ConanFile):
         rmdir(self, "deps")
         replace_in_file(self, "CMakeLists.txt",
                         "CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)",
-                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.15 FATAL_ERROR)")
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)")
         # Fix install dir of dll
         replace_in_file(self, "CMakeLists.txt",
                         "LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}",

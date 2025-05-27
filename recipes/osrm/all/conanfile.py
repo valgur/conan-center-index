@@ -101,10 +101,10 @@ class OsrmConan(ConanFile):
         # CMake v4 support
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.2)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, "cmake/JSONParser.cmake",
                         "cmake_minimum_required(VERSION 3.1)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, "CMakeLists.txt", "cmake_policy(SET CMP0048 OLD)", "")
 
         # Disable subdirs

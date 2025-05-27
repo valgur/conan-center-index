@@ -192,7 +192,7 @@ class EmbreeConan(ConanFile):
             tc.variables["EMBREE_ISA_AVX512SKX"] = self.options.get_safe("avx512", False)
         else:
             tc.variables["EMBREE_ISA_AVX512"] = self.options.get_safe("avx512", False)
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.15"
+        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         if Version(self.version) > "1.0.2":
             raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to >3.5, check if new version supports CMake 4")
         tc.generate()

@@ -55,7 +55,7 @@ class GKlibConan(ConanFile):
         # For CMake v4 support
         replace_in_file(self, "CMakeLists.txt",
                         "cmake_minimum_required(VERSION 3.4)",
-                        "cmake_minimum_required(VERSION 3.15)")
+                        "cmake_minimum_required(VERSION 3.5)")
         # Disable -march=native, which breaks cross-compilation and produces non-portable binaries
         replace_in_file(self, os.path.join(self.source_folder, "GKlibSystem.cmake"),  "-march=native", "")
 
