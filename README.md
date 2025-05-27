@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-26:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-27:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -28,6 +28,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - azure-sdk-for-cpp/1.13.0
 - bear/3.1.6
 - benchmark/1.9.4
+- binutils/2.44
 - blis/0.9.0
 - bluez/5.82
 - boost/1.71.0
@@ -54,6 +55,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-osi/0.108.10
 - coin-utils/2.11.11
 - colmap/3.10
+- conan-gnu-triplet/latest
 - cose-c/cci.20200603
 - cpp-validator/2.1.1
 - cppserver/1.0.4.1
@@ -95,6 +97,22 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - freertos-kernel/11.1.0
 - g2o/20230806
 - gbm/system
+- gcc-arm-prebuilt/10.2-2020.11
+- gcc-arm-prebuilt/10.3-2021.07
+- gcc-arm-prebuilt/11.2-2022.02
+- gcc-arm-prebuilt/11.3.rel1
+- gcc-arm-prebuilt/12.2.mpacbti-bet1
+- gcc-arm-prebuilt/12.2.mpacbti-rel1
+- gcc-arm-prebuilt/12.2.rel1
+- gcc-arm-prebuilt/12.3.rel1
+- gcc-arm-prebuilt/13.2.rel1
+- gcc-arm-prebuilt/14.2.rel1
+- gcc-arm-prebuilt/8.2-2018.08
+- gcc-arm-prebuilt/8.2-2018.11
+- gcc-arm-prebuilt/8.2-2019.01
+- gcc-arm-prebuilt/8.3-2019.02
+- gcc-arm-prebuilt/8.3-2019.03
+- gcc-arm-prebuilt/9.2-2019.12
 - gdalcpp/1.3.0
 - gdk-pixbuf/2.42.12
 - gettext/0.24
@@ -324,6 +342,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - piex/0.27
 - pipewire/1.4.2
 - plf_list/2.77
+- pmp/3.0.0
 - poco/1.14.1
 - polyscope/2.3.0
 - poppler/25.01.0
@@ -333,9 +352,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - proj/9.6.0
 - protobuf-c/1.5.2
 - protobuf/3.29.4
-- protobuf/4.30.2
+- protobuf/4.25.7
+- protobuf/4.31.0
+- protobuf/5.27.3
 - protobuf/5.29.4
-- protobuf/6.30.2
+- protobuf/6.31.0
 - qcoro/0.10.0
 - qhull/8.1.alpha4
 - qscintilla/2.14.1
@@ -397,19 +418,25 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - suitesparse-amd/3.3.3
 - suitesparse-btf/2.3.2
 - suitesparse-camd/3.3.3
+- suitesparse-camd/3.3.4
 - suitesparse-ccolamd/3.3.4
 - suitesparse-cholmod/5.3.0
+- suitesparse-cholmod/5.3.3
 - suitesparse-colamd/3.3.4
+- suitesparse-config/7.10.3
 - suitesparse-config/7.8.3
 - suitesparse-cxsparse/4.4.1
+- suitesparse-graphblas/10.0.5
 - suitesparse-graphblas/9.3.1
 - suitesparse-klu/2.3.5
 - suitesparse-lagraph/1.1.4
+- suitesparse-lagraph/1.1.5
 - suitesparse-ldl/3.3.2
 - suitesparse-mongoose/3.3.4
 - suitesparse-paru/1.0.0
 - suitesparse-rbio/4.3.4
 - suitesparse-spex/3.2.1
+- suitesparse-spex/3.2.3
 - suitesparse-spqr/4.3.4
 - suitesparse-umfpack/6.3.5
 - sundials/5.8.0
