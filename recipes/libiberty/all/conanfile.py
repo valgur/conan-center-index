@@ -25,18 +25,12 @@ class LibibertyConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     @property
     def _libiberty_folder(self):
         return os.path.join(self.source_folder, "libiberty")
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -53,8 +47,9 @@ class LibibertyConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        rmdir(self, os.path.join(self.source_folder, "gcc"))
-        rmdir(self, os.path.join(self.source_folder, "libstdc++-v3"))
+        rmdir(self, "gcc")
+        rmdir(self, "libstdc++-v3")
+        rmdir(self, "zlib")
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -69,8 +64,7 @@ class LibibertyConan(ConanFile):
     def package(self):
         copy(self, "COPYING.LIB", src=self._libiberty_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
-        # TODO: replace by autotools.install() once https://github.com/conan-io/conan/issues/12153 fixed
-        autotools.install(args=[f"DESTDIR={unix_path(self, self.package_folder)}"])
+        autotools.install()
         self._package_xx(32)
         self._package_xx(64)
 
