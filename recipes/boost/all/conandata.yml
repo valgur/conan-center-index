@@ -1,4 +1,9 @@
 sources:
+  "1.88.0":
+    url:
+      - "https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.bz2"
+      - "https://sourceforge.net/projects/boost/files/boost/1.88.0/boost_1_88_0.tar.bz2"
+    sha256: "46d9d2c06637b219270877c9e16155cbd015b6dc84349af064c088e9b5b12f7b"
   "1.87.0":
     url:
       - "https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2"
@@ -56,6 +61,10 @@ sources:
     url: "https://archives.boost.io/release/1.71.0/source/boost_1_71_0.tar.bz2"
     sha256: "d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee"
 patches:
+  "1.88.0":
+    - patch_file: "patches/1.88.0-locale-iconv-library-option.patch"
+      patch_description: "Optional flag to specify iconv from either libc of libiconv"
+      patch_type: "conan"
   "1.87.0":
     - patch_file: "patches/1.82.0-locale-iconv-library-option.patch"
       patch_description: "Optional flag to specify iconv from either libc of libiconv"
