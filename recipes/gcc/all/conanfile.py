@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -8,6 +9,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -29,16 +31,15 @@ class GccConan(ConanFile):
         if self.settings.compiler in ["clang", "apple-clang"]:
             # Can't remove this from cxxflags with autotools - so get rid of it
             del self.settings.compiler.libcxx
-
         # https://github.com/gcc-mirror/gcc/blob/6b5248d15c6d10325c6cbb92a0e0a9eb04e3f122/libcody/configure#L2505C11-L2505C25
         del self.settings.compiler.cppstd
 
-    def build_requirements(self):
-        if self.settings.os == "Linux":
-            # binutils recipe is broken for Macos, and Windows uses tools
-            # distributed with msys/mingw
-            self.tool_requires("binutils/[^2.42]")
-        self.tool_requires("flex/[^2.6.4]")
+    def package_id(self):
+        del self.info.settings.compiler
+        del self.info.settings.build_type
+
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("mpc/[^1.2.0]")
@@ -47,33 +48,25 @@ class GccConan(ConanFile):
         self.requires("zlib/[>=1.2.13 <2]")
         self.requires("isl/0.27")
 
-    def package_id(self):
-        del self.info.settings.compiler
+    def validate(self):
+        if self.settings.os == "Windows":
+            raise ConanInvalidConfiguration("Windows builds are not currently supported. Contributions are welcome.")
+        if cross_building(self):
+            raise ConanInvalidConfiguration("Cross builds are not currently supported. Contributions are welcome")
+
+    def build_requirements(self):
+        if self.settings.os == "Linux":
+            # binutils recipe is broken for Macos, and Windows uses tools
+            # distributed with msys/mingw
+            self.tool_requires("binutils/[^2.42]")
+        self.tool_requires("flex/[^2.6.4]")
 
     def validate_build(self):
         if is_msvc(self):
             raise ConanInvalidConfiguration("GCC can't be built with MSVC")
 
-    def validate(self):
-        if self.settings.os == "Windows":
-            raise ConanInvalidConfiguration(
-                "Windows builds aren't currently supported. Contributions to support this are welcome."
-            )
-        if self.settings.os == "Macos":
-            # FIXME: This recipe should largely support Macos, however the following
-            # errors are present when building using the c3i CI:
-            # clang: error: unsupported option '-print-multi-os-directory'
-            # clang: error: no input files
-            raise ConanInvalidConfiguration(
-                "Macos builds aren't currently supported. Contributions to support this are welcome."
-            )
-        if cross_building(self):
-            raise ConanInvalidConfiguration(
-                "Cross builds are not current supported. Contributions to support this are welcome"
-            )
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -86,9 +79,7 @@ class GccConan(ConanFile):
         tc.configure_args.append(f"--with-gmp={self.dependencies['gmp'].package_folder}")
         tc.configure_args.append(f"--with-mpc={self.dependencies['mpc'].package_folder}")
         tc.configure_args.append(f"--with-mpfr={self.dependencies['mpfr'].package_folder}")
-        tc.configure_args.append(f"--with-pkgversion=conan GCC {self.version}")
         tc.configure_args.append(f"--program-suffix=-{self.version}")
-        tc.configure_args.append(f"--with-bugurl={self.url}/issues")
 
         if self.settings.os == "Macos":
             xcrun = XCRun(self)
@@ -103,29 +94,7 @@ class GccConan(ConanFile):
         # Using AutotoolsDeps causes the compiler tests to fail by erroneously adding
         # additional $LIBS to the test compilation
 
-    def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
     def build(self):
-        # If building on x86_64, change the default directory name for 64-bit libraries to "lib":
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "gcc", "config", "i386", "t-linux64"),
-            "m64=../lib64",
-            "m64=../lib",
-            strict=False,
-        )
-
-        # Ensure correct install names when linking against libgcc_s;
-        # see discussion in https://github.com/Homebrew/legacy-homebrew/pull/34303
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "libgcc", "config", "t-slibgcc-darwin"),
-            "@shlib_slibdir@",
-            os.path.join(self.package_folder, "lib"),
-            strict=False,
-        )
-
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
@@ -133,46 +102,58 @@ class GccConan(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install(target="install-strip")
-
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", self.package_folder, recursive=True)
-        copy(
-            self,
-            pattern="COPYING*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-            keep_path=False,
-        )
+        copy(self, "COPYING*", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False)
+
+        # Add major version symlinks for all executables
+        major = Version(self.version).major
+        suffix = ".exe" if self.settings.os == "Windows" else ""
+        for exe_path in Path(self.package_folder, "bin").glob(f"*-{self.version}{suffix}"):
+            symlink_path = exe_path.with_name(exe_path.name.replace(f"-{self.version}{suffix}", f"-{major}{suffix}"))
+            os.symlink(exe_path.name, symlink_path)
 
     def package_info(self):
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("m")
-            self.cpp_info.system_libs.append("rt")
-            self.cpp_info.system_libs.append("pthread")
-            self.cpp_info.system_libs.append("dl")
+        def _tool_path(tool_name):
+            suffix = ".exe" if self.settings.os == "Windows" else ""
+            return os.path.join(self.package_folder, "bin", f"{tool_name}-{self.version}{suffix}")
 
-        bindir = os.path.join(self.package_folder, "bin")
+        def _add_env_var(var, tool_name):
+            self.buildenv_info.define_path(var, _tool_path(tool_name))
 
-        cc = os.path.join(bindir, f"gcc-{self.version}")
-        self.output.info("Creating CC env var with: " + cc)
-        self.buildenv_info.define("CC", cc)
+        _add_env_var("CC", "gcc")
+        _add_env_var("CXX", "g++")
+        _add_env_var("CPP", "cpp")
+        _add_env_var("CXXCPP", "cpp")
+        _add_env_var("FC", "gfortran")
+        _add_env_var("AS", "as")
 
-        cxx = os.path.join(bindir, f"g++-{self.version}")
-        self.output.info("Creating CXX env var with: " + cxx)
-        self.buildenv_info.define("CXX", cxx)
+        _add_env_var("ADDR2LINE", "addr2line")
+        _add_env_var("AR", "ar")
+        _add_env_var("DWP", "dwp")
+        _add_env_var("GDB", "gdb")
+        _add_env_var("GPROF", "gprof")
+        _add_env_var("LD", "ld")
+        _add_env_var("NM", "nm")
+        _add_env_var("OBJCOPY", "objcopy")
+        _add_env_var("OBJDUMP", "objdump")
+        _add_env_var("RANLIB", "ranlib")
+        _add_env_var("READLINK", "readlink")
+        _add_env_var("SIZE", "size")
+        _add_env_var("STRINGS", "strings")
+        _add_env_var("STRIP", "strip")
 
-        fc = os.path.join(bindir, f"gfortran-{self.version}")
-        self.output.info("Creating FC env var with: " + fc)
-        self.buildenv_info.define("FC", fc)
-
-        ar = os.path.join(bindir, f"gcc-ar-{self.version}")
-        self.output.info("Creating AR env var with: " + ar)
-        self.buildenv_info.define("AR", ar)
-
-        nm = os.path.join(bindir, f"gcc-nm-{self.version}")
-        self.output.info("Creating NM env var with: " + nm)
-        self.buildenv_info.define("NM", nm)
-
-        ranlib = os.path.join(bindir, f"gcc-ranlib-{self.version}")
-        self.output.info("Creating RANLIB env var with: " + ranlib)
-        self.buildenv_info.define("RANLIB", ranlib)
+        self.conf_info.update("tools.build:compiler_executables", {
+            "c": _tool_path("gcc"),
+            "cpp": _tool_path("g++"),
+            "fortran": _tool_path("gfortran"),
+            "asm": _tool_path("as"),
+            "ar": _tool_path("ar"),
+            "ld": _tool_path("ld"),
+            "nm": _tool_path("nm"),
+            "objcopy": _tool_path("objcopy"),
+            "objdump": _tool_path("objdump"),
+            "ranlib": _tool_path("ranlib"),
+            "strip": _tool_path("strip"),
+        })

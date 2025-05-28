@@ -1,14 +1,18 @@
 import os
-import shutil
 
 from conan import ConanFile
-from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.build import can_run
 from conan.tools.layout import basic_layout
 
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
+
+    def layout(self):
+        basic_layout(self)
+
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
 
     @property
     def file_io(self):
@@ -30,19 +34,6 @@ class TestPackageConan(ConanFile):
             },
         }
 
-    def layout(self):
-        basic_layout(self)
-
-    def requirements(self):
-        self.requires(self.tested_reference_str)
-
-    def generate(self):
-        buildenv = VirtualBuildEnv(self)
-        buildenv.generate()
-
-        runenv = VirtualRunEnv(self)
-        runenv.generate()
-
     def build(self):
         self.run("echo PATH: $PATH")
         for language, files in self.file_io.items():
@@ -52,38 +43,22 @@ class TestPackageConan(ConanFile):
             self.run(f"echo {envvar}: {files['compiler']}", env="conanbuild")
             self.run(f"{files['compiler']} --version", env="conanbuild")
             self.run(f"{files['compiler']} -dumpversion", env="conanbuild")
-
             # Confirm files can be compiled
-            self.run(
-                f"{files['compiler']} {files['src']} -o {files['bin']}",
-                env="conanbuild",
-            )
+            self.run(f"{files['compiler']} {files['src']} -o {files['bin']}", env="conanbuild")
             self.output.info(f"Successfully built {files['bin']}")
 
     def test(self):
-        def chmod_plus_x(name):
-            if os.name == "posix":
-                os.chmod(name, os.stat(name).st_mode | 0o111)
-
         for language, files in self.file_io.items():
             self.output.info(f"Testing application built using {language} compiler")
-            if not cross_building(self):
-                chmod_plus_x(f"{files['bin']}")
-
+            if can_run(self):
+                chmod_plus_x(files["bin"])
                 if self.settings.os == "Linux":
-                    if shutil.which("readelf"):
-                        self.run(f"readelf -l {files['bin']}", env="conanrun")
-                    else:
-                        self.output.info(
-                            "readelf is not on the PATH. Skipping readelf test."
-                        )
+                    self.run(f"readelf -l {files['bin']}", env="conanrun")
+                elif self.settings.os == "Macos":
+                    self.run(f"otool -L {files['bin']}", env="conanrun")
+                self.run(files["bin"], env="conanrun")
 
-                if self.settings.os == "Macos":
-                    if shutil.which("otool"):
-                        self.run(f"otool -L {files['bin']}", env="conanrun")
-                    else:
-                        self.output.info(
-                            "otool is not on the PATH. Skipping otool test."
-                        )
 
-                self.run(f"{files['bin']}", env="conanrun")
+def chmod_plus_x(name):
+    if os.name == "posix":
+        os.chmod(name, os.stat(name).st_mode | 0o111)
