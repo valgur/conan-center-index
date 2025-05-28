@@ -1,0 +1,13 @@
+sources:
+  "1.4.313.0":
+    url: "https://github.com/KhronosGroup/Vulkan-Profiles/archive/refs/tags/vulkan-sdk-1.4.313.0.tar.gz"
+    sha256: "06d95e27eedae750c2aaf67c98175621a79c334250f13b0057630ad493522166"
+  "1.4.309.0":
+    url: "https://github.com/KhronosGroup/Vulkan-Profiles/archive/refs/tags/vulkan-sdk-1.4.309.0.tar.gz"
+    sha256: "209f285b680a5b433edc23498f2d8489e68403891988930dee542aebae1bdd74"
+  "1.3.296.0":
+    url: "https://github.com/KhronosGroup/Vulkan-Profiles/archive/refs/tags/vulkan-sdk-1.3.296.0.tar.gz"
+    sha256: "fc5892f9d3c669e96b99e021d680647de1aeb5d53b94830dbfa1c34f2cce5afc"
+  "1.3.290.0":
+    url: "https://github.com/KhronosGroup/Vulkan-Profiles/archive/refs/tags/vulkan-sdk-1.3.290.0.tar.gz"
+    sha256: "479e68a8e8b49cca042c3e8b8e5413468f4fd0d83b0e2e447bf0e8ee772e5497"
