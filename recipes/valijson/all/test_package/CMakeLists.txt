@@ -10,9 +10,8 @@ add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(
     ${PROJECT_NAME}
     PRIVATE
-    ValiJSON::valijson
+    valijson
     nlohmann_json::nlohmann_json
     picojson::picojson
     rapidjson
 )
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
