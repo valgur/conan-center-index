@@ -13,12 +13,13 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-27:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-28:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
 - antlr4/4.13.2
 - apr-util/1.6.3
+- apr/1.7.6
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
@@ -93,6 +94,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - firebird/5.0.0
 - flite/2.2
 - fortran/cci.latest
+- foxglove-schemas-protobuf/0.3.0
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
 - g2o/20230806
@@ -215,6 +217,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libfontenc/1.1.8
 - libgudev/238
 - libhdfs3/cci.20191105
+- libiberty/15.1.0
 - libice/1.1.1
 - libjwt/3.2.1
 - liblas/1.8.1.cci.20240916
@@ -391,7 +394,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-cross/1.4.313.0
 - spirv-headers/1.3.250.1
 - spirv-headers/1.3.290.0
-- spirv-headers/1.4.313.0
 - spirv-llvm-translator/19.1.6
 - spirv-llvm-translator/20.1.1
 - spirv-reflect/1.3.239.0
