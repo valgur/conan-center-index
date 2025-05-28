@@ -93,10 +93,18 @@ class VulkanHeadersConan(ConanFile):
         copy(self, "LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "share", "cmake"))
+        # rmdir(self, os.path.join(self.package_folder, "share", "cmake"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "VulkanHeaders")
+
+        # The version in the official CMake ConfigVersion.cmake has only three components: major.minor.patch
+        # Vulkan interprets four-part version strings as variant.major.minor.patch, which
+        # can unintentionally invalidate compatibility checks in consuming code.
+        # https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#extendingvulkan-coreversions-versionnumbers
+        # https://github.com/KhronosGroup/Vulkan-Loader/blob/vulkan-sdk-1.4.313.0/loader/loader.c#L2499-L2507
+        three_part_version = self.version.rsplit(".", 1)[0]
+        self.cpp_info.set_property("system_package_version", three_part_version)
 
         self.cpp_info.components["vulkanheaders"].set_property("cmake_target_name", "Vulkan::Headers")
         self.cpp_info.components["vulkanheaders"].bindirs = []

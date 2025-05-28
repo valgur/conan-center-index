@@ -89,6 +89,12 @@ class VulkanUtilityLibrariesConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "VulkanUtilityLibraries")
 
+        # The version in the official CMake ConfigVersion.cmake has only three components: major.minor.patch
+        # Vulkan interprets four-part version strings as variant.major.minor.patch, which
+        # can unintentionally invalidate compatibility checks in consuming code.
+        three_part_version = self.version.rsplit(".", 1)[0]
+        self.cpp_info.set_property("system_package_version", three_part_version)
+
         # Vulkan::UtilityHeaders
         self.cpp_info.components["UtilityHeaders"].set_property("cmake_target_name", "Vulkan::UtilityHeaders")
         self.cpp_info.components["UtilityHeaders"].requires = ["vulkan-headers::vulkanheaders"]

@@ -96,3 +96,6 @@ class VolkConan(ConanFile):
         self.cpp_info.components["volk_headers"].requires = ["vulkan-headers::vulkan-headers"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["volk_headers"].system_libs = ["dl"]
+
+        # The version in volkConfigVersion.cmake is just the patch part
+        self.cpp_info.set_property("system_package_version", Version(self.version).patch)

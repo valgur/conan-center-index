@@ -139,6 +139,14 @@ class VulkanLoaderConan(ConanFile):
         suffix = "-1" if self.settings.os == "Windows" else ""
         self.cpp_info.libs = [f"vulkan{suffix}"]
 
+        # The version in the official CMake ConfigVersion.cmake has only three components: major.minor.patch
+        # Vulkan interprets four-part version strings as variant.major.minor.patch, which
+        # can unintentionally invalidate compatibility checks in consuming code.
+        # https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#extendingvulkan-coreversions-versionnumbers
+        # https://github.com/KhronosGroup/Vulkan-Loader/blob/vulkan-sdk-1.4.313.0/loader/loader.c#L2499-L2507
+        three_part_version = self.version.rsplit(".", 1)[0]
+        self.cpp_info.set_property("system_package_version", three_part_version)
+
         # allow to properly set Vulkan_INCLUDE_DIRS in FindVulkan.cmake
         self.cpp_info.includedirs = self.dependencies["vulkan-headers"].cpp_info.aggregated_components().includedirs
 

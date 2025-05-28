@@ -197,3 +197,9 @@ class VulkanValidationLayersConan(ConanFile):
             self.cpp_info.requires.append("xorg::xcb")
         if self.options.get_safe("with_wsi_wayland"):
             self.cpp_info.requires.append("wayland::wayland-client")
+
+        # The version in the official CMake ConfigVersion.cmake has only three components: major.minor.patch
+        # Vulkan interprets four-part version strings as variant.major.minor.patch, which
+        # can unintentionally invalidate compatibility checks in consuming code.
+        three_part_version = self.version.rsplit(".", 1)[0]
+        self.cpp_info.set_property("system_package_version", three_part_version)
