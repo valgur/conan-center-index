@@ -153,50 +153,21 @@ class VulkanValidationLayersConan(ConanFile):
             for ext in ("*.dll", "*.json"):
                 for bin_file in glob.glob(os.path.join(lib_dir, ext)):
                     shutil.move(bin_file, os.path.join(bin_dir, os.path.basename(bin_file)))
-        else:
-            # Move json files to res, but keep in mind to preserve relative
-            # path between module library and manifest json file
-            rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         # The output of the package is a VkLayer_khronos_validation runtime library.
+
         self.cpp_info.includedirs = []
-        if is_msvc(self):
-            self.cpp_info.libdirs = []
+        self.cpp_info.libdirs = []
+        if self.settings.os != "Windows":
+            self.cpp_info.bindirs = ["lib"]
 
         if self.settings.os == "Windows":
-            manifest_subfolder = "bin"
+            manifest_dir = "bin"
         else:
-            manifest_subfolder = os.path.join("res", "vulkan", "explicit_layer.d")
-        vk_layer_path = os.path.join(self.package_folder, manifest_subfolder)
-        self.runenv_info.prepend_path("VK_LAYER_PATH", vk_layer_path)
-
-        # Update runtime discovery paths to allow libVkLayer_khronos_validation.{so,dll,dylib} to be discovered
-        # and loaded by vulkan-loader when the consumer executes
-        # This is necessary because this package exports a static lib to link against and a dynamic lib to load at runtime
-        runtime_lib_discovery_path = "LD_LIBRARY_PATH"
-        if self.settings.os == "Windows":
-            runtime_lib_discovery_path = "PATH"
-        if self.settings.os == "Macos":
-            runtime_lib_discovery_path = "DYLD_LIBRARY_PATH"
-        for libdir in [os.path.join(self.package_folder, libdir) for libdir in self.cpp_info.libdirs]:
-            self.runenv_info.prepend_path(runtime_lib_discovery_path, libdir)
-
-        if self.settings.os == "Android":
-            self.cpp_info.system_libs.extend(["android", "log"])
-
-        self.cpp_info.requires.append("spirv-headers::spirv-headers")
-        self.cpp_info.requires.append("vulkan-headers::vulkan-headers")
-        if Version(self.version) >= "1.3.268.0":
-            self.cpp_info.requires.append("vulkan-utility-libraries::vulkan-utility-libraries")
-        self.cpp_info.requires.append("robin-hood-hashing::robin-hood-hashing")
-        if self.options.get_safe("with_wsi_xlib"):
-            self.cpp_info.requires.append("xorg::x11")
-        if self.options.get_safe("with_wsi_xcb"):
-            self.cpp_info.requires.append("xorg::xcb")
-        if self.options.get_safe("with_wsi_wayland"):
-            self.cpp_info.requires.append("wayland::wayland-client")
+            manifest_dir = os.path.join("share", "vulkan", "explicit_layer.d")
+        self.runenv_info.append_path("VK_LAYER_PATH", os.path.join(self.package_folder, manifest_dir))
 
         # The version in the official CMake ConfigVersion.cmake has only three components: major.minor.patch
         # Vulkan interprets four-part version strings as variant.major.minor.patch, which

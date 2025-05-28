@@ -3,6 +3,5 @@ project(test_package LANGUAGES CXX)
 
 find_package(VulkanLoader REQUIRED)
 
-add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} Vulkan::Loader)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+add_executable(check_vulkan_layers check_vulkan_layers.cpp)
+target_link_libraries(check_vulkan_layers PRIVATE Vulkan::Loader)
