@@ -13,8 +13,9 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-28:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-29:
 
+- abseil/20220623.1
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
 - antlr4/4.13.2
@@ -115,6 +116,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gcc-arm-prebuilt/8.3-2019.02
 - gcc-arm-prebuilt/8.3-2019.03
 - gcc-arm-prebuilt/9.2-2019.12
+- gcc/10.5.0
+- gcc/11.5.0
+- gcc/12.4.0
+- gcc/13.3.0
+- gcc/14.3.0
+- gcc/15.1.0
+- gcc/8.5.0
+- gcc/9.5.0
 - gdalcpp/1.3.0
 - gdk-pixbuf/2.42.12
 - gettext/0.24
@@ -292,7 +301,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mbedtls/2.28.10
 - meson/1.6.1
 - metavision-sdk/4.6.2
-- metavision-sdk/5.1.0
+- metavision-sdk/5.1.1
 - mkfontscale/1.2.3
 - mlir/19.1.7
 - mlir/20.1.5
@@ -352,7 +361,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - portable-file-dialogs/cci.20221111
 - portaudio/19.7.0
 - premake/5.0.0-beta2
-- proj/9.6.0
 - protobuf-c/1.5.2
 - protobuf/3.29.4
 - protobuf/4.25.7
@@ -458,6 +466,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - utfcpp/4.0.6
 - util-linux-libuuid/2.39.3
 - util-linux-libuuid/2.41
+- valijson/1.0.5
 - vc/1.4.5
 - vilib/cci.20210625
 - vk-bootstrap/1.3.268
@@ -470,6 +479,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vswhere/3.1.7
 - vtk-m/2.2.0
 - vtk/9.3.1
+- vulkan-extensionlayer/1.3.290.0
+- vulkan-extensionlayer/1.3.296.0
+- vulkan-extensionlayer/1.4.309.0
+- vulkan-extensionlayer/1.4.313.0
 - vulkan-headers/1.3.250.1
 - vulkan-headers/1.4.313.0
 - vulkan-loader/1.3.250.1
@@ -477,6 +490,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-loader/1.4.313.0
 - vulkan-memory-allocator/3.1.0
 - vulkan-memory-allocator/3.2.1
+- vulkan-profiles/1.3.290.0
+- vulkan-profiles/1.3.296.0
+- vulkan-profiles/1.4.309.0
+- vulkan-profiles/1.4.313.0
 - vulkan-utility-libraries/1.3.261.1
 - vulkan-utility-libraries/1.3.268.0
 - vulkan-utility-libraries/1.3.290.0
