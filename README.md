@@ -13,9 +13,15 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-29:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-30:
 
 - abseil/20220623.1
+- ada/2.5.1
+- ada/2.6.10
+- ada/2.7.8
+- ada/2.8.0
+- ada/2.9.0
+- ada/2.9.1
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
 - antlr4/4.13.2
@@ -157,7 +163,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - grass/8.5.0-cci.20240507
 - grpc/1.50.2
 - grpc/1.65.5
-- grpc/1.72.0
 - gsettings-desktop-schemas/48.0
 - gsl-lite/0.43.0
 - gsl-lite/1.0.1
@@ -354,7 +359,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - piex/0.27
 - pipewire/1.4.2
 - plf_list/2.77
-- pmp/3.0.0
 - poco/1.14.1
 - polyscope/2.3.0
 - poppler/25.01.0
