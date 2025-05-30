@@ -1,24 +1,16 @@
 sources:
   "1.88.0":
-    url:
-      - "https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.bz2"
-      - "https://sourceforge.net/projects/boost/files/boost/1.88.0/boost_1_88_0.tar.bz2"
-    sha256: "46d9d2c06637b219270877c9e16155cbd015b6dc84349af064c088e9b5b12f7b"
+    url: "https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-b2-nodocs.tar.gz"
+    sha256: "85138e4a185a7e7535e82b011179c5b5fb72185bea9f59fe8e2d76939b2f5c51"
   "1.87.0":
-    url:
-      - "https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2"
-      - "https://sourceforge.net/projects/boost/files/boost/1.87.0/boost_1_87_0.tar.bz2"
-    sha256: "af57be25cb4c4f4b413ed692fe378affb4352ea50fbe294a11ef548f4d527d89"
+    url: "https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.tar.gz"
+    sha256: "d6c69e4459eb5d6ec208250291221e7ff4a2affde9af6e49c9303b89c687461f"
   "1.86.0":
-    url:
-      - "https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2"
-      - "https://sourceforge.net/projects/boost/files/boost/1.86.0/boost_1_86_0.tar.bz2"
-    sha256: "1bed88e40401b2cb7a1f76d4bab499e352fa4d0c5f31c0dbae64e24d34d7513b"
+    url: "https://github.com/boostorg/boost/releases/download/boost-1.86.0/boost-1.86.0-b2-nodocs.tar.gz"
+    sha256: "2128a4c96862b5c0970c1e34d76b1d57e4a1016b80df85ad39667f30b1deba26"
   "1.85.0":
-    url:
-      - "https://archives.boost.io/release/1.85.0/source/boost_1_85_0.tar.bz2"
-      - "https://sourceforge.net/projects/boost/files/boost/1.85.0/boost_1_85_0.tar.bz2"
-    sha256: "7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617"
+    url: "https://github.com/boostorg/boost/releases/download/boost-1.85.0/boost-1.85.0-b2-nodocs.tar.gz"
+    sha256: "f4a7d3f81b8a0f65067b769ea84135fd7b72896f4f59c7f405086c8c0dc61434"
   "1.84.0":
     url:
       - "https://archives.boost.io/release/1.84.0/source/boost_1_84_0.tar.bz2"
