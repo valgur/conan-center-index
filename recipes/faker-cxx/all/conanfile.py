@@ -30,8 +30,29 @@ class FakerCXXConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    @property
+    def _min_std_format_support(self):
+        return {
+            "gcc": "13",
+            "clang": "17",
+            # These two are actually earlier, but older versions fail for other reasons
+            "apple-clang": "16",
+            "msvc": "193"
+        }
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+        if Version(self.version) >= "4.0.0":
+            del self.options.with_std_format
+
+    @property
+    def _with_std_format(self):
+        return self.options.get_safe("with_std_format", True)
+
     def requirements(self):
-        if not self.options.with_std_format:
+        if not self._with_std_format:
             self.requires("fmt/[>=5]")
 
     def layout(self):
@@ -43,6 +64,16 @@ class FakerCXXConan(ConanFile):
             # https://github.com/cieslarmichal/faker-cxx/issues/753
             raise ConanInvalidConfiguration(f"{self.ref} is not prepared to generated shared library on Windows.")
 
+        if Version(self.version) >= "4.0.0":
+            format_minimum_version = self._min_std_format_support.get(str(self.settings.compiler), False)
+            if format_minimum_version and Version(self.settings.compiler.version) < format_minimum_version:
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires std::format, which your compiler does not support."
+                )
+        elif self.settings.os == "Windows" and self.options.shared:
+            # https://github.com/cieslarmichal/faker-cxx/issues/753
+            raise ConanInvalidConfiguration(f"{self.ref} is not prepared to generated shared library on Windows.")
+
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.22 <5]")
 
@@ -51,10 +82,10 @@ class FakerCXXConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["USE_SYSTEM_DEPENDENCIES"] = True
-        tc.variables["BUILD_TESTING"] = False
-        tc.variables["WARNINGS_AS_ERRORS"] = False
-        tc.variables["WITH_STD_FORMAT"] = self.options.with_std_format
+        tc.cache_variables["USE_SYSTEM_DEPENDENCIES"] = True
+        tc.cache_variables["BUILD_TESTING"] = False
+        tc.cache_variables["WARNINGS_AS_ERRORS"] = False
+        tc.cache_variables["USE_STD_FORMAT"] = self._with_std_format
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -69,6 +100,7 @@ class FakerCXXConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.libs = ["faker-cxx"]

@@ -128,6 +128,10 @@ class GrpcConan(ConanFile):
                 "Please, use `protobuf/*:shared=True`.",
             )
 
+        abseil_cppstd = self.dependencies.host["abseil"].info.settings.compiler.cppstd
+        if abseil_cppstd != self.settings.compiler.cppstd:
+            raise ConanInvalidConfiguration(f"grpc and abseil must be built with the same compiler.cppstd setting")
+
     def build_requirements(self):
         # cmake >=3.25 required to use `cmake -E env --modify` below
         self.tool_requires("cmake/[>=3.25 <5]")

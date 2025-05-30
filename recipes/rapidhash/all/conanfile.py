@@ -18,10 +18,6 @@ class RapidHashConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -29,7 +25,7 @@ class RapidHashConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

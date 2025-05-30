@@ -16,6 +16,7 @@ class MingwConan(ConanFile):
     license = "ZPL-2.1", "MIT", "GPL-2.0-or-later"
     topics = ("gcc", "gnu", "unix", "mingw32", "binutils")
     settings = "os", "arch", "compiler", "build_type"
+    package_type = "application"
     options = {
         "threads": ["posix", "win32", "mcf"],
         "exception": ["seh", "sjlj"],

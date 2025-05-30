@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import *
+from conan.tools.files import get, copy, rmdir, replace_in_file, collect_libs, rename
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -43,9 +43,9 @@ class ProjConan(ConanFile):
     def requirements(self):
         self.requires("nlohmann_json/[^3]")
         self.requires("sqlite3/[>=3.44 <4]")
-        if self.options.get_safe("with_tiff"):
+        if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
-        if self.options.get_safe("with_curl"):
+        if self.options.with_curl:
             self.requires("libcurl/[>=7.78.0 <9]")
 
     def build_requirements(self):
@@ -53,31 +53,33 @@ class ProjConan(ConanFile):
         self.tool_requires("sqlite3/<host_version>")
 
     def validate(self):
-        check_min_cppstd(self, 14)
+        if Version(self.version) >= "9.6.0":
+            # https://github.com/OSGeo/PROJ/issues/4450
+            check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["USE_THREAD"] = self.options.threadsafe
-        tc.variables["BUILD_CCT"] = self.options.build_executables
-        tc.variables["BUILD_CS2CS"] = self.options.build_executables
-        tc.variables["BUILD_GEOD"] = self.options.build_executables
-        tc.variables["BUILD_GIE"] = self.options.build_executables
-        tc.variables["BUILD_PROJ"] = self.options.build_executables
-        tc.variables["BUILD_PROJINFO"] = self.options.build_executables
-        tc.variables["ENABLE_TIFF"] = self.options.with_tiff
-        tc.variables["ENABLE_CURL"] = self.options.with_curl
-        tc.variables["BUILD_TESTING"] = False
-        tc.variables["ENABLE_IPO"] = False
-        tc.variables["BUILD_PROJSYNC"] = self.options.build_executables and self.options.with_curl
-        tc.variables["NLOHMANN_JSON_ORIGIN"] = "external"
-        tc.variables["CMAKE_MACOSX_BUNDLE"] = False
+        tc.cache_variables["USE_THREAD"] = self.options.threadsafe
+        tc.cache_variables["BUILD_CCT"] = self.options.build_executables
+        tc.cache_variables["BUILD_CS2CS"] = self.options.build_executables
+        tc.cache_variables["BUILD_GEOD"] = self.options.build_executables
+        tc.cache_variables["BUILD_GIE"] = self.options.build_executables
+        tc.cache_variables["BUILD_PROJ"] = self.options.build_executables
+        tc.cache_variables["BUILD_PROJINFO"] = self.options.build_executables
+        tc.cache_variables["ENABLE_TIFF"] = self.options.with_tiff
+        tc.cache_variables["ENABLE_CURL"] = self.options.with_curl
+        tc.cache_variables["BUILD_TESTING"] = False
+        tc.cache_variables["ENABLE_IPO"] = False
+        tc.cache_variables["BUILD_PROJSYNC"] = self.options.build_executables and self.options.with_curl
+        tc.cache_variables["NLOHMANN_JSON_ORIGIN"] = "external"
+        tc.cache_variables["CMAKE_MACOSX_BUNDLE"] = False
         if self.settings.os == "Linux":
             # Workaround for: https://github.com/conan-io/conan/issues/13560
             libdirs_host = [l for dependency in self.dependencies.host.values() for l in dependency.cpp_info.aggregated_components().libdirs]
-            tc.variables["CMAKE_BUILD_RPATH"] = ";".join(libdirs_host)
+            tc.cache_variables["CMAKE_BUILD_RPATH"] = ";".join(libdirs_host)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
 
@@ -143,9 +145,9 @@ class ProjConan(ConanFile):
             if libcxx:
                 self.cpp_info.components["projlib"].system_libs.append(libcxx)
         self.cpp_info.components["projlib"].requires.extend(["nlohmann_json::nlohmann_json", "sqlite3::sqlite3"])
-        if self.options.get_safe("with_tiff"):
+        if self.options.with_tiff:
             self.cpp_info.components["projlib"].requires.append("libtiff::tiff")
-        if self.options.get_safe("with_curl"):
+        if self.options.with_curl:
             self.cpp_info.components["projlib"].requires.append("libcurl::libcurl")
         if not self.options.shared:
             self.cpp_info.components["projlib"].defines.append("PROJ_DLL=")
