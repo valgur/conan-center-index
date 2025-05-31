@@ -409,6 +409,12 @@ class BoostConan(ConanFile):
 
         if not any(self.options.get_safe(f"with_{lib}") for lib in MODULES):
             self.options.header_only.value = True
+        else:
+            # Enable all internal transitive dependencies of modules
+            for mod_name, mod_deps in self._dependencies["dependencies"].items():
+                if self.options.get_safe(f"with_{mod_name}"):
+                    for mod_dep in mod_deps:
+                        getattr(self.options, f"with_{mod_dep}").value = True
 
         if self.options.header_only:
             self.options.rm_safe("shared")
@@ -484,13 +490,6 @@ class BoostConan(ConanFile):
         if self._stacktrace_addr2line_available:
             if not os.path.isabs(str(self.options.addr2line_location)):
                 raise ConanInvalidConfiguration("addr2line_location must be an absolute path to addr2line")
-
-        # Check, when a boost module is enabled, whether the boost modules it depends on are enabled as well.
-        for mod_name, mod_deps in self._dependencies["dependencies"].items():
-            if self.options.get_safe(f"with_{mod_name}"):
-                for mod_dep in mod_deps:
-                    if not self.options.get_safe(f"with_{mod_dep}", True):
-                        raise ConanInvalidConfiguration(f"{mod_name} requires {mod_deps}: {mod_dep} is disabled")
 
         if self.options.get_safe("with_nowide"):
             # nowide require a c++11-able compiler with movable std::fstream
