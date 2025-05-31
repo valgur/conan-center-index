@@ -4,7 +4,7 @@ import tarfile
 from fnmatch import fnmatch
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.errors import ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -52,21 +52,7 @@ class FruitConan(ConanFile):
             self.requires("boost/[^1.71.0]")
 
     def validate(self):
-        check_min_cppstd(self, "11")
-        compiler = str(self.settings.compiler)
-        compiler_version = Version(self.settings.compiler.version.value)
-
-        minimal_version = {
-            "gcc": "5",
-            "clang": "3.5",
-            "apple-clang": "7.3",
-        }
-
-        if compiler in minimal_version and \
-           compiler_version < minimal_version[compiler]:
-            raise ConanInvalidConfiguration(f"{self.name} requires a compiler that supports"
-                                            " at least C++11. {compiler} {compiler_version} is not"
-                                            " supported.")
+        check_min_cppstd(self, 11)
 
     def source(self):
         if Version(self.version) == "3.4.0":
