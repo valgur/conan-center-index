@@ -13,6 +13,7 @@ from typing import Dict, List, Tuple, Union
 
 import yaml
 from conan.tools.files import chdir
+from conan.tools.scm import Version
 
 script_dir = Path(__file__).parent.resolve()
 
@@ -380,8 +381,12 @@ class BoostDependencyBuilder:
         tree = self.do_create_libraries(tree)
 
         tree.export.dependencies = self._fix_dependencies(tree.export.dependencies)
-
         data = dataclasses.asdict(tree.export)
+
+        # Manual fixes for Conan
+        if Version(self.boost_version) >= "1.81.0":
+            data["requirements"]["locale"].append("iconv")
+
         data = self._sort_item(data)
 
         print(f"Creating {self._outputpath}")
