@@ -8,6 +8,7 @@ from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
+
 class DocoptCppConan(ConanFile):
     name = "docopt.cpp"
     description = "C++11 port of docopt"
@@ -45,6 +46,9 @@ class DocoptCppConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1)",
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
