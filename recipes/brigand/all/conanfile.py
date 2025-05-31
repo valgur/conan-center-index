@@ -10,11 +10,11 @@ required_conan_version = ">=2.1"
 
 class BrigandConan(ConanFile):
     name = "brigand"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A light-weight, fully functional, instant-compile time meta-programming library."
+    license = "BSL-1.0"
     topics = ("meta-programming", "boost", "runtime", "header-only")
     homepage = "https://github.com/edouarda/brigand"
-    license = "BSL-1.0"
+    url = "https://github.com/conan-io/conan-center-index"
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -42,13 +42,11 @@ class BrigandConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def build(self):
-        pass
-
     def package(self):
-        copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        include_path = os.path.join("include", "brigand")
-        copy(self, "*.hpp", src=os.path.join(self.source_folder, include_path), dst=os.path.join(self.package_folder, include_path))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.hpp",
+             os.path.join(self.source_folder, "include", "brigand"),
+             os.path.join(self.package_folder, "include", "brigand"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libbrigand")
