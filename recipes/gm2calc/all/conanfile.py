@@ -36,7 +36,7 @@ class Gm2calcConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[1.71.0]")
         self.requires("eigen/3.4.0", transitive_headers=True)
 
     def validate(self):
@@ -45,6 +45,11 @@ class Gm2calcConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        if Version(self.version) < "2.0":
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 3.1)",
+                            "cmake_minimum_required(VERSION 3.5)")
         if Version(self.version) < "2.2.0":
             replace_in_file(self, "src/CMakeLists.txt", "EIGEN3", "Eigen3")
         # Fix src/slhaea.h:25:10: fatal error: boost/algorithm/string/classification.hpp: No such file or directory
