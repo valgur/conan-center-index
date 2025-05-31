@@ -1,5 +1,4 @@
 import os
-import platform
 import shutil
 
 from conan import ConanFile
@@ -10,7 +9,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import AutotoolsToolchain
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag, VCVars, check_min_vs, unix_path
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag, VCVars, unix_path
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -144,11 +143,10 @@ class BotanConan(ConanFile):
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_boost:
-            self.requires("boost/[^1.71.0]")
-
-    @property
-    def _required_boost_components(self):
-        return ["coroutine", "system"]
+            self.requires("boost/[^1.74.0]", options={
+                "with_coroutine": True,
+                "with_system": True,
+            })
 
     @property
     def _min_cppstd(self):
@@ -174,29 +172,18 @@ class BotanConan(ConanFile):
             }
 
     def validate(self):
-        if self.options.with_boost:
-            boost_opts = self.dependencies["boost"].options
-            miss_boost_required_comp = any(getattr(boost_opts, f"without_{boost_comp}", True) for boost_comp in self._required_boost_components)
-            if boost_opts.header_only or boost_opts.shared or boost_opts.magic_autolink or miss_boost_required_comp:
-                raise ConanInvalidConfiguration(
-                    f"{self.name} requires non-header-only static boost, "
-                    f"without magic_autolink, and with these components: {', '.join(self._required_boost_components)}")
-
         check_min_cppstd(self, self._min_cppstd)
 
         compiler = self.settings.compiler
         compiler_name = str(compiler)
         compiler_version = Version(compiler.version)
-
-        check_min_vs(self, self._compilers_minimum_version["msvc"])
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(compiler_name, False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support (minimum {compiler_name} {minimum_version})."
-                )
-            if not minimum_version:
-                self.output.warning(f"{self.name} recipe lacks information about the {compiler_name} compiler support.")
+        minimum_version = self._compilers_minimum_version.get(compiler_name, False)
+        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support (minimum {compiler_name} {minimum_version})."
+            )
+        if not minimum_version:
+            self.output.warning(f"{self.name} recipe lacks information about the {compiler_name} compiler support.")
 
         if self.settings.compiler == "gcc" and compiler_version >= "5" and self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration(
@@ -457,12 +444,6 @@ class BotanConan(ConanFile):
         if is_msvc(self):
             build_flags.append(f"--msvc-runtime={msvc_runtime_flag(self)}")
 
-        if self._is_glibc_older_than_2_25_on_linux and Version(self.version) >= "3.0":
-            # INFO: Botan 3.0+ requires glibc >= 2.25. Disable features to make it backward compatible
-            # FIXME: CCI Docker images are running Ubuntu 16.04. Remove it after supporting later version.
-            self.output.warning("Disabling usage of getentropy(), getrandom(), and explicit_bzero() due to old glibc version")
-            build_flags.append("--without-os-features=getentropy,getrandom,explicit_bzero")
-
         build_flags.append("--without-pkg-config")
 
         call_python = "python" if self.settings.os == "Windows" else ""
@@ -503,13 +484,9 @@ class BotanConan(ConanFile):
         return make_cmd
 
     @property
-    def _nmake_cmd(self):
-        return "nmake"
-
-    @property
     def _make_install_cmd(self):
         if is_msvc(self):
-            make_install_cmd = f"{self._nmake_cmd} install"
+            make_install_cmd = "nmake install"
         else:
             make_install_cmd = f"{self._make_program} install"
         return make_install_cmd
@@ -520,22 +497,4 @@ class BotanConan(ConanFile):
             self.settings.os == "Linux" and
             self.settings.compiler == "clang" and
             self.settings.compiler.libcxx == "libc++"
-        )
-
-    @property
-    def _is_glibc_older_than_2_25_on_linux(self):
-        # FIXME: glibc below 2.25 lacks support for certain syscalls that botan assumes
-        # to be present. Once CCI updated their CI images and provides a newer
-        # glibc, we can (and should) remove this workaround.
-        #
-        # https://github.com/conan-io/conan-center-index/pull/18079#issuecomment-1919206949
-        # https://github.com/conan-io/conan-center-index/pull/18079#issuecomment-1919486839
-
-        if self.settings.os != "Linux":
-            return False
-        libver = platform.libc_ver()
-        return (
-            self.settings.os == "Linux" and
-            libver[0] == "glibc" and
-            Version(libver[1]) < "2.25"
         )
