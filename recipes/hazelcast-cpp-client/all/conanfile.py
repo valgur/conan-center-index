@@ -1,9 +1,9 @@
+import os
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.files import *
-
-import os
 
 required_conan_version = ">=2.1"
 
@@ -36,7 +36,8 @@ class HazelcastCppClient(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.71.0 <1.86]", transitive_headers=True, transitive_libs=True,
+                      options={"with_thread": True})
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
 
@@ -46,6 +47,7 @@ class HazelcastCppClient(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD 11)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
