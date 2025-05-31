@@ -42,7 +42,6 @@ class GlimPackage(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, options={"with_serialization": True})
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/[~4.2]", transitive_headers=True, transitive_libs=True)
@@ -50,8 +49,10 @@ class GlimPackage(ConanFile):
         self.requires("nlohmann_json/[^3]", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
         self.requires("spdlog/[^1.8]", transitive_headers=True, transitive_libs=True)
+        self.requires("fmt/[<11]", transitive_headers=True, transitive_libs=True)
         if self.options.viewer:
             self.requires("iridescence/[>=0.1.3 <1]", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True, options={"with_serialization": True})
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -116,6 +117,7 @@ class GlimPackage(ConanFile):
             "opencv::opencv_core",
             "openmp::openmp",
             "spdlog::spdlog",
+            "fmt::fmt",
         ]
 
         _add_component("glim", main_reqs)
