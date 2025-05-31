@@ -18,10 +18,10 @@ required_conan_version = ">=2.1"
 
 class BotanConan(ConanFile):
     name = "botan"
+    description = "Botan is a cryptography library written in modern C++."
+    license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/randombit/botan"
-    license = "BSD-2-Clause"
-    description = "Botan is a cryptography library written in modern C++."
     topics = ("cryptography", "crypto", "c++11", "c++20", "tls")
 
     package_type = "library"
@@ -91,21 +91,21 @@ class BotanConan(ConanFile):
 
     @property
     def _is_x86(self):
-        return str(self.settings.arch) in ['x86', 'x86_64']
+        return str(self.settings.arch) in ["x86", "x86_64"]
 
     @property
     def _is_ppc(self):
-        return 'ppc' in str(self.settings.arch)
+        return "ppc" in str(self.settings.arch)
 
     @property
     def _is_arm(self):
-        return 'arm' in str(self.settings.arch)
+        return "arm" in str(self.settings.arch)
 
     def export_sources(self):
         export_conandata_patches(self)
 
     def config_options(self):
-        if self.settings.os == 'Windows':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
         if not self._is_x86:
@@ -127,7 +127,7 @@ class BotanConan(ConanFile):
             del self.options.with_powercrypto
 
         # Support for the OpenSSL provider was removed in 2.19.2
-        if Version(self.version) >= '2.19.2':
+        if Version(self.version) >= "2.19.2":
             del self.options.with_openssl
 
     def configure(self):
@@ -137,7 +137,7 @@ class BotanConan(ConanFile):
     def requirements(self):
         if self.options.with_bzip2:
             self.requires("bzip2/[^1.0.8]")
-        if self.options.get_safe('with_openssl', False):
+        if self.options.get_safe("with_openssl", False):
             self.requires("openssl/[>=1.1 <3]")
         if self.options.with_zlib:
             self.requires("zlib/[>=1.2.11 <2]")
@@ -148,7 +148,7 @@ class BotanConan(ConanFile):
 
     @property
     def _required_boost_components(self):
-        return ['coroutine', 'system']
+        return ["coroutine", "system"]
 
     @property
     def _min_cppstd(self):
@@ -175,8 +175,8 @@ class BotanConan(ConanFile):
 
     def validate(self):
         if self.options.with_boost:
-            boost_opts = self.dependencies['boost'].options
-            miss_boost_required_comp = any(getattr(boost_opts, 'without_{}'.format(boost_comp), True) for boost_comp in self._required_boost_components)
+            boost_opts = self.dependencies["boost"].options
+            miss_boost_required_comp = any(getattr(boost_opts, f"without_{boost_comp}", True) for boost_comp in self._required_boost_components)
             if boost_opts.header_only or boost_opts.shared or boost_opts.magic_autolink or miss_boost_required_comp:
                 raise ConanInvalidConfiguration(
                     f"{self.name} requires non-header-only static boost, "
@@ -198,11 +198,11 @@ class BotanConan(ConanFile):
             if not minimum_version:
                 self.output.warning(f"{self.name} recipe lacks information about the {compiler_name} compiler support.")
 
-        if self.settings.compiler == 'gcc' and compiler_version >= "5" and self.settings.compiler.libcxx != 'libstdc++11':
+        if self.settings.compiler == "gcc" and compiler_version >= "5" and self.settings.compiler.libcxx != "libstdc++11":
             raise ConanInvalidConfiguration(
                 'Using Botan with GCC >= 5 on Linux requires "compiler.libcxx=libstdc++11"')
 
-        if (self.settings.compiler == 'clang' and self.settings.os == "Linux" and self.settings.compiler.libcxx not in ['libstdc++11', 'libc++']
+        if (self.settings.compiler == "clang" and self.settings.os == "Linux" and self.settings.compiler.libcxx not in ["libstdc++11", "libc++"]
            and self.settings.os != "Android"):
             raise ConanInvalidConfiguration(
                 'Using Botan with Clang on Linux requires either "compiler.libcxx=libstdc++11" ' \
@@ -211,9 +211,9 @@ class BotanConan(ConanFile):
         # Some older compilers cannot handle the amalgamated build anymore
         # See also https://github.com/randombit/botan/issues/2328
         if self.options.amalgamation:
-            if (self.settings.compiler == 'apple-clang' and compiler_version < '10') or \
-               (self.settings.compiler == 'gcc' and compiler_version < '8') or \
-               (self.settings.compiler == 'clang' and compiler_version < '7'):
+            if (self.settings.compiler == "apple-clang" and compiler_version < "10") or \
+               (self.settings.compiler == "gcc" and compiler_version < "8") or \
+               (self.settings.compiler == "clang" and compiler_version < "7"):
                 raise ConanInvalidConfiguration(
                     f"botan amalgamation is not supported for {compiler}/{compiler_version}")
 
@@ -241,7 +241,7 @@ class BotanConan(ConanFile):
         # variable ${CXXFLAGS}. Most notably, this would build botan with
         # disabled compiler optimizations.
         self._extra_cxxflags = self._cxxflags
-        self.buildenv.unset('CXXFLAGS')
+        self.buildenv.unset("CXXFLAGS")
         VirtualBuildEnv(self).generate()
 
     def build(self):
@@ -262,215 +262,215 @@ class BotanConan(ConanFile):
         major_version = Version(self.version).major
         self.cpp_info.set_property("pkg_config_name", f"botan-{major_version}")
         self.cpp_info.libs = ["botan" if is_msvc(self) and major_version < 3 else f"botan-{major_version}"]
-        if self.settings.os == 'Linux':
-            self.cpp_info.system_libs.extend(['dl', 'rt', 'pthread', 'm'])
-        if self.settings.os == 'Macos':
-            self.cpp_info.frameworks = ['Security', 'CoreFoundation']
-        if self.settings.os == 'Windows':
-            self.cpp_info.system_libs.extend(['ws2_32', 'crypt32'])
+        if self.settings.os == "Linux":
+            self.cpp_info.system_libs.extend(["dl", "rt", "pthread", "m"])
+        if self.settings.os == "Macos":
+            self.cpp_info.frameworks = ["Security", "CoreFoundation"]
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs.extend(["ws2_32", "crypt32"])
 
         self.cpp_info.includedirs = [os.path.join("include", f"botan-{major_version}")]
 
     @property
     def _is_mingw_windows(self):
-        return self.settings.os == 'Windows' and self.settings.compiler == 'gcc'
+        return self.settings.os == "Windows" and self.settings.compiler == "gcc"
 
     @property
     def _botan_os(self):
         if self._is_mingw_windows:
-            return 'mingw'
-        return {'Windows': 'windows',
-                'Linux': 'linux',
-                'Macos': 'darwin',
-                'Android': 'android',
-                'baremetal': 'none',
-                'iOS': 'ios'}.get(str(self.settings.os))
+            return "mingw"
+        return {"Windows": "windows",
+                "Linux": "linux",
+                "Macos": "darwin",
+                "Android": "android",
+                "baremetal": "none",
+                "iOS": "ios"}.get(str(self.settings.os))
 
     def _dependency_build_flags(self, dependency):
         # Since botan has a custom build system, we need to specifically inject
         # these build parameters so that it picks up the correct dependencies.
         dep_cpp_info = self.dependencies[dependency].cpp_info
         return \
-            ['--with-external-includedir={}'.format(include_path) for include_path in dep_cpp_info.includedirs] + \
-            ['--with-external-libdir={}'.format(lib_path) for lib_path in dep_cpp_info.libdirs] + \
-            ['--define-build-macro={}'.format(define) for define in dep_cpp_info.defines]
+            [f"--with-external-includedir={include_path}" for include_path in dep_cpp_info.includedirs] + \
+            [f"--with-external-libdir={lib_path}" for lib_path in dep_cpp_info.libdirs] + \
+            [f"--define-build-macro={define}" for define in dep_cpp_info.defines]
 
     @property
     def _configure_cmd(self):
         botan_compiler = {
-            'apple-clang': 'clang',
-            'clang': 'clang',
-            'gcc': 'gcc',
-            'msvc': 'msvc',
-            'Visual Studio': 'msvc',
-            'intel-cc': 'icc',
-            'sun-cc': 'sunstudio',
+            "apple-clang": "clang",
+            "clang": "clang",
+            "gcc": "gcc",
+            "msvc": "msvc",
+            "Visual Studio": "msvc",
+            "intel-cc": "icc",
+            "sun-cc": "sunstudio",
         }[str(self.settings.compiler)]
 
         tc_vars = AutotoolsToolchain(self).vars()
-        cc_bin = tc_vars['CC']
+        cc_bin = tc_vars["CC"]
 
         botan_abi_flags = []
         botan_extra_cxx_flags = []
         build_flags = []
 
         if self._is_linux_clang_libcxx:
-            botan_abi_flags.extend(['-stdlib=libc++', '-lc++abi'])
+            botan_abi_flags.extend(["-stdlib=libc++", "-lc++abi"])
 
-        if self.settings.compiler in ['clang', 'apple-clang', 'gcc']:
-            if self.settings.arch == 'x86':
-                botan_abi_flags.append('-m32')
-            elif self.settings.arch == 'x86_64':
-                botan_abi_flags.append('-m64')
+        if self.settings.compiler in ["clang", "apple-clang", "gcc"]:
+            if self.settings.arch == "x86":
+                botan_abi_flags.append("-m32")
+            elif self.settings.arch == "x86_64":
+                botan_abi_flags.append("-m64")
 
-        if self.settings.compiler in ['apple-clang']:
-            if self.settings.arch in ['armv7']:
-                botan_abi_flags.append('-arch armv7')
-            elif self.settings.arch in ['armv8']:
-                botan_abi_flags.append('-arch arm64')
-            elif self.settings.arch in ['x86_64']:
-                botan_abi_flags.append('-arch x86_64')
+        if self.settings.compiler in ["apple-clang"]:
+            if self.settings.arch in ["armv7"]:
+                botan_abi_flags.append("-arch armv7")
+            elif self.settings.arch in ["armv8"]:
+                botan_abi_flags.append("-arch arm64")
+            elif self.settings.arch in ["x86_64"]:
+                botan_abi_flags.append("-arch x86_64")
 
-        if self.options.get_safe('fPIC', True) and not is_msvc(self):
-            botan_extra_cxx_flags.append('-fPIC')
+        if self.options.get_safe("fPIC", True) and not is_msvc(self):
+            botan_extra_cxx_flags.append("-fPIC")
 
         if is_apple_os(self):
-            if self.settings.get_safe('os.version'):
+            if self.settings.get_safe("os.version"):
                 # Required, see https://github.com/conan-io/conan-center-index/pull/3456
                 macos_min_version = macos_min_version = AutotoolsToolchain(self).apple_min_version_flag
                 botan_extra_cxx_flags.append(macos_min_version)
-            macos_sdk_path = '-isysroot {}'.format(XCRun(self).sdk_path)
+            macos_sdk_path = f"-isysroot {XCRun(self).sdk_path}"
             botan_extra_cxx_flags.append(macos_sdk_path)
 
         if self._extra_cxxflags:
             botan_extra_cxx_flags.append(self._extra_cxxflags)
 
-        if Version(self.version) >= '3.4':
-            # Botan 3.4.0 introduced a 'module life cycle' feature, before that
+        if Version(self.version) >= "3.4":
+            # Botan 3.4.0 introduced a "module life cycle" feature, before that
             # the experimental/deprecated feature switches are ignored.
 
             if self.options.enable_experimental_features:
-                build_flags.append('--enable-experimental-features')
+                build_flags.append("--enable-experimental-features")
             else:
-                build_flags.append('--disable-experimental-features')
+                build_flags.append("--disable-experimental-features")
 
             if self.options.enable_deprecated_features:
-                build_flags.append('--enable-deprecated-features')
+                build_flags.append("--enable-deprecated-features")
             else:
-                build_flags.append('--disable-deprecated-features')
+                build_flags.append("--disable-deprecated-features")
 
         if self.options.enable_modules:
-            build_flags.append('--minimized-build')
-            build_flags.append('--enable-modules={}'.format(self.options.enable_modules))
+            build_flags.append("--minimized-build")
+            build_flags.append(f"--enable-modules={self.options.enable_modules}")
 
         if self.options.disable_modules:
-            build_flags.append('--disable-modules={}'.format(self.options.disable_modules))
+            build_flags.append(f"--disable-modules={self.options.disable_modules}")
 
         if self.options.amalgamation:
-            build_flags.append('--amalgamation')
+            build_flags.append("--amalgamation")
 
         if self.options.system_cert_bundle:
-            build_flags.append('--system-cert-bundle={}'.format(self.options.system_cert_bundle))
+            build_flags.append(f"--system-cert-bundle={self.options.system_cert_bundle}")
 
         if self.conf.get("tools.build:sysroot"):
-            build_flags.append(f'--with-sysroot-dir={self.conf.get("tools.build:sysroot")}')
+            build_flags.append(f"--with-sysroot-dir={self.conf.get("tools.build:sysroot")}")
 
         if self.options.with_bzip2:
-            build_flags.append('--with-bzip2')
-            build_flags.extend(self._dependency_build_flags('bzip2'))
+            build_flags.append("--with-bzip2")
+            build_flags.extend(self._dependency_build_flags("bzip2"))
 
-        if self.options.get_safe('with_openssl', False):
-            build_flags.append('--with-openssl')
-            build_flags.extend(self._dependency_build_flags('openssl'))
+        if self.options.get_safe("with_openssl", False):
+            build_flags.append("--with-openssl")
+            build_flags.extend(self._dependency_build_flags("openssl"))
 
         if self.options.with_sqlite3:
-            build_flags.append('--with-sqlite3')
-            build_flags.extend(self._dependency_build_flags('sqlite3'))
+            build_flags.append("--with-sqlite3")
+            build_flags.extend(self._dependency_build_flags("sqlite3"))
 
         if self.options.with_zlib:
-            build_flags.append('--with-zlib')
-            build_flags.extend(self._dependency_build_flags('zlib'))
+            build_flags.append("--with-zlib")
+            build_flags.extend(self._dependency_build_flags("zlib"))
 
         if self.options.with_boost:
-            build_flags.append('--with-boost')
-            build_flags.extend(self._dependency_build_flags('boost'))
+            build_flags.append("--with-boost")
+            build_flags.extend(self._dependency_build_flags("boost"))
 
         if self.options.module_policy:
-            build_flags.append('--module-policy={}'.format(self.options.module_policy))
+            build_flags.append(f"--module-policy={self.options.module_policy}")
 
-        if self.settings.build_type == 'RelWithDebInfo':
-            build_flags.append('--with-debug-info')
+        if self.settings.build_type == "RelWithDebInfo":
+            build_flags.append("--with-debug-info")
 
         if self._is_x86:
             if not self.options.with_sse2:
-                build_flags.append('--disable-sse2')
+                build_flags.append("--disable-sse2")
 
             if not self.options.with_ssse3:
-                build_flags.append('--disable-ssse3')
+                build_flags.append("--disable-ssse3")
 
             if not self.options.with_sse4_1:
-                build_flags.append('--disable-sse4.1')
+                build_flags.append("--disable-sse4.1")
 
             if not self.options.with_sse4_2:
-                build_flags.append('--disable-sse4.2')
+                build_flags.append("--disable-sse4.2")
 
             if not self.options.with_avx2:
-                build_flags.append('--disable-avx2')
+                build_flags.append("--disable-avx2")
 
             if not self.options.with_bmi2:
-                build_flags.append('--disable-bmi2')
+                build_flags.append("--disable-bmi2")
 
             if not self.options.with_rdrand:
-                build_flags.append('--disable-rdrand')
+                build_flags.append("--disable-rdrand")
 
             if not self.options.with_rdseed:
-                build_flags.append('--disable-rdseed')
+                build_flags.append("--disable-rdseed")
 
             if not self.options.with_aes_ni:
-                build_flags.append('--disable-aes-ni')
+                build_flags.append("--disable-aes-ni")
 
             if not self.options.with_sha_ni:
-                build_flags.append('--disable-sha-ni')
+                build_flags.append("--disable-sha-ni")
 
         if self._is_ppc:
             if not self.options.with_powercrypto:
-                build_flags.append('--disable-powercrypto')
+                build_flags.append("--disable-powercrypto")
 
             if not self.options.with_altivec:
-                build_flags.append('--disable-altivec')
+                build_flags.append("--disable-altivec")
 
         if self._is_arm:
             if not self.options.with_neon:
-                build_flags.append('--disable-neon')
+                build_flags.append("--disable-neon")
 
             if not self.options.with_armv8crypto:
-                build_flags.append('--disable-armv8crypto')
+                build_flags.append("--disable-armv8crypto")
 
-        if str(self.settings.build_type).lower() == 'debug':
-            build_flags.append('--debug-mode')
+        if str(self.settings.build_type).lower() == "debug":
+            build_flags.append("--debug-mode")
 
-        build_targets = ['shared'] if self.options.shared else ['static']
+        build_targets = ["shared"] if self.options.shared else ["static"]
 
         if self._is_mingw_windows:
-            build_flags.append('--without-stack-protector')
+            build_flags.append("--without-stack-protector")
 
         if is_msvc(self):
             build_flags.append(f"--msvc-runtime={msvc_runtime_flag(self)}")
 
-        if self._is_glibc_older_than_2_25_on_linux and Version(self.version) >= '3.0':
+        if self._is_glibc_older_than_2_25_on_linux and Version(self.version) >= "3.0":
             # INFO: Botan 3.0+ requires glibc >= 2.25. Disable features to make it backward compatible
             # FIXME: CCI Docker images are running Ubuntu 16.04. Remove it after supporting later version.
             self.output.warning("Disabling usage of getentropy(), getrandom(), and explicit_bzero() due to old glibc version")
-            build_flags.append('--without-os-features=getentropy,getrandom,explicit_bzero')
+            build_flags.append("--without-os-features=getentropy,getrandom,explicit_bzero")
 
-        build_flags.append('--without-pkg-config')
+        build_flags.append("--without-pkg-config")
 
-        call_python = 'python' if self.settings.os == 'Windows' else ''
+        call_python = "python" if self.settings.os == "Windows" else ""
 
         prefix = unix_path(self, self.package_folder) if self._is_mingw_windows else self.package_folder
 
-        botan_abi = ' '.join(botan_abi_flags) if botan_abi_flags else ' '
-        botan_cxx_extras = ' '.join(botan_extra_cxx_flags) if botan_extra_cxx_flags else ' '
+        botan_abi = " ".join(botan_abi_flags) if botan_abi_flags else " "
+        botan_cxx_extras = " ".join(botan_extra_cxx_flags) if botan_extra_cxx_flags else " "
 
         configure_cmd = (f'{call_python} ./configure.py'
                          f' --build-targets={",".join(build_targets)}'
@@ -493,33 +493,33 @@ class BotanConan(ConanFile):
 
     @property
     def _make_program(self):
-        return self.conf.get("tools.gnu:make_program", os.getenv('CONAN_MAKE_PROGRAM', shutil.which('make') or shutil.which('mingw32-make')))
+        return self.conf.get("tools.gnu:make_program", os.getenv("CONAN_MAKE_PROGRAM", shutil.which("make") or shutil.which("mingw32-make")))
 
     @property
     def _gnumake_cmd(self):
-        make_ldflags = 'LDFLAGS=-lc++abi' if self._is_linux_clang_libcxx else ''
+        make_ldflags = "LDFLAGS=-lc++abi" if self._is_linux_clang_libcxx else ""
 
         make_cmd = f"{make_ldflags} {self._make_program} -j{build_jobs(self)}"
         return make_cmd
 
     @property
     def _nmake_cmd(self):
-        return 'nmake'
+        return "nmake"
 
     @property
     def _make_install_cmd(self):
         if is_msvc(self):
-            make_install_cmd = '{make} install'.format(make=self._nmake_cmd)
+            make_install_cmd = f"{self._nmake_cmd} install"
         else:
-            make_install_cmd = '{make} install'.format(make=self._make_program)
+            make_install_cmd = f"{self._make_program} install"
         return make_install_cmd
 
     @property
     def _is_linux_clang_libcxx(self):
         return (
-            self.settings.os == 'Linux' and
-            self.settings.compiler == 'clang' and
-            self.settings.compiler.libcxx == 'libc++'
+            self.settings.os == "Linux" and
+            self.settings.compiler == "clang" and
+            self.settings.compiler.libcxx == "libc++"
         )
 
     @property
@@ -531,11 +531,11 @@ class BotanConan(ConanFile):
         # https://github.com/conan-io/conan-center-index/pull/18079#issuecomment-1919206949
         # https://github.com/conan-io/conan-center-index/pull/18079#issuecomment-1919486839
 
-        if self.settings.os != 'Linux':
+        if self.settings.os != "Linux":
             return False
         libver = platform.libc_ver()
         return (
-            self.settings.os == 'Linux' and
-            libver[0] == 'glibc' and
-            Version(libver[1]) < '2.25'
+            self.settings.os == "Linux" and
+            libver[0] == "glibc" and
+            Version(libver[1]) < "2.25"
         )
