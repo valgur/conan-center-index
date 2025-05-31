@@ -6,6 +6,7 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -85,6 +86,11 @@ class LibrdkafkaConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        if Version(self.version) < "2.5":
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 3.2)",
+                            "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         env = VirtualBuildEnv(self)
