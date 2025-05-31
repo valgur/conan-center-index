@@ -283,7 +283,7 @@ class BoostConan(ConanFile):
             del self.options.fPIC
 
         # Test whether all config_options from the yml are available in CONFIGURE_OPTIONS
-        for opt_name in self._configure_options:
+        for opt_name in self._available_modules:
             if f"with_{opt_name}" not in self.options:
                 raise ConanException(f"{self._dependency_filename} has the configure options {opt_name} which is not available in conanfile.py")
 
@@ -304,57 +304,11 @@ class BoostConan(ConanFile):
 
         # Remove options not supported by this version of boost
         for dep_name in MODULES:
-            if dep_name not in self._configure_options:
+            if dep_name not in self._available_modules:
                 delattr(self.options, f"with_{dep_name}")
 
-        def disable_component(name):
-            super_modules = self._all_super_modules(name)
-            for smod in super_modules:
-                setattr(self.options, f"with_{smod}", False)
-
-        # nowide requires a c++11-able compiler + movable std::fstream: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
-        # json requires a c++11-able compiler: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
-        if not valid_min_cppstd(self, 11):
-            disable_component("fiber")
-            disable_component("nowide")
-            disable_component("json")
-            disable_component("url")
-            disable_component("math")
-
-        if Version(self.version) >= "1.79.0":
-            if not valid_min_cppstd(self, 11):
-                disable_component("wave")
-
-        if Version(self.version) >= "1.81.0":
-            if not valid_min_cppstd(self, 11):
-                disable_component("locale")
-
-        if Version(self.version) >= "1.84.0":
-            if not self._has_coroutine_supported:
-                disable_component("cobalt")
-            # FIXME: Compilation errors on msvc shared build for boost.fiber https://github.com/boostorg/fiber/issues/314
-            if is_msvc(self):
-                disable_component("fiber")
-
-        if Version(self.version) >= "1.85.0":
-            if not valid_min_cppstd(self, 14):
-                disable_component("math")
-
-        if Version(self.version) >= "1.86.0":
-            if not valid_min_cppstd(self, 14):
-                disable_component("graph")
-            # TODO: Revisit on Boost 1.87.0
-            # It's not possible to disable process only when having shared parsed already.
-            # https://github.com/boostorg/process/issues/408
-            # https://github.com/boostorg/process/pull/409
-            if Version(self.version) == "1.86.0" and is_msvc(self):
-                disable_component("process")
-            if self.settings.os == "iOS":
-                # the process library doesn't build (and doesn't even make sense) on iOS
-                self.options.with_process = False
-
     @property
-    def _configure_options(self):
+    def _available_modules(self):
         return self._dependencies["configure_options"]
 
     @property
@@ -411,21 +365,31 @@ class BoostConan(ConanFile):
             self.options.header_only.value = True
         else:
             # Enable all internal transitive dependencies of modules
-            for mod_name, mod_deps in self._dependencies["dependencies"].items():
-                if self.options.get_safe(f"with_{mod_name}"):
-                    for mod_dep in mod_deps:
-                        getattr(self.options, f"with_{mod_dep}").value = True
-            # math and random have a dependency cycle, so are handled separately
-            if self.options.with_math:
-                self.options.with_random.value = True
-            elif self.options.with_random:
-                self.options.with_math.value = True
+            self._enable_transitive_dependencies()
 
         if self.options.header_only:
             self.options.rm_safe("shared")
             self.options.rm_safe("fPIC")
         elif self.options.shared:
             self.options.rm_safe("fPIC")
+
+    def _enable_transitive_dependencies(self):
+        while True:
+            made_changes = False
+            for mod_name, mod_deps in self._dependencies["dependencies"].items():
+                if self.options.get_safe(f"with_{mod_name}"):
+                    for mod_dep in mod_deps:
+                        if not self.options.get_safe(f"with_{mod_dep}"):
+                            self.output.info(f"Enabling '{mod_dep}' for '{mod_name}'")
+                            getattr(self.options, f"with_{mod_dep}").value = True
+                            made_changes = True
+            if not made_changes:
+                break
+        # math and random have a dependency cycle, so are handled separately
+        if self.options.with_math:
+            self.options.with_random.value = True
+        elif self.options.with_random:
+            self.options.with_math.value = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -1067,7 +1031,7 @@ class BoostConan(ConanFile):
         else:
             flags.append("variant=release")
 
-        for libname in self._configure_options:
+        for libname in self._available_modules:
             if not self.options.get_safe(f"with_{libname}"):
                 flags.append(f"--without-{libname}")
 
