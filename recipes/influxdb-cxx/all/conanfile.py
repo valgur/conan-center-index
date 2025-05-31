@@ -1,11 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -21,43 +19,25 @@ class InfluxdbCxxConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "boost": [True, False]
+        "with_boost": [True, False]
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "boost": True,
+        "with_boost": True,
     }
     implements = ["auto_shared_fpic"]
-
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-            "msvc": "192",
-        }
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("cpr/[^1.10.4]")
-        if self.options.boost:
-            self.requires("boost/[^1.71.0]")
+        if self.options.with_boost:
+            self.requires("boost/[^1.71.0 <1.88]", options={"with_system": True})
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -67,7 +47,7 @@ class InfluxdbCxxConan(ConanFile):
         # BUILD_SHARED_LIBS is defined explicitly in CMakeLists.txt
         tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.cache_variables["INFLUXCXX_TESTING"] = False
-        tc.cache_variables["INFLUXCXX_WITH_BOOST"] = self.options.boost
+        tc.cache_variables["INFLUXCXX_WITH_BOOST"] = self.options.with_boost
         if self.options.shared:
             # See https://github.com/offa/influxdb-cxx/issues/194
             tc.preprocessor_definitions["InfluxDB_EXPORTS"] = 1
