@@ -7,7 +7,6 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -33,19 +32,6 @@ class BeautyConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "7",
-            "msvc": "192",
-            "apple-clang": "10"
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -53,25 +39,14 @@ class BeautyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # beauty public headers include some boost headers.
-        # For example beauty/application.hpp includes boost/asio.hpp
-        if Version(self.version) >= "1.0.4":
-            # https://github.com/dfleury2/beauty/issues/30
-            self.requires("boost/[^1.71.0]", transitive_headers=True)
-        else:
-            self.requires("boost/[^1.71.0]", transitive_headers=True)
+        # beauty/application.hpp public header includes boost/asio.hpp
+        self.requires("boost/[^1.78.0 <1.88]", transitive_headers=True)
         if self.options.with_openssl:
             # dependency of asio in boost, exposed in boost/asio/ssl/detail/openssl_types.hpp
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx != "libc++":
             raise ConanInvalidConfiguration(f"{self.ref} clang compiler requires -s compiler.libcxx=libc++")
@@ -88,6 +63,7 @@ class BeautyConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        save(self, "tests/CMakeLists.txt", "")
 
     def generate(self):
         VirtualBuildEnv(self).generate()
