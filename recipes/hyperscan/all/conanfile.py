@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -67,10 +66,13 @@ class HyperscanConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required (VERSION 2.8.11)",
+                        "cmake_minimum_required (VERSION 3.5)")
+        replace_in_file(self, "CMakeLists.txt", "/Qstd=c++11", "")
+        replace_in_file(self, "CMakeLists.txt", "-std=c++11", "")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         tc = CMakeToolchain(self)
         if self.options.optimise != "auto":
             tc.variables["OPTIMISE"] = self.options.optimise
