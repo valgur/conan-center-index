@@ -2,17 +2,19 @@
 
 import argparse
 import dataclasses
-import json
 import logging
+import platform
 import pprint
 import re
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import yaml
-from conan.tools.files import *
+from conan.tools.files import chdir
+
+script_dir = Path(__file__).parent.resolve()
 
 log = logging.Logger("boost-dependency-builder")
 log.parent = logging.root
@@ -90,7 +92,7 @@ WINDOWS_SYSTEM_LIBS = (
 
 
 @dataclasses.dataclass
-class BoostDependenciesExport(object):
+class BoostDependenciesExport:
     version: str
     configure_options: List[str]
     dependencies: Dict[str, List[str]] = dataclasses.field(default_factory=dict)
@@ -100,94 +102,59 @@ class BoostDependenciesExport(object):
 
 
 @dataclasses.dataclass
-class BoostDependencies(object):
+class BoostDependencies:
     buildables: List[str]
     export: BoostDependenciesExport
 
 
-class BoostDependencyBuilder(object):
-    def __init__(self, boost_version: str, boostdep_version: str, tmppath: Path, git_url: str, outputdir: Path, unsafe: bool):
+class BoostDependencyBuilder:
+    def __init__(self, boost_version: str, boostdep_version: str, tmppath: Union[str, Path], git_url: str):
         self.boost_version = boost_version
         self.boostdep_version = boostdep_version
         self.git_url = git_url
-        self.tmppath = tmppath
-        self.outputdir = outputdir
-        self.unsafe = unsafe
+        self.tmppath = Path(tmppath)
         self._boostdep = None
 
     @property
     def boost_path(self) -> Path:
         return self.tmppath / "boost"
 
-    def do_git_update(self) -> None:
-        if not self.boost_path.exists():
-            with chdir(self, self.tmppath):
-                print("Cloning boost git")
-                subprocess.check_call(["git", "clone", "--", self.git_url, "boost"])
-            with chdir(self, self.boost_path):
-                print("Checking out current master")
-                subprocess.check_call(["git", "checkout", "origin/master"])
-                print("Removing master branch")
-                subprocess.check_call(["git", "branch", "-D", "master"])
-        else:
-            with chdir(self, self.boost_path):
-                print("Updating git repo")
-                subprocess.check_call(["git", "fetch", "origin"])
-                print("Removing all local changes to git repo")
-                subprocess.check_call(["git", "reset", "--hard", "HEAD"])
-                print("Checking out current master")
-                subprocess.check_call(["git", "checkout", "origin/master"])
-
-    def do_git_submodule_update(self):
+    def do_git_clone(self) -> None:
+        subprocess.check_call([
+            "git", "clone",
+            "--depth", "1",
+            "--branch", f"boost-{self.boost_version}",
+            "--",
+            self.git_url,
+            str(self.boost_path),
+        ])
         with chdir(self, self.boost_path):
-            if not self.unsafe:
-                # De-init + init to make sure that boostdep won't detect a new or removed boost library
-                print("De-init git submodules")
-                subprocess.check_call(["git", "submodule", "deinit", "--all", "-f"])
-
-            try:
-                print(f"Checking out version {self.boost_version}")
-                subprocess.check_call(["git", "checkout", f"boost-{self.boost_version}"])
-            except subprocess.CalledProcessError:
-                print(f"version {self.boost_version} does not exist")
-                raise
-
-            print("Re-init git submodules")
-            subprocess.check_call(["git", "submodule", "update", "--init"])
-
-            print("Removing unknown files/directories")
-            subprocess.check_call(["git", "clean", "-d", "-f"])
+            subprocess.check_call(["git", "submodule", "update", "--init", "--depth", "1", "-j", "10"])
 
     def do_install_boostdep(self):
+        self.boost_path.mkdir(parents=True, exist_ok=True)
         with chdir(self, self.boost_path):
             print(f"Installing boostdep/{self.boostdep_version}")
-            cmd = ["conan", "install", "--tool-requires", f"boostdep/{self.boostdep_version}", "--format", "json", "-vquiet"]
-            info = json.loads(subprocess.check_output(cmd))
-            self._boostdep = Path(info["graph"]["nodes"]["1"]["package_folder"]) / "bin" / "boostdep"
+            subprocess.check_output([
+                "conan", "install",
+                "--tool-requires", f"boostdep/{self.boostdep_version}",
+                "--deployer=direct_deploy",
+                "--build=missing",
+            ])
+            suffix = ".exe" if platform.system() == "Windows" else ""
+            self._boostdep = self.boost_path / "direct_deploy" / "boostdep" / "bin" / f"boostdep{suffix}"
 
-    _GREP_IGNORE_PREFIX = ("#", "\"")
-    _GREP_IGNORE_PARTS = ("boost", "<", ">")
-
-    @classmethod
-    def _grep_libs(cls, regex, text):
+    @staticmethod
+    def _grep_libs(regex, text):
         res = set()
         for m in re.finditer(regex, text, flags=re.MULTILINE):
-            # If text before main capture group contains a string or a comment => ignore
-            ignore = False
-            for ign in cls._GREP_IGNORE_PREFIX:
-                if ign in m.group(1):
-                    ignore = True
-            if ignore:
+            if any(ign in m.group(1) for ign in ["#", '"']):
                 continue
-            l = m.group(2).lower()
-            ignore = False
-            for ign in cls._GREP_IGNORE_PARTS:
-                if ign in l:
-                    ignore = True
-            if ignore:
+            library = m.group(2).lower()
+            if any(ign in library for ign in ["boost", "<", ">"]):
                 continue
-            res.add(l)
-        return list(res)
+            res.add(library)
+        return sorted(res)
 
     def _grep_requirements(self, component: str) -> List[str]:
         jam = self.boost_path / "libs" / component / "build" / "Jamfile.v2"
@@ -204,7 +171,8 @@ class BoostDependencyBuilder(object):
         requirements = using + libs
         return requirements
 
-    def _sort_requirements(self, requirements: List[str]) -> Tuple[List[str], Dict[str, List[str]], List[str]]:
+    @staticmethod
+    def _sort_requirements(requirements: List[str]) -> Tuple[List[str], Dict[str, List[str]], List[str]]:
         conan_requirements = set()
         system_libs = {}
         unknown_libs = set()
@@ -224,7 +192,7 @@ class BoostDependencyBuilder(object):
             if added:
                 continue
             unknown_libs.add(req)
-        return list(conan_requirements), system_libs, list(unknown_libs)
+        return sorted(conan_requirements), system_libs, sorted(unknown_libs)
 
     def do_boostdep_collect(self) -> BoostDependencies:
         with chdir(self, self.boost_path):
@@ -239,9 +207,9 @@ class BoostDependencyBuilder(object):
             buildable_dependencies = subprocess.check_output([self._boostdep, "--list-buildable-dependencies"], text=True)
             log.debug("boostdep --list-buildable-dependencies returns: %s", buildable_dependencies)
             for line in buildable_dependencies.splitlines():
-                if re.match(r"^[\s]*#.*", line):
+                if re.match(r"^\s*#.*", line):
                     continue
-                match = re.match(r"([\S]+)\s*=\s*([^;]+)\s*;\s*", line)
+                match = re.match(r"(\S+)\s*=\s*([^;]+)\s*;\s*", line)
                 if not match:
                     continue
                 master = match.group(1)
@@ -345,9 +313,9 @@ class BoostDependencyBuilder(object):
             except StopIteration:
                 raise Exception(f"Cannot find jam build file for {buildable}")
             jam_text = buildable_jam.read_text()
-            buildable_libs = re.findall("[ \n](boost-)?lib ([a-zA-Z0-9_]+)[ \n]", jam_text)
+            buildable_libs = re.findall(r"[ \n](boost-)?lib (\w+)[ \n]", jam_text)
             buildable_libs = set(f"boost_{lib}" if lib_prefix else lib for lib_prefix, lib in buildable_libs)
-            buildable_libs = set(l[len("boost_"):] for l in buildable_libs if l.startswith("boost_"))  # list(filter(lambda l: l.startswith("boost"), buildable_libs))
+            buildable_libs = set(l[len("boost_"):] for l in buildable_libs if l.startswith("boost_"))
 
             if not buildable_libs:
                 # Some boost releases support multiple python versions
@@ -390,7 +358,7 @@ class BoostDependencyBuilder(object):
 
     @property
     def _outputpath(self) -> Path:
-        return self.outputdir / f"dependencies-{self.boost_version}.yml"
+        return script_dir / "dependencies" / f"dependencies-{self.boost_version}.yml"
 
     @classmethod
     def _sort_item(cls, item):
@@ -414,45 +382,26 @@ class BoostDependencyBuilder(object):
         tree.export.dependencies = self._fix_dependencies(tree.export.dependencies)
 
         data = dataclasses.asdict(tree.export)
-        if self.unsafe:
-            data["UNSAFE"] = "!DO NOT COMMIT! !THIS FILE IS GENERATED WITH THE UNSAFE OPTION ENABLED!"
-
         data = self._sort_item(data)
 
-        print(f"Creating {self.outputdir}")
+        print(f"Creating {self._outputpath}")
         with self._outputpath.open("w") as fout:
             yaml.dump(data, fout)
 
 
-def main(args=None) -> int:
+def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--verbose", dest="verbose", action="store_true", help="verbose output")
-    parser.add_argument("-t", dest="tmppath", help="temporary folder where to clone boost (default is system temporary folder)")
-    parser.add_argument("-d", dest="boostdep_version", default="1.82.0", type=str, help="boostdep version")
-    parser.add_argument("-u", dest="git_url", default=BOOST_GIT_URL, help="boost git url")
-    parser.add_argument("-U", dest="git_update", action="store_true", help="update the git repo")
-    parser.add_argument("-o", dest="outputdir", default=None, type=Path, help="output dependency dir")
-    parser.add_argument("-x", dest="unsafe", action="store_true", help="unsafe fast(er) operation")
-
     version_group = parser.add_mutually_exclusive_group(required=True)
     version_group.add_argument("-v", dest="boost_version", help="boost version")
     version_group.add_argument("-A", dest="boost_version", action="store_const", const=None, help="All boost versions")
-    ns = parser.parse_args(args)
+    parser.add_argument("--verbose", dest="verbose", action="store_true", help="verbose output")
+    parser.add_argument("-d", dest="boostdep_version", default="[*]", type=str, help="boostdep version")
+    parser.add_argument("-u", dest="git_url", default=BOOST_GIT_URL, help="boost git url")
+    ns = parser.parse_args(argv)
 
     logging.basicConfig(format="[%(levelname)s] %(message)s")
     if ns.verbose:
         log.setLevel(logging.DEBUG)
-
-    if not ns.tmppath:
-        ns.tmppath = Path(tempfile.gettempdir())
-    print(f"Temporary folder is {ns.tmppath}")
-    if not ns.outputdir:
-        ns.outputdir = Path("dependencies")
-    print(f"Dependencies folder is {ns.outputdir}")
-
-    ns.outputdir.mkdir(exist_ok=True)
-
-    git_update_done = False
 
     if ns.boost_version is None:
         conan_data = yaml.safe_load(Path("conandata.yml").open())
@@ -462,31 +411,17 @@ def main(args=None) -> int:
 
     for boost_version in boost_versions:
         print(f"Starting {boost_version}")
-        boost_collector = BoostDependencyBuilder(
-            boost_version=boost_version,
-            boostdep_version=ns.boostdep_version,
-            git_url=ns.git_url,
-            outputdir=ns.outputdir,
-            tmppath=ns.tmppath,
-            unsafe=ns.unsafe,
-        )
-
-        if not ns.git_update and not boost_collector.boost_path.exists():
-            log.error("Boost directory does not exist. Re-execute this script with -U to run 'git update'.")
-            return 1
-
-        if ns.git_update and not git_update_done:
-            boost_collector.do_git_update()
-            git_update_done = True
-
-        boost_collector.do_git_submodule_update()
-
-        boost_collector.do_install_boostdep()
-
-        boost_collector.do_create_dependency_file()
-    return 0
+        with tempfile.TemporaryDirectory() as tmppath:
+            boost_collector = BoostDependencyBuilder(
+                boost_version=boost_version,
+                boostdep_version=ns.boostdep_version,
+                git_url=ns.git_url,
+                tmppath=tmppath,
+            )
+            boost_collector.do_git_clone()
+            boost_collector.do_install_boostdep()
+            boost_collector.do_create_dependency_file()
 
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()
