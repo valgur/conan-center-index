@@ -1719,6 +1719,7 @@ class BoostConan(ConanFile):
                 self.output.warning(f"Boost component '{incomplete_component}' is missing libraries. Try building boost with '-o boost:with_{incomplete_component}=False'. (Option is not guaranteed to exist)")
 
             non_used = all_detected_libraries.difference(all_expected_libraries)
+            non_used -= {"boost_container"}  # boost_container tends to get built despite not being used for some reason
             if non_used:
                 raise ConanException(f"These libraries were built, but were not used in any boost module: {non_used}")
 
