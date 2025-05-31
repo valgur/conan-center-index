@@ -1,13 +1,11 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
-from conan.tools.files import *
 from conan.tools.build import check_min_cppstd, cross_building
-from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-
-import os
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -48,29 +46,6 @@ class BehaviorTreeCPPConan(ConanFile):
         "enable_manual_selector": "Build manual selector node",
         "use_v3_compatible_names": "Use v3 compatible names",
     }
-
-    @property
-    def _minimum_cppstd_required(self):
-        if Version(self.version) >= "4.0":
-            return 17
-        return 14
-
-    @property
-    def _minimum_compilers_version(self):
-        if Version(self.version) >= "4.0":
-            return {
-                "gcc": "8",
-                "clang": "7",
-                "apple-clang": "12",
-                "msvc": "192",
-            }
-        else:
-            return {
-                "gcc": "5",
-                "clang": "5",
-                "apple-clang": "12",
-                "msvc": "191",
-            }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -153,15 +128,8 @@ class BehaviorTreeCPPConan(ConanFile):
     def validate(self):
         if self.info.settings.os == "Windows" and self.info.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Windows.")
-        check_min_cppstd(self, self._minimum_cppstd_required)
-        minimum_version = self._minimum_compilers_version.get(str(self.info.settings.compiler), False)
-        if not minimum_version:
-            self.output.warn(f"{self.ref} requires C++{self._minimum_cppstd_required}. "
-                             f"Your compiler is unknown. Assuming it supports C++{self._minimum_cppstd_required}.")
-        elif Version(self.info.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"BehaviorTree.CPP requires C++{self._minimum_cppstd_required}, which your compiler does not support."
-            )
+
+        check_min_cppstd(self, 17 if Version(self.version) >= "4.0" else 14)
 
         if self.settings.compiler == "clang" and str(self.settings .compiler.libcxx) == "libstdc++":
             raise ConanInvalidConfiguration(f"{self.ref} needs recent libstdc++ with charconv. please switch to gcc, or to libc++")
@@ -178,9 +146,6 @@ class BehaviorTreeCPPConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["CMAKE_PROJECT_behaviortree_cpp_INCLUDE"] = "conan_deps.cmake"
         tc.variables["WITH_LEXY"] = self._with_lexy
