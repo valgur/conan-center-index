@@ -1,10 +1,11 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import *
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.microsoft import is_msvc, check_min_vs
-import os
+from conan.tools.files import *
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -26,41 +27,24 @@ class CubicInterpolationConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0]", options={
+            "with_filesystem": True,
+            "with_math": True,
+            "with_serialization": True,
+        })
         self.requires("eigen/3.4.0")
 
-    @property
-    def _required_boost_components(self):
-        return ["filesystem", "math", "serialization"]
-
     def validate(self):
-        miss_boost_required_comp = any(getattr(self.dependencies["boost"].options, f"without_{boost_comp}", True) for boost_comp in self._required_boost_components)
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires non header-only boost with these components: "
-                f"{', '.join(self._required_boost_components)}",
-            )
-
-        check_min_cppstd(self, "14")
-
-        if not check_min_vs(self, 192, raise_invalid=False):
-            raise ConanInvalidConfiguration(f"{self.ref} currently Visual Studio < 2019 not yet supported in this recipe. Contributions are welcome")
+        check_min_cppstd(self, 14)
 
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} shared is not supported with Visual Studio")
@@ -74,7 +58,6 @@ class CubicInterpolationConan(ConanFile):
         tc.variables["BUILD_EXAMPLE"] = False
         tc.variables["BUILD_DOCUMENTATION"] = False
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
 
