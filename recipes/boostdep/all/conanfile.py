@@ -14,7 +14,6 @@ class BoostDepConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/boostorg/boostdep"
     topics = ("dependency", "tree")
-
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
@@ -25,7 +24,7 @@ class BoostDepConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"boost/[^1.71.0]")
+        self.requires(f"boost/{self.version}", options={"with_filesystem": True})
 
     def package_id(self):
         del self.info.settings.compiler
@@ -48,12 +47,7 @@ class BoostDepConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE*",
-            dst=os.path.join(self.package_folder, "licenses"),
-            src=self.source_folder,
-        )
+        copy(self, "LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
