@@ -26,10 +26,6 @@ class CSVMONEKYConan(ConanFile):
     }
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -41,7 +37,7 @@ class CSVMONEKYConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
         if self.settings.arch not in ("x86", "x86_64",):
             raise ConanInvalidConfiguration(f"{self.ref} requires x86 architecture.")
@@ -53,13 +49,8 @@ class CSVMONEKYConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            pattern="*.hpp",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "*.hpp", dst=os.path.join(self.package_folder, "include"), src=os.path.join(self.source_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
