@@ -58,18 +58,9 @@ class CivetwebConan(ConanFile):
 
     no_copy_source = True
 
-    @property
-    def _has_zlib_option(self):
-        return Version(self.version) >= "1.15"
-
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if not self._has_zlib_option:
-            del self.options.with_zlib
 
     def configure(self):
         if self.options.shared:
@@ -85,10 +76,7 @@ class CivetwebConan(ConanFile):
 
     def requirements(self):
         if self.options.with_ssl:
-            if Version(self.version) < "1.16":
-                self.requires("openssl/1.1.1w")
-            else:
-                self.requires("openssl/[>=1 <4]")
+            self.requires("openssl/[>=1 <4]")
         if self.options.get_safe("with_zlib"):
             self.requires("zlib/[>=1.2.11 <2]")
 
@@ -100,7 +88,11 @@ class CivetwebConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required (VERSION 3.3.0)",
+                        "cmake_minimum_required (VERSION 3.5)")
+        replace_in_file(self, "CMakeLists.txt", "cmake_policy(VERSION 3.2.2)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -111,8 +103,7 @@ class CivetwebConan(ConanFile):
             tc.variables["CIVETWEB_ENABLE_SSL_DYNAMIC_LOADING"] = self.options.ssl_dynamic_loading
             tc.variables["CIVETWEB_SSL_OPENSSL_API_1_0"] = openssl_version.major == "1" and openssl_version.minor == "0"
             tc.variables["CIVETWEB_SSL_OPENSSL_API_1_1"] = openssl_version.major == "1" and openssl_version.minor == "1"
-            if Version(self.version) >= "1.16":
-                tc.variables["CIVETWEB_SSL_OPENSSL_API_3_0"] = openssl_version.major == "3"
+            tc.variables["CIVETWEB_SSL_OPENSSL_API_3_0"] = openssl_version.major == "3"
 
         tc.variables["CIVETWEB_BUILD_TESTING"] = False
         tc.variables["CIVETWEB_CXX_ENABLE_LTO"] = False
@@ -130,9 +121,7 @@ class CivetwebConan(ConanFile):
         tc.variables["CIVETWEB_SERVE_NO_FILES"] = not self.options.with_static_files
         if self.options.thread_stack_size:
             tc.variables["CIVETWEB_THREAD_STACK_SIZE"] = self.options.thread_stack_size
-
-        if self._has_zlib_option:
-            tc.variables["CIVETWEB_ENABLE_ZLIB"] = self.options.with_zlib
+        tc.variables["CIVETWEB_ENABLE_ZLIB"] = self.options.with_zlib
 
         tc.generate()
 
