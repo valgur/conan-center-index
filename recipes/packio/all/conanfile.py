@@ -50,7 +50,7 @@ class PackioConan(ConanFile):
         if self.options.nlohmann_json:
             self.requires("nlohmann_json/[^3]")
         if self._use_boost_json or not self.options.standalone_asio:
-            self.requires("boost/1.86.0")
+            self.requires("boost/[^1.71.0]")
         if self.options.standalone_asio:
             self.requires("asio/[^1.32.0]")
 

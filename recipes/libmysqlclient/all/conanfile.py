@@ -67,7 +67,7 @@ class LibMysqlClientCConan(ConanFile):
         # Optional deps
         if self.options.with_boost:
             # Requires an exact version of boost
-            self.requires("boost/1.77.0")
+            self.requires("boost/[^1.71.0]")
         if self.options.with_sasl:
             self.requires("cyrus-sasl/[^2.1.28]")
         if self.options.with_curl:

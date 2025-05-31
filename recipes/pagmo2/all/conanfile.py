@@ -50,7 +50,7 @@ class Pagmo2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.86.0", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True)
         self.requires("onetbb/[^2021]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0", transitive_headers=True)

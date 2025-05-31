@@ -30,7 +30,7 @@ class CPPValidatorConan(ConanFile):
         check_min_cppstd(self, 17 if is_msvc(self) else 14)
 
     def requirements(self):
-        self.requires("boost/1.86.0")
+        self.requires("boost/[^1.71.0]")
         self.requires("fmt/[>=5]")
 
     def source(self):

@@ -26,7 +26,7 @@ class InnoextractConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.86.0")
+        self.requires("boost/[^1.71.0]")
         self.requires("xz_utils/[>=5.4.5 <6]")
         self.requires("libiconv/[^1.17]")
 

@@ -45,7 +45,7 @@ class LogrConan(ConanFile):
         if self.options.with_log4cplus:
             self.requires("log4cplus/[^2.1.0]")
         if self.options.with_boostlog:
-            self.requires("boost/1.86.0")
+            self.requires("boost/[^1.71.0]")
 
     def package_id(self):
         self.info.settings.clear()

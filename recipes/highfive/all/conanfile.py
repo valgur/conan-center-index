@@ -38,7 +38,7 @@ class HighFiveConan(ConanFile):
     def requirements(self):
         self.requires("hdf5/[^1.8]")
         if self.options.with_boost:
-            self.requires("boost/1.86.0")
+            self.requires("boost/[^1.71.0]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
         if self.options.with_xtensor:

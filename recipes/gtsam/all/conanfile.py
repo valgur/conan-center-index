@@ -111,7 +111,7 @@ class GtsamConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.86.0", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("spectra/[^1.1.0]")
         if self.options.with_TBB:

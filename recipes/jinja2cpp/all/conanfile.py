@@ -37,7 +37,7 @@ class Jinja2cppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.86.0")
+        self.requires("boost/[^1.71.0]")
         self.requires("expected-lite/[>=0.6.3 <1]", transitive_headers=True)
         self.requires("optional-lite/[^3.5.0]", transitive_headers=True)
         self.requires("rapidjson/[^1.1.0]")

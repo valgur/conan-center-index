@@ -37,7 +37,7 @@ class QuantlibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.86.0", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True)
 
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):

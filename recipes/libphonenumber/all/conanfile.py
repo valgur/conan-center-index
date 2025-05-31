@@ -80,7 +80,7 @@ class LibphonenumberConan(ConanFile):
         self.requires("abseil/[>=20220623.1]", transitive_headers=True)
         if self.options.use_boost:
             # https://github.com/google/libphonenumber/blob/v8.13.35/cpp/src/phonenumbers/base/synchronization/lock_boost.h
-            self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
+            self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
         if self.options.use_icu_regexp or self.options.get_safe("build_geocoder"):
             # https://github.com/google/libphonenumber/blob/v8.13.35/cpp/src/phonenumbers/geocoding/phonenumber_offline_geocoder.h#L23
             self.requires("icu/[*]", transitive_headers=True, transitive_libs=True)

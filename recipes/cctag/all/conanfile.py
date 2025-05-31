@@ -61,7 +61,7 @@ class CCTagConan(ConanFile):
     def requirements(self):
         # boost/1.85.0 not compatible because of "error: 'numeric' is not a namespace-name" error
         boost_version = "1.86.0" if Version(self.version) >= "1.0.4" else "1.84.0"
-        self.requires(f"boost/{boost_version}", transitive_headers=True, transitive_libs=True)
+        self.requires(f"boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if Version(self.version) >= "1.0.3":
             self.requires("onetbb/[^2021]")

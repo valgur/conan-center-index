@@ -36,7 +36,7 @@ class GlomapConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
         self.requires("ceres-solver/2.1.0", transitive_headers=True, transitive_libs=True, options={"use_suitesparse": True})
         self.requires("colmap/3.10", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)

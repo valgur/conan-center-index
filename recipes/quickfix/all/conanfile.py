@@ -61,7 +61,7 @@ class QuickfixConan(ConanFile):
         if self.options.with_mysql == "libmysqlclient":
             self.requires("libmysqlclient/[^8.1.0]")
         if self.options.enable_boost_atomic_count:
-            self.requires("boost/1.86.0")
+            self.requires("boost/[^1.71.0]")
 
     def validate(self):
         if self.settings.os == "Windows" and self.options.shared:

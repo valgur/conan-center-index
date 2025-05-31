@@ -35,7 +35,7 @@ class CSVMONEKYConan(ConanFile):
 
     def requirements(self):
         if self.options.with_spirit:
-            self.requires("boost/1.86.0")
+            self.requires("boost/[^1.71.0]")
 
     def package_id(self):
         self.info.clear()

@@ -25,7 +25,7 @@ class BoostDepConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires(f"boost/{self.version}")
+        self.requires(f"boost/[^1.71.0]")
 
     def package_id(self):
         del self.info.settings.compiler

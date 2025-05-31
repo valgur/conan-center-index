@@ -40,7 +40,7 @@ class LibLASConan(ConanFile):
 
     def requirements(self):
         # boost/[^1.42]
-        self.requires("boost/1.86.0", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_gdal:
             self.requires("gdal/[^3]")
         if self.options.with_geotiff:

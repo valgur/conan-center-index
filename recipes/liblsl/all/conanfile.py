@@ -45,7 +45,7 @@ class LiblslConan(ConanFile):
         }
 
     def requirements(self):
-        self.requires("boost/1.86.0")
+        self.requires("boost/[^1.71.0]")
         self.requires("pugixml/[^1.13]")
 
     def layout(self):

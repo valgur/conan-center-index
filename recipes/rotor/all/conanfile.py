@@ -50,7 +50,7 @@ class RotorConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def requirements(self):
-        self.requires("boost/1.86.0", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True)
         if self.options.get_safe("enable_ev", False):
             self.requires("libev/[^4.33]")
         if self.options.get_safe("enable_fltk", False):

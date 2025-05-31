@@ -39,7 +39,7 @@ class ResourcePool(ConanFile):
 
     def requirements(self):
         # Only compatible with Boost up to v1.79
-        self.requires("boost/1.86.0")
+        self.requires("boost/[^1.71.0]")
 
     def package_id(self):
         self.info.clear()

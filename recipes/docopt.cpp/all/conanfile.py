@@ -37,7 +37,7 @@ class DocoptCppConan(ConanFile):
 
     def requirements(self):
         if self.options.boost_regex:
-            self.requires("boost/1.86.0")
+            self.requires("boost/[^1.71.0]")
 
     def validate(self):
         check_min_cppstd(self, 11)
