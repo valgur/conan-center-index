@@ -65,7 +65,9 @@ class FollyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True, options={
+            f"with_{comp}": True for comp in self._required_boost_components
+        })
         self.requires("bzip2/[^1.0.8]")
         self.requires("double-conversion/[^3.3.0]", transitive_headers=True, transitive_libs=True)
         self.requires("gflags/2.2.2")
@@ -116,15 +118,6 @@ class FollyConan(ConanFile):
         if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "14.0":
             # https://github.com/facebook/folly/issues/2266
             raise ConanInvalidConfiguration(f"{self.ref} could not be built by apple-clang < 14.0. Use apple-clang >= 14.0")
-
-        boost = self.dependencies["boost"]
-        if boost.options.header_only:
-            raise ConanInvalidConfiguration(f"{self.ref} could not be built with a header only Boost. Use -o 'boost/*:header_only=False'")
-
-        miss_boost_required_comp = any(getattr(boost.options, f"without_{boost_comp}", True) for boost_comp in self._required_boost_components)
-        if miss_boost_required_comp:
-            required_components = ", ".join(self._required_boost_components)
-            raise ConanInvalidConfiguration(f"{self.ref} requires these Boost components: {required_components}. Try with '-o boost/*:without_{required_components}=False'")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=False)
@@ -178,8 +171,7 @@ class FollyConan(ConanFile):
             tc.cache_variables["MSVC_USE_STATIC_RUNTIME"] = is_msvc_static_runtime(self)
             tc.preprocessor_definitions["NOMINMAX"] = ""
 
-        if not self.dependencies["boost"].options.header_only:
-            tc.cache_variables["BOOST_LINK_STATIC"] = not self.dependencies["boost"].options.shared
+        tc.cache_variables["BOOST_LINK_STATIC"] = not self.dependencies["boost"].options.get_safe("shared", False)
 
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0074"] = "NEW"  # Honor Boost_ROOT set by boost recipe
         tc.generate()
