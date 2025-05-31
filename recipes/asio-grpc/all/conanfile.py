@@ -31,17 +31,27 @@ class AsioGrpcConan(ConanFile):
     no_copy_source = True
 
     def config_options(self):
-        libcxx = str(self.settings.compiler.libcxx)
-        compiler_version = Version(self.settings.compiler.version)
-        if (libcxx == "libc++" or
-                (self.settings.compiler == "gcc" and compiler_version < "9") or
-                (self.settings.compiler == "clang" and compiler_version < "12" and libcxx == "libstdc++")):
-            self.options.local_allocator = "boost_container"
+        if Version(self.version) < "3.0.0":
+            libcxx = str(self.settings.compiler.libcxx)
+            compiler_version = Version(self.settings.compiler.version)
+            if (libcxx == "libc++" or
+                    (self.settings.compiler == "gcc" and compiler_version < "9") or
+                    (self.settings.compiler == "clang" and compiler_version < "12" and libcxx == "libstdc++")):
+                self.options.local_allocator = "boost_container"
+        else:
+            del self.options.local_allocator
+
+    def configure(self):
+        if self.options.get_safe("local_allocator") == "boost_container":
+            self.options["boost"].with_container = True
 
     def requirements(self):
         self.requires("grpc/[^1.50.2]", transitive_headers=True, transitive_libs=True)
-        if (self.options.get_safe("local_allocator") == "boost_container" and Version(self.version) < "3.0.0") or self.options.backend == "boost":
-            self.requires("boost/[^1.71.0]", transitive_headers=True)
+        if self.options.backend == "boost" or (Version(self.version) < "3.0.0" and self.options.local_allocator == "boost_container"):
+            if Version(self.version) >= "2.9":
+                self.requires("boost/[^1.74.0]", transitive_headers=True)
+            else:
+                self.requires("boost/[^1.74.0 <1.88]", transitive_headers=True)
         if self.options.backend == "asio":
             self.requires("asio/[^1.32.0]", transitive_headers=True)
         if self.options.backend == "unifex":
@@ -64,8 +74,8 @@ class AsioGrpcConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         if Version(self.version) < "3.0.0":
-            tc.variables["ASIO_GRPC_USE_BOOST_CONTAINER"] = self.options.get_safe("local_allocator") == "boost_container"
-            tc.variables["ASIO_GRPC_USE_RECYCLING_ALLOCATOR"] = self.options.get_safe("local_allocator") == "recycling_allocator"
+            tc.variables["ASIO_GRPC_USE_BOOST_CONTAINER"] = self.options.local_allocator == "boost_container"
+            tc.variables["ASIO_GRPC_USE_RECYCLING_ALLOCATOR"] = self.options.local_allocator == "recycling_allocator"
         tc.generate()
 
     def build(self):
@@ -98,5 +108,5 @@ class AsioGrpcConan(ConanFile):
             self.cpp_info.defines = ["AGRPC_UNIFEX"]
             self.cpp_info.requires.append("libunifex::unifex")
 
-        if self.options.get_safe("local_allocator") == "boost_container" and Version(self.version) < "3.0.0":
+        if Version(self.version) < "3.0.0" and self.options.local_allocator == "boost_container":
             self.cpp_info.requires.append("boost::container")
