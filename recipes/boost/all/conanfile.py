@@ -1063,8 +1063,8 @@ class BoostConan(ConanFile):
             flags.append("variant=release")
 
         for libname in self._configure_options:
-            if self.options.get_safe(f"with_{libname}"):
-                flags.append(f"--with-{libname}")
+            if not self.options.get_safe(f"with_{libname}"):
+                flags.append(f"--without-{libname}")
 
         flags.append(f"toolset={self._toolset}")
 
