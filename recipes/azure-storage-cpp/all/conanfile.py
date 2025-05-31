@@ -4,7 +4,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
@@ -49,7 +49,7 @@ class AzureStorageCppConan(ConanFile):
         if self.settings.os != "Windows":
             # Boost.Asio is used in a public header here:
             # https://github.com/Azure/azure-storage-cpp/blob/v7.5.0/Microsoft.WindowsAzure.Storage/includes/wascore/timer_handler.h#L27
-            self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+            self.requires("boost/[^1.74.0]", transitive_headers=True, transitive_libs=True)
             self.requires("util-linux-libuuid/2.41", transitive_headers=True, transitive_libs=True)
             self.requires("openssl/[>=1.1 <4]")
         if is_apple_os(self):
@@ -64,6 +64,10 @@ class AzureStorageCppConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "Microsoft.WindowsAzure.Storage/CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 2.6)",
+                        "cmake_minimum_required(VERSION 3.8)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -72,8 +76,6 @@ class AzureStorageCppConan(ConanFile):
         tc.variables["BUILD_SAMPLES"] = False
         if is_apple_os(self):
             tc.variables["GETTEXT_LIB_DIR"] = self.dependencies["libgettext"].cpp_info.libdir
-        if not valid_min_cppstd(self, self._minimum_cpp_standard):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._minimum_cpp_standard
         # Allow non-cache_variables to be used
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         # Relocatable shared libs on macOS
