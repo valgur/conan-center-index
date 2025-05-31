@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -33,23 +32,29 @@ class Jinja2cppConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.options["boost"].with_filesystem = True
+        self.options["boost"].with_json = True
+        if self.options.with_regex == "boost":
+            self.options["boost"].with_regex = True
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.79.0]")
         self.requires("expected-lite/[>=0.6.3 <1]", transitive_headers=True)
         self.requires("optional-lite/[^3.5.0]", transitive_headers=True)
         self.requires("rapidjson/[^1.1.0]")
         self.requires("string-view-lite/1.7.0", transitive_headers=True)
         self.requires("variant-lite/2.0.0", transitive_headers=True)
         self.requires("nlohmann_json/[^3]")
-        self.requires("fmt/[>=9]")
+        self.requires("fmt/[>=9 <11]")
 
     def validate(self):
         check_min_cppstd(self, 14)
-        if self.dependencies["boost"].options.without_json:
-            raise ConanInvalidConfiguration(f"{self.ref} require Boost::json.")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.23 <5]")
@@ -57,7 +62,7 @@ class Jinja2cppConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        # Don't force MD for shared lib, allow to honor runtime from profile
+        # Don't force MD for shared lib, honor the runtime from profile
         replace_in_file(self, "CMakeLists.txt", 'set(JINJA2CPP_MSVC_RUNTIME_TYPE "/MD")', "")
 
     def generate(self):
