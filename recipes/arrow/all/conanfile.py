@@ -347,7 +347,6 @@ class ArrowConan(ConanFile):
             tc.variables["ARROW_OPENSSL_USE_SHARED"] = bool(self.dependencies["openssl"].options.shared)
         if self.options.with_boost:
             tc.variables["ARROW_USE_BOOST"] = True
-            tc.variables["ARROW_BOOST_USE_SHARED"] = bool(self.dependencies["boost"].options.shared)
         tc.variables["ARROW_S3"] = bool(self.options.with_s3)
         tc.variables["AWSSDK_SOURCE"] = "SYSTEM"
         tc.variables["ARROW_BUILD_UTILITIES"] = bool(self.options.cli)
@@ -424,8 +423,6 @@ class ArrowConan(ConanFile):
             self.cpp_info.components["libparquet"].requires = ["libarrow"]
             if self.options.get_safe("with_re2"):
                 self.cpp_info.components["libparquet"].requires.append("re2::re2")
-            if self.settings.compiler == "gcc" and self.settings.compiler.version < Version("4.9"):
-                self.cpp_info.components["libparquet"].requires.append("boost::filesystem")
             if not self.options.shared:
                 self.cpp_info.components["libparquet"].defines = ["PARQUET_STATIC"]
 
