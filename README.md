@@ -13,15 +13,8 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-05-30:
+Package versions that are available here but not yet on the main CCI repo as of 2025-05-31:
 
-- abseil/20220623.1
-- ada/2.5.1
-- ada/2.6.10
-- ada/2.7.8
-- ada/2.8.0
-- ada/2.9.0
-- ada/2.9.1
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
 - antlr4/4.13.2
@@ -101,7 +94,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - firebird/5.0.0
 - flite/2.2
 - fortran/cci.latest
-- foxglove-schemas-protobuf/0.3.0
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
 - g2o/20230806
@@ -378,6 +370,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - qt/6.8.3
 - qtawesome/6.5.1
 - qtkeychain/0.15.0
+- re2/20220601
 - reduct-cpp/1.14.0
 - renderdoc/1.37
 - resultlib/1.0.0
@@ -419,7 +412,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-tools/1.3.250.1
 - spirv-tools/1.3.290.0
 - spirv-tools/1.3.296.0
-- spirv-tools/1.4.313.0
 - splinter/3.0
 - stablehlo/1.10.0
 - stablehlo/1.6.3
