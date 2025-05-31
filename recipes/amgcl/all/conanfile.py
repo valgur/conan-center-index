@@ -22,8 +22,12 @@ class AmgclConan(ConanFile):
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
-    options = { 'with_boost': [True, False] }
-    default_options = { 'with_boost': True }
+    options = {
+        "with_boost": [True, False],
+    }
+    default_options = {
+        "with_boost": True,
+    }
 
     def config_options(self):
         if Version(self.version) < "1.4.4":
@@ -56,3 +60,6 @@ class AmgclConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "amgcl::amgcl")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
+
+        if Version(self.version) >= "1.4.4" and not self.options.with_boost:
+            self.cpp_info.defines.append("AMGCL_NO_BOOST")
