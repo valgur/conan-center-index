@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.build import check_max_cppstd
 from conan.tools.cmake import cmake_layout, CMake, CMakeDeps, CMakeToolchain
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -39,12 +38,14 @@ class InnoextractConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        os.remove(os.path.join(self.source_folder, 'cmake', 'FindLZMA.cmake'))
-        os.remove(os.path.join(self.source_folder, 'cmake', 'Findiconv.cmake'))
+        # CMake v4 support
+        replace_in_file(self, "cmake/VersionScript.cmake",
+                        "cmake_minimum_required(VERSION 2.8)",
+                        "cmake_minimum_required(VERSION 3.5)")
+        os.remove(os.path.join(self.source_folder, "cmake", "FindLZMA.cmake"))
+        os.remove(os.path.join(self.source_folder, "cmake", "Findiconv.cmake"))
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = CMakeToolchain(self)
         # Turn off static library detection, which is on by default on Windows.
         # This keeps the CMakeLists.txt from trying to detect static Boost
