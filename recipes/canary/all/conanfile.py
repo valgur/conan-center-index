@@ -20,15 +20,11 @@ class SocketcanCanaryConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 11
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0]", options={"with_system": True})
 
     def package_id(self):
         self.info.clear()
@@ -36,7 +32,7 @@ class SocketcanCanaryConan(ConanFile):
     def validate(self):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration(f"{self.ref} only supports Linux.")
-        check_min_cppstd(self, self._min_cppstd)
+        check_min_cppstd(self, 11)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
