@@ -5,6 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -21,6 +22,7 @@ class Sqlite3Conan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "build_executable": [True, False],
         "threadsafe": [0, 1, 2],
         "enable_column_metadata": [True, False],
         "enable_dbstat_vtab": [True, False],
@@ -46,13 +48,13 @@ class Sqlite3Conan(ConanFile):
         "max_column": [None, "ANY"],
         "max_variable_number": [None, "ANY"],
         "max_blob_size": [None, "ANY"],
-        "build_executable": [True, False],
         "enable_default_vfs": [True, False],
         "enable_dbpage_vtab": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "build_executable": True,
         "threadsafe": 1,
         "enable_column_metadata": True,
         "enable_dbstat_vtab": False,
@@ -78,14 +80,57 @@ class Sqlite3Conan(ConanFile):
         "max_column": None,             # Uses default value from source
         "max_variable_number": None,    # Uses default value from source
         "max_blob_size": None,          # Uses default value from source
-        "build_executable": True,
         "enable_default_vfs": True,
         "enable_dbpage_vtab": False,
+    }
+    options_description = {
+        ## Options from https://sqlite.org/compile.html
+        "build_executable": "Build sqlite command line utility for accessing SQLite databases",
+        "threadsafe": ("Whether or not code is included in SQLite to enable it to operate safely in a multithreaded environment. "
+                       " The default is SQLITE_THREADSAFE=1 which is safe for use in a multithreaded environment."
+                       " When compiled with SQLITE_THREADSAFE=0 all mutexing code is omitted and it is unsafe to use SQLite in a multithreaded program."
+                       " When compiled with SQLITE_THREADSAFE=2, SQLite can be used in a multithreaded program so long as no two threads attempt"
+                       " to use the same database connection (or any prepared statements derived from that database connection) at the same time."),
+        "enable_column_metadata": "Enable additional APIs that provide convenient access to meta-data about tables and queries",
+        "enable_dbstat_vtab": "Enable the DBSTAT virtual table",
+        "enable_explain_comments": "Enable SQLite to insert comment text into the output of EXPLAIN",
+        "enable_fts3": "Enable version 3 of the full-text search engine",
+        "enable_fts3_parenthesis": ("Kodifies the query pattern parser in FTS3 such that it supports operators AND and NOT "
+                                    "(in addition to the usual OR and NEAR) and also allows query expressions to contain nested parenthesis"),
+        "enable_fts4": "Enable version 3 and 4 of the full-text search engine",
+        "enable_fts5": "Enable version 5 of the full-text search engine",
+        "enable_icu": "Enable support for the ICU extension",
+        "enable_json1": "Enable JSON SQL functions",
+        "enable_memsys5": "Enable MEMSYS5 memory allocator",
+        "enable_soundex": "Enable the soundex() SQL function",
+        "enable_preupdate_hook": "Enables APIs to handle any change to a rowid table",
+        "enable_rtree": "Enable support for the R*Tree index extension",
+        "use_alloca": "The alloca() memory allocator will be used in a few situations where it is appropriate.",
+        "use_uri": "This option causes the URI filename process logic to be enabled by default.",
+        "omit_load_extension": "Omits the entire extension loading mechanism from SQLite",
+        "omit_deprecated": "Omits deprecated interfaces and features",
+        "enable_math_functions": "Enables the built-in SQL math functions",
+        "enable_unlock_notify": "Enable support for the unlock notify API",
+        "enable_default_secure_delete": "Turns on secure deletion by default",
+        "disable_gethostuuid": "Disable function gethostuuid",
+        "max_column": "The maximum number of columns in a table / index / view",
+        "max_variable_number": "The maximum value of a ?nnn wildcard that the parser will accept",
+        "max_blob_size": "Set the maximum number of bytes in a string or BLOB",
+        "enable_default_vfs": "Enable default VFS implementation",
+        "enable_dbpage_vtab": ("The SQLITE_DBPAGE extension implements an eponymous-only virtual table that provides "
+                               "direct access to the underlying database file by interacting with the pager. "
+                               "SQLITE_DBPAGE is capable of both reading and writing any page of the database. "
+                               "Because interaction is through the pager layer, all changes are transactional."),
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    exports_sources = "CMakeLists.txt"
+    def export_sources(self):
+        copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+
+    def config_options(self):
+        if Version(self.version) < "3.35.0":
+            del self.options.enable_math_functions
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -105,52 +150,95 @@ class Sqlite3Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    @property
+    def _public_defines(self):
+        defines = {}
+        defines["SQLITE_THREADSAFE"] = self.options.threadsafe
+        if self.settings.build_type == "Debug":
+            defines["SQLITE_DEBUG"] = 1
+            defines["SQLITE_ENABLE_SELECTTRACE"] = 1
+            defines["SQLITE_ENABLE_WHERETRACE"] = 1
+        if self.options.enable_json1:
+            defines["SQLITE_ENABLE_JSON1"] = 1
+        if self.options.enable_column_metadata:
+            defines["SQLITE_ENABLE_COLUMN_METADATA"] = 1
+        if self.options.enable_dbstat_vtab:
+            defines["SQLITE_ENABLE_DBSTAT_VTAB"] = 1
+        if self.options.enable_explain_comments:
+            defines["SQLITE_ENABLE_EXPLAIN_COMMENTS"] = 1
+        if self.options.enable_fts3:
+            defines["SQLITE_ENABLE_FTS3"] = 1
+        if self.options.enable_fts3_parenthesis:
+            defines["SQLITE_ENABLE_FTS3_PARENTHESIS"] = 1
+        if self.options.enable_fts4:
+            defines["SQLITE_ENABLE_FTS4"] = 1
+        if self.options.enable_fts5:
+            defines["SQLITE_ENABLE_FTS5"] = 1
+        if self.options.enable_icu:
+            defines["SQLITE_ENABLE_ICU"] = 1
+        if self.options.enable_preupdate_hook:
+            defines["SQLITE_ENABLE_PREUPDATE_HOOK"] = 1
+        if self.options.enable_rtree:
+            defines["SQLITE_ENABLE_RTREE"] = 1
+        if self.options.enable_unlock_notify:
+            defines["SQLITE_ENABLE_UNLOCK_NOTIFY"] = 1
+        if self.options.enable_default_secure_delete:
+            defines["SQLITE_SECURE_DELETE"] = 1
+        if self.options.enable_memsys5:
+            defines["SQLITE_ENABLE_MEMSYS5"] = 1
+        if self.options.enable_soundex:
+            defines["SQLITE_SOUNDEX"] = 1
+        if self.options.use_alloca:
+            defines["SQLITE_USE_ALLOCA"] = 1
+        if self.options.use_uri:
+            defines["SQLITE_USE_URI"] = 1
+        if self.options.omit_load_extension:
+            defines["SQLITE_OMIT_LOAD_EXTENSION"] = 1
+        if self.options.omit_deprecated:
+            defines["SQLITE_OMIT_DEPRECATED"] = 1
+        if self.options.get_safe("enable_math_functions"):
+            defines["SQLITE_ENABLE_MATH_FUNCTIONS"] = 1
+        if self.options.max_column:
+            defines["SQLITE_MAX_COLUMN"] = self.options.max_column
+        if self.options.max_variable_number:
+            defines["SQLITE_MAX_VARIABLE_NUMBER"] = self.options.max_variable_number
+        if self.options.max_blob_size:
+            defines["SQLITE_MAX_LENGTH"] = self.options.max_blob_size
+        if not self.options.enable_default_vfs:
+            defines["SQLITE_OS_OTHER"] = 1
+        if self.options.enable_dbpage_vtab:
+            defines["SQLITE_ENABLE_DBPAGE_VTAB"] = 1
+        return defines
+
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["SQLITE3_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.variables["SQLITE3_VERSION"] = self.version
         tc.variables["SQLITE3_BUILD_EXECUTABLE"] = self.options.build_executable
         tc.variables["THREADSAFE"] = self.options.threadsafe
-        tc.variables["ENABLE_COLUMN_METADATA"] = self.options.enable_column_metadata
-        tc.variables["ENABLE_DBSTAT_VTAB"] = self.options.enable_dbstat_vtab
-        tc.variables["ENABLE_EXPLAIN_COMMENTS"] = self.options.enable_explain_comments
-        tc.variables["ENABLE_FTS3"] = self.options.enable_fts3
-        tc.variables["ENABLE_FTS3_PARENTHESIS"] = self.options.enable_fts3_parenthesis
-        tc.variables["ENABLE_FTS4"] = self.options.enable_fts4
         tc.variables["ENABLE_FTS5"] = self.options.enable_fts5
         tc.variables["ENABLE_ICU"] = self.options.enable_icu
-        tc.variables["ENABLE_JSON1"] = self.options.enable_json1
-        tc.variables["ENABLE_MEMSYS5"] = self.options.enable_memsys5
-        tc.variables["ENABLE_PREUPDATE_HOOK"] = self.options.enable_preupdate_hook
-        tc.variables["ENABLE_SOUNDEX"] = self.options.enable_soundex
-        tc.variables["ENABLE_RTREE"] = self.options.enable_rtree
-        tc.variables["ENABLE_UNLOCK_NOTIFY"] = self.options.enable_unlock_notify
-        tc.variables["ENABLE_DEFAULT_SECURE_DELETE"] = self.options.enable_default_secure_delete
-        tc.variables["USE_ALLOCA"] = self.options.use_alloca
-        tc.variables["USE_URI"] = self.options.use_uri
         tc.variables["OMIT_LOAD_EXTENSION"] = self.options.omit_load_extension
-        tc.variables["OMIT_DEPRECATED"] = self.options.omit_deprecated
-        tc.variables["ENABLE_MATH_FUNCTIONS"] = self.options.enable_math_functions
-        tc.variables["HAVE_FDATASYNC"] = True
-        tc.variables["HAVE_GMTIME_R"] = True
-        tc.variables["HAVE_LOCALTIME_R"] = self.settings.os != "Windows"
-        tc.variables["HAVE_POSIX_FALLOCATE"] = not (self.settings.os in ["Windows", "Android"] or is_apple_os(self))
-        tc.variables["HAVE_STRERROR_R"] = True
-        tc.variables["HAVE_USLEEP"] = True
-        tc.variables["DISABLE_GETHOSTUUID"] = self.options.disable_gethostuuid
-        if self.options.max_column:
-            tc.variables["MAX_COLUMN"] = self.options.max_column
-        if self.options.max_variable_number:
-            tc.variables["MAX_VARIABLE_NUMBER"] = self.options.max_variable_number
-        if self.options.max_blob_size:
-            tc.variables["MAX_BLOB_SIZE"] = self.options.max_blob_size
-        tc.variables["DISABLE_DEFAULT_VFS"] = not self.options.enable_default_vfs
-        tc.variables["ENABLE_DBPAGE_VTAB"] = self.options.enable_dbpage_vtab
+        tc.variables["ENABLE_MATH_FUNCTIONS"] = self.options.get_safe("enable_math_functions", False)
+
+        private_defines = {}
+        private_defines["HAVE_FDATASYNC"] = 1
+        private_defines["HAVE_GMTIME_R"] = 1
+        if self.settings.os != "Windows":
+            private_defines["HAVE_LOCALTIME_R"] = 1
+        if not (self.settings.os in ["Windows", "Android"] or is_apple_os(self)):
+            private_defines["HAVE_POSIX_FALLOCATE"] = 1
+        private_defines["HAVE_STRERROR_R"] = 1
+        private_defines["HAVE_USLEEP"] = 1
+        if self.options.disable_gethostuuid:
+            private_defines["HAVE_GETHOSTUUID"] = 1
+
+        tc.preprocessor_definitions.update(self._public_defines)
+        tc.preprocessor_definitions.update(private_defines)
         tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure()
         cmake.build()
 
     def _extract_license(self):
@@ -184,3 +272,5 @@ class Sqlite3Conan(ConanFile):
         elif self.settings.os == "Windows":
             if self.options.shared:
                 self.cpp_info.defines.append("SQLITE_API=__declspec(dllimport)")
+
+        self.cpp_info.defines.extend([f"{k}={v}" for k, v in self._public_defines.items()])
