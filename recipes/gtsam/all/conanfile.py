@@ -111,7 +111,9 @@ class GtsamConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, options={
+            f"with_{comp}": True for comp in self._required_boost_components
+        })
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("spectra/[^1.1.0]")
         if self.options.with_TBB:
@@ -145,16 +147,6 @@ class GtsamConan(ConanFile):
             check_min_cppstd(self, 17)
         else:
             check_min_cppstd(self, 11)
-
-        miss_boost_required_comp = any(
-            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-            for boost_comp in self._required_boost_components
-        )
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires non header-only boost with these components: "
-                f"{', '.join(self._required_boost_components)}"
-            )
 
         if self.options.with_TBB:
             if self.options.default_allocator in [None, "TBB"]:
