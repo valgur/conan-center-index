@@ -1520,6 +1520,12 @@ class BoostConan(ConanFile):
         if self.options.header_only:
             self.cpp_info.components["_boost_cmake"].libdirs = []
 
+        self.cpp_info.components["disable_autolinking"].libs = []
+        self.cpp_info.components["disable_autolinking"].set_property("cmake_target_name", "Boost::disable_autolinking")
+
+        self.cpp_info.components["dynamic_linking"].libs = []
+        self.cpp_info.components["dynamic_linking"].set_property("cmake_target_name", "Boost::dynamic_linking")
+
         if not self.options.header_only:
             self.cpp_info.components["_libboost"].requires = ["headers"]
 
@@ -1530,9 +1536,6 @@ class BoostConan(ConanFile):
             self.cpp_info.components["headers"].requires.append("diagnostic_definitions")
             if self.options.diagnostic_definitions:
                 self.cpp_info.components["diagnostic_definitions"].defines = ["BOOST_LIB_DIAGNOSTIC"]
-
-            self.cpp_info.components["disable_autolinking"].libs = []
-            self.cpp_info.components["disable_autolinking"].set_property("cmake_target_name", "Boost::disable_autolinking")
 
             # Even headers needs to know the flags for disabling autolinking ...
             # magic_autolink is an option in the recipe, so if a consumer wants this version of boost,
@@ -1566,8 +1569,6 @@ class BoostConan(ConanFile):
                     self.cpp_info.components["disable_autolinking"].defines = ["BOOST_ALL_NO_LIB"]
                     self.output.info("Disabled magic autolinking (smart and magic decisions)")
 
-            self.cpp_info.components["dynamic_linking"].libs = []
-            self.cpp_info.components["dynamic_linking"].set_property("cmake_target_name", "Boost::dynamic_linking")
             # A library that only links to Boost::headers can be linked into another library that links a Boost::library,
             # so for this reasons, the header-only library should know the BOOST_ALL_DYN_LINK definition as it will likely
             # change some important part of the boost code and cause linking errors downstream.
