@@ -1,12 +1,12 @@
+import os
 from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.microsoft import is_msvc
-from conan.tools.files import *
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-import os
+from conan.tools.files import *
+from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -29,19 +29,6 @@ class FunctionsFrameworkCppConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "msvc": "190",
-            "clang": "7",
-            "apple-clang": "11",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -50,39 +37,11 @@ class FunctionsFrameworkCppConan(ConanFile):
 
     def requirements(self):
         self.requires("abseil/[>=20220623.1]")
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0 <1.88]", options={"with_program_options": True})
         self.requires("nlohmann_json/[^3]", transitive_headers=True)
 
-    @property
-    def _required_boost_components(self):
-        return ["program_options"]
-
     def validate(self):
-        miss_boost_required_comp = \
-            any(getattr(self.dependencies["boost"].options,
-                        "without_{}".format(boost_comp),
-                        True) for boost_comp in self._required_boost_components)
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                "{0} requires non-header-only boost with these components: {1}".format(
-                    self.name, ", ".join(self._required_boost_components)
-                )
-            )
-
-        check_min_cppstd(self, self._min_cppstd)
-
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration(
-                "{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
+        check_min_cppstd(self, 17)
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration("Fails to build for Visual Studio as a DLL")
 
@@ -93,7 +52,7 @@ class FunctionsFrameworkCppConan(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["BUILD_TESTING"] = False
-        tc.variables["FUNCTIONS_FRAMEWORK_CPP_TEST_EXAMPLES"] = False
+        tc.cache_variables["FUNCTIONS_FRAMEWORK_CPP_TEST_EXAMPLES"] = False
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
