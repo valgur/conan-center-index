@@ -39,6 +39,10 @@ class LibId3TagConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1.0)",
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def build(self):
         cmake = CMake(self)
