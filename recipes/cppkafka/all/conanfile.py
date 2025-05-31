@@ -36,7 +36,7 @@ class CppKafkaConan(ConanFile):
 
     def requirements(self):
         self.requires("boost/[^1.71.0]", transitive_headers=True)
-        self.requires("librdkafka/2.3.0", transitive_headers=True)
+        self.requires("librdkafka/[^2.3.0]", transitive_headers=True)
 
     def validate(self):
         check_min_cppstd(self, 11)
