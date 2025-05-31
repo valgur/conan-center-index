@@ -42,7 +42,7 @@ class GlimPackage(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, force=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/[~4.2]", transitive_headers=True, transitive_libs=True)

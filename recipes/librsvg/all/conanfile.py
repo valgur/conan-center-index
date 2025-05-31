@@ -53,7 +53,7 @@ class LibrsvgConan(ConanFile):
         # https://gitlab.gnome.org/GNOME/librsvg/-/blob/main/ci/build-dependencies.sh#L5-13
         # All public includes are located here:
         # https://gitlab.gnome.org/GNOME/librsvg/-/blob/2.57.0/include/librsvg/rsvg.h#L30-34
-        self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True, force=True)
+        self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_introspection:
             self.requires("gobject-introspection/[^1.82]", options={"build_introspection_data": True})
             self.requires("glib-gir/[^2.82]")
