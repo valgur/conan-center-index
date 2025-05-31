@@ -5,12 +5,12 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.microsoft import check_min_vs, is_msvc_static_runtime, is_msvc
-from conan.tools.scm import Version
+from conan.tools.microsoft import is_msvc_static_runtime, is_msvc
 
 required_conan_version = ">=2.1"
 
-class PackageConan(ConanFile):
+
+class AsynclyConan(ConanFile):
     name = "asyncly"
     description = "High level concurrency primitives for C++"
     license = "Apache-2.0"
@@ -29,18 +29,6 @@ class PackageConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 20
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "11",
-            "clang": "13",
-            "apple-clang": "13",
-        }
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -50,14 +38,7 @@ class PackageConan(ConanFile):
         self.requires("prometheus-cpp/1.1.0", transitive_headers=True)
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        check_min_vs(self, 192)
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
+        check_min_cppstd(self, 20)
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
 
