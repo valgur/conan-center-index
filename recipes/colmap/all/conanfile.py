@@ -8,6 +8,7 @@ from conan.tools.files import *
 
 required_conan_version = ">=2.1"
 
+
 class ColmapConan(ConanFile):
     name = "colmap"
     description = ("COLMAP is a general-purpose Structure-from-Motion (SfM) and "
@@ -49,7 +50,11 @@ class ColmapConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True, options={
+            "with_filesystem": True,
+            "with_program_options": True,
+            "with_graph": True,
+        })
         # Ceres 2.2.0 is not compatible as of v3.10
         self.requires("ceres-solver/2.1.0", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
