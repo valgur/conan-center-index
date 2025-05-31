@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -55,13 +54,22 @@ class CppRestSDKConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    @property
+    def _boost_modules(self):
+        modules = ["system"]
+        if self.settings.os != "Windows":
+            modules += ["random", "thread", "filesystem", "chrono", "atomic"]
+        elif self.settings.os != "Android":
+            modules += ["date_time", "regex"]
+        return modules
+
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.74.0 <1.88]", options={f"with_{module}": True for module in self._boost_modules})
         self.requires("openssl/[>=1.1 <4]")
         if self.options.with_compression:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_websockets:
-            self.requires("websocketpp/0.8.2")
+            self.requires("websocketpp/0.8.2", options={"asio": "boost"})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -69,9 +77,6 @@ class CppRestSDKConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        # upstream CMakeLists.txt sets BUILD_SHARED_LIBS as a CACHE variable
-        # TODO: remove if required_conan_version = ">=2.1"
-        tc.variables["BUILD_SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_TESTS"] = False
         tc.variables["BUILD_SAMPLES"] = False
         tc.variables["WERROR"] = False
@@ -83,8 +88,6 @@ class CppRestSDKConan(ConanFile):
             tc.variables["CPPREST_HTTP_CLIENT_IMPL"] = self.options.http_client_impl
         if self.options.get_safe("http_listener_impl"):
             tc.variables["CPPREST_HTTP_LISTENER_IMPL"] = self.options.http_listener_impl
-        if Version(self.version) <= "2.10.15":
-            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
@@ -115,11 +118,7 @@ class CppRestSDKConan(ConanFile):
         self.cpp_info.components["cpprestsdk_boost_internal"].includedirs = []
         ## List of Boost components cpprestsdk depends on:
         ## see https://github.com/microsoft/cpprestsdk/blob/v2.10.19/Release/cmake/cpprest_find_boost.cmake#L77-L106
-        self.cpp_info.components["cpprestsdk_boost_internal"].requires = ["boost::headers", "boost::system"]
-        if self.settings.os != "Windows":
-            self.cpp_info.components["cpprestsdk_boost_internal"].requires.extend(["boost::random", "boost::thread", "boost::filesystem", "boost::chrono", "boost::atomic"])
-        if self.settings.os != "Android":
-            self.cpp_info.components["cpprestsdk_boost_internal"].requires.extend(["boost::date_time", "boost::regex"])
+        self.cpp_info.components["cpprestsdk_boost_internal"].requires = [f"boost::{module}" for module in self._boost_modules]
         # cpprestsdk_openssl_internal
         self.cpp_info.components["cpprestsdk_openssl_internal"].set_property("cmake_target_name", "cpprestsdk::cpprestsdk_openssl_internal")
         self.cpp_info.components["cpprestsdk_openssl_internal"].includedirs = []
