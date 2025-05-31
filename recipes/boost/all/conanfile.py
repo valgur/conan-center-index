@@ -75,7 +75,6 @@ class BoostConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "header_only": [True, False],
         "error_code_header_only": [True, False],
         "system_no_deprecated": [True, False],
         "asio_no_deprecated": [True, False],
@@ -113,7 +112,6 @@ class BoostConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "header_only": False,
         "error_code_header_only": False,
         "system_no_deprecated": False,
         "asio_no_deprecated": False,
@@ -319,21 +317,25 @@ class BoostConan(ConanFile):
     def _shared(self):
         return self.options.get_safe("shared", self.default_options["shared"])
 
+    @cached_property
+    def _header_only(self):
+        return not any(self.options.get_safe(f"with_{lib}") for lib in self._available_modules)
+
     @property
     def _stacktrace_addr2line_available(self):
         if self._is_apple_embedded_platform or self.settings.get_safe("os.subsystem") == "catalyst":
              # sandboxed environment - cannot launch external processes (like addr2line), system() function is forbidden
             return False
-        return not self.options.header_only and self.options.with_stacktrace and self.settings.os != "Windows"
+        return not self._header_only and self.options.with_stacktrace and self.settings.os != "Windows"
 
     @property
     def _stacktrace_from_exception_available(self):
         if Version(self.version) == "1.85.0":
             # https://github.com/boostorg/stacktrace/blob/boost-1.85.0/build/Jamfile.v2#L143
-            return not self.options.header_only and self.options.with_stacktrace and self.settings.os != "Windows"
+            return not self._header_only and self.options.with_stacktrace and self.settings.os != "Windows"
         elif Version(self.version) >= "1.86.0":
             # https://github.com/boostorg/stacktrace/blob/boost-1.86.0/build/Jamfile.v2#L148
-            return not self.options.header_only and self.options.with_stacktrace and self._b2_architecture == "x86"
+            return not self._header_only and self.options.with_stacktrace and self._b2_architecture == "x86"
 
     def configure(self):
         if not self.options.with_locale:
@@ -361,15 +363,14 @@ class BoostConan(ConanFile):
         if verbosity == "verbose" and int(self.options.debug_level) < 2:
             self.options.debug_level.value = 2
 
-        if not any(self.options.get_safe(f"with_{lib}") for lib in MODULES):
-            self.options.header_only.value = True
-        else:
+        if not self._header_only:
             # Enable all internal transitive dependencies of modules
             self._enable_transitive_dependencies()
 
-        if self.options.header_only:
+        if self._header_only:
             self.options.rm_safe("shared")
             self.options.rm_safe("fPIC")
+            self.package_type = "header-library"
         elif self.options.shared:
             self.options.rm_safe("fPIC")
 
@@ -496,31 +497,31 @@ class BoostConan(ConanFile):
 
     @property
     def _with_zlib(self):
-        return not self.options.header_only and self._with_dependency("zlib") and self.options.zlib
+        return not self._header_only and self._with_dependency("zlib") and self.options.zlib
 
     @property
     def _with_bzip2(self):
-        return not self.options.header_only and self._with_dependency("bzip2") and self.options.bzip2
+        return not self._header_only and self._with_dependency("bzip2") and self.options.bzip2
 
     @property
     def _with_lzma(self):
-        return not self.options.header_only and self._with_dependency("lzma") and self.options.lzma
+        return not self._header_only and self._with_dependency("lzma") and self.options.lzma
 
     @property
     def _with_zstd(self):
-        return not self.options.header_only and self._with_dependency("zstd") and self.options.zstd
+        return not self._header_only and self._with_dependency("zstd") and self.options.zstd
 
     @property
     def _with_icu(self):
-        return not self.options.header_only and self._with_dependency("icu") and self.options.get_safe("i18n_backend_icu")
+        return not self._header_only and self._with_dependency("icu") and self.options.get_safe("i18n_backend_icu")
 
     @property
     def _with_iconv(self):
-        return not self.options.header_only and self._with_dependency("iconv") and self.options.get_safe("i18n_backend_iconv") == "libiconv"
+        return not self._header_only and self._with_dependency("iconv") and self.options.get_safe("i18n_backend_iconv") == "libiconv"
 
     @property
     def _with_stacktrace_backtrace(self):
-        return not self.options.header_only and self.options.get_safe("with_stacktrace_backtrace", False)
+        return not self._header_only and self.options.get_safe("with_stacktrace_backtrace", False)
 
     def requirements(self):
         if self._with_zlib:
@@ -540,7 +541,7 @@ class BoostConan(ConanFile):
             self.requires("libiconv/[^1.17]")
 
     def package_id(self):
-        if self.info.options.header_only:
+        if self._header_only:
             self.info.clear()
         else:
             del self.info.options.debug_level
@@ -551,7 +552,7 @@ class BoostConan(ConanFile):
                 del self.info.options.python_version
 
     def build_requirements(self):
-        if not self.options.header_only:
+        if not self._header_only:
             self.tool_requires("b2/[>=5.2 <6]")
 
     def source(self):
@@ -559,7 +560,7 @@ class BoostConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        if not self.options.header_only:
+        if not self._header_only:
             env = VirtualBuildEnv(self)
             env.generate()
             vc = VCVars(self)
@@ -850,8 +851,7 @@ class BoostConan(ConanFile):
                             "! [ $(property-set).get <target-os> ] in windows cygwin darwin aix android &&",
                             strict=False)
 
-        if self.options.header_only:
-            self.output.warning("Header only package, skipping build")
+        if self._header_only:
             return
 
         self._clean()
@@ -1382,11 +1382,11 @@ class BoostConan(ConanFile):
         # copy to source with the good lib name
         copy(self, "LICENSE_1_0.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        if self.options.header_only:
+        if self._header_only:
             copy(self, "*", src=os.path.join(self.source_folder, "boost"),
                             dst=os.path.join(self.package_folder, "include", "boost"))
 
-        if self.settings.os == "Emscripten" and not self.options.header_only:
+        if self.settings.os == "Emscripten" and not self._header_only:
             self._create_emscripten_libs()
 
         if is_msvc(self) and self._shared:
@@ -1474,7 +1474,7 @@ class BoostConan(ConanFile):
             # -DBOOST_LIB_BUILDID=amd64 to ensure the correct libraries are selected at link time.
             self.cpp_info.components["headers"].defines.append(f"BOOST_LIB_BUILDID={self.options.buildid}")
 
-        if not self.options.header_only:
+        if not self._header_only:
             if self.options.error_code_header_only:
                 self.cpp_info.components["headers"].defines.append("BOOST_ERROR_CODE_HEADER_ONLY")
 
@@ -1485,7 +1485,7 @@ class BoostConan(ConanFile):
         # Boost::boost is an alias of Boost::headers
         self.cpp_info.components["_boost_cmake"].requires = ["headers"]
         self.cpp_info.components["_boost_cmake"].set_property("cmake_target_name", "Boost::boost")
-        if self.options.header_only:
+        if self._header_only:
             self.cpp_info.components["_boost_cmake"].libdirs = []
 
         self.cpp_info.components["disable_autolinking"].libs = []
@@ -1494,7 +1494,7 @@ class BoostConan(ConanFile):
         self.cpp_info.components["dynamic_linking"].libs = []
         self.cpp_info.components["dynamic_linking"].set_property("cmake_target_name", "Boost::dynamic_linking")
 
-        if not self.options.header_only:
+        if not self._header_only:
             self.cpp_info.components["_libboost"].requires = ["headers"]
 
             self.cpp_info.components["diagnostic_definitions"].libs = []

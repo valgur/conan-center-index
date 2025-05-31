@@ -1,5 +1,4 @@
 from conan import ConanFile
-from conan.errors import ConanException
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -18,9 +17,7 @@ class TestPackageConan(ConanFile):
     def generate(self):
         opts = self.dependencies["boost"].options
         tc = CMakeToolchain(self)
-        tc.cache_variables["HEADER_ONLY"] = opts.header_only
-        if not opts.header_only:
-            tc.cache_variables["Boost_USE_STATIC_LIBS"] = not opts.shared
+        tc.cache_variables["Boost_USE_STATIC_LIBS"] = not opts.get_safe("shared")
         tc.cache_variables["WITH_PYTHON"] = opts.with_python
         if opts.with_python:
             pyversion = opts.python_version
@@ -37,7 +34,7 @@ class TestPackageConan(ConanFile):
         tc.cache_variables["WITH_JSON"] = opts.get_safe("with_json", False)
         tc.cache_variables["WITH_PROCESS"] = opts.get_safe("with_process", False)
         tc.cache_variables["WITH_STACKTRACE"] = opts.with_stacktrace
-        tc.cache_variables["WITH_STACKTRACE_ADDR2LINE"] = self.dependencies["boost"].conf_info.get("user.boost:stacktrace_addr2line_available")
+        tc.cache_variables["WITH_STACKTRACE_ADDR2LINE"] = self.dependencies["boost"].conf_info.get("user.boost:stacktrace_addr2line_available", False)
         tc.cache_variables["WITH_STACKTRACE_BACKTRACE"] = opts.get_safe("with_stacktrace_backtrace", False)
         tc.cache_variables["WITH_URL"] = opts.get_safe("with_url", True)
         if opts.namespace != "boost" and not opts.namespace_alias:
