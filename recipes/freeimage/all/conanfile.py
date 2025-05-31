@@ -37,13 +37,13 @@ class FreeImageConan(ConanFile):
         "fPIC": True,
         "with_jpeg": "libjpeg",
         "with_png": True,
-        "with_tiff": True,
-        "with_jpeg2000": True,
-        "with_openexr": True,
+        "with_tiff": False,
+        "with_jpeg2000": False,
+        "with_openexr": False,
         "with_eigen": True,
         "with_webp": True,
-        "with_raw": True,
-        "with_jxr": True,
+        "with_raw": False,
+        "with_jxr": False,
     }
 
     def export_sources(self):
