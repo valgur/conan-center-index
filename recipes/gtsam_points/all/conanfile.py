@@ -34,13 +34,13 @@ class GtsamPointsPackage(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True, options={"with_filesystem": True})
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("gtsam/4.2", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         self.requires("nanoflann/1.3.2", transitive_headers=True, transitive_libs=True)
         if self.options.cuda:
             self.requires("thrust/2.7.0", transitive_headers=True, transitive_libs=True, options={"device_system": "cuda"})
+        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True, options={"with_filesystem": True})
 
     def validate(self):
         check_min_cppstd(self, 17)
