@@ -415,6 +415,11 @@ class BoostConan(ConanFile):
                 if self.options.get_safe(f"with_{mod_name}"):
                     for mod_dep in mod_deps:
                         getattr(self.options, f"with_{mod_dep}").value = True
+            # math and random have a dependency cycle, so are handled separately
+            if self.options.with_math:
+                self.options.with_random.value = True
+            elif self.options.with_random:
+                self.options.with_math.value = True
 
         if self.options.header_only:
             self.options.rm_safe("shared")
