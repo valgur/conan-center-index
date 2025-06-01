@@ -84,25 +84,15 @@ class WtConan(ConanFile):
             del self.options.with_postgres
             del self.options.with_mysql
             del self.options.with_mssql
-        self._strict_options_requirements()
+        self.options["boost"].with_program_options = True
+        self.options["boost"].with_filesystem = True
+        self.options["boost"].with_thread = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def _strict_options_requirements(self):
-        self.options["boost"].header_only = False
-        for boost_comp in self._required_boost_components:
-            setattr(self.options["boost"], f"without_{boost_comp}", False)
-
-    @property
-    def _required_boost_components(self):
-        return ["program_options", "filesystem", "thread"]
-
     def requirements(self):
-        if Version(self.version) < "4.9.0":
-            self.requires("boost/[^1.71.0]", transitive_headers = True)
-        else:
-            self.requires("boost/[^1.71.0]", transitive_headers = True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True)
         if self.options.connector_http:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_ssl:
@@ -121,13 +111,6 @@ class WtConan(ConanFile):
             self.requires("libharu/[^2.4.3]")
 
     def validate(self):
-        miss_boost_required_comp = any(self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-                                       for boost_comp in self._required_boost_components)
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires non header-only boost with these components: "
-                f"{', '.join(self._required_boost_components)}"
-            )
         if self.options.get_safe("raster_image", "none") == "Direct2D" and self.settings.os != "Windows":
             raise ConanInvalidConfiguration("Direct2D is supported only on Windows.")
 
