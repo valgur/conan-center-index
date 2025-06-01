@@ -29,26 +29,6 @@ class NumCppConan(ConanFile):
     }
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 14 if Version(self.version) < "2.9.0" else 17
-
-    @property
-    def _compilers_minimum_version(self):
-        if self._min_cppstd == 14:
-            return {
-                "gcc": "5",
-                "clang": "3.4",
-                "apple-clang": "10",
-                "msvc": "190",
-            }
-        return {
-            "gcc": "8",
-            "clang": "7",
-            "apple-clang": "12",
-            "msvc": "191",
-        }
-
     def config_options(self):
         if Version(self.version) < "2.5.0":
             del self.options.with_boost
@@ -65,12 +45,7 @@ class NumCppConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
-            )
+        check_min_cppstd(self, 14 if Version(self.version) < "2.9.0" else 17)
 
         # since 2.10.0, numcpp requires filesystem
         if Version(self.version) >= "2.10.0" and \
@@ -89,9 +64,6 @@ class NumCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-
-    def build(self):
-        pass
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
