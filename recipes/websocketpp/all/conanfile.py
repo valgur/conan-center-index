@@ -30,6 +30,9 @@ class WebsocketPPConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def configure(self):
+        self.options["boost"].with_random = True
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -43,7 +46,7 @@ class WebsocketPPConan(ConanFile):
         if self.options.asio == "standalone":
             self.requires("asio/[>=1.28.1 <1.32]", transitive_headers=True)
         elif self.options.asio == "boost":
-            self.requires("boost/[^1.71.0]", transitive_headers=True)
+            self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True)
 
     def package_id(self):
         self.info.clear()
@@ -70,4 +73,4 @@ class WebsocketPPConan(ConanFile):
             self.cpp_info.defines.extend(["ASIO_STANDALONE", "_WEBSOCKETPP_CPP11_STL_"])
             self.cpp_info.requires.append("asio::asio")
         elif self.options.asio == "boost":
-            self.cpp_info.requires.extend(["boost::headers","boost::random"] )
+            self.cpp_info.requires.extend(["boost::headers", "boost::random"] )
