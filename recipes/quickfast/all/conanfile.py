@@ -33,12 +33,18 @@ class QuickfastConan(ConanFile):
         copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.options["boost"].with_filesystem = True
+        self.options["boost"].with_thread = True
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # Uses Boost.Asio transitively
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+        # Uses Boost.Asio transitively; Boost.Asio in 1.88 is not compatible
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True, transitive_libs=True)
         self.requires("xerces-c/[^3.2.5]")
 
     def validate(self):
@@ -67,6 +73,12 @@ class QuickfastConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["quickfast"]
         self.cpp_info.includedirs.append(os.path.join("include", "quickfast"))
+        self.cpp_info.requires = [
+            "boost::headers",
+            "boost::filesystem",
+            "boost::thread",
+            "xerces-c::xerces-c",
+        ]
 
         # Needed to keep support for deprecated placeholders in boost::bind
         self.cpp_info.defines.append("BOOST_BIND_GLOBAL_PLACEHOLDERS")
