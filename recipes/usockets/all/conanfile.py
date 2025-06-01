@@ -91,7 +91,8 @@ class UsocketsConan(ConanFile):
         elif self.options.eventloop == "gcd":
             self.requires("libdispatch/5.3.2")
         elif self.options.eventloop == "boost":
-            self.requires("boost/[^1.71.0]")
+            # Boost.Asio in v1.88 is not compatible
+            self.requires("boost/[^1.71.0 <1.88]")
 
     def validate(self):
         if self.options.eventloop == "syscall" and self.settings.os == "Windows":
