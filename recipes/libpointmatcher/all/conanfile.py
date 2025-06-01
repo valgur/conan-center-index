@@ -13,9 +13,7 @@ required_conan_version = ">=2.1"
 
 class LibpointmatcherConan(ConanFile):
     name = "libpointmatcher"
-    description = (
-        "An Iterative Closest Point (ICP) library for 2D and 3D mapping in Robotics"
-    )
+    description = "An Iterative Closest Point (ICP) library for 2D and 3D mapping in Robotics"
     license = "BSD-3-Clause"
     topics = ("robotics", "lidar", "point-cloud")
     homepage = "https://github.com/ethz-asl/libpointmatcher"
@@ -104,12 +102,7 @@ class LibpointmatcherConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "copyright",
-            src=os.path.join(self.source_folder, "debian"),
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "copyright", os.path.join(self.source_folder, "debian"), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "share"))
