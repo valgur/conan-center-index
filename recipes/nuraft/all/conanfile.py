@@ -29,13 +29,10 @@ class NuRaftConan(ConanFile):
         "fPIC": True,
         "asio": "boost",
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -43,7 +40,7 @@ class NuRaftConan(ConanFile):
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]")
         if self.options.asio == "boost":
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0 <1.88]")
         else:
             self.requires("asio/[^1.27.0]")
 
@@ -60,6 +57,8 @@ class NuRaftConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        if self.options.asio != "boost":
+            tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Boost"] = True
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
