@@ -25,6 +25,6 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             bin_path = os.path.join(self.cpp.build.bindir, "test_package_c")
             self.run(bin_path, env="conanrun")
-            if self.dependencies["libtiff"].options.cxx_enabled:
+            if self.dependencies["libtiff"].options.cxx:
                 bin_path = os.path.join(self.cpp.build.bindir, "test_package_cxx")
                 self.run(bin_path, env="conanrun")
