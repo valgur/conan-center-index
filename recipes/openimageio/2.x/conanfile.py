@@ -70,6 +70,14 @@ class OpenImageIOConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.options["boost"].with_filesystem = True
+        self.options["boost"].with_regex = True
+        self.options["boost"].with_system = True
+        self.options["boost"].with_thread = True
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -231,17 +239,11 @@ class OpenImageIOConan(ConanFile):
         open_image_io.requires = [
             "openimageio_util",
             "zlib::zlib",
-            "boost::thread",
-            "boost::system",
-            "boost::container",
-            "boost::regex",
             "libtiff::tiff",
             "pugixml::pugixml",
             "tsl-robin-map::tsl-robin-map",
             "libsquish::libsquish",
             "fmt::fmt",
-            "imath::imath",
-            "openexr::openexr",
             "bzip2::bzip2",
         ]
 
