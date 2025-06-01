@@ -64,7 +64,7 @@ class MpppConan(ConanFile):
         if self.options.with_mpc:
             self.requires("mpc/[^1.2.0]")
         if self.options.with_boost:
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0]", options={"with_serialization": True})
         if self.options.get_safe("with_fmt"):
             self.requires("fmt/[>=5]", transitive_headers=True)
         if self.options.get_safe("with_flint"):
@@ -76,8 +76,6 @@ class MpppConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref}:with_arb=True is not supported because `fredrik-johansson/arb` is not packaged in CCI. (yet)")
         if self.options.with_quadmath:
             raise ConanInvalidConfiguration(f"{self.ref}:with_quadmath=True is not supported because `libquadmath` is not available from CCI. (yet)")
-        if self.options.with_boost and self.dependencies["boost"].options.without_serialization:
-            raise ConanInvalidConfiguration(f"{self.ref}:with_boost=True requires boost:without_serialization=False")
         if self.options.get_safe("with_flint") and not self.options.with_mpfr:
             raise ConanInvalidConfiguration(f"{self.ref}:with_flint=True requires with_mpfr=True")
 
