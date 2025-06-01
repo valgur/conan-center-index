@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
@@ -31,64 +30,31 @@ class TgbotConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        # tgbot requiroes C++17 since 1.7.3
-        return "14" if Version(self.version) < "1.7.3" else "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "17": {
-                # tgbot/>= 1.7.3 require C++17 filesystem
-                "gcc": "9",
-                "clang": "9",
-                "apple-clang": "13",
-                "msvc": "192",
-            },
-            "14": {
-                "gcc": "5",
-                "clang": "3",
-                "apple-clang": "10",
-                "msvc": "191",
-            }
-        }.get(self._min_cppstd, {})
-
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.options["boost"].with_system = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # tgbot/Api.h:#include <boost/property_tree/ptree.hpp>
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+        # Asio in v1.88 is not compatible
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True, transitive_libs=True)
         # tgbot/net/CurlHttpClient.h:#include <curl/curl.h>
         self.requires("libcurl/[>=7.78 <9]", transitive_headers=True, transitive_libs=True)
         self.requires("openssl/[>=1.1 <4]")
 
-    @property
-    def _required_boost_components(self):
-        return ["system"]
-
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
-        miss_boost_required_comp = any(
-            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-            for boost_comp in self._required_boost_components
-        )
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                f"{self.name} requires non header-only boost with these components: "
-                + ", ".join(self._required_boost_components)
-            )
+        check_min_cppstd(self, "14" if Version(self.version) < "1.7.3" else "17")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Don't force PIC
+        replace_in_file(self, "CMakeLists.txt", "set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)", "")
+        # Don't force CMAKE_CXX_STANDARD
+        replace_in_file(self, "CMakeLists.txt", "set(CMAKE_CXX_STANDARD", "#")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -97,32 +63,15 @@ class TgbotConan(ConanFile):
         tc = CMakeDeps(self)
         tc.generate()
 
-    def _patch_sources(self):
-        # Don't force PIC
-        replace_in_file(
-            self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)",
-            "",
-        )
-        # Don't force CMAKE_CXX_STANDARD
-        replace_in_file(self,
-            os.path.join(self.source_folder, "CMakeLists.txt"),
-            "set(CMAKE_CXX_STANDARD",
-            "#")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        copy(self, "LICENSE",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
         fix_apple_shared_install_name(self)
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
