@@ -6,7 +6,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
@@ -38,8 +37,6 @@ class OpenVDBConan(ConanFile):
         "use_explicit_instantiation": [True, False],
         "use_imath_half": [True, False],
         "with_blosc": [True, False],
-        # Deprecated because EXR is only used when building executables, which the recipe does not support
-        "with_exr": ["deprecated", True, False],
         "with_log4cplus": [True, False],
         "with_zlib": [True, False],
     }
@@ -53,7 +50,6 @@ class OpenVDBConan(ConanFile):
         "use_explicit_instantiation": False,
         "use_imath_half": True,
         "with_blosc": True,
-        "with_exr": "deprecated",
         "with_log4cplus": False,  # Disabled by default because it is not compatible with C++17
         "with_zlib": True,
     }
@@ -119,13 +115,11 @@ class OpenVDBConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.options["boost"].with_iostreams = True
+        self.options["boost"].with_system = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    def package_id(self):
-        # with_exr is deprecated and has no effect
-        del self.info.options.with_exr
 
     def requirements(self):
         # https://github.com/AcademySoftwareFoundation/openvdb/blob/v10.0.1/doc/dependencies.txt#L36-L84
@@ -155,8 +149,6 @@ class OpenVDBConan(ConanFile):
             if self.options.simd:
                 raise ConanInvalidConfiguration("Only intel architectures support SSE4 or AVX.")
         self._check_compiler_version()
-        if self.options.with_exr != "deprecated":
-            self.output.warning("with_exr option is deprecated, do not use anymore.")
 
     def build_requirements(self):
         if Version(self.version) >= "10.0.0":
@@ -172,9 +164,6 @@ class OpenVDBConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = CMakeToolchain(self)
         tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
         tc.variables["OPENVDB_BUILD_AX"] = self.options.build_ax
