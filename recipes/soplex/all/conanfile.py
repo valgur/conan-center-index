@@ -1,12 +1,10 @@
 from os.path import join
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -34,19 +32,6 @@ class SoPlexConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "5",
-            "clang": "4",
-            "apple-clang": "7",
-            "msvc": "191",
-        }
-
     def _determine_lib_name(self):
         if self.options.shared:
             return "soplexshared"
@@ -69,23 +54,17 @@ class SoPlexConan(ConanFile):
             self.requires("boost/[^1.71.0]", transitive_headers=True)  # also update Boost_VERSION_MACRO below!
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["MPFR"] = False
-        tc.variables["GMP"] = self.options.with_gmp
-        tc.variables["BOOST"] = self.options.with_boost
-        tc.variables["Boost_VERSION_MACRO"] = "108400"
+        tc.cache_variables["MPFR"] = False
+        tc.cache_variables["GMP"] = self.options.with_gmp
+        tc.cache_variables["BOOST"] = self.options.with_boost
+        tc.cache_variables["Boost_VERSION_MACRO"] = "108400"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
         deps = CMakeDeps(self)
