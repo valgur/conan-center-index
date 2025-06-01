@@ -33,7 +33,7 @@ class AsynclyConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
         self.requires("function2/4.2.4", transitive_headers=True)
         self.requires("prometheus-cpp/1.1.0", transitive_headers=True)
 

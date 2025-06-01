@@ -40,7 +40,7 @@ class BeautyConan(ConanFile):
 
     def requirements(self):
         # beauty/application.hpp public header includes boost/asio.hpp
-        self.requires("boost/[^1.78.0 <1.88]", transitive_headers=True)
+        self.requires("boost/[^1.78.0 <1.88]", transitive_headers=True, libs=False)
         if self.options.with_openssl:
             # dependency of asio in boost, exposed in boost/asio/ssl/detail/openssl_types.hpp
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)

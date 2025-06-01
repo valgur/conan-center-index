@@ -26,7 +26,7 @@ class ArgRouterRecipe(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.74.0]")
+        self.requires("boost/[^1.74.0]", libs=False)
         self.requires("span-lite/[>=0.10.3 <1]")
 
     def validate(self):

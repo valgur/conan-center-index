@@ -39,7 +39,7 @@ class LibLASConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.42]", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.42]", transitive_headers=True, libs=False)
         if self.options.with_gdal:
             self.requires("gdal/[^3]")
         if self.options.with_geotiff:

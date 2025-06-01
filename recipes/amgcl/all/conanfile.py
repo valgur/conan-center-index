@@ -38,7 +38,7 @@ class AmgclConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_boost"):
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0]", libs=False)
         self.requires("openmp/system")
 
     def package_id(self):

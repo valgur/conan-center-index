@@ -40,7 +40,7 @@ class IridescenceConan(ConanFile):
 
     def requirements(self):
         self.requires("assimp/[^5.1.6]")
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("glm/1.0.1")
         self.requires("libjpeg/[>=9e]")

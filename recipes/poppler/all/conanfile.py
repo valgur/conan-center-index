@@ -121,7 +121,7 @@ class PopplerConan(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.splash:
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0]", libs=False)
         if self.options.with_libcurl:
             # https://gitlab.freedesktop.org/poppler/poppler/-/blob/poppler-23.11.0/poppler/CurlCachedFile.h#L18
             self.requires("libcurl/[>=7.78 <9]", transitive_headers=True, transitive_libs=True)

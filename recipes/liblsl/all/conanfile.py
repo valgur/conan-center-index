@@ -29,7 +29,7 @@ class LiblslConan(ConanFile):
     implements = ["auto_shared_fpic"]
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0]", libs=False)
         self.requires("pugixml/[^1.13]")
 
     def layout(self):

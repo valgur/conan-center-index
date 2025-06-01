@@ -28,7 +28,7 @@ class ProCxxBoostExSimdConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0]", libs=False)
 
     def package_id(self):
         self.info.clear()

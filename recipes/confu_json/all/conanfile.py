@@ -23,7 +23,7 @@ class ConfuJson(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.78.0]")
+        self.requires("boost/[^1.78.0]", libs=False)
         self.requires("magic_enum/[^0.9.6]")
 
     def package_id(self):

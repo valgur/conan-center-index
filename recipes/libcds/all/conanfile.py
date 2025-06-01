@@ -36,7 +36,7 @@ class LibcdsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0]", libs=False)
 
     def validate(self):
         check_min_cppstd(self, 11)

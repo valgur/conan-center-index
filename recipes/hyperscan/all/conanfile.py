@@ -47,7 +47,7 @@ class HyperscanConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0]", libs=False)
         if self.options.build_chimera:
             self.requires("pcre/[^8.45]")
 

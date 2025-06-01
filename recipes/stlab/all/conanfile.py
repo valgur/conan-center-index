@@ -27,7 +27,7 @@ class Stlab(ConanFile):
         "thread_system": ["win32", "pthread", "pthread-emscripten", "pthread-apple", "none"],
     }
     default_options = {
-        "with_boost": True,
+        "with_boost": False,
         "no_std_coroutines": True,
         "future_coroutines": False
         # Handle default value for `thread_system` in `config_options` method
@@ -54,7 +54,7 @@ class Stlab(ConanFile):
 
     def requirements(self):
         if self.options.with_boost:
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0]", libs=False)
         # On macOS, it is not necessary to use the libdispatch conan package,
         # because the library is included in the OS.
         if self.options.task_system == "libdispatch" and self.settings.os != "Macos":

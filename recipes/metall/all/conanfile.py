@@ -26,7 +26,7 @@ class MetallConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0 <1.85]")
+        self.requires("boost/[^1.71.0 <1.85]", libs=False)
 
     def package_id(self):
         self.info.clear()

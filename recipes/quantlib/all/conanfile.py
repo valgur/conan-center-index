@@ -37,8 +37,8 @@ class QuantlibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # 1.88 is not compatible
-        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True)
+        # Boost.Asio v1.88 is not compatible
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True, libs=False)
 
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):

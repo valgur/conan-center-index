@@ -40,7 +40,7 @@ class Yomm2Recipe(ConanFile):
         self.tool_requires("cmake/[>=3.21 <5]")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -24,7 +24,7 @@ class PackageConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0]", libs=False)
         self.requires("eigen/3.4.0")
 
     def package_id(self):

@@ -30,7 +30,7 @@ class NanodbcConan(ConanFile):
         "fPIC": True,
         "async": True,
         "unicode": False,
-        "with_boost": True,
+        "with_boost": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -42,7 +42,7 @@ class NanodbcConan(ConanFile):
 
     def requirements(self):
         if self.options.with_boost:
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0]", libs=False)
         if self.settings.os != "Windows":
             self.requires("odbc/[^2.3.11]")
 

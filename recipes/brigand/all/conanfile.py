@@ -31,7 +31,7 @@ class BrigandConan(ConanFile):
 
     def requirements(self):
         if self.options.with_boost:
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0]", libs=False)
 
     def package_id(self):
         self.info.clear()
