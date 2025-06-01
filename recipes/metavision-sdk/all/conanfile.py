@@ -61,12 +61,16 @@ class MetavisionSdkConan(ConanFile):
         # metavision/psee_hw_layer/boards/utils/psee_libusb.h
         self.requires("libusb/[^1.0.26]", transitive_headers=True)
         # several headers, e.g. metavision/sdk/core/preprocessors/json_parser.h
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, options={
+            "with_filesystem": True,
+            "with_program_options": True,
+            "with_timer": True,
+        })
         # OpenCV is used in many public headers
-        extra_opts = {"videoio": True}
+        opencv_extra = {"videoio": True}
         if self.options.advanced_sdk_repo_url:
-            extra_opts.update({"highgui": True, "objdetect": True})
-        self.requires("opencv/[^4.5]", transitive_headers=True, options=extra_opts)
+            opencv_extra.update({"highgui": True, "objdetect": True})
+        self.requires("opencv/[^4.5]", transitive_headers=True, options=opencv_extra)
         if self.options.stream:
             # newer version conflicts with opencv
             self.requires("protobuf/[>=3.21.12]")
