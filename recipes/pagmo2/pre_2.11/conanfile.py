@@ -37,7 +37,7 @@ class Pagmo2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
         self.requires("onetbb/[^2021]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0", transitive_headers=True)
@@ -47,30 +47,19 @@ class Pagmo2Conan(ConanFile):
     def package_id(self):
         self.info.settings.clear()
 
-    @property
-    def _required_boost_components(self):
-        return ["serialization"]
-
     def validate(self):
         check_min_cppstd(self, 11)
         # TODO: add ipopt support
         if self.options.with_ipopt:
             raise ConanInvalidConfiguration("ipopt recipe not available yet in CCI")
 
-        miss_boost_required_comp = any(
-            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-            for boost_comp in self._required_boost_components
-        )
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                "{0} requires non header-only boost with these components: {1}".format(
-                    self.name, ", ".join(self._required_boost_components)
-                )
-            )
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.2)",
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
