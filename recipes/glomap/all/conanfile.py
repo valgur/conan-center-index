@@ -4,10 +4,10 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
+
 
 class GlomapConan(ConanFile):
     name = "glomap"
@@ -36,14 +36,12 @@ class GlomapConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
         self.requires("ceres-solver/2.1.0", transitive_headers=True, transitive_libs=True, options={"use_suitesparse": True})
         self.requires("colmap/3.10", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0", transitive_headers=True, transitive_libs=True)
         self.requires("openmp/system")
         self.requires("poselib/2.0.3", transitive_headers=True, transitive_libs=True)
         self.requires("suitesparse-cholmod/[^5.3.0]", transitive_headers=True, transitive_libs=True)
-
 
     def validate(self):
         check_min_cppstd(self, 17)
@@ -63,11 +61,8 @@ class GlomapConan(ConanFile):
         tc.variables["FETCH_POSELIB"] = False
         tc.variables["OPENMP_ENABLED"] = True
         tc.generate()
-
         deps = CMakeDeps(self)
         deps.generate()
-
-        VirtualBuildEnv(self).generate()
 
     def build(self):
         cmake = CMake(self)

@@ -50,7 +50,7 @@ class ColmapConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True, options={
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True, transitive_libs=True, options={
             "with_filesystem": True,
             "with_program_options": True,
             "with_graph": True,
