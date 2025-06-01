@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -33,19 +32,6 @@ class SfcgalConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "msvc": "191",
-            "clang": "6",
-            "apple-clang": "11",
-        }
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -56,15 +42,14 @@ class SfcgalConan(ConanFile):
             self.requires("openscenegraph/3.6.5")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required( VERSION 2.8 )",
+                        "cmake_minimum_required( VERSION 3.5 )")
         replace_in_file(self, "CMakeLists.txt", 'add_definitions( "-fPIC" )', "")
         # CGAL::CGAL_Core is redundant, already covered by CGAL::CGAL
         replace_in_file(self, "src/CMakeLists.txt", " CGAL::CGAL_Core", "")
