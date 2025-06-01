@@ -85,9 +85,12 @@ class MozjpegConan(ConanFile):
             self.tool_requires("nasm/[^2.16]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 2.8.12)",
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def generate_cmake(self):
         tc = CMakeToolchain(self)
