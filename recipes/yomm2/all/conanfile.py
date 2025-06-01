@@ -10,17 +10,15 @@ from conan.tools.scm import Version
 required_conan_version = ">=2.1"
 
 
-class yomm2Recipe(ConanFile):
+class Yomm2Recipe(ConanFile):
     name = "yomm2"
     package_type = "header-library"
-    # Optional metadata
     license = "BSL-1.0"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/jll63/yomm2"
     description = "Fast, orthogonal, open multi-methods. Solve the Expression Problem in C++17"
     topics = ("multi-methods", "multiple-dispatch", "open-methods", "shared-library",
               "header-only", "polymorphism", "expression-problem", "c++17")
-    # Binary configuration
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "header_only": [True, False],
@@ -29,46 +27,25 @@ class yomm2Recipe(ConanFile):
         "header_only": True
     }
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "8",
-            "clang": "5",
-            "apple-clang": "13",
-            "msvc": "192"
-        }
-
     def configure(self):
         if not bool(self.options.header_only):
             self.package_type = "shared-library"
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
         if self.settings.compiler == "apple-clang" and not bool(self.options.header_only):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} dynamic library builds are not supported on MacOS."
-            )
+            raise ConanInvalidConfiguration("Dynamic library builds are not supported on MacOS.")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.21 <5]")
 
     def requirements(self):
-        # Upstream requires Boost 1.74
-        # Using more modern Boost version to avoid issues like the one commented here:
-        # - https://github.com/conan-io/conan/issues/15977#issuecomment-2098003085
         self.requires("boost/[^1.71.0]", transitive_headers=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) <= "1.5.1":
+            replace_in_file(self, "CMakeLists.txt", "add_subdirectory(docs.in)", "")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -82,13 +59,7 @@ class yomm2Recipe(ConanFile):
         tc.variables["YOMM2_SHARED"] = not bool(self.options.header_only)
         tc.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) <= "1.5.1":
-            cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-            replace_in_file(self, cmakelists, "add_subdirectory(docs.in)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
