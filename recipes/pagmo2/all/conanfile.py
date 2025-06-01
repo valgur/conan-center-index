@@ -37,14 +37,10 @@ class Pagmo2Conan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "191",
-            "gcc": "7",
-            "clang": "5.0",
-            "apple-clang": "9",
-        }
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        self.options["boost"].with_serialization = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -57,33 +53,12 @@ class Pagmo2Conan(ConanFile):
         if self.options.with_nlopt:
             self.requires("nlopt/2.7.1", transitive_headers=True, transitive_libs=True)
 
-    @property
-    def _required_boost_components(self):
-        return ["serialization"]
-
     def validate(self):
         check_min_cppstd(self, 17)
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.name} {self.version} requires C++17, which your compiler does not support."
-            )
 
         # TODO: add ipopt support
         if self.options.with_ipopt:
             raise ConanInvalidConfiguration("ipopt recipe not available yet in CCI")
-
-        miss_boost_required_comp = any(
-            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-            for boost_comp in self._required_boost_components
-        )
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                "{0} requires non header-only boost with these components: {1}".format(
-                    self.name, ", ".join(self._required_boost_components)
-                )
-            )
 
         if is_msvc(self) and self.options.shared:
             # test_package.obj : error LNK2019: unresolved external symbol "public: __cdecl boost::archive::codecvt_null<wchar_t>::codecvt_null<wchar_t>(unsigned __int64)"
