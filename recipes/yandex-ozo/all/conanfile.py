@@ -22,24 +22,18 @@ class YandexOzoConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "10",
-        }
+    def configure(self):
+        self.options["boost"].with_system = True
+        self.options["boost"].with_thread = True
+        self.options["boost"].with_coroutine = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         # Used in ozo/detail/bind.h public header
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        # version range matches resource_pool
+        self.requires("boost/[^1.71.0 <1.81]", transitive_headers=True)
         self.requires("resource_pool/cci.20210322")
         self.requires("libpq/[^17.0]")
 
@@ -47,10 +41,7 @@ class YandexOzoConan(ConanFile):
         self.info.clear()
 
     def _validate_compiler_settings(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("ozo requires a compiler that supports at least C++17")
+        check_min_cppstd(self, 17)
 
     def validate(self):
         if self.settings.os == "Windows":
