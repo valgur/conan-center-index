@@ -244,6 +244,13 @@ class VtkConan(ConanFile):
         # kissfft - we want the double format (also known as kiss_fft_scalar)
         self.options["kissfft"].datatype = "double"
         self.options["pugixml"].wchar_mode = False
+        if self.options.with_boost:
+            self.options["boost"].with_serialization = True
+            self.options["boost"].with_program_options = True
+            self.options["boost"].with_thread = True
+            self.options["boost"].with_filesystem = True
+            self.options["boost"].with_iostreams = True
+            self.options["boost"].with_system = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
