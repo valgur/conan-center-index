@@ -4,7 +4,7 @@ import re
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools import files
+from conan.tools.files import *
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.scm import Version
@@ -34,7 +34,7 @@ class NmosCppConan(ConanFile):
     }
 
     def export_sources(self):
-        files.export_conandata_patches(self)
+        export_conandata_patches(self)
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -47,12 +47,14 @@ class NmosCppConan(ConanFile):
         elif self.settings.os == "Windows":
             self.options.with_dnssd = "mdnsresponder"
 
+    def configure(self):
+        self.options["boost"].with_regex = True
+
     def requirements(self):
-        # for now, consistent with project's conanfile.txt
-        # INFO: details/system_error.h: #include <boost/system/system_error.hpp>
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
         # INFO: json_ops.h exposes cpprest/json.h
         self.requires("cpprestsdk/2.10.19", transitive_headers=True)
+        # INFO: details/system_error.h: #include <boost/system/system_error.hpp>
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True)
         self.requires("websocketpp/0.8.2")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("json-schema-validator/2.3.0")
@@ -81,9 +83,8 @@ class NmosCppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version],
-                  destination=self.source_folder, strip_root=True)
-        files.rm(self, "conanfile.txt", os.path.join(self.source_folder, "Development"))
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        rm(self, "conanfile.txt", os.path.join(self.source_folder, "Development"))
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -106,24 +107,24 @@ class NmosCppConan(ConanFile):
         deps.generate()
 
     def build(self):
-        files.apply_conandata_patches(self)
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder="Development")
         cmake.build()
 
     def package(self):
-        files.copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
         cmake_folder = os.path.join(self.package_folder, "lib", "cmake")
         self._create_components_file_from_cmake_target_file(os.path.join(cmake_folder, "nmos-cpp", "nmos-cpp-targets.cmake"))
         # remove the project's own generated config-file package
-        files.rmdir(self, cmake_folder)
+        rmdir(self, cmake_folder)
 
     def _create_components_file_from_cmake_target_file(self, target_file_path):
         components = {}
 
-        target_content = files.load(self, target_file_path)
+        target_content = load(self, target_file_path)
 
         cmake_functions = re.findall(r"(?P<func>add_executable|add_library|set_target_properties)[\n|\s]*\([\n|\s]*(?P<args>[^)]*)\)", target_content)
         for (cmake_function_name, cmake_function_args) in cmake_functions:
@@ -153,7 +154,7 @@ class NmosCppConan(ConanFile):
                         lib_name = "dnssd"
                     components[component_name]["libs"] = [lib_name]
             elif cmake_function_name == "set_target_properties":
-                target_properties = re.findall(r"(?P<property>INTERFACE_[A-Z_]+)[\n|\s]+\"(?P<values>.+)\"", cmake_function_args[2])
+                target_properties = re.findall(r'(?P<property>INTERFACE_[A-Z_]+)[\n|\s]+"(?P<values>.+)"', cmake_function_args[2])
                 for target_property in target_properties:
                     property_type = target_property[0]
                     # '\', '$' and '"' are escaped; '$' especially is important here
@@ -236,7 +237,7 @@ class NmosCppConan(ConanFile):
         self.cpp_info.libdirs = [libdir]
 
         def _register_components():
-            components_json_file = files.load(self, self._components_helper_filepath)
+            components_json_file = load(self, self._components_helper_filepath)
             components = json.loads(components_json_file)
             for component_name, values in components.items():
                 self.cpp_info.components[component_name].bindirs = [bindir] if values.get("exe") else []
