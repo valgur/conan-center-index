@@ -80,7 +80,7 @@ class LibphonenumberConan(ConanFile):
         self.requires("abseil/[>=20220623.1]", transitive_headers=True)
         if self.options.use_boost:
             # https://github.com/google/libphonenumber/blob/v8.13.35/cpp/src/phonenumbers/base/synchronization/lock_boost.h
-            self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+            self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True, options={"with_thread": True})
         if self.options.use_icu_regexp or self.options.get_safe("build_geocoder"):
             # https://github.com/google/libphonenumber/blob/v8.13.35/cpp/src/phonenumbers/geocoding/phonenumber_offline_geocoder.h#L23
             self.requires("icu/[*]", transitive_headers=True, transitive_libs=True)
@@ -126,8 +126,6 @@ class LibphonenumberConan(ConanFile):
         # Otherwise tries to use <tr1/unordered_map>, and requires the recipe to export a define accordingly.
         # The define can be set based only on a compilation test.
         tc.variables["USE_STD_MAP"] = True
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         tc.generate()
