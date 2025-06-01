@@ -115,15 +115,18 @@ class OpenVDBConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.options["boost"].with_iostreams = True
-        self.options["boost"].with_system = True
+        if Version(self.version) < "10":
+            self.options["boost"].with_iostreams = True
+            self.options["boost"].with_system = True
+        elif self.options.use_delayed_loading:
+            self.options["boost"].with_iostreams = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         # https://github.com/AcademySoftwareFoundation/openvdb/blob/v10.0.1/doc/dependencies.txt#L36-L84
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
         self.requires("onetbb/[^2021]", transitive_headers=True, transitive_libs=True)
         if self.options.use_imath_half:
             self.requires("imath/[^3.1.9]", transitive_headers=True, transitive_libs=True)
@@ -162,10 +165,17 @@ class OpenVDBConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Remove FindXXX files from OpenVDB. Let Conan do the job
+        rm(self, "Find*.cmake", "cmake", recursive=True)
+        # Relax version checks in find_package(),
+        # since the config/module files produced by CMakeDeps do not support gt major version checks
+        cmakelists = Path(self.source_folder, "openvdb", "openvdb", "CMakeLists.txt")
+        cmakelists.write_text(re.sub(r"\$\{MINIMUM_\S+_VERSION}", "", cmakelists.read_text()))
+        replace_in_file(self, cmakelists, "OPENVDB_FUTURE_DEPRECATION", "FALSE")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
+        tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.get_safe("shared", False)
         tc.variables["OPENVDB_BUILD_AX"] = self.options.build_ax
         tc.variables["OPENVDB_BUILD_BINARIES"] = False
         tc.variables["OPENVDB_BUILD_CORE"] = True
@@ -210,18 +220,7 @@ class OpenVDBConan(ConanFile):
         tc.set_property("log4cplus", "cmake_target_name", "Log4cplus::log4cplus")
         tc.generate()
 
-    def _patch_sources(self):
-        # Remove FindXXX files from OpenVDB. Let Conan do the job
-        rm(self, "Find*.cmake", os.path.join(self.source_folder, "cmake"), recursive=True)
-        # Relax version checks in find_package(),
-        # since the config/module files produced by CMakeDeps do not support gt major version checks
-        cmakelists = Path(self.source_folder, "openvdb", "openvdb", "CMakeLists.txt")
-        cmakelists.write_text(re.sub(r"\$\{MINIMUM_\S+_VERSION}", "", cmakelists.read_text()))
-        replace_in_file(self, os.path.join(self.source_folder, "openvdb", "openvdb", "CMakeLists.txt"),
-                        "OPENVDB_FUTURE_DEPRECATION", "FALSE")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -258,11 +257,11 @@ class OpenVDBConan(ConanFile):
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs = ["pthread"]
 
-        self.cpp_info.requires = [
-            "boost::iostreams",
-            "boost::system",
-            "onetbb::onetbb",
-        ]
+        self.cpp_info.requires = ["boost::headers", "onetbb::onetbb"]
+        if Version(self.version) < "10":
+            self.cpp_info.requires.extend(["boost::iostreams", "boost::system"])
+        elif self.options.use_delayed_loading:
+            self.cpp_info.requires.append("boost::iostreams")
         if self.settings.os == "Windows":
             self.cpp_info.requires.append("boost::disable_autolinking")
         if self.options.with_zlib:
