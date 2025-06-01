@@ -2,7 +2,6 @@ import os
 import textwrap
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -40,18 +39,6 @@ class mFASTConan(ConanFile):
     def _min_cppstd(self):
         return "14" if Version(self.version) >= "1.2.2" else "98"
 
-    @property
-    def _compilers_minimum_version(self):
-        if Version(self.version) >= "1.2.2":
-            return {
-                "gcc": "6",
-                "msvc": "190",
-                "clang": "3.4",
-                "apple-clang": "5.1",
-            }
-        else:
-            return {}
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -60,25 +47,13 @@ class mFASTConan(ConanFile):
 
     def requirements(self):
         # transitive_headers=True because mfast/mfast_export.h includes boost/config.hpp
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        self.requires("boost/[^1.71.0 <1.78]", transitive_headers=True)
         self.requires("tinyxml2/[^9.0.0]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.43 <4]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
-
-        def loose_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and loose_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
