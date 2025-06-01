@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
@@ -28,37 +27,16 @@ class TaoCPPPEGTLConan(ConanFile):
     }
     no_copy_source = True
 
+    def configure(self):
+        if self.options.boost_filesystem:
+            self.options["boost"].with_filesystem = True
+
     def requirements(self):
         if self.options.boost_filesystem:
             self.requires("boost/[^1.71.0]")
 
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7" if self.options.boost_filesystem else "8",
-            "clang": "6.0",
-            "apple-clang": "10",
-        }
-
     def validate(self):
-        check_min_cppstd(self, "17")
-
-        def lazy_lt_semver(v1, v2):
-            lv1 = [int(v) for v in v1.split(".")]
-            lv2 = [int(v) for v in v2.split(".")]
-            min_length = min(len(lv1), len(lv2))
-            return lv1[:min_length] < lv2[:min_length]
-
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and lazy_lt_semver(str(self.settings.compiler.version), minimum_version):
-            raise ConanInvalidConfiguration(f"{self.ref} requires C++17, which your compiler does not support.")
-
-        compiler_version = Version(self.settings.compiler.version)
-        if self.version == "3.0.0" and self.settings.compiler == "clang" and "10" <= compiler_version < "12":
-            raise ConanInvalidConfiguration(f"{self.ref} doesn't support filesystem experimental")
-
-        if self.options.boost_filesystem and (self.dependencies["boost"].options.header_only or self.dependencies["boost"].options.without_filesystem):
-            raise ConanInvalidConfiguration("{self.ref} requires non header-only boost with filesystem component")
+        check_min_cppstd(self, 17)
 
     def package_id(self):
         self.info.clear()
