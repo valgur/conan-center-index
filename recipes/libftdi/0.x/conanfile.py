@@ -56,6 +56,10 @@ class LibFtdi(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 2.6 FATAL_ERROR)",
+                        "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, "CMakeLists.txt", "CMAKE_BINARY_DIR", "PROJECT_BINARY_DIR")
         replace_in_file(self, "CMakeLists.txt", "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
         replace_in_file(self, "ftdipp/CMakeLists.txt", "CMAKE_SOURCE_DIR", "PROJECT_SOURCE_DIR")
