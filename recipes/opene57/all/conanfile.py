@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -26,27 +25,12 @@ class Opene57Conan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_tools": [True, False],
-        "with_docs":  [True, False]
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_tools": False,
-        "with_docs":  False
     }
-
-    @property
-    def _min_cppstd(self):
-        return "17"
-
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "191",
-            "gcc": "7",
-            "clang": "6",
-            "apple-clang": "10",
-        }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -59,6 +43,8 @@ class Opene57Conan(ConanFile):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         if self.options.with_tools:
+            self.options["boost"].with_filesystem = True
+            self.options["boost"].with_program_options = True
             self.options["boost"].multithreading = True
 
     def layout(self):
@@ -67,23 +53,12 @@ class Opene57Conan(ConanFile):
     def requirements(self):
         if self.options.with_tools:
             self.requires("boost/[^1.71.0]")
-
-        if self.options.with_docs:
-            self.requires("doxygen/[>=1.8 <2]")
-
         if self.settings.os != "Windows":
             self.requires("icu/[*]")
-
-        self.requires("xerces-c/[^3.2.4]")
+        self.requires("xerces-c/[~3.2.4]")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-
-        minimum_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -94,11 +69,10 @@ class Opene57Conan(ConanFile):
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["BUILD_TOOLS"] = self.options.with_tools
         tc.variables["BUILD_TESTS"] = False
-        tc.variables["BUILD_DOCS"] = self.options.with_docs
-
+        tc.variables["BUILD_DOCS"] = False
         if is_msvc(self):
             tc.variables["BUILD_WITH_MT"] = is_msvc_static_runtime(self)
-        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = self.options.shared
+        tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
