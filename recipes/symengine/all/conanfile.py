@@ -37,8 +37,7 @@ class SymengineConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        min_cppstd = "11"
-        check_min_cppstd(self, min_cppstd)
+        check_min_cppstd(self, 11)
 
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "7":
             raise ConanInvalidConfiguration(f"{self.ref} requires GCC >= 7")
@@ -79,8 +78,8 @@ class SymengineConan(ConanFile):
         tc.variables["MSVC_USE_MT"] = is_msvc_static_runtime(self)
         if self._needs_fast_float:
             tc.variables["WITH_SYSTEM_FASTFLOAT"] = True
-
         tc.generate()
+
         deps = CMakeDeps(self)
         if self.options.integer_class == "gmp":
             deps.set_property("gmp", "cmake_file_name", "GMP")
@@ -97,24 +96,18 @@ class SymengineConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        # [CMAKE-MODULES-CONFIG-FILES (KB-H016)]
-        rm(self, "*.cmake", self.package_folder, recursive=True)
-        # [DEFAULT PACKAGE LAYOUT (KB-H013)]
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "CMake"))
 
     def package_info(self):
-        self.cpp_info.libs = ["symengine"]
-        if any("teuchos" in v for v in collect_libs(self)):
-            self.cpp_info.libs.append("teuchos")
-        if self.settings.os == "Linux":
-            self.cpp_info.system_libs.append("m")
-
+        self.cpp_info.set_property("cmake_file_name", "SymEngine")
         self.cpp_info.set_property("cmake_target_name", "symengine")
+        self.cpp_info.set_property("cmake_additional_variables_prefixes", ["SYMENGINE"])
+        self.cpp_info.libs = ["symengine"]
+        if "teuchos" in collect_libs(self):
+            self.cpp_info.libs.append("teuchos")
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m"]
