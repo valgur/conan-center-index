@@ -75,6 +75,8 @@ class BoostConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        # Build all modules that are compatible with compiler.cppstd and don't have external dependencies.
+        "build_all": [True, False],
         "error_code_header_only": [True, False],
         "system_no_deprecated": [True, False],
         "asio_no_deprecated": [True, False],
@@ -107,11 +109,12 @@ class BoostConan(ConanFile):
         "python_buildid": [None, "ANY"],
         "system_use_utf8": [True, False],
     }
-    options.update({f"with_{_name}": [True, False] for _name in MODULES})
+    options.update({f"with_{_name}": [None, True, False] for _name in MODULES})
 
     default_options = {
         "shared": False,
         "fPIC": True,
+        "build_all": False,
         "error_code_header_only": False,
         "system_no_deprecated": False,
         "asio_no_deprecated": False,
@@ -144,8 +147,8 @@ class BoostConan(ConanFile):
         "python_buildid": None,
         "system_use_utf8": False,
     }
-    default_options.update({f"with_{_name}": False for _name in MODULES})
-    # default_options.update({f"with_{_name}": False for _name in ("graph_parallel", "mpi", "python")})
+    # Binary modules default to False, unless build_all is set. Handled in configure().
+    default_options.update({f"with_{_name}": None for _name in MODULES})
 
     no_copy_source = True
 
@@ -319,7 +322,7 @@ class BoostConan(ConanFile):
 
     @cached_property
     def _header_only(self):
-        return not any(self.options.get_safe(f"with_{lib}") for lib in self._available_modules)
+        return not any(self.options.get_safe(f"with_{lib}") == True for lib in self._available_modules)
 
     @property
     def _stacktrace_addr2line_available(self):
@@ -362,6 +365,61 @@ class BoostConan(ConanFile):
         verbosity = self.conf.get("tools.build:verbosity", default="quiet")
         if verbosity == "verbose" and int(self.options.debug_level) < 2:
             self.options.debug_level.value = 2
+
+        if self.options.build_all:
+            for mod_name in self._available_modules:
+                if self.options.get_safe(f"with_{mod_name}") is None:
+                    getattr(self.options, f"with_{mod_name}").value = mod_name not in {"graph_parallel", "mpi", "python"}
+        else:
+            for mod_name in self._available_modules:
+                if self.options.get_safe(f"with_{mod_name}") is None:
+                    getattr(self.options, f"with_{mod_name}").value = False
+
+        def disable_component(name):
+            super_modules = self._all_super_modules(name)
+            for smod in super_modules:
+                getattr(self.options, f"with_{smod}").value = False
+
+        # nowide requires a c++11-able compiler + movable std::fstream: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
+        # json requires a c++11-able compiler: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
+        if not valid_min_cppstd(self, 11):
+            disable_component("fiber")
+            disable_component("nowide")
+            disable_component("json")
+            disable_component("url")
+            disable_component("math")
+
+        if Version(self.version) >= "1.79.0":
+            if not valid_min_cppstd(self, 11):
+                disable_component("wave")
+
+        if Version(self.version) >= "1.81.0":
+            if not valid_min_cppstd(self, 11):
+                disable_component("locale")
+
+        if Version(self.version) >= "1.84.0":
+            if not self._has_coroutine_supported:
+                disable_component("cobalt")
+            # FIXME: Compilation errors on msvc shared build for boost.fiber https://github.com/boostorg/fiber/issues/314
+            if is_msvc(self):
+                disable_component("fiber")
+
+        if Version(self.version) >= "1.85.0":
+            if not valid_min_cppstd(self, 14):
+                disable_component("math")
+
+        if Version(self.version) >= "1.86.0":
+            if not valid_min_cppstd(self, 14):
+                disable_component("graph")
+            # TODO: Revisit on Boost 1.87.0
+            # It's not possible to disable process only when having shared parsed already.
+            # https://github.com/boostorg/process/issues/408
+            # https://github.com/boostorg/process/pull/409
+            if Version(self.version) == "1.86.0" and is_msvc(self):
+                disable_component("process")
+            if self.settings.os == "iOS":
+                # the process library doesn't build (and doesn't even make sense) on iOS
+                self.options.with_process = False
 
         if not self._header_only:
             # Enable all internal transitive dependencies of modules
