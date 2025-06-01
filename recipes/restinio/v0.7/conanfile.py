@@ -41,7 +41,7 @@ class RestinioConan(ConanFile):
         if self.options.asio == "standalone":
             self.requires("asio/[^1.28.0]")
         else:
-            self.requires("boost/[^1.71.0]")
+            self.requires("boost/[^1.71.0 <1.88]")
 
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
