@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMakeDeps, CMake, cmake_layout
 from conan.tools.files import *
@@ -31,7 +30,7 @@ class NanodbcConan(ConanFile):
         "fPIC": True,
         "async": True,
         "unicode": False,
-        "with_boost": False,
+        "with_boost": True,
     }
     implements = ["auto_shared_fpic"]
 
@@ -40,19 +39,6 @@ class NanodbcConan(ConanFile):
 
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "5",
-            "clang": "3.4",
-            "msvc": "190",
-            "apple-clang": "9.1",  # FIXME: this is a guess
-        }
 
     def requirements(self):
         if self.options.with_boost:
@@ -63,23 +49,16 @@ class NanodbcConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 14)
 
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.",
-            )
-
-        if self.settings.compiler == "apple-clang" and Version(self.version) < "2.14.0":
-            raise ConanInvalidConfiguration("""
-                `apple-clang` compilation is supported only for version 2.14.0 and up.
-                See https://github.com/nanodbc/nanodbc/issues/274 for more details.
-                """)
-
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
         # No warnings as errors
         replace_in_file(self, "CMakeLists.txt", "-Werror", "")
+        # CMake v4 support
+        if Version(self.version) <= "2.14":
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 3.0.0)",
+                            "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
