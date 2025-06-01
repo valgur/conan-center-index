@@ -15,7 +15,7 @@ class QuantlibConan(ConanFile):
     name = "quantlib"
     description = "QuantLib is a free/open-source library for modeling, trading, and risk management in real-life."
     license = "BSD-3-Clause"
-    topics = ("quantitative-finance")
+    topics = ("quantitative-finance",)
     homepage = "https://www.quantlib.org"
     url = "https://github.com/conan-io/conan-center-index"
 
@@ -37,7 +37,8 @@ class QuantlibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        # 1.88 is not compatible
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True)
 
     def validate(self):
         if self.info.settings.compiler.get_safe("cppstd"):
