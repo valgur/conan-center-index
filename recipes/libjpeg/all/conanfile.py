@@ -159,10 +159,10 @@ class LibjpegConan(ConanFile):
             copy(self, fn, src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
 
         for fn in ("jinclude.h", "transupp.c",):
-            copy(self, fn, src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
+            copy(self, fn, src=self.source_folder, dst=os.path.join(self.package_folder, "share"))
 
         # Remove export decorations of transupp symbols
-        for relpath in os.path.join("include", "transupp.h"), os.path.join("res", "transupp.c"):
+        for relpath in os.path.join("include", "transupp.h"), os.path.join("share", "transupp.c"):
             path = os.path.join(self.package_folder, relpath)
             save(self, path, re.subn(r"(?:EXTERN|GLOBAL)\(([^)]+)\)", r"\1", load(self, path))[0])
 
@@ -173,6 +173,6 @@ class LibjpegConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "libjpeg")
         prefix = "lib" if self._is_cl_like else ""
         self.cpp_info.libs = [f"{prefix}jpeg"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if not self.options.shared:
             self.cpp_info.defines.append("LIBJPEG_STATIC")
