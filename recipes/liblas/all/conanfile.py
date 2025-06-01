@@ -39,8 +39,7 @@ class LibLASConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # boost/[^1.42]
-        self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True)
+        self.requires("boost/[^1.42]", transitive_headers=True, transitive_libs=True)
         if self.options.with_gdal:
             self.requires("gdal/[^3]")
         if self.options.with_geotiff:
@@ -117,12 +116,7 @@ class LibLASConan(ConanFile):
         self.cpp_info.components["las"].libs = ["las"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["las"].system_libs.extend(["m", "pthread"])
-        self.cpp_info.components["las"].requires = [
-            "boost::iostreams",
-            "boost::program_options",
-            "boost::serialization",
-            "boost::thread",
-        ]
+        self.cpp_info.components["las"].requires = ["boost::headers"]
         if self.options.with_gdal:
             self.cpp_info.components["las"].requires.append("gdal::gdal")
         if self.options.with_geotiff:
