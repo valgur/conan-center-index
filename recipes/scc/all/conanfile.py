@@ -41,6 +41,9 @@ class SystemcComponentsConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
+    def configure(self):
+        self.options["boost"].with_date_time = True
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
