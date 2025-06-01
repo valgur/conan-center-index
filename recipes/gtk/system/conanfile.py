@@ -37,9 +37,9 @@ class ConanGTK(ConanFile):
 
         apt = package_manager.Apt(self)
         if self.options.version == 2:
-            apt.install("libgtk2.0-dev", update=True, check=True)
+            apt.install(["libgtk2.0-dev"], update=True, check=True)
         else:
-            apt.install(f"libgtk-{self.options.version}-dev", update=True, check=True)
+            apt.install([f"libgtk-{self.options.version}-dev"], update=True, check=True)
 
         pacman = package_manager.PacMan(self)
         pacman.install([f"gtk{self.options.version}"], update=True, check=True)
