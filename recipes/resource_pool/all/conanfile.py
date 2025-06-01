@@ -50,16 +50,12 @@ class ResourcePool(ConanFile):
              src=os.path.join(self.source_folder, "include", "yamail"))
 
     def package_info(self):
-        self.cpp_info.bindirs = []
-        self.cpp_info.libdirs = []
-
-        main_comp = self.cpp_info.components["_resource_pool"]
-        main_comp.requires = ["boost::coroutine", "boost::system", "boost::thread"]
-        main_comp.defines = ["BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT"]
-
-        if self.settings.os == "Windows":
-            main_comp.system_libs.append("ws2_32")
-
         # Set up for compatibility with existing cmake configuration:
         # https://github.com/elsid/resource_pool/blob/3ea1f95/examples/CMakeLists.txt#L6C34-L6C54
         self.cpp_info.set_property("cmake_target_name", "elsid::resource_pool")
+        self.cpp_info.bindirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.requires = ["boost::coroutine", "boost::system", "boost::thread"]
+        self.cpp_info.defines = ["BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT"]
+        if self.settings.os == "Windows":
+            self.cpp_info.system_libs.append("ws2_32")
