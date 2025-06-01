@@ -1,11 +1,9 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -22,33 +20,23 @@ class ResourcePool(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     no_copy_source = True
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "7",
-            "clang": "5",
-            "apple-clang": "10",
-        }
+    def configure(self):
+        self.options["boost"].with_coroutine = True
+        self.options["boost"].with_system = True
+        self.options["boost"].with_thread = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         # Only compatible with Boost up to v1.79
-        self.requires("boost/[^1.71.0]")
+        self.requires("boost/[^1.71.0 <1.80]")
 
     def package_id(self):
         self.info.clear()
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration("resource_pool requires a compiler that supports at least C++17")
+        check_min_cppstd(self, 17)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -66,7 +54,7 @@ class ResourcePool(ConanFile):
         self.cpp_info.libdirs = []
 
         main_comp = self.cpp_info.components["_resource_pool"]
-        main_comp.requires = ["boost::boost", "boost::system", "boost::thread"]
+        main_comp.requires = ["boost::coroutine", "boost::system", "boost::thread"]
         main_comp.defines = ["BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT"]
 
         if self.settings.os == "Windows":
