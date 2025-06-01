@@ -56,6 +56,13 @@ class OsrmConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.options["boost"].with_chrono = True
+        self.options["boost"].with_date_time = True
+        self.options["boost"].with_iostreams = True
+        self.options["boost"].with_filesystem = True
+        self.options["boost"].with_program_options = True
+        self.options["boost"].with_regex = True
+        self.options["boost"].with_thread = True
         self.options["osmium"].pbf = True
         self.options["osmium"].xml = True
         self.options["osmium"].geos = False
@@ -141,8 +148,7 @@ class OsrmConan(ConanFile):
 
         if self.dependencies["boost"].ref.version >= "1.85":
             # The header has been removed from Boost
-            replace_in_file(self, os.path.join(self.source_folder, "include", "util", "lua_util.hpp"),
-                            "#include <boost/filesystem/convenience.hpp>", "")
+            replace_in_file(self, "include/util/lua_util.hpp", "#include <boost/filesystem/convenience.hpp>", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -174,8 +180,6 @@ class OsrmConan(ConanFile):
         copy(self, "LICENSE.TXT", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rename(self, os.path.join(self.package_folder, "share"),
-               os.path.join(self.package_folder, "res"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
@@ -186,7 +190,7 @@ class OsrmConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "libosrm")
 
         self.cpp_info.includedirs.append(os.path.join("include", "osrm"))
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         self.cpp_info.libs = [
             "osrm",
             "osrm_contract",
