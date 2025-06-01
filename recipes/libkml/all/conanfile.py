@@ -49,7 +49,7 @@ class LibkmlConan(ConanFile):
 
     def package_id(self):
         cppstd = self.info.settings.compiler.cppstd
-        if cppstd not in ['98', 'gnu98', '11', 'gnu11', '14', 'gnu14']:
+        if cppstd not in ["98", "gnu98", "11", "gnu11", "14", "gnu14"]:
             prefix = "gnu" if str(cppstd).startswith("gnu") else ""
             self.info.settings.compiler.cppstd = f"{prefix}14"
 
