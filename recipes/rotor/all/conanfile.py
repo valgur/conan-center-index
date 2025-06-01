@@ -48,6 +48,9 @@ class RotorConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.options["boost"].with_date_time = True
+        self.options["boost"].with_regex = True
+        self.options["boost"].with_system = True
 
     def requirements(self):
         self.requires("boost/[^1.71.0]", transitive_headers=True)
