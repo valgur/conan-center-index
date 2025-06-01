@@ -18,6 +18,7 @@ class Stlab(ConanFile):
     license = "BSL-1.0"
     topics = "concurrency", "futures", "channels"
     settings = "os", "arch", "compiler", "build_type"
+    package_type = "header-library"
     options = {
         "with_boost": [True, False],
         "no_std_coroutines": [True, False],
@@ -26,34 +27,24 @@ class Stlab(ConanFile):
         "thread_system": ["win32", "pthread", "pthread-emscripten", "pthread-apple", "none"],
     }
     default_options = {
-        "with_boost": False,
+        "with_boost": True,
         "no_std_coroutines": True,
         "future_coroutines": False
         # Handle default value for `thread_system` in `config_options` method
         # Handle default value for `task_system` in `config_options` method
     }
-    package_type = "header-library"
 
     def config_options(self):
-        self.options.thread_system = {"Macos": "pthread-apple",
-                                      "Linux": "pthread",
-                                      "Windows": "win32",
-                                      "Emscripten": "pthread-emscripten",}.get(str(self.settings.os), "none")
-        self.options.task_system = {"Macos": "libdispatch",
-                                    "Windows": "windows"}.get(str(self.settings.os), "portable")
-
-    @property
-    def _minimum_cpp_standard(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "clang": "8",
-            "apple-clang": "13",
-            "msvc": "192",
-        }
+        self.options.thread_system = {
+            "Macos": "pthread-apple",
+            "Linux": "pthread",
+            "Windows": "win32",
+            "Emscripten": "pthread-emscripten",
+        }.get(str(self.settings.os), "none")
+        self.options.task_system = {
+            "Macos": "libdispatch",
+            "Windows": "windows",
+        }.get(str(self.settings.os), "portable")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -98,21 +89,8 @@ class Stlab(ConanFile):
                 f"Compiler Apple-Clang < 12 versions do not correctly support std::optional or std::variant, "
                 f"so we will use boost::optional and boost::variant instead. Try -o {self.ref}:with_boost=True.")
 
-    def _validate_min_compiler_version(self):
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(str(self.settings.compiler.version)) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
-            )
-        if self.settings.compiler == "clang" and str(self.settings.compiler.version) in ("13", "14"):
-            raise ConanInvalidConfiguration(
-                f"{self.ref} currently does not work with Clang {self.settings.compiler.version} on CCI, it enters "
-                f"in an infinite build loop (smells like a compiler bug). Contributions are welcomed!")
-
     def validate(self):
-        check_min_cppstd(self, self._minimum_cpp_standard)
-
-        self._validate_min_compiler_version()
+        check_min_cppstd(self, 17)
         self._validate_task_system()
         self._validate_thread_system()
         self._validate_boost_components()
