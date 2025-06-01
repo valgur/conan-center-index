@@ -38,6 +38,11 @@ class CoinLemonConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 2.8)",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5)")
+        replace_in_file(self, "CMakeLists.txt", "CMAKE_POLICY(SET CMP0048 OLD)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -47,11 +52,6 @@ class CoinLemonConan(ConanFile):
         tc.variables["LEMON_ENABLE_SOPLEX"] = False
         # For msvc shared
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
-        # To install relocatable shared libs on Macos
-        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "1.3.1":
-            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
 
     def _patch_sources(self):
