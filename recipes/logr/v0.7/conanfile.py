@@ -37,7 +37,7 @@ class LogrConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("fmt/[>=10]")
+        self.requires("fmt/[>=10 <11]")
         if self.options.with_spdlog:
             self.requires("spdlog/[^1.12]")
         if self.options.with_glog:
