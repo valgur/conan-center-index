@@ -7,9 +7,9 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
-from conan.tools.system import package_manager
 
 required_conan_version = ">=2.1"
+
 
 class PclConan(ConanFile):
     name = "pcl"
@@ -117,7 +117,6 @@ class PclConan(ConanFile):
         "stereo": True,
         "surface": True,
         "tracking": True,
-        # Visualization is currently disabled by default due to missing VTK package
         "visualization": False,
         # GPU components are disabled by default
         "cuda_common": False,
@@ -230,7 +229,7 @@ class PclConan(ConanFile):
             "qvtk": [],
             "rssdk": [],
             "rssdk2": [],
-            "vtk": [],
+            "vtk": ["vtk::vtk"],
             "zlib": ["zlib::zlib"],
         }[dep]
 
@@ -336,20 +335,6 @@ class PclConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def system_requirements(self):
-        if self._is_enabled("vtk"):
-            # TODO: add vtk/system package?
-            # https://repology.org/project/vtk/versions
-            package_manager.Apt(self).install(["libvtk9-dev"], update=True, check=True)
-            package_manager.Dnf(self).install(["vtk-devel"], update=True, check=True)
-            package_manager.Yum(self).install(["vtk-devel"], update=True, check=True)
-            package_manager.PacMan(self).install(["vtk"], update=True, check=True)
-            package_manager.Zypper(self).install(["vtk"], update=True, check=True)
-            package_manager.Pkg(self).install(["vtk9"], update=True, check=True)
-            package_manager.Brew(self).install(["vtk"], update=True, check=True)
-            if self.settings.os == "Windows":
-                self.output.warning("VTK must be installed manually on Windows.")
-
     def _is_enabled(self, dep):
         always_available = ["boost", "eigen", "zlib"]
         is_available = self.options.get_safe(f"with_{dep}") or dep in always_available
@@ -383,8 +368,9 @@ class PclConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
         if self._is_enabled("openmp"):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
+        if self.options.with_vtk:
+            self.requires("vtk/[^9]", transitive_headers=True)
         # TODO:
-        # self.requires("vtk/9.x.x", transitive_headers=True)
         # self.requires("openni/x.x.x", transitive_headers=True)
         # self.requires("openni2/x.x.x", transitive_headers=True)
         # self.requires("ensenso/x.x.x", transitive_headers=True)
