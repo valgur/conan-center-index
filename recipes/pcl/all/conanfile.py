@@ -207,7 +207,7 @@ class PclConan(ConanFile):
         if not self._is_enabled(dep):
             return []
         return {
-            "boost": ["boost::boost"],
+            "boost": ["boost::headers", "boost::filesystem", "boost::iostreams"],
             "cuda": [],
             "davidsdk": [],
             "dssdk": [],
@@ -331,6 +331,8 @@ class PclConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        self.options["boost"].with_filesystem = True
+        self.options["boost"].with_iostreams = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -342,7 +344,8 @@ class PclConan(ConanFile):
         return is_available and is_used
 
     def requirements(self):
-        self.requires("boost/[^1.71.0]", transitive_headers=True)
+        # asio on 1.88 is not compatible
+        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if self._is_enabled("flann"):
             self.requires("flann/1.9.2", transitive_headers=True)
