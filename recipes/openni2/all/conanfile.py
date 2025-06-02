@@ -66,11 +66,8 @@ class Openni2Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        rmdir(self, os.path.join(self.source_folder, "ThirdParty", "LibJPEG"))
-        replace_in_file(self, os.path.join(self.source_folder, "Source", "Drivers", "PS1080", "Sensor", "Bayer.cpp"), "register ", "")
-        if is_apple_os(self):
-            for makefile in Path(self.source_folder, "Source", "Drivers").rglob("Makefile"):
-                replace_in_file(self, makefile, "usb-1.0.0", "usb-1.0", strict=False)
+        rmdir(self, "ThirdParty/LibJPEG")
+        replace_in_file(self, "Source/Drivers/PS1080/Sensor/Bayer.cpp", "register ", "")
 
     @property
     def _build_type(self):
@@ -116,7 +113,13 @@ class Openni2Conan(ConanFile):
         deps = AutotoolsDeps(self)
         deps.generate()
 
+    def _patch_sources(self):
+        if is_apple_os(self):
+            for makefile in Path(self.source_folder, "Source", "Drivers").rglob("Makefile"):
+                replace_in_file(self, makefile, "usb-1.0.0", "usb-1.0", strict=False)
+
     def build(self):
+        self._patch_sources()
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.make()
