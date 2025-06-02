@@ -28,30 +28,28 @@ class MeshOptimizerConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
-
-    def generate(self):
-        tc = CMakeToolchain(self)
-        tc.variables["MESHOPT_BUILD_SHARED_LIBS"] = self.options.shared
-        tc.generate()
-
-    def _patch_sources(self):
+        # CMake v4 support
+        if Version(self.version) < "0.20":
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 3.0)",
+                            "cmake_minimum_required(VERSION 3.5)")
         # No warnings as errors - now fine in 0.19 and up
         if Version(self.version) < "0.19":
             cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
             replace_in_file(self, cmakelists, "add_compile_options(/W4 /WX)", "")
             replace_in_file(self, cmakelists, "-Werror", "")
 
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["MESHOPT_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.generate()
+
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
