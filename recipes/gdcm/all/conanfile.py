@@ -54,8 +54,7 @@ class GDCMConan(ConanFile):
             self.requires("zlib/[>=1.2.11 <2]")
         if self.settings.os != "Windows":
             self.requires("util-linux-libuuid/2.41")
-            if Version(self.version) >= Version("3.0.20"):
-                self.requires("libiconv/[^1.17]")
+            self.requires("libiconv/[^1.17]")
         if self.options.with_json:
             self.requires("json-c/[^0.17]")
         if self.options.with_openssl:
@@ -207,8 +206,7 @@ class GDCMConan(ConanFile):
             self.cpp_info.components["gdcmMSFF"].requires.append("json-c::json-c")
         if self.settings.os != "Windows":
             self.cpp_info.components["gdcmMSFF"].requires.append("util-linux-libuuid::util-linux-libuuid")
-            if Version(self.version) >= Version("3.0.20"):
-                self.cpp_info.components["gdcmMSFF"].requires.append("libiconv::libiconv")
+            self.cpp_info.components["gdcmMSFF"].requires.append("libiconv::libiconv")
         if not self.options.shared:
             self.cpp_info.components["gdcmDICT"].requires.extend(["gdcmDSED", "gdcmIOD"])
             self.cpp_info.components["gdcmMEXD"].requires.extend(["gdcmMSFF", "gdcmDICT", "gdcmDSED", "gdcmIOD", "socketxx"])

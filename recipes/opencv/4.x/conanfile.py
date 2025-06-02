@@ -1144,7 +1144,7 @@ class OpenCVConan(ConanFile):
         if self.options.get_safe("with_gdal"):
             self.requires("gdal/[^3.10.0]")
         if self.options.get_safe("with_gdcm"):
-            self.requires("gdcm/3.0.23")
+            self.requires("gdcm/[^3.0.23]")
         # objdetect module dependencies
         if self.options.get_safe("with_quirc"):
             self.requires("quirc/1.2")
