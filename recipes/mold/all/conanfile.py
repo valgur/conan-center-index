@@ -30,6 +30,9 @@ class MoldConan(ConanFile):
         "with_mimalloc": False,
     }
 
+    def export_sources(self):
+        copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+
     def configure(self):
         if Version(self.version) < "2.0.0":
             self.license = "AGPL-3.0"
