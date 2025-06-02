@@ -6,7 +6,6 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.scm import Version
 
@@ -79,6 +78,10 @@ class ITKConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "Modules/ThirdParty/KWSys/src/KWSys/CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1 FATAL_ERROR)",
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -221,9 +224,6 @@ class ITKConan(ConanFile):
         deps = CMakeDeps(self)
         deps.set_property("fftw", "cmake_file_name", "FFTW")
         deps.generate()
-
-        venv = VirtualBuildEnv(self)
-        venv.generate()
 
     def _patch_sources(self):
         #The CMake policy CMP0091 must be NEW, but is ''
