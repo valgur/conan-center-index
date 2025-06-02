@@ -5,7 +5,6 @@ from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import msvc_runtime_flag
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -28,6 +27,7 @@ class FltkConan(ConanFile):
         "with_gdiplus": [True, False],
         "abi_version": ["ANY"],
         "with_xft": [True, False],
+        "with_wayland": [True, False],
     }
     default_options = {
         "shared": False,
@@ -36,6 +36,7 @@ class FltkConan(ConanFile):
         "with_threads": True,
         "with_gdiplus": True,
         "with_xft": False,
+        "with_wayland": False,
     }
 
     @property
@@ -54,6 +55,10 @@ class FltkConan(ConanFile):
             del self.options.fPIC
         else:
             self.options.rm_safe("with_gdiplus")
+
+        if self.settings.os not in ["Linux", "FreeBSD"]:
+            del self.options.with_xft
+            del self.options.with_wayland
 
         if self.options.abi_version == None:
             _version_token = self.version.split(".")
@@ -87,61 +92,56 @@ class FltkConan(ConanFile):
             self.requires("xorg/system")
             if self.options.with_xft:
                 self.requires("libxft/2.3.8")
-            if Version(self.version) >= "1.4.0":
-                self.requires("gtk/[^3]")
+            if self.options.with_wayland:
                 self.requires("wayland/[^1.22.0]")
                 self.requires("xkbcommon/1.6.0")
+                self.requires("libdecor/[>=0.2.2 <1]")
                 self.requires("dbus/[^1.15]")
+
+    def build_requirements(self):
+        if self.options.get_safe("with_wayland"):
+            self.tool_requires("wayland/<host_version>")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            # Fix relocated X11 and OpenGL not being linked against correctly
-            replace_in_file(self, os.path.join(self.source_folder, "CMake", "options.cmake"),
-                            "include (FindX11)" if Version(self.version) < "1.4.0" else "include(FindX11)",
-                            "find_package(X11 REQUIRED)\n"
-                            "link_libraries(X11::X11 X11::Xext)\n" +
-                            ("find_package(OpenGL REQUIRED)\n"
-                             "link_libraries(OpenGL::GLX)\n" if self.options.with_gl else ""))
-
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["FLTK_BUILD_TEST"] = False
         tc.variables["FLTK_BUILD_EXAMPLES"] = False
-        if Version(self.version) < "1.4.0":
-            tc.variables["OPTION_BUILD_SHARED_LIBS"] = self.options.shared
-            tc.variables["OPTION_USE_GL"] = self.options.with_gl
-            tc.variables["OPTION_USE_THREADS"] = self.options.with_threads
-            tc.variables["OPTION_BUILD_HTML_DOCUMENTATION"] = False
-            tc.variables["OPTION_BUILD_PDF_DOCUMENTATION"] = False
-            tc.variables["OPTION_USE_XFT"] = self.options.with_xft
-            if self.options.abi_version:
-                tc.variables["OPTION_ABI_VERSION"] = self.options.abi_version
-            tc.variables["OPTION_USE_SYSTEM_LIBJPEG"] = True
-            tc.variables["OPTION_USE_SYSTEM_ZLIB"] = True
-            tc.variables["OPTION_USE_SYSTEM_LIBPNG"] = True
-        else:
-            tc.variables["FLTK_BUILD_SHARED_LIBS"] = self.options.shared
-            tc.variables["FLTK_BUILD_GL"] = self.options.with_gl
-            tc.variables["FLTK_USE_PTHREADS"] = self.options.with_threads
-            tc.variables["FLTK_BUILD_HTML_DOCS"] = False
-            tc.variables["FLTK_BUILD_PDF_DOCS"] = False
-            tc.variables["FLTK_USE_XFT"] = self.options.with_xft
-            if self.options.abi_version:
-                tc.variables["FLTK_ABI_VERSION"] = self.options.abi_version
-            tc.variables["FLTK_USE_SYSTEM_LIBJPEG"] = True
-            tc.variables["FLTK_USE_SYSTEM_ZLIB"] = True
-            tc.variables["FLTK_USE_SYSTEM_LIBPNG"] = True
-            tc.variables["FLTK_BUILD_FLUID"] = False
-        if Version(self.version) >= "1.3.9" and self._is_cl_like:
+        tc.variables["FLTK_BUILD_SHARED_LIBS"] = self.options.shared
+        tc.variables["FLTK_BUILD_GL"] = self.options.with_gl
+        tc.variables["FLTK_USE_PTHREADS"] = self.options.with_threads
+        tc.variables["FLTK_BUILD_HTML_DOCS"] = False
+        tc.variables["FLTK_BUILD_PDF_DOCS"] = False
+        tc.variables["FLTK_USE_XFT"] = self.options.get_safe("with_xft", False)
+        tc.variables["FLTK_USE_WAYLAND"] = self.options.get_safe("with_wayland", False)
+        tc.variables["FLTK_USE_SYSTEM_LIBDECOR"] = True
+        if self.options.abi_version:
+            tc.variables["FLTK_ABI_VERSION"] = self.options.abi_version
+        tc.variables["FLTK_USE_SYSTEM_LIBJPEG"] = True
+        tc.variables["FLTK_USE_SYSTEM_ZLIB"] = True
+        tc.variables["FLTK_USE_SYSTEM_LIBPNG"] = True
+        tc.variables["FLTK_BUILD_FLUID"] = False
+        if self._is_cl_like:
             tc.variables["FLTK_MSVC_RUNTIME_DLL"] = not self._is_cl_like_static_runtime
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
 
+    def _patch_sources(self):
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            # Fix relocated X11 and OpenGL not being linked against correctly
+            replace_in_file(self, os.path.join(self.source_folder, "CMake", "options.cmake"),
+                            "include(FindX11)",
+                            "find_package(X11 REQUIRED)\n"
+                            "link_libraries(X11::X11 X11::Xext)\n" +
+                            ("find_package(OpenGL REQUIRED)\n"
+                             "link_libraries(OpenGL::GLX)\n" if self.options.with_gl else ""))
+
     def build(self):
+        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -178,8 +178,7 @@ class FltkConan(ConanFile):
                 self.cpp_info.system_libs.append("gdiplus")
             if self.options.with_gl:
                 self.cpp_info.system_libs.append("opengl32")
-            if Version(self.version) >= "1.4.0":
-                self.cpp_info.system_libs.append("ws2_32")
+            self.cpp_info.system_libs.append("ws2_32")
 
         self.cpp_info.requires = [
             "zlib::zlib",
@@ -202,3 +201,10 @@ class FltkConan(ConanFile):
                 self.cpp_info.requires.append("libxft::libxft")
             if self.options.with_gl:
                 self.cpp_info.requires.extend(["opengl::opengl", "glu::glu"])
+            if self.options.with_wayland:
+                self.cpp_info.requires.extend([
+                    "wayland::wayland",
+                    "xkbcommon::xkbcommon",
+                    "libdecor::libdecor",
+                    "dbus::dbus",
+                ])
