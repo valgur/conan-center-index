@@ -186,6 +186,8 @@ class GDCMConan(ConanFile):
 
         for lib in self._gdcm_libraries:
             self.cpp_info.components[lib].set_property("cmake_target_name", lib)
+            # Add a namespaced alias for ITK
+            self.cpp_info.components[lib].set_property("cmake_target_aliases", [f"GDCM::{lib}"])
             self.cpp_info.components[lib].libs = [lib]
             self.cpp_info.components[lib].includedirs = [os.path.join("include", self._gdcm_subdir)]
             self.cpp_info.components[lib].builddirs.append(self._gdcm_builddir)
