@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 
@@ -64,12 +65,18 @@ class CppRestSDKConan(ConanFile):
         return modules
 
     def requirements(self):
-        self.requires("boost/[^1.74.0 <1.88]", options={f"with_{module}": True for module in self._boost_modules})
+        self.requires("boost/[^1.74.0 <1.87]", options={f"with_{module}": True for module in self._boost_modules})
         self.requires("openssl/[>=1.1 <4]")
         if self.options.with_compression:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_websockets:
             self.requires("websocketpp/0.8.2", options={"asio": "boost"})
+
+    def validate(self):
+        boost_opts = self.dependencies["boost"].options
+        boost_missing = [mod for mod in self._boost_modules if not boost_opts.get_safe(f"with_{mod}")]
+        if boost_missing:
+            raise ConanInvalidConfiguration(f"Missing required Boost modules: {', '.join(boost_missing)}.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
