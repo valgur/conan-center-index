@@ -36,7 +36,7 @@ class ImageMagicConan(ConanFile):
         "with_openexr": [True, False],
         "with_heic": [True, False],
         "with_jbig": [True, False],
-        "with_jpeg": [None, "libjpeg", "libjpeg-turbo"],
+        "with_jpeg": [True, False],
         "with_openjp2": [True, False],
         "with_pango": [True, False],
         "with_png": [True, False],
@@ -59,7 +59,7 @@ class ImageMagicConan(ConanFile):
         "with_openexr": True,
         "with_heic": True,
         "with_jbig": True,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_openjp2": True,
         "with_pango": True,
         "with_png": True,
@@ -94,10 +94,8 @@ class ImageMagicConan(ConanFile):
             self.requires("libheif/[^1.18.2]")
         if self.options.with_jbig:
             self.requires("jbig/20160605")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_openjp2:
             self.requires("openjpeg/[^2.5.2]")
         if self.options.with_pango:

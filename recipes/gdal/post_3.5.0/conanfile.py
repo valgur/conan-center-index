@@ -47,7 +47,7 @@ class GdalConan(ConanFile):
         "with_hdf4": [True, False],
         "with_hdf5": [True, False],
         "with_heif": [True, False],
-        "with_jpeg": [False, "libjpeg", "libjpeg-turbo"],
+        "with_jpeg": [True, False],
         "with_jxl": [True, False],
         "with_kea": [True, False],
         "with_lerc": [True, False],
@@ -111,7 +111,7 @@ class GdalConan(ConanFile):
         "with_hdf4": False,
         "with_hdf5": False,
         "with_heif": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_jxl": False,
         "with_kea": False,
         "with_lerc": True,
@@ -228,10 +228,8 @@ class GdalConan(ConanFile):
             self.requires("hdf5/[^1.8]")
         if self.options.with_heif:
             self.requires("libheif/[^1.16.2]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.1]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_jxl:
             # 0.9+ is not compatible as of v3.8.4
             self.requires("libjxl/0.8.2")
@@ -327,20 +325,6 @@ class GdalConan(ConanFile):
 
         if self.options.with_sqlite3 and not self.dependencies["sqlite3"].options.enable_column_metadata:
             raise ConanInvalidConfiguration("gdql requires sqlite3:enable_column_metadata=True")
-
-        if self.dependencies["libtiff"].options.jpeg != self.options.with_jpeg:
-            msg = "libtiff:jpeg and gdal:with_jpeg must be set to the same value, either libjpeg or libjpeg-turbo."
-            # For some reason, the ConanInvalidConfiguration message is not shown, only
-            #     ERROR: At least two recipes provides the same functionality:
-            #      - 'libjpeg' provided by 'libjpeg-turbo/2.1.2', 'libjpeg/9d'
-            # So we print the error message manually.
-            self.output.error(msg)
-            raise ConanInvalidConfiguration(msg)
-
-        if self.options.with_poppler and self.dependencies["poppler"].options.with_libjpeg != self.options.with_jpeg:
-            msg = "poppler:with_libjpeg and gdal:with_jpeg must be set to the same value, either libjpeg or libjpeg-turbo."
-            self.output.error(msg)
-            raise ConanInvalidConfiguration(msg)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -466,8 +450,8 @@ class GdalConan(ConanFile):
         tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
         # https://github.com/OSGeo/gdal/blob/v3.8.0/cmake/helpers/CheckDependentLibraries.cmake#L419-L450
         tc.cache_variables["HAVE_JPEGTURBO_DUAL_MODE_8_12"] = (
-                self.options.with_jpeg == "libjpeg-turbo" and
-                bool(self.dependencies["libjpeg-turbo"].options.get_safe("enable12bit"))
+                self.options.with_jpeg and
+                bool(self.dependencies[self.dependencies["libjpeg-meta"].options.provider].options.get_safe("enable12bit"))
         )
         # https://github.com/OSGeo/gdal/blob/v3.8.0/port/CMakeLists.txt
         tc.cache_variables["BLOSC_HAS_BLOSC_CBUFFER_VALIDATE"] = (
@@ -529,8 +513,7 @@ class GdalConan(ConanFile):
             "libgta": "GTA",
             "libheif": "HEIF",
             "libiconv": "Iconv",
-            "libjpeg": "JPEG",
-            "libjpeg-turbo": "JPEG",
+            "libjpeg-meta": "JPEG",
             "libjxl": "JXL",
             "libkml": "LibKML",
             "libmysqlclient": "MySQL",
@@ -610,8 +593,7 @@ class GdalConan(ConanFile):
             "libheif":                    "HEIF::HEIF",
             "libjxl::jxl":                "JXL::JXL",
             "libjxl::jxl_threads":        "JXL_THREADS::JXL_THREADS",
-            "libjpeg":                    "JPEG::JPEG",
-            "libjpeg-turbo::jpeg":        "JPEG::JPEG",
+            "libjpeg-meta":                "JPEG::JPEG",
             "libkml::kmldom":             "LIBKML::DOM",
             "libkml::kmlengine":          "LIBKML::ENGINE",
             "libkml":                     "LIBKML::LibKML",
@@ -756,10 +738,8 @@ class GdalConan(ConanFile):
             self.cpp_info.requires.extend(["libdeflate::libdeflate"])
         if self.options.with_libiconv:
             self.cpp_info.requires.extend(["libiconv::libiconv"])
-        if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.requires.extend(["libjpeg::libjpeg"])
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.requires.extend(["libjpeg-turbo::turbojpeg"])
+        if self.options.with_jpeg:
+            self.cpp_info.requires.extend(["libjpeg-meta::jpeg"])
         if self.options.with_libkml:
             self.cpp_info.requires.extend(["libkml::kmldom", "libkml::kmlengine"])
         if self.options.with_lzma:

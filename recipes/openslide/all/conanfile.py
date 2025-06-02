@@ -28,12 +28,10 @@ class OpenSlideConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "jpeg": "libjpeg",
     }
     languages = ["C"]
     implements = ["auto_shared_fpic"]
@@ -55,12 +53,7 @@ class OpenSlideConan(ConanFile):
         self.requires("openjpeg/[^2.5.2]")
         self.requires("sqlite3/[>=3.45.0 <4]")
         self.requires("zlib/[>=1.2.11 <2]")
-        if self.options.jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        self.requires("libjpeg-meta/latest")
 
     def validate(self):
         if is_msvc(self):
@@ -122,10 +115,5 @@ class OpenSlideConan(ConanFile):
             "openjpeg::openjpeg",
             "sqlite3::sqlite3",
             "zlib::zlib",
+            "libjpeg-meta::jpeg",
         ]
-        if self.options.jpeg == "libjpeg":
-            self.cpp_info.requires.append("libjpeg::libjpeg")
-        elif self.options.jpeg == "libjpeg-turbo":
-            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
-        elif self.options.jpeg == "mozjpeg":
-            self.cpp_info.requires.append("mozjpeg::libjpeg")

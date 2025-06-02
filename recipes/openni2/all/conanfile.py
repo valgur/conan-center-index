@@ -24,12 +24,6 @@ class Openni2Conan(ConanFile):
 
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
-    }
-    default_options = {
-        "with_jpeg": "libjpeg",
-    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -42,12 +36,7 @@ class Openni2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        self.requires("libjpeg-meta/latest")
         if self.settings.os == "Linux":
             self.requires("libudev/[^255.18]")
         if self.settings.os != "Windows":

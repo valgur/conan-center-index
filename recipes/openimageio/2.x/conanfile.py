@@ -28,7 +28,6 @@ class OpenImageIOConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo"],
         "with_libpng": [True, False],
         "with_freetype": [True, False],
         "with_hdf5": [True, False],
@@ -48,7 +47,6 @@ class OpenImageIOConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_libjpeg": "libjpeg",
         "with_libpng": True,
         "with_freetype": False,
         "with_hdf5": False,
@@ -89,10 +87,7 @@ class OpenImageIOConan(ConanFile):
         # INFO: https://github.com/AcademySoftwareFoundation/OpenImageIO/blob/v2.5.4.0/src/libOpenImageIO/CMakeLists.txt#L126
         self.requires("imath/[^3.1.9]", transitive_headers=True)
         self.requires("openexr/[^3.3.3]")
-        if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
+        self.requires("libjpeg-meta/latest")
         self.requires("pugixml/[^1.14]")
         self.requires("libsquish/1.15")
         self.requires("tsl-robin-map/[^1.2.1]")
@@ -168,7 +163,7 @@ class OpenImageIOConan(ConanFile):
         # Configure optional dependencies
         # OIIO CMake files are patched to check USE_* flags to require or not use dependencies
         # https://github.com/AcademySoftwareFoundation/OpenImageIO/blob/v2.5.4.0/src/cmake/check_is_enabled.cmake
-        tc.variables["USE_JPEGTURBO"] = self.options.with_libjpeg == "libjpeg-turbo"
+        tc.variables["USE_JPEGTURBO"] = "turbojpeg" in self.dependencies["libjpeg-meta"].cpp_info.components
         tc.variables["USE_JPEG"] = True  # Needed for jpeg.imageio plugin, libjpeg/libjpeg-turbo selection still works
         tc.variables["USE_HDF5"] = self.options.with_hdf5
         tc.variables["USE_OPENCOLORIO"] = self.options.with_opencolorio
@@ -247,12 +242,7 @@ class OpenImageIOConan(ConanFile):
             "bzip2::bzip2",
         ]
 
-        if self.options.with_libjpeg == "libjpeg":
-            open_image_io.requires.append("libjpeg::libjpeg")
-        elif self.options.with_libjpeg == "libjpeg-turbo":
-            open_image_io.requires.append(
-                "libjpeg-turbo::libjpeg-turbo"
-            )
+        open_image_io.requires.append("libjpeg-meta::jpeg")
         if self.options.with_libpng:
             open_image_io.requires.append("libpng::libpng")
         if self.options.with_freetype:

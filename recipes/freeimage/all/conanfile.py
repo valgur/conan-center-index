@@ -22,7 +22,7 @@ class FreeImageConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_jpeg": [True, False],
         "with_png": [True, False],
         "with_tiff": [True, False],
         "with_jpeg2000": [True, False],
@@ -35,7 +35,7 @@ class FreeImageConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_png": True,
         "with_tiff": False,
         "with_jpeg2000": False,
@@ -45,34 +45,19 @@ class FreeImageConan(ConanFile):
         "with_raw": False,
         "with_jxr": False,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.output.warning("G3 plugin and JPEGTransform are disabled.")
-        if bool(self.options.with_jpeg):
-            if self.options.with_tiff:
-                self.options["libtiff"].jpeg = self.options.with_jpeg
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.1]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_jpeg2000:
             self.requires("openjpeg/[^2.5.2]")
         if self.options.with_png:
@@ -138,12 +123,8 @@ class FreeImageConan(ConanFile):
         def imageformats_deps():
             components = []
             components.append("zlib::zlib")
-            if self.options.with_jpeg == "libjpeg":
-                components.append("libjpeg::libjpeg")
-            elif self.options.with_jpeg == "libjpeg-turbo":
-                components.append("libjpeg-turbo::jpeg")
-            elif self.options.with_jpeg == "mozjpeg":
-                components.append("mozjpeg::libjpeg")
+            if self.options.with_jpeg:
+                components.append("libjpeg-meta::jpeg")
             if self.options.with_jpeg2000:
                 components.append("openjpeg::openjpeg")
             if self.options.with_png:

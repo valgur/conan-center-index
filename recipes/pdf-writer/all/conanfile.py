@@ -43,9 +43,9 @@ class PDFWriterConan(ConanFile):
         self.requires("freetype/[^2.13.2]")
         self.requires("libaesgm/2013.1.1")
         self.requires("zlib/[>=1.2.11 <2]")
-        if self.options.with_png:
-            self.requires("libjpeg/[>=9e]")
         if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
+        if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
@@ -86,9 +86,9 @@ class PDFWriterConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "PDFHummus::PDFWriter")
         self.cpp_info.libs = ["PDFWriter"]
         self.cpp_info.requires = ["freetype::freetype", "zlib::zlib", "libaesgm::libaesgm"]
-        if self.options.with_png:
-            self.cpp_info.requires.append("libjpeg::libjpeg")
         if self.options.with_jpeg:
+            self.cpp_info.requires.append("libjpeg-meta::jpeg")
+        if self.options.with_png:
             self.cpp_info.requires.append("libpng::libpng")
         if self.options.with_tiff:
             self.cpp_info.requires.append("libtiff::tiff")

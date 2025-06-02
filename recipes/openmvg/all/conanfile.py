@@ -30,7 +30,6 @@ class OpenmvgConan(ConanFile):
         "fPIC": [True, False],
         "enable_ligt": [True, False],
         "programs": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
         "with_openmp": [True, False],
         "cpu_architecture": [
             "auto", "generic", "none",
@@ -49,7 +48,6 @@ class OpenmvgConan(ConanFile):
         "fPIC": True,
         "enable_ligt": False, # patent-protected and CC-BY-SA-licensed
         "programs": True,
-        "with_jpeg": "libjpeg",
         "with_openmp": True,
         "cpu_architecture": "sandy-bridge",  # sse sse2 sse3 ssse3 sse4.1 sse4.2 avx
         "with_avx": "avx",
@@ -89,12 +87,7 @@ class OpenmvgConan(ConanFile):
         self.requires("coin-utils/2.11.11")
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("flann/1.9.2", transitive_headers=True, transitive_libs=True)
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[>=3.0 <3.1]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.1]")
+        self.requires("libjpeg-meta/latest")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_openmp:
@@ -209,12 +202,7 @@ class OpenmvgConan(ConanFile):
     @property
     def _openmvg_components(self):
         def jpeg():
-            if self.options.with_jpeg == "libjpeg":
-                return ["libjpeg::libjpeg"]
-            elif self.options.with_jpeg == "libjpeg-turbo":
-                return ["libjpeg-turbo::jpeg"]
-            elif self.options.with_jpeg == "mozjpeg":
-                return ["mozjpeg::libjpeg"]
+            return ["libjpeg-meta::jpeg"]
 
         def pthread():
             if self.settings.os in ["Linux", "FreeBSD"]:

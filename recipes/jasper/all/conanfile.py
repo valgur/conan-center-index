@@ -23,12 +23,12 @@ class JasperConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_libjpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_libjpeg": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_libjpeg": "libjpeg",
+        "with_libjpeg": True,
     }
 
     def export_sources(self):
@@ -48,12 +48,8 @@ class JasperConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_libjpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_libjpeg:
+            self.requires("libjpeg-meta/latest")
 
     def build_requirements(self):
         if Version(self.version) >= "4.1.1":
@@ -132,9 +128,5 @@ class JasperConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread"])
         self.cpp_info.requires = []
-        if self.options.with_libjpeg == "libjpeg":
-            self.cpp_info.requires.append("libjpeg::libjpeg")
-        elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_libjpeg == "mozjpeg":
-            self.cpp_info.requires.append("mozjpeg::libjpeg")
+        if self.options.with_libjpeg:
+            self.cpp_info.requires.append("libjpeg-meta::jpeg")

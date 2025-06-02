@@ -61,7 +61,7 @@ class ZbarConan(ConanFile):
     def requirements(self):
         self.requires("libiconv/[^1.17]")
         if self.options.with_jpeg:
-            self.requires("libjpeg/[>=9e]")
+            self.requires("libjpeg-meta/latest")
         if self.options.with_imagemagick:
             self.requires("imagemagick/7.0.11-14")
         if self.options.with_gtk:
@@ -151,7 +151,7 @@ class ZbarConan(ConanFile):
 
         self.cpp_info.requires.append("libiconv::libiconv")
         if self.options.with_jpeg:
-            self.cpp_info.requires.append("libjpeg::libjpeg")
+            self.cpp_info.requires.append("libjpeg-meta::jpeg")
         if self.options.with_imagemagick:
             self.cpp_info.requires.append("imagemagick::MagickWand")
         if self.options.with_gtk:

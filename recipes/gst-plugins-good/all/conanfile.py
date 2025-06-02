@@ -35,7 +35,7 @@ class GStPluginsGoodConan(ConanFile):
         "fPIC": [True, False],
 
         "with_asm": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", False],
+        "with_jpeg": [True, False],
         "with_egl": [True, False],
         "with_wayland": [True, False],
         "with_xorg": [True, False],
@@ -45,7 +45,7 @@ class GStPluginsGoodConan(ConanFile):
         "fPIC": True,
 
         "with_asm": True,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_egl": False,
         "with_wayland": False,
         "with_xorg": False,
@@ -206,12 +206,8 @@ class GStPluginsGoodConan(ConanFile):
             # Only GTK 3 is supported
             self.requires("gtk/[^3.24]")
         if "libjpeg" in reqs:
-            if self.options.with_jpeg == "libjpeg":
-                self.requires("libjpeg/[>=9e]")
-            elif self.options.with_jpeg == "libjpeg-turbo":
-                self.requires("libjpeg-turbo/[^3.0.4]")
-            elif self.options.with_jpeg == "mozjpeg":
-                self.requires("mozjpeg/[^4.1.5]")
+            if self.options.with_jpeg:
+                self.requires("libjpeg-meta/latest")
         if "libcaca" in reqs:
             self.requires("libcaca/0.99.beta20")
         if "libxml2" in reqs:

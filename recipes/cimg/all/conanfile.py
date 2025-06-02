@@ -26,7 +26,7 @@ class CImgConan(ConanFile):
         "enable_ffmpeg": [True, False],
         "enable_fftw": [True, False],
         "enable_heif": [True, False],
-        "enable_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", True, False],
+        "enable_jpeg": [True, False],
         "enable_magick": [True, False],
         "enable_opencv": [True, False],
         "enable_openexr": [True, False],
@@ -44,7 +44,7 @@ class CImgConan(ConanFile):
         "enable_ffmpeg": False,
         "enable_fftw": False,
         "enable_heif": False,
-        "enable_jpeg": "libjpeg",
+        "enable_jpeg": True,
         "enable_magick": False,
         "enable_opencv": False,
         "enable_openexr": False,
@@ -145,12 +145,8 @@ class CImgConan(ConanFile):
     def requirements(self):
         if self.options.enable_fftw:
             self.requires("fftw/[^3.3.10]")
-        if self.options.enable_jpeg == "libjpeg" or self.options.enable_jpeg.value is True:
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.enable_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.enable_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.enable_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.enable_openexr:
             self.requires("openexr/[^3.3.3]")
             self.requires("imath/[^3.1.9]")
@@ -222,12 +218,8 @@ class CImgConan(ConanFile):
         requires = []
         if self.options.enable_fftw:
             requires.append("fftw::fftw")
-        if self.options.enable_jpeg == "libjpeg" or self.options.enable_jpeg.value is True:
-            requires.append("libjpeg::libjpeg")
-        elif self.options.enable_jpeg == "libjpeg-turbo":
-            requires.append("libjpeg-turbo::jpeg")
-        elif self.options.enable_jpeg == "mozjpeg":
-            requires.append("mozjpeg::libjpeg")
+        if self.options.enable_jpeg:
+            requires.append("libjpeg-meta::jpeg")
         if self.options.enable_openexr:
             requires.append("openexr::openexr_openexr")
             requires.append("imath::imath_lib")

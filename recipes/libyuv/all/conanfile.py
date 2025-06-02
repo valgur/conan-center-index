@@ -20,12 +20,12 @@ class LibyuvConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_jpeg": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
     }
 
     def export_sources(self):
@@ -48,12 +48,8 @@ class LibyuvConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[>=3.0.3 <4]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version])
@@ -85,11 +81,7 @@ class LibyuvConan(ConanFile):
         self.cpp_info.requires = []
         if self.settings.compiler == "msvc":
             self.cpp_info.defines.append("_CRT_SECURE_NO_WARNINGS")
-        if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.requires.append("libjpeg::libjpeg")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.cpp_info.requires.append("mozjpeg::libjpeg")
+        if self.options.with_jpeg:
+            self.cpp_info.requires.append("libjpeg-meta::jpeg")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

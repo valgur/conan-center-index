@@ -37,7 +37,7 @@ class PopplerConan(ConanFile):
         "with_libiconv": [True, False],
         "with_openjpeg": [True, False],
         "with_lcms": [True, False],
-        "with_libjpeg": ["libjpeg", False],
+        "with_libjpeg": [True, False],
         "with_png": [True, False],
         "with_nss": [True, False],
         "with_tiff": [True, False],
@@ -59,7 +59,7 @@ class PopplerConan(ConanFile):
         "with_libiconv": True,
         "with_openjpeg": True,
         "with_lcms": True,
-        "with_libjpeg": "libjpeg",
+        "with_libjpeg": True,
         "with_png": True,
         "with_nss": False,
         "with_tiff": True,
@@ -112,8 +112,8 @@ class PopplerConan(ConanFile):
             self.requires("openjpeg/[^2.5.2]")
         if self.options.with_lcms:
             self.requires("lcms/2.16")
-        if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
+        if self.options.with_libjpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_nss:
             self.requires("nss/[^3.93]")
         if self.options.with_png:
@@ -169,12 +169,6 @@ class PopplerConan(ConanFile):
                             f"_gir_get_pkgconfig_var(INTROSPECTION_{tool.upper()} ",
                             f'set(INTROSPECTION_{tool.upper()} "g-ir-{tool}") #')
 
-    @property
-    def _dct_decoder(self):
-        if self.options.with_libjpeg:
-            return str(self.options.with_libjpeg)
-        return "none"
-
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_CPP_TESTS"] = False
@@ -185,7 +179,7 @@ class PopplerConan(ConanFile):
         tc.variables["BUILD_QT6_TESTS"] = False
         tc.variables["ENABLE_CMS"] = "lcms2" if self.options.with_lcms else "none"
         tc.variables["ENABLE_CPP"] = self.options.cpp
-        tc.variables["ENABLE_DCTDECODER"] = self._dct_decoder
+        tc.variables["ENABLE_DCTDECODER"] = "libjpeg" if self.options.with_libjpeg else "none"
         tc.variables["ENABLE_GLIB"] = self.options.get_safe("with_glib", False)
         tc.variables["ENABLE_GOBJECT_INTROSPECTION"] = self.options.get_safe("with_introspection", False)
         tc.variables["ENABLE_GPGME"] = False
@@ -232,6 +226,8 @@ class PopplerConan(ConanFile):
             tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         else:
             tc.preprocessor_definitions["POPPLER_STATIC"] = ""
+
+        tc.cache_variables["CMAKE_TRY_COMPILE_CONFIGURATION"] = str(self.settings.build_type)
 
         tc.generate()
 
@@ -282,8 +278,8 @@ class PopplerConan(ConanFile):
             self.cpp_info.components["libpoppler"].requires.append("openjpeg::openjpeg")
         if self.options.with_lcms:
             self.cpp_info.components["libpoppler"].requires.append("lcms::lcms")
-        if self.options.with_libjpeg == "libjpeg":
-            self.cpp_info.components["libpoppler"].requires.append("libjpeg::libjpeg")
+        if self.options.with_libjpeg:
+            self.cpp_info.components["libpoppler"].requires.append("libjpeg-meta::jpeg")
         if self.options.with_png:
             self.cpp_info.components["libpoppler"].requires.append("libpng::libpng")
         if self.options.with_nss:

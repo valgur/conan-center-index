@@ -68,7 +68,7 @@ class VtkConan(ConanFile):
         "with_hdf5": [True, False],
         "with_holoplaycore": [True, False],
         "with_ioss": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", False],
+        "with_jpeg": [True, False],
         "with_jsoncpp": [True, False],
         "with_kissfft": [True, False],
         "with_libharu": [True, False],
@@ -143,7 +143,7 @@ class VtkConan(ConanFile):
         "with_hdf5": False,
         "with_holoplaycore": False,
         "with_ioss": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_jsoncpp": False,
         "with_kissfft": False,  # Cannot unvendor by default because non-default datatype=double is required
         "with_libharu": False,
@@ -308,12 +308,8 @@ class VtkConan(ConanFile):
             self.requires("glew/2.2.0", transitive_headers=True, transitive_libs=True)
         if self.options.with_hdf5:
             self.requires("hdf5/[^1.8]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.3]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_jsoncpp:
             self.requires("jsoncpp/[^1.9.5]")
         if self.options.with_libharu:

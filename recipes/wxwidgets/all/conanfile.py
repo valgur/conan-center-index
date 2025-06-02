@@ -37,7 +37,6 @@ class wxWidgetsConan(ConanFile):
         "help": [True, False],
         "html": [True, False],
         "html_help": [True, False],
-        "jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
         "libiconv": [True, False],
         "mediactrl": [True, False],
         "opengl": [True, False],
@@ -70,7 +69,6 @@ class wxWidgetsConan(ConanFile):
         "help": True,
         "html": True,
         "html_help": True,
-        "jpeg": "libjpeg",
         "libiconv": True,
         "mediactrl": False,
         "opengl": True,
@@ -146,12 +144,7 @@ class wxWidgetsConan(ConanFile):
         self.requires("pcre2/[^10.42]")
         self.requires("xz_utils/[>=5.4.5 <6]")
         self.requires("zlib/[>=1.2.11 <2]")
-        if self.options.jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        self.requires("libjpeg-meta/latest")
 
         if self.options.opengl:
             # Used in wx/unix/glx11.h and other public headers

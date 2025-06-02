@@ -45,7 +45,7 @@ class OpenSceneGraphConanFile(ConanFile):
         "with_gif": [True, False],
         "with_gta": [True, False],
         "with_jasper": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", False],
+        "with_jpeg": [True, False],
         "with_liblas": [True, False],
         "with_openexr": [True, False],
         "with_png": [True, False],
@@ -75,7 +75,7 @@ class OpenSceneGraphConanFile(ConanFile):
         "with_gif": True,
         "with_gta": False,
         "with_jasper": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_liblas": False,
         "with_openexr": False,
         "with_png": True,
@@ -149,12 +149,8 @@ class OpenSceneGraphConanFile(ConanFile):
             self.requires("libgta/1.2.1")
         if self.options.with_jasper:
             self.requires("jasper/[^4.2]")
-        if self.options.get_safe("with_jpeg") == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.get_safe("with_jpeg") == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.get_safe("with_jpeg"):
+            self.requires("libjpeg-meta/latest")
         if self.options.with_liblas:
             self.requires("liblas/[^1.8.1]")
         if self.options.get_safe("with_openexr"):
@@ -270,10 +266,8 @@ class OpenSceneGraphConanFile(ConanFile):
         deps = CMakeDeps(self)
         deps.set_property("freetype", "cmake_module_file_name", "Freetype")
         deps.set_property("giflib", "cmake_file_name", "GIFLIB")
-        deps.set_property("libjpeg-turbo", "cmake_file_name", "JPEG")
-        deps.set_property("libjpeg-turbo::jpeg", "cmake_target_name", "JPEG::JPEG")
-        deps.set_property("mozjpeg", "cmake_file_name", "JPEG")
-        deps.set_property("mozjpeg::libjpeg", "cmake_target_name", "JPEG::JPEG")
+        deps.set_property("libjpeg-meta", "cmake_file_name", "JPEG")
+        deps.set_property("libjpeg-meta", "cmake_target_name", "JPEG::JPEG")
         deps.set_property("liblas", "cmake_file_name", "LIBLAS")
         deps.generate()
 
@@ -508,12 +502,8 @@ class OpenSceneGraphConanFile(ConanFile):
         setup_plugin("vtf")
         setup_plugin("ktx")
 
-        if self.options.get_safe("with_jpeg") == "libjpeg":
-            setup_plugin("jpeg").requires.append("libjpeg::libjpeg")
-        elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":
-            setup_plugin("jpeg").requires.append("libjpeg-turbo::jpeg")
-        elif self.options.get_safe("with_jpeg") == "mozjpeg":
-            setup_plugin("jpeg").requires.append("mozjpeg::libjpeg")
+        if self.options.get_safe("with_jpeg"):
+            setup_plugin("jpeg").requires.append("libjpeg-meta::jpeg")
 
         if self.options.with_jasper:
             setup_plugin("jp2").requires.append("jasper::jasper")

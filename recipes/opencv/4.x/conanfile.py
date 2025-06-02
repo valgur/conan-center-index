@@ -130,7 +130,7 @@ class OpenCVConan(ConanFile):
         "with_wayland": [True, False],
         # imgcodecs module options
         "with_avif": [True, False],
-        "with_jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_jpeg": [True, False],
         "with_png": [True, False],
         "with_tiff": [True, False],
         "with_jpeg2000": [False, "jasper", "openjpeg"],
@@ -190,7 +190,7 @@ class OpenCVConan(ConanFile):
         "with_wayland": True,
         # imgcodecs module options
         "with_avif": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_png": True,
         "with_tiff": True,
         "with_jpeg2000": False,
@@ -383,12 +383,8 @@ class OpenCVConan(ConanFile):
                 components.append("{0}::{0}".format(self.options.with_jpeg2000))
             if self.options.get_safe("with_png"):
                 components.append("libpng::libpng")
-            if self.options.get_safe("with_jpeg") == "libjpeg":
-                components.append("libjpeg::libjpeg")
-            elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":
-                components.append("libjpeg-turbo::jpeg")
-            elif self.options.get_safe("with_jpeg") == "mozjpeg":
-                components.append("mozjpeg::libjpeg")
+            if self.options.get_safe("with_jpeg"):
+                components.append("libjpeg-meta::jpeg")
             if self.options.get_safe("with_tiff"):
                 components.append("libtiff::tiff")
             if self.options.get_safe("with_openexr"):
@@ -1061,12 +1057,6 @@ class OpenCVConan(ConanFile):
         if not self.options.text:
             self.options.rm_safe("with_tesseract")
 
-        if bool(self.options.get_safe("with_jpeg", False)):
-            if self.options.get_safe("with_jpeg2000") == "jasper":
-                self.options["jasper"].with_libjpeg = self.options.with_jpeg
-            if self.options.get_safe("with_tiff"):
-                self.options["libtiff"].jpeg = self.options.with_jpeg
-
         if self.options.build_all_base:
             self.options.update(
                 options={module: [True, False] for module in OPENCV_MAIN_MODULES_OPTIONS},
@@ -1123,16 +1113,8 @@ class OpenCVConan(ConanFile):
         # imgcodecs module dependencies
         if self.options.get_safe("with_avif"):
             self.requires("libavif/[^1.0.4]")
-        if self.options.get_safe("with_jpeg") == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.get_safe("with_jpeg") == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.get_safe("with_jpeg") == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
-        if self.options.get_safe("with_jpeg2000") == "jasper":
-            self.requires("jasper/[^4.2]")
-        elif self.options.get_safe("with_jpeg2000") == "openjpeg":
-            self.requires("openjpeg/[^2.5.2]")
+        if self.options.get_safe("with_jpeg"):
+            self.requires("libjpeg-meta/latest")
         if self.options.get_safe("with_png"):
             self.requires("libpng/[~1.6]")
         if self.options.get_safe("with_openexr"):

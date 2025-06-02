@@ -147,7 +147,7 @@ jack:
 jpeg:
   requires:
     - gstreamer-video-1.0
-    - libjpeg::libjpeg
+    - libjpeg-meta::jpeg
 lame:
   requires:
     - gstreamer-audio-1.0

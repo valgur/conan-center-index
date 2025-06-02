@@ -33,7 +33,6 @@ class OpenImageIOConan(ConanFile):
         "with_giflib": [True, False],
         "with_hdf5": [True, False],
         "with_libheif": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo"],
         "with_libjxl": [True, False],
         "with_libpng": [True, False],
         "with_libwebp": [True, False],
@@ -53,7 +52,6 @@ class OpenImageIOConan(ConanFile):
         "with_giflib": True,
         "with_hdf5": False,
         "with_libheif": False,
-        "with_libjpeg": "libjpeg",
         "with_libjxl": False,
         "with_libpng": True,
         "with_libwebp": True,
@@ -75,10 +73,7 @@ class OpenImageIOConan(ConanFile):
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("imath/[^3.1.9]", transitive_headers=True)
         self.requires("openexr/[^3.3.3]")
-        if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0]")
+        self.requires("libjpeg-meta/latest")
         self.requires("pugixml/[^1.15]")
         self.requires("tsl-robin-map/[^1.3.0]")
         self.requires("fmt/[>=7]", transitive_headers=True)
@@ -163,7 +158,7 @@ class OpenImageIOConan(ConanFile):
         # Needed for jpeg.imageio plugin, libjpeg/libjpeg-turbo selection still works
         tc.variables["USE_JPEG"] = True
         # OIIO CMake files are patched to check USE_* flags to require or not use dependencies
-        tc.variables["USE_JPEGTURBO"] = (self.options.with_libjpeg == "libjpeg-turbo")
+        tc.variables["USE_JPEGTURBO"] = "turbojpeg" in self.dependencies["libjpeg-meta"].cpp_info.components
         tc.variables["USE_LIBHEIF"] = self.options.with_libheif
         tc.variables["USE_LIBJXL"] = self.options.with_libjxl
         tc.variables["USE_LIBPNG"] = self.options.with_libpng
@@ -248,10 +243,7 @@ class OpenImageIOConan(ConanFile):
 
         if self.options.with_libjxl:
             open_image_io.requires += ["libjxl::libjxl", "libjxl::jxl_cms"]
-        if self.options.with_libjpeg == "libjpeg":
-            open_image_io.requires.append("libjpeg::libjpeg")
-        elif self.options.with_libjpeg == "libjpeg-turbo":
-            open_image_io.requires.append("libjpeg-turbo::libjpeg-turbo")
+        open_image_io.requires.append("libjpeg-meta::jpeg")
         if self.options.with_libpng:
             open_image_io.requires.append("libpng::libpng")
         if self.options.with_freetype:

@@ -33,7 +33,7 @@ class GStPluginsBaseConan(ConanFile):
         "fPIC": [True, False],
         "with_libdrm": [True, False],
         "with_libpng": [True, False],
-        "with_libjpeg": [False, "libjpeg", "libjpeg-turbo"],
+        "with_libjpeg": [True, False],
         "with_graphene": [True, False],
         "with_gl": [True, False],
         "with_egl": [True, False],
@@ -182,10 +182,8 @@ class GStPluginsBaseConan(ConanFile):
                 self.requires("graphene/1.10.8")
             if self.options.with_libpng:
                 self.requires("libpng/[~1.6]")
-            if self.options.with_libjpeg == "libjpeg":
-                self.requires("libjpeg/[>=9e]")
-            elif self.options.with_libjpeg == "libjpeg-turbo":
-                self.requires("libjpeg-turbo/[^3.0.2]")
+            if self.options.with_libjpeg:
+                self.requires("libjpeg-meta/latest")
         if "ogg" in reqs:
             self.requires("ogg/[^1.3.5]")
         if "opus" in reqs:
@@ -533,10 +531,8 @@ class GStPluginsBaseConan(ConanFile):
                 gstopengl.requires.append("graphene::graphene-gobject-1.0")
             if self.options.with_libpng:
                 gstopengl.requires.append("libpng::libpng")
-            if self.options.with_libjpeg == "libjpeg":
-                gstopengl.requires.append("libjpeg::libjpeg")
-            elif self.options.with_libjpeg == "libjpeg-turbo":
-                gstopengl.requires.append("libjpeg-turbo::libjpeg-turbo")
+            if self.options.with_libjpeg:
+                gstopengl.requires.append("libjpeg-meta::jpeg")
             if self.options.get_safe("with_xorg"):
                 gstopengl.requires.append("xorg::x11")
 

@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools import CppInfo
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building, stdcpp_library
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -28,13 +28,11 @@ class DjVuLibreConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "tools": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "tools": False,
-        "with_libjpeg": "libjpeg",
     }
     implements = ["auto_shared_fpic"]
 
@@ -46,12 +44,7 @@ class DjVuLibreConan(ConanFile):
 
     def requirements(self):
         self.requires("libiconv/[^1.17]")
-        if self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_libjpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        self.requires("libjpeg-meta/latest")
         self.requires("libtiff/[>=4.5 <5]")
 
     def validate(self):
@@ -73,12 +66,11 @@ class DjVuLibreConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         if not cross_building(self):
             VirtualRunEnv(self).generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        jpeg = self.dependencies[self.options.with_libjpeg.value].cpp_info.aggregated_components()
+        jpeg = self.dependencies[self.dependencies["libjpeg-meta"].options.provider.value].cpp_info.aggregated_components()
         tiff = self.dependencies["libtiff"].cpp_info.aggregated_components()
         tc.configure_args.extend([
             f"JPEG_LIBS={' '.join(f'-l{l}' for l in jpeg.libs)}",

@@ -82,7 +82,7 @@ class FltkConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
-        self.requires("libjpeg/[>=9e]")
+        self.requires("libjpeg-meta/latest")
         self.requires("libpng/[~1.6]")
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.with_gl:
@@ -182,7 +182,7 @@ class FltkConan(ConanFile):
 
         self.cpp_info.requires = [
             "zlib::zlib",
-            "libjpeg::libjpeg",
+            "libjpeg-meta::jpeg",
             "libpng::libpng",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:

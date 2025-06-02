@@ -1,13 +1,14 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple import fix_apple_shared_install_name
+from conan.tools.apple import fix_apple_shared_install_name, is_apple_os, to_apple_arch
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
-import os
 
 required_conan_version = ">=2.1"
 
@@ -57,7 +58,7 @@ class Librasterlite2Conan(ConanFile):
         self.requires("giflib/[^5.2.1]")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("libgeotiff/[^1.7.1]")
-        self.requires("libjpeg/[>=9e]")
+        self.requires("libjpeg-meta/latest")
         self.requires("libpng/[~1.6]")
         self.requires("libspatialite/[^5.1.0]")
         self.requires("libtiff/[>=4.5 <5]")

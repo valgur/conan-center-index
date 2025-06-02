@@ -25,7 +25,7 @@ class OpenCVConan(ConanFile):
         "fPIC": [True, False],
         "contrib": [True, False],
         "parallel": [False, "tbb", "openmp"],
-        "with_jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_jpeg": [True, False],
         "with_png": [True, False],
         "with_tiff": [True, False],
         "with_jasper": [True, False],
@@ -40,7 +40,7 @@ class OpenCVConan(ConanFile):
         "fPIC": True,
         "parallel": "openmp",
         "contrib": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_png": True,
         "with_tiff": False,
         "with_jasper": False,
@@ -67,21 +67,14 @@ class OpenCVConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.options["*"].jpeg = self.options.with_jpeg
-        self.options["*"].with_libjpeg = self.options.with_jpeg
-        self.options["*"].with_jpeg = self.options.with_jpeg
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib/[>=1.2.11 <2]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.0]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.3]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_jasper:
@@ -310,12 +303,8 @@ class OpenCVConan(ConanFile):
                 components.append("jasper::jasper")
             if self.options.with_png:
                 components.append("libpng::libpng")
-            if self.options.with_jpeg == "libjpeg":
-                components.append("libjpeg::libjpeg")
-            elif self.options.with_jpeg == "libjpeg-turbo":
-                components.append("libjpeg-turbo::jpeg")
-            elif self.options.with_jpeg == "mozjpeg":
-                components.append("mozjpeg::libjpeg")
+            if self.options.with_jpeg:
+                components.append("libjpeg-meta::jpeg")
             if self.options.with_tiff:
                 components.append("libtiff::tiff")
             if self.options.with_openexr:

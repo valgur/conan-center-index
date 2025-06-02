@@ -130,7 +130,7 @@ class MagnumConan(ConanFile):
         if self.options.freetype_font:
             self.requires("freetype/[^2.13.2]")
         if self.options.jpeg_importer or self.options.jpeg_imageconverter:
-            self.requires("libjpeg/[>=9e]")
+            self.requires("libjpeg-meta/latest")
         if self.options.meshoptimizer_sceneconverter:
             self.requires("meshoptimizer/0.15")  # v0.16+ is not compatible
         if self.options.png_imageconverter:
@@ -306,8 +306,8 @@ class MagnumConan(ConanFile):
             ("faad2_audioimporter", ("faad2_audioimporter", "--", "--", "--", [])),
             ("freetype_font", ("freetype_font", "FreeTypeFont", "FreeTypeFont", "fonts", ["magnum::text", "freetype::freetype"])),
             ("harfbuzz_font", ("harfbuzz_font", "HarfBuzzFont", "HarfBuzzFont", "fonts", ["magnum::text", "harfbuzz::harfbuzz"])),
-            ("jpeg_imageconverter", ("jpeg_imageconverter", "JpegImageConverter", "JpegImageConverter", "imageconverters", ["magnum::trade", "libjpeg::libjpeg"])),
-            ("jpeg_importer", ("jpeg_importer", "JpegImporter", "JpegImporter", "importers", ["magnum::trade", "libjpeg::libjpeg"])),
+            ("jpeg_imageconverter", ("jpeg_imageconverter", "JpegImageConverter", "JpegImageConverter", "imageconverters", ["magnum::trade", "libjpeg-meta::jpeg"])),
+            ("jpeg_importer", ("jpeg_importer", "JpegImporter", "JpegImporter", "importers", ["magnum::trade", "libjpeg-meta::jpeg"])),
             ("meshoptimizer_sceneconverter", ("meshoptimizer_sceneconverter", "MeshOptimizerSceneConverter", "MeshOptimizerSceneConverter", "sceneconverters", ["magnum::trade", "magnum::mesh_tools", "meshoptimizer::meshoptimizer"])),
             ("miniexr_imageconverter", ("miniexr_imageconverter", "MiniExrImageConverter", "MiniExrImageConverter", "imageconverters", ["magnum::trade"])),
             ("opengex_importer", ("opengex_importer", "OpenGexImporter", "OpenGexImporter", "importers", ["magnum::trade", "magnumopenddl", "magnum::any_image_importer"])),

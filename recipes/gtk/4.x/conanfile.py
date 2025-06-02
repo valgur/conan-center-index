@@ -122,7 +122,7 @@ class GtkConan(ConanFile):
         self.requires("harfbuzz/[*]")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
-        self.requires("libjpeg/[>=9e]")
+        self.requires("libjpeg-meta/latest")
         if self.settings.os == "Linux":
             self.requires("libdrm/[~2.4.119]")
         if self.options.get_safe("with_wayland"):
@@ -307,7 +307,7 @@ class GtkConan(ConanFile):
             "harfbuzz::harfbuzz_",
             "harfbuzz::subset",
             "libepoxy::libepoxy",
-            "libjpeg::libjpeg",
+            "libjpeg-meta::jpeg",
             "libpng::libpng",
             "libtiff::tiff",
         ]

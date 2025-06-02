@@ -57,7 +57,7 @@ class Libfreenect2Conan(ConanFile):
 
     def requirements(self):
         self.requires("libusb/[^1.0.26]")
-        self.requires("libjpeg-turbo/[^3.0.0]")
+        self.requires("libjpeg-meta/latest")
         if self.options.with_opencl:
             # 2023.02.06 is the latest compatible version
             self.requires("opencl-headers/2023.02.06")
@@ -74,6 +74,8 @@ class Libfreenect2Conan(ConanFile):
         check_min_cppstd(self, 11)
         if self.options.with_cuda:
             self.output.warning("Conan package for CUDA is not available, will use system CUDA")
+        if self.dependencies["libjpeg-meta"].options.provider not in ["libjpeg-turbo", "mozjpeg"]:
+            raise ConanException("libjpeg-meta provider must be either libjpeg-turbo or mozjpeg")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -111,7 +113,7 @@ class Libfreenect2Conan(ConanFile):
         deps = CMakeDeps(self)
         deps.set_property("libusb", "cmake_file_name", "LibUSB")
         deps.set_property("glfw3", "cmake_file_name", "GLFW3")
-        deps.set_property("libjpeg-turbo", "cmake_file_name", "TurboJPEG")
+        deps.set_property("libjpeg-meta", "cmake_file_name", "TurboJPEG")
         deps.generate()
 
         deps = PkgConfigDeps(self)
@@ -148,8 +150,8 @@ class Libfreenect2Conan(ConanFile):
 
         self.cpp_info.requires += [
             "libusb::libusb",
-            "libjpeg-turbo::jpeg",
-            "libjpeg-turbo::turbojpeg",
+            "libjpeg-meta::jpeg",
+            "libjpeg-meta::turbojpeg",
         ]
         if self.options.with_opencl:
             self.cpp_info.requires += [

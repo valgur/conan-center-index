@@ -58,7 +58,7 @@ class QtConan(ConanFile):
         "with_fontconfig": [True, False],
         "with_icu": [True, False],
         "with_harfbuzz": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo", False],
+        "with_libjpeg": [True, False],
         "with_libpng": [True, False],
         "with_sqlite3": [True, False],
         "with_mysql": ["mysql", "mariadb", False],
@@ -102,7 +102,7 @@ class QtConan(ConanFile):
         "with_fontconfig": True,
         "with_icu": True,
         "with_harfbuzz": False,
-        "with_libjpeg": "libjpeg",
+        "with_libjpeg": True,
         "with_libpng": True,
         "with_sqlite3": True,
         "with_mysql": False,
@@ -411,10 +411,7 @@ class QtConan(ConanFile):
         if self.options.get_safe("with_harfbuzz", False) and not self.options.multiconfiguration:
             self.requires("harfbuzz/[*]")
         if self.options.get_safe("with_libjpeg", False) and not self.options.multiconfiguration:
-            if self.options.with_libjpeg == "libjpeg-turbo":
-                self.requires("libjpeg-turbo/[>=3.0 <3.1]")
-            else:
-                self.requires("libjpeg/[>=9e]")
+            self.requires("libjpeg-meta/latest")
         if self.options.get_safe("with_libpng", False) and not self.options.multiconfiguration:
             self.requires("libpng/[~1.6]")
         if self.options.with_sqlite3 and not self.options.multiconfiguration:
@@ -809,8 +806,7 @@ class QtConan(ConanFile):
                   ("fontconfig", "FONTCONFIG"),
                   ("icu", "ICU"),
                   ("harfbuzz", "HARFBUZZ"),
-                  ("libjpeg", "LIBJPEG"),
-                  ("libjpeg-turbo", "LIBJPEG"),
+                  ("libjpeg-meta", "LIBJPEG"),
                   ("libpng", "LIBPNG"),
                   ("sqlite3", "SQLITE"),
                   ("mariadb-connector-c", "MYSQL"),
@@ -1197,10 +1193,8 @@ Prefix = ..""")
                     gui_reqs.append("moltenvk::moltenvk")
             if self.options.with_harfbuzz:
                 gui_reqs.append("harfbuzz::harfbuzz")
-            if self.options.with_libjpeg == "libjpeg-turbo":
-                gui_reqs.append("libjpeg-turbo::libjpeg-turbo")
-            if self.options.with_libjpeg == "libjpeg":
-                gui_reqs.append("libjpeg::libjpeg")
+            if self.options.with_libjpeg:
+                gui_reqs.append("libjpeg-meta::jpeg")
             if self.options.with_md4c:
                 gui_reqs.append("md4c::md4c")
             _create_module("Gui", gui_reqs)

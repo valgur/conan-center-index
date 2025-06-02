@@ -41,7 +41,7 @@ class LibvipsConan(ConanFile):
         "with_heif": [True, False],
         "with_highway": [True, False],
         "with_imagequant": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", False],
+        "with_jpeg": [True, False],
         "with_jpeg_xl": [True, False],
         "with_lcms": [True, False],
         "with_magick": [True, False],
@@ -81,7 +81,7 @@ class LibvipsConan(ConanFile):
         "with_heif": False,
         "with_highway": False,
         "with_imagequant": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_jpeg_xl": False,
         "with_lcms": True,
         "with_magick": False,
@@ -151,12 +151,8 @@ class LibvipsConan(ConanFile):
             self.requires("libheif/[^1.16.2]")
         if self.options.get_safe("with_highway"):
             self.requires("highway/[^1.0.7]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_jpeg_xl:
             self.requires("libjxl/0.11.1")
         if self.options.with_lcms:
@@ -354,12 +350,8 @@ class LibvipsConan(ConanFile):
             self.cpp_info.components["vips"].requires.append("libheif::libheif")
         if self.options.get_safe("with_highway"):
             self.cpp_info.components["vips"].requires.append("highway::highway")
-        if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.components["vips"].requires.append("libjpeg::libjpeg")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.components["vips"].requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.cpp_info.components["vips"].requires.append("mozjpeg::libjpeg")
+        if self.options.with_jpeg:
+            self.cpp_info.components["vips"].requires.append("libjpeg-meta::jpeg")
         if self.options.with_jpeg_xl:
             self.cpp_info.components["vips"].requires.append("libjxl::libjxl")
         if self.options.with_lcms:

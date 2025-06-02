@@ -132,7 +132,7 @@ class PangolinConan(ConanFile):
             # https://github.com/stevenlovegrove/Pangolin/blob/v0.9.1/components/pango_video/include/pangolin/video/drivers/ffmpeg_common.h#L15-L19
             self.requires("ffmpeg/[>=6 <8]", transitive_headers=True, transitive_libs=True)
         if self.options.with_jpeg:
-            self.requires("libjpeg/[>=9e]")
+            self.requires("libjpeg-meta/latest")
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_openexr:
@@ -318,7 +318,7 @@ class PangolinConan(ConanFile):
 
         pango_image = _add_component("pango_image", requires=["pango_core"])
         if self.options.with_jpeg:
-            pango_image.requires.append("libjpeg::libjpeg")
+            pango_image.requires.append("libjpeg-meta::jpeg")
         if self.options.with_lz4:
             pango_image.requires.append("lz4::lz4")
         if self.options.with_openexr:

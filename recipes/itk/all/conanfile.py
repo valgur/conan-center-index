@@ -52,7 +52,7 @@ class ITKConan(ConanFile):
         self.requires("fftw/[^3.3.10]")
         self.requires("gdcm/[^3.0.23]")
         self.requires("hdf5/[^1.8]")
-        self.requires("libjpeg/[>=9e]")
+        self.requires("libjpeg-meta/latest")
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("openjpeg/[^2.5.2]")
@@ -223,6 +223,8 @@ class ITKConan(ConanFile):
 
         deps = CMakeDeps(self)
         deps.set_property("fftw", "cmake_file_name", "FFTW")
+        deps.set_property("libjpeg-meta", "cmake_file_name", "JPEG")
+        deps.set_property("libjpeg-meta", "cmake_target_name", "JPEG::JPEG")
         deps.generate()
 
     def _patch_sources(self):
@@ -379,7 +381,7 @@ class ITKConan(ConanFile):
             "ITKIOGE": {"requires": ["ITKIOIPL", "ITKIOImageBase"]},
             "ITKIOGIPL": {"requires": ["ITKIOImageBase", "zlib::zlib"]},
             "ITKIOHDF5": {"requires": ["ITKIOImageBase", "hdf5::hdf5"]},
-            "ITKIOJPEG": {"requires": ["ITKIOImageBase", "libjpeg::libjpeg"]},
+            "ITKIOJPEG": {"requires": ["ITKIOImageBase", "libjpeg-meta::jpeg"]},
             "ITKIOMeshBase": {
                 "requires": [
                     "ITKCommon", "ITKIOImageBase", "ITKMesh", "ITKQuadEdgeMesh",

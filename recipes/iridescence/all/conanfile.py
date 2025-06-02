@@ -43,7 +43,7 @@ class IridescenceConan(ConanFile):
         self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("glm/1.0.1")
-        self.requires("libjpeg/[>=9e]")
+        self.requires("libjpeg-meta/latest")
         self.requires("libpng/[~1.6]")
         self.requires("portable-file-dialogs/0.1.0", transitive_headers=True)
         # Upstream uses -docking version of imgui, but it would cause version conflicts on CCI

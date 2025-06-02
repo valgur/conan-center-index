@@ -24,7 +24,7 @@ class LibRawConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "build_thread_safe": [True, False],
-        "with_jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_jpeg": [True, False],
         "with_lcms": [True, False],
         "with_jasper": [True, False],
 
@@ -37,7 +37,7 @@ class LibRawConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "build_thread_safe": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_lcms": True,
         "with_jasper": True,
         "max_cr3_raw_file_size": None,
@@ -62,12 +62,8 @@ class LibRawConan(ConanFile):
     def requirements(self):
         # TODO: RawSpeed dependency (-DUSE_RAWSPEED)
         # TODO: DNG SDK dependency (-DUSE_DNGSDK)
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.0]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.3]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_lcms:
             self.requires("lcms/2.16")
         if self.options.with_jasper:
@@ -122,12 +118,8 @@ class LibRawConan(ConanFile):
             self.cpp_info.components["libraw_"].defines.append(f"LIBRAW_MAX_CR3_RAW_FILE_SIZE={self.options.max_cr3_raw_file_size}LL")
 
         requires = []
-        if self.options.with_jpeg == "libjpeg":
-            requires.append("libjpeg::libjpeg")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_jpeg == "mozjpeg":
-            requires.append("mozjpeg::libjpeg")
+        if self.options.with_jpeg:
+            requires.append("libjpeg-meta::jpeg")
         if self.options.with_lcms:
             requires.append("lcms::lcms")
         if self.options.with_jasper:

@@ -53,7 +53,7 @@ class DevilConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_jpeg:
-            self.requires("libjpeg/[>=9e]")
+            self.requires("libjpeg-meta/latest")
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_jasper:
@@ -110,7 +110,6 @@ class DevilConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
-        rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
@@ -128,7 +127,7 @@ class DevilConan(ConanFile):
         if self.options.with_png:
             il_requires.append("libpng::libpng")
         if self.options.with_jpeg:
-            il_requires.append("libjpeg::libjpeg")
+            il_requires.append("libjpeg-meta::jpeg")
         if self.options.with_tiff:
             il_requires.append("libtiff::libtiff")
         if self.options.with_jasper:

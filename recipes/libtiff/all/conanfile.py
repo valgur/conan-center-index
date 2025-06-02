@@ -25,7 +25,7 @@ class LibtiffConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "lzma": [True, False],
-        "jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "jpeg": [True, False],
         "zlib": [True, False],
         "lerc": [True, False],
         "libdeflate": [True, False],
@@ -38,7 +38,7 @@ class LibtiffConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "lzma": True,
-        "jpeg": "libjpeg",
+        "jpeg": True,
         "zlib": True,
         "lerc": False,
         "libdeflate": True,
@@ -75,12 +75,8 @@ class LibtiffConan(ConanFile):
             self.requires("libdeflate/[^1.19]")
         if self.options.lzma:
             self.requires("xz_utils/[>=5.4.5 <6]")
-        if self.options.jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.jbig:
             self.requires("jbig/20160605")
         if self.options.zstd:
@@ -183,12 +179,8 @@ class LibtiffConan(ConanFile):
             self.cpp_info.components["tiff"].requires.append("libdeflate::libdeflate")
         if self.options.lzma:
             self.cpp_info.components["tiff"].requires.append("xz_utils::xz_utils")
-        if self.options.jpeg == "libjpeg":
-            self.cpp_info.components["tiff"].requires.append("libjpeg::libjpeg")
-        elif self.options.jpeg == "libjpeg-turbo":
-            self.cpp_info.components["tiff"].requires.append("libjpeg-turbo::jpeg")
-        elif self.options.jpeg == "mozjpeg":
-            self.cpp_info.components["tiff"].requires.append("mozjpeg::libjpeg")
+        if self.options.jpeg:
+            self.cpp_info.components["tiff"].requires.append("libjpeg-meta::jpeg")
         if self.options.jbig:
             self.cpp_info.components["tiff"].requires.append("jbig::jbig")
         if self.options.zstd:

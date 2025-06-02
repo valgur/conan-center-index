@@ -78,7 +78,7 @@ class GrassConan(ConanFile):
     def requirements(self):
         self.requires("zlib/[^1.2]")
         self.requires("gdal/[^3.5]", transitive_headers=True, transitive_libs=True)
-        self.requires("libjpeg/[>=9e]")
+        self.requires("libjpeg-meta/latest")
         self.requires("proj/[^9.3.1]", transitive_headers=True, transitive_libs=True)
         if is_apple_os(self):
             self.requires("libiconv/[^1.17]")

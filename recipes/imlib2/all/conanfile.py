@@ -29,7 +29,7 @@ class Imlib2Conan(ConanFile):
         "with_heif": [True, False],
         "with_id3": [True, False],
         "with_j2k": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_jpeg": [True, False],
         "with_jxl": [True, False],
         "with_lzma": [True, False],
         "with_png": [True, False],
@@ -49,7 +49,7 @@ class Imlib2Conan(ConanFile):
         "with_heif": False,
         "with_id3": False,
         "with_j2k": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
         "with_jxl": False,
         "with_lzma": False,
         "with_png": True,
@@ -90,12 +90,8 @@ class Imlib2Conan(ConanFile):
             self.requires("libheif/[^1.18.2]")
         if self.options.with_id3:
             self.requires("libid3tag/0.16.3")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_j2k:
             self.requires("openjpeg/[^2.5.2]")
         if self.options.with_jxl:

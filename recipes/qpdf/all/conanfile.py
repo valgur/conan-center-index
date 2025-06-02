@@ -24,13 +24,11 @@ class QpdfConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_ssl": ["internal", "openssl", "gnutls"],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_ssl": "openssl",
-        "with_jpeg": "libjpeg",
     }
     implements = ["auto_shared_fpic"]
 
@@ -58,12 +56,7 @@ class QpdfConan(ConanFile):
         self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.0]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.3]")
+        self.requires("libjpeg-meta/latest")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -155,11 +148,6 @@ class QpdfConan(ConanFile):
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
         self.cpp_info.requires.append("zlib::zlib")
-        if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.requires.append("libjpeg::libjpeg")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.cpp_info.requires.append("mozjpeg::libjpeg")
+        self.cpp_info.requires.append("libjpeg-meta::jpeg")
         if self.options.with_ssl == "openssl":
             self.cpp_info.requires.append("openssl::openssl")

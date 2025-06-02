@@ -31,7 +31,7 @@ class GdkPixbufConan(ConanFile):
         "fPIC": [True, False],
         "with_libpng": [True, False],
         "with_libtiff": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", False],
+        "with_libjpeg": [True, False],
         "with_introspection": [True, False],
     }
     default_options = {
@@ -39,7 +39,7 @@ class GdkPixbufConan(ConanFile):
         "fPIC": True,
         "with_libpng": True,
         "with_libtiff": True,
-        "with_libjpeg": "libjpeg",
+        "with_libjpeg": True,
         "with_introspection": False,
     }
     implements = ["auto_shared_fpic"]
@@ -62,12 +62,8 @@ class GdkPixbufConan(ConanFile):
             self.requires("libpng/[~1.6]")
         if self.options.with_libtiff:
             self.requires("libtiff/[>=4.5 <5]")
-        if self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_libjpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_libjpeg:
+            self.requires("libjpeg-meta/latest")
 
     def validate(self):
         if self.options.shared and not self.dependencies["glib"].options.shared:
@@ -203,12 +199,8 @@ class GdkPixbufConan(ConanFile):
             self.cpp_info.requires.append("libpng::libpng")
         if self.options.with_libtiff:
             self.cpp_info.requires.append("libtiff::tiff")
-        if self.options.with_libjpeg == "libjpeg-turbo":
-            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_libjpeg == "libjpeg":
-            self.cpp_info.requires.append("libjpeg::libjpeg")
-        elif self.options.with_libjpeg == "mozjpeg":
-            self.cpp_info.requires.append("mozjpeg::mozjpeg")
+        if self.options.with_libjpeg:
+            self.cpp_info.requires.append("libjpeg-meta::jpeg")
 
         # Breaking change since Conan >= 2.0.8
         # Related to https://github.com/conan-io/conan/pull/14233

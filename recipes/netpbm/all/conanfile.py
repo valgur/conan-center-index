@@ -29,14 +29,12 @@ class NetpbmConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "tools": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg"],
         "with_x11": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "tools": False,
-        "with_libjpeg": "libjpeg",
         "with_x11": True,
     }
 
@@ -68,12 +66,7 @@ class NetpbmConan(ConanFile):
             self.requires("libtiff/[>=4.5 <5]")
             self.requires("libxml2/[^2.12.5]")
             self.requires("zlib/[>=1.2.11 <2]")
-            if self.options.with_libjpeg == "libjpeg":
-                self.requires("libjpeg/[>=9e]")
-            elif self.options.with_libjpeg == "libjpeg-turbo":
-                self.requires("libjpeg-turbo/[^3.0.2]")
-            elif self.options.with_libjpeg == "mozjpeg":
-                self.requires("mozjpeg/[^4.1.5]")
+            self.requires("libjpeg-meta/latest")
             if self.options.get_safe("with_x11"):
                 self.requires("xorg/system")
             # TODO: add ghostscript to CCI
@@ -223,13 +216,8 @@ class NetpbmConan(ConanFile):
                 "libpng::libpng",
                 "libtiff::tiff",
                 "libxml2::libxml2",
+                "libjpeg-meta::jpeg",
                 "zlib::zlib",
             ])
-            if self.options.with_libjpeg == "libjpeg":
-                self.cpp_info.requires.append("libjpeg::libjpeg")
-            elif self.options.with_libjpeg == "libjpeg-turbo":
-                self.cpp_info.requires.append("libjpeg-turbo::jpeg")
-            elif self.options.with_libjpeg == "mozjpeg":
-                self.cpp_info.requires.append("mozjpeg::libjpeg")
             if self.options.get_safe("with_x11"):
                 self.cpp_info.requires.append("xorg::x11")

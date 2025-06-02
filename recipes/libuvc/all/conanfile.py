@@ -24,12 +24,12 @@ class LibuvcConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_jpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_jpeg": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -42,12 +42,8 @@ class LibuvcConan(ConanFile):
 
     def requirements(self):
         self.requires("libusb/[^1.0.26]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.0]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.3]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
 
     def validate(self):
         if is_msvc(self):
@@ -106,9 +102,5 @@ class LibuvcConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "libuvc")
         self.cpp_info.libs = ["uvc"]
         self.cpp_info.requires = ["libusb::libusb"]
-        if self.options.with_jpeg == "libjpeg":
-            self.cpp_info.requires.append("libjpeg::libjpeg")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.cpp_info.requires.append("libjpeg-turbo::jpeg")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.cpp_info.requires.append("mozjpeg::libjpeg")
+        if self.options.with_jpeg:
+            self.cpp_info.requires.append("libjpeg-meta::jpeg")

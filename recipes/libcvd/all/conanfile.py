@@ -23,7 +23,7 @@ class LibCVDConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_libjpeg": [False, "libjpeg", "libjpeg-turbo", "mozjpeg"],
+        "with_libjpeg": [True, False],
         "with_libpng": [True, False],
         "with_libtiff": [True, False],
         "with_ffmpeg": [True, False],
@@ -33,7 +33,7 @@ class LibCVDConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_libjpeg": "libjpeg",
+        "with_libjpeg": True,
         "with_libpng": True,
         "with_libtiff": True,
         # Build without video support by default
@@ -77,12 +77,8 @@ class LibCVDConan(ConanFile):
             self.requires("ffmpeg/[>=6 <8]", transitive_libs=True)
         if self.options.with_libdc1394:
             self.requires("libdc1394/2.2.7")
-        if self.options.with_libjpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_libjpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_libjpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_libjpeg:
+            self.requires("libjpeg-meta/latest")
         if self.options.with_libpng:
             self.requires("libpng/[~1.6]")
         if self.options.with_libtiff:

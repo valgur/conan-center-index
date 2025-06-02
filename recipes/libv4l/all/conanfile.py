@@ -28,7 +28,7 @@ class Libv4lConan(ConanFile):
         "build_plugins": [True, False],
         "build_wrappers": [True, False],
         "build_libdvbv5": [True, False],
-        "with_jpeg": ["libjpeg", "libjpeg-turbo", "mozjpeg", False],
+        "with_jpeg": [True, False],
     }
     default_options = {
         "shared": False,
@@ -36,7 +36,7 @@ class Libv4lConan(ConanFile):
         "build_plugins": True,
         "build_wrappers": True,
         "build_libdvbv5": False,
-        "with_jpeg": "libjpeg",
+        "with_jpeg": True,
     }
     implements = ["auto_shared_fpic"]
 
@@ -46,12 +46,8 @@ class Libv4lConan(ConanFile):
     def requirements(self):
         if self.options.build_libdvbv5:
             self.requires("libudev/[^255.18]")
-        if self.options.with_jpeg == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[^3.0.2]")
-        elif self.options.with_jpeg == "mozjpeg":
-            self.requires("mozjpeg/[^4.1.5]")
+        if self.options.with_jpeg:
+            self.requires("libjpeg-meta/latest")
 
     def validate(self):
         if self.settings.os != "Linux":
@@ -117,17 +113,10 @@ class Libv4lConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        libjpeg = []
-        if self.options.with_jpeg == "libjpeg":
-            libjpeg = ["libjpeg::libjpeg"]
-        elif self.options.with_jpeg == "libjpeg-turbo":
-            libjpeg = ["libjpeg-turbo::jpeg"]
-        elif self.options.with_jpeg == "mozjpeg":
-            libjpeg = ["mozjpeg::libjpeg"]
-
         # libv4lconvert: v4l format conversion library
         self.cpp_info.components["libv4lconvert"].libs = ["v4lconvert"]
-        self.cpp_info.components["libv4lconvert"].requires = libjpeg
+        if self.options.with_jpeg:
+            self.cpp_info.components["libv4lconvert"].requires = ["libjpeg-meta::jpeg"]
         self.cpp_info.components["libv4lconvert"].system_libs = ["m", "rt"]
 
         # libv4l2: v4l2 device access library

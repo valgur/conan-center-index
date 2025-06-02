@@ -46,7 +46,7 @@ class QtConan(ConanFile):
         "with_harfbuzz": [True, False],
         "with_libb2": [True, False],
         "with_jasper": [True, False],
-        "with_libjpeg": ["libjpeg", "libjpeg-turbo", False],
+        "with_libjpeg": [True, False],
         "with_libpng": [True, False],
         "with_libtiff": [True, False],
         "with_libwebp": [True, False],
@@ -90,7 +90,7 @@ class QtConan(ConanFile):
         "with_harfbuzz": True,
         "with_libb2": False,
         "with_jasper": True,
-        "with_libjpeg": "libjpeg",
+        "with_libjpeg": True,
         "with_libpng": True,
         "with_libtiff": True,
         "with_libwebp": True,
@@ -439,10 +439,8 @@ class QtConan(ConanFile):
             self.requires("harfbuzz/[*]")
         if self.options.with_libb2:
             self.requires("libb2/20190723")
-        if self.options.get_safe("with_libjpeg") == "libjpeg":
-            self.requires("libjpeg/[>=9e]")
-        elif self.options.get_safe("with_libjpeg") == "libjpeg-turbo":
-            self.requires("libjpeg-turbo/[>=3.0 <3.1]")
+        if self.options.get_safe("with_libjpeg"):
+            self.requires("libjpeg-meta/latest")
         if self.options.get_safe("with_libpng"):
             self.requires("libpng/[~1.6]")
         if self.options.with_sqlite3:
@@ -1252,10 +1250,8 @@ class QtConan(ConanFile):
             _create_plugin("QIcoPlugin", "qico", "imageformats", ["Gui"])
             if self.options.get_safe("with_libjpeg"):
                 QJpegPlugin = _create_plugin("QJpegPlugin", "qjpeg", "imageformats", ["Gui"])
-                if self.options.with_libjpeg == "libjpeg-turbo":
-                    QJpegPlugin.requires.append("libjpeg-turbo::libjpeg-turbo")
-                if self.options.with_libjpeg == "libjpeg":
-                    QJpegPlugin.requires.append("libjpeg::libjpeg")
+                if self.options.with_libjpeg:
+                    QJpegPlugin.requires.append("libjpeg-meta::jpeg")
             if self.options.get_safe("with_x11"):
                 _create_module("XcbQpaPrivate", ["xkbcommon::libxkbcommon-x11", "xorg::xorg"], has_include_dir=False)
                 _create_plugin("QXcbIntegrationPlugin", "qxcb", "platforms", ["Core", "Gui", "XcbQpaPrivate"])
