@@ -113,7 +113,6 @@ class GDCMConan(ConanFile):
             rm(self, "*.pdb", bin_dir)
 
         rm(self, "[!U]*.cmake", os.path.join(self.package_folder, "lib", self._gdcm_subdir)) #leave UseGDCM.cmake untouched
-        rmdir(self, os.path.join(self.package_folder, "share"))
         self._create_cmake_variables(os.path.join(self.package_folder, self._gdcm_cmake_variables_path))
 
     def _create_cmake_variables(self, variables_file):
@@ -123,8 +122,6 @@ class GDCMConan(ConanFile):
             set(GDCM_MAJOR_VERSION "{v.major}")
             set(GDCM_MINOR_VERSION "{v.minor}")
             set(GDCM_BUILD_VERSION "{v.patch}")
-
-            get_filename_component(SELF_DIR "${{CMAKE_CURRENT_LIST_FILE}}" PATH)
 
             # The libraries.
             set(GDCM_LIBRARIES "")
@@ -138,14 +135,14 @@ class GDCMConan(ConanFile):
             set(GDCM_USE_VTK "OFF")
 
             # The "use" file.
-            set(GDCM_USE_FILE ${{SELF_DIR}}/UseGDCM.cmake)
+            set(GDCM_USE_FILE ${{CMAKE_CURRENT_LIST_DIR}}/UseGDCM.cmake)
 
             # The VTK options.
             set(GDCM_VTK_DIR "")
 
-            get_filename_component(GDCM_INCLUDE_ROOT "${{SELF_DIR}}/../../include/{self._gdcm_subdir}" ABSOLUTE)
+            get_filename_component(GDCM_INCLUDE_ROOT "${{CMAKE_CURRENT_LIST_DIR}}/../../include/{self._gdcm_subdir}" ABSOLUTE)
             set(GDCM_INCLUDE_DIRS ${{GDCM_INCLUDE_ROOT}})
-            get_filename_component(GDCM_LIB_ROOT "${{SELF_DIR}}/../../lib" ABSOLUTE)
+            get_filename_component(GDCM_LIB_ROOT "${{CMAKE_CURRENT_LIST_DIR}}/../../lib" ABSOLUTE)
             set(GDCM_LIBRARY_DIRS ${{GDCM_LIB_ROOT}})
         """)
         save(self, variables_file, content)
