@@ -69,6 +69,10 @@ class CfitsioConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.1)",
+                        "CMAKE_MINIMUM_REQUIRED(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
