@@ -4,7 +4,7 @@ import textwrap
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc_static_runtime
@@ -87,9 +87,6 @@ class GDCMConan(ConanFile):
         tc.variables["GDCM_USE_SYSTEM_OPENSSL"] = self.options.with_openssl
         tc.variables["GDCM_USE_SYSTEM_UUID"] = self.settings.os != "Windows"
         tc.variables["GDCM_USE_SYSTEM_ZLIB"] = True
-
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
 
         # https://sourceforge.net/p/gdcm/bugs/548/
         tc.preprocessor_definitions["CHARLS_NO_DEPRECATED_WARNING"] = "1"
