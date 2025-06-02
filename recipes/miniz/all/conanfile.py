@@ -22,16 +22,27 @@ class MinizConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "zlib_compat": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "zlib_compat": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if self.options.zlib_compat:
+            self.provides = ["zlib"]
+
     def export_sources(self):
         export_conandata_patches(self)
+
+    def package_id(self):
+        del self.info.options.zlib_compat
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -73,3 +84,9 @@ class MinizConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "miniz")
         self.cpp_info.libs = ["miniz"]
         self.cpp_info.includedirs.append(os.path.join("include", "miniz"))
+
+        if self.options.zlib_compat:
+            self.cpp_info.set_property("cmake_find_mode", "both")
+            self.cpp_info.set_property("cmake_module_file_name", "ZLIB")
+            self.cpp_info.set_property("cmake_module_target_name", "ZLIB::ZLIB")
+            self.cpp_info.set_property("pkg_config_aliases", ["zlib"])
