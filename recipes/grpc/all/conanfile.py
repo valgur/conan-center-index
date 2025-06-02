@@ -97,12 +97,13 @@ class GrpcConan(ConanFile):
         if Version(self.version) >= "1.62":
             self.requires("abseil/[>=20240116.1]", transitive_headers=True, transitive_libs=True)
             self.requires("protobuf/[>=3.27.0]", transitive_headers=True, transitive_libs=True)
+            self.requires("re2/[>=20220601]")
         else:
             self.requires("abseil/[>=20230125.3 <=20230802.1]", transitive_headers=True, transitive_libs=True)
             self.requires("protobuf/3.21.12", transitive_headers=True)
+            self.requires("re2/[>=20220601 <=20230601]")
         self.requires("c-ares/[>=1.19.1 <2]")
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("re2/[>=20220601]")
         self.requires("zlib-ng/[^2.0]")
         if self.options.get_safe("with_libsystemd"):
             self.requires("libsystemd/[^255]")
