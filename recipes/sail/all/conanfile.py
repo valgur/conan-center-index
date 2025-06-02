@@ -44,14 +44,7 @@ class SAILConan(ConanFile):
         "with_low_priority_codecs": "Enable codecs: ICO, PCX, PNM, PSD, QOI, TGA",
         "with_lowest_priority_codecs": "Enable codecs: WAL, XBM",
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            self.options.rm_safe("fPIC")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
+    implements = ["auto_shared_fpic"]
 
     def requirements(self):
         if self.options.with_highest_priority_codecs:
@@ -130,20 +123,13 @@ class SAILConan(ConanFile):
         copy(self, "LICENSE.txt",       self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "LICENSE.INIH.txt",  self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "LICENSE.MUNIT.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
-
         cmake = CMake(self)
         cmake.install()
-
-        # Remove CMake and pkg-config rules
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        # Move icons
-        rename(self, os.path.join(self.package_folder, "share"),
-                     os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Sail")
-
 
         self.cpp_info.components["sail-common"].set_property("cmake_target_name", "SAIL::SailCommon")
         self.cpp_info.components["sail-common"].set_property("pkg_config_name", "libsail-common")
