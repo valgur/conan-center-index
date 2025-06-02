@@ -451,7 +451,7 @@ class GdalConan(ConanFile):
         # https://github.com/OSGeo/gdal/blob/v3.8.0/cmake/helpers/CheckDependentLibraries.cmake#L419-L450
         tc.cache_variables["HAVE_JPEGTURBO_DUAL_MODE_8_12"] = (
                 self.options.with_jpeg and
-                bool(self.dependencies[self.dependencies["libjpeg-meta"].options.provider].options.get_safe("enable12bit"))
+                bool(self.dependencies[self.dependencies["libjpeg-meta"].options.provider.value].options.get_safe("enable12bit"))
         )
         # https://github.com/OSGeo/gdal/blob/v3.8.0/port/CMakeLists.txt
         tc.cache_variables["BLOSC_HAS_BLOSC_CBUFFER_VALIDATE"] = (
