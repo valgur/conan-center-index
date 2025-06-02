@@ -106,24 +106,29 @@ class ZlibNgConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        #FIXME: CMake targets are https://github.com/zlib-ng/zlib-ng/blob/29fd4672a2279a0368be936d7cd44d013d009fae/CMakeLists.txt#L914
+        if not self.options.zlib_compat:
+            self.cpp_info.set_property("cmake_file_name", "zlib-ng")
+            self.cpp_info.set_property("cmake_target_name", "zlib-ng::zlib")
+            self.cpp_info.set_property("pkg_config_name", "zlib-ng")
+        else:
+            self.cpp_info.set_property("cmake_find_mode", "both")
+            self.cpp_info.set_property("cmake_file_name", "ZLIB")
+            self.cpp_info.set_property("cmake_target_name", "ZLIB::ZLIB")
+            self.cpp_info.set_property("pkg_config_name", "zlib")
+            zlib_version = self.conan_data["zlib_version"][self.version]
+            self.cpp_info.set_property("system_package_version", zlib_version)
+            self.cpp_info.defines.append("ZLIB_COMPAT")
+
         suffix = "" if self.options.zlib_compat else "-ng"
-        self.cpp_info.set_property("pkg_config_name", f"zlib{suffix}")
         if self._is_windows:
-            # The library name of zlib-ng is complicated in zlib-ng>=2.0.4:
             # https://github.com/zlib-ng/zlib-ng/blob/2.0.4/CMakeLists.txt#L994-L1016
-            base = "zlib" if is_msvc(self) or Version(self.version) < "2.0.4" or self.options.shared else "z"
-            static_flag = "static" if is_msvc(self) and not self.options.shared and Version(self.version) >= "2.0.4" else ""
+            base = "zlib" if is_msvc(self) or self.options.shared else "z"
+            static_flag = "static" if is_msvc(self) and not self.options.shared else ""
             build_type = "d" if self.settings.build_type == "Debug" else ""
             self.cpp_info.libs = [f"{base}{static_flag}{suffix}{build_type}"]
         else:
             self.cpp_info.libs = [f"z{suffix}"]
-        if self.options.zlib_compat:
-            self.cpp_info.defines.append("ZLIB_COMPAT")
-            #copied from zlib
-            self.cpp_info.set_property("cmake_find_mode", "both")
-            self.cpp_info.set_property("cmake_file_name", "ZLIB")
-            self.cpp_info.set_property("cmake_target_name", "ZLIB::ZLIB")
+
         if self.options.with_gzfileop:
             self.cpp_info.defines.append("WITH_GZFILEOP")
         if not self.options.with_new_strategies:

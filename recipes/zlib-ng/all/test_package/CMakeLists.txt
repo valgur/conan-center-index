@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES C)
 
-if (ZLIB_COMPAT)
-  set(zlib_name ZLIB)
-else()
-  set(zlib_name zlib-ng)
-endif()
-
-find_package(${zlib_name} REQUIRED CONFIG)
-
 add_executable(${PROJECT_NAME} test_package.c)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${zlib_name}::${zlib_name})
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
+
+if (ZLIB_COMPAT)
+  find_package(ZLIB REQUIRED)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ZLIB::ZLIB)
+else()
+  find_package(zlib-ng REQUIRED CONFIG)
+  target_link_libraries(${PROJECT_NAME} PRIVATE zlib-ng::zlib)
+endif()
