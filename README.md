@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-01:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-02:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -34,6 +34,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - bluez/5.82
 - boost/1.71.0
 - boost/1.74.0
+- boostdep/1.88.0
 - boxfort/0.1.4
 - cairo/1.18.4
 - capnproto/1.0.1.1
@@ -142,6 +143,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glslang/1.3.296.0
 - glslang/1.4.309.0
 - glslang/1.4.313.0
+- gm2calc/2.3.1
 - gn/qt-6.9.0
 - gnsstk/14.3.0
 - gnu-getopt/2.40
