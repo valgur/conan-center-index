@@ -34,7 +34,7 @@ class ZlibNgConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "zlib_compat": False,
+        "zlib_compat": True,
         "with_gzfileop": True,
         "with_optim": True,
         "with_new_strategies": True,
