@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-02:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-03:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -94,6 +94,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - filament/1.5.3
 - firebird/5.0.0
 - flite/2.2
+- fltk/1.4.3
 - fortran/cci.latest
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
@@ -227,6 +228,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libhdfs3/cci.20191105
 - libiberty/15.1.0
 - libice/1.1.1
+- libjpeg-meta/latest
 - libjwt/3.2.1
 - liblas/1.8.1.cci.20240916
 - libmediainfo/23.11
