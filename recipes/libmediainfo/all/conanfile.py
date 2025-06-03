@@ -55,19 +55,18 @@ class LibmediainfoConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "Project/CMake/CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1.0)",
+                        "cmake_minimum_required(VERSION 3.5.0)")
 
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["BUILD_ZENLIB"] = False
         tc.variables["BUILD_ZLIB"] = False
         tc.variables["ZenLib_LIBRARY"] = "zen::zen"
-        if Version(self.version) < "22.03":
-            # Generate a relocatable shared lib on Macos
-            tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
+        tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0042"] = "NEW"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
-        if Version(self.version) > "22.03":
-            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         deps = CMakeDeps(self)
         deps.set_property("tinyxml2", "cmake_file_name", "TinyXML")
