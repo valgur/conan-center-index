@@ -2,13 +2,11 @@ import os
 from pathlib import Path
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -33,6 +31,9 @@ class PdfiumConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    def export_sources(self):
+        export_conandata_patches(self)
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -46,15 +47,6 @@ class PdfiumConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 14)
-        minimum_compiler_versions = {
-            "gcc": "8",
-            "msvc": "191",
-        }
-        min_compiler_version = minimum_compiler_versions.get(str(self.settings.compiler))
-        if min_compiler_version and Version(self.settings.compiler.version) < min_compiler_version:
-            raise ConanInvalidConfiguration(
-                f"pdfium needs at least compiler version {min_compiler_version}"
-            )
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
@@ -69,6 +61,7 @@ class PdfiumConan(ConanFile):
             destination=os.path.join(self.source_folder, "base", "trace_event", "common"))
         get(self, **self.conan_data["sources"][self.version]["chromium_build"],
             destination=os.path.join(self.source_folder, "build"))
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
