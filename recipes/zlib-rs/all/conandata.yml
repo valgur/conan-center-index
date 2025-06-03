@@ -1,0 +1,11 @@
+sources:
+  "0.5.0":
+    "zlib-rs":
+      url: "https://github.com/trifectatechfoundation/zlib-rs/archive/refs/tags/v0.5.0.tar.gz"
+      sha256: "a5ef58c30220173b44c1304a9e367ec8fd6ac03c6c93ca41fc24b4837754ed1a"
+    "zlib.h":
+      url: "https://raw.githubusercontent.com/madler/zlib/refs/tags/v1.3.1/zlib.h"
+      sha256: "8a5579af72ea4f427ff00a4150f0ccb3fc5c1e4379f726e101133b1ab9fc600c"
+    "LICENSE-zlib":
+      url: "https://raw.githubusercontent.com/madler/zlib/refs/tags/v1.3.1/LICENSE"
+      sha256: "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
