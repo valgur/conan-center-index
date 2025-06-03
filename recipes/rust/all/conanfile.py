@@ -61,12 +61,13 @@ class RustConan(ConanFile):
     # Include the package version in consumer package_id hash even when using it as a tool_requires
     build_mode = "patch_mode"
 
-    def _settings_to_rust_target(self, settings):
+    @staticmethod
+    def _settings_to_rust_target(settings):
         if settings is None:
             return None
         os = "apple" if settings.os in ["Macos", "watchOS", "tvOS", "visionOS"] else str(settings.os)
         arch = str(settings.arch)
-        compiler = str(settings.compiler)
+        compiler = settings.get_safe("compiler")
         return target_map.get((os, arch, compiler), target_map.get((os, arch, None)))
 
     @property
@@ -91,9 +92,11 @@ class RustConan(ConanFile):
         del self.info.settings.compiler
         del self.info.settings.build_type
         # Include target os and arch info for cross-compilation
-        self.info.settings_target = self.settings_target
-        self.info.settings_target.rm_safe("compiler")
-        self.info.settings_target.rm_safe("build_type")
+        if self.settings_target:
+            self.info.settings_target = self.settings_target
+            self.info.settings_target.rm_safe("build_type")
+            if self.settings_target.os != "Windows":
+                self.info.settings_target.rm_safe("compiler")
 
     def validate(self):
         urls = self._urls
