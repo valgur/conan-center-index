@@ -72,10 +72,8 @@ class GrpcConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-        if not (self.settings.os in ["Linux", "FreeBSD"] and Version(self.version) >= "1.52"):
+        if self.settings.os not in ["Linux", "FreeBSD"]:
             del self.options.with_libsystemd
-        if Version(self.version) < "1.65.0":
-            del self.options.otel_plugin
 
     def configure(self):
         if self.options.shared:
@@ -94,14 +92,9 @@ class GrpcConan(ConanFile):
         # Set transitive_libs=True for protobuf to make it available without
         # explicitly having to add requires and tool_requires for it.
         # Saves a lot of pain with version range mismatch issues between host and build.
-        if Version(self.version) >= "1.62":
-            self.requires("abseil/[>=20240116.1]", transitive_headers=True, transitive_libs=True)
-            self.requires("protobuf/[>=3.27.0]", transitive_headers=True, transitive_libs=True)
-            self.requires("re2/[>=20220601]")
-        else:
-            self.requires("abseil/[>=20230125.3 <=20230802.1]", transitive_headers=True, transitive_libs=True)
-            self.requires("protobuf/3.21.12", transitive_headers=True)
-            self.requires("re2/[>=20220601 <=20230601]")
+        self.requires("abseil/[>=20240116.1]", transitive_headers=True, transitive_libs=True)
+        self.requires("protobuf/[>=3.27.0]", transitive_headers=True, transitive_libs=True)
+        self.requires("re2/[>=20220601]")
         self.requires("c-ares/[>=1.19.1 <2]")
         self.requires("openssl/[>=1.1 <4]")
         self.requires("zlib-ng/[^2.0]")
@@ -189,7 +182,7 @@ class GrpcConan(ConanFile):
                             "COMMAND ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}",
                             'COMMAND ${CMAKE_COMMAND} -E env --modify "DYLD_LIBRARY_PATH=path_list_prepend:$ENV{DYLD_LIBRARY_PATH}" ${_gRPC_PROTOBUF_PROTOC_EXECUTABLE}')
 
-        if self.settings.os == "Macos" and Version(self.version) >= "1.64":
+        if self.settings.os == "Macos":
             # See https://github.com/grpc/grpc/issues/36654#issuecomment-2228569158
             save(self, cmakelists, (
                 "\ntarget_link_options(upb_textformat_lib PRIVATE -Wl,-undefined,dynamic_lookup)"

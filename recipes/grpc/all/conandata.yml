@@ -11,12 +11,6 @@ sources:
   "1.65.5":
     url: "https://github.com/grpc/grpc/archive/v1.65.5.tar.gz"
     sha256: "bdab9cb52e3ee703d6c09d15716bcc10a150b2e9e414182e5b375d32050dba84"
-  "1.54.3":
-    url: "https://github.com/grpc/grpc/archive/v1.54.3.tar.gz"
-    sha256: "17e4e1b100657b88027721220cbfb694d86c4b807e9257eaf2fb2d273b41b1b1"
-  "1.50.2":
-    url: "https://github.com/grpc/grpc/archive/v1.50.2.tar.gz"
-    sha256: "e941752638a92f21e27566903e1eb9b4a6380d70ca5ce91116b4cff6cb8fe2f2"
 patches:
   "1.67.1":
     - patch_file: "patches/1.67.1/003-protobuf-v30-support.patch"
@@ -32,11 +26,3 @@ patches:
       patch_source:
         - "https://github.com/grpc/grpc/commit/852ecf7176c904374c2d80d035bad00ff4c28d67"
         - "https://github.com/grpc/grpc/commit/dfdda9eb9d308640ea6947f3ad16c86d7b89d7fd"
-  "1.54.3":
-    - patch_file: "patches/v1.50.x/002-CMake-Add-gRPC_USE_SYSTEMD-option-34384.patch"
-      patch_type: "backport"
-      patch_source: "https://github.com/grpc/grpc/commit/5c3400e8dc08d0810e3301d7e8cd8a718c82eeed"
-    - patch_file: "patches/v1.54.x/003-remove-obsolete-template-keyword-v1.54.3.patch"
-  "1.50.2":
-    - patch_file: "patches/v1.50.x/001-disable-cppstd-override.patch"
-    - patch_file: "patches/v1.50.x/003-remove-obsolete-template-keyword.patch"
