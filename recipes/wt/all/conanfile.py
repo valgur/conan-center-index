@@ -92,8 +92,8 @@ class WtConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        # Boost.Asio v1.88 is not compatible
-        self.requires("boost/[^1.71.0 <1.88]", transitive_headers=True)
+        # Boost.Asio v1.87 is not compatible
+        self.requires("boost/[^1.71.0 <1.87]", transitive_headers=True)
         if self.options.connector_http:
             self.requires("zlib/[>=1.2.11 <2]")
         if self.options.with_ssl:
