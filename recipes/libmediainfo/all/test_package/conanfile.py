@@ -11,7 +11,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "CMakeDeps"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
