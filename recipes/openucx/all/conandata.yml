@@ -1,0 +1,4 @@
+sources:
+  "1.18.1":
+    url: "https://github.com/openucx/ucx/releases/download/v1.18.1/ucx-1.18.1.tar.gz"
+    sha256: "8018dd75f11b5e8d6e57dcdb5b798d2c1f000982c353efde1f3170025c6c3b4c"
