@@ -46,7 +46,7 @@ class NiftiClibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.use_cifti:
             self.requires("expat/[>=2.6.2 <3]")
 
@@ -101,7 +101,7 @@ class NiftiClibConan(ConanFile):
         self.cpp_info.components["znz"].set_property("cmake_target_name", "NIFTI::znz")
         self.cpp_info.components["znz"].includedirs += [os.path.join("include", "nifti")]
         self.cpp_info.components["znz"].system_libs += sys_libs
-        self.cpp_info.components["znz"].requires = ["zlib::zlib"]
+        self.cpp_info.components["znz"].requires = ["zlib-ng::zlib-ng"]
         self.cpp_info.components["znz"].defines = ["HAVE_ZLIB"]
 
         # inside the niftilib folder

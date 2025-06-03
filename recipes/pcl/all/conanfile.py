@@ -230,7 +230,7 @@ class PclConan(ConanFile):
             "rssdk": [],
             "rssdk2": [],
             "vtk": ["vtk::vtk"],
-            "zlib": ["zlib::zlib"],
+            "zlib": ["zlib-ng::zlib-ng"],
         }[dep]
 
     @property
@@ -368,7 +368,7 @@ class PclConan(ConanFile):
         if self._is_enabled("opencv"):
             self.requires("opencv/[^4.5]", transitive_headers=True)
         if self._is_enabled("zlib"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self._is_enabled("openmp"):
             self.requires("openmp/system", transitive_headers=True, transitive_libs=True)
         if self.options.with_vtk:

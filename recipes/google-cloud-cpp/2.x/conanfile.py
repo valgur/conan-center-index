@@ -116,7 +116,7 @@ class GoogleCloudCppConan(ConanFile):
         self.requires("crc32c/[^1.1.2]")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("openssl/[>=1.1 <4]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def build_requirements(self):
         self.tool_requires("grpc/<host_version>")
@@ -192,7 +192,7 @@ class GoogleCloudCppConan(ConanFile):
         self.cpp_info.components["common"].libs = ["google_cloud_cpp_common"]
         self.cpp_info.components["common"].set_property("pkg_config_name", "google_cloud_cpp_common")
 
-        self.cpp_info.components["rest_internal"].requires = ["common", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
+        self.cpp_info.components["rest_internal"].requires = ["common", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib-ng::zlib-ng"]
         self.cpp_info.components["rest_internal"].libs = ["google_cloud_cpp_rest_internal"]
         self.cpp_info.components["rest_internal"].set_property("pkg_config_name", f"google_cloud_cpp_rest_internal")
 
@@ -263,11 +263,11 @@ class GoogleCloudCppConan(ConanFile):
         self.cpp_info.components["compute"].set_property("pkg_config_name", "google_cloud_cpp_compute")
 
         # The `google-cloud-cpp::oauth2` library does not depend on gRPC or any protos.
-        self.cpp_info.components["oauth2"].requires = ["rest_internal", "common", "nlohmann_json::nlohmann_json", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
+        self.cpp_info.components["oauth2"].requires = ["rest_internal", "common", "nlohmann_json::nlohmann_json", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib-ng::zlib-ng"]
         self.cpp_info.components["oauth2"].libs = ["google_cloud_cpp_oauth2"]
         self.cpp_info.components["oauth2"].set_property("pkg_config_name", "google_cloud_cpp_oauth2")
 
-        self.cpp_info.components["storage"].requires = ["rest_internal", "common", "nlohmann_json::nlohmann_json", "abseil::absl_memory", "abseil::absl_strings", "abseil::absl_str_format", "abseil::absl_time", "abseil::absl_variant", "crc32c::crc32c", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib::zlib"]
+        self.cpp_info.components["storage"].requires = ["rest_internal", "common", "nlohmann_json::nlohmann_json", "abseil::absl_memory", "abseil::absl_strings", "abseil::absl_str_format", "abseil::absl_time", "abseil::absl_variant", "crc32c::crc32c", "libcurl::libcurl", "openssl::ssl", "openssl::crypto", "zlib-ng::zlib-ng"]
         self.cpp_info.components["storage"].libs = ["google_cloud_cpp_storage"]
         self.cpp_info.components["storage"].set_property("pkg_config_name", "google_cloud_cpp_storage")
 
@@ -297,6 +297,6 @@ class GoogleCloudCppConan(ConanFile):
             "grpc::_grpc",
             "openssl::openssl",
             "protobuf::libprotobuf",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             # "c-ares::c-ares", - listed, but not actually used anywhere
         ]

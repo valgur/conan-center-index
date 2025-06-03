@@ -158,7 +158,7 @@ class LibpqConan(ConanFile):
         if self.options.with_uuid:
             self.requires("util-linux-libuuid/2.41")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
 
@@ -312,7 +312,7 @@ class LibpqConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.components["_common"].system_libs.extend(["ws2_32", "secur32"])
         if self.options.with_zlib:
-            self.cpp_info.components["_common"].requires.append("zlib::zlib")
+            self.cpp_info.components["_common"].requires.append("zlib-ng::zlib-ng")
         if self.options.with_zstd:
             self.cpp_info.components["_common"].requires.append("zstd::zstd")
         if self.options.with_openssl:
@@ -365,7 +365,7 @@ class LibpqConan(ConanFile):
         if self.options.with_libxml:
             tool_requires.append("libxml2::libxml2")
         if self.options.with_zlib:
-            tool_requires.append("zlib::zlib")
+            tool_requires.append("zlib-ng::zlib-ng")
         if self.options.with_zstd:
             tool_requires.append("zstd::zstd")
         self.cpp_info.components["_tools"].requires = tool_requires

@@ -55,7 +55,7 @@ class PrometheusCppConan(ConanFile):
         if self.options.with_push:
             self.requires("libcurl/[>=7.78.0 <9]", transitive_headers=True)
         if self.options.get_safe("with_compression"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -120,6 +120,6 @@ class PrometheusCppConan(ConanFile):
                 "civetweb::civetweb-cpp"
             ]
             if self.options.with_compression:
-                self.cpp_info.components["prometheus-cpp-pull"].requires.append("zlib::zlib")
+                self.cpp_info.components["prometheus-cpp-pull"].requires.append("zlib-ng::zlib-ng")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["prometheus-cpp-pull"].system_libs = ["pthread", "rt"]

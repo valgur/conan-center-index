@@ -55,7 +55,7 @@ class OpenEXRConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         # Note: OpenEXR and Imath are versioned independently.
         self.requires("imath/[^3.1.9]", transitive_headers=True)
         if self._with_libdeflate:
@@ -150,7 +150,7 @@ class OpenEXRConan(ConanFile):
         # OpenEXR::OpenEXRCore
         OpenEXRCore = self._add_component("OpenEXRCore")
         OpenEXRCore.libs = [f"OpenEXRCore{lib_suffix}"]
-        OpenEXRCore.requires = [self._conan_comp("OpenEXRConfig"), "zlib::zlib"]
+        OpenEXRCore.requires = [self._conan_comp("OpenEXRConfig"), "zlib-ng::zlib-ng"]
         if self._with_libdeflate:
             OpenEXRCore.requires.append("libdeflate::libdeflate")
         if self.settings.os in ["Linux", "FreeBSD"]:

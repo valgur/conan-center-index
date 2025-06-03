@@ -55,7 +55,7 @@ class FreeImageConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_jpeg:
             self.requires("libjpeg-meta/latest")
         if self.options.with_jpeg2000:
@@ -122,7 +122,7 @@ class FreeImageConan(ConanFile):
     def package_info(self):
         def imageformats_deps():
             components = []
-            components.append("zlib::zlib")
+            components.append("zlib-ng::zlib-ng")
             if self.options.with_jpeg:
                 components.append("libjpeg-meta::jpeg")
             if self.options.with_jpeg2000:

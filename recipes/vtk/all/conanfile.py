@@ -268,7 +268,7 @@ class VtkConan(ConanFile):
         self.requires("pugixml/[^1.14]")
         self.requires("utfcpp/[^4.0.4]")
         self.requires("xz_utils/[^5.4.5]")
-        self.requires("zlib/[^1.2.11]")
+        self.requires("zlib-ng/[^2.0]")
         # Used in public vtkloguru/loguru.hpp
         self.requires("fmt/[>=8]", transitive_headers=True, transitive_libs=True)
 
@@ -769,7 +769,7 @@ class VtkConan(ConanFile):
         Returns a dict of Conan targets corresponding to generated CMake targets. E.g.:
          'WebP::webpdecoder': 'libwebp::webpdecoder',
          'WebP::webpdemux': 'libwebp::webpdemux',
-         'ZLIB::ZLIB': 'zlib::zlib',
+         'ZLIB::ZLIB': 'zlib-ng::zlib-ng',
         """
         def _get_targets(*args):
             targets = [deps.get_property("cmake_target_name", *args),

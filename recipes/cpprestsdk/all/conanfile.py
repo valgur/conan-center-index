@@ -68,7 +68,7 @@ class CppRestSDKConan(ConanFile):
         self.requires("boost/[^1.74.0 <1.87]", options={f"with_{module}": True for module in self._boost_modules})
         self.requires("openssl/[>=1.1 <4]")
         if self.options.with_compression:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_websockets:
             self.requires("websocketpp/0.8.2", options={"asio": "boost"})
 
@@ -156,7 +156,7 @@ class CppRestSDKConan(ConanFile):
         if self.options.with_compression:
             self.cpp_info.components["cpprestsdk_zlib_internal"].set_property("cmake_target_name", "cpprestsdk::cpprestsdk_zlib_internal")
             self.cpp_info.components["cpprestsdk_zlib_internal"].includedirs = []
-            self.cpp_info.components["cpprestsdk_zlib_internal"].requires = ["zlib::zlib"]
+            self.cpp_info.components["cpprestsdk_zlib_internal"].requires = ["zlib-ng::zlib-ng"]
             self.cpp_info.components["cpprest"].requires.append("cpprestsdk_zlib_internal")
         # cpprestsdk_websocketpp_internal
         if self.options.with_websockets:

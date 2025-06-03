@@ -63,7 +63,7 @@ class ElfutilsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_bzlib:
@@ -166,7 +166,7 @@ class ElfutilsConan(ConanFile):
     def package_info(self):
         # library components
         self.cpp_info.components["libelf"].libs = ["elf"]
-        self.cpp_info.components["libelf"].requires = ["zlib::zlib"]
+        self.cpp_info.components["libelf"].requires = ["zlib-ng::zlib-ng"]
         self.cpp_info.components["libelf"].set_property("pkg_config_name", "libelf")
         if self.options.with_bzlib:
             self.cpp_info.components["libelf"].requires.append("bzip2::bzip2")

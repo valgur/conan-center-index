@@ -59,7 +59,7 @@ class H5ppConan(ConanFile):
         if Version(self.version) < "1.10.0" or self.options.get_safe("with_spdlog"):
             self.requires("spdlog/[^1.8]", transitive_headers=True, transitive_libs=True)
         if Version(self.version) >= "1.10.0" and self.options.with_zlib:
-            self.requires("zlib/[^1.3]", transitive_headers=True, transitive_libs=True)
+            self.requires("zlib-ng/[^2.0]", transitive_headers=True, transitive_libs=True)
 
     def layout(self):
         basic_layout(self,src_folder="src")
@@ -111,7 +111,7 @@ class H5ppConan(ConanFile):
                 self.cpp_info.components["h5pp_flags"].defines.append("H5PP_USE_SPDLOG")
                 self.cpp_info.components["h5pp_flags"].defines.append("H5PP_USE_FMT")
             if self.options.get_safe("with_zlib"):
-                self.cpp_info.components["h5pp_deps"].requires.append("zlib::zlib")
+                self.cpp_info.components["h5pp_deps"].requires.append("zlib-ng::zlib-ng")
             if self.options.get_safe("with_quadmath"):
                 self.cpp_info.components["h5pp_flags"].defines.append("H5PP_USE_FLOAT128")
                 self.cpp_info.components["h5pp_flags"].defines.append("H5PP_USE_QUADMATH")

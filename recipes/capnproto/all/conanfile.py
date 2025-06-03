@@ -75,7 +75,7 @@ class CapnprotoConan(ConanFile):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_zlib"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
@@ -201,9 +201,9 @@ class CapnprotoConan(ConanFile):
         }
 
         if self.options.get_safe("with_zlib"):
-            components.update({"kj-gzip": {"requires": ["kj", "kj-async", "zlib::zlib"]}})
+            components.update({"kj-gzip": {"requires": ["kj", "kj-async", "zlib-ng::zlib-ng"]}})
             if Version(self.version) >= "1.0.0":
-                components["kj-http"].setdefault("requires", []).append("zlib::zlib")
+                components["kj-http"].setdefault("requires", []).append("zlib-ng::zlib-ng")
         if self.options.with_openssl:
             components.update({"kj-tls": {"requires": ["kj", "kj-async", "openssl::openssl"]}})
         if Version(self.version) >= "0.9.0":

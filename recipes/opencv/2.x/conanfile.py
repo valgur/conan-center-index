@@ -155,7 +155,7 @@ class OpenCVConan(ConanFile):
             "core": {
                 "is_built": True,
                 "no_option": True,
-                "requires": ["zlib::zlib"] + eigen() + tbb(),
+                "requires": ["zlib-ng::zlib-ng"] + eigen() + tbb(),
                 "system_libs": [
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
@@ -350,7 +350,7 @@ class OpenCVConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
         if self.options.with_tbb:

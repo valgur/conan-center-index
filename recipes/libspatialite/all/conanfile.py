@@ -81,7 +81,7 @@ class LibspatialiteConan(ConanFile):
         # Included in public spatialite/sqlite.h
         # https://www.gaia-gis.it/fossil/libspatialite/file?name=src/headers/spatialite/sqlite.h&ci=tip
         self.requires("sqlite3/[>=3.44 <4]", transitive_headers=True, transitive_libs=True)
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_proj:
             self.requires("proj/[^9.3.1]")
         if self.options.with_iconv:
@@ -207,7 +207,7 @@ class LibspatialiteConan(ConanFile):
         replace_in_file(
             self, os.path.join(self.source_folder, "configure.ac"),
             "AC_CHECK_LIB(z,",
-            "AC_CHECK_LIB({},".format(self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]),
+            "AC_CHECK_LIB({},".format(self.dependencies["zlib-ng"].cpp_info.aggregated_components().libs[0]),
         )
         # Disable tests
         replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"),

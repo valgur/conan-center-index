@@ -66,7 +66,7 @@ class PCRE2Conan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_zlib"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.get_safe("with_bzip2"):
             self.requires("bzip2/[^1.0.8]")
 
@@ -173,7 +173,7 @@ class PCRE2Conan(ConanFile):
         if self.options.build_pcre2grep:
             # zlib and bzip2 are optional requirements of pcre2grep executable, not of any pcre2 lib.
             if self.options.with_zlib:
-                self.cpp_info.components["tools"].requires.append("zlib::zlib")
+                self.cpp_info.components["tools"].requires.append("zlib-ng::zlib-ng")
             if self.options.with_bzip2:
                 self.cpp_info.components["tools"].requires.append("bzip2::bzip2")
 

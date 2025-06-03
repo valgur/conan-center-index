@@ -39,7 +39,7 @@ class LibharuConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libpng/[~1.6]")
 
     def source(self):

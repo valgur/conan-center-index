@@ -160,7 +160,7 @@ class OpenSceneGraphConanFile(ConanFile):
         if self.options.with_tiff:
             self.requires("libtiff/[>=4.5 <5]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.options.get_safe("with_asio"):
@@ -431,7 +431,7 @@ class OpenSceneGraphConanFile(ConanFile):
         elif is_apple_os(self):
             library.frameworks = ["Carbon", "Cocoa"]
         if self.options.with_zlib:
-            library.requires.append("zlib::zlib")
+            library.requires.append("zlib-ng::zlib-ng")
 
         setup_library("osgUtil").requires = ["osg", "OpenThreads"]
         setup_library("osgGA").requires = ["osgDB", "osgUtil", "osg", "OpenThreads"]
@@ -483,7 +483,7 @@ class OpenSceneGraphConanFile(ConanFile):
         plugin = setup_plugin("ive")
         plugin.requires.extend(["osgSim", "osgFX", "osgText", "osgTerrain", "osgVolume"])
         if self.options.with_zlib:
-            plugin.requires.append("zlib::zlib")
+            plugin.requires.append("zlib-ng::zlib-ng")
 
         # Viewer plugins
         setup_plugin("cfg").requires.append("osgViewer")
@@ -515,7 +515,7 @@ class OpenSceneGraphConanFile(ConanFile):
             setup_plugin("gif").requires.append("giflib::giflib")
 
         if self.options.get_safe("with_png"):
-            setup_plugin("png").requires.extend(["libpng::libpng", "zlib::zlib"])
+            setup_plugin("png").requires.extend(["libpng::libpng", "zlib-ng::zlib-ng"])
 
         if self.options.with_tiff:
             setup_plugin("tiff").requires.append("libtiff::tiff")
@@ -542,10 +542,10 @@ class OpenSceneGraphConanFile(ConanFile):
             plugin = setup_plugin("curl")
             plugin.requires.append("libcurl::libcurl")
             if self.options.with_zlib:
-                plugin.requires.append("zlib::zlib")
+                plugin.requires.append("zlib-ng::zlib-ng")
 
         if self.options.with_zlib:
-            setup_plugin("gz").requires.append("zlib::zlib")
+            setup_plugin("gz").requires.append("zlib-ng::zlib-ng")
 
         # with_inventor
         # setup_plugin("iv")

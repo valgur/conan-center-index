@@ -54,7 +54,7 @@ class TaglibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if Version(self.version) >= 2:
             self.requires("utfcpp/[^4.0.4]")
 
@@ -111,7 +111,7 @@ class TaglibConan(ConanFile):
         self.cpp_info.components["tag"].set_property("pkg_config_name", "taglib")
         self.cpp_info.components["tag"].includedirs.append(os.path.join("include", "taglib"))
         self.cpp_info.components["tag"].libs = ["tag"]
-        self.cpp_info.components["tag"].requires = ["zlib::zlib"]
+        self.cpp_info.components["tag"].requires = ["zlib-ng::zlib-ng"]
         if Version(self.version) >= 2:
             self.cpp_info.components["tag"].requires.append("utfcpp::utfcpp")
         if not self.options.shared:

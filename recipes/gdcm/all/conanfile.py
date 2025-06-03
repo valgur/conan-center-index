@@ -27,14 +27,12 @@ class GDCMConan(ConanFile):
         "fPIC": [True, False],
         "with_json": [True, False],
         "with_openssl": [True, False],
-        "with_zlibng": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_json": True,
         "with_openssl": True,
-        "with_zlibng": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -48,10 +46,7 @@ class GDCMConan(ConanFile):
         self.requires("charls/[^2.4.2]")
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("openjpeg/[^2.5.2]")
-        if self.options.with_zlibng:
-            self.requires("zlib-ng/[^2.2.0]")
-        else:
-            self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.settings.os != "Windows":
             self.requires("util-linux-libuuid/2.41")
             self.requires("libiconv/[^1.17]")
@@ -64,10 +59,6 @@ class GDCMConan(ConanFile):
         check_min_cppstd(self, 14)
         if is_msvc_static_runtime(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} does not support shared and static runtime together.")
-        if self.info.options.with_zlibng:
-            zlib_ng = self.dependencies["zlib-ng"]
-            if not zlib_ng.options.zlib_compat:
-                raise ConanInvalidConfiguration(f"{self.ref} requires the dependency option zlib-ng:zlib_compat=True")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -195,10 +186,7 @@ class GDCMConan(ConanFile):
         if self.options.with_openssl:
             self.cpp_info.components["gdcmCommon"].requires.append("openssl::openssl")
 
-        def zlib():
-            return "zlib-ng::zlib-ng" if self.options.with_zlibng else "zlib::zlib"
-
-        self.cpp_info.components["gdcmDSED"].requires.extend(["gdcmCommon", zlib()])
+        self.cpp_info.components["gdcmDSED"].requires.extend(["gdcmCommon", "zlib-ng::zlib-ng"])
         self.cpp_info.components["gdcmIOD"].requires.extend(["gdcmDSED", "gdcmCommon", "expat::expat"])
         self.cpp_info.components["gdcmMSFF"].requires.extend(["gdcmIOD", "gdcmDSED", "gdcmDICT", "charls::charls", "openjpeg::openjpeg"])
         if self.options.with_json:

@@ -56,7 +56,7 @@ class LiunwindConan(ConanFile):
         if self.options.minidebuginfo:
             self.requires("xz_utils/5.4.5")
         if self.options.zlibdebuginfo:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -125,7 +125,7 @@ class LiunwindConan(ConanFile):
         if self.options.minidebuginfo:
             self.cpp_info.components["unwind"].requires.append("xz_utils::xz_utils")
         if self.options.zlibdebuginfo:
-            self.cpp_info.components["unwind"].requires.append("zlib::zlib")
+            self.cpp_info.components["unwind"].requires.append("zlib-ng::zlib-ng")
         if self.settings.os == "Linux":
             self.cpp_info.components["unwind"].system_libs.append("pthread")
         self.cpp_info.components["generic"].set_property(

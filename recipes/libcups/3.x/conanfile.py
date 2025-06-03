@@ -48,7 +48,7 @@ class LibcupsConan(ConanFile):
 
     def requirements(self):
         self.requires("pdfio/[^1.5.2]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libiconv/[^1.17]")
         self.requires("openssl/[>=1.1 <4]")
         if self.options.with_dnssd == "avahi":

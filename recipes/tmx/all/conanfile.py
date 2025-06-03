@@ -41,7 +41,7 @@ class TmxConan(ConanFile):
     def requirements(self):
         self.requires("libxml2/[^2.12.5]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
 

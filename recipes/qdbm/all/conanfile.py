@@ -53,7 +53,7 @@ class QDBMConan(ConanFile):
         if self.options.with_iconv:
             self.requires("libiconv/[^1.17]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

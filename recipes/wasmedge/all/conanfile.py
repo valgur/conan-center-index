@@ -31,14 +31,14 @@ class WasmedgeConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]", options={"shared": True})
+        self.requires("zlib-ng/[^2.0]", options={"shared": True})
 
     def validate(self):
         try:
             self.conan_data["sources"][self.version][str(self.settings.os)][str(self.settings.arch)][self._compiler_alias]
         except KeyError:
             raise ConanInvalidConfiguration("Binaries for this combination of version/os/arch/compiler are not available")
-        if not self.dependencies["zlib"].options.shared:
+        if not self.dependencies["zlib-ng"].options.shared:
             raise ConanInvalidConfiguration("wasmedge requires zlib to be built as a shared library")
 
     def package_id(self):

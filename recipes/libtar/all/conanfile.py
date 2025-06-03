@@ -39,7 +39,7 @@ class LibTarConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -67,7 +67,7 @@ class LibTarConan(ConanFile):
                 self,
                 os.path.join(self.source_folder, "configure.ac"),
                 "AC_CHECK_LIB([z], [gzread])",
-                "AC_CHECK_LIB([{}], [gzread])".format(self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]),
+                "AC_CHECK_LIB([{}], [gzread])".format(self.dependencies["zlib-ng"].cpp_info.aggregated_components().libs[0]),
             )
         if cross_building(self):
             replace_in_file(self, os.path.join(self.source_folder, "libtar", "Makefile.in"),

@@ -63,7 +63,7 @@ class CrashpadConan(ConanFile):
 
     def requirements(self):
         # FIXME: use mini_chromium conan package instead of embedded package (if possible)
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.requires("linux-syscall-support/2022.10.12")
         if self.options.http_transport == "libcurl":
@@ -199,7 +199,7 @@ class CrashpadConan(ConanFile):
              "#endif\n"
         )
         if is_msvc(self):
-            zlib_libs = ", ".join(f'"{l}"' for l in self.dependencies["zlib"].cpp_info.libs)
+            zlib_libs = ", ".join(f'"{l}"' for l in self.dependencies["zlib-ng"].cpp_info.libs)
             replace_in_file(self, os.path.join(self.source_folder, "third_party", "zlib", "BUILD.gn"),
                             'libs = [ "z" ]', f"libs = [ {zlib_libs} ]")
         elif self.settings.compiler == "gcc":
@@ -289,7 +289,7 @@ class CrashpadConan(ConanFile):
                 self.cpp_info.components["mini_chromium_base"].frameworks += ["CoreGraphics", "CoreText"]
 
         self.cpp_info.components["util"].libs = ["util"]
-        self.cpp_info.components["util"].requires = ["mini_chromium_base", "zlib::zlib"]
+        self.cpp_info.components["util"].requires = ["mini_chromium_base", "zlib-ng::zlib-ng"]
         if is_apple_os(self):
             self.cpp_info.components["util"].libs.append("mig_output")
         if self.settings.os in ["Linux", "FreeBSD"]:

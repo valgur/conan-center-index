@@ -57,7 +57,7 @@ class ITKConan(ConanFile):
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("openjpeg/[^2.5.2]")
         self.requires("onetbb/[^2021]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_opencv:
             self.requires("opencv/[^4.5]")
 
@@ -306,7 +306,7 @@ class ITKConan(ConanFile):
             "ITKStatistics": {"requires": ["ITKCommon", "itkNetlibSlatec"]},
             "ITKTransform": {"requires": ["ITKCommon"]},
             "ITKMesh": {"requires": ["ITKTransform"]},
-            "ITKMetaIO": {"requires": ["zlib::zlib"]},
+            "ITKMetaIO": {"requires": ["zlib-ng::zlib-ng"]},
             "ITKSpatialObjects": {"requires": ["ITKTransform", "ITKCommon", "ITKMesh"]},
             "ITKPath": {"requires": ["ITKCommon"]},
             "ITKImageIntensity": {},
@@ -368,7 +368,7 @@ class ITKConan(ConanFile):
                     "ITKTransform", "ITKPDEDeformableRegistration",
                 ],
             },
-            "ITKznz": {"requires": ["zlib::zlib"]},
+            "ITKznz": {"requires": ["zlib-ng::zlib-ng"]},
             "ITKniftiio": {"requires": ["ITKznz"], "system_libs": libm()},
             "ITKgiftiio": {"requires": ["ITKznz", "ITKniftiio", "expat::expat"]},
             "ITKIOBMP": {"requires": ["ITKIOImageBase"]},
@@ -379,7 +379,7 @@ class ITKConan(ConanFile):
             "ITKIOGDCM": {"requires": ["ITKCommon", "ITKIOImageBase", "gdcm::gdcmDICT", "gdcm::gdcmMSFF"]},
             "ITKIOIPL": {"requires": ["ITKIOImageBase"]},
             "ITKIOGE": {"requires": ["ITKIOIPL", "ITKIOImageBase"]},
-            "ITKIOGIPL": {"requires": ["ITKIOImageBase", "zlib::zlib"]},
+            "ITKIOGIPL": {"requires": ["ITKIOImageBase", "zlib-ng::zlib-ng"]},
             "ITKIOHDF5": {"requires": ["ITKIOImageBase", "hdf5::hdf5"]},
             "ITKIOJPEG": {"requires": ["ITKIOImageBase", "libjpeg-meta::jpeg"]},
             "ITKIOMeshBase": {
@@ -395,10 +395,10 @@ class ITKConan(ConanFile):
             "ITKIOMeshVTK": {"requires": ["ITKCommon", "ITKIOMeshBase", "double-conversion::double-conversion"]},
             "ITKIOMeta": {"requires": ["ITKIOImageBase", "ITKMetaIO"]},
             "ITKIONIFTI": {"requires": ["ITKIOImageBase", "ITKznz", "ITKniftiio", "ITKTransform"]},
-            "ITKNrrdIO": {"requires": ["zlib::zlib"]},
+            "ITKNrrdIO": {"requires": ["zlib-ng::zlib-ng"]},
             "ITKIONRRD": {"requires": ["ITKIOImageBase", "ITKNrrdIO"]},
             "ITKIOPNG": {"requires": ["ITKIOImageBase", "libpng::libpng"]},
-            "ITKIOPhilipsREC": {"requires": ["zlib::zlib"]},
+            "ITKIOPhilipsREC": {"requires": ["zlib-ng::zlib-ng"]},
             "ITKIOSiemens": {"requires": ["ITKIOImageBase", "ITKIOIPL"]},
             "ITKIOStimulate": {"requires": ["ITKIOImageBase"]},
             "ITKIOTIFF": {"requires": ["ITKIOImageBase", "libtiff::tiff"]},

@@ -38,7 +38,7 @@ class LibmagicConan(ConanFile):
     def requirements(self):
         self.requires("bzip2/[^1.0.8]")
         self.requires("xz_utils/[>=5.4.5 <6]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("zstd/[^1.5]")
         # TODO: Add lzlib recipe
         # self.requires("lzlib/1.13")
@@ -65,7 +65,7 @@ class LibmagicConan(ConanFile):
         # Set from 'auto' to explicitly enabled
         tc.configure_args.append(f"--enable-bzlib={self.dependencies['bzip2'].package_folder}")
         tc.configure_args.append(f"--enable-xzlib={self.dependencies['xz_utils'].package_folder}")
-        tc.configure_args.append(f"--enable-zlib={self.dependencies['zlib'].package_folder}")
+        tc.configure_args.append(f"--enable-zlib={self.dependencies['zlib-ng'].package_folder}")
         tc.configure_args.append(f"--enable-zstdlib={self.dependencies['zstd'].package_folder}")
         tc.configure_args.append(f"--disable-lzlib")
         tc.generate()

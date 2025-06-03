@@ -17,7 +17,7 @@ requirements:
     XML:        ["libxml2/[^2.11.4]"]
     XSLT:       ["libxslt/[^1.1]"]
     UV:         ["libuv/[^1.45.0]"]
-    Z:          ["zlib/[^1.2.11]"]
+    Z:          ["zlib-ng/[^2.0]"]
     ZSTD:       ["zstd/[~1.5]"]
 
 disabled:

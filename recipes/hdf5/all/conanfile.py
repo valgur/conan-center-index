@@ -27,7 +27,6 @@ class Hdf5Conan(ConanFile):
         "hl": [True, False],
         "threadsafe": [True, False],
         "with_zlib": [True, False],
-        "with_zlibng": [True, False],
         "szip_support": [None, "with_libaec", "with_szip"],
         "szip_encoding": [True, False],
         "parallel": [True, False],
@@ -40,7 +39,6 @@ class Hdf5Conan(ConanFile):
         "hl": True,
         "threadsafe": False,
         "with_zlib": True,
-        "with_zlibng": False,
         "szip_support": None,
         "szip_encoding": False,
         "parallel": False,
@@ -77,9 +75,7 @@ class Hdf5Conan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
-        if self.options.with_zlibng:
-            self.requires("zlib-ng/[^2.2.2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.szip_support == "with_libaec":
             self.requires("libaec/1.0.6")
         elif self.options.szip_support == "with_szip":
@@ -97,10 +93,6 @@ class Hdf5Conan(ConanFile):
                 self.options.szip_encoding and \
                 not self.dependencies["szip"].options.enable_encoding:
             raise ConanInvalidConfiguration("encoding must be enabled in szip dependency (szip:enable_encoding=True)")
-        if self.options.with_zlib and self.options.get_safe("with_zlibng"):
-            raise ConanInvalidConfiguration("with_zlib and with_zlibng cannot be enabled at the same time")
-        if self.options.get_safe("with_zlibng") and Version(self.version) < "1.14.5":
-            raise ConanInvalidConfiguration("with_zlibng=True is incompatible with versions prior to v1.14.5")
         check_min_cppstd(self, self._min_cppstd)
 
     def validate_build(self):
@@ -158,7 +150,7 @@ class Hdf5Conan(ConanFile):
         tc.variables["HDF5_ENABLE_Z_LIB_SUPPORT"] = self.options.with_zlib
         tc.variables["HDF5_ENABLE_SZIP_SUPPORT"] = bool(self.options.szip_support)
         tc.variables["HDF5_ENABLE_SZIP_ENCODING"] = self.options.get_safe("szip_encoding", False)
-        tc.variables["HDF5_USE_ZLIB_NG"] = self.options.get_safe("with_zlibng", False)
+        tc.variables["HDF5_USE_ZLIB_NG"] = not self.dependencies["zlib-ng"].options.zlib_compat
         tc.variables["HDF5_PACKAGE_EXTLIBS"] = False
         tc.variables["HDF5_ENABLE_THREADSAFE"] = self.options.get_safe("threadsafe", False)
         tc.variables["HDF5_ENABLE_DEBUG_APIS"] = False # Option?
@@ -249,7 +241,7 @@ class Hdf5Conan(ConanFile):
             hdf5_c.defines.append("H5_BUILT_AS_DYNAMIC_LIB")
 
         if self.options.with_zlib:
-            hdf5_c.requires.append("zlib::zlib")
+            hdf5_c.requires.append("zlib-ng::zlib-ng")
         if self.options.szip_support == "with_libaec":
             hdf5_c.requires.append("libaec::libaec")
         elif self.options.szip_support == "with_szip":

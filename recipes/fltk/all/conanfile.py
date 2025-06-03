@@ -81,7 +81,7 @@ class FltkConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libjpeg-meta/latest")
         self.requires("libpng/[~1.6]")
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -181,7 +181,7 @@ class FltkConan(ConanFile):
             self.cpp_info.system_libs.append("ws2_32")
 
         self.cpp_info.requires = [
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "libjpeg-meta::jpeg",
             "libpng::libpng",
         ]

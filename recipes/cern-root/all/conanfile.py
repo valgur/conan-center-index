@@ -72,7 +72,7 @@ class CernRootConan(ConanFile):
         self.requires("sqlite3/3.46.1")
         self.requires("xxhash/[>=0.8.1 <0.9]")
         self.requires("xz_utils/[>=5.4.5 <6]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("zstd/[~1.5]")
 
         if self.settings.os in ["Linux", "FreeBSD"]:

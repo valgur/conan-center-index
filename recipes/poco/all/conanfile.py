@@ -55,7 +55,7 @@ class PocoConan(ConanFile):
         "DataSQLite":           _PocoComponent("enable_data_sqlite",            False,        ["Data"],                       ["sqlite3::sqlite3"],               True),
         "Encodings":            _PocoComponent("enable_encodings",              False,        ["Foundation"],                 [],                                 True),
         # "EncodingsCompiler":  _PocoComponent("enable_encodingscompiler",      False,        ["Net", "Util"],                [],                                 False),
-        "Foundation":           _PocoComponent(None,                            "Foundation", [],                             ["pcre::pcre", "zlib::zlib"],       True),
+        "Foundation":           _PocoComponent(None,                            "Foundation", [],                             ["pcre::pcre", "zlib-ng::zlib-ng"],       True),
         "JSON":                 _PocoComponent("enable_json",                   False,        ["Foundation"],                 [],                                 True),
         "JWT":                  _PocoComponent("enable_jwt",                    False,        ["JSON", "Crypto"],             [],                                 True),
         "MongoDB":              _PocoComponent("enable_mongodb",                False,        ["Net"],                        [],                                 True),
@@ -131,7 +131,7 @@ class PocoConan(ConanFile):
 
     def requirements(self):
         self.requires("pcre2/[^10.42]")
-        self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True)
+        self.requires("zlib-ng/[^2.0]", transitive_headers=True)
         if self.options.enable_xml:
             self.requires("expat/[>=2.6.2 <3]", transitive_headers=True)
         if self.options.enable_data_sqlite:

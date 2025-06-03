@@ -53,7 +53,7 @@ class QpdfConan(ConanFile):
 
     def requirements(self):
         # https://qpdf.readthedocs.io/en/stable/installation.html#basic-dependencies
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
         self.requires("libjpeg-meta/latest")
@@ -147,7 +147,7 @@ class QpdfConan(ConanFile):
         self.cpp_info.libs = ["qpdf"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")
-        self.cpp_info.requires.append("zlib::zlib")
+        self.cpp_info.requires.append("zlib-ng::zlib-ng")
         self.cpp_info.requires.append("libjpeg-meta::jpeg")
         if self.options.with_ssl == "openssl":
             self.cpp_info.requires.append("openssl::openssl")

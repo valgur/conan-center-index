@@ -508,7 +508,7 @@ class OpenCVConan(ConanFile):
             "core": {
                 "is_built": True,
                 "no_option": True,
-                "requires": ["zlib::zlib"] + parallel() + eigen() + ipp(),
+                "requires": ["zlib-ng::zlib-ng"] + parallel() + eigen() + ipp(),
                 "system_libs": [
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
@@ -555,7 +555,7 @@ class OpenCVConan(ConanFile):
             "imgcodecs": {
                 "is_built": self.options.imgcodecs,
                 "mandatory_options": ["imgproc"],
-                "requires": ["opencv_imgproc", "zlib::zlib"] + imageformats_deps() + ipp(),
+                "requires": ["opencv_imgproc", "zlib-ng::zlib-ng"] + imageformats_deps() + ipp(),
                 "frameworks": [
                     (is_apple_os(self), ["CoreFoundation", "CoreGraphics"]),
                     (self.settings.os == "iOS", ["UIKit"]),
@@ -1077,7 +1077,7 @@ class OpenCVConan(ConanFile):
 
     def requirements(self):
         # core module dependencies
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0")
         if self.options.parallel == "openmp":

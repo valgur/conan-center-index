@@ -42,7 +42,7 @@ class OpenPMIxConan(ConanFile):
     def requirements(self):
         # Used in a pmix/src/hwloc/pmix_hwloc.h public header
         self.requires("hwloc/[^2.11.1]", transitive_headers=True)
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libevent/[^2.1.12]")
         if self.options.get_safe("with_curl"):
             self.requires("libcurl/[>=7.78 <9]")
@@ -70,7 +70,7 @@ class OpenPMIxConan(ConanFile):
             "--datarootdir=${prefix}/res",
             f"--with-hwloc={root('hwloc')}",
             f"--with-libevent={root('libevent')}",
-            f"--with-zlib={root('zlib')}",
+            f"--with-zlib={root('zlib-ng')}",
             f"--with-curl={root('libcurl') if self.options.with_curl else 'no'}",
             f"--with-jansson={root('jansson') if self.options.with_jansson else 'no'}",
             "--disable-sphinx",

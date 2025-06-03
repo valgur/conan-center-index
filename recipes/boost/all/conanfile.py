@@ -583,7 +583,7 @@ class BoostConan(ConanFile):
 
     def requirements(self):
         if self._with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self._with_bzip2:
             self.requires("bzip2/[^1.0.8]")
         if self._with_lzma:
@@ -1064,7 +1064,7 @@ class BoostConan(ConanFile):
                 flags.append(f"define={define}")
 
         if self._with_zlib:
-            add_defines("zlib")
+            add_defines("zlib-ng")
         if self._with_bzip2:
             add_defines("bzip2")
         if self._with_lzma:
@@ -1296,7 +1296,7 @@ class BoostConan(ConanFile):
         contents = ""
 
         if self._with_zlib:
-            contents += create_library_config("zlib", "zlib")
+            contents += create_library_config("zlib-ng", "zlib")
         if self._with_bzip2:
             contents += create_library_config("bzip2", "bzip2")
         if self._with_lzma:
@@ -1490,6 +1490,7 @@ class BoostConan(ConanFile):
             "lzma": "xz_utils",
             "iconv": "libiconv",
             "python": None,  # FIXME: change to cpython when it becomes available
+            "zlib": "zlib-ng",
         }.get(name, name)
 
     def package_info(self):

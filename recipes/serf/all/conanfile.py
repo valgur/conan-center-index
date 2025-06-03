@@ -43,7 +43,7 @@ class SerfConan(ConanFile):
 
     def requirements(self):
         self.requires("apr-util/1.6.1", transitive_headers=True, transitive_libs=True)
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("openssl/[>=1.1 <4]")
 
     def validate(self):
@@ -85,7 +85,7 @@ class SerfConan(ConanFile):
         kwargs["APR"] = self.dependencies["apr"].package_folder.replace("\\", "/")
         kwargs["APU"] = self.dependencies["apr-util"].package_folder.replace("\\", "/")
         kwargs["OPENSSL"] = self.dependencies["openssl"].package_folder.replace("\\", "/")
-        kwargs["ZLIB"] = self.dependencies["zlib"].package_folder.replace("\\", "/")
+        kwargs["ZLIB"] = self.dependencies["zlib-ng"].package_folder.replace("\\", "/")
         if is_msvc(self):
             kwargs["TARGET_ARCH"] = str(self.settings.arch)
             kwargs["MSVC_VERSION"] = "{:.1f}".format(float(msvs_toolset(self).lstrip("v")) / 10)
@@ -97,7 +97,7 @@ class SerfConan(ConanFile):
         if is_msvc(self):
             content = load(self, sconstruct)
             content = content.replace("allowed_values=('14.0', '12.0',", "allowed_values=('14.3', '14.2', '14.1', '14.0', '12.0',")
-            content = content.replace("zlib.lib", self.dependencies['zlib'].cpp_info.libs[0])
+            content = content.replace("zlib.lib", self.dependencies['zlib-ng'].cpp_info.libs[0])
             content = content.replace("['libeay32.lib', 'ssleay32.lib']",
                                       str([f"{lib}.lib" for lib in self.dependencies["openssl"].cpp_info.aggregated_components().libs]))
             content = content.replace("['$OPENSSL/include/openssl']",

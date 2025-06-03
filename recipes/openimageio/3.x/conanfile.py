@@ -69,7 +69,7 @@ class OpenImageIOConan(ConanFile):
 
     def requirements(self):
         # Required libraries
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("imath/[^3.1.9]", transitive_headers=True)
         self.requires("openexr/[^3.3.3]")
@@ -231,7 +231,7 @@ class OpenImageIOConan(ConanFile):
         open_image_io.libs = ["OpenImageIO"]
         open_image_io.requires = [
             "openimageio_openimageio_util",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "libtiff::libtiff",
             "pugixml::pugixml",
             "tsl-robin-map::tsl-robin-map",

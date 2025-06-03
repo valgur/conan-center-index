@@ -41,7 +41,7 @@ class LibkmlConan(ConanFile):
         self.requires("expat/[>=2.6.2 <3]")
         self.requires("minizip/[^1.2.13]")
         self.requires("uriparser/[>=0.9.7 <1]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.options.shared and is_msvc(self) and is_msvc_static_runtime(self):
@@ -103,7 +103,7 @@ class LibkmlConan(ConanFile):
                 "defines": ["LIBKML_DLL"] if self.settings.os == "Windows" and self.options.shared else [],
                 "system_libs": ["m"] if self.settings.os in ["Linux", "FreeBSD"] else [],
                 "requires": ["boost::headers", "expat::expat", "minizip::minizip",
-                             "uriparser::uriparser", "zlib::zlib"],
+                             "uriparser::uriparser", "zlib-ng::zlib-ng"],
             },
             "kmlxsd": {
                 "requires": ["boost::headers", "kmlbase"],

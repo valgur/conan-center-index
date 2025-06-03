@@ -44,7 +44,7 @@ class ReadosmConan(ConanFile):
 
     def requirements(self):
         self.requires("expat/[>=2.6.2 <3]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def build_requirements(self):
         if not is_msvc(self):
@@ -80,7 +80,7 @@ class ReadosmConan(ConanFile):
 
     def _patch_sources(self):
         # fix MinGW
-        zlib_lib = self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
+        zlib_lib = self.dependencies["zlib-ng"].cpp_info.aggregated_components().libs[0]
         replace_in_file(
             self, os.path.join(self.source_folder, "configure.ac"),
             "AC_CHECK_LIB(z,", f"AC_CHECK_LIB({zlib_lib},",

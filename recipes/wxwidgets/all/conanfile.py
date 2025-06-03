@@ -143,7 +143,7 @@ class wxWidgetsConan(ConanFile):
         self.requires("nanosvg/cci.20231025")
         self.requires("pcre2/[^10.42]")
         self.requires("xz_utils/[>=5.4.5 <6]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libjpeg-meta/latest")
 
         if self.options.opengl:

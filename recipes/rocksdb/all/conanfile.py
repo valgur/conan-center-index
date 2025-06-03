@@ -89,7 +89,7 @@ class RocksDBConan(ConanFile):
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.get_safe("with_tbb"):
@@ -212,7 +212,7 @@ class RocksDBConan(ConanFile):
         if self.options.with_lz4:
             self.cpp_info.components["librocksdb"].requires.append("lz4::lz4")
         if self.options.with_zlib:
-            self.cpp_info.components["librocksdb"].requires.append("zlib::zlib")
+            self.cpp_info.components["librocksdb"].requires.append("zlib-ng::zlib-ng")
         if self.options.with_zstd:
             self.cpp_info.components["librocksdb"].requires.append("zstd::zstd")
         if self.options.get_safe("with_tbb"):

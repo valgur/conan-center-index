@@ -36,7 +36,7 @@ class CrowConan(ConanFile):
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <3]")
         if self.options.with_compression:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def package_id(self):
         self.info.settings.clear()

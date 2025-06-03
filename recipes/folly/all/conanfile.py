@@ -76,7 +76,7 @@ class FollyConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]")
         self.requires("lz4/[^1.9.4]", transitive_libs=True)
         self.requires("snappy/[^1.1.9]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("zstd/[~1.5]", transitive_libs=True)
         if not is_msvc(self):
             self.requires("libdwarf/0.9.1")
@@ -226,7 +226,7 @@ class FollyConan(ConanFile):
             "openssl::openssl",
             "bzip2::bzip2",
             "snappy::snappy",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "zstd::zstd",
             "libsodium::libsodium",
             "xz_utils::xz_utils",

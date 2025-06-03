@@ -40,7 +40,7 @@ class DoxygenConan(ConanFile):
     def requirements(self):
         if self.options.enable_search:
             self.requires("xapian-core/1.4.19")
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.enable_app or self.options.enable_parse:
             self.requires("libiconv/[^1.17]")
 

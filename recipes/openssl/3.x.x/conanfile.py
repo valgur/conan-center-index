@@ -127,7 +127,7 @@ class OpenSSLConan(ConanFile):
 
     def requirements(self):
         if not self.options.no_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.settings.os == "iOS" and self.options.shared:
@@ -377,9 +377,9 @@ class OpenSSLConan(ConanFile):
             args.append("no-asm -lsocket -latomic")
 
         if not self.options.no_zlib:
-            zlib_cpp_info = self.dependencies["zlib"].cpp_info.aggregated_components()
+            zlib_cpp_info = self.dependencies["zlib-ng"].cpp_info.aggregated_components()
             include_path = self._adjust_path(zlib_cpp_info.includedirs[0])
-            is_shared_zlib = self.dependencies["zlib"].options.shared
+            is_shared_zlib = self.dependencies["zlib-ng"].options.shared
 
 
             # the --with-zlib-lib flag takes a different value depending on platform and if ZLIB is shared
@@ -660,7 +660,7 @@ class OpenSSLConan(ConanFile):
         self.cpp_info.components["ssl"].requires = ["crypto"]
 
         if not self.options.no_zlib:
-            self.cpp_info.components["crypto"].requires.append("zlib::zlib")
+            self.cpp_info.components["crypto"].requires.append("zlib-ng::zlib-ng")
 
         if self.settings.os == "Windows":
             self.cpp_info.components["crypto"].system_libs.extend(["crypt32", "ws2_32", "advapi32", "user32", "bcrypt"])

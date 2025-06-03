@@ -86,7 +86,7 @@ class SCIPConan(ConanFile):
         if self.options.with_sym == "bliss":
             self.requires("bliss/0.77")
         _mapping_requires("soplex")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_tpi == "omp":
             # used only in .c files
             self.requires("openmp/system")

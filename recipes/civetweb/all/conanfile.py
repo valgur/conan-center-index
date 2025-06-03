@@ -78,7 +78,7 @@ class CivetwebConan(ConanFile):
         if self.options.with_ssl:
             self.requires("openssl/[>=1 <4]")
         if self.options.get_safe("with_zlib"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.options.get_safe("ssl_dynamic_loading") and not self.dependencies["openssl"].options.shared:
@@ -166,7 +166,7 @@ class CivetwebConan(ConanFile):
         if self.options.with_ssl:
             self.cpp_info.components["_civetweb"].requires.append("openssl::openssl")
         if self.options.get_safe("with_zlib"):
-            self.cpp_info.components["_civetweb"].requires.append("zlib::zlib")
+            self.cpp_info.components["_civetweb"].requires.append("zlib-ng::zlib-ng")
 
         if self.options.with_cxx:
             self.cpp_info.components["civetweb-cpp"].set_property("cmake_target_name", "civetweb::civetweb-cpp")

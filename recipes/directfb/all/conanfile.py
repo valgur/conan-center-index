@@ -101,7 +101,7 @@ class DirectfbConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_egl:
             self.requires("egl/system")
         if self.options.with_sdl:
@@ -285,7 +285,7 @@ class DirectfbConan(ConanFile):
         self.cpp_info.components["directfb_"].set_property("pkg_config_custom_content", pkgconfig_extra)
         self.cpp_info.components["directfb_"].libs = ["directfb"]
         self.cpp_info.components["directfb_"].includedirs = [os.path.join("include", "directfb")]
-        self.cpp_info.components["directfb_"].requires = ["fusion", "direct", "zlib::zlib"]
+        self.cpp_info.components["directfb_"].requires = ["fusion", "direct", "zlib-ng::zlib-ng"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["directfb_"].system_libs.extend(["dl", "m", "pthread"])
 

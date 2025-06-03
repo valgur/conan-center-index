@@ -57,7 +57,7 @@ class LibosmiumConan(ConanFile):
             self.requires("expat/[>=2.6.2 <3]")
             self.requires("bzip2/[^1.0.8]")
         if self.options.pbf or self.options.xml:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.geos:
             self.requires("geos/[^3.12.0]")
         if self.options.gdal:
@@ -111,11 +111,11 @@ class LibosmiumConan(ConanFile):
                 component.defines.extend(["NOMINMAX", "WIN32_LEAN_AND_MEAN", "_CRT_SECURE_NO_WARNINGS"])
 
         if self.options.pbf:
-            _add_component("pbf", ["protozero::protozero", "zlib::zlib"], threads=True)
+            _add_component("pbf", ["protozero::protozero", "zlib-ng::zlib-ng"], threads=True)
             if self.options.lz4:
                 self.cpp_info.components["pbf"].requires.append("lz4")
         if self.options.xml:
-            _add_component("xml", ["expat::expat", "bzip2::bzip2", "zlib::zlib"], threads=True)
+            _add_component("xml", ["expat::expat", "bzip2::bzip2", "zlib-ng::zlib-ng"], threads=True)
         if self.options.pbf and self.options.xml:
             _add_component("io", ["pbf", "xml"])
         if self.options.geos:

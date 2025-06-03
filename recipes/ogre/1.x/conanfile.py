@@ -261,7 +261,7 @@ class OgreConanFile(ConanFile):
 
     def requirements(self):
         self.requires("pugixml/[^1.14]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("zziplib/0.13.72")
         if self.options.get_safe("build_component_bites") or self.options.get_safe("build_rendersystem_tiny"):
             self.requires("sdl/[^2.30.9]")
@@ -590,7 +590,7 @@ class OgreConanFile(ConanFile):
             "Main",
             libs=[self._core_libname("OgreMain")],
             libdirs=["lib"],
-            requires=["pugixml::pugixml", "zlib::zlib", "zziplib::zziplib"],
+            requires=["pugixml::pugixml", "zlib-ng::zlib-ng", "zziplib::zziplib"],
         )
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.use_wayland:

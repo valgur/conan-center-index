@@ -93,7 +93,7 @@ class Libxml2Conan(ConanFile):
 
     def requirements(self):
         if self.options.zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.lzma:
             self.requires("xz_utils/5.4.5")
         if self.options.iconv:

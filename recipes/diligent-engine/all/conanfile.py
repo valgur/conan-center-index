@@ -73,7 +73,7 @@ class DiligentEngineConan(ConanFile):
         self.requires("stb/cci.20250314")
         self.requires("taywee-args/6.4.6")
         self.requires("tinygltf/2.9.0")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libjpeg-meta/latest")
 
     def validate(self):
@@ -244,7 +244,7 @@ class DiligentEngineConan(ConanFile):
             "stb::stb",
             "taywee-args::taywee-args",
             "tinygltf::tinygltf",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "libjpeg-meta::jpeg",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:

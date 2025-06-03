@@ -100,7 +100,7 @@ class DCMTKConan(ConanFile):
         if self.options.with_libxml2:
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1 <4]")
         if self.options.with_libpng:
@@ -282,7 +282,7 @@ class DCMTKConan(ConanFile):
             return []
 
         def zlib():
-            return ["zlib::zlib"] if self.options.with_zlib else []
+            return ["zlib-ng::zlib-ng"] if self.options.with_zlib else []
 
         def png():
             return ["libpng::libpng"] if self.options.with_libpng else []

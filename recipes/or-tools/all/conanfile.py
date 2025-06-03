@@ -43,7 +43,7 @@ class OrToolsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("protobuf/[>=3.29.4]")
         self.requires("abseil/[>=20240116.2]", transitive_headers=True, transitive_libs=True)
         self.requires("eigen/3.4.0")

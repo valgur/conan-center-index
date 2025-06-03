@@ -39,7 +39,7 @@ class SeasocksConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:

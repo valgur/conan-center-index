@@ -139,7 +139,7 @@ class BotanConan(ConanFile):
         if self.options.get_safe("with_openssl", False):
             self.requires("openssl/[>=1.1 <3]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_sqlite3:
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.with_boost:
@@ -376,7 +376,7 @@ class BotanConan(ConanFile):
 
         if self.options.with_zlib:
             build_flags.append("--with-zlib")
-            build_flags.extend(self._dependency_build_flags("zlib"))
+            build_flags.extend(self._dependency_build_flags("zlib-ng"))
 
         if self.options.with_boost:
             build_flags.append("--with-boost")

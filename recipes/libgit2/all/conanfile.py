@@ -78,7 +78,7 @@ class LibGit2Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if Version(self.version) < "1.8.1" or self.options.get_safe("with_http_parser") == "http-parser":
             self.requires("http_parser/2.9.4")
         else:

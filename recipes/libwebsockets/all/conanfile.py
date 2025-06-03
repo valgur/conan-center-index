@@ -206,7 +206,7 @@ class LibwebsocketsConan(ConanFile):
             self.requires("libev/[^4.33]")
 
         if self.options.with_zlib == "zlib":
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         elif self.options.with_zlib == "miniz":
             self.requires("miniz/[^3.0.2]")
 
@@ -323,7 +323,7 @@ class LibwebsocketsConan(ConanFile):
         tc.variables["LWS_WITH_BUNDLED_ZLIB"] = self.options.with_zlib == "bundled"
         if self.options.with_zlib == "zlib":
             tc.variables["LWS_ZLIB_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("zlib"))
-            tc.variables["LWS_ZLIB_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["zlib"].cpp_info.includedirs)
+            tc.variables["LWS_ZLIB_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["zlib-ng"].cpp_info.includedirs)
         elif self.options.with_zlib == "miniz":
             tc.variables["MINIZ_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("miniz"))
             tc.variables["MINIZ_INCLUDE_DIRS"] = self._cmakify_path_list(self.dependencies["miniz"].cpp_info.includedirs)

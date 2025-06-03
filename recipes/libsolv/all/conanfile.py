@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -66,7 +65,7 @@ class LibSolvConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.enable_lzma_compression:
             self.requires("xz_utils/[>=5.4.5 <6]")
         if self.options.enable_bzip2_compression:
@@ -157,7 +156,7 @@ class LibSolvConan(ConanFile):
         self.cpp_info.components["libsolvext"].requires = ["libsolv"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libsolvext"].system_libs = ["pthread"]
-        self.cpp_info.components["libsolvext"].requires.append("zlib::zlib")
+        self.cpp_info.components["libsolvext"].requires.append("zlib-ng::zlib-ng")
         if self.options.enable_lzma_compression:
             self.cpp_info.components["libsolvext"].requires.append("xz_utils::xz_utils")
         if self.options.enable_bzip2_compression:

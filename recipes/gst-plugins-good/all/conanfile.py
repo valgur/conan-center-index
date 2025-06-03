@@ -193,7 +193,7 @@ class GStPluginsGoodConan(ConanFile):
             self.requires("gst-orc/0.4.41")
 
         if "zlib" in reqs:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if "bzip2" in reqs:
             self.requires("bzip2/[^1.0.8]")
         if "cairo" in reqs:

@@ -28,7 +28,7 @@ targets:
     - upb_json_lib
     - upb_textformat_lib
     - re2::re2
-    - zlib::zlib
+    - zlib-ng::zlib-ng
     - abseil::absl_algorithm_container
     - abseil::absl_config
     - abseil::absl_no_destructor
@@ -54,7 +54,7 @@ targets:
     deps:
     - upb_mini_descriptor_lib
     - upb_wire_lib
-    - zlib::zlib
+    - zlib-ng::zlib-ng
     - abseil::absl_algorithm_container
     - abseil::absl_config
     - abseil::absl_no_destructor
@@ -130,7 +130,7 @@ targets:
     - upb_mini_descriptor_lib
     - upb_wire_lib
     - re2::re2
-    - zlib::zlib
+    - zlib-ng::zlib-ng
     - abseil::absl_config
     - abseil::absl_no_destructor
     - abseil::absl_flat_hash_map

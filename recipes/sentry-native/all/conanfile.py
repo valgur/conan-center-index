@@ -96,7 +96,7 @@ class SentryNativeConan(ConanFile):
             if self.options.with_crashpad == "google":
                 self.requires("crashpad/cci.20220219")
             else:
-                self.requires("zlib/[>=1.2.11 <2]")
+                self.requires("zlib-ng/[^2.0]")
                 if self.options.get_safe("crashpad_with_tls"):
                     self.requires("openssl/[>=1.1 <4]")
         elif self.options.backend == "breakpad":
@@ -213,7 +213,7 @@ class SentryNativeConan(ConanFile):
             # util
             self.cpp_info.components["crashpad_util"].set_property("cmake_target_name", "crashpad::util")
             self.cpp_info.components["crashpad_util"].libs = [] if self.options.shared else ["crashpad_util"]
-            self.cpp_info.components["crashpad_util"].requires = ["crashpad_compat", "crashpad_mini_chromium", "zlib::zlib"]
+            self.cpp_info.components["crashpad_util"].requires = ["crashpad_compat", "crashpad_mini_chromium", "zlib-ng::zlib-ng"]
             if self.settings.os in ("Linux", "FreeBSD"):
                 self.cpp_info.components["crashpad_util"].system_libs.extend(["pthread", "rt"])
             elif self.settings.os == "Windows":

@@ -36,7 +36,7 @@ class DirectXShaderCompilerConan(ConanFile):
 
     def requirements(self):
         self.requires("miniz/[>=2.1.0 <4]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("spirv-headers/[^1.3.239.0]")
         self.requires("spirv-tools/[^1.3.239.0]")
         # Newer versions have a conflict in wsl/stubs/basetsd.h
@@ -153,7 +153,7 @@ class DirectXShaderCompilerConan(ConanFile):
         self.cpp_info.components["dxcompiler"].libs = ["dxcompiler"]
         self.cpp_info.components["dxcompiler"].requires = [
             "dxil",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "spirv-headers::spirv-headers",
             "spirv-tools::spirv-tools-core",
             "spirv-tools::spirv-tools-opt",
@@ -164,7 +164,7 @@ class DirectXShaderCompilerConan(ConanFile):
         self.cpp_info.components["dxil"].set_property("cmake_target_aliases", ["Microsoft::DXIL"])
         self.cpp_info.components["dxil"].libs = ["dxil"]
         self.cpp_info.components["dxil"].requires = [
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "miniz::miniz",
             "directx-headers::directx-headers",
         ]

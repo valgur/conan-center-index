@@ -130,7 +130,7 @@ class OpenTelemetryCppConan(ConanFile):
             self.requires("libcurl/[>=7.78.0 <9]")
 
         if self.options.with_otlp_http and self._otlp_http_needs_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
         if self.options.with_prometheus:
             self.requires("prometheus-cpp/1.1.0")
@@ -407,7 +407,7 @@ class OpenTelemetryCppConan(ConanFile):
             if self._otlp_http_needs_zlib:
                 # This version requires zlib for the http client even if not used, as it includes zconf.h
                 # regardless of WITH_OTLP_HTTP_COMPRESSION
-                self.cpp_info.components["opentelemetry_exporter_otlp_http_client"].requires.append("zlib::zlib")
+                self.cpp_info.components["opentelemetry_exporter_otlp_http_client"].requires.append("zlib-ng::zlib-ng")
 
             self.cpp_info.components["opentelemetry_exporter_otlp_http"].requires.extend([
                 "opentelemetry_otlp_recordable",

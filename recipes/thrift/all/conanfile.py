@@ -58,7 +58,7 @@ class ThriftConan(ConanFile):
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_libevent:
             self.requires("libevent/[^2.1.12]")
         if self.options.with_qt5:
@@ -142,7 +142,7 @@ class ThriftConan(ConanFile):
             self.cpp_info.components["libthrift_z"].set_property("cmake_target_name", "thriftz::thriftz")
             self.cpp_info.components["libthrift_z"].set_property("pkg_config_name", "thrift-z")
             self.cpp_info.components["libthrift_z"].libs = [f"thriftz{libsuffix}"]
-            self.cpp_info.components["libthrift_z"].requires = ["libthrift", "zlib::zlib"]
+            self.cpp_info.components["libthrift_z"].requires = ["libthrift", "zlib-ng::zlib-ng"]
 
 
         if self.options.with_libevent:

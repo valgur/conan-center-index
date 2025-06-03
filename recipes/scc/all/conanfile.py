@@ -60,7 +60,7 @@ class SystemcComponentsConan(ConanFile):
         self.requires("systemc-cci/1.0.0", transitive_headers=True, transitive_libs=True)
         self.requires("systemc/2.3.4", transitive_headers=True, transitive_libs=True)
         # https://github.com/Minres/SystemC-Components/blob/2023.06/src/sysc/scc/trace/gz_writer.hh#L18
-        self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
+        self.requires("zlib-ng/[^2.0]", transitive_headers=True, transitive_libs=True)
         self.requires("yaml-cpp/[>=0.8.0 <1]")
 
     def validate(self):
@@ -152,7 +152,7 @@ class SystemcComponentsConan(ConanFile):
             "systemc-cci::systemc-cci",
             "systemc::systemc",
             "yaml-cpp::yaml-cpp",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
         ]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["scc-sysc"].system_libs = ["pthread", "dl"]
@@ -161,10 +161,10 @@ class SystemcComponentsConan(ConanFile):
         self.cpp_info.components["busses"].requires = ["tlm-interfaces", "scc-sysc"]
 
         self.cpp_info.components["fstapi"].libs = ["fstapi"]
-        self.cpp_info.components["fstapi"].requires = ["zlib::zlib", "lz4::lz4"]
+        self.cpp_info.components["fstapi"].requires = ["zlib-ng::zlib-ng", "lz4::lz4"]
 
         self.cpp_info.components["lwtr"].libs = ["lwtr"]
-        self.cpp_info.components["lwtr"].requires = ["zlib::zlib", "lz4::lz4", "systemc::systemc", "fmt::fmt"]
+        self.cpp_info.components["lwtr"].requires = ["zlib-ng::zlib-ng", "lz4::lz4", "systemc::systemc", "fmt::fmt"]
 
         self.cpp_info.components["scc-util"].libs = ["scc-util"]
         self.cpp_info.components["scc-util"].requires = ["lz4::lz4"]

@@ -180,7 +180,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_webp:
             self.requires("libwebp/[^1.3.2]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.options.vapi and not self.options.with_introspection:
@@ -379,7 +379,7 @@ class LibvipsConan(ConanFile):
         if self.options.with_webp:
             self.cpp_info.components["vips"].requires.append("libwebp::libwebp")
         if self.options.with_zlib:
-            self.cpp_info.components["vips"].requires.append("zlib::zlib")
+            self.cpp_info.components["vips"].requires.append("zlib-ng::zlib-ng")
 
         if self.options.with_introspection:
             self.cpp_info.components["vips"].resdirs = ["res"]

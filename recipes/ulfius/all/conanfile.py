@@ -68,7 +68,7 @@ class UlfiusConan(ConanFile):
             # Used in public ulfius.h:43
             self.requires("gnutls/[^3.8.2]", transitive_headers=True)
         if self.options.get_safe("enable_websockets"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

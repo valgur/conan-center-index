@@ -1,10 +1,11 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
-from conan.tools.files import *
-from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import *
 from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=2.1"
 
@@ -67,7 +68,7 @@ class CassandraCppDriverConan(ConanFile):
 
         if self.options.with_zlib:
             self.requires("minizip/[^1.2.13]")
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
         if self.options.use_atomic == "boost":
             self.requires("boost/[^1.71.0]", libs=False)

@@ -76,7 +76,7 @@ class PCREConan(ConanFile):
         if self.options.get_safe("with_bzip2"):
             self.requires("bzip2/[^1.0.8]")
         if self.options.get_safe("with_zlib"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if not self.options.build_pcre_8 and not self.options.build_pcre_16 and not self.options.build_pcre_32:
@@ -183,4 +183,4 @@ class PCREConan(ConanFile):
             if self.options.with_bzip2:
                 self.cpp_info.components["libpcre"].requires.append("bzip2::bzip2")
             if self.options.with_zlib:
-                self.cpp_info.components["libpcre"].requires.append("zlib::zlib")
+                self.cpp_info.components["libpcre"].requires.append("zlib-ng::zlib-ng")

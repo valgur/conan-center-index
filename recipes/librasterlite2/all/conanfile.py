@@ -65,7 +65,7 @@ class Librasterlite2Conan(ConanFile):
         self.requires("libxml2/[^2.12.5]")
         # Used in rasterlite2/sqlite.h public header
         self.requires("sqlite3/[>=3.42 <4]", transitive_headers=True, transitive_libs=True)
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_openjpeg:
             self.requires("openjpeg/[^2.5.2]")
         if self.options.with_webp:
@@ -98,7 +98,7 @@ class Librasterlite2Conan(ConanFile):
                         "SUBDIRS = headers src test tools examples",
                         "SUBDIRS = headers src")
         # fix MinGW
-        zlib_lib = self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
+        zlib_lib = self.dependencies["zlib-ng"].cpp_info.aggregated_components().libs[0]
         replace_in_file(self, os.path.join(self.source_folder, "configure.ac"),
                         "AC_CHECK_LIB(z,",
                         f"AC_CHECK_LIB({zlib_lib},")

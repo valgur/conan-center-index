@@ -167,7 +167,7 @@ class CImgConan(ConanFile):
         if self.options.enable_heif:
             self.requires("libheif/[^1.16.2]")
         if self.options.enable_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.enable_curl:
             self.requires("libcurl/[>=7.78.0 <9]")
         if self.options.enable_tinyexr:
@@ -249,7 +249,7 @@ class CImgConan(ConanFile):
         if self.options.enable_heif:
             requires.append("libheif::libheif")
         if self.options.enable_zlib:
-            requires.append("zlib::zlib")
+            requires.append("zlib-ng::zlib-ng")
         if self.options.enable_curl:
             requires.append("libcurl::libcurl")
         if self.options.enable_tinyexr:

@@ -131,7 +131,7 @@ class OpenVDBConan(ConanFile):
         if self.options.use_imath_half:
             self.requires("imath/[^3.1.9]", transitive_headers=True, transitive_libs=True)
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_blosc:
             self.requires("c-blosc/[^1.21.5]")
         if self.options.with_log4cplus:
@@ -265,7 +265,7 @@ class OpenVDBConan(ConanFile):
         if self.settings.os == "Windows":
             self.cpp_info.requires.append("boost::disable_autolinking")
         if self.options.with_zlib:
-            self.cpp_info.requires.append("zlib::zlib")
+            self.cpp_info.requires.append("zlib-ng::zlib-ng")
         if self.options.with_blosc:
             self.cpp_info.requires.append("c-blosc::c-blosc")
         if self.options.with_log4cplus:

@@ -42,7 +42,7 @@ class LLDConan(ConanFile):
 
     def requirements(self):
         self.requires(f"llvm-core/{self.version}", transitive_headers=True, transitive_libs=True)
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("zstd/[~1.5]")
 
     def build_requirements(self):
@@ -234,7 +234,7 @@ def components_from_dotfile(dotfile):
         "dl",
     }
     label_replacements = {
-        "ZLIB::ZLIB": "zlib::zlib",
+        "ZLIB::ZLIB": "zlib-ng::zlib-ng",
         "zstd::libzstd_shared": "zstd::zstd",
         "zstd::libzstd_static": "zstd::zstd",
     }

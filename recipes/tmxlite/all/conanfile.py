@@ -40,7 +40,7 @@ class TmxliteConan(ConanFile):
         if Version(self.version) < "1.4.1":
             self.requires("miniz/[^3.0.2]")
         else:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
             self.requires("zstd/[~1.5]")
         self.requires("pugixml/[^1.14]")
 

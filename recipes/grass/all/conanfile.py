@@ -76,7 +76,7 @@ class GrassConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[^1.2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("gdal/[^3.5]", transitive_headers=True, transitive_libs=True)
         self.requires("libjpeg-meta/latest")
         self.requires("proj/[^9.3.1]", transitive_headers=True, transitive_libs=True)

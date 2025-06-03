@@ -50,7 +50,7 @@ class NetSnmpConan(ConanFile):
     def requirements(self):
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/[^8.45]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
@@ -93,7 +93,7 @@ class NetSnmpConan(ConanFile):
             debug_flag = "enable" if self._is_debug else "disable"
             ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
             openssl_path = self.dependencies["openssl"].package_folder
-            zlib_path = self.dependencies["zlib"].package_folder
+            zlib_path = self.dependencies["zlib-ng"].package_folder
             tc.configure_args += [
                 f"--with-openssl={openssl_path}",
                 f"--with-zlib={zlib_path}",

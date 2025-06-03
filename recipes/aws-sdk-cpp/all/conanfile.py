@@ -538,7 +538,7 @@ class AwsSdkCppConan(ConanFile):
                 # Used transitively in text-to-speech/PulseAudioPCMOutputDriver.h public header
                 self.requires("pulseaudio/[^17.0]", transitive_headers=True, transitive_libs=True)
         # zlib is used if ENABLE_ZLIB_REQUEST_COMPRESSION is enabled, set ot ON by default
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate_build(self):
         if self.settings_build.os == "Windows" and self.settings.os == "Android":
@@ -693,7 +693,7 @@ class AwsSdkCppConan(ConanFile):
             "aws-c-io::aws-c-io",
             "aws-c-mqtt::aws-c-mqtt",
             "aws-checksums::aws-checksums",
-            "zlib::zlib"
+            "zlib-ng::zlib-ng"
         ]
 
         if Version(self.version) >= "1.11.352":

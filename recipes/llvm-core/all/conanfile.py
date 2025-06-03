@@ -192,7 +192,7 @@ class LLVMCoreConan(ConanFile):
         if self.options.get_safe("with_libedit"):
             self.requires("editline/[^3.1]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_xml2:
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_z3:
@@ -522,7 +522,7 @@ def components_from_dotfile(dotfile):
         "LibEdit::LibEdit": "editline::editline",
         "LibXml2::LibXml2": "libxml2::libxml2",
         "z3::libz3": "z3::z3",
-        "ZLIB::ZLIB": "zlib::zlib",
+        "ZLIB::ZLIB": "zlib-ng::zlib-ng",
         "zstd::libzstd_shared": "zstd::zstd",
         "zstd::libzstd_static": "zstd::zstd",
     }

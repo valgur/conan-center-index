@@ -184,7 +184,7 @@ class ArrowConan(ConanFile):
         if self._requires_xsimd:
             self.requires("xsimd/[^13.0.0]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_zstd:
             self.requires("zstd/[>=1.5 <1.6]")
         if self.options.get_safe("with_re2"):
@@ -518,7 +518,7 @@ class ArrowConan(ConanFile):
         if self._requires_xsimd:
             self.cpp_info.components["libarrow"].requires.append("xsimd::xsimd")
         if self.options.with_zlib:
-            self.cpp_info.components["libarrow"].requires.append("zlib::zlib")
+            self.cpp_info.components["libarrow"].requires.append("zlib-ng::zlib-ng")
         if self.options.with_zstd:
             self.cpp_info.components["libarrow"].requires.append("zstd::zstd")
         if self.options.with_grpc:

@@ -179,7 +179,7 @@ class LibcurlConan(ConanFile):
         if self.options.with_libssh2:
             self.requires("libssh2/[^1.11.0]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_brotli:
             self.requires("brotli/[^1.1.0]")
         if self.options.with_zstd:
@@ -298,7 +298,7 @@ class LibcurlConan(ConanFile):
         # zlib naming is not always very consistent
         if self.options.with_zlib:
             configure_ac = os.path.join(self.source_folder, "configure.ac")
-            zlib_name = self.dependencies["zlib"].cpp_info.aggregated_components().libs[0]
+            zlib_name = self.dependencies["zlib-ng"].cpp_info.aggregated_components().libs[0]
             replace_in_file(self, configure_ac,
                                   "AC_CHECK_LIB(z,",
                                   f"AC_CHECK_LIB({zlib_name},")
@@ -506,7 +506,7 @@ class LibcurlConan(ConanFile):
             tc.configure_args.append("--without-nghttp2")
 
         if self.options.with_zlib:
-            path = unix_path(self, self.dependencies["zlib"].package_folder)
+            path = unix_path(self, self.dependencies["zlib-ng"].package_folder)
             tc.configure_args.append(f"--with-zlib={path}")
         else:
             tc.configure_args.append("--without-zlib")
@@ -770,7 +770,7 @@ class LibcurlConan(ConanFile):
         if self.options.with_libssh2:
             self.cpp_info.components["curl"].requires.append("libssh2::libssh2")
         if self.options.with_zlib:
-            self.cpp_info.components["curl"].requires.append("zlib::zlib")
+            self.cpp_info.components["curl"].requires.append("zlib-ng::zlib-ng")
         if self.options.with_brotli:
             self.cpp_info.components["curl"].requires.append("brotli::brotli")
         if self.options.with_zstd:

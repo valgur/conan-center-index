@@ -72,7 +72,7 @@ class OpenCVConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_jpeg:
             self.requires("libjpeg-meta/latest")
         if self.options.with_png:
@@ -333,7 +333,7 @@ class OpenCVConan(ConanFile):
             return ["gtk::gtk"] if self.options.get_safe("with_gtk") else []
 
         opencv_components = [
-            {"target": "opencv_core",       "lib": "core",       "requires": ["zlib::zlib"] + eigen() + parallel()},
+            {"target": "opencv_core",       "lib": "core",       "requires": ["zlib-ng::zlib-ng"] + eigen() + parallel()},
             {"target": "opencv_flann",      "lib": "flann",      "requires": ["opencv_core"] + eigen()},
             {"target": "opencv_imgproc",    "lib": "imgproc",    "requires": ["opencv_core"] + eigen()},
             {"target": "opencv_ml",         "lib": "ml",         "requires": ["opencv_core"] + eigen()},

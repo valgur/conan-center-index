@@ -60,7 +60,7 @@ class Nghttp2Conan(ConanFile):
             self.requires("libev/[^4.33]")
             self.requires("libevent/[^2.1.12]")
             self.requires("libxml2/[^2.12.5]")
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
             if self.options.with_jemalloc:
                 self.requires("jemalloc/[^5.3.0]")
         if self.options.with_hpack:
@@ -146,7 +146,7 @@ class Nghttp2Conan(ConanFile):
         if self.options.with_app:
             self.cpp_info.components["nghttp2_app"].requires = [
                 "openssl::openssl", "c-ares::c-ares", "libev::libev",
-                "libevent::libevent", "libxml2::libxml2", "zlib::zlib",
+                "libevent::libevent", "libxml2::libxml2", "zlib-ng::zlib-ng",
             ]
             if self.options.with_jemalloc:
                 self.cpp_info.components["nghttp2_app"].requires.append("jemalloc::jemalloc")

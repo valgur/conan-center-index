@@ -70,7 +70,7 @@ class RubyConan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_libyaml:
@@ -112,7 +112,7 @@ class RubyConan(ConanFile):
         # Ruby doesn't respect the --with-gmp-dir for eg. After removal of libgmp-dev on conanio/gcc10 build failed
         opt_dirs = []
         # zlib always enabled
-        tc.configure_args.append(f"--with-zlib-dir={unix_path(self, self.dependencies['zlib'].package_folder)}")
+        tc.configure_args.append(f"--with-zlib-dir={unix_path(self, self.dependencies['zlib-ng'].package_folder)}")
         for dep in ["zlib", "openssl", "libffi", "libyaml", "readline", "gmp"]:
             if self.options.get_safe(f"with_{dep}"):
                 root_path = unix_path(self, self.dependencies[dep].package_folder)
@@ -198,7 +198,7 @@ class RubyConan(ConanFile):
         if is_apple_os(self):
             self.cpp_info.frameworks = ["CoreFoundation"]
 
-        self.cpp_info.requires.append("zlib::zlib")
+        self.cpp_info.requires.append("zlib-ng::zlib-ng")
         if self.options.with_gmp:
             self.cpp_info.requires.append("gmp::gmp")
         if self.options.with_openssl:

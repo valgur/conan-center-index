@@ -42,7 +42,7 @@ class PdfiumConan(ConanFile):
         self.requires("lcms/2.16")
         self.requires("libjpeg-meta/latest")
         self.requires("openjpeg/[^2.5.0]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         check_min_cppstd(self, 14)

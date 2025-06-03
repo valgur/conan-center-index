@@ -63,7 +63,7 @@ class LibZipConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
         if self.options.with_bzip2:
             self.requires("bzip2/[^1.0.8]")

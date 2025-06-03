@@ -19,7 +19,7 @@ unvendored = {
 
 external_deps = {
     "re2": "re2::re2",
-    "z": "zlib::zlib",
+    "z": "zlib-ng::zlib-ng",
     "cares": "c-ares::cares",
     "libssl": "openssl::openssl",
     "protobuf": "protobuf::libprotobuf",
@@ -90,13 +90,13 @@ def main(version):
     # The info for older versions is incomplete for some reason
     if Version(version) < "1.58.0":
         targets["upb"] = {"deps": []}
-        targets["grpc"]["deps"].extend(["zlib::zlib", "c-ares::cares", "re2::re2"])
-        targets["grpc_unsecure"]["deps"].extend(["zlib::zlib", "c-ares::cares"])
+        targets["grpc"]["deps"].extend(["zlib-ng::zlib-ng", "c-ares::cares", "re2::re2"])
+        targets["grpc_unsecure"]["deps"].extend(["zlib-ng::zlib-ng", "c-ares::cares"])
         targets["grpc_plugin_support"]["deps"].extend(["protobuf::libprotobuf", "protobuf::libprotoc"])
         targets["grpcpp_channelz"]["deps"].append("protobuf::libprotobuf")
         targets["grpc++_reflection"]["deps"].append("protobuf::libprotobuf")
         if Version(version) >= "1.51":
-            targets["grpc_authorization_provider"]["deps"].extend(["zlib::zlib", "re2::re2"])
+            targets["grpc_authorization_provider"]["deps"].extend(["zlib-ng::zlib-ng", "re2::re2"])
     write_target_info_yaml(targets, plugins, version)
 
 

@@ -45,7 +45,7 @@ class NSSConan(ConanFile):
     def requirements(self):
         self.requires("nspr/[^4.35]", transitive_headers=True, transitive_libs=True, options={"shared": True})
         self.requires("sqlite3/[>=3.45.0 <4]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if not self.dependencies["nspr"].options.shared:
@@ -216,7 +216,7 @@ class NSSConan(ConanFile):
 
     def _patch_sources(self):
         self._write_conan_gyp_target("sqlite3", "sqlite3", "sqlite")
-        self._write_conan_gyp_target("zlib", "nss_zlib", "zlib")
+        self._write_conan_gyp_target("zlib-ng", "nss_zlib", "zlib")
 
         # NSPR Windows libs on CCI don't include a lib prefix
         replace_in_file(self, os.path.join(self.source_folder, "nss", "coreconf", "config.gypi"),
@@ -357,4 +357,4 @@ class NSSConan(ConanFile):
             # Not built by default
             # self.cpp_info.components["sysinit"].libs = ["nsssysinit_static"]
 
-        self.cpp_info.components["tools"].requires = ["zlib::zlib", "nspr::nspr", "sqlite3::sqlite3"]
+        self.cpp_info.components["tools"].requires = ["zlib-ng::zlib-ng", "nspr::nspr", "sqlite3::sqlite3"]

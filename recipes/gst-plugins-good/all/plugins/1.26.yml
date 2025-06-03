@@ -121,7 +121,7 @@ gtk:
 icydemux:
   requires:
     - gstreamer-tag-1.0
-    - zlib::zlib
+    - zlib-ng::zlib-ng
 id3demux:
   requires:
     - gstreamer-tag-1.0
@@ -139,7 +139,7 @@ isomp4:
     - gstreamer-rtp-1.0
     - gstreamer-tag-1.0
     - gstreamer-pbutils-1.0
-    - zlib::zlib
+    - zlib-ng::zlib-ng
 jack:
   requires:
     - gstreamer-audio-1.0
@@ -162,7 +162,7 @@ matroska:
     - gstreamer-riff-1.0
     - gstreamer-video-1.0
     - gstreamer-tag-1.0
-    - zlib::zlib
+    - zlib-ng::zlib-ng
     - bzip2::bzip2
 monoscope:
   requires:

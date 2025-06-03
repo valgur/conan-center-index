@@ -65,7 +65,7 @@ class NetpbmConan(ConanFile):
             self.requires("libpng/[~1.6]")
             self.requires("libtiff/[>=4.5 <5]")
             self.requires("libxml2/[^2.12.5]")
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
             self.requires("libjpeg-meta/latest")
             if self.options.get_safe("with_x11"):
                 self.requires("xorg/system")
@@ -217,7 +217,7 @@ class NetpbmConan(ConanFile):
                 "libtiff::tiff",
                 "libxml2::libxml2",
                 "libjpeg-meta::jpeg",
-                "zlib::zlib",
+                "zlib-ng::zlib-ng",
             ])
             if self.options.get_safe("with_x11"):
                 self.cpp_info.requires.append("xorg::x11")

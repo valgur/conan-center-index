@@ -40,7 +40,7 @@ class GFortranConan(ConanFile):
         self.requires("mpc/[^1.3.1]")
         self.requires("mpfr/[^4.2.1]")
         self.requires("gmp/[^6.3.0]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("isl/0.27")
 
     def validate_build(self):
@@ -75,7 +75,7 @@ class GFortranConan(ConanFile):
         tc.configure_args["--disable-multilib"] = None
         tc.configure_args["--disable-bootstrap"] = None
         tc.configure_args["--disable-fixincludes"] = None
-        tc.configure_args["--with-zlib"] = self.dependencies['zlib'].package_folder
+        tc.configure_args["--with-zlib"] = self.dependencies['zlib-ng'].package_folder
         tc.configure_args["--with-isl"] = self.dependencies['isl'].package_folder
         tc.configure_args["--with-gmp"] = self.dependencies['gmp'].package_folder
         tc.configure_args["--with-mpc"] = self.dependencies['mpc'].package_folder
@@ -164,7 +164,7 @@ class GFortranConan(ConanFile):
             "mpc::mpc",
             "mpfr::mpfr",
             "gmp::gmp",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "isl::isl",
         ]
 

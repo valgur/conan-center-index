@@ -82,7 +82,7 @@ class OpenMPIConan(ConanFile):
         # OpenMPI public headers don't include anything besides stddef.h.
         # transitive_headers=True is not needed for any dependencies.
         self.requires("hwloc/[^2.11.1]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libevent/[^2.1.12]")
         if self.settings.os == "Linux":
             self.requires("libnl/[^3.8.0]")
@@ -122,7 +122,7 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--with-libevent"] = root("libevent")
         tc.configure_args["--with-libnl"] = root("libnl") if not is_apple_os(self) else "no"
         tc.configure_args["--with-ofi"] = root("libfabric") if self.options.get_safe("with_libfabric") else "no"
-        tc.configure_args["--with-zlib"] = root("zlib")
+        tc.configure_args["--with-zlib"] = root("zlib-ng")
         tc.configure_args["--with-pmix"] = "internal"
         tc.configure_args["--enable-wrapper-rpath"] = "no"
         tc.configure_args["--enable-wrapper-runpath"] = "no"
@@ -225,7 +225,7 @@ class OpenMPIConan(ConanFile):
         requires = [
             "hwloc::hwloc",
             "libevent::libevent",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
         ]
         if self.settings.os == "Linux":
             requires.append("libnl::libnl")

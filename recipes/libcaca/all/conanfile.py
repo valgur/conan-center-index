@@ -65,7 +65,7 @@ class LibcacaConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.get_safe("with_ncurses"):
             self.requires("ncurses/[^6.4]")
         if self.options.get_safe("with_x11"):
@@ -158,7 +158,7 @@ class LibcacaConan(ConanFile):
     def package_info(self):
         self.cpp_info.components["caca"].set_property("pkg_config_name", "caca")
         self.cpp_info.components["caca"].libs = ["caca"]
-        self.cpp_info.components["caca"].requires = ["zlib::zlib"]
+        self.cpp_info.components["caca"].requires = ["zlib-ng::zlib-ng"]
         if is_apple_os(self):
             self.cpp_info.components["caca"].frameworks.append("Cocoa")
         if self.options.with_opengl:

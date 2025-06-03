@@ -39,7 +39,7 @@ class AerospikeConan(ConanFile):
     def requirements(self):
         self.requires("lua/[^5]", transitive_headers=True, transitive_libs=True)
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
-        self.requires("zlib/[^1.2.11]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.event_library == "libev":
             self.requires("libev/[^4.24]", transitive_headers=True, transitive_libs=True)
         elif self.options.event_library == "libuv":

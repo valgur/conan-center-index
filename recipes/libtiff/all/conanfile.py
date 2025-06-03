@@ -70,7 +70,7 @@ class LibtiffConan(ConanFile):
 
     def requirements(self):
         if self.options.zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.libdeflate:
             self.requires("libdeflate/[^1.19]")
         if self.options.lzma:
@@ -174,7 +174,7 @@ class LibtiffConan(ConanFile):
 
         self.cpp_info.requires = []
         if self.options.zlib:
-            self.cpp_info.components["tiff"].requires.append("zlib::zlib")
+            self.cpp_info.components["tiff"].requires.append("zlib-ng::zlib-ng")
         if self.options.libdeflate:
             self.cpp_info.components["tiff"].requires.append("libdeflate::libdeflate")
         if self.options.lzma:

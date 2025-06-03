@@ -161,7 +161,7 @@ class GStPluginsBaseConan(ConanFile):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         self.requires("gst-orc/0.4.41")
 
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if "libalsa" in reqs:
             self.requires("libalsa/[~1.2.10]")
         if "libdrm" in reqs:
@@ -408,7 +408,7 @@ class GStPluginsBaseConan(ConanFile):
             "glib::gio-2.0",
         ])
         _define_library("tag", [
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
         ])
         _define_library("video", [
             "gst-orc::gst-orc",

@@ -28,7 +28,7 @@ class FirebirdConan(ConanFile):
     def requirements(self):
         self.requires("icu/[*]")
         self.requires("termcap/1.3.1")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
         # Newer versions of re2 add abseil as a transitive dependency,
         # which makes ./configure unusably slow for some reason

@@ -65,7 +65,7 @@ class BinutilsConan(ConanFile):
         self.tool_requires("flex/[^2.6.4]")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -83,7 +83,7 @@ class BinutilsConan(ConanFile):
         tc.configure_args.append("--disable-nls")
         tc.configure_args.append(f"--target={self.options.target_triplet}")
         tc.configure_args.append(f"--enable-multilib={yes_no(self.options.multilib)}")
-        tc.configure_args.append(f"--with-zlib={unix_path(self, self.dependencies['zlib'].package_folder)}")
+        tc.configure_args.append(f"--with-zlib={unix_path(self, self.dependencies['zlib-ng'].package_folder)}")
         tc.configure_args.append(f"--program-prefix={self.options.prefix}")
         tc.configure_args.append("--exec_prefix=/bin/exec_prefix")
         tc.generate()

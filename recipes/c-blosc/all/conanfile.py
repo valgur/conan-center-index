@@ -58,7 +58,7 @@ class CbloscConan(ConanFile):
         if self.options.with_snappy:
             self.requires("snappy/[^1.1.9]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
 

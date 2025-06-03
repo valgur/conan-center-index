@@ -172,7 +172,7 @@ class AssimpConan(ConanFile):
         self.requires("minizip/[^1.2.13]")
         self.requires("pugixml/[^1.14]")
         self.requires("utfcpp/[^4.0.1]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self._depends_on_kuba_zip:
             self.requires("kuba-zip/[>=0.3.0 <1]")
         if self._depends_on_poly2tri:

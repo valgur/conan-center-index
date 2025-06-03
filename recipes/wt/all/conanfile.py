@@ -95,7 +95,7 @@ class WtConan(ConanFile):
         # Boost.Asio v1.87 is not compatible
         self.requires("boost/[^1.71.0 <1.87]", transitive_headers=True)
         if self.options.connector_http:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.get_safe("with_sqlite"):
@@ -192,7 +192,7 @@ class WtConan(ConanFile):
         #        we can't even inject cmake_find_package generator, it breaks the all upstream logic
         tc.variables["BOOST_PREFIX"] = self._cmakify_path_list([self.dependencies["boost"].package_folder])
         if self.options.connector_http:
-            tc.variables["ZLIB_PREFIX"] = self._cmakify_path_list([self.dependencies["zlib"].package_folder])
+            tc.variables["ZLIB_PREFIX"] = self._cmakify_path_list([self.dependencies["zlib-ng"].package_folder])
         if self.options.with_ssl:
             tc.variables["SSL_PREFIX"] = self._cmakify_path_list([self.dependencies["openssl"].package_folder])
             tc.variables["OPENSSL_LIBRARIES"] = self._cmakify_path_list(self._find_libraries("openssl"))
@@ -309,7 +309,7 @@ class WtConan(ConanFile):
         if self.options.connector_http:
             self.cpp_info.components["wthttp"].set_property("cmake_target_name", "Wt::HTTP")
             self.cpp_info.components["wthttp"].libs = ["wthttp{}".format(suffix)]
-            self.cpp_info.components["wthttp"].requires = ["wtmain", "boost::boost", "zlib::zlib"]
+            self.cpp_info.components["wthttp"].requires = ["wtmain", "boost::boost", "zlib-ng::zlib-ng"]
             if self.options.with_ssl:
                 self.cpp_info.components["wthttp"].requires.append("openssl::openssl")
 

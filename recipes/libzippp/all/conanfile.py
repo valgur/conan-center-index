@@ -35,7 +35,7 @@ class LibZipppConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if Version(self.version) == "4.0":
             self.requires("libzip/[^1.7.3]")
         else:

@@ -26,7 +26,7 @@ class CBlosc2Conan(ConanFile):
         "fPIC": [True, False],
         "simd_intrinsics": [None, "sse2", "avx2", "avx512"],
         "with_lz4": [True, False],
-        "with_zlib": [None, "zlib", "zlib-ng", "zlib-ng-compat"],
+        "with_zlib": [True, False],
         "with_zstd": [True, False],
         "with_plugins": [True, False],
     }
@@ -35,7 +35,7 @@ class CBlosc2Conan(ConanFile):
         "fPIC": True,
         "simd_intrinsics": "avx2",
         "with_lz4": True,
-        "with_zlib": "zlib",
+        "with_zlib": True,
         "with_zstd": True,
         "with_plugins": True,
     }
@@ -55,22 +55,14 @@ class CBlosc2Conan(ConanFile):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
 
-        # c-blosc2 uses zlib-ng with zlib compat options.
-        if self.options.with_zlib == "zlib-ng-compat":
-            self.options["zlib-ng"].zlib_compat = True
-        elif self.options.with_zlib == "zlib-ng":
-            self.options["zlib-ng"].zlib_compat = False
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
-        if self.options.with_zlib in ["zlib-ng", "zlib-ng-compat"]:
-            self.requires("zlib-ng/[^2.2.0]")
-        elif self.options.with_zlib == "zlib":
-            self.requires("zlib/[>=1.2.11 <2]")
+        if self.options.with_zlib:
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
 
@@ -111,13 +103,11 @@ class CBlosc2Conan(ConanFile):
         tc.cache_variables["DEACTIVATE_AVX512"] = simd_intrinsics != "avx512"
         tc.cache_variables["DEACTIVATE_LZ4"] = not bool(self.options.with_lz4)
         tc.cache_variables["PREFER_EXTERNAL_LZ4"] = True
-        tc.cache_variables["DEACTIVATE_ZLIB"] = self.options.with_zlib is None
+        tc.cache_variables["DEACTIVATE_ZLIB"] = not bool(self.options.with_zlib)
         tc.cache_variables["PREFER_EXTERNAL_ZLIB"] = True
         tc.cache_variables["DEACTIVATE_ZSTD"] = not bool(self.options.with_zstd)
         tc.cache_variables["PREFER_EXTERNAL_ZSTD"] = True
         tc.cache_variables["BUILD_PLUGINS"] = bool(self.options.with_plugins)
-        if self.options.with_zlib == "zlib-ng-compat":
-            tc.preprocessor_definitions["ZLIB_COMPAT"] = "1"
         if Version(self.version) >= "2.15.2":
             tc.cache_variables["WITH_ZLIB_OPTIM"] = self.settings.arch != "wasm"
         tc.generate()
@@ -125,9 +115,6 @@ class CBlosc2Conan(ConanFile):
         deps = CMakeDeps(self)
         if self.options.with_lz4:
             deps.set_property("lz4", "cmake_file_name", "LZ4")
-        if self.options.with_zlib =="zlib-ng":
-            deps.set_property("zlib-ng", "cmake_file_name", "ZLIB_NG")
-            deps.set_property("zlib-ng", "cmake_target_name", "ZLIB_NG::ZLIB_NG")
         if self.options.with_zstd:
             deps.set_property("zstd", "cmake_file_name", "ZSTD")
         deps.generate()

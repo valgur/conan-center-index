@@ -81,7 +81,7 @@ class ImageMagicConan(ConanFile):
     def requirements(self):
         # None of the dependencies need transitive_headers=True
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_bzlib:
             self.requires("bzip2/[^1.0.8]")
         if self.options.with_lzma:
@@ -320,7 +320,7 @@ class ImageMagicConan(ConanFile):
 
         core_requires = []
         if self.options.with_zlib:
-            core_requires.append("zlib::zlib")
+            core_requires.append("zlib-ng::zlib-ng")
         if self.options.with_bzlib:
             core_requires.append("bzip2::bzip2")
         if self.options.with_lzma:

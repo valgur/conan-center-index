@@ -45,7 +45,7 @@ class GccConan(ConanFile):
         self.requires("mpc/[^1.2.0]")
         self.requires("mpfr/[^4.2.0]")
         self.requires("gmp/[^6.3.0]")
-        self.requires("zlib/[>=1.2.13 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("isl/0.27")
 
     def validate(self):
@@ -74,7 +74,7 @@ class GccConan(ConanFile):
         tc.configure_args.append("--disable-nls")
         tc.configure_args.append("--disable-multilib")
         tc.configure_args.append("--disable-bootstrap")
-        tc.configure_args.append(f"--with-zlib={self.dependencies['zlib'].package_folder}")
+        tc.configure_args.append(f"--with-zlib={self.dependencies['zlib-ng'].package_folder}")
         tc.configure_args.append(f"--with-isl={self.dependencies['isl'].package_folder}")
         tc.configure_args.append(f"--with-gmp={self.dependencies['gmp'].package_folder}")
         tc.configure_args.append(f"--with-mpc={self.dependencies['mpc'].package_folder}")

@@ -301,7 +301,7 @@ class FFMpegConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_bzip2:
             self.requires("bzip2/[^1.0.8]")
         if self.options.with_lzma:
@@ -846,7 +846,7 @@ class FFMpegConan(ConanFile):
 
         if self.options.avcodec:
             if self.options.with_zlib:
-                avcodec.requires.append("zlib::zlib")
+                avcodec.requires.append("zlib-ng::zlib-ng")
             if self.options.with_lzma:
                 avcodec.requires.append("xz_utils::xz_utils")
             if self.options.with_libiconv:

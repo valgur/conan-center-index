@@ -69,7 +69,7 @@ class LibrdkafkaConan(ConanFile):
     def requirements(self):
         self.requires("lz4/[^1.9.4]")
         if self.options.zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.zstd:
             self.requires("zstd/[~1.5]")
         if self.options.ssl:
@@ -148,7 +148,7 @@ class LibrdkafkaConan(ConanFile):
         self.cpp_info.components["rdkafka"].libs = ["rdkafka"]
         self.cpp_info.components["rdkafka"].requires = ["lz4::lz4"]
         if self.options.zlib:
-            self.cpp_info.components["rdkafka"].requires.append("zlib::zlib")
+            self.cpp_info.components["rdkafka"].requires.append("zlib-ng::zlib-ng")
         if self.options.zstd:
             self.cpp_info.components["rdkafka"].requires.append("zstd::zstd")
         if self.options.ssl:

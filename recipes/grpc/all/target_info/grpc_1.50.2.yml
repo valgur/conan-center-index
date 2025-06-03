@@ -32,7 +32,7 @@ targets:
     - openssl::openssl
     - address_sorting
     - upb
-    - zlib::zlib
+    - zlib-ng::zlib-ng
     - c-ares::cares
     - re2::re2
     baselib: true
@@ -53,7 +53,7 @@ targets:
     - gpr
     - address_sorting
     - upb
-    - zlib::zlib
+    - zlib-ng::zlib-ng
     - c-ares::cares
     baselib: true
     generate_plugin_registry: true

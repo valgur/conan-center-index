@@ -126,7 +126,7 @@ class PopplerConan(ConanFile):
             # https://gitlab.freedesktop.org/poppler/poppler/-/blob/poppler-23.11.0/poppler/CurlCachedFile.h#L18
             self.requires("libcurl/[>=7.78 <9]", transitive_headers=True, transitive_libs=True)
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.options.fontconfiguration == "win32" and self.settings.os != "Windows":
@@ -289,7 +289,7 @@ class PopplerConan(ConanFile):
         if self.options.with_libcurl:
             self.cpp_info.components["libpoppler"].requires.append("libcurl::libcurl")
         if self.options.with_zlib:
-            self.cpp_info.components["libpoppler"].requires.append("zlib::zlib")
+            self.cpp_info.components["libpoppler"].requires.append("zlib-ng::zlib-ng")
 
         if self.options.cpp:
             self.cpp_info.components["libpoppler-cpp"].libs = ["poppler-cpp"]

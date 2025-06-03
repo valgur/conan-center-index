@@ -44,7 +44,7 @@ class ZziplibConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         # Old versions do not support llvm >= 15
@@ -108,7 +108,7 @@ class ZziplibConan(ConanFile):
         # libzzip
         self.cpp_info.components["zzip"].set_property("pkg_config_name", "zziplib")
         self.cpp_info.components["zzip"].libs = [f"zzip{suffix}"]
-        self.cpp_info.components["zzip"].requires = ["zlib::zlib"]
+        self.cpp_info.components["zzip"].requires = ["zlib-ng::zlib-ng"]
         # libzzipmmapped
         if self.options.zzipmapped:
             self.cpp_info.components["zzipmmapped"].set_property("pkg_config_name", "zzipmmapped")
@@ -116,7 +116,7 @@ class ZziplibConan(ConanFile):
                 self.cpp_info.components["zzipmmapped"].libs = [f"zzipmmapped"]
             else:
                 self.cpp_info.components["zzipmmapped"].libs = [f"zzipmmapped{suffix}"]
-            self.cpp_info.components["zzipmmapped"].requires = ["zlib::zlib"]
+            self.cpp_info.components["zzipmmapped"].requires = ["zlib-ng::zlib-ng"]
         # libzzipfseeko
         if self.options.zzipfseeko:
             self.cpp_info.components["zzipfseeko"].set_property("pkg_config_name", "zzipfseeko")
@@ -124,9 +124,9 @@ class ZziplibConan(ConanFile):
                 self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko"]
             else:
                 self.cpp_info.components["zzipfseeko"].libs = [f"zzipfseeko{suffix}"]
-            self.cpp_info.components["zzipfseeko"].requires = ["zlib::zlib"]
+            self.cpp_info.components["zzipfseeko"].requires = ["zlib-ng::zlib-ng"]
         # libzzipwrap
         if self.options.zzipwrap:
             self.cpp_info.components["zzipwrap"].set_property("pkg_config_name", "zzipwrap")
             self.cpp_info.components["zzipwrap"].libs = [f"zzipwrap{suffix}"]
-            self.cpp_info.components["zzipwrap"].requires = ["zzip", "zlib::zlib"]
+            self.cpp_info.components["zzipwrap"].requires = ["zzip", "zlib-ng::zlib-ng"]

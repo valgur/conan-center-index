@@ -79,7 +79,7 @@ class ProtobufConan(ConanFile):
 
     def requirements(self):
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if Version(self.version) >= "6.30":
             self.requires("abseil/[>=20240722.0]", transitive_headers=True, transitive_libs=True)
         elif self._protobuf_release >= "22.0":
@@ -263,7 +263,7 @@ class ProtobufConan(ConanFile):
         self.cpp_info.components["libprotobuf"].builddirs.append(self._cmake_install_base_path)
         self.cpp_info.components["libprotobuf"].libs = [lib_prefix + "protobuf" + lib_suffix]
         if self.options.with_zlib:
-            self.cpp_info.components["libprotobuf"].requires = ["zlib::zlib"]
+            self.cpp_info.components["libprotobuf"].requires = ["zlib-ng::zlib-ng"]
         if self._protobuf_release >= "22.0":
             self.cpp_info.components["libprotobuf"].requires.extend(absl_deps)
             if not self.options.shared:

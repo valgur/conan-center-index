@@ -411,7 +411,7 @@ class QtConan(ConanFile):
             self.info.options.rm_safe(f"{status}_modules")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.openssl:
             self.requires("openssl/[>=1.1 <4]")
         if self.options.with_pcre2:
@@ -1127,7 +1127,7 @@ class QtConan(ConanFile):
             qtCore.cxxflags.append("-Zc:__cplusplus")
         elif self.settings.os != "Windows":
             qtCore.cxxflags.append("-fPIC")
-        qtCore.requires.append("zlib::zlib")
+        qtCore.requires.append("zlib-ng::zlib-ng")
         if self.options.with_pcre2:
             qtCore.requires.append("pcre2::pcre2")
         if self.options.with_doubleconversion:

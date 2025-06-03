@@ -54,7 +54,7 @@ class MBedTLSConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_zlib"):
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if self.settings.os == "Windows":
@@ -148,4 +148,4 @@ class MBedTLSConan(ConanFile):
 
         if self.options.get_safe("with_zlib"):
             for component in self.cpp_info.components:
-                self.cpp_info.components[component].requires.append("zlib::zlib")
+                self.cpp_info.components[component].requires.append("zlib-ng::zlib-ng")

@@ -188,7 +188,7 @@ class GdalConan(ConanFile):
         self.requires("proj/[^9.3.1]")
         # Used in a public header here:
         # https://github.com/OSGeo/gdal/blob/v3.7.1/port/cpl_minizip_ioapi.h#L26
-        self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
+        self.requires("zlib-ng/[^2.0]", transitive_headers=True, transitive_libs=True)
         if self.options.with_armadillo:
             self.requires("armadillo/[^12.6.4]")
         if self.options.with_arrow:
@@ -681,7 +681,7 @@ class GdalConan(ConanFile):
         self.cpp_info.requires.extend(["libgeotiff::libgeotiff"])
         self.cpp_info.requires.extend(["libtiff::tiff"])
         self.cpp_info.requires.extend(["proj::projlib"])
-        self.cpp_info.requires.extend(["zlib::zlib"])
+        self.cpp_info.requires.extend(["zlib-ng::zlib-ng"])
         if self.options.with_armadillo:
             self.cpp_info.requires.extend(["armadillo::armadillo"])
         if self.options.with_arrow:

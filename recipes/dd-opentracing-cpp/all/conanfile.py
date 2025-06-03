@@ -47,7 +47,7 @@ class DatadogOpenTracingConan(ConanFile):
 
     def requirements(self):
         self.requires("opentracing-cpp/1.6.0", transitive_headers=True, transitive_libs=True)
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libcurl/[>=7.78 <9]")
         self.requires("msgpack-cxx/6.1.0")
         self.requires("nlohmann_json/[^3]")

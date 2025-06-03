@@ -42,7 +42,7 @@ class PDFWriterConan(ConanFile):
     def requirements(self):
         self.requires("freetype/[^2.13.2]")
         self.requires("libaesgm/2013.1.1")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.with_jpeg:
             self.requires("libjpeg-meta/latest")
         if self.options.with_png:
@@ -85,7 +85,7 @@ class PDFWriterConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "PDFHummus")
         self.cpp_info.set_property("cmake_target_name", "PDFHummus::PDFWriter")
         self.cpp_info.libs = ["PDFWriter"]
-        self.cpp_info.requires = ["freetype::freetype", "zlib::zlib", "libaesgm::libaesgm"]
+        self.cpp_info.requires = ["freetype::freetype", "zlib-ng::zlib-ng", "libaesgm::libaesgm"]
         if self.options.with_jpeg:
             self.cpp_info.requires.append("libjpeg-meta::jpeg")
         if self.options.with_png:

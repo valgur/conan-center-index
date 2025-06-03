@@ -38,7 +38,7 @@ class LibfontencConan(ConanFile):
 
     def requirements(self):
         self.requires("xorg-proto/2024.1")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         # Needs to be added by the consumer as a dependency.
         # mkfontscale required by xfonts-encodings requires this package to build.
         # self.requires("xfonts-encodings/1.1.0", run=True)

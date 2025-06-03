@@ -46,7 +46,7 @@ class LibSoupConan(ConanFile):
         self.requires("sqlite3/[>=3.45.0 <4]")
         self.requires("brotli/[^1.1.0]")
         self.requires("libpsl/[>=0.21.5 <1]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.gssapi:
             self.requires("krb5/[^1.21.2]")
         if self.options.with_introspection:
@@ -115,7 +115,7 @@ class LibSoupConan(ConanFile):
             "sqlite3::sqlite3",
             "libpsl::libpsl",
             "brotli::brotlidec",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "libnghttp2::libnghttp2",
         ]
         if self.options.gssapi:

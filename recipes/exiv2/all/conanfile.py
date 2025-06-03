@@ -73,7 +73,7 @@ class Exiv2Conan(ConanFile):
         self.requires("libiconv/[^1.17]")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_xmp == "bundled":
             self.requires("expat/[>=2.6.2 <3]")
         if self.options.with_curl:
@@ -168,7 +168,7 @@ class Exiv2Conan(ConanFile):
         self.cpp_info.components["exiv2lib"].libs = ["exiv2"]
         self.cpp_info.components["exiv2lib"].requires = [ "libiconv::libiconv"]
         if self.options.with_png:
-            self.cpp_info.components["exiv2lib"].requires.extend(["libpng::libpng", "zlib::zlib"])
+            self.cpp_info.components["exiv2lib"].requires.extend(["libpng::libpng", "zlib-ng::zlib-ng"])
         if self.options.with_curl:
             self.cpp_info.components["exiv2lib"].requires.append("libcurl::libcurl")
         if self.options.get_safe("with_brotli"):

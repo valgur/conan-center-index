@@ -51,7 +51,7 @@ class Hdf4Conan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libjpeg-meta/latest")
         if self.options.szip_support == "with_libaec":
             self.requires("libaec/1.0.6")
@@ -147,7 +147,7 @@ class Hdf4Conan(ConanFile):
         self.cpp_info.components["hdf"].includedirs.append(unofficial_includedir)
         self.cpp_info.components["hdf"].libs = [self._get_decorated_lib("hdf")]
         self.cpp_info.components["hdf"].requires = [
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "libjpeg-meta::jpeg",
         ]
         if self.options.szip_support == "with_libaec":

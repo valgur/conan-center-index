@@ -41,7 +41,7 @@ class WebsocketPPConan(ConanFile):
             self.requires("openssl/[>=1.1 <4]", transitive_headers=True, transitive_libs=True)
 
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True)
+            self.requires("zlib-ng/[^2.0]", transitive_headers=True, transitive_libs=True)
 
         if self.options.asio == "standalone":
             self.requires("asio/[>=1.28.1 <1.32]", transitive_headers=True)
@@ -68,7 +68,7 @@ class WebsocketPPConan(ConanFile):
         if self.options.with_openssl:
             self.cpp_info.requires.append("openssl::openssl")
         if self.options.with_zlib:
-            self.cpp_info.requires.append("zlib::zlib")
+            self.cpp_info.requires.append("zlib-ng::zlib-ng")
         if self.options.asio == "standalone":
             self.cpp_info.defines.extend(["ASIO_STANDALONE", "_WEBSOCKETPP_CPP11_STL_"])
             self.cpp_info.requires.append("asio::asio")

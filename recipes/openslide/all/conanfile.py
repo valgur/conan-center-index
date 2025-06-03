@@ -52,7 +52,7 @@ class OpenSlideConan(ConanFile):
         self.requires("libxml2/[^2.12.5]")
         self.requires("openjpeg/[^2.5.2]")
         self.requires("sqlite3/[>=3.45.0 <4]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("libjpeg-meta/latest")
 
     def validate(self):
@@ -114,6 +114,6 @@ class OpenSlideConan(ConanFile):
             "libxml2::libxml2",
             "openjpeg::openjpeg",
             "sqlite3::sqlite3",
-            "zlib::zlib",
+            "zlib-ng::zlib-ng",
             "libjpeg-meta::jpeg",
         ]

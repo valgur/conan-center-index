@@ -41,7 +41,7 @@ class TinyExrConan(ConanFile):
         if self.options.with_z == "miniz":
             self.requires("miniz/[^3.0.2]")
         else:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_zfp:
             self.requires("zfp/1.0.0")
         if self.options.with_openmp:

@@ -60,7 +60,7 @@ class PdalConan(ConanFile):
         self.requires("proj/[^9.3.1]", transitive_headers=True, transitive_libs=True)
         self.requires("rapidxml/[^1.13]", transitive_headers=True) # for arbiter
         self.requires("utfcpp/[^4.0.5]")
-        self.requires("zlib/[>=1.2.11 <2]", transitive_headers=True, transitive_libs=True) # for arbiter
+        self.requires("zlib-ng/[^2.0]", transitive_headers=True, transitive_libs=True) # for arbiter
         if self.options.with_xml:
             self.requires("libxml2/[^2.12.5]", transitive_headers=True, transitive_libs=True)
         if self.options.with_zstd:

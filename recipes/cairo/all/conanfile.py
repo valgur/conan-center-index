@@ -80,7 +80,7 @@ class CairoConan(ConanFile):
         if self.options.with_lzo:
             self.requires("lzo/[^2.10]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
         if self.options.with_freetype:
             # Used in public cairo-ft.h header
             self.requires("freetype/[^2.13.2]", transitive_headers=True, transitive_libs=True)
@@ -202,7 +202,7 @@ class CairoConan(ConanFile):
             self.cpp_info.components["cairo_"].requires.append("lzo::lzo")
 
         if self.options.with_zlib:
-            self.cpp_info.components["cairo_"].requires.append("zlib::zlib")
+            self.cpp_info.components["cairo_"].requires.append("zlib-ng::zlib-ng")
 
         if self.options.with_png:
             add_component_and_base_requirements("cairo-png", ["libpng::libpng"])
@@ -251,15 +251,15 @@ class CairoConan(ConanFile):
                 self.cpp_info.components["cairo_"].defines.append("CAIRO_WIN32_STATIC_BUILD=1")
 
         if self.options.with_zlib:
-            add_component_and_base_requirements("cairo-script", ["zlib::zlib"])
-            add_component_and_base_requirements("cairo-ps", ["zlib::zlib"])
-            add_component_and_base_requirements("cairo-pdf", ["zlib::zlib"])
+            add_component_and_base_requirements("cairo-script", ["zlib-ng::zlib-ng"])
+            add_component_and_base_requirements("cairo-ps", ["zlib-ng::zlib-ng"])
+            add_component_and_base_requirements("cairo-pdf", ["zlib-ng::zlib-ng"])
             self.cpp_info.components["cairo-script-interpreter"].set_property("pkg_config_name", "cairo-script-interpreter")
             self.cpp_info.components["cairo-script-interpreter"].libs = ["cairo-script-interpreter"]
             self.cpp_info.components["cairo-script-interpreter"].requires = ["cairo_"]
 
             if self.options.with_png:
-                add_component_and_base_requirements("cairo-xml", ["zlib::zlib"])
+                add_component_and_base_requirements("cairo-xml", ["zlib-ng::zlib-ng"])
                 add_component_and_base_requirements("cairo-util_", ["expat::expat"])
 
         if self.options.tee:

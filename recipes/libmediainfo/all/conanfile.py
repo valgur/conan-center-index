@@ -43,7 +43,7 @@ class LibmediainfoConan(ConanFile):
         self.requires("libcurl/[>=7.78.0 <9]")
         self.requires("libzen/0.4.41", transitive_headers=True, transitive_libs=True)
         self.requires("tinyxml2/[^10.0.0]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if Version(self.version) >= "23.11":

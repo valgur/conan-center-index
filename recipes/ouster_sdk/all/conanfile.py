@@ -4,11 +4,10 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
+
 
 class OusterSdkConan(ConanFile):
     name = "ouster_sdk"
@@ -68,7 +67,7 @@ class OusterSdkConan(ConanFile):
             # Used in fb_generated/*.h
             self.requires("flatbuffers/24.3.7", transitive_headers=True)
             self.requires("libpng/[~1.6]")
-            self.requires("zlib/[>=1.2.11 <2]", transitive_libs=True)
+            self.requires("zlib-ng/[^2.0]", transitive_libs=True)
 
         if self.options.build_viz:
             self.requires("glad/0.1.36")
@@ -151,7 +150,7 @@ class OusterSdkConan(ConanFile):
                 "ouster_pcap",
                 "flatbuffers::flatbuffers",
                 "libpng::libpng",
-                "zlib::zlib",
+                "zlib-ng::zlib-ng",
             ]
 
         if self.options.build_pcap:

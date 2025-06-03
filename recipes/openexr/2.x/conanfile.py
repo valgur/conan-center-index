@@ -34,7 +34,7 @@ class OpenEXRConan(ConanFile):
         export_conandata_patches(self)
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def validate(self):
         if Version(self.version) < "2.5.0" and cross_building(self):
@@ -128,7 +128,7 @@ class OpenEXRConan(ConanFile):
         self.cpp_info.components["openexr_ilmimf"].libs = [f"IlmImf{lib_suffix}"]
         self.cpp_info.components["openexr_ilmimf"].requires = [
             "openexr_ilmimfconfig", "ilmbase_iex", "ilmbase_half",
-            "ilmbase_imath", "ilmbase_ilmthread", "zlib::zlib",
+            "ilmbase_imath", "ilmbase_ilmthread", "zlib-ng::zlib-ng",
         ]
 
         # IlmImfUtil

@@ -34,7 +34,7 @@ class PtexConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

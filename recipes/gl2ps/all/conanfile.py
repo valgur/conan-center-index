@@ -42,7 +42,7 @@ class Gl2psConan(ConanFile):
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_zlib:
-            self.requires("zlib/[>=1.2.11 <2]")
+            self.requires("zlib-ng/[^2.0]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

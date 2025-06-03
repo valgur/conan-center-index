@@ -42,7 +42,7 @@ class MysqlConnectorCppConan(ConanFile):
         self.requires("protobuf/3.21.12")  # newer versions are not supported as of v9.0.0
         self.requires("openssl/[>=1.1 <4]")
         self.requires("rapidjson/[^1.1.0]")
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         self.requires("lz4/[^1.9.4]")
         self.requires("zstd/[~1.5]")
 
@@ -82,7 +82,7 @@ class MysqlConnectorCppConan(ConanFile):
         deps.set_property("protobuf::libprotobuf", "cmake_target_name", "ext::protobuf")
         deps.set_property("protobuf::libprotobuf-lite", "cmake_target_name", "ext::protobuf-lite")
         deps.set_property("rapidjson", "cmake_target_name", "RapidJSON::rapidjson")
-        deps.set_property("zlib", "cmake_target_name", "ext::z")
+        deps.set_property("zlib-ng", "cmake_target_name", "ext::z")
         deps.set_property("lz4", "cmake_target_name", "ext::lz4")
         deps.set_property("zstd", "cmake_target_name", "ext::zstd")
         deps.generate()

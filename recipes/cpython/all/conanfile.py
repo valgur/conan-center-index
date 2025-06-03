@@ -106,7 +106,7 @@ class CPythonConan(ConanFile):
             self.tool_requires(f"cpython/{self.version}")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self._supports_modules:
             self.requires("openssl/[>=1.1 <4]")
             self.requires("expat/[>=2.6.2 <3]")
@@ -293,7 +293,7 @@ class CPythonConan(ConanFile):
 
         if self._supports_modules:
             openssl = self.dependencies["openssl"].cpp_info.aggregated_components()
-            zlib = self.dependencies["zlib"].cpp_info.aggregated_components()
+            zlib = self.dependencies["zlib-ng"].cpp_info.aggregated_components()
             if Version(self.version) < "3.11":
                 replace_in_file(self, setup_py,
                                 "openssl_includes = ",
@@ -574,7 +574,7 @@ class CPythonConan(ConanFile):
                 copy(self, "*.dll", src=bin_path, dst=dest_path)
             for bin_path in self.dependencies["expat"].cpp_info.bindirs:
                 copy(self, "*.dll", src=bin_path, dst=dest_path)
-            for bin_path in self.dependencies["zlib"].cpp_info.bindirs:
+            for bin_path in self.dependencies["zlib-ng"].cpp_info.bindirs:
                 copy(self, "*.dll", src=bin_path, dst=dest_path)
 
     def _msvc_package_layout(self):
@@ -837,7 +837,7 @@ class CPythonConan(ConanFile):
                 self.cpp_info.components["python"].system_libs.extend(
                     ["pathcch", "shlwapi", "version", "ws2_32"]
                 )
-        self.cpp_info.components["python"].requires = ["zlib::zlib"]
+        self.cpp_info.components["python"].requires = ["zlib-ng::zlib-ng"]
         if self.settings.os != "Windows":
             self.cpp_info.components["python"].requires.append("libxcrypt::libxcrypt")
         self.cpp_info.components["python"].set_property(

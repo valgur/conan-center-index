@@ -66,7 +66,7 @@ class NetcdfConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("zlib/[>=1.2.11 <2]")
+        self.requires("zlib-ng/[^2.0]")
         if self.options.dap or self.options.byterange:
             self.requires("libcurl/[>=7.78.0 <9]")
         if self._with_hdf5:
