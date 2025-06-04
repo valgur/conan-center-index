@@ -1,0 +1,4 @@
+sources:
+  "2.5":
+    url: "https://github.com/NVIDIA/gdrcopy/archive/refs/tags/v2.5.tar.gz"
+    sha256: "196400877be7e511edcf2a87b21a605cca99522ff217c97429348fd9153b30d7"
