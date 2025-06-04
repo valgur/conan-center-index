@@ -61,6 +61,8 @@ class KtxConan(ConanFile):
             # https://github.com/KhronosGroup/KTX-Software/blob/v4.2.1/tools/imageio/png.imageio/lodepng.h#L26-L32
             self.requires("lodepng/cci.20230410")
         self.requires("zstd/[~1.5]")
+        if self.options.tools:
+            self.requires("fmt/[>=9]")
 
     def validate(self):
         if Version(self.version) >= "4.3.2":

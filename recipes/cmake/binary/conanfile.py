@@ -46,7 +46,8 @@ class CMakeConan(ConanFile):
         else:
             docs_folder = os.path.join(self.build_folder, "doc", "cmake")
 
-        copy(self, "Copyright.txt", src=docs_folder, dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
+        licensefile = "LICENSE.rst" if Version(self.version) >= "4.0.0" else "Copyright.txt"
+        copy(self, licensefile, src=docs_folder, dst=os.path.join(self.package_folder, "licenses"), keep_path=False)
 
         if self.settings.os != "Macos":
             # Remove unneeded folders (also cause long paths on Windows)

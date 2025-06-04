@@ -1,15 +1,14 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building, can_run
 from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
+
 
 class Krb5Conan(ConanFile):
     name = "krb5"
@@ -17,7 +16,7 @@ class Krb5Conan(ConanFile):
                   "for client/server applications by using secret-key cryptography."
     homepage = "https://web.mit.edu/kerberos"
     topics = ("kerberos", "network", "authentication", "protocol", "client", "server", "cryptography")
-    license = "LicenseRef-NOTICE"
+    license = "DocumentRef-NOTICE:LicenseRef-"
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "shared-library"
     options = {
@@ -46,12 +45,6 @@ class Krb5Conan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
-
-    def validate(self):
-        if is_msvc(self):
-            raise ConanInvalidConfiguration(f"{self.ref} Conan recipe is not prepared for Windows yet. Contributions are welcome!")
-        if self.settings.os == "Macos":
-            raise ConanInvalidConfiguration(f"{self.ref} Conan recipe is not prepared for Macos yet. Contributions are welcome!")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
