@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -98,6 +99,10 @@ class KtxConan(ConanFile):
         if Version(self.version) >= "4.3.2":
             replace_in_file(self, os.path.join(self.source_folder, "lib", "astc-encoder", "Source", "cmake_core.cmake"),
                             "-Werror", "")
+
+        if Version(self.version) <= "4.3.2":
+            path = Path("tools/imageio/imageio.h")
+            path.write_text("#include <memory>\n" + path.read_text())
 
     def generate(self):
         tc = CMakeToolchain(self)
