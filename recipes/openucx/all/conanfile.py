@@ -31,6 +31,7 @@ class OpenUCXConan(ConanFile):
         "devx": [True, False],
         "dm": [True, False],
         "fuse3": [True, False],
+        "gdrcopy": [True, False],
         "ib_hw_tm": [True, False],
         "mad": [True, False],
         "mlx5": [True, False],
@@ -51,6 +52,7 @@ class OpenUCXConan(ConanFile):
         "devx": False,
         "dm": False,
         "fuse3": False,
+        "gdrcopy": False,
         "ib_hw_tm": False,
         "mad": False,
         "mlx5": False,
@@ -71,6 +73,7 @@ class OpenUCXConan(ConanFile):
         "devx":           "Compile with DEVX support",
         "dm":             "Compile with Device Memory support",
         "fuse3":          "Enable the use of FUSEv3",
+        "gdrcopy":        "Enable the use of gdrcopy for CUDA",
         "ib_hw_tm":       "Compile with IB Tag Matching support",
         "mad":            "Enable Infiniband MAD support",
         "mlx5":           "Compile with mlx5 Direct Verbs support",
@@ -82,7 +85,6 @@ class OpenUCXConan(ConanFile):
         "ud":             "Compile with IB Unreliable Datagram support",
         "verbs":          "Build OpenFabrics support",
         "ze":             "Enable the use of ZE (oneAPI Level Zero)",
-        # "gdrcopy":        "Enable the use of gdrcopy",
         # "knem":           "Enable the use of KNEM",
         # "rocm":           "Enable the use of ROCm",
         # "ugni":           "Build Cray UGNI support",
@@ -93,11 +95,17 @@ class OpenUCXConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    def configure(self):
+        if not self.options.cuda:
+            del self.options.gdrcopy
+
     def requirements(self):
         if any(self.options.get_safe(opt) for opt in ["mad", "mlx5", "rdmacm", "verbs"]):
             self.requires("rdma-core/[>=49.0]")
         if self.options.fuse3:
             self.requires("libfuse/[^3.10.5]")
+        if self.options.gdrcopy:
+            self.requires("gdrcopy/[^2.0]")
         if self.options.ze:
             self.requires("level-zero/[^1.17.39]")
         if self.options.openmp:
@@ -144,6 +152,7 @@ class OpenUCXConan(ConanFile):
             with_without("devx", self.options.devx),
             with_without("dm", self.options.dm),
             with_without("fuse3", self.options.fuse3),
+            with_without("gdrcopy", self.options.gdrcopy, "gdrcopy"),
             with_without("ib-hw-tm", self.options.ib_hw_tm),
             with_without("mad", self.options.mad, "rdma-core"),
             with_without("mlx5", self.options.mlx5),
@@ -152,7 +161,6 @@ class OpenUCXConan(ConanFile):
             with_without("ud", self.options.ud),
             with_without("verbs", self.options.verbs),
             with_without("ze", self.options.ze),
-            with_without("gdrcopy", False),  # No Conan package
             with_without("knem", False),  # No Conan package
             with_without("rocm", False),  # TODO
             with_without("ugni", False),  # No Conan package
@@ -220,36 +228,32 @@ class OpenUCXConan(ConanFile):
         self.cpp_info.components["ucs"].exelinkflags = ["-Wl,--undefined=ucs_init"]
         self.cpp_info.components["ucs"].sharedlinkflags = ["-Wl,--undefined=ucs_init"]
         self.cpp_info.components["ucs"].requires = ["ucm"]
-        self.cpp_info.components["ucs"].system_libs = ["dl", "rt", "m", "pthread"]
-        if self.options.bfd:
-            self.cpp_info.components["ucs"].system_libs.append("bfd")
 
         # not exported in CMake or pkg-config
         self.cpp_info.components["ucm"].libs = ["ucm"]
         self.cpp_info.components["ucm"].exelinkflags = ["-Wl,--undefined=ucm_init"]
         self.cpp_info.components["ucm"].sharedlinkflags = ["-Wl,--undefined=ucm_init"]
-        self.cpp_info.components["ucm"].system_libs = ["dl", "pthread"]
         if self.options.openmp:
             self.cpp_info.components["ucm"].requires.append("openmp::openmp")
 
-        def _define_component(name, lib, requires, init_symbol):
+        def _define_component(name, lib, requires, init_symbol=None):
             component = self.cpp_info.components[name]
             component.set_property("pkg_config_name", f"ucx-{name}")
             component.libdirs = ["lib/ucx"]
             component.libs = [lib]
-            component.exelinkflags = [f"-Wl,--undefined={init_symbol}"]
-            component.sharedlinkflags = [f"-Wl,--undefined={init_symbol}"]
+            if init_symbol:
+                component.exelinkflags = [f"-Wl,--undefined={init_symbol}"]
+                component.sharedlinkflags = [f"-Wl,--undefined={init_symbol}"]
             component.requires = requires
             return component
 
         if self.options.cuda:
-            ucm_cuda = _define_component("cuda", "ucm_cuda", ["ucm"], "ucm_cuda_init")
-            ucm_cuda.system_libs.append("cuda")
+            ucm_cuda = _define_component("cuda", "ucm_cuda", ["ucm"])
             if self.options.openmp:
                 ucm_cuda.requires.append("openmp::openmp")
-            uct_cuda = _define_component("uct-cuda", "uct_cuda", ["uct"], "uct_cuda_init")
-            uct_cuda.system_libs.append("cuda")
-            uct_cuda.system_libs.append("nvidia-ml")
+            _define_component("uct-cuda", "uct_cuda", ["uct"])
+            if self.options.gdrcopy:
+                 _define_component("uct-cuda-gdrcopy", "uct_cuda_gdrcopy", ["uct-cuda", "gdrcopy::gdrcopy"])
         if self.options.fuse3:
             _define_component("fuse", "ucs_fuse", ["ucs", "libfuse::libfuse"], "ucs_vfs_fuse_init")
         if self.options.mlx5:
