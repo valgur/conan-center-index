@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-03:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-04:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -156,7 +156,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - googleapis/cci.20250506
 - gpu.cpp/0.1.0
 - grass/8.5.0-cci.20240507
-- grpc/1.50.2
 - grpc/1.65.5
 - gsettings-desktop-schemas/48.0
 - gsl-lite/0.43.0
@@ -334,6 +333,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
+- openssl/3.1.8
+- openucx/1.18.1
 - openusd/25.02
 - openxr/1.1.47
 - or-tools/9.10
@@ -400,7 +401,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spectra/1.1.0
 - speech-dispatcher/0.12
 - spirv-cross/1.3.290.0
-- spirv-cross/1.4.313.0
 - spirv-headers/1.3.250.1
 - spirv-headers/1.3.290.0
 - spirv-llvm-translator/19.1.6
@@ -461,6 +461,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - tpl/cci.20210302
 - tslib/1.23
 - tz/2024b
+- ufbx/0.18.2
 - usearch/2.9.1
 - userspace-rcu/0.15.2
 - utfcpp/4.0.6
@@ -484,7 +485,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-extensionlayer/1.4.309.0
 - vulkan-extensionlayer/1.4.313.0
 - vulkan-headers/1.3.250.1
-- vulkan-headers/1.4.313.0
 - vulkan-loader/1.3.250.1
 - vulkan-loader/1.3.296.0
 - vulkan-loader/1.4.313.0
@@ -529,4 +529,5 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - zenoh-cpp/1.3.2
 - zenoh-pico/1.3.2
 - zint/2.13.0
+- zlib-rs/0.5.0
 
