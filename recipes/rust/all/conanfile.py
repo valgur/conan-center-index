@@ -6,6 +6,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.gnu import GnuToolchain
+from conan.tools.microsoft import is_msvc
 
 target_map = {
     ("Android", "armv6", None): "arm-linux-androideabi",
@@ -150,10 +151,13 @@ class RustConan(ConanFile):
 
         # Ensure the correct linker is used
         host_target = self._host_rust_target
-        gnu_vars = GnuToolchain(self).extra_env.vars(self)
-        cc = gnu_vars["CC"].replace("\\", "/")
+        if is_msvc(self):
+            linker = "link"
+        else:
+            gnu_vars = GnuToolchain(self).extra_env.vars(self)
+            linker = gnu_vars["CC"].replace("\\", "/")
         target_upper = host_target.upper().replace("-", "_")
-        self.buildenv_info.define_path(f"CARGO_TARGET_{target_upper}_LINKER", cc)
+        self.buildenv_info.define_path(f"CARGO_TARGET_{target_upper}_LINKER", linker)
 
         # Define the cross-build target, if applicable
         target_target = self._target_rust_target
