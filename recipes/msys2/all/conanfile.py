@@ -27,7 +27,8 @@ class MSYS2Conan(ConanFile):
     }
     default_options = {
         # https://packages.msys2.org/packages/base-devel
-        "packages": "base-devel",
+        # GCC is needed for windres https://github.com/conan-io/conan/issues/12691
+        "packages": "base-devel,gcc",
         "exclude_files": "*/link.exe",
     }
 
