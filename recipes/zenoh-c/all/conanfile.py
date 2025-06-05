@@ -46,14 +46,11 @@ class ZenohCConan(ConanFile):
         "shared_memory": "Enables transferring data through shared memory if the receiver and transmitter are on the same host",
         "extra_cargo_flags": "Extra flags to pass to Cargo"
     }
+    languages = ["C"]
 
     def config_options(self):
         # The library is always built as PIC
         del self.options.fPIC
-
-    def configure(self):
-        # Does not use the C or C++ compiler
-        del self.settings.compiler
 
     def layout(self):
         cmake_layout(self, src_folder="src")

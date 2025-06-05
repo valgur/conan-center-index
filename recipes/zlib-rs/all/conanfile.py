@@ -10,7 +10,7 @@ from conan.tools.files import *
 from conan.tools.gnu import GnuToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class ZlibRsConan(ConanFile):
@@ -31,15 +31,11 @@ class ZlibRsConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    languages = ["C"]
 
     def config_options(self):
         # The library is always built as PIC
         del self.options.fPIC
-
-    def configure(self):
-        # Does not use the C++ compiler
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")

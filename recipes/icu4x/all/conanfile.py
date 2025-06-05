@@ -11,7 +11,7 @@ from conan.tools.gnu import GnuToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class ICU4XConan(ConanFile):
@@ -31,14 +31,11 @@ class ICU4XConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    languages = ["C"]
 
     def config_options(self):
         # The library is always built as PIC
         del self.options.fPIC
-
-    def configure(self):
-        # Does not use the C or C++ compiler
-        del self.settings.compiler
 
     def layout(self):
         basic_layout(self, src_folder="src")

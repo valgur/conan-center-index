@@ -10,7 +10,7 @@ from conan.tools.gnu import PkgConfigDeps
 from conan.tools.meson import MesonToolchain, Meson
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibrsvgConan(ConanFile):
@@ -33,6 +33,7 @@ class LibrsvgConan(ConanFile):
         "fPIC": True,
         "with_introspection": False,
     }
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os == "Windows":

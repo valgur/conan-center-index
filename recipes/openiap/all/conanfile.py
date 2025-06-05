@@ -30,14 +30,11 @@ class OpenIAPConan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    languages = ["C"]
 
     def config_options(self):
         # The library is always built as PIC
         del self.options.fPIC
-
-    def configure(self):
-        # Does not use the C or C++ compiler
-        del self.settings.compiler
 
     def layout(self):
         basic_layout(self, src_folder="src")
