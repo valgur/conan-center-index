@@ -174,6 +174,9 @@ class GettextConan(ConanFile):
                 env.define("RC", rc)
                 env.define("WINDRES", rc)
 
+            # Prevent /F4000000 linker flag from being interpreted as a path
+            env.define("MSYS2_ARG_CONV_EXCL", "/F")
+
             # The flag above `--with-libiconv-prefix` fails to correctly detect libiconv on windows+msvc
             # so it needs an extra nudge. We could use `AutotoolsDeps` but it's currently affected by the
             # following outstanding issue: https://github.com/conan-io/conan/issues/12784
@@ -185,6 +188,7 @@ class GettextConan(ConanFile):
             # One of the checks performed by the configure script requires this as a preprocessor flag
             # rather than a C compiler flag
             env.prepend("CPPFLAGS", f"-I{iconv_includedir}")
+            env.prepend("LDFLAGS", f"-L{iconv_libdir}")
         tc.generate(env)
 
         if not is_msvc(self) and not self._is_clang_cl:
