@@ -95,6 +95,10 @@ class GettextConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # Disable irrelevant subdirs
+        replace_in_file(self, "gettext-tools/Makefile.in",
+                        "SUBDIRS = gnulib-lib libgrep src libgettextpo po its projects styles emacs misc man m4 tests system-tests gnulib-tests examples doc",
+                        "SUBDIRS = gnulib-lib libgrep src libgettextpo po its styles emacs misc m4")
         # fix ability to cross-build on macOS and assume macOS newer than 10.4
         for folder in ["gettext-runtime", "gettext-tools"]:
             replace_in_file(self, os.path.join(folder, "configure"),
