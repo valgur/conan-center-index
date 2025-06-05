@@ -133,7 +133,7 @@ class ZenohCConan(ConanFile):
             if self.settings.os == "Windows":
                 copy(self, "*zenohc*.dll", dist_dir, os.path.join(self.package_folder, "bin"), keep_path=False)
         else:
-            for pattern in ["*zenohc*.a", "*zenohc*.lib"]:
+            for pattern in ["*zenohc*.a", "*zenohc.lib"]:
                 copy(self, pattern, dist_dir, os.path.join(self.package_folder, "lib"), keep_path=False)
 
     def package_info(self):
