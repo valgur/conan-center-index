@@ -51,8 +51,6 @@ class NASMConan(ConanFile):
                 self.win_bash = True
                 if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                     self.tool_requires("msys2/cci.latest")
-        if not is_msvc(self):
-            self.tool_requires("autoconf/2.72")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -82,7 +80,6 @@ class NASMConan(ConanFile):
         else:
             with chdir(self, self.source_folder):
                 autotools = Autotools(self)
-                self.run("./autogen.sh")
                 autotools.configure()
                 autotools.make()
 

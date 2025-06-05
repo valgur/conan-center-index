@@ -1,13 +1,19 @@
 sources:
   "2.16.03":
-    url: "https://github.com/netwide-assembler/nasm/archive/refs/tags/nasm-2.16.03.tar.gz"
-    sha256: "e525fa6fdc3df33cec6b499111f44afa78ce50bf260158580dcf014015a21ba9"
+    url:
+      - "https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.xz"
+      - "https://www.nasm.dev/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.xz"
+    sha256: "1412a1c760bbd05db026b6c0d1657affd6631cd0a63cddb6f73cc6d4aa616148"
   "2.16.01":
-    url: "https://github.com/netwide-assembler/nasm/archive/refs/tags/nasm-2.16.01.tar.gz"
-    sha256: "d4a9c2b806e736cac8e9ad891b3cc042f4d7d20f764432e128d613cb1a4f0189"
+    url:
+      - "https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/nasm-2.16.01.tar.xz"
+      - "https://www.nasm.dev/pub/nasm/releasebuilds/2.16.01/nasm-2.16.01.tar.xz"
+    sha256: "c77745f4802375efeee2ec5c0ad6b7f037ea9c87c92b149a9637ff099f162558"
   "2.15.05":
-    url: "https://github.com/netwide-assembler/nasm/archive/refs/tags/nasm-2.15.05.tar.gz"
-    sha256: "f575c516b5c1c28d5d64efdc26ed52b137ad36bfbd2d855d4782f050ca964245"
+    url:
+      - "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.xz"
+      - "https://www.nasm.dev/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.xz"
+    sha256: "3caf6729c1073bf96629b57cee31eeb54f4f8129b01902c73428836550b30a3f"
 patches:
   "2.16.03":
     - patch_file: "patches/2.16.03-0001-disable-newly-integrated-dependency-tracking.patch"
