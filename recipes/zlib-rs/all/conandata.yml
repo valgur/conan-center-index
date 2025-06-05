@@ -6,6 +6,9 @@ sources:
     "zlib.h":
       url: "https://raw.githubusercontent.com/madler/zlib/refs/tags/v1.3.1/zlib.h"
       sha256: "8a5579af72ea4f427ff00a4150f0ccb3fc5c1e4379f726e101133b1ab9fc600c"
+    "zconf.h":
+      url: "https://raw.githubusercontent.com/madler/zlib/refs/tags/v1.3.1/zconf.h"
+      sha256: "f5134250a67d57459234b63858f0d9d3ef8dcc48e9e1028d3f4fdcf6eae677ae"
     "LICENSE-zlib":
       url: "https://raw.githubusercontent.com/madler/zlib/refs/tags/v1.3.1/LICENSE"
       sha256: "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"

@@ -36,6 +36,10 @@ class ZlibRsConan(ConanFile):
     def config_options(self):
         # The library is always built as PIC
         del self.options.fPIC
+        if self.settings.os == "Windows":
+            # static builds don't work
+            del self.options.shared
+            self.package_type = "shared-library"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -46,6 +50,7 @@ class ZlibRsConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["zlib-rs"], strip_root=True)
         download(self, **self.conan_data["sources"][self.version]["zlib.h"], filename="zlib.h")
+        download(self, **self.conan_data["sources"][self.version]["zconf.h"], filename="zconf.h")
         download(self, **self.conan_data["sources"][self.version]["LICENSE-zlib"], filename="LICENSE-zlib")
         # Add a profile for RelWithDebInfo
         save(self, "Cargo.toml", content=textwrap.dedent("""\
@@ -75,7 +80,7 @@ class ZlibRsConan(ConanFile):
         return "--release"
 
     def build(self):
-        target = "libz-rs-sys-cdylib" if self.options.shared else "libz-rs-sys"
+        target = "libz-rs-sys-cdylib" if self.options.get_safe("shared", True) else "libz-rs-sys"
         self.run(f"cargo rustc {self._build_type_flag} --target-dir {self.build_folder}",
                  cwd=os.path.join(self.source_folder, target))
 
@@ -90,9 +95,10 @@ class ZlibRsConan(ConanFile):
     def package(self):
         copy(self, "LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
         copy(self, "zlib.h", self.source_folder, os.path.join(self.package_folder, "include"))
+        copy(self, "zconf.h", self.source_folder, os.path.join(self.package_folder, "include"))
         # Using shutil since copy() copies unrelated junk
         for path in self._dist_dir.glob("*z_rs*.*"):
-            if path.suffix == ".d":
+            if path.suffix in {".d", ".pdb", ".exp"}:
                 continue
             dest = Path(self.package_folder, "bin" if path.suffix == ".dll" else "lib")
             dest.mkdir(exist_ok=True)
@@ -105,4 +111,4 @@ class ZlibRsConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "zlib")
         self.cpp_info.set_property("system_package_version", "1.3.0")
 
-        self.cpp_info.libs = ["z_rs" if self.options.shared else "libz_rs_sys"]
+        self.cpp_info.libs = ["z_rs" if self.options.get_safe("shared", True) else "libz_rs_sys"]
