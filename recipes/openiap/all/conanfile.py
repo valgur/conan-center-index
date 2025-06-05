@@ -41,6 +41,7 @@ class OpenIAPConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("rust/1.81.0")
+        self.tool_requires("protobuf/[*]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -102,3 +103,5 @@ class OpenIAPConan(ConanFile):
         self.cpp_info.libs = ["openiap_clib"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "dl", "pthread"]
+        elif self.settings.os == "Windows":
+            self.cpp_info.system_libs = ["ws2_32", "userenv", "psapi", "crypt32", "secur32", "bcrypt", "ncrypt", "ntdll"]
