@@ -110,3 +110,5 @@ class ICU4XConan(ConanFile):
         self.cpp_info.libs = ["icu_capi"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m"]
+        elif self.settings.os == "Windows":
+            self.cpp_info.system_libs = ["ws2_32", "userenv", "ntdll"]
