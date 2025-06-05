@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-04:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-05:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -47,7 +47,38 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cimg/3.3.5
 - clang/19.1.7
 - clang/20.1.5
-- cmake/4.0.2
+- cmake/3.19.8
+- cmake/3.20.6
+- cmake/3.21.7
+- cmake/3.22.6
+- cmake/3.23.5
+- cmake/3.24.4
+- cmake/3.25.3
+- cmake/3.26.5
+- cmake/3.26.6
+- cmake/3.27.4
+- cmake/3.27.5
+- cmake/3.27.6
+- cmake/3.27.7
+- cmake/3.27.9
+- cmake/3.28.1
+- cmake/3.28.5
+- cmake/3.28.6
+- cmake/3.29.0
+- cmake/3.29.2
+- cmake/3.29.3
+- cmake/3.29.4
+- cmake/3.29.5
+- cmake/3.29.6
+- cmake/3.29.7
+- cmake/3.30.0
+- cmake/3.30.1
+- cmake/3.30.5
+- cmake/3.31.0
+- cmake/3.31.3
+- cmake/3.31.5
+- cmake/3.31.6
+- cmake/4.0.1
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -126,6 +157,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gcc/9.5.0
 - gdalcpp/1.3.0
 - gdk-pixbuf/2.42.12
+- gdrcopy/2.5
 - gettext/0.24
 - gfortran/13.2.0
 - gici/cci.20250127
@@ -298,7 +330,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20240530
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
-- mbedtls/2.28.10
 - meson/1.6.1
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.1
@@ -333,7 +364,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
-- openssl/3.1.8
 - openucx/1.18.1
 - openusd/25.02
 - openxr/1.1.47
