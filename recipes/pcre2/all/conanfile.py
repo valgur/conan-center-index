@@ -120,7 +120,7 @@ class PCRE2Conan(ConanFile):
             postfix = "-static" if not self.options.shared else ""
             if self.settings.build_type == "Debug":
                 postfix += "d"
-            replace_in_file(self, "CMakeLists.txt", replace, f'set(LIB_POSTFIX "{postfix}")\n{replace}')
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"), replace, f'set(LIB_POSTFIX "{postfix}")\n{replace}')
 
     def build(self):
         self._patch_sources()
