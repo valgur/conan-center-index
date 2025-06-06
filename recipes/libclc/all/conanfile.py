@@ -19,25 +19,16 @@ class LibclcConan(ConanFile):
     homepage = "https://libclc.llvm.org/"
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
-    options = {
-        "amdgpu": [True, False],
-        "nvptx": [True, False],
-    }
-    default_options = {
-        "amdgpu": True,
-        "nvptx": True,
+
+    default_build_options = {
+        "llvm-core/*:target_AMDGPU": True,
+        "llvm-core/*:target_NVPTX": True,
     }
 
     no_copy_source = True
 
     def layout(self):
         cmake_layout(self, src_folder="src")
-
-    def requirements(self):
-        self.requires(f"llvm-core/{self.version}", options={
-            "target_AMDGPU": self.options.amdgpu,
-            "target_NVPTX": self.options.nvptx,
-        })
 
     def _is_compatible_compiler(self):
         llvm_major = Version(self.version).major.value
@@ -58,10 +49,6 @@ class LibclcConan(ConanFile):
         self.tool_requires("ninja/[^1.10]")
         # Also requires Python during build
         if not self._is_compatible_compiler():
-            self.tool_requires("llvm-core/<host_version>", options={
-                "target_AMDGPU": self.options.amdgpu,
-                "target_NVPTX": self.options.nvptx,
-            })
             self.tool_requires(f"clang/{self.version}")
 
     def validate_build(self):
@@ -80,13 +67,11 @@ class LibclcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self, generator="Ninja")
-        tc.cache_variables["CMAKE_VERBOSE_MAKEFILE"] = "ON"
-        if "clang" in self.dependencies.build:
-            tc.cache_variables["LLVM_TOOL_clang"] = self._get_tool("clang", "clang")
-            for tool in ["llvm-as", "llvm-link", "opt"]:
-                tc.cache_variables[f"LLVM_TOOL_{tool}"] = self._get_tool("llvm-core", tool)
         tc.generate()
+
         deps = CMakeDeps(self)
+        deps.build_context_activated.append("clang")
+        deps.build_context_build_modules.append("clang")
         deps.generate()
 
     def build(self):
