@@ -116,16 +116,27 @@ class GlslangConan(ConanFile):
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
 
+    def _extract_version(self):
+        # Based on https://github.com/KhronosGroup/glslang/blob/main/parse_version.cmake
+        content = load(self, os.path.join(self.source_folder, "CHANGES.md"))
+        return re.search(r"#+ *(\d+\.\d+\.\d+(?:-[a-zA-Z0-9]+)?)", content).group(1)
+
+    @property
+    def _version_file(self):
+        return os.path.join(self.package_folder, "share", "conan", self.name, "VERSION")
+
     def package(self):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "share"))
+        save(self, self._version_file, self._extract_version())
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "glslang")
         self.cpp_info.set_property("cmake_target_name", "glslang::_glslang-do-not-use") # because glslang-core target is glslang::glslang
+        self.cpp_info.set_property("system_package_version", load(self, self._version_file).strip())
 
         lib_suffix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
 
