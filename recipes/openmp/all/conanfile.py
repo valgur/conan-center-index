@@ -125,7 +125,12 @@ class PackageConan(ConanFile):
             # Export appropriate flags for packages linking against this one transitively.
             # Direct dependencies of this package will rely on CMake's FindOpenMP.cmake instead.
             openmp_flags = self._openmp_flags
-            self.cpp_info.sharedlinkflags = openmp_flags
-            self.cpp_info.exelinkflags = openmp_flags
             self.cpp_info.cflags = openmp_flags
             self.cpp_info.cxxflags = openmp_flags
+            if is_msvc(self):
+                self.cpp_info.system_libs = ["vcompd" if self.settings.build_type == "Debug" else "vcomp"]
+            elif self.settings.compiler in ["intel-cc", "intel-llvm"]:
+                self.cpp_info.system_libs = ["iomp5"]
+            else:
+                self.cpp_info.sharedlinkflags = openmp_flags
+                self.cpp_info.exelinkflags = openmp_flags
