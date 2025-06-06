@@ -80,7 +80,11 @@ class GStPluginsRsConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.options["gstreamer"].shared = self.options.shared
+        if self.settings.os == "Windows":
+            # static build fails with an internal linker error on Windows
+            del self.options.shared
+            self.package_type = "shared-library"
+        self.options["gstreamer"].shared = self.options.get_safe("shared", True)
         if self.options.webrtc:
             self.options["gst-plugins-bad"].webrtc = True
             self.options["gst-plugins-bad"].dtls = True
@@ -160,10 +164,10 @@ class GStPluginsRsConan(ConanFile):
             self.requires("libwebp/[^1.3.2]")
 
     def validate(self):
-        if not self.dependencies["glib"].options.shared and self.options.shared:
+        if not self.dependencies["glib"].options.shared and self.options.get_safe("shared", True):
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration("shared GStreamer cannot link to static GLib")
-        if self.options.shared != self.dependencies["gstreamer"].options.shared:
+        if self.options.get_safe("shared", True) != self.dependencies["gstreamer"].options.shared:
             # https://gitlab.freedesktop.org/gstreamer/gst-build/-/issues/133
             raise ConanInvalidConfiguration("GStreamer and GstPlugins must be either all shared, or all static")
 
@@ -220,6 +224,12 @@ class GStPluginsRsConan(ConanFile):
         deps.generate()
 
     def build(self):
+        if self.settings_build.os == "Windows":
+            # shlex.split without posix=False mangles Windows directory separators
+            # https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs/-/issues/696
+            replace_in_file(self, os.path.join(self.source_folder, "cargo_wrapper.py"),
+                            "shlex.split(",
+                            "shlex.split(posix=False, s=")
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -243,7 +253,7 @@ class GStPluginsRsConan(ConanFile):
     def package_info(self):
         gst_plugins = []
 
-        if self.options.shared:
+        if self.options.get_safe("shared", True):
             self.runenv_info.define_path("GST_PLUGIN_PATH", os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
 
         def _define_plugin(name, extra_requires):
@@ -259,7 +269,7 @@ class GStPluginsRsConan(ConanFile):
             component.includedirs = []
             component.bindirs = []
             component.resdirs = ["res"]
-            if self.options.shared:
+            if self.options.get_safe("shared", True):
                 component.bindirs.append(os.path.join("lib", "gstreamer-1.0"))
             else:
                 component.libs = [name]
