@@ -226,6 +226,14 @@ class GettextConan(ConanFile):
             shutil.copy(os.path.join(dest_include_dir, "libgnuintl.h"),
                         os.path.join(dest_include_dir, "libintl.h"))
 
+            # Create an alias from gnuintl to intl
+            for subdir in ["lib", "bin"]:
+                for f in Path(self.package_folder, subdir).glob("*gnuintl.*"):
+                    if self.settings.os == "Windows":
+                        shutil.copy(f, f.parent / f.name.replace("gnu", ""))
+                    else:
+                        os.symlink(f.name, f.parent / f.name.replace("gnu", ""))
+
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "share", "info"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
@@ -236,6 +244,7 @@ class GettextConan(ConanFile):
             self.cpp_info.set_property("cmake_find_mode", "both")
             self.cpp_info.set_property("cmake_file_name", "Intl")
             self.cpp_info.set_property("cmake_target_name", "Intl::Intl")
+            self.cpp_info.set_property("pkg_config_aliases", ["intl", "gnuintl"])
             self.cpp_info.libs = ["gnuintl"]
             if is_apple_os(self):
                 self.cpp_info.frameworks.append("CoreFoundation")
