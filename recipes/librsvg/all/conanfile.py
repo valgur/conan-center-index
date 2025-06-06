@@ -8,7 +8,6 @@ from conan.tools.cmake import cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.4"
 
@@ -39,13 +38,16 @@ class LibrsvgConan(ConanFile):
         if self.settings.os == "Windows":
             del self.options.fPIC
         self.options["pango"].with_cairo = True
-        self.options["pango"].with_freetype = True
 
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
+        if self.settings.os == "Windows":
+            # static build fails with an internal linker error
+            del self.options.shared
+            self.package_type = "shared-library"
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -67,14 +69,8 @@ class LibrsvgConan(ConanFile):
         self.requires("gdk-pixbuf/[^2.42.10]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
-        if is_msvc(self):
-            # Not impossible, but building with MSVC is very fragile
-            # https://gitlab.gnome.org/GNOME/librsvg/-/blob/main/win32/MSVC-Builds.md
-            raise ConanInvalidConfiguration("Building librsvg with MSVC is currently not supported")
         if not self.dependencies["pango"].options.with_cairo:
             raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_cairo=True")
-        if not self.dependencies["pango"].options.with_freetype:
-            raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_freetype=True")
 
     def build_requirements(self):
         self.tool_requires("rust/1.85.1")
@@ -88,11 +84,6 @@ class LibrsvgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # Fix freetype version check, which uses a different versioning format
-        replace_in_file(self, "meson.build", "version: freetype2_required,", "")
-        replace_in_file(self, os.path.join(self.source_folder, "rsvg", "Cargo.toml"),
-                        "freetype2 = ",
-                        f'freetype2 = "{self.dependencies["freetype"].ref.version}" # ')
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -121,7 +112,7 @@ class LibrsvgConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "librsvg-2.0")
-        self.cpp_info.libs = ["librsvg-2"]
+        self.cpp_info.libs = ["rsvg-2" if self.settings.os == "Windows" else "librsvg-2"]
         self.cpp_info.includedirs.append(os.path.join("include", "librsvg-2.0"))
         self.cpp_info.resdirs = ["share"]
 
@@ -138,8 +129,9 @@ class LibrsvgConan(ConanFile):
             "harfbuzz::harfbuzz",
             "libxml2::libxml2",
             "pango::pangocairo",
-            "pango::pangoft2",
         ]
+        if "pangoft2" in self.dependencies["pango"].cpp_info.components:
+            self.cpp_info.requires.append("pango::pangoft2")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread", "m", "dl", "rt"]
