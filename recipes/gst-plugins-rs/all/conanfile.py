@@ -92,7 +92,7 @@ class GStPluginsRsConan(ConanFile):
             self.options.rm_safe("webrtc_livekit")
 
     def layout(self):
-        basic_layout(self)
+        basic_layout(self, src_folder="src")
 
     @cached_property
     def _plugins(self):
