@@ -1,0 +1,13 @@
+find_package(lz4 REQUIRED)
+find_package(Zstd REQUIRED)
+if (WITH_DRACO)
+    find_package(draco REQUIRED)
+endif()
+if(WITH_PCL)
+    find_package(PCL REQUIRED)
+endif()
+
+if(CLOUDINI_BUILD_TOOLS)
+    find_package(mcap REQUIRED)
+    find_package(cxxopts REQUIRED)
+endif()
