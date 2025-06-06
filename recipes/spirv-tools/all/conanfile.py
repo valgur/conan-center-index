@@ -1,4 +1,5 @@
 import os
+import re
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -95,10 +96,20 @@ class SpirvtoolsConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _extract_version(self):
+        # Based on https://github.com/KhronosGroup/SPIRV-Tools/blob/vulkan-sdk-1.4.313/cmake/write_pkg_config.cmake
+        content = load(self, os.path.join(self.source_folder, "CHANGES"))
+        return re.search(r"v(\d+(?:\.\d+)?) \d+-\d+-\d+", content).group(1)
+
+    @property
+    def _version_file(self):
+        return os.path.join(self.package_folder, "share", "conan", self.name, "VERSION")
+
     def package(self):
         copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
+        save(self, self._version_file, self._extract_version())
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
@@ -107,6 +118,7 @@ class SpirvtoolsConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name", "SPIRV-Tools")
         if self.options.shared:
             self.cpp_info.set_property("pkg_config_aliases", ["SPIRV-Tools-shared"])
+        self.cpp_info.set_property("system_package_version", load(self, self._version_file).strip())
 
         # SPIRV-Tools
         self.cpp_info.components["spirv-tools-core"].set_property("cmake_target_name", "SPIRV-Tools")
