@@ -1,4 +1,5 @@
 import os
+import re
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -111,12 +112,22 @@ class SpirvCrossConan(ConanFile):
         cmake.configure()
         cmake.build()
 
+    def _extract_version(self):
+        content = load(self, os.path.join(self.source_folder, "CMakeLists.txt"))
+        parts = dict(re.findall(r"spirv-cross-abi-(major|minor|patch) (\d+)", content))
+        return f"{parts['major']}.{parts['minor']}.{parts['patch']}"
+
+    @property
+    def _version_file(self):
+        return os.path.join(self.package_folder, "share", "conan", self.name, "VERSION")
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
+        save(self, self._version_file, self._extract_version())
         rm(self, "*.ilk", os.path.join(self.package_folder, "bin"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         if self.options.get_safe("shared") and self.options.build_executable:
@@ -127,6 +138,8 @@ class SpirvCrossConan(ConanFile):
                 rm(self, f"*{static_lib}.*", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
+        self.cpp_info.set_property("system_package_version", load(self, self._version_file).strip())
+
         # FIXME: we should provide one CMake config file per target (waiting for an implementation of https://github.com/conan-io/conan/issues/9000)
         def _add_component(target_lib, requires=None, c_api_requires=False):
             component = self.cpp_info.components[target_lib]
