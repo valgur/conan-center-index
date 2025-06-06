@@ -5,7 +5,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.files import *
-from conan.tools.gnu import PkgConfigDeps
+from conan.tools.gnu import PkgConfigDeps, AutotoolsDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
@@ -84,7 +84,11 @@ class GLibConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         # https://gitlab.gnome.org/GNOME/glib/-/issues/2152
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('fuzzing')", "")
+        replace_in_file(self, "meson.build", "subdir('fuzzing')", "")
+        # Make sure libintl is found the first try
+        replace_in_file(self, "meson.build",
+                        "dependency('intl', required: false)",
+                        "dependency('intl', required: true)")
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -107,10 +111,14 @@ class GLibConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
-        deps.set_property("gettext", "pkg_config_name", "intl")
         deps.generate()
 
     def build(self):
+        if self.settings.os != "Linux":
+            # intl has special handling in Meson - avoid that
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                            "dependency('intl'",
+                            "dependency('gettext'")
         meson = Meson(self)
         meson.configure()
         meson.build()

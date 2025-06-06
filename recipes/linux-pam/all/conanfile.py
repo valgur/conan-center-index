@@ -117,7 +117,6 @@ class LinuxPamConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
-        deps.set_property("libgettext", "pkg_config_name", "intl")
         deps.generate()
 
         VirtualBuildEnv(self).generate()

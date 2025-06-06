@@ -49,6 +49,9 @@ class GLibGIRConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         replace_in_file(self, "meson.build", "subdir('fuzzing')", "")
         replace_in_file(self, "meson.build", "subdir('po')", "")
+        replace_in_file(self, "meson.build",
+                        "dependency('intl', required: false)",
+                        "dependency('intl', required: true)")
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -66,10 +69,14 @@ class GLibGIRConan(ConanFile):
         tc.generate()
 
         deps = PkgConfigDeps(self)
-        deps.set_property("gettext", "pkg_config_name", "intl")
         deps.generate()
 
     def build(self):
+        if self.settings.os != "Linux":
+            # intl has special handling in Meson - avoid that
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                            "dependency('intl'",
+                            "dependency('gettext'")
         meson = Meson(self)
         meson.configure()
         meson.build()
