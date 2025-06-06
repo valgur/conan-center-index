@@ -25,6 +25,7 @@ class SpirvheadersConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        assert "VERSION 1.5.5" in load(self, "CMakeLists.txt")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -51,5 +52,7 @@ class SpirvheadersConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "SPIRV-Headers")
         self.cpp_info.set_property("cmake_target_name", "SPIRV-Headers::SPIRV-Headers")
         self.cpp_info.set_property("pkg_config_name", "SPIRV-Headers")
+        # .pc and CMake version has been fixed at 1.5.5 since 1.2.198.0
+        self.cpp_info.set_property("system_package_version", "1.5.5")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
