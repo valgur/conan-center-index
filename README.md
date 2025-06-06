@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-05:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-06:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -250,6 +250,17 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcudacxx/2.7.0
 - libcups/2.2.12
 - libcups/3.0-rc4
+- libcurl/8.0.1
+- libcurl/8.1.2
+- libcurl/8.10.0
+- libcurl/8.10.1
+- libcurl/8.11.1
+- libcurl/8.2.1
+- libcurl/8.4.0
+- libcurl/8.5.0
+- libcurl/8.6.0
+- libcurl/8.8.0
+- libcurl/8.9.1
 - libdecor/0.2.2
 - libecwj2/3.3
 - libelas/cci.20150630
@@ -428,6 +439,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sleef/3.6.1
 - small_gicp/0.1.2
 - smtpclient/1.1.10
+- spdlog/1.15.1
 - spectra/1.1.0
 - speech-dispatcher/0.12
 - spirv-cross/1.3.290.0
