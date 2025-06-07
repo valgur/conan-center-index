@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-06:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-07:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -47,6 +47,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cimg/3.3.5
 - clang/19.1.7
 - clang/20.1.5
+- cloudini/0.3.0
 - cmake/3.19.8
 - cmake/3.20.6
 - cmake/3.21.7
@@ -116,6 +117,14 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - elfutils/0.191
 - elfutils/0.192
 - emsdk/4.0.6
+- extra-cmake-modules/5.108.0
+- extra-cmake-modules/5.111.0
+- extra-cmake-modules/5.113.0
+- extra-cmake-modules/5.75.0
+- extra-cmake-modules/5.80.0
+- extra-cmake-modules/5.84.0
+- extra-cmake-modules/5.93.0
+- extra-cmake-modules/6.2.0
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
@@ -129,6 +138,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fortran/cci.latest
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
+- frugally-deep/0.15.29
+- frugally-deep/0.15.30
+- frugally-deep/0.15.31
+- frugally-deep/0.16.0
 - g2o/20230806
 - gbm/system
 - gcc-arm-prebuilt/10.2-2020.11
@@ -152,7 +165,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gcc/12.4.0
 - gcc/13.3.0
 - gcc/14.3.0
-- gcc/15.1.0
 - gcc/8.5.0
 - gcc/9.5.0
 - gdalcpp/1.3.0
@@ -220,6 +232,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/11.2.0
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
+- highs/1.7.2
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
@@ -250,17 +263,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libcudacxx/2.7.0
 - libcups/2.2.12
 - libcups/3.0-rc4
-- libcurl/8.0.1
-- libcurl/8.1.2
-- libcurl/8.10.0
-- libcurl/8.10.1
-- libcurl/8.11.1
-- libcurl/8.2.1
-- libcurl/8.4.0
-- libcurl/8.5.0
-- libcurl/8.6.0
-- libcurl/8.8.0
-- libcurl/8.9.1
 - libdecor/0.2.2
 - libecwj2/3.3
 - libelas/cci.20150630
@@ -342,6 +344,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mavlink/1.0.12.cci.20241205
 - mavsdk/2.13.0
 - meson/1.6.1
+- meson/1.8.1
 - metavision-sdk/4.6.2
 - metavision-sdk/5.1.1
 - mkfontscale/1.2.3
@@ -419,7 +422,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - re2/20220601
 - reduct-cpp/1.14.0
 - renderdoc/1.37
-- resultlib/1.0.0
 - rmlui/5.1
 - rosx_introspection/1.0.2
 - rust/1.72.1
@@ -439,7 +441,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sleef/3.6.1
 - small_gicp/0.1.2
 - smtpclient/1.1.10
-- spdlog/1.15.1
 - spectra/1.1.0
 - speech-dispatcher/0.12
 - spirv-cross/1.3.290.0
