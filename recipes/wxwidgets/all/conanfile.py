@@ -142,7 +142,7 @@ class wxWidgetsConan(ConanFile):
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("nanosvg/cci.20231025")
         self.requires("pcre2/[^10.42]")
-        self.requires("xz_utils/[>=5.4.5 <6]")
+        self.requires("xz_utils/[^5.4.5]")
         self.requires("zlib-ng/[^2.0]")
         self.requires("libjpeg-meta/latest")
 

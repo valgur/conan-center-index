@@ -67,7 +67,7 @@ class LibSolvConan(ConanFile):
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")
         if self.options.enable_lzma_compression:
-            self.requires("xz_utils/[>=5.4.5 <6]")
+            self.requires("xz_utils/[^5.4.5]")
         if self.options.enable_bzip2_compression:
             self.requires("bzip2/[^1.0.8]")
         if self.options.enable_zstd_compression:

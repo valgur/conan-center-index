@@ -54,7 +54,7 @@ class LiunwindConan(ConanFile):
 
     def requirements(self):
         if self.options.minidebuginfo:
-            self.requires("xz_utils/5.4.5")
+            self.requires("xz_utils/[^5.4.5]")
         if self.options.zlibdebuginfo:
             self.requires("zlib-ng/[^2.0]")
 

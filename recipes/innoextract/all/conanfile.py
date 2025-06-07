@@ -26,7 +26,7 @@ class InnoextractConan(ConanFile):
 
     def requirements(self):
         self.requires("boost/[^1.71.0]", libs=False)
-        self.requires("xz_utils/[>=5.4.5 <6]")
+        self.requires("xz_utils/[^5.4.5]")
         self.requires("libiconv/[^1.17]")
 
     def validate(self):

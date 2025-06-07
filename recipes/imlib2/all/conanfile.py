@@ -97,7 +97,7 @@ class Imlib2Conan(ConanFile):
         if self.options.with_jxl:
             self.requires("libjxl/0.10.3")
         if self.options.with_lzma:
-            self.requires("xz_utils/5.4.5")
+            self.requires("xz_utils/[^5.4.5]")
         if self.options.with_png:
             self.requires("libpng/[~1.6]")
         if self.options.with_raw:

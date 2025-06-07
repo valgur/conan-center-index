@@ -248,7 +248,7 @@ class GdalConan(ConanFile):
         if self.options.with_libkml:
             self.requires("libkml/1.3.0")
         if self.options.with_lzma:
-            self.requires("xz_utils/[>=5.4.5 <6]")
+            self.requires("xz_utils/[^5.4.5]")
         if self.options.with_lz4:
             self.requires("lz4/[^1.9.4]")
         if self.options.with_mongocxx:

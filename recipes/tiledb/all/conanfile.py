@@ -105,7 +105,7 @@ class TileDBConan(ConanFile):
         self.requires("libxml2/[^2.12.5]")
         self.requires("lz4/[^1.9.4]")
         self.requires("spdlog/[^1.9]")
-        self.requires("xz_utils/[>=5.4.5 <6]")
+        self.requires("xz_utils/[^5.4.5]")
         self.requires("zlib-ng/[^2.0]")
         self.requires("zstd/[^1.5]")
         if self.settings.os != "Windows":

@@ -53,7 +53,7 @@ class MavsdkConan(ConanFile):
         self.requires("jsoncpp/[^1.9.6]")
         self.requires("tinyxml2/[^10.0.0]")
         self.requires("libcurl/[>=7.86 <9]")
-        self.requires("xz_utils/[>=5.4.5 <6]")
+        self.requires("xz_utils/[^5.4.5]")
         if self.options.build_server:
             self.requires("grpc/[^1.50.2]")
 

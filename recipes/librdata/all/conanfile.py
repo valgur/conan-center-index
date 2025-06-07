@@ -37,7 +37,7 @@ class Libreadstat(ConanFile):
     def requirements(self):
         self.requires("bzip2/[^1.0.8]")
         self.requires("zlib-ng/[^2.0]")
-        self.requires("xz_utils/[>=5.4.5 <6]")
+        self.requires("xz_utils/[^5.4.5]")
 
     def build_requirements(self):
         self.tool_requires("libtool/[^2.4.7]")

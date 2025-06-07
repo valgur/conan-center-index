@@ -66,7 +66,7 @@ class PdalConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.with_lzma:
-            self.requires("xz_utils/[>=5.4.5 <6]")
+            self.requires("xz_utils/[^5.4.5]")
         if self.options.get_safe("with_unwind"):
             self.requires("libunwind/[^1.8.1]")
         # TODO: unvendor kazhdan (not on CCI, https://github.com/mkazhdan/PoissonRecon)

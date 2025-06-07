@@ -74,7 +74,7 @@ class LibtiffConan(ConanFile):
         if self.options.libdeflate:
             self.requires("libdeflate/[^1.19]")
         if self.options.lzma:
-            self.requires("xz_utils/[>=5.4.5 <6]")
+            self.requires("xz_utils/[^5.4.5]")
         if self.options.jpeg:
             self.requires("libjpeg-meta/latest")
         if self.options.jbig:
