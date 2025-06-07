@@ -49,7 +49,7 @@ class GobjectIntrospectionConan(ConanFile):
     def requirements(self):
         self.requires("glib/[>=2.82.0 <3]", transitive_headers=True, transitive_libs=True)
         # ffi.h is exposed by public header gobject-introspection-1.0/girffi.h
-        self.requires("libffi/3.4.4", transitive_headers=True)
+        self.requires("libffi/[^3.4.4]", transitive_headers=True)
 
     def validate(self):
         if self.settings.os == "Windows" and self.settings.build_type == "Debug":

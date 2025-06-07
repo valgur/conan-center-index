@@ -40,7 +40,7 @@ class CriterionConan(ConanFile):
         self.requires("boxfort/[^0.1.4]")
         self.requires("debugbreak/[^1.0]")
         self.requires("klib/[*]")
-        self.requires("libffi/[^3.4.6]")
+        self.requires("libffi/[^3.4.4]")
         self.requires("libgit2/[^1.8.4]")
         self.requires("nanomsg/[^1.2.1]")
         self.requires("nanopb/[^0.4.9.1]")

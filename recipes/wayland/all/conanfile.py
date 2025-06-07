@@ -46,7 +46,7 @@ class WaylandConan(ConanFile):
     def requirements(self):
         self.requires("wayland-protocols/[^1.42]", visible=True)
         if self.options.enable_libraries:
-            self.requires("libffi/3.4.4")
+            self.requires("libffi/[^3.4.4]")
         if self.options.enable_dtd_validation:
             self.requires("libxml2/[^2.12.5]")
         self.requires("expat/[>=2.6.2 <3]")
