@@ -30,17 +30,16 @@ class EglHeadersConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def build(self):
-        pass
-
-    def package(self):
+    def _extract_license(self):
         license_data = load(self, os.path.join(self.source_folder, "api", "EGL", "egl.h"))
         begin = license_data.find("/*") + len("/*")
         end = license_data.find("*/")
         license_data = license_data[begin:end]
         license_data = license_data.replace("**", "")
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_data)
+        return license_data
 
+    def package(self):
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         copy(self, "*", src=os.path.join(self.source_folder, "api", "EGL"), dst=os.path.join(self.package_folder, "include", "EGL"))
 
     def package_info(self):

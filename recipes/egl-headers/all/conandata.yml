@@ -1,4 +1,7 @@
 sources:
-  "cci.20220525":
+  "20250527":
+    url: "https://github.com/KhronosGroup/EGL-Registry/archive/3ae2b7c48690d2ce13cc6db3db02dfc0572be65e.tar.gz"
+    sha256: "00f6d5656d8a075ee72ec2ccbe9b803d29bb56695b05622ac4cde95d760a1528"
+  "20220525":
     url: "https://github.com/KhronosGroup/EGL-Registry/archive/84f25dd4c04a01ea48480f7296ba9d64d435fa87.tar.gz"
     sha256: "6a4cbc7cf8b9057250c5c3982939b2bf46b1c2bfe0795e1445b8f7f39bd33988"
