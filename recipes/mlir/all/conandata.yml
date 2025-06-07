@@ -1,11 +1,11 @@
 sources:
-  "20.1.5":
+  "20.1.6":
     "mlir":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/mlir-20.1.5.src.tar.xz"
-      sha256: "657a49573496edb7f53d1899ef65546db916ba6f738fd51c119de8952877108f"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/mlir-20.1.6.src.tar.xz"
+      sha256: "972a2c01a5eba63f068ab7e4094a0a49c9bb6a9bb13d283a34ba299deff39c2d"
     "cmake":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/cmake-20.1.5.src.tar.xz"
-      sha256: "1b5abaa2686c6c0e1f394113d0b2e026ff3cb9e11b6a2294c4f3883f1b02c89c"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/cmake-20.1.6.src.tar.xz"
+      sha256: "b4b3efa5d5b01b3f211f1ba326bb6f0c318331f828202d332c95b7f30fca5f8c"
   "19.1.7":
     "mlir":
       url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/mlir-19.1.7.src.tar.xz"
@@ -14,7 +14,7 @@ sources:
       url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/cmake-19.1.7.src.tar.xz"
       sha256: "11c5a28f90053b0c43d0dec3d0ad579347fc277199c005206b963c19aae514e3"
 patches:
-  "20.1.5":
+  "20.1.6":
     - patch_file: "patches/fix-missing-tool-lib-install.patch"
       patch_description: "Add missing add_mlir_library_install() to tool libraries"
       patch_type: "portability"

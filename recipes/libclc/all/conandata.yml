@@ -1,11 +1,11 @@
 sources:
-  "20.1.5":
+  "20.1.6":
     "libclc":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/libclc-20.1.5.src.tar.xz"
-      sha256: "7aabcc31eff12bc54778c38752192939df8d983002c961cb1ac97f57e50ccff1"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/libclc-20.1.6.src.tar.xz"
+      sha256: "c6c431b0ab5d929395ccd367e87bbde4b1d622588e40460b92202424454c05da"
     "cmake":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.5/cmake-20.1.5.src.tar.xz"
-      sha256: "1b5abaa2686c6c0e1f394113d0b2e026ff3cb9e11b6a2294c4f3883f1b02c89c"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/cmake-20.1.6.src.tar.xz"
+      sha256: "b4b3efa5d5b01b3f211f1ba326bb6f0c318331f828202d332c95b7f30fca5f8c"
   "19.1.7":
     "libclc":
       url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/libclc-19.1.7.src.tar.xz"
