@@ -176,7 +176,7 @@ class GStPluginsRsConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("rust/[~1.85]")
+        self.tool_requires("rust/[^1.72]")
         self.tool_requires("cargo-c/[^0.10]")
         if self.options.rav1e:
             self.tool_requires("nasm/[^2.16]")

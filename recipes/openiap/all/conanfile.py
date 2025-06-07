@@ -40,7 +40,7 @@ class OpenIAPConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.tool_requires("rust/1.81.0")
+        self.tool_requires("rust/[^1.72]")
         self.tool_requires("protobuf/[*]")
 
     def source(self):

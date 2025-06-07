@@ -72,12 +72,7 @@ class ZenohCConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("cmake/[^4]")
-        # Match the upstream Rust version:
-        # https://github.com/eclipse-zenoh/zenoh-c/blob/1.3.2/rust-toolchain.toml
-        if Version(self.version) >= "1.3.0":
-            self.tool_requires("rust/1.85.1")
-        else:
-            self.tool_requires("rust/1.75.0")
+        self.tool_requires("rust/[^1.72]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -45,7 +45,7 @@ class ZlibRsConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def build_requirements(self):
-        self.tool_requires("rust/[^1.75.0]")
+        self.tool_requires("rust/[^1.72]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version]["zlib-rs"], strip_root=True)

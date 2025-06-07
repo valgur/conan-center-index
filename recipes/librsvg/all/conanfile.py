@@ -73,7 +73,7 @@ class LibrsvgConan(ConanFile):
             raise ConanInvalidConfiguration("librsvg requires -o pango/*:with_cairo=True")
 
     def build_requirements(self):
-        self.tool_requires("rust/1.85.1")
+        self.tool_requires("rust/[^1.72]")
         self.tool_requires("cargo-c/[*]")
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
