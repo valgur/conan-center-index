@@ -129,7 +129,7 @@ class PackageConan(ConanFile):
             self.cpp_info.cxxflags = openmp_flags
             if is_msvc(self):
                 self.cpp_info.system_libs = ["vcompd" if self.settings.build_type == "Debug" else "vcomp"]
-            elif self.settings.compiler in ["intel-cc", "intel-llvm"]:
+            elif str(self.settings.compiler) in ["intel-cc", "intel-llvm"]:
                 self.cpp_info.system_libs = ["iomp5"]
             else:
                 self.cpp_info.sharedlinkflags = openmp_flags
