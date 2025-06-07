@@ -463,14 +463,14 @@ class MesaConan(ConanFile):
             self.requires("libunwind/[^1.8.0]")
 
         if self.options.get_safe("with_llvm"):
-            self.requires("llvm-core/[^19]", options={
+            self.requires("llvm-core/[>=19]", options={
                 "target_AMDGPU": True,
                 "target_NVPTX": True,
             })
-            self.requires("spirv-llvm-translator/[^19]")
-            self.requires("clang/[^19]")
+            self.requires("spirv-llvm-translator/[>=19]")
+            self.requires("clang/[>=19]")
         if self._requires_libclc:
-            self.requires("libclc/[^19]")
+            self.requires("libclc/[>=19]")
 
         if self.options.get_safe("opencl_spirv"):
             self.requires("spirv-tools/[^1.3.239.0]")
@@ -597,7 +597,7 @@ class MesaConan(ConanFile):
         if self._requires_libclc and self.options.with_zstd:
             self.tool_requires("zstd/[^1.5]")
         if "rusticl" in self._gallium_drivers or "nouveau" in self._vulkan_drivers or "etnaviv" in self._tools:
-            self.tool_requires("rust/[*]")
+            self.tool_requires("rust/[^1.72]")
         # Python is required for mako
 
     def source(self):
@@ -754,7 +754,7 @@ class MesaConan(ConanFile):
                             "libEGL_mesa",
                             os.path.join("..", "..", "..", "lib", "libEGL_mesa"))
 
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
