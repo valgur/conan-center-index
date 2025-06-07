@@ -29,21 +29,20 @@ class OpenGLRegistryConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def build(self):
-        pass
-
-    def package(self):
+    def _extract_license(self):
         license_data = load(self, os.path.join(self.source_folder, "api", "GL", "glext.h"))
         begin = license_data.find("/*") + len("/*")
         end = license_data.find("*/")
         license_data = license_data[begin:end]
         license_data = license_data.replace("**", "")
-        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), license_data)
+        return license_data
 
+    def package(self):
+        save(self, os.path.join(self.package_folder, "licenses", "LICENSE"), self._extract_license())
         copy(self, "*", src=os.path.join(self.source_folder, "api"), dst=os.path.join(self.package_folder, "include"))
-        copy(self, "*", src=os.path.join(self.source_folder, "xml"), dst=os.path.join(self.package_folder, "res", "xml"))
+        copy(self, "*", src=os.path.join(self.source_folder, "xml"), dst=os.path.join(self.package_folder, "share", "opengl-registry", "xml"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
