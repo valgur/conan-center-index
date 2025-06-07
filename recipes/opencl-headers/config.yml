@@ -1,4 +1,6 @@
 versions:
+  "2024.10.24":
+    folder: all
   "2023.12.14":
     folder: all
   "2023.04.17":
