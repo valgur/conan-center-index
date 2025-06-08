@@ -1,23 +1,21 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
-from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class PkgConfConan(ConanFile):
     name = "pkgconf"
-    url = "https://github.com/conan-io/conan-center-index"
-    topics = ("build", "configuration")
-    homepage = "https://git.sr.ht/~kaniini/pkgconf"
-    license = "ISC"
     description = "package compiler and linker metadata toolkit"
+    license = "ISC"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://git.sr.ht/~kaniini/pkgconf"
+    topics = ("build", "configuration")
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -27,11 +25,8 @@ class PkgConfConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "enable_lib": False,
     }
-
-    def layout(self):
-        basic_layout(self, src_folder="src")
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -39,16 +34,17 @@ class PkgConfConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        self.options.enable_lib = self.settings_target is None
 
     def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
         if not self.options.enable_lib:
             self.options.rm_safe("fPIC")
             self.options.rm_safe("shared")
-        elif self.options.shared:
-            self.options.rm_safe("fPIC")
 
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
+    def layout(self):
+        basic_layout(self, src_folder="src")
 
     def package_id(self):
         if not self.info.options.enable_lib:
@@ -61,28 +57,22 @@ class PkgConfConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-    def _patch_sources(self):
-        if not self.options.get_safe("shared", False):
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                                  "'-DLIBPKGCONF_EXPORT'",
-                                  "'-DPKGCONFIG_IS_STATIC'")
-            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-            "project('pkgconf', 'c',",
-            "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],")
-
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = MesonToolchain(self)
-        if Version(self.version) >= "1.9.4":
-            tc.project_options["tests"] = "disabled"
-        else:
-            tc.project_options["tests"] = False
-
+        tc.project_options["auto_features"] = "enabled"
+        tc.project_options["tests"] = "disabled"
         if not self.options.enable_lib:
             tc.project_options["default_library"] = "static"
         tc.generate()
+
+    def _patch_sources(self):
+        if not self.options.get_safe("shared", False):
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                            "'-DLIBPKGCONF_EXPORT'",
+                            "'-DPKGCONFIG_IS_STATIC'")
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                            "project('pkgconf', 'c',",
+                            "project('pkgconf', 'c',\ndefault_options : ['c_std=gnu99'],")
 
     def build(self):
         self._patch_sources()
@@ -91,8 +81,7 @@ class PkgConfConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder,"licenses"))
-
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder,"licenses"))
         meson = Meson(self)
         meson.install()
 
@@ -106,31 +95,30 @@ class PkgConfConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib"))
             rmdir(self, os.path.join(self.package_folder, "include"))
 
-
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        rename(self, os.path.join(self.package_folder, "share", "aclocal"),
-                  os.path.join(self.package_folder, "bin", "aclocal"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         if self.options.enable_lib:
             self.cpp_info.set_property("pkg_config_name", "libpkgconf")
-            if Version(self.version) >= "1.7.4":
-                self.cpp_info.includedirs.append(os.path.join("include", "pkgconf"))
+            self.cpp_info.includedirs.append(os.path.join("include", "pkgconf"))
             self.cpp_info.libs = ["pkgconf"]
             if not self.options.shared:
                 self.cpp_info.defines = ["PKGCONFIG_IS_STATIC"]
+            else:
+                self.cpp_info.defines = ["PKGCONFIG_IS_NOT_STATIC"]
         else:
             self.cpp_info.includedirs = []
             self.cpp_info.libdirs = []
 
-        bindir = os.path.join(self.package_folder, "bin")
+        self.cpp_info.resdirs = ["share"]
+
         exesuffix = ".exe" if self.settings.os == "Windows" else ""
-        pkg_config = os.path.join(bindir, "pkgconf" + exesuffix).replace("\\", "/")
+        pkg_config = os.path.join(self.package_folder, "bin", "pkgconf" + exesuffix).replace("\\", "/")
         self.buildenv_info.define_path("PKG_CONFIG", pkg_config)
 
-        pkgconf_aclocal = os.path.join(self.package_folder, "bin", "aclocal")
+        pkgconf_aclocal = os.path.join(self.package_folder, "share", "aclocal")
         self.buildenv_info.append_path("ACLOCAL_PATH", pkgconf_aclocal)
 
         # To ensure that PkgConfig(self, "<lib>").variables uses the correct executable
