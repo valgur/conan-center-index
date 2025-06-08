@@ -122,40 +122,50 @@ class PipeWireConan(ConanFile):
             return "enabled" if self.options.get_safe(option, default=default) else "disabled"
 
         tc = MesonToolchain(self)
-        # Workaround an strict-prototypes error caused by the readline include file: readline/rltypedefs.h
-        # todo Report this issue upstream.
-        tc.extra_cflags.append("-Wno-error=strict-prototypes")
-        # This appears to be an issue that crops up when using Avahi and libpulse involving the malloc_info and malloc_trim functions.
-        tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
-        for includedir in self.dependencies["linux-headers-generic"].cpp_info.includedirs:
-            tc.extra_cflags.append(f"-I{includedir}")
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["alsa"] = feature("with_libalsa")
-        tc.project_options["auto_features"] = "disabled"
-        tc.project_options["avb"] = "enabled" if self.settings.os == "Linux" else "disabled"
         tc.project_options["avahi"] = feature("with_avahi")
+        tc.project_options["avb"] = "enabled" if self.settings.os == "Linux" else "disabled"
+        tc.project_options["bluez5"] = "disabled"
+        tc.project_options["bluez5-codec-aac"] = "disabled"
+        tc.project_options["bluez5-codec-aptx"] = "disabled"
+        tc.project_options["bluez5-codec-g722"] = "disabled"
+        tc.project_options["bluez5-codec-lc3"] = "disabled"
+        tc.project_options["bluez5-codec-lc3plus"] = "disabled"
+        tc.project_options["bluez5-codec-ldac"] = "disabled"
+        tc.project_options["bluez5-codec-opus"] = "disabled"
         tc.project_options["compress-offload"] = feature("with_libalsa")
         tc.project_options["dbus"] = feature("with_dbus")
         tc.project_options["docs"] = "disabled"
         tc.project_options["ebur128"] = "disabled"
+        tc.project_options["echo-cancel-webrtc"] = "disabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["ffmpeg"] = feature("with_ffmpeg")
         tc.project_options["flatpak"] = feature("flatpak")
         tc.project_options["gsettings"] = feature("gsettings")
         tc.project_options["gsettings-pulse-schema"] = feature("gsettings")
+        tc.project_options["gstreamer"] = "disabled"
+        tc.project_options["gstreamer-device-provider"] = "disabled"
         tc.project_options["jack"] = "disabled"
         tc.project_options["legacy-rtkit"] = False
+        tc.project_options["libcamera"] = "disabled"
+        tc.project_options["libcanberra"] = "disabled"
+        tc.project_options["libffado"] = "disabled"
+        tc.project_options["libmysofa"] = "disabled"
         tc.project_options["libpulse"] = feature("with_pulseaudio")
         tc.project_options["libusb"] = "disabled"
         tc.project_options["logind"] = "disabled"
+        tc.project_options["lv2"] = "disabled"
         tc.project_options["man"] = "disabled"
+        tc.project_options["opus"] = feature("with_opus")
         tc.project_options["pipewire-alsa"] = feature("with_libalsa")
         tc.project_options["pipewire-jack"] = "disabled"
         tc.project_options["pipewire-v4l2"] = "disabled"
-        tc.project_options["opus"] = feature("with_opus")
         tc.project_options["pw-cat"] = "enabled"
         tc.project_options["pw-cat-ffmpeg"] = feature("with_ffmpeg")
         tc.project_options["raop"] = feature("raop")
         tc.project_options["readline"] = feature("with_readline")
+        tc.project_options["roc"] = "disabled"
         tc.project_options["sdl2"] = "disabled"
         tc.project_options["selinux"] = feature("with_selinux")
         tc.project_options["session-managers"] = []
@@ -167,8 +177,16 @@ class PipeWireConan(ConanFile):
         tc.project_options["tests"] = "disabled"
         tc.project_options["udev"] = feature("with_libudev", True)
         tc.project_options["vulkan"] = feature("with_vulkan")
+        tc.project_options["v4l2"] = "disabled"
         tc.project_options["x11"] = feature("with_x11")
         tc.project_options["x11-xfixes"] = feature("with_xfixes")
+        # Workaround an strict-prototypes error caused by the readline include file: readline/rltypedefs.h
+        # todo Report this issue upstream.
+        tc.extra_cflags.append("-Wno-error=strict-prototypes")
+        # This appears to be an issue that crops up when using Avahi and libpulse involving the malloc_info and malloc_trim functions.
+        tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
+        for includedir in self.dependencies["linux-headers-generic"].cpp_info.includedirs:
+            tc.extra_cflags.append(f"-I{includedir}")
         tc.generate()
 
         deps = PkgConfigDeps(self)
