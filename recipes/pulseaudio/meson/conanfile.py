@@ -91,17 +91,46 @@ class PulseAudioConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
 
+        def feature(val):
+            return "enabled" if val else "disabled"
+
         tc = MesonToolchain(self)
-        tc.project_options['udevrulesdir']="${prefix}/bin/udev/rules.d"
-        tc.project_options['systemduserunitdir'] = os.path.join(self.build_folder, 'ignore')
-        for lib in ["x11", "openssl", "dbus", "glib", "fftw"]:
-            tc.project_options[lib] = "enabled" if self.options.get_safe(f"with_{lib}") else "disabled"
-        tc.project_options['database'] = 'simple'
-        tc.project_options['tests'] = False
-        tc.project_options['man'] = False
-        tc.project_options['doxygen'] = False
+        tc.project_options["auto_features"] = "enabled"
+        tc.project_options["udevrulesdir"] = "${prefix}/bin/udev/rules.d"
+        tc.project_options["systemduserunitdir"] = os.path.join(self.build_folder, "ignore")
+        tc.project_options["database"] = "simple"
+        tc.project_options["tests"] = False
+        tc.project_options["man"] = False
+        tc.project_options["doxygen"] = False
         tc.project_options["daemon"] = False
+        tc.project_options["alsa"] = "disabled"
+        tc.project_options["asyncns"] = "disabled"
+        tc.project_options["avahi"] = "disabled"
+        tc.project_options["bluez5"] = "disabled"
+        tc.project_options["bluez5-gstreamer"] = "disabled"
+        tc.project_options["consolekit"] = "disabled"
+        tc.project_options["dbus"] = feature(self.options.with_dbus)
+        tc.project_options["elogind"] = "disabled"
+        tc.project_options["fftw"] = feature(self.options.get_safe("with_fftw"))
+        tc.project_options["glib"] = feature(self.options.with_glib)
+        tc.project_options["gsettings"] = "disabled"
+        tc.project_options["gstreamer"] = "disabled"
+        tc.project_options["gtk"] = "disabled"
+        tc.project_options["jack"] = "disabled"
+        tc.project_options["lirc"] = "disabled"
+        tc.project_options["openssl"] = feature(self.options.with_openssl)
+        tc.project_options["orc"] = "disabled"
+        tc.project_options["oss-output"] = "disabled"
+        tc.project_options["soxr"] = "disabled"
+        tc.project_options["speex"] = "disabled"
+        tc.project_options["systemd"] = "disabled"
+        tc.project_options["tcpwrap"] = "disabled"
+        tc.project_options["udev"] = "disabled"
+        tc.project_options["valgrind"] = "disabled"
+        tc.project_options["webrtc-aec"] = "disabled"
+        tc.project_options["x11"] = feature(self.options.get_safe("with_x11"))
         tc.generate()
+
         pkg = PkgConfigDeps(self)
         pkg.generate()
 
