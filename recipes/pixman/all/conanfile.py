@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -17,7 +16,7 @@ class PixmanConan(ConanFile):
     topics = ("graphics", "compositing", "rasterization")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://gitlab.freedesktop.org/pixman/pixman"
-    license = ("MIT")
+    license = "MIT"
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -43,30 +42,26 @@ class PixmanConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "meson.build", "subdir('test')", "")
+        replace_in_file(self, "meson.build", "subdir('demos')", "")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = MesonToolchain(self)
-        tc.project_options.update({
-            "libpng": "disabled",
-            "gtk": "disabled"
-        })
+        tc.project_options["tests"] = "disabled"
+        tc.project_options["demos"] = "disabled"
+        tc.project_options["libpng"] = "disabled"
+        tc.project_options["gtk"] = "disabled"
+        tc.project_options["openmp"] = "disabled"
 
         # Android armv7 build of Pixman makes use of cpu-features functionality, provided in the NDK
         if self.settings.os == "Android":
-            android_ndk_home = self.conf.get("tools.android:ndk_path").replace("\\", "/")
-            cpu_features_path = os.path.join(android_ndk_home, "sources", "android", "cpufeatures")
-            tc.project_options.update({'cpu-features-path' : cpu_features_path})
+            android_ndk_home = self.conf.get("tools.android:ndk_path")
+            cpu_features_path = os.path.join(android_ndk_home, "sources", "android", "cpufeatures").replace("\\", "/")
+            tc.project_options["cpu-features-path"] = cpu_features_path
 
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('test')", "")
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('demos')", "")
-
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
