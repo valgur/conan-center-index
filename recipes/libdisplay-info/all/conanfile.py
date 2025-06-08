@@ -1,13 +1,13 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, Environment
+from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-import os
-
 
 required_conan_version = ">=2.1"
 
@@ -30,19 +30,14 @@ class LibdisplayInfoConan(ConanFile):
         "fPIC": True,
     }
     implements = ["auto_shared_fpic"]
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    languages = ["C"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def validate(self):
         if not self.settings.os in ["FreeBSD", "Linux"]:
-            raise ConanInvalidConfiguration(f"{self.ref} is not supported on {self.settings.os}")
+            raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
 
     def build_requirements(self):
         self.tool_requires("hwdata/0.376")
@@ -52,14 +47,15 @@ class LibdisplayInfoConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "meson.build", "subdir('test')", "# subdir('test')")
 
     def generate(self):
         tc = MesonToolchain(self)
         tc.generate()
 
-        pkg_config_deps = PkgConfigDeps(self)
-        pkg_config_deps.build_context_activated.append("hwdata")
-        pkg_config_deps.generate()
+        deps = PkgConfigDeps(self)
+        deps.build_context_activated.append("hwdata")
+        deps.generate()
 
         if cross_building(self):
             # required for dependency(..., native: true) in meson.build
@@ -69,11 +65,7 @@ class LibdisplayInfoConan(ConanFile):
             env.vars(self).save_script("pkg_config_for_build_env")
 
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"), "subdir('test')", "# subdir('test')")
-
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -82,7 +74,6 @@ class LibdisplayInfoConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
-
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
@@ -90,4 +81,4 @@ class LibdisplayInfoConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["display-info"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["m"])
+            self.cpp_info.system_libs = ["m"]
