@@ -174,3 +174,6 @@ class RustConan(ConanFile):
             # self.buildenv_info.define_path(f"CC_{target}", cc)
         else:
             self.conf_info.define("user.rust:target_host", host_target)
+
+        if self.conf.get("tools.compilation:verbosity") == "verbose":
+            self.buildenv_info.define("CARGO_TERM_VERBOSE", "true")
