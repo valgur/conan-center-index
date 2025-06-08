@@ -21,25 +21,9 @@ class RustBindgenConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     languages = ["C"]
-    options = {
-        "use_system_libclang": [True, False],
-    }
-    default_options = {
-        "use_system_libclang": False,
-    }
-    default_build_options = {
-        "clang/*:shared": True,
-    }
-
-    def config_options(self):
-        self.options.use_system_libclang = self.settings.compiler in ["clang", "apple-clang"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
-
-    def requirements(self):
-        if not self.options.use_system_libclang:
-            self.requires("clang/[*]")
 
     def build_requirements(self):
         self.tool_requires("rust/[^1.72]")
@@ -55,8 +39,6 @@ class RustBindgenConan(ConanFile):
         env.define_path(f"CARGO_TARGET_{target_upper}_LINKER", cc)
         # Don't add the Cargo dependencies to a global Cargo cache
         env.define_path("CARGO_HOME", os.path.join(self.build_folder, "cargo"))
-        if not self.options.use_system_libclang:
-            env.define_path("LIBCLANG_PATH", self.dependencies["clang"].cpp_info.libdir)
         env.vars(self).save_script("cargo_paths")
 
     @property
