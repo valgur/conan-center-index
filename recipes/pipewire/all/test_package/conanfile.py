@@ -21,11 +21,9 @@ class TestPackageConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.0 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
-            self.tool_requires("pkgconf/2.2.0")
+            self.tool_requires("pkgconf/[>=2.2 <3]")
 
     def generate(self):
-        pkg_config_deps = PkgConfigDeps(self)
-        pkg_config_deps.generate()
         tc = MesonToolchain(self)
         libpipewire_api_version = (
             self.dependencies.direct_host[self.tested_reference_str]
@@ -35,6 +33,8 @@ class TestPackageConan(ConanFile):
         )
         tc.project_options["libpipewire-api-version"] = libpipewire_api_version
         tc.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         meson = Meson(self)
