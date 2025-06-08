@@ -48,6 +48,7 @@ class X86SimdSortCppConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["lib_type"] = "shared" if self.options.shared else "static"
         tc.project_options["use_openmp"] = self.options.openmp
         tc.generate()

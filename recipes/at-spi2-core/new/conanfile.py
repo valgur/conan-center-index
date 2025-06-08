@@ -86,6 +86,7 @@ class AtSpi2CoreConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
         tc.project_options["x11"] = "enabled" if self.options.get_safe("with_x11") else "disabled"
         if self.settings.os != "Linux":

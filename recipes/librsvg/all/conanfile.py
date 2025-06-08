@@ -87,6 +87,7 @@ class LibrsvgConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["tests"] = "false"
         tc.project_options["vala"] = "disabled"
         tc.project_options["docs"] = "disabled"
@@ -94,6 +95,7 @@ class LibrsvgConan(ConanFile):
             tc.project_options["triplet"] = self.conf.get("user.rust:target_host", check_type=str)
         tc.project_options["pixbuf"] = "enabled"
         tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
+        tc.project_options["avif"] = "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()

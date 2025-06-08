@@ -73,6 +73,7 @@ class LibSixelConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options = {
             "libcurl": "enabled" if self.options.with_curl else "disabled",
             "gd": "enabled" if self.options.with_gd else "disabled",

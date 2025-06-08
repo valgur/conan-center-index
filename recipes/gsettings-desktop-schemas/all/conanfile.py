@@ -55,6 +55,7 @@ class GsettingsDesktopSchemasConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["introspection"] = self.options.with_introspection
         tc.generate()
         deps = PkgConfigDeps(self)

@@ -69,6 +69,7 @@ class Libv4lConan(ConanFile):
         feature = lambda option: "enabled" if option else "disabled"
         true_false = lambda option: "true" if option else "false"
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["bpf"] = "disabled"  # Requires Clang
         tc.project_options["gconv"] = "enabled"
         tc.project_options["jpeg"] = feature(self.options.with_jpeg)

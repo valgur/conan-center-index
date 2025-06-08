@@ -68,6 +68,7 @@ class LibPslConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["runtime"] = self._idna_option
         if Version(self.version) >= "0.21.5":
             tc.project_options["builtin"] = "true" if self.options.with_idna else "false"

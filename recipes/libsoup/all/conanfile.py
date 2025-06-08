@@ -23,12 +23,14 @@ class LibSoupConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "gssapi": [True, False],
+        "with_brotli": [True, False],
         "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "gssapi": False,
+        "with_brotli": True,
         "with_introspection": False,
     }
     languages = ["C"]
@@ -44,9 +46,10 @@ class LibSoupConan(ConanFile):
         self.requires("glib/[^2.70.0]", transitive_headers=True, transitive_libs=True)
         self.requires("libnghttp2/[^1.61.0]")
         self.requires("sqlite3/[>=3.45.0 <4]")
-        self.requires("brotli/[^1.1.0]")
         self.requires("libpsl/[>=0.21.5 <1]")
         self.requires("zlib-ng/[^2.0]")
+        if self.options.with_brotli:
+            self.requires("brotli/[^1.1.0]")
         if self.options.gssapi:
             self.requires("krb5/[^1.21.2]")
         if self.options.with_introspection:
@@ -68,13 +71,18 @@ class LibSoupConan(ConanFile):
     def generate(self):
         def feature(v): return "enabled" if v else "disabled"
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["tests"] = "false"
+        tc.project_options["pkcs11_tests"] = "disabled"
+        tc.project_options["autobahn"] = "disabled"
         tc.project_options["tls_check"] = "false"
         tc.project_options["docs"] = "disabled"
         tc.project_options["vapi"] = "disabled"
         tc.project_options["ntlm"] = "disabled"  # TODO
         tc.project_options["gssapi"] = feature(self.options.gssapi)
         tc.project_options["introspection"] = feature(self.options.with_introspection)
+        tc.project_options["brotli"] = feature(self.options.with_brotli)
+        tc.project_options["sysprof"] = "disabled"
         tc.generate()
 
         deps = PkgConfigDeps(self)
@@ -114,10 +122,11 @@ class LibSoupConan(ConanFile):
             "glib::gio-2.0",
             "sqlite3::sqlite3",
             "libpsl::libpsl",
-            "brotli::brotlidec",
             "zlib-ng::zlib-ng",
             "libnghttp2::libnghttp2",
         ]
+        if self.options.with_brotli:
+            self.cpp_info.components[name].requires.append("brotli::brotlidec")
         if self.options.gssapi:
             self.cpp_info.components[name].requires.append("krb5::krb5-gssapi")
         if self.options.with_introspection:

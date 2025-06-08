@@ -64,7 +64,7 @@ class GLibConan(ConanFile):
         self.requires("libffi/[^3.4.4]")
         self.requires("pcre2/[^10.42]")
         if self.options.get_safe("with_elf"):
-            self.requires("elfutils/[>=0.189 <1]")
+            self.requires("elfutils/0.191")
         if self.options.get_safe("with_mount"):
             self.requires("libmount/2.41")
         if self.options.get_safe("with_selinux"):
@@ -102,6 +102,15 @@ class GLibConan(ConanFile):
             tc.project_options["xattr"] = "false"
         tc.project_options["tests"] = "false"
         tc.project_options["libelf"] = feature(self.options.get_safe("with_elf"))
+        tc.project_options["nls"] = "enabled"
+        # introspection support is handled by glib-gir package
+        tc.project_options["introspection"] = "disabled"
+
+        # explicitly disable some auto features
+        tc.project_options["auto_features"] = "enabled"
+        tc.project_options["dtrace"] = "disabled"
+        tc.project_options["systemtap"] = "disabled"
+        tc.project_options["sysprof"] = "disabled"
 
         if self.settings.os == "Neutrino":
             tc.cross_build["host"]["system"] = "qnx"

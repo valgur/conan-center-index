@@ -123,6 +123,7 @@ class CairoConan(ConanFile):
             return "enabled" if value else "disabled"
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["zlib"] = is_enabled(self.options.with_zlib)
         tc.project_options["png"] = is_enabled(self.options.with_png)

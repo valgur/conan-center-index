@@ -91,6 +91,7 @@ class XkbcommonConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         if Version(self.version) >= "1.6":
             tc.project_options["enable-bash-completion"] = False
         tc.project_options["enable-docs"] = False

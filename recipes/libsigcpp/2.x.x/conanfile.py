@@ -19,7 +19,7 @@ class LibSigCppConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "LGPL-3.0-only"
     description = "libsigc++ implements a typesafe callback system for standard C++."
-    topics = ("callback")
+    topics = ("callback",)
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -42,23 +42,22 @@ class LibSigCppConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["build-examples"] = "false"
         tc.project_options["build-documentation"] = "false"
         tc.generate()
 
     def _patch_sources(self):
         if not self.options.shared:
-            replace_in_file(
-                self, os.path.join(self.source_folder, "sigc++config.h.meson"),
-                "define SIGC_DLL 1", "undef SIGC_DLL",
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "sigc++config.h.meson"),
+                            "define SIGC_DLL 1",
+                            "undef SIGC_DLL")
 
     def build(self):
         self._patch_sources()

@@ -4,7 +4,6 @@ import shutil
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -72,17 +71,16 @@ class LibXMLPlusPlus(ConanFile):
                 "cpp_std=c++", "cpp_std=vc++")
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["build-examples"] = "false"
         tc.project_options["build-tests"] = "false"
         tc.project_options["build-documentation"] = "false"
         tc.project_options["msvc14x-parallel-installable"] = "false"
         tc.project_options["default_library"] = "shared" if self.options.shared else "static"
         tc.generate()
-        td = PkgConfigDeps(self)
-        td.generate()
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
     def build(self):
         self._patch_sources()

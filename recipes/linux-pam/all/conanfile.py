@@ -4,13 +4,13 @@ import shutil
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 
-required_conan_version = ">=2.4.0"
+required_conan_version = ">=2.4"
+
 
 class LinuxPamConan(ConanFile):
     name = "linux-pam"
@@ -92,6 +92,7 @@ class LinuxPamConan(ConanFile):
         feature = lambda option: "enabled" if option else "disabled"
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["docs"] = "disabled"
         tc.project_options["examples"] = "false"
         tc.project_options["xtests"] = "false"
@@ -118,8 +119,6 @@ class LinuxPamConan(ConanFile):
 
         deps = PkgConfigDeps(self)
         deps.generate()
-
-        VirtualBuildEnv(self).generate()
 
     def build(self):
         apply_conandata_patches(self)
@@ -169,5 +168,3 @@ class LinuxPamConan(ConanFile):
         if self.options.with_systemd:
             requires.append("libsystemd::libsystemd")
         self.cpp_info.components["_modules"].requires = requires
-        # if self.options.with_nis:
-        #     self.cpp_info.components["_modules"].system_libs.append("nsl")

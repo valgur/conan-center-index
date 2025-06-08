@@ -50,6 +50,7 @@ class XkeyboardConfigConan(ConanFile):
     def generate(self):
         VirtualBuildEnv(self).generate()
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()

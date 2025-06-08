@@ -100,6 +100,7 @@ class LibdrmConan(ConanFile):
         tc.generate()
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["cairo-tests"] = "disabled" if Version(self.version) >= "2.4.113" else "false"
         tc.project_options["install-test-programs"] = "false"
 

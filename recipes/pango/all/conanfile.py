@@ -141,6 +141,7 @@ class PangoConan(ConanFile):
     def generate(self):
         enabled_disabled = lambda opt: "enabled" if opt else "disabled"
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["introspection"] = enabled_disabled(self.options.with_introspection)
         tc.project_options["libthai"] = enabled_disabled(self.options.with_libthai)
         tc.project_options["cairo"] = enabled_disabled(self.options.with_cairo)

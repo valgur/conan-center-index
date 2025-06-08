@@ -72,10 +72,11 @@ class GStLibAVConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
-        if is_msvc(self) and not check_min_vs(self, 190, raise_invalid=False):
-            tc.c_link_args.append("-Dsnprintf=_snprintf")
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["doc"] = "disabled"
+        if is_msvc(self) and not check_min_vs(self, 190, raise_invalid=False):
+            tc.c_link_args.append("-Dsnprintf=_snprintf")
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()

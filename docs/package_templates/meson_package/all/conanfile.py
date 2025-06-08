@@ -84,11 +84,10 @@ class PackageConan(ConanFile):
         # default_library and static and fpic are automatically parsed when self.options.shared and self.options.fpic exist
         # buildtype is automatically parsed for self.settings
         tc = MesonToolchain(self)
+        # "auto" features must always be enabled/disabled by default for consistent behavior across platforms
+        tc.project_options["auto_features"] = "enabled"
         # In case need to pass definitions directly to the compiler
         tc.preprocessor_definitions["MYDEFINE"] = "MYDEF_VALUE"
-        # Meson features are typically enabled automatically when possible.
-        # The default behavior can be changed to disable all features by setting "auto_features" to "disabled".
-        tc.project_options["auto_features"] = "disabled"
         tc.project_options["feature"] = feature(self.options.get_safe("feature"))
         # Meson project options may vary their types
         tc.project_options["tests"] = False

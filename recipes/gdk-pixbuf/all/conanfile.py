@@ -104,6 +104,7 @@ class GdkPixbufConan(ConanFile):
         deps.generate()
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         enabled_disabled = lambda v: "enabled" if v else "disabled"
         tc.project_options.update({
             "builtin_loaders": "all",

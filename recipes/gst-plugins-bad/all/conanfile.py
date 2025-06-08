@@ -36,6 +36,7 @@ class GStPluginsBadConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "with_cuda_nvmm": [True, False],
         "with_introspection": [True, False],
         "with_libdrm": [True, False],
         "with_libssh2": [True, False],
@@ -46,6 +47,7 @@ class GStPluginsBadConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "with_cuda_nvmm": False,
         "with_introspection": False,
         "with_libdrm": False,
         "with_libssh2": False,
@@ -383,6 +385,7 @@ class GStPluginsBadConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
 
         if is_msvc(self) and not check_min_vs(self, 190, raise_invalid=False):
             tc.c_link_args.append("-Dsnprintf=_snprintf")
@@ -450,6 +453,7 @@ class GStPluginsBadConan(ConanFile):
         # option('d3d11-hlsl-precompile', type : 'feature', value : 'auto', description : 'Enable buildtime HLSL compile for d3d11 library/plugin')
         # option('d3d11-wgc', type : 'feature', value : 'auto', description : 'Windows Graphics Capture API support in d3d11 plugin')
 
+        tc.project_options["cuda-nvmm"] = feature(self.options.with_cuda_nvmm)
         tc.project_options["drm"] = feature(self.options.get_safe("with_libdrm"))
         tc.project_options["udev"] = feature("libgudev" in self._all_reqs or (self._is_enabled("va") and self.options.get_safe("with_libudev")))
         tc.project_options["gl"] = feature("opengl" in self._all_reqs)
@@ -598,6 +602,8 @@ class GStPluginsBadConan(ConanFile):
                 "glib::gmodule-no-export-2.0",
                 "opengl::opengl",
             ])
+            if self.options.with_cuda_nvmm:
+                gst_cuda.system_libs.append("nvbufsurface")
             if self.settings.os == "Linux" and self.settings.arch not in ["x86", "x86_64"]:
                 gst_cuda.system_libs.append("atomic")
             elif self.settings.os == "Windows":

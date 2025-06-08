@@ -52,6 +52,7 @@ class FontconfigConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options.update({
             "doc": "disabled",
             "nls": "disabled",

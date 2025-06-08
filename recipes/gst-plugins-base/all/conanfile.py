@@ -256,6 +256,7 @@ class GStPluginsBaseConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
 
         if is_msvc(self) and not check_min_vs(self, 190, raise_invalid=False):
             tc.c_link_args.append("-Dsnprintf=_snprintf")

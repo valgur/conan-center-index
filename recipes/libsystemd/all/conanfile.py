@@ -122,6 +122,7 @@ class LibsystemdConan(ConanFile):
             return "true" if value else "false"
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "disabled"
         tc.project_options["selinux"] = _bool(self.options.with_selinux)
         tc.project_options["lz4"] = _bool(self.options.with_lz4)
         tc.project_options["xz"] = _bool(self.options.with_xz)

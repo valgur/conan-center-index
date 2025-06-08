@@ -86,11 +86,10 @@ class LibniceConan(ConanFile):
         tc = PkgConfigDeps(self)
         tc.generate()
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["gupnp"] = "disabled"
         tc.project_options["gstreamer"] = "enabled" if self.options.with_gstreamer else "disabled"
-        tc.project_options["crypto-library"] = "auto" if self.options.crypto_library == "win32" else str(
-            self.options.crypto_library)
-
+        tc.project_options["crypto-library"] = "auto" if self.options.crypto_library == "win32" else str(self.options.crypto_library)
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["gtk_doc"] = "disabled" if self.options.with_gtk_doc else "disabled"

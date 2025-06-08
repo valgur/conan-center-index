@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -72,6 +71,7 @@ class LibseatConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["libseat-builtin"] = "enabled" if self.options.builtin else "disabled"
         tc.project_options["libseat-logind"] = str(self.options.logind) if self.options.logind else "disabled"
         tc.project_options["libseat-seatd"] = "enabled" if self.options.seatd else "disabled"
@@ -83,8 +83,6 @@ class LibseatConan(ConanFile):
         tc.generate()
         pkg_config_deps = PkgConfigDeps(self)
         pkg_config_deps.generate()
-        env = VirtualBuildEnv(self)
-        env.generate()
 
     def build(self):
         meson = Meson(self)

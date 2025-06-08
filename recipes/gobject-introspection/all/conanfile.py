@@ -92,6 +92,7 @@ class GobjectIntrospectionConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["gi_cross_use_prebuilt_gi"] = "false"
         tc.project_options["build_introspection_data"] = self.options.build_introspection_data
         tc.project_options["cairo"] = "disabled"  # only used for tests

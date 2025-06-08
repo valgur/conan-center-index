@@ -46,6 +46,7 @@ class PackageConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["dri2"] = "true" if self.options.with_dri2 else "false"
         tc.project_options["documentation"] = "false"
         tc.project_options["sysconfdir"] = "share"

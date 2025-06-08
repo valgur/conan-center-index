@@ -37,6 +37,7 @@ class DirectXHeadersConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["build-test"] = False
         tc.generate()
 

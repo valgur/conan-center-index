@@ -220,6 +220,7 @@ class GtkConan(ConanFile):
 
         enabled_disabled = lambda opt: "enabled" if opt else "disabled"
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["wayland-backend"] = "true" if self.options.get_safe("with_wayland") else "false"
         tc.project_options["x11-backend"] = "true" if self.options.get_safe("with_x11") else "false"
         tc.project_options["broadway-backend"] = "true" if self.options.enable_broadway_backend else "false"

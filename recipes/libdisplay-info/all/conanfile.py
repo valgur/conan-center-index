@@ -51,6 +51,7 @@ class LibdisplayInfoConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.generate()
 
         deps = PkgConfigDeps(self)

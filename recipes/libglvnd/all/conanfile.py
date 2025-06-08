@@ -77,6 +77,7 @@ class LibGlvndConan(ConanFile):
         pkg_config_deps = PkgConfigDeps(self)
         pkg_config_deps.generate()
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["asm"] = "enabled" if self.options.asm else "disabled"
         tc.project_options["x11"] = "enabled" if self.options.x11 else "disabled"
         tc.project_options["egl"] = self.options.egl

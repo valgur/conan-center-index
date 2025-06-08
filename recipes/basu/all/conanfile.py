@@ -70,7 +70,7 @@ class BasuConan(ConanFile):
         feature = lambda option: "enabled" if option else "disabled"
 
         tc = MesonToolchain(self)
-        tc.project_options["auto_features"] = "disabled"
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["libcap"] = feature(self.options.get_safe("with_libcap"))
         tc.generate()
         tc = PkgConfigDeps(self)

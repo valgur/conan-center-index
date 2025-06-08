@@ -87,6 +87,7 @@ class GtkmmConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["build-demos"] = "false"
         tc.project_options["build-tests"] = "false"
         tc.project_options["msvc14x-parallel-installable"] = "false"

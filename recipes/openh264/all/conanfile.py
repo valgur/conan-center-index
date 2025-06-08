@@ -59,6 +59,7 @@ class OpenH264Conan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["tests"] = "disabled"
         tc.generate()
 

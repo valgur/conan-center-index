@@ -204,6 +204,7 @@ class GStPluginsRsConan(ConanFile):
             return "enabled" if v else "disabled"
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         for opt in self._all_options:
             tc.project_options[opt] = feature(self.options.get_safe(opt))
         tc.project_options["doc"] = "disabled"

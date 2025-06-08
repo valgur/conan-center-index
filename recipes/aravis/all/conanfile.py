@@ -109,6 +109,7 @@ class AravisConan(ConanFile):
             env.generate(scope="build")
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["usb"] = "enabled" if self.options.usb else "disabled"
         tc.project_options["gst-plugin"] = "enabled" if self.options.gst_plugin else "disabled"
         tc.project_options["packet-socket"] = "enabled" if self.options.get_safe("packet_socket") else "disabled"

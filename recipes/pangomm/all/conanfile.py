@@ -67,6 +67,7 @@ class PangommConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["build-documentation"] = "false"
         tc.project_options["msvc14x-parallel-installable"] = "false"
         tc.project_options["libdir"] = "lib"

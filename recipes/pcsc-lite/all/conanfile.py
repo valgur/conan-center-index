@@ -65,6 +65,7 @@ class PCSCLiteConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["usb"] = self.options.usb
         tc.project_options["serial"] = self.options.serial
         tc.project_options["embedded"] = self.options.embedded

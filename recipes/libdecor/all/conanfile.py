@@ -67,6 +67,7 @@ class libdecorConan(ConanFile):
             return "enabled" if self.options.get_safe(option) else "disabled"
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["dbus"] = feature("with_dbus")
         tc.project_options["demo"] = False
         tc.project_options["gtk"] = feature("with_gtk")

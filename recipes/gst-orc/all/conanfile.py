@@ -45,6 +45,7 @@ class GStOrcConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["orc-backend"] = "all"
         tc.project_options["tools"] = "enabled" if self.options.tools else "disabled"
         tc.project_options["benchmarks"] = "disabled"

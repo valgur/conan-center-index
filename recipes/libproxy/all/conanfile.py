@@ -58,6 +58,7 @@ class LibproxyConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["docs"] = "false"
         tc.project_options["tests"] = "false"
         tc.project_options["vapi"] = "false"

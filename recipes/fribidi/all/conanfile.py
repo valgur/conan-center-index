@@ -50,6 +50,7 @@ class FriBiDiCOnan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["deprecated"] = self.options.with_deprecated
         tc.project_options["docs"] = False
         if Version(self.version) >= "1.0.10":

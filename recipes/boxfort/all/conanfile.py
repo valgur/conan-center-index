@@ -39,6 +39,7 @@ class BoxfortConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["samples"] = False
         tc.project_options["tests"] = False
         tc.project_options["arena_reopen_shm"] = self.options.arena_reopen_shm

@@ -52,6 +52,7 @@ class PlutoSVGConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["freetype"] = "enabled" if self.options.with_freetype else "disabled"

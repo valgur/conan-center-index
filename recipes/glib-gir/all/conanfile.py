@@ -55,6 +55,7 @@ class GLibGIRConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["introspection"] = "enabled"
         tc.project_options["selinux"] = "disabled"
         tc.project_options["libmount"] = "disabled"
@@ -62,6 +63,9 @@ class GLibGIRConan(ConanFile):
         tc.project_options["libelf"] = "disabled"
         tc.project_options["xattr"] = "false"
         tc.project_options["nls"] = "disabled"
+        tc.project_options["dtrace"] = "disabled"
+        tc.project_options["systemtap"] = "disabled"
+        tc.project_options["sysprof"] = "disabled"
         if self.settings.os == "Neutrino":
             tc.cross_build["host"]["system"] = "qnx"
             tc.c_link_args.append("-lm")

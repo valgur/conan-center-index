@@ -88,8 +88,9 @@ class PackageConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["disable_drm"] = not self.options.get_safe("with_drm")
-        for opt in ['with_x11', 'with_glx', 'with_wayland', 'with_win32']:
+        for opt in ["with_x11", "with_glx", "with_wayland", "with_win32"]:
             tc.project_options[opt] = "yes" if self.options.get_safe(opt) else "no"
         tc.generate()
 

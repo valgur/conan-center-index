@@ -4,7 +4,6 @@ import textwrap
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -111,8 +110,6 @@ class DbusConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = MesonToolchain(self)
         tc.project_options["asserts"] = not is_apple_os(self)
         tc.project_options["checks"] = False
@@ -133,6 +130,12 @@ class DbusConan(ConanFile):
             tc.project_options["system_socket"] = str(self.options.system_socket)
         tc.project_options["x11_autolaunch"] = "enabled" if self.options.get_safe("with_x11") else "disabled"
         tc.project_options["xml_docs"] = "disabled"
+        # explicitly disable auto features
+        tc.project_options["auto_features"] = "enabled"
+        tc.project_options["apparmor"] = "disabled"
+        tc.project_options["kqueue"] = "disabled"
+        tc.project_options["launchd"] = "disabled"
+        tc.project_options["libaudit"] = "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()

@@ -45,6 +45,7 @@ class LibEvdevConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["documentation"] = "disabled"
         tc.project_options["coverity"] = "false"

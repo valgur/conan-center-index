@@ -124,6 +124,7 @@ class DpdkConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         # No good way to enable only static/shared except patching?
         tc.project_options["tests"] = "false"
         tc.project_options["disable_apps"] = "false" if self.options.build_apps else "true"

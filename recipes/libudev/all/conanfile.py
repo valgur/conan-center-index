@@ -70,6 +70,7 @@ class LibUdevConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "disabled"
         tc.project_options["tests"] = "false"
         tc.project_options["selinux"] = "false"
         tc.project_options["lz4"] = "false"

@@ -47,6 +47,7 @@ class PlutoVGConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.generate()

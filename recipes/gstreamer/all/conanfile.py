@@ -56,7 +56,7 @@ class GStreamerConan(ConanFile):
         if self.options.get_safe("enable_backtrace"):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.requires("libunwind/[^1.8.1]")
-                self.requires("elfutils/[>=0.189 <1]")
+                self.requires("elfutils/0.191")
 
     def validate(self):
         if not self.dependencies.direct_host["glib"].options.shared and self.options.shared:
@@ -87,8 +87,7 @@ class GStreamerConan(ConanFile):
             return "enabled" if v else "disabled"
 
         tc = MesonToolchain(self)
-        if is_msvc(self) and not check_min_vs(self, "190", raise_invalid=False):
-            tc.project_options["c_std"] = "c99"
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["introspection"] = feature(self.options.with_introspection)
         tc.project_options["tools"] = feature(self.options.tools)
         tc.project_options["check"] = "enabled"  # explicitly enable plugin
@@ -96,12 +95,15 @@ class GStreamerConan(ConanFile):
         tc.project_options["libunwind"] = feature(self.options.get_safe("enable_backtrace") and self.settings.os in ["Linux", "FreeBSD"])
         tc.project_options["libdw"] = feature(self.options.get_safe("enable_backtrace") and self.settings.os in ["Linux", "FreeBSD"])
         tc.project_options["dbghelp"] = feature(self.options.get_safe("enable_backtrace") and self.settings.os == "Windows")
+        tc.project_options["doc"] = "disabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["benchmarks"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["nls"] = "enabled"
         tc.project_options["bash-completion"] = "disabled"
         tc.project_options["ptp-helper"] = "disabled"  # requires rustc and libcap
+        if is_msvc(self) and not check_min_vs(self, 190, raise_invalid=False):
+            tc.project_options["c_std"] = "c99"
         tc.generate()
 
         deps = PkgConfigDeps(self)

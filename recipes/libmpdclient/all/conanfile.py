@@ -68,6 +68,7 @@ class LibmpdclientConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         if self.settings.os != "Windows":
             tc.project_options["default_socket"] = str(self.options.default_socket)
         tc.project_options["default_host"] = str(self.options.default_host)

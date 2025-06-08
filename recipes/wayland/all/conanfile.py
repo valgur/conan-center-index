@@ -73,6 +73,7 @@ class WaylandConan(ConanFile):
             env.generate(scope="build")
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["libdir"] = "lib"
         tc.project_options["datadir"] = "res"
         tc.project_options["libraries"] = self.options.enable_libraries

@@ -4,14 +4,14 @@ from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import Environment, VirtualBuildEnv
+from conan.tools.env import Environment
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class NumpyConan(ConanFile):
@@ -30,14 +30,11 @@ class NumpyConan(ConanFile):
     default_options = {
         "fPIC": True,
     }
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
-
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def validate(self):
         # https://github.com/numpy/numpy/blob/v1.26.4/meson.build#L28
@@ -69,9 +66,6 @@ class NumpyConan(ConanFile):
         return os.path.join(self.build_folder, "site-packages")
 
     def generate(self):
-        venv = VirtualBuildEnv(self)
-        venv.generate()
-
         env = Environment()
         # NumPy can only be built with its vendored Meson
         env.prepend_path("PATH", str(self._meson_root))
@@ -80,6 +74,7 @@ class NumpyConan(ConanFile):
         env.vars(self).save_script("conanbuild_paths")
 
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["allow-noblas"] = False
         tc.project_options["blas-order"] = ["openblas"]
         tc.project_options["lapack-order"] = ["openblas"]

@@ -136,21 +136,23 @@ class HarfbuzzConan(ConanFile):
 
         backend, cxxflags = meson_backend_and_flags()
         tc = MesonToolchain(self, backend=backend)
-        tc.project_options["auto_features"] = "disabled"
-        tc.project_options.update({
-            "glib": is_enabled(self.options.with_glib),
-            "icu": is_enabled(self.options.with_icu),
-            "freetype": is_enabled(self.options.with_freetype),
-            "gdi": is_enabled(self.options.get_safe("with_gdi")),
-            "coretext": is_enabled(self.options.get_safe("with_coretext")),
-            "directwrite": is_enabled(self.options.get_safe("with_directwrite")),
-            "gobject": is_enabled(self.options.with_glib),
-            "introspection": is_enabled(self.options.with_introspection),
-            "tests": "disabled",
-            "docs": "disabled",
-            "benchmark": "disabled",
-            "icu_builtin": "false"
-        })
+        tc.project_options["auto_features"] = "enabled"
+        tc.project_options["glib"] = is_enabled(self.options.with_glib)
+        tc.project_options["gobject"] = is_enabled(self.options.with_glib)
+        tc.project_options["cairo"] = "disabled"  # TODO
+        tc.project_options["chafa"] = "disabled"  # TODO
+        tc.project_options["icu"] = is_enabled(self.options.with_icu)
+        tc.project_options["graphite2"] = "disabled"  # TODO
+        tc.project_options["freetype"] = is_enabled(self.options.with_freetype)
+        tc.project_options["fontations"] = "disabled"  # TODO
+        tc.project_options["gdi"] = is_enabled(self.options.get_safe("with_gdi"))
+        tc.project_options["directwrite"] = is_enabled(self.options.get_safe("with_directwrite"))
+        tc.project_options["coretext"] = is_enabled(self.options.get_safe("with_coretext"))
+        tc.project_options["introspection"] = is_enabled(self.options.with_introspection)
+        tc.project_options["tests"] = "disabled"
+        tc.project_options["docs"] = "disabled"
+        tc.project_options["benchmark"] = "disabled"
+        tc.project_options["icu_builtin"] = "false"
         tc.cpp_args += cxxflags
         tc.generate()
 

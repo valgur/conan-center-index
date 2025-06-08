@@ -55,6 +55,7 @@ class SerdConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["docs"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["tools"] = "disabled"

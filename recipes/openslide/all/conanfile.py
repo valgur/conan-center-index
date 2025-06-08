@@ -71,6 +71,7 @@ class OpenSlideConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["test"] = "disabled"
         tc.project_options["doc"] = "disabled"
         tc.generate()

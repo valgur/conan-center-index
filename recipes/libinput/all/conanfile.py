@@ -84,7 +84,7 @@ class LibinputConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
-        tc.project_options["build.pkg_config_path"] = self.generators_folder
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["coverity"] = False
         tc.project_options["datadir"] = "res"
         tc.project_options["documentation"] = False
