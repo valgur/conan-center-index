@@ -35,6 +35,7 @@ class LibpqConan(ConanFile):
         "with_ldap": [True, False],
         "with_libxml": [True, False],
         "with_libxslt": [True, False],
+        "with_llvm": [True, False],
         "with_lz4": [True, False],
         "with_nls": [True, False],
         "with_openssl": [True, False],
@@ -56,6 +57,7 @@ class LibpqConan(ConanFile):
         # libpq dependencies
         "with_gssapi": False,
         "with_ldap": False,
+        "with_llvm": False,
         "with_openssl": True,
         "with_zlib": True,
         "with_zstd": True,
@@ -84,6 +86,7 @@ class LibpqConan(ConanFile):
         "with_ldap": "LDAP support",
         "with_libxml": "XML support",
         "with_libxslt": "XSLT support in contrib/xml2",
+        "with_llvm": "Add LLVM JIT compilation support",
         "with_lz4": "LZ4 support",
         "with_nls": "Native language support",
         "with_openssl": "Use OpenSSL for SSL/TLS support",
@@ -114,8 +117,9 @@ class LibpqConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+        if not self.options.with_llvm:
+            self.settings.rm_safe("compiler.cppstd")
+            self.settings.rm_safe("compiler.libcxx")
         if not self.options.build_psql:
             self.options.rm_safe("with_readline")
         if not self.options.build_server:
@@ -139,6 +143,8 @@ class LibpqConan(ConanFile):
             self.requires("libxml2/[^2.12.5]")
         if self.options.with_libxslt:
             self.requires("libxslt/[^1.1.42]")
+        if self.options.with_llvm:
+            self.requires("llvm-core/[>=10]")
         if self.options.get_safe("with_lz4"):
             self.requires("lz4/[^1.9.4]")
         if self.options.with_nls:
@@ -172,6 +178,10 @@ class LibpqConan(ConanFile):
         else:
             self.tool_requires("flex/[^2.6.4]")
             self.tool_requires("bison/[^3.8.2]")
+        if self.options.with_llvm:
+            self.tool_requires("llvm-core/<host_version>")
+            if self.settings.compiler not in ["clang", "apple-clang"]:
+                self.tool_requires("clang/[>=10]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -186,20 +196,22 @@ class LibpqConan(ConanFile):
 
     def generate(self):
         feature = lambda option: "enabled" if option else "disabled"
-        true_false = lambda option: "true" if option else "false"
 
         tc = MesonToolchain(self)
-        tc.project_options["rpath"] = true_false(not self.options.get_safe("disable_rpath"))
+        tc.project_options["auto_features"] = "enabled"
+        tc.project_options["tap_tests"] = "disabled"
+        tc.project_options["rpath"] = not self.options.get_safe("disable_rpath", False)
         tc.project_options["bonjour"] = feature(self.options.get_safe("with_bonjour"))
         tc.project_options["bsd_auth"] = "disabled"
         tc.project_options["docs"] = "disabled"
+        tc.project_options["docs_pdf"] = "disabled"
         tc.project_options["dtrace"] = "disabled"
         tc.project_options["gssapi"] = feature(self.options.with_gssapi)
         tc.project_options["icu"] = feature(self.options.get_safe("with_icu"))
         tc.project_options["ldap"] = feature(self.options.with_ldap)
         tc.project_options["libxml"] = feature(self.options.with_libxml)
         tc.project_options["libxslt"] = feature(self.options.with_libxslt)
-        tc.project_options["llvm"] = "disabled"
+        tc.project_options["llvm"] = feature(self.options.with_llvm)
         tc.project_options["lz4"] = feature(self.options.get_safe("with_lz4"))
         tc.project_options["nls"] = feature(self.options.with_nls)
         tc.project_options["pam"] = feature(self.options.get_safe("with_pam"))
@@ -207,7 +219,7 @@ class LibpqConan(ConanFile):
         tc.project_options["plpython"] = "disabled"
         tc.project_options["pltcl"] = "disabled"
         tc.project_options["readline"] = feature(self.options.get_safe("with_readline"))
-        tc.project_options["libedit_preferred"] = true_false(self.options.get_safe("with_readline") == "editline")
+        tc.project_options["libedit_preferred"] = self.options.get_safe("with_readline") == "editline"
         tc.project_options["selinux"] = feature(self.options.get_safe("with_selinux"))
         tc.project_options["ssl"] = "openssl" if self.options.with_openssl else "none"
         tc.project_options["systemd"] = feature(self.options.get_safe("with_systemd"))
@@ -275,10 +287,8 @@ class LibpqConan(ConanFile):
         self._remove_unused_libraries_from_package()
         self._remove_executables()
         rm(self, "*.pdb", self.package_folder, recursive=True)
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
-        os.rename(os.path.join(self.package_folder, "share"),
-                  os.path.join(self.package_folder, "res"))
 
     def _libname(self, name):
         return "lib" + name if is_msvc(self) else name
@@ -292,7 +302,7 @@ class LibpqConan(ConanFile):
         self.cpp_info.components["pq"].set_property("cmake_target_name", "PostgreSQL::PostgreSQL")
         self.cpp_info.components["pq"].libs = [self._libname("pq")]
         self.cpp_info.components["pq"].libdirs.append(os.path.join("lib", "postgresql"))
-        self.cpp_info.components["pq"].resdirs = ["res"]
+        self.cpp_info.components["pq"].resdirs = ["share"]
         self.cpp_info.components["pq"].requires = ["_common"]
         if self.options.with_gssapi:
             self.cpp_info.components["pq"].requires.append("krb5::krb5-gssapi")
@@ -311,12 +321,12 @@ class LibpqConan(ConanFile):
             self.cpp_info.components["_common"].system_libs.extend(["pthread", "m"])
         elif self.settings.os == "Windows":
             self.cpp_info.components["_common"].system_libs.extend(["ws2_32", "secur32"])
+        if self.options.with_openssl:
+            self.cpp_info.components["_common"].requires.append("openssl::openssl")
         if self.options.with_zlib:
             self.cpp_info.components["_common"].requires.append("zlib-ng::zlib-ng")
         if self.options.with_zstd:
             self.cpp_info.components["_common"].requires.append("zstd::zstd")
-        if self.options.with_openssl:
-            self.cpp_info.components["_common"].requires.append("openssl::openssl")
 
         self.cpp_info.components["pgtypes"].set_property("pkg_config_name", "libpgtypes")
         self.cpp_info.components["pgtypes"].libs = [self._libname("pgtypes")]
@@ -368,6 +378,8 @@ class LibpqConan(ConanFile):
             tool_requires.append("zlib-ng::zlib-ng")
         if self.options.with_zstd:
             tool_requires.append("zstd::zstd")
+        if self.options.with_llvm:
+            tool_requires.append("llvm-core::llvm-core")
         self.cpp_info.components["_tools"].requires = tool_requires
 
         self.runenv_info.define_path("PostgreSQL_ROOT", self.package_folder)
