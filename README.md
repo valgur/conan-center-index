@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-07:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-08:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -46,7 +46,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cilantro/cci.20230816
 - cimg/3.3.5
 - clang/19.1.7
-- clang/20.1.5
+- clang/20.1.6
 - cloudini/0.3.0
 - cmake/3.19.8
 - cmake/3.20.6
@@ -114,17 +114,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - directx-shader-compiler/1.8.2502
 - dotconf/1.4.1
 - dpdk/24.07
+- egl-headers/20220525
+- egl-headers/20250527
 - elfutils/0.191
 - elfutils/0.192
 - emsdk/4.0.6
-- extra-cmake-modules/5.108.0
-- extra-cmake-modules/5.111.0
-- extra-cmake-modules/5.113.0
-- extra-cmake-modules/5.75.0
-- extra-cmake-modules/5.80.0
-- extra-cmake-modules/5.84.0
-- extra-cmake-modules/5.93.0
-- extra-cmake-modules/6.2.0
 - f2c/20240312
 - faiss/1.8.0
 - fbgemm/1.1.0
@@ -138,10 +132,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - fortran/cci.latest
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
-- frugally-deep/0.15.29
-- frugally-deep/0.15.30
-- frugally-deep/0.15.31
-- frugally-deep/0.16.0
 - g2o/20230806
 - gbm/system
 - gcc-arm-prebuilt/10.2-2020.11
@@ -232,7 +222,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - harfbuzz/11.2.0
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
-- highs/1.7.2
 - hlslpp/3.5.3
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
@@ -257,7 +246,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libbsd/0.12.2
 - libcaca/0.99.beta20
 - libclc/19.1.7
-- libclc/20.1.5
+- libclc/20.1.6
 - libcmaes/0.10.0
 - libcroco/0.6.13
 - libcudacxx/2.7.0
@@ -332,11 +321,13 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - linux-pam/1.6.1
 - litehtml/0.9
 - lld/19.1.7
-- lld/20.1.5
-- llvm-core/20.1.5
+- lld/20.1.6
+- llvm-core/20.1.6
 - llvm-libunwind/19.1.7
-- llvm-libunwind/20.1.5
+- llvm-libunwind/20.1.6
+- llvm-openmp/10.1.6
 - llvm-openmp/18.1.8
+- llvm-openmp/19.1.7
 - lttng-ust/2.13.9
 - matplotlib-cpp/cci.20210423
 - matplotplusplus/1.2.0
@@ -349,7 +340,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - metavision-sdk/5.1.1
 - mkfontscale/1.2.3
 - mlir/19.1.7
-- mlir/20.1.5
+- mlir/20.1.6
 - moltenvk/1.2.11
 - moltenvk/1.2.7
 - mrcal/2.4.1
@@ -370,6 +361,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ogre/14.3.4
 - onnxruntime/1.21.1
 - openblas/0.3.28
+- opencl-clhpp-headers/2024.10.24
+- opencl-headers/2024.10.24
+- opencl-icd-loader/2024.10.24
+- opengl-registry/20250604
 - openiap/0.0.33
 - openimageio/3.0.5.0
 - openmp/system
@@ -424,6 +419,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - renderdoc/1.37
 - rmlui/5.1
 - rosx_introspection/1.0.2
+- rust-bindgen/0.71.1
 - rust/1.72.1
 - rust/1.75.0
 - rust/1.77.1
