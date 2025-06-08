@@ -3,7 +3,6 @@ import os
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -25,17 +24,17 @@ class Dav1dConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "bit_depth": ["all", 8, 16],
-        "with_tools": [True, False],
+        "tools": [True, False],
         "assembly": [True, False],
-        "with_avx512": ["deprecated", True, False],
+        "with_xxhash": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "bit_depth": "all",
-        "with_tools": True,
+        "tools": True,
         "assembly": True,
-        "with_avx512": "deprecated",
+        "with_xxhash": True,
     }
 
     def config_options(self):
@@ -54,12 +53,9 @@ class Dav1dConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
-    def package_id(self):
-        del self.info.options.with_avx512
-
-    def validate(self):
-        if self.options.with_avx512 != "deprecated":
-            self.output.warning("The 'with_avx512' option is deprecated and has no effect")
+    def requirements(self):
+        if self.options.with_xxhash:
+            self.requires("xxhash/[>=0.8.1 <0.9]", libs=False)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -68,27 +64,24 @@ class Dav1dConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        replace_in_file(self, "meson.build", "subdir('doc')", "")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.project_options["enable_tests"] = False
         tc.project_options["enable_asm"] = self.options.assembly
-        tc.project_options["enable_tools"] = self.options.with_tools
+        tc.project_options["enable_tools"] = self.options.tools
         if self.options.bit_depth == "all":
             tc.project_options["bitdepths"] = "8,16"
         else:
             tc.project_options["bitdepths"] = str(self.options.bit_depth)
+        tc.project_options["xxhash_muxer"] = "enabled" if self.options.with_xxhash else "disabled"
+        if self.options.with_xxhash:
+            tc.extra_cflags.append(f"-I{self.dependencies['xxhash'].cpp_info.includedir}")
         tc.generate()
 
-    def _patch_sources(self):
-        replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
-                              "subdir('doc')", "")
-
     def build(self):
-        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
