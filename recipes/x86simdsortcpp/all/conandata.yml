@@ -1,0 +1,4 @@
+sources:
+  "7.0":
+    url: "https://github.com/intel/x86-simd-sort/archive/refs/tags/v7.0.tar.gz"
+    sha256: "f1658b0562a56255b157b7ffbb81e53e78e2571db1962262e55db6ca01733907"
