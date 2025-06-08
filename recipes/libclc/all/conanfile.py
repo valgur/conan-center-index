@@ -20,6 +20,10 @@ class LibclcConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     settings = "os", "arch", "compiler", "build_type"
 
+    default_options = {
+        "llvm-core/*:target_AMDGPU": True,
+        "llvm-core/*:target_NVPTX": True,
+    }
     default_build_options = {
         "llvm-core/*:target_AMDGPU": True,
         "llvm-core/*:target_NVPTX": True,
@@ -44,10 +48,15 @@ class LibclcConan(ConanFile):
                 return llvm_major <= 16
         return False
 
+    def requirements(self):
+        self.requires(f"llvm-core/{self.version}")
+
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.20 <5]")
         self.tool_requires("ninja/[^1.10]")
         # Also requires Python during build
+        # Requires clang, llvm-as, llvm-link, opt
+        self.tool_requires(f"llvm-core/{self.version}")
         if not self._is_compatible_compiler():
             self.tool_requires(f"clang/{self.version}")
 
@@ -67,11 +76,12 @@ class LibclcConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self, generator="Ninja")
+        tc.cache_variables["LLVM_TOOL_clang"] = self._get_tool("clang", "clang")
+        tc.cache_variables["LLVM_TOOL_llvm_as"] = self._get_tool("llvm-core", "llvm-as")
+        tc.cache_variables["LLVM_TOOL_llvm_link"] = self._get_tool("llvm-core", "llvm-link")
+        tc.cache_variables["LLVM_TOOL_opt"] = self._get_tool("llvm-core", "opt")
         tc.generate()
-
         deps = CMakeDeps(self)
-        deps.build_context_activated.append("clang")
-        deps.build_context_build_modules.append("clang")
         deps.generate()
 
     def build(self):
