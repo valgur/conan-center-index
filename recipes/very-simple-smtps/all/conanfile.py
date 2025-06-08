@@ -1,17 +1,16 @@
+import os
+
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import check_min_vs, is_msvc
-from conan.tools.scm import Version
-import os
 
 required_conan_version = ">=2.1"
+
 
 class VerySimpleSmtpsConan(ConanFile):
     name = "very-simple-smtps"
@@ -32,18 +31,6 @@ class VerySimpleSmtpsConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return 17
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "9",
-            "clang": "9",
-            "apple-clang": "10",
-        }
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -58,16 +45,7 @@ class VerySimpleSmtpsConan(ConanFile):
         if self.settings.compiler == "clang" and self.settings.compiler.libcxx == "libc++":
             raise ConanInvalidConfiguration("very-simple-smtps cannot use libc++")
 
-        check_min_cppstd(self, self._min_cppstd)
-        check_min_vs(self, 191)
-        if not is_msvc(self):
-            minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-            if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-                raise ConanInvalidConfiguration(
-                    f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-                )
-        if is_msvc(self) and self.info.options.shared:
-            raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared on Visual Studio and msvc.")
+        check_min_cppstd(self, 17)
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -79,10 +57,9 @@ class VerySimpleSmtpsConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
+        tc.project_options["auto_features"] = "enabled"
         tc.generate()
         tc = PkgConfigDeps(self)
-        tc.generate()
-        tc = VirtualBuildEnv(self)
         tc.generate()
 
     def build(self):
@@ -91,12 +68,11 @@ class VerySimpleSmtpsConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="include/*.hpp", dst=os.path.join(self.package_folder, ""), src=self.source_folder)
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "include/*.hpp", self.source_folder, self.package_folder)
         meson = Meson(self)
         meson.install()
 
-        rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
@@ -106,7 +82,5 @@ class VerySimpleSmtpsConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        self.cpp_info.libs = collect_libs(self)
-        self.cpp_info.set_property("pkg_config_name", "very-simple-smtps")
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["m", "pthread", "dl"])
+        self.cpp_info.libs = ["smtp_lib"]
+        self.cpp_info.system_libs = ["m", "pthread", "dl"]
