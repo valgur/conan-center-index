@@ -58,7 +58,7 @@ class Perf(ConanFile):
         self.requires("capstone/5.0.1")
         self.requires("libbpf/1.4.6")
         self.requires("libcap/[^2.69]")
-        self.requires("elfutils/0.191")
+        self.requires("elfutils/[>=0.189 <1]")
         self.requires("libnuma/[^2.0.16]")
         self.requires("libunwind/[^1.8.1]")
         self.requires("openssl/[>=1.1 <4]")
