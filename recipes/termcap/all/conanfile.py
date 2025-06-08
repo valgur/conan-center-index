@@ -87,4 +87,3 @@ class TermcapConan(ConanFile):
             self.cpp_info.defines = ["TERMCAP_SHARED"]
 
         self.runenv_info.define_path("TERMCAP", self._termcap_path)
-        self.env_info.TERMCAP = self._termcap_path

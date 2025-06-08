@@ -314,7 +314,6 @@ class MingwConan(ConanFile):
 
         def define_tool_env(var, name):
             self.buildenv_info.define_path(var, prefix + name)
-            setattr(self.env_info, var, prefix + name)
 
         define_tool_env("CC", "gcc")
         define_tool_env("CXX", "g++")

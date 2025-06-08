@@ -134,7 +134,3 @@ class MagnumExtrasConan(ConanFile):
                 "magnum::gl",
                 "magnum::text",
             ]
-
-        if self.options.player or self.options.ui_gallery:
-            bin_path = os.path.join(self.package_folder, "bin")
-            self.env_info.path.append(bin_path)

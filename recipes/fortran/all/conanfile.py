@@ -120,4 +120,3 @@ class FortranConan(ConanFile):
             dep = self.dependencies.build[self.options.package.value]
             fc = dep.buildenv_info.vars(self).get("FC")
             self.buildenv_info.define_path("FC", fc)
-            self.env_info.FC = fc

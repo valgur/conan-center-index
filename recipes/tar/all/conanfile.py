@@ -111,4 +111,4 @@ class TarConan(ConanFile):
 
         tar_bin = os.path.join(self.package_folder, "bin", "tar")
         self.conf_info.define("user.tar:path", tar_bin)
-        self.env_info.TAR = tar_bin
+        self.runenv_info.define_path("TAR", tar_bin)

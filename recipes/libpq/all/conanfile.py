@@ -275,7 +275,7 @@ class LibpqConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "PostgreSQL::PostgreSQL")
         self.cpp_info.set_property("pkg_config_name", "libpq")
 
-        self.env_info.PostgreSQL_ROOT = self.package_folder
+        self.runenv_info.define_path("PostgreSQL_ROOT", self.package_folder)
 
         self.cpp_info.components["pq"].libs = [f"{'lib' if is_msvc(self) else ''}pq"]
 

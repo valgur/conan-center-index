@@ -221,7 +221,6 @@ class GdkPixbufConan(ConanFile):
 
         gdk_pixbuf_pixdata = os.path.join(self.package_folder, "bin", "gdk-pixbuf-pixdata")
         self.runenv_info.define_path("GDK_PIXBUF_PIXDATA", gdk_pixbuf_pixdata)
-        self.env_info.GDK_PIXBUF_PIXDATA = gdk_pixbuf_pixdata # remove in conan v2?
 
         if self.options.with_introspection:
             self.cpp_info.requires.append("glib-gir::glib-gir")

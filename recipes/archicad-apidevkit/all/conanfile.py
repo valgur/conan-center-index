@@ -66,5 +66,4 @@ class ArchicadApidevkitConan(ConanFile):
 
         devkit_dir = os.path.join(self.package_folder, "bin")
         self.output.info(f"Setting AC_API_DEVKIT_DIR environment variable: {devkit_dir}")
-        self.env_info.AC_API_DEVKIT_DIR = devkit_dir
         self.buildenv_info.define("AC_API_DEVKIT_DIR", devkit_dir)

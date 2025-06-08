@@ -1494,8 +1494,6 @@ class BoostConan(ConanFile):
         }.get(name, name)
 
     def package_info(self):
-        self.env_info.BOOST_ROOT = self.package_folder
-
         self.cpp_info.set_property("cmake_file_name", "Boost")
 
         # - Use 'headers' component for all includes + defines
