@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -33,11 +32,12 @@ class XFontsEncodingsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # Don't rely on system fontutil to set datadir path
+        replace_in_file(self, "meson.build", "fontutil.found()", "false")
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = MesonToolchain(self)
-        tc.project_options["datadir"] = "res"
+        tc.project_options["auto_features"] = "enabled"
         tc.generate()
 
     def build(self):
@@ -55,7 +55,7 @@ class XFontsEncodingsConan(ConanFile):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
-        encodings_dir = os.path.join(self.package_folder, "res", "fonts", "X11", "encodings")
+        encodings_dir = os.path.join(self.package_folder, "share", "fonts", "X11", "encodings")
         self.runenv_info.define_path("FONT_ENCODINGS_DIRECTORY", encodings_dir)
