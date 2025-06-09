@@ -6,6 +6,7 @@ from conan.tools.files import *
 
 required_conan_version = ">=2.4"
 
+
 class OsqpConan(ConanFile):
     name = "osqp"
     package_type = "library"
@@ -30,13 +31,15 @@ class OsqpConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.18 <5]")
+
     def source(self):
-        strip_root = self.version == "0.6.2"
-        get(self, **self.conan_data["sources"][self.version], strip_root=strip_root)
+        get(self, **self.conan_data["sources"][self.version])
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables['UNITTESTS'] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
+        tc.variables["UNITTESTS"] = not self.conf.get("tools.build:skip_test", default=True, check_type=bool)
         tc.variables["PRINTING"] = True
         tc.variables["PROFILING"] = True
         tc.variables["CTRLC"] = True
@@ -76,8 +79,7 @@ class OsqpConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "osqp")
         self.cpp_info.set_property("cmake_target_name", "osqp::osqp")
         self.cpp_info.libs = ["osqp"]
+        self.cpp_info.resdirs = ["share"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.append("m")
-            self.cpp_info.system_libs.append("rt")
-            self.cpp_info.system_libs.append("dl")
+            self.cpp_info.system_libs = ["m"]
