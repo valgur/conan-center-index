@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file
 
 required_conan_version = ">=2.1"
 
@@ -36,13 +36,13 @@ class IfcopenshellConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "build_convert": True,
+        "build_convert": False,
         "build_ifcgeom": True,
         "ifcxml_support": True,
         "use_mmap": True,
-        "with_cgal": True,
-        "with_hdf5": True,
-        "with_opencascade": True,
+        "with_cgal": False,
+        "with_hdf5": False,
+        "with_opencascade": False,
 
         "boost/*:with_system": True,
         "boost/*:with_program_options": True,
@@ -52,7 +52,8 @@ class IfcopenshellConan(ConanFile):
         "boost/*:with_iostreams": True,
         "boost/*:with_filesystem": True,
     }
-    default_options.update({f"schema_{schema}": True for schema in IFC_SCHEMAS})
+    # Limit the default set of schemas to the basic ones and the latest to limit the size of the build.
+    default_options.update({f"schema_{schema}": schema in ["2x3", "4", "4x3_add2"] for schema in IFC_SCHEMAS})
     implements = ["auto_shared_fpic"]
 
     @cached_property
@@ -80,10 +81,12 @@ class IfcopenshellConan(ConanFile):
 
         if self.options.build_convert and not self.options.build_ifcgeom:
             raise ConanInvalidConfiguration("build_convert requires build_ifcgeom to be enabled")
+        if self.options.build_convert and not self.options.with_opencascade:
+            raise ConanInvalidConfiguration("build_convert requires with_opencascade to be enabled")
 
     def requirements(self):
         self.requires("boost/[^1.71]", transitive_headers=True, transitive_libs=True)
-        if self.options.with_hdf5:
+        if self.options.get_safe("with_hdf5"):
             # Used in public serializers/HdfSerializer.h, ifcgeom/kernels/opencascade/IfcGeomTree.h
             self.requires("hdf5/[^1.8]", transitive_headers=True, transitive_libs=True)
         if self.options.build_ifcgeom:
@@ -105,6 +108,7 @@ class IfcopenshellConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        replace_in_file(self, "cmake/CMakeLists.txt", "set(CMAKE_CXX_STANDARD 17)", "")
 
     def generate(self):
         def includedir(dep):
