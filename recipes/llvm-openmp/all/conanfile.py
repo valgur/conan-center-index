@@ -1,5 +1,6 @@
 import os
 import re
+from functools import cached_property
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration, ConanException
@@ -8,7 +9,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -111,7 +111,7 @@ class LLVMOpenMpConan(ConanFile):
     def build_requirements(self):
         if self._version_major >= 17:
             self.tool_requires("cmake/[>=3.20 <5]")
-        if is_msvc(self):
+        if self.settings.compiler == "msvc":
             self.tool_requires("strawberryperl/[^5.32.1.1]")
 
     def source(self):
@@ -186,21 +186,20 @@ class LLVMOpenMpConan(ConanFile):
     @property
     def _openmp_flags(self):
         # Based on https://github.com/Kitware/CMake/blob/v3.28.1/Modules/FindOpenMP.cmake#L104-L135
-        if self.settings.compiler == "clang":
-            return ["-fopenmp=libomp"]
-        elif self.settings.compiler == "apple-clang":
-            return ["-Xclang", "-fopenmp"]
-        elif self.settings.compiler == "gcc":
+        compiler = str(self.settings.compiler)
+        if compiler in {"gcc", "clang"}:
             return ["-fopenmp"]
-        elif self.settings.compiler == "intel-cc":
-            return ["-Qopenmp"]
-        elif self.settings.compiler == "sun-cc":
-            return ["-xopenmp"]
-        elif is_msvc(self):
+        elif compiler == "apple-clang":
+            return ["-Xpreprocessor", "-fopenmp"]
+        elif compiler == "msvc":
             return ["-openmp:llvm"]
+        elif compiler == "intel-cc":
+            return ["-Qopenmp"]
+        elif compiler == "sun-cc":
+            return ["-xopenmp"]
         return None
 
-    @property
+    @cached_property
     def _system_libs(self):
         if self.settings.os in ["Linux", "FreeBSD"]:
             return ["m", "dl", "pthread", "rt"]
@@ -208,7 +207,7 @@ class LLVMOpenMpConan(ConanFile):
             return ["psapi"]
         return []
 
-    @property
+    @cached_property
     def _omp_runtime_version(self):
         # llvm-openmp has hardcoded its OMP runtime version since v9
         # https://github.com/llvm/llvm-project/commit/e4b4f994d2f6a090694276b40d433dc1a58beb24
@@ -240,14 +239,13 @@ class LLVMOpenMpConan(ConanFile):
         # Match FindOpenMP.cmake module provided by CMake
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "OpenMP")
+        self.cpp_info.set_property("cmake_target_name", "OpenMP::OpenMP")
+        self.cpp_info.set_property("cmake_target_aliases", ["OpenMP::OpenMP_C", "OpenMP::OpenMP_CXX"])
 
-        omp = self.cpp_info.components["omp"]
-        omp.set_property("cmake_target_name", "OpenMP::OpenMP")
-        omp.set_property("cmake_target_aliases", ["OpenMP::OpenMP_C", "OpenMP::OpenMP_CXX"])
-        omp.libs = ["libomp" if is_msvc(self) else "omp"]
-        omp.system_libs = self._system_libs
-        omp.cflags = self._openmp_flags
-        omp.cxxflags = self._openmp_flags
+        self.cpp_info.libs = ["libomp" if self.settings.compiler == "msvc" else "omp"]
+        self.cpp_info.system_libs = self._system_libs
+        self.cpp_info.cflags = self._openmp_flags
+        self.cpp_info.cxxflags = self._openmp_flags
 
-        omp.builddirs.append(os.path.join(self.package_folder, "lib", "cmake", "openmp"))
+        self.cpp_info.builddirs.append(os.path.join(self.package_folder, "lib", "cmake", "openmp"))
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
