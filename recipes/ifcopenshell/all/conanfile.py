@@ -175,9 +175,12 @@ class IfcopenshellConan(ConanFile):
             ifcparse.defines.append("USE_MMAP")
         if self.options.ifcxml_support:
             ifcparse.requires.append("libxml2::libxml2")
+            ifcparse.defines.append("WITH_IFCXML")
         ifcparse.defines.append(f"SCHEMA_SEQ=({')('.join(self._selected_ifc_schemas)})")
         for schema in self._selected_ifc_schemas:
             ifcparse.defines.append(f"HAS_SCHEMA_{schema}")
+        if self.options.shared:
+            ifcparse.defines.append("IFC_SHARED_BUILD")
         if self.settings.os in ["Linux", "FreeBSD"]:
             ifcparse.system_libs = ["m", "dl"]
 
@@ -189,7 +192,8 @@ class IfcopenshellConan(ConanFile):
             if self.options.with_cgal:
                 _add_component("geometry_kernel_cgal", requires=["cgal::cgal", "mpfr::mpfr", "gmp::gmp", "eigen::eigen",])
                 ifcgeom.requires.append("geometry_kernel_cgal")
-                _add_component("geometry_kernel_cgal_simple", requires=["cgal::cgal", "gmp::gmp", "eigen::eigen",])
+                simple = _add_component("geometry_kernel_cgal_simple", requires=["cgal::cgal", "gmp::gmp", "eigen::eigen",])
+                simple.defines.append("IFOPSH_SIMPLE_KERNEL")
                 ifcgeom.requires.append("geometry_kernel_cgal_simple")
 
             if self.options.with_opencascade:
@@ -214,6 +218,7 @@ class IfcopenshellConan(ConanFile):
                     "eigen::eigen",
                 ])
                 ifcgeom.requires.append("geometry_kernel_opencascade")
+                ifcgeom.defines.append("IFOPSH_WITH_OPENCASCADE")
 
             for schema in self._selected_ifc_schemas:
                 _add_component(f"geometry_mapping_ifc{schema}", requires=["IfcParse"])
