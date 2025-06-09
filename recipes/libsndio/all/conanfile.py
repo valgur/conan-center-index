@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -41,7 +41,7 @@ class LibsndioConan(ConanFile):
 
     def requirements(self):
         if self.options.get_safe("with_alsa"):
-            self.requires("libalsa/[~1.2.10]": True})
+            self.requires("libalsa/[~1.2.10]", options={"shared": True})
 
     def build_requirements(self):
         self.tool_requires("libtool/[^2.4.7]")
@@ -65,9 +65,6 @@ class LibsndioConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "Makefile.in"), line, "")
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
-
         # Inject requires env vars in build scope
         # It's required in case of native build when there is AutotoolsDeps & at least one dependency which might be shared, because configure tries to run a test executable
         if not cross_building(self):
@@ -75,9 +72,6 @@ class LibsndioConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-
-        # Set expected config
-        tc.configure_args.append("--datadir=${prefix}/res")
 
         # Bundled `configure` script does not support these options, so remove
         exclusions = ["--enable-shared", "--disable-shared", "--disable-static", "--enable-static", "--sbindir", "--oldincludedir", "--host", "--build"]
@@ -122,14 +116,16 @@ class LibsndioConan(ConanFile):
         tc.generate()
 
     def build(self):
-        autotools = Autotools(self)
-        autotools.configure()
-        autotools.make()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.configure()
+            autotools.make()
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        autotools = Autotools(self)
-        autotools.install()
+        with chdir(self, self.source_folder):
+            autotools = Autotools(self)
+            autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "bin"))
