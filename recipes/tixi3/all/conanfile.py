@@ -1,19 +1,20 @@
 import os
 
 from conan import ConanFile
-from conan.tools import files
+from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import *
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class Tixi3Conan(ConanFile):
     name = "tixi3"
-    url = "https://github.com/conan-io/conan-center-index"
     description = "A simple xml interface based on libxml2 and libxslt"
-    topics = ("xml", "xml2", "xslt")
-    homepage = "https://github.com/DLR-SC/tixi"
     license = "Apache-2.0"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/DLR-SC/tixi"
+    topics = ("xml", "xml2", "xslt")
 
     settings = "os", "arch", "compiler", "build_type"
     options = {
@@ -24,6 +25,11 @@ class Tixi3Conan(ConanFile):
         "shared": False,
         "fPIC": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
+
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -40,37 +46,25 @@ class Tixi3Conan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # tixi is a c library
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
-
-    def export_sources(self):
-        for patch in self.conan_data.get("patches", {}).get(self.version, []):
-            files.copy(self, patch["patch_file"], src=self.recipe_folder, dst=self.export_sources_folder)
-
     def source(self):
-        files.get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required (VERSION 3.1)",
+                        "cmake_minimum_required (VERSION 3.5)")
 
     def build(self):
-        files.apply_conandata_patches(self)
-
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        files.rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
-        files.copy(self, "LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        files.rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "tixi3"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "tixi3")
@@ -85,5 +79,5 @@ class Tixi3Conan(ConanFile):
 
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["shlwapi"]
-
-        self.cpp_info.frameworks.extend(["Foundation"])
+        elif is_apple_os(self):
+            self.cpp_info.frameworks = ["Foundation"]
