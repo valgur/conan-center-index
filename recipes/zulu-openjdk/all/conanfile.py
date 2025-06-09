@@ -7,6 +7,7 @@ from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
 
+
 class ZuluOpenJDK(ConanFile):
     name = "zulu-openjdk"
     description = "A OpenJDK distribution"
@@ -50,7 +51,7 @@ class ZuluOpenJDK(ConanFile):
              src=os.path.join(self.source_folder, "include"))
         copy(self, pattern="*", dst=os.path.join(self.package_folder, "lib"),
              src=os.path.join(self.source_folder, "lib"))
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "res"),
+        copy(self, pattern="*", dst=os.path.join(self.package_folder, "share"),
              src=os.path.join(self.source_folder, "conf"))
         # conf folder is required for security settings, to avoid
         # java.lang.SecurityException: Can't read cryptographic policy directory: unlimited

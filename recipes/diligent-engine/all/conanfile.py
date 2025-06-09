@@ -169,7 +169,7 @@ class DiligentEngineConan(ConanFile):
 
     def build(self):
         copy(self, "*",
-             os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"),
+             os.path.join(self.dependencies["imgui"].package_folder, "share", "imgui"),
              os.path.join(self.source_folder, "DiligentTools", "Imgui", "src", "backends"))
         cmake = CMake(self)
         cmake.configure()

@@ -198,7 +198,7 @@ class NetpbmConan(ConanFile):
             copy(self, "*.a", os.path.join(self.source_folder, "lib"), lib_dir)
         rename(self, os.path.join(temp_dir, "include"), os.path.join(self.package_folder, "include"))
         rename(self, os.path.join(temp_dir, "lib"), os.path.join(self.package_folder, "lib"))
-        rename(self, os.path.join(temp_dir, "misc"), os.path.join(self.package_folder, "res"))
+        rename(self, os.path.join(temp_dir, "misc"), os.path.join(self.package_folder, "share"))
         if self.options.tools:
             rename(self, os.path.join(temp_dir, "bin"), os.path.join(self.package_folder, "bin"))
         rmdir(self, temp_dir)

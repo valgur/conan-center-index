@@ -277,7 +277,7 @@ class ImguiConan(ConanFile):
         # Package ImGui sources for users that need more fine-grained control
         version = Version(self.version.replace("-docking", ""))
         backends_folder = os.path.join(self.source_folder, "backends" if version >= "1.80" else "examples")
-        res_folder = os.path.join(self.package_folder, "res")
+        res_folder = os.path.join(self.package_folder, "share", "imgui")
         copy(self, "imgui_impl_*", backends_folder, os.path.join(res_folder, "bindings"))
         copy(self, "imgui*.cpp", self.source_folder, os.path.join(res_folder, "src"))
         copy(self, "*", os.path.join(self.source_folder, "misc", "cpp"), os.path.join(res_folder, "misc", "cpp"))
@@ -290,7 +290,7 @@ class ImguiConan(ConanFile):
         self.cpp_info.components["core"].set_property("cmake_target_name", "imgui::imgui")
         self.cpp_info.components["core"].set_property("pkg_config_name", "imgui")
         self.cpp_info.components["core"].libs = ["imgui"]
-        self.cpp_info.components["core"].srcdirs = [os.path.join("res", "bindings")]
+        self.cpp_info.components["core"].srcdirs = [os.path.join("share", "imgui", "bindings")]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["core"].system_libs.append("m")
         elif self.settings.os == "Windows":

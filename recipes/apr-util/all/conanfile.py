@@ -160,7 +160,7 @@ class AprUtilConan(ConanFile):
                 tc.extra_ldflags.append("-ldl")
             env = tc.environment()
             env.define_path("APR_ROOT", self.dependencies["apr"].package_folder)
-            env.define_path("_APR_BUILDDIR", os.path.join(self.dependencies["apr"].package_folder, "res", "build-1"))
+            env.define_path("_APR_BUILDDIR", os.path.join(self.dependencies["apr"].package_folder, "share", "build-1"))
             tc.generate(env)
 
             deps = AutotoolsDeps(self)

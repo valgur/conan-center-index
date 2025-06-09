@@ -108,7 +108,6 @@ class LibX11Conan(ConanFile):
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
         fix_apple_shared_install_name(self)
         copy(self, "conan-findx11.cmake",
@@ -142,9 +141,9 @@ class LibX11Conan(ConanFile):
         self.cpp_info.set_property("cmake_build_modules", [cmake_module])
 
         # Set env vars for relocated module and resource files
-        self.runenv_info.define_path("XCMSDB", os.path.join(self.package_folder, "res", "X11", "Xcms.txt"))
-        self.runenv_info.define_path("XERRORDB", os.path.join(self.package_folder, "res", "X11", "XErrorDB"))
-        self.runenv_info.define_path("XLOCALEDIR", os.path.join(self.package_folder, "res", "X11", "locale"))
+        self.runenv_info.define_path("XCMSDB", os.path.join(self.package_folder, "share", "X11", "Xcms.txt"))
+        self.runenv_info.define_path("XERRORDB", os.path.join(self.package_folder, "share", "X11", "XErrorDB"))
+        self.runenv_info.define_path("XLOCALEDIR", os.path.join(self.package_folder, "share", "X11", "locale"))
         self.runenv_info.define_path("XLOCALELIBDIR", os.path.join(self.package_folder, "lib", "X11", "locale"))
         # Not installed?
-        # self.runenv_info.define_path("XKEYSYMDB", os.path.join(self.package_folder, "res", "X11", "XKeysymDB"))
+        # self.runenv_info.define_path("XKEYSYMDB", os.path.join(self.package_folder, "share", "X11", "XKeysymDB"))

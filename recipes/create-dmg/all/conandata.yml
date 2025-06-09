@@ -8,12 +8,3 @@ sources:
   "1.0.10":
     url: "https://github.com/create-dmg/create-dmg/archive/refs/tags/v1.0.10.tar.gz"
     sha256: "8fd43498988f6d334d483faf4e4a330a25228784995d72c57e4565967d09e6ab"
-patches:
-  "1.2.1":
-    - patch_file: "patches/1.2.1-0001-change-share-to-res.patch"
-      patch_description: "Change share folder to res"
-      patch_type: "conan"
-  "1.1.0":
-    - patch_file: "patches/1.1.0-0001-change-share-to-res.patch"
-      patch_description: "Change share folder to res"
-      patch_type: "conan"

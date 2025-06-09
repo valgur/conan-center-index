@@ -625,10 +625,6 @@ class AwsSdkCppConan(ConanFile):
         cmake.configure()
         cmake.build()
 
-    @property
-    def _res_folder(self):
-        return "res"
-
     def _create_project_cmake_module(self):
         # package files needed to build other components (e.g. aws-cdi-sdk) with this SDK
         dependant_files = [
@@ -644,20 +640,18 @@ class AwsSdkCppConan(ConanFile):
         else:
             dependant_files.append("aws-cpp-sdk-core/include/aws/core/VersionConfig.h")
         for file in dependant_files:
-            copy(self, file, src=self.source_folder, dst=os.path.join(self.package_folder, self._res_folder))
-            replace_in_file(
-                self, os.path.join(self.package_folder, self._res_folder, file),
-                "CMAKE_CURRENT_SOURCE_DIR", "AWS_NATIVE_SDK_ROOT",
-                strict=False,
-            )
+            copy(self, file, src=self.source_folder, dst=os.path.join(self.package_folder, "share"))
+            replace_in_file(self, os.path.join(self.package_folder, "share", file),
+                            "CMAKE_CURRENT_SOURCE_DIR",
+                            "AWS_NATIVE_SDK_ROOT",
+                            strict=False)
 
         # avoid getting error from hook
-        rename(self, os.path.join(self.package_folder, self._res_folder, "toolchains", "cmakeProjectConfig.cmake"),
-               os.path.join(self.package_folder, self._res_folder, "toolchains", "cmakeProjectConf.cmake"))
-        replace_in_file(
-            self, os.path.join(self.package_folder, self._res_folder, "cmake", "utilities.cmake"),
-            "cmakeProjectConfig.cmake", "cmakeProjectConf.cmake",
-        )
+        rename(self, os.path.join(self.package_folder, "share", "toolchains", "cmakeProjectConfig.cmake"),
+               os.path.join(self.package_folder, "share", "toolchains", "cmakeProjectConf.cmake"))
+        replace_in_file(self, os.path.join(self.package_folder, "share", "cmake", "utilities.cmake"),
+                        "cmakeProjectConfig.cmake",
+                        "cmakeProjectConf.cmake")
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -675,7 +669,7 @@ class AwsSdkCppConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "AWSSDK")
 
-        sdk_plugin_conf = os.path.join(self._res_folder, "cmake", "sdk_plugin_conf.cmake")
+        sdk_plugin_conf = os.path.join("share", "cmake", "sdk_plugin_conf.cmake")
         self.cpp_info.set_property("cmake_build_modules", [sdk_plugin_conf])
 
         # core component
@@ -742,5 +736,6 @@ class AwsSdkCppConan(ConanFile):
 
         self.cpp_info.components["plugin_scripts"].requires = ["core"]
         self.cpp_info.components["plugin_scripts"].builddirs.extend([
-            os.path.join(self._res_folder, "cmake"),
-            os.path.join(self._res_folder, "toolchains")])
+            os.path.join("share", "cmake"),
+            os.path.join("share", "toolchains"),
+        ])

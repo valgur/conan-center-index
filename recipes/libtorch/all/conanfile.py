@@ -499,8 +499,7 @@ class LibtorchConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        os.rename(os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
-        rmdir(self, os.path.join(self.package_folder, "res", "cmake"))
+        rmdir(self, os.path.join(self.package_folder, "share", "cmake"))
         copy(self, "conan-official-libtorch-vars.cmake", self.source_folder, os.path.join(self.package_folder, self._modules_dir))
 
     @property
@@ -594,7 +593,7 @@ class LibtorchConan(ConanFile):
         self.cpp_info.set_property("cmake_build_modules", [cmake_vars_module])
 
         self.cpp_info.components["_headers"].includedirs.append(os.path.join("include", "torch", "csrc", "api", "include"))
-        self.cpp_info.components["_headers"].resdirs = ["res"]
+        self.cpp_info.components["_headers"].resdirs = ["share"]
         self.cpp_info.components["_headers"].requires.extend(["onnx::onnx"] + _flatbuffers())
 
         self.cpp_info.components["c10"].set_property("cmake_target_name", "c10")

@@ -47,6 +47,10 @@ class MosquittoConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1)",
+                        "cmake_minimum_required(VERSION 3.5)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -57,7 +61,6 @@ class MosquittoConan(ConanFile):
         tc.variables["WITH_EC"] = self.options.with_tls
         tc.variables["DOCUMENTATION"] = False
         tc.variables["WITH_THREADING"] = not is_msvc(self)
-        tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = "res"
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
         deps = CMakeDeps(self)
@@ -86,7 +89,7 @@ class MosquittoConan(ConanFile):
         lib_suffix = "_static" if not self.options.shared else ""
         self.cpp_info.components["libmosquitto"].set_property("pkg_config_name", "libmosquitto")
         self.cpp_info.components["libmosquitto"].libs = [f"mosquitto{lib_suffix}"]
-        self.cpp_info.components["libmosquitto"].resdirs = ["res"]
+        self.cpp_info.components["libmosquitto"].resdirs = ["etc"]
         if not self.options.shared:
             self.cpp_info.components["libmosquitto"].defines.append("LIBMOSQUITTO_STATIC")
         if self.options.with_tls:

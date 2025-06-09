@@ -84,8 +84,6 @@ class PolyscopeConan(ConanFile):
         tc.variables["POLYSCOPE_BACKEND_OPENGL_MOCK"] = self.options.backend_mock
         tc.variables["HAVE_EGL_LIB"] = self.options.get_safe("backend_egl", False)  # Skip EGL/egl.h check for libglvnd
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         if self.settings.os == "Windows" and not self.options.get_safe("shared"):
             # Avoid the default IMGUI_API=__declspec(dllimport)
             tc.preprocessor_definitions["IMGUI_API"] = ""
@@ -103,7 +101,7 @@ class PolyscopeConan(ConanFile):
 
     def _patch_sources(self):
         copy(self, "*",
-             os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"),
+             os.path.join(self.dependencies["imgui"].package_folder, "share", "imgui", "bindings"),
              os.path.join(self.source_folder, "include", "backends"))
 
     def build(self):

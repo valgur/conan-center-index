@@ -345,7 +345,7 @@ class OgreConanFile(ConanFile):
     @property
     def _config_dir(self):
         ver = Version(self.version)
-        return os.path.join("res", f"OGRE-{ver.major}.{ver.minor}")
+        return os.path.join("share", f"OGRE-{ver.major}.{ver.minor}")
 
     @property
     def _media_dir(self):
@@ -436,7 +436,7 @@ class OgreConanFile(ConanFile):
         tc.cache_variables["OGRE_MEDIA_PATH"] = self._to_cmake_path(self._media_dir)
         tc.cache_variables["OGRE_CFG_INSTALL_PATH"] = self._to_cmake_path(self._config_dir)
         if self.options.get_safe("build_component_overlay_imgui"):
-            tc.cache_variables["CONAN_IMGUI_SRC"] = os.path.join(self.dependencies["imgui"].package_folder, "res")
+            tc.cache_variables["CONAN_IMGUI_SRC"] = os.path.join(self.dependencies["imgui"].package_folder, "share", "imgui")
         # https://github.com/OGRECave/ogre/blob/v14.3.0/RenderSystems/GLSupport/CMakeLists.txt#L15-L16
         tc.cache_variables["OGRE_GLSUPPORT_USE_EGL"] = self.options.get_safe("glsupport_use_egl", False)
         tc.cache_variables["OGRE_USE_WAYLAND"] = self.options.get_safe("use_wayland", False)
@@ -551,7 +551,7 @@ class OgreConanFile(ConanFile):
             self.cpp_info.components[comp].libs = libs or []
             self.cpp_info.components[comp].includedirs = ["include", self._include_dir] + (extra_includedirs or [])
             self.cpp_info.components[comp].libdirs = libdirs or []
-            self.cpp_info.components[comp].resdirs = ["res"]
+            self.cpp_info.components[comp].resdirs = ["share"]
             self.cpp_info.components[comp].builddirs.append(self._module_file_rel_dir)
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components[comp].system_libs.append("pthread")

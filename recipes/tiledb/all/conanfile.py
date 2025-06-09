@@ -179,7 +179,7 @@ class TileDBConan(ConanFile):
         tc.cache_variables["TILEDB_WERROR"] = False
         # Disable ExternalProject just in case
         tc.cache_variables["FETCHCONTENT_FULLY_DISCONNECTED"] = True
-        tc.cache_variables["libmagic_DICTIONARY"] = os.path.join(self.dependencies["libmagic"].package_folder, "res", "magic.mgc").replace("\\", "/")
+        tc.cache_variables["libmagic_DICTIONARY"] = os.path.join(self.dependencies["libmagic"].runenv_info.vars(self).get("MAGIC")).replace("\\", "/")
         tc.generate()
 
         deps = CMakeDeps(self)

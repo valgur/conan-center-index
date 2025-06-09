@@ -112,7 +112,7 @@ class LlamaCppConan(ConanFile):
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        copy(self, "*", os.path.join(self.source_folder, "models"), os.path.join(self.package_folder, "res", "models"))
+        copy(self, "*", os.path.join(self.source_folder, "models"), os.path.join(self.package_folder, "share", self.name, "models"))
         copy(self, "*.h*", os.path.join(self.source_folder, "common"), os.path.join(self.package_folder, "include", "common"))
         copy(self, "*common*.lib", src=self.build_folder, dst=os.path.join(self.package_folder, "lib"), keep_path=False)
         copy(self, "*common*.dll", src=self.build_folder, dst=os.path.join(self.package_folder, "bin"), keep_path=False)
@@ -133,13 +133,13 @@ class LlamaCppConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["ggml"].libs = ["ggml"]
-        self.cpp_info.components["ggml"].resdirs = ["res"]
+        self.cpp_info.components["ggml"].resdirs = ["share"]
         self.cpp_info.components["ggml"].set_property("cmake_target_name", "ggml::all")
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.components["ggml"].system_libs.append("dl")
 
         self.cpp_info.components["llama"].libs = ["llama"]
-        self.cpp_info.components["llama"].resdirs = ["res"]
+        self.cpp_info.components["llama"].resdirs = ["share"]
         self.cpp_info.components["llama"].requires.append("ggml")
 
         self.cpp_info.components["common"].includedirs = [os.path.join("include", "common")]
@@ -162,7 +162,7 @@ class LlamaCppConan(ConanFile):
 
         if self._is_new_llama:
             self.cpp_info.components["ggml-base"].libs = ["ggml-base"]
-            self.cpp_info.components["ggml-base"].resdirs = ["res"]
+            self.cpp_info.components["ggml-base"].resdirs = ["share"]
             self.cpp_info.components["ggml-base"].set_property("cmake_target_name", "ggml-base")
 
             self.cpp_info.components["ggml"].requires = ["ggml-base"]
@@ -178,7 +178,7 @@ class LlamaCppConan(ConanFile):
             backends = self._get_backends()
             for backend in backends:
                 self.cpp_info.components[f"ggml-{backend}"].libs = [f"ggml-{backend}"]
-                self.cpp_info.components[f"ggml-{backend}"].resdirs = ["res"]
+                self.cpp_info.components[f"ggml-{backend}"].resdirs = ["share"]
                 self.cpp_info.components[f"ggml-{backend}"].set_property("cmake_target_name", f"ggml-{backend}")
                 if self.options.shared:
                     self.cpp_info.components[f"ggml-{backend}"].defines.append("GGML_BACKEND_SHARED")

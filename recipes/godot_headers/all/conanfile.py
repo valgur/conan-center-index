@@ -32,9 +32,9 @@ class GodotHeadersConan(ConanFile):
     def package(self):
         copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h", src=self.source_folder, dst=os.path.join(self.package_folder, "include"))
-        copy(self, "api.json", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
+        copy(self, "api.json", src=self.source_folder, dst=os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]

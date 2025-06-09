@@ -77,9 +77,6 @@ class LibgudevConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if self.options.with_introspection:
-            os.rename(os.path.join(self.package_folder, "share"),
-                      os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
@@ -92,7 +89,7 @@ class LibgudevConan(ConanFile):
             "libudev::libudev",
         ]
         if self.options.with_introspection:
-            self.cpp_info.resdirs = ["res"]
+            self.cpp_info.resdirs = ["share"]
             self.cpp_info.requires.append("glib-gir::glib-gir")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

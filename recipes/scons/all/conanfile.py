@@ -45,10 +45,10 @@ class SConsConan(ConanFile):
 
         if Version(self.version) < 4:
             shutil.copytree(os.path.join(self.source_folder, "engine", "SCons"),
-                            os.path.join(self.package_folder, "res", "SCons"))
+                            os.path.join(self.package_folder, "share", "SCons"))
         else:
             shutil.copytree(os.path.join(self.source_folder, "SCons"),
-                            os.path.join(self.package_folder, "res", "SCons"))
+                            os.path.join(self.package_folder, "share", "SCons"))
 
         save(self, self._scons_sh, textwrap.dedent("""\
             #!/bin/sh
@@ -68,8 +68,8 @@ class SConsConan(ConanFile):
 
             currentdir="$(dirname "$(realpath "$0")")"
 
-            export PYTHONPATH="$currentdir/../res:$PYTHONPATH"
-            exec ${PYTHON:-python3} "$currentdir/../res/SCons/__main__.py" "$@"
+            export PYTHONPATH="$currentdir/../share:$PYTHONPATH"
+            exec ${PYTHON:-python3} "$currentdir/../share/SCons/__main__.py" "$@"
         """))
         self._chmod_x(self._scons_sh)
         save(self, self._scons_cmd, textwrap.dedent(r"""
@@ -78,8 +78,8 @@ class SConsConan(ConanFile):
             if not defined PYTHON (
                 set PYTHON=python
             )
-            set PYTHONPATH=%currentdir%\\..\\res;%PYTHONPATH%
-            CALL %PYTHON% %currentdir%\\..\\res\\SCons\\__main__.py %*
+            set PYTHONPATH=%currentdir%\\..\\share;%PYTHONPATH%
+            CALL %PYTHON% %currentdir%\\..\\share\\SCons\\__main__.py %*
         """))
 
     def package_info(self):

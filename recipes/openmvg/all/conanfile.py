@@ -180,6 +180,13 @@ class OpenmvgConan(ConanFile):
         cmake.configure(build_script_folder=os.path.join(self.source_folder, "src"))
         cmake.build()
 
+    @property
+    def _share_dir(self):
+        if Version(self.version) >= "2.1":
+            return os.path.join(self.package_folder, "lib", "openMVG")
+        else:
+            return os.path.join(self.package_folder, "share", "openMVG")
+
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
@@ -191,13 +198,7 @@ class OpenmvgConan(ConanFile):
         for dll_file in glob.glob(os.path.join(self.package_folder, "lib", "*.dll")):
             rename(self, src=dll_file, dst=os.path.join(self.package_folder, "bin", os.path.basename(dll_file)))
         rm(self, "*.cmake", os.path.join(self.package_folder, "lib"))
-        if Version(self.version) >= "2.1":
-            share_dir = os.path.join(self.package_folder, "lib", "openMVG")
-        else:
-            share_dir = os.path.join(self.package_folder, "share", "openMVG")
         rmdir(self, os.path.join(share_dir, "cmake"))
-        mkdir(self, os.path.join(self.package_folder, "res"))
-        rename(self, share_dir, os.path.join(self.package_folder, "res", "openMVG"))
 
     @property
     def _openmvg_components(self):
@@ -342,7 +343,7 @@ class OpenmvgConan(ConanFile):
             self.cpp_info.components[component].defines = defines
             self.cpp_info.components[component].requires = values.get("requires", [])
             self.cpp_info.components[component].system_libs = values.get("system_libs", [])
-            self.cpp_info.components[component].resdirs = ["res"]
+            self.cpp_info.components[component].resdirs = [self._share_dir]
 
             if values.get("add_library_name_prefix_to_include_dirs", False):
                 self.cpp_info.components[component].includedirs.append(os.path.join("include", "openMVG"))

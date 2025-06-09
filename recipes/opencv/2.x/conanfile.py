@@ -412,10 +412,6 @@ class OpenCVConan(ConanFile):
     def _patch_sources(self):
         cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
 
-        for cascade in ["lbpcascades", "haarcascades"]:
-            replace_in_file(self, os.path.join(self.source_folder, "data", "CMakeLists.txt"),
-                                  f"share/OpenCV/{cascade}", f"res/{cascade}")
-
         replace_in_file(self, cmakelists, "staticlib", "lib")
         replace_in_file(self, cmakelists, "ANDROID OR NOT UNIX", "FALSE")
         replace_in_file(self, cmakelists, "${OpenCV_ARCH}/${OpenCV_RUNTIME}/", "")

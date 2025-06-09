@@ -58,13 +58,10 @@ class LibAttrConan(ConanFile):
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
-        mkdir(self, os.path.join(self.package_folder, "res"))
-        rename(self, os.path.join(self.package_folder, "etc", "xattr.conf"),
-                     os.path.join(self.package_folder, "res", "xattr.conf"))
-        rmdir(self, os.path.join(self.package_folder, "etc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libattr")
         self.cpp_info.libs = ["attr"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["etc", "share"]

@@ -214,9 +214,9 @@ install(FILES
 )
 
 file(GLOB EXTRA_FONTS_FILES misc/fonts/*.ttf)
-install(FILES ${EXTRA_FONTS_FILES} DESTINATION res/fonts)
+install(FILES ${EXTRA_FONTS_FILES} DESTINATION share/imgui/fonts)
 
 if (MSVC)
     file(GLOB EXTRA_NATVIS_FILES misc/natvis/*.natvis)
-    install(FILES ${EXTRA_NATVIS_FILES} DESTINATION res/natvis)
+    install(FILES ${EXTRA_NATVIS_FILES} DESTINATION share/imgui/natvis)
 endif()

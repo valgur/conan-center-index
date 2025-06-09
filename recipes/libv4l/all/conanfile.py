@@ -108,8 +108,6 @@ class Libv4lConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        os.rename(os.path.join(self.package_folder, "share"),
-                  os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
 
@@ -143,4 +141,4 @@ class Libv4lConan(ConanFile):
             self.cpp_info.components["libdvbv5"].libs = ["dvbv5"]
             self.cpp_info.components["libdvbv5"].requires = ["libudev::libudev"]
             self.cpp_info.components["libdvbv5"].system_libs = ["m", "rt", "pthread"]
-            self.cpp_info.components["libdvbv5"].resdirs = ["res"]
+            self.cpp_info.components["libdvbv5"].resdirs = ["share"]

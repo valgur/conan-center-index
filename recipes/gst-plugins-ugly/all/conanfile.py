@@ -158,7 +158,6 @@ class GStPluginsUglyConan(ConanFile):
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
@@ -178,7 +177,7 @@ class GStPluginsUglyConan(ConanFile):
             ] + extra_requires
             component.includedirs = []
             component.bindirs = []
-            component.resdirs = ["res"]
+            component.resdirs = ["share"]
             if self.options.shared:
                 component.bindirs.append(os.path.join("lib", "gstreamer-1.0"))
             else:

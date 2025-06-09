@@ -75,7 +75,6 @@ class WaylandConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
         tc.project_options["libdir"] = "lib"
-        tc.project_options["datadir"] = "res"
         tc.project_options["libraries"] = self.options.enable_libraries
         tc.project_options["dtd_validation"] = self.options.enable_dtd_validation
         tc.project_options["documentation"] = False
@@ -118,7 +117,7 @@ class WaylandConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["wayland-scanner"].set_property("pkg_config_name", "wayland-scanner")
-        self.cpp_info.components["wayland-scanner"].resdirs = ["res"]
+        self.cpp_info.components["wayland-scanner"].resdirs = ["share"]
         self.cpp_info.components["wayland-scanner"].includedirs = []
         self.cpp_info.components["wayland-scanner"].libdirs = []
         self.cpp_info.components["wayland-scanner"].set_property("component_version", self.version)
@@ -126,7 +125,7 @@ class WaylandConan(ConanFile):
         if self.options.enable_dtd_validation:
             self.cpp_info.components["wayland-scanner"].requires.append("libxml2::libxml2")
         pkgconfig_variables = {
-            'datarootdir': '${prefix}/res',
+            'datarootdir': '${prefix}/share',
             'pkgdatadir': '${datarootdir}/wayland',
             'bindir': '${prefix}/bin',
             'wayland_scanner': '${bindir}/wayland-scanner',
@@ -142,12 +141,12 @@ class WaylandConan(ConanFile):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["wayland-server"].system_libs = ["pthread", "m"]
 
-            self.cpp_info.components["wayland-server"].resdirs = ["res"]
+            self.cpp_info.components["wayland-server"].resdirs = ["share"]
             if self.version >= Version("1.21.0") and self.settings.os == "Linux":
                 self.cpp_info.components["wayland-server"].system_libs += ["rt"]
             self.cpp_info.components["wayland-server"].set_property("component_version", self.version)
             pkgconfig_variables = {
-                'datarootdir': '${prefix}/res',
+                'datarootdir': '${prefix}/share',
                 'pkgdatadir': '${datarootdir}/wayland',
             }
             self.cpp_info.components["wayland-server"].set_property(
@@ -159,12 +158,12 @@ class WaylandConan(ConanFile):
             self.cpp_info.components["wayland-client"].requires = ["libffi::libffi", "wayland-protocols::wayland-protocols"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["wayland-client"].system_libs = ["pthread", "m"]
-            self.cpp_info.components["wayland-client"].resdirs = ["res"]
+            self.cpp_info.components["wayland-client"].resdirs = ["share"]
             if self.version >= Version("1.21.0") and self.settings.os == "Linux":
                 self.cpp_info.components["wayland-client"].system_libs += ["rt"]
             self.cpp_info.components["wayland-client"].set_property("component_version", self.version)
             pkgconfig_variables = {
-                'datarootdir': '${prefix}/res',
+                'datarootdir': '${prefix}/share',
                 'pkgdatadir': '${datarootdir}/wayland',
             }
             self.cpp_info.components["wayland-client"].set_property(
@@ -183,3 +182,6 @@ class WaylandConan(ConanFile):
 
             self.cpp_info.components["wayland-egl-backend"].set_property("pkg_config_name", "wayland-egl-backend")
             self.cpp_info.components["wayland-egl-backend"].set_property("component_version", "3")
+
+        aclocal_path = os.path.join(self.package_folder, "share", "aclocal")
+        self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_path)

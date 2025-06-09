@@ -61,8 +61,6 @@ class XtransConan(ConanFile):
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
-        rename(self, os.path.join(self.package_folder, "share"),
-                     os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "xtrans")
@@ -71,5 +69,5 @@ class XtransConan(ConanFile):
         self.cpp_info.libdirs = []
 
         # For res/aclocal/xtrans.m4
-        aclocal = os.path.join(self.package_folder, "res", "aclocal")
+        aclocal = os.path.join(self.package_folder, "share", "aclocal")
         self.buildenv_info.prepend_path("ACLOCAL_PATH", aclocal)

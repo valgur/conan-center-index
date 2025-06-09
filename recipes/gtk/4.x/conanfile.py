@@ -241,10 +241,6 @@ class GtkConan(ConanFile):
         tc.project_options["build-tests"] = "false"
         tc.project_options["build-examples"] = "false"
 
-        tc.project_options["datadir"] = os.path.join("res", "share")
-        tc.project_options["localedir"] = os.path.join("res", "share", "locale")
-        tc.project_options["sysconfdir"] = os.path.join("res", "etc")
-
         tc.pkg_config_path = None
         tc.build_pkg_config_path = None
         tc.generate()
@@ -290,7 +286,7 @@ class GtkConan(ConanFile):
         self.cpp_info.components["gtk4"].set_property("pkg_config_name", "gtk4")
         self.cpp_info.components["gtk4"].libs = ["gtk-4"]
         self.cpp_info.components["gtk4"].includedirs.append(os.path.join("include", "gtk-4.0"))
-        self.cpp_info.components["gtk4"].resdirs = ["res", os.path.join("res", "share")]
+        self.cpp_info.components["gtk4"].resdirs = ["share", "etc"]
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.15.6/gdk/meson.build#L221-240
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.15.6/gtk/meson.build#L1000-1015
         self.cpp_info.components["gtk4"].requires = [
@@ -411,7 +407,7 @@ class GtkConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["gtk4"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "share", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.16.7/meson.build?ref_type=tags#L862-873

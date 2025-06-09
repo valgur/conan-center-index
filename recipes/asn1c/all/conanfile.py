@@ -62,7 +62,6 @@ class Asn1cConan(ConanFile):
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
-        tc.configure_args += ["--datarootdir=${prefix}/res"]
         tc.generate()
 
     def build(self):
@@ -77,16 +76,16 @@ class Asn1cConan(ConanFile):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "res", "doc"))
-        rmdir(self, os.path.join(self.package_folder, "res", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         # asn1c cannot use environment variables to specify support files path
         # so `SUPPORT_PATH` should be propagated to command line invocation to `-S` argument
-        support_path = os.path.join(self.package_folder, "res", "asn1c")
+        support_path = os.path.join(self.package_folder, "share", "asn1c")
         self.buildenv_info.define_path("SUPPORT_PATH", support_path)

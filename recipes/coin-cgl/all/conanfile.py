@@ -105,9 +105,9 @@ class CoinCglConan(ConanFile):
         tc.generate(env)
 
     def build(self):
-        copy(self, "*", os.path.join(self.dependencies.build["coin-buildtools"].package_folder, "res"),
+        copy(self, "*", self.dependencies.build["coin-buildtools"].cpp_info.resdirs[0],
              os.path.join(self.source_folder, "BuildTools"))
-        copy(self, "*", os.path.join(self.dependencies.build["coin-buildtools"].package_folder, "res"),
+        copy(self, "*", self.dependencies.build["coin-buildtools"].cpp_info.resdirs[0],
              os.path.join(self.source_folder, "Cgl", "BuildTools"))
         for gnu_config in [
             self.conf.get("user.gnu-config:config_guess", check_type=str),

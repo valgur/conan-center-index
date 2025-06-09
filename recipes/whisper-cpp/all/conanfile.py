@@ -190,7 +190,7 @@ class WhisperCppConan(ConanFile):
         cmake.install()
         rm(self, "*.cmake", self.package_folder, recursive=True)
         rm(self, "*.pc", self.package_folder, recursive=True)
-        copy(self, "*", os.path.join(self.source_folder, "models"), os.path.join(self.package_folder, "res", "models"))
+        copy(self, "*", os.path.join(self.source_folder, "models"), os.path.join(self.package_folder, "share", self.name, "models"))
 
     def package_info(self):
         self.cpp_info.libs = ["whisper"]
@@ -198,7 +198,7 @@ class WhisperCppConan(ConanFile):
             self.cpp_info.libs.append("ggml")
         if Version(self.version) >= "1.7.3":
             self.cpp_info.libs.extend(["ggml-base", "ggml-cpu"])
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if Version(self.version) < "1.7.0":
             self.cpp_info.libdirs = ["lib", "lib/static"]
 

@@ -72,7 +72,6 @@ class BisonConan(ConanFile):
         tc.configure_args.extend([
             "--enable-relocatable",
             "--disable-nls",
-            "--datarootdir=${prefix}/res",
         ])
         if self.settings.compiler == "apple-clang":
             tc.configure_args.append("gl_cv_compiler_check_decl_option=")
@@ -144,12 +143,12 @@ class BisonConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libs = ["y"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         bison_root = self.package_folder.replace("\\", "/")
         self.buildenv_info.define_path("CONAN_BISON_ROOT", bison_root)
 
-        pkgdir = os.path.join(self.package_folder, "res", "bison")
+        pkgdir = os.path.join(self.package_folder, "share", "bison")
         self.buildenv_info.define_path("BISON_PKGDATADIR", pkgdir)
 
         # yacc is a shell script, so requires a shell (such as bash)

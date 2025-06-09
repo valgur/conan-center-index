@@ -95,7 +95,7 @@ class ResiprocateConan(ConanFile):
         with chdir(self, self.source_folder):
             autotools = Autotools(self)
             autotools.install()
-        rmdir(self, os.path.join(os.path.join(self.package_folder, "share")))
+        rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", os.path.join(self.package_folder), recursive=True)
 
     def package_info(self):

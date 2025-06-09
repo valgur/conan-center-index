@@ -137,7 +137,7 @@ class GeographiclibConan(ConanFile):
             os.path.join("lib", "pkgconfig"),
             os.path.join("lib", "cmake"),
         ]:
-            rmdir(self, os.path.join(os.path.join(self.package_folder, folder)))
+            rmdir(self, os.path.join(self.package_folder, folder))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         if not self.options.tools:
             rmdir(self, os.path.join(self.package_folder, "sbin"))

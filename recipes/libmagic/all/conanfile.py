@@ -81,15 +81,14 @@ class LibmagicConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
         fix_apple_shared_install_name(self)
-        rename(self, os.path.join(self.package_folder, "share", "misc"),
-               os.path.join(self.package_folder, "res"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name",  "libmagic")
         self.cpp_info.libs = ["magic"]
-        self.runenv_info.define_path("MAGIC", os.path.join(self.package_folder, "res", "magic.mgc"))
+        self.runenv_info.define_path("MAGIC", os.path.join(self.package_folder, "share", "misc", "magic.mgc"))
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.append("m")

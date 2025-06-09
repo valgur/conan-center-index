@@ -87,7 +87,6 @@ class EudevConan(ConanFile):
         def yes_no(v):
             return "yes" if v else "no"
         tc.configure_args.extend([
-            "--sysconfdir=${prefix}/res",
             f"--enable-programs={yes_no(self.options.programs)}",
             f"--enable-blkid={yes_no(self.options.with_libblkid)}",
             f"--enable-selinux={yes_no(self.options.with_selinux)}",
@@ -109,7 +108,7 @@ class EudevConan(ConanFile):
 
     @property
     def _libudev_version_txt(self):
-        return os.path.join(self.package_folder, "res", f"{self.name}-libudev-version.txt")
+        return os.path.join(self.package_folder, "share", f"{self.name}-libudev-version.txt")
 
     def package(self):
         copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
@@ -122,7 +121,8 @@ class EudevConan(ConanFile):
 
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
 
     def package_info(self):
         self.cpp_info.libs = ["udev"]

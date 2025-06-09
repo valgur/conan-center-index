@@ -18,9 +18,6 @@ class CreateDmgConan(ConanFile):
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -33,16 +30,14 @@ class CreateDmgConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def package(self):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         copy(self, pattern="create-dmg", dst=os.path.join(self.package_folder, "bin"), src=self.source_folder)
-        copy(self, pattern="*", dst=os.path.join(self.package_folder, "res"), src=os.path.join(self.source_folder, "support"))
-
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        copy(self, pattern="*", dst=os.path.join(self.package_folder, "share"), src=os.path.join(self.source_folder, "support"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
 
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]

@@ -109,8 +109,6 @@ class LibniceConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-        if self.options.with_introspection:
-            rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         if self.settings.os == "Windows":
             if not self.options.shared:
                 with chdir(self, os.path.join(self.package_folder, "lib")):
@@ -135,7 +133,7 @@ class LibniceConan(ConanFile):
             self.cpp_info.components["gstnice"].requires = ["libnice", "gstreamer::gstreamer-base-1.0"]
 
         if self.options.with_introspection:
-            self.cpp_info.components["libnice"].resdirs = ["res"]
+            self.cpp_info.components["libnice"].resdirs = ["share"]
             self.cpp_info.components["libnice"].requires.append("glib-gir::glib-gir")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

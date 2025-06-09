@@ -86,7 +86,6 @@ class LibinputConan(ConanFile):
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
         tc.project_options["coverity"] = False
-        tc.project_options["datadir"] = "res"
         tc.project_options["documentation"] = False
         tc.project_options["epoll-dir"] = '' if self.options.epoll_dir is None else str(self.options.epoll_dir)
         tc.project_options["debug-gui"] = self.options.debug_gui
@@ -114,8 +113,9 @@ class LibinputConan(ConanFile):
 
         rmdir(self, os.path.join(self.package_folder, "etc"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "res", "zsh"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "zsh"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.libs = ["input"]

@@ -124,9 +124,6 @@ class GrapheneConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if self.options.get_safe("with_introspection"):
-            os.rename(os.path.join(self.package_folder, "share"),
-                      os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
@@ -150,9 +147,9 @@ class GrapheneConan(ConanFile):
             self.cpp_info.components["graphene-1.0"].requires = ["glib::gobject-2.0"]
 
         if self.options.get_safe("with_introspection"):
-            self.cpp_info.components["graphene-1.0"].resdirs = ["res"]
+            self.cpp_info.components["graphene-1.0"].resdirs = ["share"]
             self.cpp_info.components["graphene-1.0"].requires.append("glib-gir::glib-gir")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         simd = self._get_simd_config()

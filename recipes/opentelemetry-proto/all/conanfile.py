@@ -31,12 +31,12 @@ class OpenTelemetryProtoConan(ConanFile):
         copy(self, pattern="LICENSE",
              dst=os.path.join(self.package_folder, "licenses"), src=self.build_folder)
         copy(self, pattern="*.proto",
-             dst=os.path.join(self.package_folder, "res"), src=self.build_folder)
+             dst=os.path.join(self.package_folder, "share", self.name), src=self.build_folder)
 
     def package_info(self):
         self.conf_info.define("user.opentelemetry-proto:proto_root",
-                              os.path.join(self.package_folder, "res"))
-        self.cpp_info.resdirs = ["res"]
+                              os.path.join(self.package_folder, "share", self.name))
+        self.cpp_info.resdirs = ["share"]
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []

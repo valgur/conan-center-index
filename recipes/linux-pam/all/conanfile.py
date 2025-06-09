@@ -133,18 +133,13 @@ class LinuxPamConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
-        # Move non-library files under res/
-        mkdir(self, os.path.join(self.package_folder, "res"))
-        for path in ["etc", "share", "var", os.path.join("lib", "systemd")]:
-            if os.path.exists(os.path.join(self.package_folder, path)):
-                shutil.move(os.path.join(self.package_folder, path),
-                            os.path.join(self.package_folder, "res", path))
+        rmdir(self, os.path.join(self.package_folder, "var"))
 
     def package_info(self):
         self.cpp_info.components["pam"].set_property("pkg_config_name", "pam")
         self.cpp_info.components["pam"].libs = ["pam"]
         self.cpp_info.components["pam"].libdirs.append(os.path.join("lib", "security"))
-        self.cpp_info.components["pam"].resdirs = ["res"]
+        self.cpp_info.components["pam"].resdirs = ["etc", "share", "lib/systemd"]
         if self.options.with_intl:
             self.cpp_info.components["pam"].requires.append("gettext::gettext")
 

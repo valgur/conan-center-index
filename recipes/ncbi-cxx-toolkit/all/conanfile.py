@@ -188,10 +188,10 @@ class NcbiCxxToolkit(ConanFile):
 
     @property
     def _module_file_rel_path(self):
-        return os.path.join("res", "build-system", "cmake", "CMake.NCBIpkg.conan.cmake")
+        return os.path.join("share", "build-system", "cmake", "CMake.NCBIpkg.conan.cmake")
 
     def package_info(self):
-        impfile = Path(self.package_folder, "res", "ncbi-cpp-toolkit.imports")
+        impfile = Path(self.package_folder, "share", "ncbi-cpp-toolkit.imports")
         all_exports = set(impfile.read_text(encoding="utf-8").split())
         self.output.info("Exported components:")
         for component in self._components:
@@ -235,5 +235,5 @@ class NcbiCxxToolkit(ConanFile):
         elif self.settings.os == "Macos":
             self.cpp_info.components["core"].frameworks = ["ApplicationServices"]
 
-        self.cpp_info.components["core"].builddirs.append("res")
+        self.cpp_info.components["core"].builddirs.append("share")
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])

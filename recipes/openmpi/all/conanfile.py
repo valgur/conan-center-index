@@ -127,7 +127,6 @@ class OpenMPIConan(ConanFile):
         tc.configure_args["--enable-wrapper-rpath"] = "no"
         tc.configure_args["--enable-wrapper-runpath"] = "no"
         tc.configure_args["--exec-prefix"] = "/"
-        tc.configure_args["--datarootdir"] = "${prefix}/res"
         # Disable other external libraries explicitly
         tc.configure_args["--with-alps"] = "no"  # ALPS
         tc.configure_args["--with-cuda"] = "no"  # CUDA
@@ -209,8 +208,8 @@ class OpenMPIConan(ConanFile):
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
-        rmdir(self, os.path.join(self.package_folder, "res", "doc"))
-        rmdir(self, os.path.join(self.package_folder, "res", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
 
@@ -299,5 +298,5 @@ class OpenMPIConan(ConanFile):
         self.runenv_info.define_path("OPAL_PREFIX", self.package_folder)
         self.runenv_info.define_path("OPAL_EXEC_PREFIX", self.package_folder)
         self.runenv_info.define_path("OPAL_LIBDIR", os.path.join(self.package_folder, "lib"))
-        self.runenv_info.define_path("OPAL_DATADIR", os.path.join(self.package_folder, "res"))
-        self.runenv_info.define_path("OPAL_DATAROOTDIR", os.path.join(self.package_folder, "res"))
+        self.runenv_info.define_path("OPAL_DATADIR", os.path.join(self.package_folder, "share"))
+        self.runenv_info.define_path("OPAL_DATAROOTDIR", os.path.join(self.package_folder, "share"))

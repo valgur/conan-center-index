@@ -39,13 +39,6 @@ class ExtracmakemodulesConan(ConanFile):
         tc.cache_variables["BUILD_QTHELP_DOCS"] = False
         tc.cache_variables["BUILD_MAN_DOCS"] = False
         tc.cache_variables["BUILD_TESTING"] = False
-
-        if self.package_folder is None:
-            share_folder = "res"
-        else:
-            share_folder = os.path.join(self.package_folder, "res").replace("\\", "/")
-
-        tc.cache_variables["SHARE_INSTALL_DIR"] = share_folder
         tc.generate()
 
     def build(self):
@@ -54,10 +47,7 @@ class ExtracmakemodulesConan(ConanFile):
         cmake.build()
 
     def package(self):
-        lic_folder = os.path.join(self.source_folder, "LICENSES")
-        lic_folder_inst = os.path.join(self.package_folder, "licenses")
-        copy(self, "*", src=lic_folder, dst=lic_folder_inst)
-
+        copy(self, "*", os.path.join(self.source_folder, "LICENSES"), os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
 
@@ -67,6 +57,5 @@ class ExtracmakemodulesConan(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.set_property("cmake_find_mode", "none")
 
-        for dirname in ["cmake", "find-modules", "kde-modules", "toolchain",
-                        "modules", "test-modules"]:
-            self.cpp_info.builddirs.append(os.path.join("res", "ECM", dirname))
+        for dirname in ["cmake", "find-modules", "kde-modules", "toolchain", "modules", "test-modules"]:
+            self.cpp_info.builddirs.append(os.path.join("share", "ECM", dirname))

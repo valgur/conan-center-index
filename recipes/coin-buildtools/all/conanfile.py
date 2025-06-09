@@ -47,7 +47,7 @@ class CoinBuildtoolsConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
-        resdir = os.path.join(self.package_folder, "res")
+        resdir = os.path.join(self.package_folder, "share")
         copy(self, "*", self.source_folder, resdir)
         copy(self, "*.m4", self.source_folder, os.path.join(self.package_folder, "bin"))
         rename(self, os.path.join(resdir, "run_autotools"),
@@ -57,7 +57,7 @@ class CoinBuildtoolsConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
-        aclocal_dir = unix_path(self, os.path.join(self.package_folder, "res"))
+        aclocal_dir = unix_path(self, os.path.join(self.package_folder, "share"))
         self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_dir)

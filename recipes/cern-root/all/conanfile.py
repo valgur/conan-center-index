@@ -179,8 +179,8 @@ class CernRootConan(ConanFile):
         # Set install prefix to work around these limitations
         # Following: https://github.com/conan-io/conan/issues/3695
         tc.variables["CMAKE_INSTALL_CMAKEDIR"] = "lib/cmake"
-        tc.variables["CMAKE_INSTALL_DATAROOTDIR"] = "res/share"
-        tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = "res/etc"
+        tc.variables["CMAKE_INSTALL_DATAROOTDIR"] = "share"
+        tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = "etc"
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Python2"] = True
         tc.variables["CMAKE_DISABLE_FIND_PACKAGE_Python3"] = self.options.python == "off"
         tc.generate()
@@ -264,10 +264,10 @@ class CernRootConan(ConanFile):
         cmake.install()
         # Fix for CMAKE-MODULES-CONFIG-FILES (KB-H016)
         rm(self, "*Config*.cmake", os.path.join(self.package_folder, "lib", "cmake"), recursive=True)
-        rmdir(self, os.path.join(self.package_folder, "res", "README"))
-        rmdir(self, os.path.join(self.package_folder, "res", "share", "man"))
-        rmdir(self, os.path.join(self.package_folder, "res", "share", "doc"))
-        rmdir(self, os.path.join(self.package_folder, "res", "tutorials"))
+        rmdir(self, os.path.join(self.package_folder, "share", "README"))
+        rmdir(self, os.path.join(self.package_folder, "share", "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "tutorials"))
 
     def package_info(self):
         # FIXME: ROOT generates multiple CMake files
@@ -296,7 +296,7 @@ class CernRootConan(ConanFile):
             "MultiProc",
             "ROOTDataFrame",
         ]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         build_modules = [
             os.path.join("lib", "cmake", "RootMacros.cmake"),

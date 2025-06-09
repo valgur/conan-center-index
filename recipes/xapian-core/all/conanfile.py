@@ -74,7 +74,6 @@ class XapianCoreConan(ConanFile):
         if is_msvc(self):
             tc.extra_cxxflags.append("-EHsc")
         tc.configure_args.extend([
-            "--datarootdir=${prefix}/res",
             "--disable-documentation",
         ])
         env = tc.environment()
@@ -131,8 +130,8 @@ class XapianCoreConan(ConanFile):
         rm(self, "*.la", f"{self.package_folder}/lib")
         rmdir(self, f"{self.package_folder}/lib/cmake")
         rmdir(self, f"{self.package_folder}/lib/pkgconfig")
-        rmdir(self, f"{self._datarootdir}/doc")
-        rmdir(self, f"{self._datarootdir}/man")
+        rmdir(self, f"{self.package_folder}/share/doc")
+        rmdir(self, f"{self.package_folder}/share/man")
         fix_apple_shared_install_name(self)
 
         self._create_cmake_module_variables(
@@ -159,16 +158,12 @@ class XapianCoreConan(ConanFile):
     def _module_file_rel_path(self):
         return f"lib/cmake/conan-official-{self.name}-variables.cmake"
 
-    @property
-    def _datarootdir(self):
-        return os.path.join(self.package_folder, "res")
-
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "xapian")
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
         self.cpp_info.set_property("pkg_config_name", "xapian-core")
         self.cpp_info.libs = ["xapian"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if not self.options.shared:
             if self.settings.os in ("Linux", "FreeBSD"):
                 self.cpp_info.system_libs = ["rt", "m"]
@@ -177,5 +172,5 @@ class XapianCoreConan(ConanFile):
             elif self.settings.os == "SunOS":
                 self.cpp_info.system_libs = ["socket", "nsl"]
 
-        xapian_aclocal_dir = os.path.join(self._datarootdir, "aclocal")
+        xapian_aclocal_dir = os.path.join(self.package_folder, "share", "aclocal")
         self.buildenv_info.prepend_path("ACLOCAL_PATH", xapian_aclocal_dir)

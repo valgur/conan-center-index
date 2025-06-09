@@ -711,7 +711,7 @@ class LibcurlConan(ConanFile):
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "cacert.pem", src=self.source_folder, dst=os.path.join(self.package_folder, "res"))
+        copy(self, "cacert.pem", src=self.source_folder, dst=os.path.join(self.package_folder, "share", "libcurl"))
         if self._is_using_cmake_build:
             cmake = CMake(self)
             cmake.install()
@@ -719,7 +719,8 @@ class LibcurlConan(ConanFile):
         else:
             autotools = Autotools(self)
             autotools.install()
-            rmdir(self, os.path.join(self.package_folder, "share"))
+            rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+            rmdir(self, os.path.join(self.package_folder, "share", "man"))
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))
             if self._is_mingw and self.options.shared:
                 # Handle only mingw libs
@@ -735,7 +736,7 @@ class LibcurlConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("pkg_config_name", "libcurl")
 
-        self.cpp_info.components["curl"].resdirs = ["res"]
+        self.cpp_info.components["curl"].resdirs = ["share"]
         if is_msvc(self):
             self.cpp_info.components["curl"].libs = ["libcurl_imp"] if self.options.shared else ["libcurl"]
         else:
@@ -796,3 +797,6 @@ class LibcurlConan(ConanFile):
 
         self.cpp_info.components["curl"].set_property("cmake_target_name", "CURL::libcurl")
         self.cpp_info.components["curl"].set_property("pkg_config_name", "libcurl")
+
+        aclocal_path = os.path.join(self.package_folder, "share", "aclocal")
+        self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_path)

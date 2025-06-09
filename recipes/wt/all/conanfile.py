@@ -161,7 +161,6 @@ class WtConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CONFIGDIR"] = os.path.join(self.package_folder, "bin").replace("\\", "/")
         tc.variables["SHARED_LIBS"] = self.options.shared
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["BUILD_TESTS"] = False
@@ -272,8 +271,6 @@ class WtConan(ConanFile):
         copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-        shutil.move(os.path.join(self.package_folder, "share", "Wt"), os.path.join(self.package_folder, "bin"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "var"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
@@ -284,7 +281,7 @@ class WtConan(ConanFile):
 
         # wt
         self.cpp_info.components["wtmain"].set_property("cmake_target_name", "Wt::Wt")
-        self.cpp_info.components["wtmain"].libs = ["wt{}".format(suffix)]
+        self.cpp_info.components["wtmain"].libs = [f"wt{suffix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["wtmain"].system_libs = ["m", "rt"]
         elif self.settings.os == "Windows":
@@ -302,13 +299,13 @@ class WtConan(ConanFile):
         # wttest
         if self.options.with_test:
             self.cpp_info.components["wttest"].set_property("cmake_target_name", "Wt::Test")
-            self.cpp_info.components["wttest"].libs = ["wttest{}".format(suffix)]
+            self.cpp_info.components["wttest"].libs = [f"wttest{suffix}"]
             self.cpp_info.components["wttest"].requires = ["wtmain"]
 
         # wthttp
         if self.options.connector_http:
             self.cpp_info.components["wthttp"].set_property("cmake_target_name", "Wt::HTTP")
-            self.cpp_info.components["wthttp"].libs = ["wthttp{}".format(suffix)]
+            self.cpp_info.components["wthttp"].libs = [f"wthttp{suffix}"]
             self.cpp_info.components["wthttp"].requires = ["wtmain", "boost::boost", "zlib-ng::zlib-ng"]
             if self.options.with_ssl:
                 self.cpp_info.components["wthttp"].requires.append("openssl::openssl")
@@ -316,13 +313,13 @@ class WtConan(ConanFile):
         # wtisapi
         if self.options.get_safe("connector_isapi"):
             self.cpp_info.components["wtisapi"].set_property("cmake_target_name", "Wt::Isapi")
-            self.cpp_info.components["wtisapi"].libs = ["wtisapi{}".format(suffix)]
+            self.cpp_info.components["wtisapi"].libs = [f"wtisapi{suffix}"]
             self.cpp_info.components["wtisapi"].requires = ["wtmain"]
 
         # wtfcgi
         if self.options.get_safe("connector_fcgi"):
             self.cpp_info.components["wtfcgi"].set_property("cmake_target_name", "Wt::FCGI")
-            self.cpp_info.components["wtfcgi"].libs = ["wtfcgi{}".format(suffix)]
+            self.cpp_info.components["wtfcgi"].libs = [f"wtfcgi{suffix}"]
             self.cpp_info.components["wtfcgi"].requires = ["wtmain"]
             if self.options.with_ssl:
                 self.cpp_info.components["wtfcgi"].requires.append("openssl::openssl")
@@ -330,14 +327,14 @@ class WtConan(ConanFile):
         # wtdbo
         if self.options.with_dbo:
             self.cpp_info.components["wtdbo"].set_property("cmake_target_name", "Wt::Dbo")
-            self.cpp_info.components["wtdbo"].libs = ["wtdbo{}".format(suffix)]
+            self.cpp_info.components["wtdbo"].libs = [f"wtdbo{suffix}"]
             if self.options.get_safe("with_unwind"):
                 self.cpp_info.components["wtdbo"].requires.append("libunwind::libunwind")
 
         # wtdbosqlite3
         if self.options.get_safe("with_sqlite"):
             self.cpp_info.components["wtdbosqlite3"].set_property("cmake_target_name", "Wt::DboSqlite3")
-            self.cpp_info.components["wtdbosqlite3"].libs = ["wtdbosqlite3{}".format(suffix)]
+            self.cpp_info.components["wtdbosqlite3"].libs = [f"wtdbosqlite3{suffix}"]
             self.cpp_info.components["wtdbosqlite3"].requires = ["wtdbo", "sqlite3::sqlite3"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["wtdbosqlite3"].system_libs = ["m"]
@@ -345,19 +342,19 @@ class WtConan(ConanFile):
         # wtdbopostgres
         if self.options.get_safe("with_postgres"):
             self.cpp_info.components["wtdbopostgres"].set_property("cmake_target_name", "Wt::DboPostgres")
-            self.cpp_info.components["wtdbopostgres"].libs = ["wtdbopostgres{}".format(suffix)]
+            self.cpp_info.components["wtdbopostgres"].libs = [f"wtdbopostgres{suffix}"]
             self.cpp_info.components["wtdbopostgres"].requires = ["wtdbo", "libpq::libpq"]
 
         # wtdbomysql
         if self.options.get_safe("with_mysql"):
             self.cpp_info.components["wtdbomysql"].set_property("cmake_target_name", "Wt::DboMySQL")
-            self.cpp_info.components["wtdbomysql"].libs = ["wtdbomysql{}".format(suffix)]
+            self.cpp_info.components["wtdbomysql"].libs = [f"wtdbomysql{suffix}"]
             self.cpp_info.components["wtdbomysql"].requires = ["wtdbo", "libmysqlclient::libmysqlclient"]
 
         # wtdbomssqlserver
         if self.options.get_safe("with_mssql"):
             self.cpp_info.components["wtdbomssqlserver"].set_property("cmake_target_name", "Wt::DboMSSQLServer")
-            self.cpp_info.components["wtdbomssqlserver"].libs = ["wtdbomssqlserver{}".format(suffix)]
+            self.cpp_info.components["wtdbomssqlserver"].libs = [f"wtdbomssqlserver{suffix}"]
             self.cpp_info.components["wtdbomssqlserver"].requires = ["wtdbo"]
             if self.settings.os == "Windows":
                 self.cpp_info.components["wtdbomssqlserver"].system_libs.append("odbc32")

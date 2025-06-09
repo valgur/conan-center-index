@@ -118,11 +118,9 @@ class ProjConan(ConanFile):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-        # recover the data ... 9.1.0 saves into share/proj rather than res directly
-        # the new PROJ_DATA_PATH can't seem to be controlled from conan.
-        rename(self, src=os.path.join(self.package_folder, "share", "proj"), dst=os.path.join(self.package_folder, "res"))
-        # delete the rest of the deployed data
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "bash-completion"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
@@ -153,8 +151,7 @@ class ProjConan(ConanFile):
             self.cpp_info.components["projlib"].defines.append("PROJ_DLL=")
 
         # see https://proj.org/usage/environmentvars.html#envvar-PROJ_DATA
-        proj_data_env_var_name = "PROJ_DATA"
-        res_path = os.path.join(self.package_folder, "res")
-        self.runenv_info.prepend_path(proj_data_env_var_name, res_path)
+        res_path = os.path.join(self.package_folder, "share", "proj")
+        self.runenv_info.prepend_path("PROJ_DATA", res_path)
         if self.options.build_executables:
-            self.buildenv_info.prepend_path(proj_data_env_var_name, res_path)
+            self.buildenv_info.prepend_path("PROJ_DATA", res_path)

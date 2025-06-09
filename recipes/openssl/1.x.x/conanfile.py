@@ -330,14 +330,9 @@ class OpenSSLConan(ConanFile):
             return getattr(XCRun(self), apple_name)
         return None
 
-    def _get_default_openssl_dir(self):
-        if self.settings.os == "Linux":
-            return "/etc/ssl"
-        return "res"
-
     @property
     def _configure_args(self):
-        openssldir = self.options.openssldir or self._get_default_openssl_dir()
+        openssldir = self.options.openssldir or "/etc/ssl"
         openssldir = unix_path(self, openssldir) if self.win_bash else openssldir
         args = [
             f'"{self._target}"',

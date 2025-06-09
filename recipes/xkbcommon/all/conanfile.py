@@ -134,7 +134,6 @@ class XkbcommonConan(ConanFile):
         self.cpp_info.components["libxkbcommon"].set_property("cmake_target_aliases", ["X11::xkbcommon"])
         self.cpp_info.components["libxkbcommon"].libs = ["xkbcommon"]
         self.cpp_info.components["libxkbcommon"].requires = ["xkeyboard-config::xkeyboard-config"]
-        self.cpp_info.components["libxkbcommon"].resdirs = ["res"]
 
         if self.options.get_safe("with_x11"):
             self.cpp_info.components["libxkbcommon-x11"].set_property("pkg_config_name", "xkbcommon-x11")

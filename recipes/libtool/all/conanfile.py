@@ -63,10 +63,6 @@ class LibtoolConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
-    @property
-    def _datarootdir(self):
-        return os.path.join(self.package_folder, "res")
-
     def generate(self):
         if is_msvc(self):
             # __VSCMD_ARG_NO_LOGO: this test_package has too many invocations,
@@ -81,7 +77,6 @@ class LibtoolConan(ConanFile):
         tc = AutotoolsToolchain(self)
 
         tc.configure_args.extend([
-            "--datarootdir=${prefix}/res",
             "--enable-shared",
             "--enable-static",
             "--enable-ltdl-install",
@@ -148,8 +143,8 @@ class LibtoolConan(ConanFile):
         autotools.install()
         fix_apple_shared_install_name(self)
 
-        rmdir(self, os.path.join(self._datarootdir, "info"))
-        rmdir(self, os.path.join(self._datarootdir, "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
         os.unlink(os.path.join(self.package_folder, "lib", "libltdl.la"))
         if self.options.shared:
@@ -188,7 +183,7 @@ class LibtoolConan(ConanFile):
                          os.path.join(self.package_folder, "lib", "ltdl.lib"))
 
         # allow libtool to link static libs into shared for more platforms
-        libtool_m4 = os.path.join(self._datarootdir, "aclocal", "libtool.m4")
+        libtool_m4 = os.path.join(self.package_folder, "share", "aclocal", "libtool.m4")
         method_pass_all = "lt_cv_deplibs_check_method=pass_all"
         replace_in_file(self, libtool_m4,
                               "lt_cv_deplibs_check_method='file_magic ^x86 archive import|^x86 DLL'",
@@ -208,7 +203,7 @@ class LibtoolConan(ConanFile):
                 self.cpp_info.system_libs = ["dl"]
 
         # Define environment variables such that libtool m4 files are seen by Automake
-        libtool_aclocal_dir = os.path.join(self._datarootdir, "aclocal")
+        libtool_aclocal_dir = os.path.join(self.package_folder, "share", "aclocal")
 
         self.buildenv_info.append_path("ACLOCAL_PATH", libtool_aclocal_dir)
         self.runenv_info.append_path("ACLOCAL_PATH", libtool_aclocal_dir)

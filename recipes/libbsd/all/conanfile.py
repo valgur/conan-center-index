@@ -81,7 +81,7 @@ class LibBsdConan(ConanFile):
                 if self.options.shared:
                     os.symlink(f"libbsd.so.{self.version}", "libbsd.so")
 
-        os.unlink(os.path.join(os.path.join(self.package_folder, "lib", "libbsd.la")))
+        os.unlink(os.path.join(self.package_folder, "lib", "libbsd.la"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)

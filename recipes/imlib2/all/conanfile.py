@@ -194,13 +194,11 @@ class Imlib2Conan(ConanFile):
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        os.rename(os.path.join(self.package_folder, "share"),
-                  os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "imlib2")
         self.cpp_info.libs = ["Imlib2"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["dl", "m"])

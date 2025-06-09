@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES CXX)
 
-
-find_package(ECM REQUIRED NO_MODULE)
-list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+find_package(ECM REQUIRED CONFIG)
 include(ECMGenerateHeaders)
 
 add_library(MyLib INTERFACE)

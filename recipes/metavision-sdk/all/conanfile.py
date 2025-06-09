@@ -198,7 +198,6 @@ class MetavisionSdkConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "metavision", "hal_psee_plugins"))
         rmdir(self, os.path.join(self.package_folder, "share", "metavision", "licensing"))
         rmdir(self, os.path.join(self.package_folder, "share", "metavision", "log"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         # The project also installs config files for MetavisionHAL, MetavisionPSEEHWLayer and hdf5_ecf,
@@ -208,7 +207,7 @@ class MetavisionSdkConan(ConanFile):
         self.cpp_info.components["HAL"].set_property("cmake_target_name", "Metavision::HAL")
         self.cpp_info.components["HAL"].libs = ["metavision_hal"]
         self.cpp_info.components["HAL"].requires = ["base"]
-        self.cpp_info.components["HAL"].resdirs = [os.path.join("res", "HAL", "resources")]
+        self.cpp_info.components["HAL"].resdirs = [os.path.join("share", "HAL", "resources")]
         self.runenv_info.append("MV_HAL_PLUGIN_PATH", os.path.join(self.package_folder, "lib", "metavision", "hal", "plugins"))
 
         self.cpp_info.components["HAL_discovery"].set_property("cmake_target_name", "Metavision::HAL_discovery")

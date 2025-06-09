@@ -4,13 +4,13 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibGphoto2(ConanFile):
@@ -36,13 +36,10 @@ class LibGphoto2(ConanFile):
         "with_libexif": True,
         "with_libjpeg": True,
     }
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -77,8 +74,6 @@ class LibGphoto2(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -90,8 +85,6 @@ class LibGphoto2(ConanFile):
             f"--with-libexif={auto_no(self.options.with_libexif)}",
             f"--with-libxml-2.0={auto_no(self.options.with_libxml2)}",
             "--disable-nls",
-            "--datadir=${prefix}/res",
-            "udevscriptdir=${prefix}/res",
             "utilsdir=${prefix}/bin",
         ])
         if not self.options.with_libjpeg:
@@ -114,14 +107,15 @@ class LibGphoto2(ConanFile):
         autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libgphoto2")
         self.cpp_info.libs = ["gphoto2", "gphoto2_port"]
         self.cpp_info.includedirs.append(os.path.join("include", "gphoto2"))
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if self.settings.os == "Linux":
             self.cpp_info.system_libs = ["dl"]
         if self.settings.os in ("FreeBSD", "Linux"):

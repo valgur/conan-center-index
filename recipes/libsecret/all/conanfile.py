@@ -97,14 +97,12 @@ class LibsecretConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        os.rename(os.path.join(self.package_folder, "share"),
-                  os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsecret-1")
         self.cpp_info.includedirs = [os.path.join("include", "libsecret-1")]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         self.cpp_info.libs = ["secret-1"]
         self.cpp_info.requires = ["glib::glib-2.0", "glib::gobject-2.0", "glib::gio-2.0"]
         if self.options.get_safe("crypto") == "libgcrypt":
@@ -113,5 +111,5 @@ class LibsecretConan(ConanFile):
             self.cpp_info.requires.append("gnutls::gnutls")
         if self.options.with_introspection:
             self.cpp_info.requires.append("glib-gir::glib-gir")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

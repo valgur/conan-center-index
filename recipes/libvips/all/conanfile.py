@@ -318,14 +318,13 @@ class LibvipsConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
 
     def package_info(self):
         self.cpp_info.components["vips"].set_property("pkg_config_name", "vips")
         self.cpp_info.components["vips"].libs = ["vips"]
-        self.cpp_info.components["vips"].resdirs = ["res"]
+        self.cpp_info.components["vips"].resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["vips"].system_libs.extend(["m", "pthread"])
         self.cpp_info.components["vips"].requires = [
@@ -379,9 +378,9 @@ class LibvipsConan(ConanFile):
             self.cpp_info.components["vips"].requires.append("zlib-ng::zlib-ng")
 
         if self.options.with_introspection:
-            self.cpp_info.components["vips"].resdirs = ["res"]
+            self.cpp_info.components["vips"].resdirs = ["share"]
             self.cpp_info.components["vips"].requires.append("glib-gir::glib-gir")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         if self.options.cpp:

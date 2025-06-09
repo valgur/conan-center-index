@@ -123,8 +123,8 @@ class LibXtConan(ConanFile):
             "$(libdir)/X11/%T/%N%S",
         ])
         self.cpp_info.set_property("pkg_config_custom_content", "\n".join([
-            "appdefaultdir=${prefix}/res/X11/app-defaults",
-            "datarootdir=${prefix}/res",
+            "appdefaultdir=${prefix}/share/X11/app-defaults",
+            "datarootdir=${prefix}/share",
             "errordbdir=${datarootdir}/X11",
             f"xfilesearchpath={xfilesearchpath}",
         ]))

@@ -34,7 +34,7 @@ class ParallelHashmapConan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         copy(self, "*.h", src=os.path.join(self.source_folder, "parallel_hashmap"),
                           dst=os.path.join(self.package_folder, "include", "parallel_hashmap"))
-        copy(self, "phmap.natvis", src=self.source_folder, dst=os.path.join(self.source_folder, "res"))
+        copy(self, "phmap.natvis", src=self.source_folder, dst=os.path.join(self.source_folder, "share", self.name))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "phmap")

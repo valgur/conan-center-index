@@ -79,7 +79,7 @@ class IridescenceConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["IMGUI_BACKENDS"] = os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings").replace("\\", "/")
+        tc.variables["IMGUI_BACKENDS"] = os.path.join(self.dependencies["imgui"].package_folder, "share", "imgui", "bindings").replace("\\", "/")
         tc.variables["BUILD_EXAMPLES"] = "OFF"
         tc.variables["BUILD_PYTHON_BINDINGS"] = "OFF"
         tc.variables["BUILD_WITH_MARCH_NATIVE"] = "OFF"
@@ -107,7 +107,6 @@ class IridescenceConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))

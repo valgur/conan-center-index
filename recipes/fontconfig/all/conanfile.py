@@ -58,8 +58,6 @@ class FontconfigConan(ConanFile):
             "nls": "disabled",
             "tests": "disabled",
             "tools": "disabled",
-            "sysconfdir": os.path.join("res", "etc"),
-            "datadir": os.path.join("res", "share"),
         })
         tc.generate()
         deps = PkgConfigDeps(self)
@@ -75,7 +73,7 @@ class FontconfigConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rm(self, "*.pdb", self.package_folder, recursive=True)
-        rm(self, "*.conf", os.path.join(self.package_folder, "res", "etc", "fonts", "conf.d"))
+        rm(self, "*.conf", os.path.join(self.package_folder, "etc", "fonts", "conf.d"))
         rm(self, "*.def", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         fix_apple_shared_install_name(self)
@@ -87,11 +85,11 @@ class FontconfigConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Fontconfig::Fontconfig")
         self.cpp_info.set_property("pkg_config_name", "fontconfig")
         self.cpp_info.libs = ["fontconfig"]
-        self.cpp_info.resdirs = [os.path.join("res", "etc"), os.path.join("res", "share")]
+        self.cpp_info.resdirs = [os.path.join("etc"), os.path.join("share")]
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs.extend(["m", "pthread"])
 
-        fontconfig_path = os.path.join(self.package_folder, "res", "etc", "fonts")
+        fontconfig_path = os.path.join(self.package_folder, "etc", "fonts")
         self.runenv_info.append_path("FONTCONFIG_PATH", fontconfig_path)
 
 def fix_msvc_libname(conanfile, remove_lib_prefix=True):

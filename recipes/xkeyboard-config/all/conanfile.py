@@ -71,17 +71,15 @@ class XkeyboardConfigConan(ConanFile):
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        os.rename(os.path.join(self.package_folder, "share"),
-                  os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "xkeyboard-config")
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         self.cpp_info.set_property("pkg_config_custom_content", "\n".join([
-            "datadir=${prefix}/res",
+            "datadir=${prefix}/share",
             "xkb_base=${datadir}/X11/xkb"
         ]))

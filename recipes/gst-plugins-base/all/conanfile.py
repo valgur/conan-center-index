@@ -325,7 +325,6 @@ class GStPluginsBaseConan(ConanFile):
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
@@ -337,7 +336,7 @@ class GStPluginsBaseConan(ConanFile):
             "exec_prefix": "${prefix}",
             "toolsdir": "${exec_prefix}/bin",
             "pluginsdir": "${libdir}/gstreamer-1.0",
-            "datarootdir": "${prefix}/res",
+            "datarootdir": "${prefix}/share",
             "datadir": "${datarootdir}",
             "girdir": "${datadir}/gir-1.0",
             "typelibdir": "${libdir}/girepository-1.0",
@@ -461,7 +460,7 @@ class GStPluginsBaseConan(ConanFile):
             if self.settings.os in ["iOS", "tvOS", "watchOS"]:
                 gst_gl.frameworks.extend(["CoreGraphics", "UIkit"])
             gst_gl.includedirs.append("include")
-            gst_gl.includedirs.append(os.path.join(os.path.join("lib", "gstreamer-1.0"), "include"))
+            gst_gl.includedirs.append(os.path.join("lib", "gstreamer-1.0", "include"))
 
             _define_library("gl-prototypes", [
                 "gstreamer-gl-1.0",
@@ -488,7 +487,7 @@ class GStPluginsBaseConan(ConanFile):
                 ], interface=True)
 
         if self.options.with_introspection:
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         def _define_plugin(name, extra_requires):
@@ -502,7 +501,7 @@ class GStPluginsBaseConan(ConanFile):
             ] + extra_requires
             component.includedirs = []
             component.bindirs = []
-            component.resdirs = ["res"]
+            component.resdirs = ["share"]
             if self.options.shared:
                 component.bindirs.append(os.path.join("lib", "gstreamer-1.0"))
             else:

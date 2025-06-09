@@ -290,8 +290,8 @@ class ImageMagicConan(ConanFile):
             copy(self, "*.dll", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "bin"))
             copy(self, "*.exe", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "bin"))
             copy(self, "*.lib", os.path.join(output_dir, "lib"), os.path.join(self.package_folder, "lib"))
-            copy(self, "*.xml", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "res"))
-            copy(self, "*.icc", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "res"))
+            copy(self, "*.xml", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "share", self.name))
+            copy(self, "*.icc", os.path.join(output_dir, "bin"), os.path.join(self.package_folder, "share", self.name))
             include_dir = os.path.join(self.package_folder, "include", f"ImageMagick-{Version(self.version).major}")
             copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "MagickCore"), os.path.join(include_dir, "MagickCore"))
             copy(self, "*.h", os.path.join(self.source_folder, "ImageMagick", "MagickWand"), os.path.join(include_dir, "MagickWand"))
@@ -304,7 +304,6 @@ class ImageMagicConan(ConanFile):
                 # remove undesired files
                 rmdir(self, os.path.join("lib", "pkgconfig"))  # pc files
                 rmdir(self, "etc")
-                rmdir(self, "share")
                 rm(self, "*.la", "lib", recursive=True)
 
     def _libname(self, library):

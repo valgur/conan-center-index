@@ -87,12 +87,12 @@ class GenieConan(ConanFile):
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
         copy(self, pattern=f"genie{bin_ext}", src=os.path.join(self.source_folder, "bin", self._os), dst=os.path.join(self.package_folder, "bin"))
         if self.settings.build_type == "Debug":
-            copy(self, pattern="*.lua", src=os.path.join(self.source_folder, "src"), dst=os.path.join(self.package_folder,"res"))
+            copy(self, pattern="*.lua", src=os.path.join(self.source_folder, "src"), dst=os.path.join(self.package_folder, "share", self.name))
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
 
         if self.settings.build_type == "Debug":
-            resdir = os.path.join(self.package_folder, "res")
+            resdir = os.path.join(self.package_folder, "share", self.name)
             self.buildenv_info.append_path("PREMAKE_PATH", resdir)

@@ -63,8 +63,6 @@ class LibalsaConan(ConanFile):
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args.extend([
             f"--enable-python={yes_no(not self.options.disable_python)}",
-            "--datarootdir=${prefix}/res",
-            "--datadir=${prefix}/res",
         ])
         tc.generate()
 
@@ -98,7 +96,9 @@ class LibalsaConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "ALSA::ALSA")
         self.cpp_info.set_property("pkg_config_name", "alsa")
         self.cpp_info.libs = ["asound"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         self.cpp_info.system_libs = ["dl", "m", "rt", "pthread"]
-        alsa_config_dir = os.path.join(self.package_folder, "res", "alsa")
+        alsa_config_dir = os.path.join(self.package_folder, "share", "alsa")
         self.runenv_info.define_path("ALSA_CONFIG_DIR", alsa_config_dir)
+        aclocal_dir = os.path.join(self.package_folder, "share", "aclocal")
+        self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_dir)

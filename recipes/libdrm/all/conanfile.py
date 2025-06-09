@@ -117,8 +117,6 @@ class LibdrmConan(ConanFile):
             else:
                 tc.project_options[o] = "true" if getattr(self.options, o) else "false"
 
-        tc.project_options["datadir"] = "res"
-        tc.project_options["mandir"] = os.path.join("res", "man")
         tc.project_options["man-pages"] = "disabled" if Version(self.version) >= "2.4.113" else "false"
         tc.generate()
 
@@ -131,6 +129,7 @@ class LibdrmConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         mkdir(self, os.path.join(self.package_folder, "licenses"))
         # Extract the License/s from the header to a file
         tmp = load(self, os.path.join(self.source_folder, "include", "drm", "drm.h"))

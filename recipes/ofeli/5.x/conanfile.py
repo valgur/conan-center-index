@@ -77,13 +77,14 @@ class OfeliConan(ConanFile):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-        rename(self, os.path.join(self.package_folder, "share", "ofeli", "material"),
-               os.path.join(self.package_folder, "res"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "ofeli", "demos"))
+        rmdir(self, os.path.join(self.package_folder, "share", "ofeli", "doc"))
 
 
     def package_info(self):
         self.cpp_info.libs = ["ofeli"]
         self.cpp_info.includedirs = [os.path.join("include", "ofeli")]
-        res_path = os.path.join(self.package_folder, "res")
+        self.cpp_info.resdirs = ["share/material"]
+        self.cpp_info.srcdirs = ["share/ofeli/util"]
+        res_path = os.path.join(self.package_folder, "share", "ofeli", "material")
         self.runenv_info.define_path("OFELI_PATH_MATERIAL", res_path)

@@ -71,7 +71,7 @@ class OfeliConan(ConanFile):
              dst=os.path.join(self.package_folder, "lib"),
              src=os.path.join(self.source_folder, "src"))
         copy(self, "*.md",
-             dst=os.path.join(self.package_folder, "res"),
+             dst=os.path.join(self.package_folder, "share", "ofeli", "material"),
              src=os.path.join(self.source_folder, "material"))
         copy(self, "COPYING",
              dst=os.path.join(self.package_folder, "licenses"),
@@ -79,5 +79,5 @@ class OfeliConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["ofeli"]
-        res_path = os.path.join(self.package_folder, "res")
+        res_path = os.path.join(self.package_folder, "share", "ofeli", "material")
         self.runenv_info.define("OFELI_PATH_MATERIAL", res_path)

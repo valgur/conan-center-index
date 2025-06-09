@@ -99,7 +99,6 @@ class BlisConan(ConanFile):
         # BLIS uses a custom configure script, which does not support all the standard options
         remove = ["--bindir", "--sbindir", "--oldincludedir", "--build", "--host"]
         tc.configure_args = [arg for arg in tc.configure_args if arg.split("=")[0] not in remove]
-        tc.configure_args.append("--sharedir=${prefix}/res")
         tc.configure_args.append("--enable-cblas")
         tc.configure_args.append("--enable-rpath")
         if self.settings.build_type in ["Debug", "RelWithDebInfo"]:
@@ -118,7 +117,7 @@ class BlisConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "res", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
 
     def package_info(self):
         # The project only exports a blis.pc file
@@ -131,7 +130,7 @@ class BlisConan(ConanFile):
 
         self.cpp_info.libs = ["blis"]
         self.cpp_info.includedirs.append(os.path.join("include", "blis"))
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread", "rt"])

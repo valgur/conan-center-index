@@ -67,7 +67,6 @@ class OpenldapConan(ConanFile):
         tc.configure_args["--with-fetch"] = "no"
         tc.configure_args["--with-tls"] = "openssl"
         tc.configure_args["--enable-auditlog"] = "yes"
-        tc.configure_args["--libexecdir"] = "${prefix}/bin"
         tc.configure_args["systemdsystemunitdir"] = os.path.join(self.package_folder, 'res')
         if cross_building(self):
             # When cross-building, yielding_select should be explicit:

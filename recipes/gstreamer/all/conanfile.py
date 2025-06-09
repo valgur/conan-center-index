@@ -128,8 +128,7 @@ class GStreamerConan(ConanFile):
         self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
-        rmdir(self, os.path.join(self.package_folder, "res", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
 
@@ -138,7 +137,7 @@ class GStreamerConan(ConanFile):
             "exec_prefix": "${prefix}",
             "toolsdir": "${exec_prefix}/bin",
             "pluginsdir": "${prefix}/lib/gstreamer-1.0",
-            "datarootdir": "${prefix}/res",
+            "datarootdir": "${prefix}/share",
             "datadir": "${datarootdir}",
             "girdir": "${datadir}/gir-1.0",
             "typelibdir": "${prefix}/lib/girepository-1.0",
@@ -157,7 +156,7 @@ class GStreamerConan(ConanFile):
         self.cpp_info.components["gstreamer-1.0"].bindirs = ["bin", os.path.join("bin", "gstreamer-1.0")]
         if self.options.shared:
             self.cpp_info.components["gstreamer-1.0"].bindirs.append(os.path.join("lib", "gstreamer-1.0"))
-        self.cpp_info.components["gstreamer-1.0"].resdirs = ["res"]
+        self.cpp_info.components["gstreamer-1.0"].resdirs = ["share"]
         if self.settings.os == "Linux":
             self.cpp_info.components["gstreamer-1.0"].system_libs = ["m", "dl"]
         if self.options.get_safe("enable_backtrace"):
@@ -228,5 +227,5 @@ class GStreamerConan(ConanFile):
 
         if self.options.with_introspection:
             self.cpp_info.components["gstreamer-1.0"].requires.append("glib-gir::glib-gir")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

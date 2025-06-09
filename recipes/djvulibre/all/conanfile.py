@@ -130,7 +130,6 @@ class DjVuLibreConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "share", "icons"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         fix_apple_shared_install_name(self)
         if is_msvc(self) and self.options.shared:
             rename(self, os.path.join(self.package_folder, "lib", "djvulibre.dll.lib"),
@@ -139,7 +138,7 @@ class DjVuLibreConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "ddjvuapi")
         self.cpp_info.libs = ["djvulibre"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread"])

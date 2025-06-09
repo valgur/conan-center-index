@@ -256,8 +256,6 @@ class PopplerConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        if self.options.get_safe("with_introspection"):
-            rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.components["libpoppler"].libs = ["poppler"]
@@ -316,9 +314,9 @@ class PopplerConan(ConanFile):
             if self.options.with_gtk:
                 self.cpp_info.components["libpoppler-glib"].requires.append("gtk::gtk")
             if self.options.with_introspection:
-                self.cpp_info.components["libpoppler-glib"].resdirs = ["res"]
+                self.cpp_info.components["libpoppler-glib"].resdirs = ["share"]
                 self.cpp_info.components["libpoppler-glib"].requires.append("glib-gir::glib-gir")
-                self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+                self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
                 self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         if self.options.with_qt:

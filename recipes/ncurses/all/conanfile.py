@@ -138,7 +138,6 @@ class NCursesConan(ConanFile):
         tc.configure_args["--with-sp-funcs"] = "yes"
         tc.configure_args["--enable-rpath"] = "no"
         tc.configure_args["--enable-pc-files"] = "no"
-        tc.configure_args["--datarootdir"] = "${prefix}/res"
         if cross_building(self):
             tc_vars = tc.extra_env.vars(self)
             tc.configure_args["--with-build-cc"] = tc_vars.get("CC_FOR_BUILD", "cc")
@@ -302,7 +301,7 @@ class NCursesConan(ConanFile):
         self.cpp_info.components["libcurses"].builddirs.append(self._module_subfolder)
         self.cpp_info.set_property("cmake_build_modules", [module_rel_path])
 
-        terminfo = os.path.join(self.package_folder, "res", "terminfo")
+        terminfo = os.path.join(self.package_folder, "share", "terminfo")
         self.buildenv_info.define_path("TERMINFO", terminfo)
         self.runenv_info.define_path("TERMINFO", terminfo)
         self.conf_info.define("user.ncurses:lib_suffix", self._lib_suffix)

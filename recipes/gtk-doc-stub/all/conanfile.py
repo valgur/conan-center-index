@@ -43,7 +43,6 @@ class GtkDocStubConan(ConanFile):
         virtual_build_env = VirtualBuildEnv(self)
         virtual_build_env.generate()
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append("--datarootdir=${prefix}/res")
         tc.generate()
 
     def build(self):
@@ -59,9 +58,9 @@ class GtkDocStubConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
 
-        automake_dir = unix_path_package_info_legacy(self, os.path.join(self.package_folder, "res", "aclocal"))
+        automake_dir = unix_path_package_info_legacy(self, os.path.join(self.package_folder, "share", "aclocal"))
         self.buildenv_info.append_path("ACLOCAL_PATH", automake_dir)

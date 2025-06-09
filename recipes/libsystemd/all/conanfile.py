@@ -218,7 +218,7 @@ class LibsystemdConan(ConanFile):
         if self.options.nls:
             copy(self, "*.mo",
                  os.path.join(self.build_folder, "po"),
-                 os.path.join(self.package_folder, "res", "locale"))
+                 os.path.join(self.package_folder, "share", "locale"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsystemd")
@@ -226,4 +226,4 @@ class LibsystemdConan(ConanFile):
         self.cpp_info.libs = ["systemd"]
         self.cpp_info.system_libs = ["rt", "pthread", "dl"]
         if self.options.nls:
-            self.cpp_info.resdirs = ["res"]
+            self.cpp_info.resdirs = ["share"]

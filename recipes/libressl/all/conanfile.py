@@ -50,6 +50,12 @@ class LibreSSLConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) >= "3.1.1":
+            replace_in_file(
+                self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                "cmake_minimum_required (VERSION 3.16.4)",
+                "cmake_minimum_required (VERSION 3.5.6)",
+            )
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -59,21 +65,11 @@ class LibreSSLConan(ConanFile):
         tc.variables["ENABLE_ASM"] = True
         tc.variables["ENABLE_EXTRATESTS"] = False
         tc.variables["ENABLE_NC"] = False
-        tc.variables["OPENSSLDIR"] = "res"
         if is_msvc(self):
             tc.preprocessor_definitions["_CRT_SUPPRESS_RESTRICT"] = 1
         tc.generate()
 
-    def _patch_sources(self):
-        if Version(self.version) >= "3.1.1":
-            replace_in_file(
-                self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                "cmake_minimum_required (VERSION 3.16.4)",
-                "cmake_minimum_required (VERSION 3.5.6)",
-            )
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
@@ -97,7 +93,7 @@ class LibreSSLConan(ConanFile):
         self.cpp_info.components["crypto"].set_property("cmake_target_name", "LibreSSL::Crypto")
         self.cpp_info.components["crypto"].set_property("pkg_config_name", "libcrypto")
         self.cpp_info.components["crypto"].libs = [self._lib_name("crypto")]
-        self.cpp_info.components["crypto"].resdirs = ["res"]
+        self.cpp_info.components["crypto"].resdirs = ["etc/ssl"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["crypto"].system_libs = ["pthread", "rt"]
         elif self.settings.os == "SunOS":
@@ -111,14 +107,14 @@ class LibreSSLConan(ConanFile):
         self.cpp_info.components["ssl"].set_property("cmake_target_name", "LibreSSL::SSL")
         self.cpp_info.components["ssl"].set_property("pkg_config_name", "libssl")
         self.cpp_info.components["ssl"].libs = [self._lib_name("ssl")]
-        self.cpp_info.components["ssl"].resdirs = ["res"]
+        self.cpp_info.components["ssl"].resdirs = ["etc/ssl"]
         self.cpp_info.components["ssl"].requires = ["crypto"]
 
         # TLS
         self.cpp_info.components["tls"].set_property("cmake_target_name", "LibreSSL::TLS")
         self.cpp_info.components["tls"].set_property("pkg_config_name", "libtls")
         self.cpp_info.components["tls"].libs = [self._lib_name("tls")]
-        self.cpp_info.components["tls"].resdirs = ["res"]
+        self.cpp_info.components["tls"].resdirs = ["etc/ssl"]
         self.cpp_info.components["tls"].requires = ["crypto", "ssl"]
 
     def _lib_name(self, name):

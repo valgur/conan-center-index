@@ -62,7 +62,7 @@ class XorgProtoConan(ConanFile):
 
     @property
     def _pc_data_path(self):
-        return os.path.join(self.package_folder, "res", "pc_data.yml")
+        return os.path.join(self.package_folder, "share", self.name, "pc_data.yml")
 
     def package(self):
         copy(self, "COPYING-*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

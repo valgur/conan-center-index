@@ -52,7 +52,6 @@ class HwDataConan(ConanFile):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append("--datarootdir=/res")
         if self.options.disable_blacklist:
             tc.configure_args.append("--disable-blacklist")
         tc.generate()
@@ -67,14 +66,14 @@ class HwDataConan(ConanFile):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "res", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         pkg_config_variables = {
-            "pkgdatadir": os.path.join(self.package_folder, "res", self.name)
+            "pkgdatadir": os.path.join(self.package_folder, "share", self.name)
         }
         self.cpp_info.set_property("pkg_config_custom_content",
             "\n".join(f"{key}={value}" for key, value in pkg_config_variables.items()))

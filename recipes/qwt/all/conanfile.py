@@ -108,7 +108,6 @@ class QwtConan(ConanFile):
         tc.variables["QWT_BUILD_EXAMPLES"] = False
         tc.variables["QWT_BUILD_TESTS"] = False
         tc.variables["QWT_FRAMEWORK"] = False
-        tc.variables["CMAKE_INSTALL_DATADIR"] = "res"
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -153,7 +152,7 @@ class QwtConan(ConanFile):
 
         if self.options.designer:
             qt_plugin_path = os.path.join(
-                self.package_folder, "res" if self.settings.os == "Windows" else "lib",
+                self.package_folder, "share" if self.settings.os == "Windows" else "lib",
                 f"qt{Version(self.dependencies['qt'].ref.version).major}", "plugins",
             )
             self.runenv_info.prepend_path("QT_PLUGIN_PATH", qt_plugin_path)

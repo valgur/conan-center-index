@@ -90,7 +90,7 @@ class AprConan(ConanFile):
             env = VirtualBuildEnv(self)
             env.generate()
             tc = AutotoolsToolchain(self)
-            tc.configure_args.append("--with-installbuilddir=${prefix}/res/build-1")
+            tc.configure_args.append("--with-installbuilddir=${prefix}/share/build-1")
             if cross_building(self):
                 tc.configure_args.extend(self._get_cross_building_configure_args())
             tc.generate()
@@ -126,7 +126,7 @@ class AprConan(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             fix_apple_shared_install_name(self)
 
-            apr_rules_mk = Path(self.package_folder, "res", "build-1", "apr_rules.mk")
+            apr_rules_mk = Path(self.package_folder, "share", "build-1", "apr_rules.mk")
             apr_rules_cnt = apr_rules_mk.read_text()
             for key in ("apr_builddir", "apr_builders", "top_builddir"):
                 apr_rules_cnt, nb = re.subn(f"^{key}=[^\n]*\n", f"{key}=$(_APR_BUILDDIR)\n", apr_rules_cnt, flags=re.MULTILINE)
@@ -138,7 +138,7 @@ class AprConan(ConanFile):
         self.cpp_info.set_property("pkg_config_name",  "apr-1")
         prefix = "lib" if is_msvc(self) and self.options.shared else ""
         self.cpp_info.libs = [f"{prefix}apr-1"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if not self.options.shared:
             self.cpp_info.defines = ["APR_DECLARE_STATIC"]
             if self.settings.os in ["Linux", "FreeBSD"]:

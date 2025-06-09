@@ -67,7 +67,6 @@ class OpenPMIxConan(ConanFile):
         tc.configure_args += [
             "--with-pic" if self.options.get_safe("fPIC", True) else "--without-pic",
             "--exec-prefix=/",
-            "--datarootdir=${prefix}/res",
             f"--with-hwloc={root('hwloc')}",
             f"--with-libevent={root('libevent')}",
             f"--with-zlib={root('zlib-ng')}",
@@ -108,8 +107,8 @@ class OpenPMIxConan(ConanFile):
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
-        rmdir(self, os.path.join(self.package_folder, "res", "doc"))
-        rmdir(self, os.path.join(self.package_folder, "res", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
 
@@ -122,5 +121,5 @@ class OpenPMIxConan(ConanFile):
         self.runenv_info.define_path("PMIX_PREFIX", self.package_folder)
         self.runenv_info.define_path("PMIX_EXEC_PREFIX", self.package_folder)
         self.runenv_info.define_path("PMIX_LIBDIR", os.path.join(self.package_folder, "lib"))
-        self.runenv_info.define_path("PMIX_DATADIR", os.path.join(self.package_folder, "res"))
-        self.runenv_info.define_path("PMIX_DATAROOTDIR", os.path.join(self.package_folder, "res"))
+        self.runenv_info.define_path("PMIX_DATADIR", os.path.join(self.package_folder, "share"))
+        self.runenv_info.define_path("PMIX_DATAROOTDIR", os.path.join(self.package_folder, "share"))

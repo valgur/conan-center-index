@@ -198,10 +198,6 @@ class GtkConan(ConanFile):
         tc.project_options["examples"] = "false"
         tc.project_options["demos"] = "false"
 
-        tc.project_options["datadir"] = os.path.join("res", "share")
-        tc.project_options["localedir"] = os.path.join("res", "share", "locale")
-        tc.project_options["sysconfdir"] = os.path.join("res", "etc")
-
         tc.pkg_config_path = None
         tc.generate()
 
@@ -243,7 +239,7 @@ class GtkConan(ConanFile):
         self.cpp_info.components["gdk-3.0"].set_property("pkg_config_name", "gdk-3.0")
         self.cpp_info.components["gdk-3.0"].libs = ["gdk-3"]
         self.cpp_info.components["gdk-3.0"].includedirs = [os.path.join("include", "gtk-3.0")]
-        self.cpp_info.components["gdk-3.0"].resdirs = ["res", os.path.join("res", "share")]
+        self.cpp_info.components["gdk-3.0"].resdirs = ["share", "etc"]
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/gdk/meson.build#L200-212
         self.cpp_info.components["gdk-3.0"].requires = [
             "glib::gio-unix-2.0" if self.settings.os != "Windows" else "glib::gio-windows-2.0",
@@ -378,7 +374,7 @@ class GtkConan(ConanFile):
         if self.options.with_introspection:
             self.cpp_info.components["gdk-3.0"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
             self.cpp_info.components["gtk+-3.0"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "share", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/3.24.43/meson.build?ref_type=tags#L886-887

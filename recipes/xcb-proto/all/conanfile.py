@@ -34,10 +34,10 @@ class XcbProtoConan(ConanFile):
              os.path.join(self.package_folder, "lib", "xcbgen"))
         copy(self, "*.xml",
              os.path.join(self.source_folder, "src"),
-             os.path.join(self.package_folder, "res", "xcb"))
+             os.path.join(self.package_folder, "share", "xcb"))
 
     def package_info(self):
-        self.cpp_info.resdirs = ["lib", "res"]
+        self.cpp_info.resdirs = ["lib", "share"]
         self.cpp_info.includedirs = []
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
@@ -47,7 +47,7 @@ class XcbProtoConan(ConanFile):
         # https://gitlab.freedesktop.org/xorg/proto/xcbproto/-/blob/xcb-proto-1.17.0/xcb-proto.pc.in
         self.cpp_info.set_property("pkg_config_custom_content", "\n".join([
             "exec_prefix=${prefix}",
-            "datarootdir=${prefix}/res",
+            "datarootdir=${prefix}/share",
             "datadir=${datarootdir}",
             "xcbincludedir=${datadir}/xcb",
             "pythondir=${prefix}/lib"

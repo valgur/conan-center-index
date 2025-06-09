@@ -39,8 +39,6 @@ class WaylandProtocolsConan(ConanFile):
     def generate(self):
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
-        # Using relative folder because of this https://github.com/conan-io/conan/pull/15706
-        tc.project_options["datadir"] = "res"
         tc.project_options["tests"] = "false"
         tc.generate()
 
@@ -65,11 +63,11 @@ class WaylandProtocolsConan(ConanFile):
         copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
-        rmdir(self, os.path.join(self.package_folder, "res", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "share", "pkgconfig"))
 
     def package_info(self):
         pkgconfig_variables = {
-            'datarootdir': '${prefix}/res',
+            'datarootdir': '${prefix}/share',
             'pkgdatadir': '${datarootdir}/wayland-protocols',
         }
         self.cpp_info.set_property("pkg_config_custom_content", pkgconfig_variables)

@@ -49,7 +49,6 @@ class PackageConan(ConanFile):
         tc.project_options["auto_features"] = "enabled"
         tc.project_options["dri2"] = "true" if self.options.with_dri2 else "false"
         tc.project_options["documentation"] = "false"
-        tc.project_options["sysconfdir"] = "share"
         tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()
@@ -64,7 +63,6 @@ class PackageConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 

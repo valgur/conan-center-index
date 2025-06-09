@@ -83,7 +83,6 @@ class NsprConan(ConanFile):
             "--enable-64bit={}".format(yes_no(self.settings.arch in ("armv8", "x86_64", "mips64", "ppc64", "ppc64le"))),
             "--enable-strip={}".format(yes_no(self.settings.build_type not in ("Debug", "RelWithDebInfo"))),
             "--enable-debug={}".format(yes_no(self.settings.build_type == "Debug")),
-            "--datarootdir=${prefix}/res",
             "--disable-cplus",
         ]
         if is_msvc(self):
@@ -135,7 +134,7 @@ class NsprConan(ConanFile):
             autotools.install()
         rmdir(self, os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         if os.path.exists(os.path.join(self.package_folder, "include", "nspr.h")):
             with chdir(self, self.package_folder):
                 rename(self, "include", "nspr")
@@ -200,4 +199,6 @@ class NsprConan(ConanFile):
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs.extend(["winmm", "ws2_32"])
 
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
+        aclocal_path = os.path.join(self.package_folder, "share", "aclocal")
+        self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_path)

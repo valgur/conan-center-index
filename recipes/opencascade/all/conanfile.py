@@ -147,10 +147,10 @@ class OpenCascadeConan(ConanFile):
         tc.cache_variables["INSTALL_DIR_BIN"] = "bin"
         tc.cache_variables["INSTALL_DIR_LIB"] = "lib"
         tc.cache_variables["INSTALL_DIR_INCLUDE"] = "include"
-        tc.cache_variables["INSTALL_DIR_RESOURCE"] = "res/resource"
-        tc.cache_variables["INSTALL_DIR_DATA"] = "res/data"
-        tc.cache_variables["INSTALL_DIR_SAMPLES"] = "res/samples"
-        tc.cache_variables["INSTALL_DIR_DOC"] = "res/doc"
+        tc.cache_variables["INSTALL_DIR_RESOURCE"] = "share/resource"
+        tc.cache_variables["INSTALL_DIR_DATA"] = "share/data"
+        tc.cache_variables["INSTALL_DIR_SAMPLES"] = "share/samples"
+        tc.cache_variables["INSTALL_DIR_DOC"] = "share/doc"
 
         if is_msvc(self):
             tc.cache_variables["BUILD_SAMPLES_MFC"] = False

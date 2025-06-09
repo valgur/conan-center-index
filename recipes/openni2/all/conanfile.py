@@ -119,7 +119,7 @@ class Openni2Conan(ConanFile):
         bin_dir = os.path.join(self.source_folder, "Bin", f"{self._platform}-{self._build_type}")
         copy(self, "*.so*", bin_dir, os.path.join(self.package_folder, "lib"))
         copy(self, "*.dylib", bin_dir, os.path.join(self.package_folder, "lib"))
-        copy(self, "*.ini", os.path.join(self.source_folder, "Config"), os.path.join(self.package_folder, "res"))
+        copy(self, "*.ini", os.path.join(self.source_folder, "Config"), os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
@@ -137,7 +137,7 @@ class Openni2Conan(ConanFile):
         self.cpp_info.libs = ["OpenNI2"]
         self.cpp_info.includedirs.append(os.path.join("include", "openni2"))
         self.cpp_info.bindirs.append(os.path.join("lib", "OpenNI2", "Drivers"))
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["pthread", "m", "dl", "rt"])
         elif is_apple_os(self):

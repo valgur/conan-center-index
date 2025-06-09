@@ -107,15 +107,15 @@ class TzConan(ConanFile):
                 "windowsZones.xml",
             ]
             for data in tzdata:
-                copy(self, data, dst=os.path.join(self.package_folder, "res", "tzdata"), src=self.source_folder)
+                copy(self, data, dst=os.path.join(self.package_folder, "share", "tzdata"), src=self.source_folder)
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
         self.cpp_info.frameworkdirs = []
-        self.cpp_info.resdirs = ["res"]
-        self.buildenv_info.define("TZDATA", os.path.join(self.package_folder, "res", "tzdata"))
-        self.runenv_info.define("TZDATA", os.path.join(self.package_folder, "res", "tzdata"))
+        self.cpp_info.resdirs = ["share"]
+        self.buildenv_info.define("TZDATA", os.path.join(self.package_folder, "share", "tzdata"))
+        self.runenv_info.define("TZDATA", os.path.join(self.package_folder, "share", "tzdata"))
         if self.options.with_binary_db:
             self.cpp_info.resdirs = [os.path.join("usr", "share")]
             self.cpp_info.bindirs = [os.path.join("usr", "bin"), os.path.join("usr", "sbin")]

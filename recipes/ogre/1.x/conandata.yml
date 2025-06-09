@@ -4,9 +4,6 @@ sources:
     sha256: "0c74e6ca7bb920ff59c5da8a359e6d96215c7804261301feec4f2e54f206b27d"
 patches:
   "14.3.4":
-    - patch_file: "patches/14.3.4/0001-also-look-for-configs-in-res-dir.patch"
-      patch_description: "Look for .cfg files in res/ dir for Conan"
-      patch_type: "conan"
     - patch_file: "patches/14.3.4/0002-use-glslang-target-instead-of-plain-libraries.patch"
       patch_description: "Use a CMake target for GLSLang instead of plain libraries"
       patch_type: "conan"

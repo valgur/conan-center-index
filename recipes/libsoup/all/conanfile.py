@@ -104,8 +104,6 @@ class LibSoupConan(ConanFile):
         meson = Meson(self)
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        os.rename(os.path.join(self.package_folder, "share"),
-                  os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
 
@@ -114,7 +112,7 @@ class LibSoupConan(ConanFile):
         self.cpp_info.components[name].set_property("pkg_config_name", name)
         self.cpp_info.components[name].libs = ["soup-3.0"]
         self.cpp_info.components[name].includedirs.append(os.path.join("include", name))
-        self.cpp_info.components[name].resdirs = ["res"]
+        self.cpp_info.components[name].resdirs = ["share"]
         self.cpp_info.components[name].requires = [
             "glib::glib-2.0",
             "glib::gmodule-no-export-2.0",
@@ -131,5 +129,5 @@ class LibSoupConan(ConanFile):
             self.cpp_info.components[name].requires.append("krb5::krb5-gssapi")
         if self.options.with_introspection:
             self.cpp_info.components[name].requires.append("glib-gir::glib-gir")
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))

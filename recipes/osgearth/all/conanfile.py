@@ -208,9 +208,6 @@ class OsgearthConan(ConanFile):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        if self.options.install_shaders:
-            os.rename(os.path.join(self.package_folder, "share"),
-                      os.path.join(self.package_folder, "res"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "osgEarth")

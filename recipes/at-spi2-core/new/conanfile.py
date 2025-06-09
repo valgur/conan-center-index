@@ -111,7 +111,6 @@ class AtSpi2CoreConan(ConanFile):
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "etc"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
         fix_msvc_libname(self)
@@ -121,7 +120,7 @@ class AtSpi2CoreConan(ConanFile):
             self.cpp_info.components["atspi"].set_property("pkg_config_name", "atspi-2")
             self.cpp_info.components["atspi"].libs = ["atspi"]
             self.cpp_info.components["atspi"].includedirs = ["include/at-spi-2.0"]
-            self.cpp_info.components["atspi"].resdirs = ["res"]
+            self.cpp_info.components["atspi"].resdirs = ["share"]
             self.cpp_info.components["atspi"].requires = ["dbus::dbus", "glib::glib-2.0", "glib::gobject-2.0"]
             if self.options.with_x11:
                 self.cpp_info.components["atspi"].requires.extend(["xorg::x11", "xorg::xtst", "xorg::xi"])
@@ -129,21 +128,21 @@ class AtSpi2CoreConan(ConanFile):
         self.cpp_info.components["atk"].set_property("pkg_config_name", "atk")
         self.cpp_info.components["atk"].libs = ["atk-1.0"]
         self.cpp_info.components["atk"].includedirs = ["include/atk-1.0"]
-        self.cpp_info.components["atk"].resdirs = ["res"]
+        self.cpp_info.components["atk"].resdirs = ["share"]
         self.cpp_info.components["atk"].requires = ["glib::glib-2.0", "glib::gobject-2.0"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["atk-bridge"].set_property("pkg_config_name", "atk-bridge-2.0")
             self.cpp_info.components["atk-bridge"].libs = ["atk-bridge-2.0"]
             self.cpp_info.components["atk-bridge"].includedirs = [os.path.join("include", "at-spi2-atk", "2.0")]
-            self.cpp_info.components["atk-bridge"].resdirs = ["res"]
+            self.cpp_info.components["atk-bridge"].resdirs = ["share"]
             self.cpp_info.components["atk-bridge"].requires = ["atspi", "atk", "glib::gmodule-2.0"]
 
         if self.options.with_introspection:
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["atk"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
                 self.cpp_info.components["atspi"].requires.extend(["gobject-introspection::gobject-introspection", "glib-gir::glib-gir"])
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
 

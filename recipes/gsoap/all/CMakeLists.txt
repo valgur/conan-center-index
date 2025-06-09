@@ -18,7 +18,7 @@ if(${BUILD_TOOLS})
   include(${PROJECT_SOURCE_DIR}/cmake/soapcpp2.cmake)
   include(${PROJECT_SOURCE_DIR}/cmake/wsdl2h.cmake)
 
-  install(FILES ${GSOAP_PATH}/gsoap/typemap.dat DESTINATION res)
+  install(FILES ${GSOAP_PATH}/gsoap/typemap.dat DESTINATION share)
   install(DIRECTORY ${GSOAP_PATH}/gsoap/import DESTINATION ${CMAKE_INSTALL_BINDIR}
           FILES_MATCHING PATTERN "*.h")
 endif()

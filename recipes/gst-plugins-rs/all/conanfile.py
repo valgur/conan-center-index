@@ -269,7 +269,7 @@ class GStPluginsRsConan(ConanFile):
             ] + extra_requires
             component.includedirs = []
             component.bindirs = []
-            component.resdirs = ["res"]
+            component.resdirs = ["share"]
             if self.options.get_safe("shared", True):
                 component.bindirs.append(os.path.join("lib", "gstreamer-1.0"))
             else:

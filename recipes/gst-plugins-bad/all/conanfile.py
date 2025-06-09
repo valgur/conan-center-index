@@ -375,13 +375,6 @@ class GStPluginsBadConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        # Adjust OpenCV data dir path for Conan
-        if Version(self.version) >= "1.26":
-            replace_in_file(self, os.path.join(self.source_folder, "gst-libs", "gst", "opencv", "meson.build"),
-                            "/ 'share' /", "/ 'res' /")
-        else:
-            replace_in_file(self, os.path.join(self.source_folder, "gst-libs", "gst", "opencv", "meson.build"),
-                            "'/share/opencv'", "'/res'")
 
     def generate(self):
         tc = MesonToolchain(self)
@@ -499,7 +492,6 @@ class GStPluginsBadConan(ConanFile):
         meson.install()
         self._fix_library_names(os.path.join(self.package_folder, "lib"))
         self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
-        rename(self, os.path.join(self.package_folder, "share"), os.path.join(self.package_folder, "res"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
@@ -509,7 +501,7 @@ class GStPluginsBadConan(ConanFile):
             "exec_prefix": "${prefix}",
             "toolsdir": "${exec_prefix}/bin",
             "pluginsdir": "${libdir}/gstreamer-1.0",
-            "datarootdir": "${prefix}/res",
+            "datarootdir": "${prefix}/share",
             "datadir": "${datarootdir}",
             "girdir": "${datadir}/gir-1.0",
             "typelibdir": "${libdir}/girepository-1.0",
@@ -522,7 +514,7 @@ class GStPluginsBadConan(ConanFile):
             self.runenv_info.append_path("GST_PLUGIN_PATH", os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
 
         if self.options.with_introspection:
-            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "res", "gir-1.0"))
+            self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
             self.runenv_info.append_path("GI_TYPELIB_PATH", os.path.join(self.package_folder, "lib", "girepository-1.0"))
 
         def _define_library(name, extra_requires, lib=None, interface=False):
@@ -537,7 +529,7 @@ class GStPluginsBadConan(ConanFile):
             ] + extra_requires
             if self.options.with_introspection:
                 component.requires.append("glib-gir::glib-gir")
-            component.resdirs = ["res"]
+            component.resdirs = ["share"]
             if not interface:
                 component.libs = [lib or f"gst{name.replace('-', '')}-1.0"]
                 component.includedirs = [os.path.join("include", "gstreamer-1.0")]

@@ -105,7 +105,6 @@ class Mosquitto(ConanFile):
         tc.variables["WITH_WEBSOCKETS"] = self.options.get_safe("websockets", False)
         tc.variables["STATIC_WEBSOCKETS"] = self.options.get_safe("websockets", False) and not self.dependencies["libwebsockets"].options.shared
         tc.variables["DOCUMENTATION"] = False
-        tc.variables["CMAKE_INSTALL_SYSCONFDIR"] = os.path.join(self.package_folder, "res").replace("\\", "/")
         tc.variables["CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS"] = True
         tc.generate()
 
@@ -120,7 +119,7 @@ class Mosquitto(ConanFile):
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rm(self, "*.example", os.path.join(self.package_folder, "res"))
+        rm(self, "*.example", os.path.join(self.package_folder, "share"))
         package_lib_folder = os.path.join(self.package_folder, "lib")
         if not self.options.shared:
             rm(self, "*.dll", os.path.join(self.package_folder, "bin"))
@@ -140,7 +139,6 @@ class Mosquitto(ConanFile):
         lib_suffix = "" if self.options.shared else "_static"
         self.cpp_info.components["libmosquitto"].set_property("pkg_config_name", "libmosquitto")
         self.cpp_info.components["libmosquitto"].libs = [f"mosquitto{lib_suffix}"]
-        self.cpp_info.components["libmosquitto"].resdirs = ["res"]
         if not self.options.shared:
             self.cpp_info.components["libmosquitto"].defines = ["LIBMOSQUITTO_STATIC"]
         if self.options.ssl:

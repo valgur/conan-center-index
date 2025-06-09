@@ -82,11 +82,11 @@ class GiciConan(ConanFile):
     def package_info(self):
         # The project does not export any CMake config or pkg-config files.
         self.cpp_info.libs = ["gici"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
 
         # Vendored libs
         self.cpp_info.includedirs.append(os.path.join("include", "gici", "third_party"))
         self.cpp_info.libs.extend(["rtklib", "vikit_common", "svo", "fast"])
 
         # Unofficial, for convenience
-        self.runenv_info.define_path("GICI_DATA", os.path.join(self.package_folder, "res"))
+        self.runenv_info.define_path("GICI_DATA", os.path.join(self.package_folder, "share"))

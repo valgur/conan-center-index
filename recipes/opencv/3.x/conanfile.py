@@ -140,7 +140,7 @@ class OpenCVConan(ConanFile):
         tc.variables["OPENCV_BIN_INSTALL_PATH"] = "bin"
         tc.variables["OPENCV_LIB_INSTALL_PATH"] = "lib"
         tc.variables["OPENCV_3P_LIB_INSTALL_PATH"] = "lib"
-        tc.variables["OPENCV_OTHER_INSTALL_PATH"] = "res"
+        tc.variables["OPENCV_OTHER_INSTALL_PATH"] = "share"
         tc.variables["OPENCV_LICENSES_INSTALL_PATH"] = "licenses"
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["BUILD_DOCS"] = False
@@ -266,7 +266,7 @@ class OpenCVConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "cmake"))
         if os.path.isfile(os.path.join(self.package_folder, "setup_vars_opencv3.cmd")):
             rename(self, os.path.join(self.package_folder, "setup_vars_opencv3.cmd"),
-                         os.path.join(self.package_folder, "res", "setup_vars_opencv3.cmd"))
+                         os.path.join(self.package_folder, "share", "setup_vars_opencv3.cmd"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_rel_path))
 
     def _create_cmake_module_variables(self, module_file):
