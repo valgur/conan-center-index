@@ -59,7 +59,6 @@ class GeotransConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["dtcc"].libs = ["MSPdtcc"]
-        self.cpp_info.components["dtcc"].includedirs = [path[0] for path in os.walk("include")]
         self.cpp_info.components["dtcc"].resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["dtcc"].system_libs.append("pthread")
@@ -67,7 +66,6 @@ class GeotransConan(ConanFile):
 
         self.cpp_info.components["ccs"].libs = ["MSPCoordinateConversionService"]
         self.cpp_info.components["ccs"].requires = ["dtcc"]
-        self.cpp_info.components["ccs"].includedirs = [path[0] for path in os.walk("include")]
         self.cpp_info.components["ccs"].resdirs = ["share"]
 
         mspccs_data_path = os.path.join(self.package_folder, "share")

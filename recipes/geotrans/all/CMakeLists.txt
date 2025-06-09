@@ -38,7 +38,7 @@ endforeach()
 list(REMOVE_DUPLICATES INCS)
 list(FILTER INCS EXCLUDE REGEX ".*CCS/src/dtcc/CoordinateSystems.*")
 
-set(PUBLIC_HEADERS ${DTTC_HEADERS} ${CCS_HEADERS})
+set(PUBLIC_HEADERS ${DTCC_HEADERS} ${CCS_HEADERS})
 
 ####
 # Dependencies
@@ -53,14 +53,12 @@ if (WIN32)
     add_compile_definitions(MSPdtcc PRIVATE LITTLE_ENDIAN=1)
 endif()
 target_include_directories(MSPdtcc PUBLIC include ${DTTCINCS} ${INCS})
-set_target_properties(MSPdtcc PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 target_link_libraries(MSPdtcc PRIVATE Threads::Threads)
 
 # Create libMSPCoordinateConversionService
 add_library(MSPCoordinateConversionService ${CCSSRCS} ${CCSERVICESRCS})
 target_compile_features(MSPCoordinateConversionService PUBLIC cxx_std_11)
 target_include_directories(MSPCoordinateConversionService PUBLIC include ${DTTCINCS} ${INCS})
-set_target_properties(MSPCoordinateConversionService  PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 target_link_libraries(MSPCoordinateConversionService PUBLIC MSPdtcc)
 
 include(GNUInstallDirs)
@@ -68,6 +66,6 @@ install(TARGETS MSPdtcc MSPCoordinateConversionService
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+install(FILES ${PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/geotrans)
 install(DIRECTORY "data/" DESTINATION ${CMAKE_INSTALL_DATADIR})
