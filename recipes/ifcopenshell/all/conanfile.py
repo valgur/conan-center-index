@@ -24,8 +24,8 @@ class IfcopenshellConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "build_convert": [True, False],
         "build_ifcgeom": [True, False],
+        "build_convert": [True, False],
         "ifcxml_support": [True, False],
         "use_mmap": [True, False],
         "with_cgal": [True, False],
@@ -35,8 +35,8 @@ class IfcopenshellConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "build_ifcgeom": False,
         "build_convert": False,
-        "build_ifcgeom": True,
         "ifcxml_support": True,
         "use_mmap": True,
         "with_cgal": False,
@@ -74,7 +74,6 @@ class IfcopenshellConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-
         if self.options.build_convert and not self.options.build_ifcgeom:
             raise ConanInvalidConfiguration("build_convert requires build_ifcgeom to be enabled")
 
@@ -111,8 +110,9 @@ class IfcopenshellConan(ConanFile):
             return self.dependencies[dep].cpp_info.libdirs[0].replace("\\", "/")
 
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_CONVERT"] = self.options.build_convert
         tc.variables["BUILD_IFCGEOM"] = self.options.build_ifcgeom
+        tc.variables["BUILD_CONVERT"] = self.options.build_convert
+        tc.variables["BUILD_GEOMSERVER"] = False
         tc.variables["BUILD_IFCPYTHON"] = False
         tc.variables["BUILD_EXAMPLES"] = False
         tc.variables["IFCXML_SUPPORT"] = self.options.ifcxml_support
