@@ -2,44 +2,41 @@ cmake_minimum_required(VERSION 3.15)
 project(geotrans LANGUAGES CXX)
 
 ####
-# Directories
-####
-
-set(DTCCDIR "${GEOTRANS_SRC_DIR}/CCS/src/dtcc/CoordinateSystems")
-set(CCSERVICEDIR "${GEOTRANS_SRC_DIR}/CCS/src")
-set(SRCDIR "${GEOTRANS_SRC_DIR}/GEOTRANS3/java_gui/geotrans3/jni")
-
-####
 # Sources
 ####
-file(GLOB_RECURSE DTCCSRCS "${DTCCDIR}/*.cpp")
-set(CCSSRCS "${CCSERVICEDIR}/CoordinateConversion/CoordinateConversionService.cpp")
-file(GLOB_RECURSE CCSERVICESRCS "${CCSERVICEDIR}/dtcc/*.cpp")
-list(FILTER CCSERVICESRCS EXCLUDE REGEX ".*${DTCCDIR}.*")
-set(SRCS "${SRCDIR}/strtoval.cpp" "${SRCDIR}/fiomeths.cpp")
+file(GLOB_RECURSE DTCCSRCS "CCS/src/dtcc/CoordinateSystems/*.cpp")
+set(CCSSRCS
+    CCS/src/CoordinateConversion/CoordinateConversionService.cpp
+)
+file(GLOB_RECURSE CCSERVICESRCS "CCS/src/dtcc/*.cpp")
+list(FILTER CCSERVICESRCS EXCLUDE REGEX ".*CCS/src/dtcc/CoordinateSystems.*")
+set(SRCS
+    GEOTRANS3/java_gui/geotrans3/jni/strtoval.cpp
+    GEOTRANS3/java_gui/geotrans3/jni/fiomeths.cpp
+)
 
 ####
 # Includes
 ####
 
 # Construct DTCC includes
-file(GLOB_RECURSE DTCC_HEADERS "${DTCCDIR}/*.h")
-set(DTTCINCS "")
+file(GLOB_RECURSE DTCC_HEADERS "CCS/src/dtcc/CoordinateSystems/*.h")
+set(DTTCINCS)
 foreach(file ${DTCC_HEADERS})
     get_filename_component(DIR_PATH ${file} PATH)
-    set(DTTCINCS ${DTTCINCS} ${DIR_PATH})
+    list(APPEND DTTCINCS ${DIR_PATH})
 endforeach()
 list(REMOVE_DUPLICATES DTTCINCS)
 
 # Construct CCS includes. This is all headers not in DTTCINCS
-file(GLOB_RECURSE CCS_HEADERS "${CCSERVICEDIR}/*.h")
-set(INCS ${SRCDIR})
+file(GLOB_RECURSE CCS_HEADERS "CCS/src/*.h")
+set(INCS GEOTRANS3/java_gui/geotrans3/jni)
 foreach(file ${CCS_HEADERS})
     get_filename_component(DIR_PATH ${file} PATH)
-    set(INCS ${INCS} ${DIR_PATH})
+    list(APPEND INCS ${DIR_PATH})
 endforeach()
 list(REMOVE_DUPLICATES INCS)
-list(FILTER INCS EXCLUDE REGEX ".*${DTCCDIR}.*")
+list(FILTER INCS EXCLUDE REGEX ".*CCS/src/dtcc/CoordinateSystems.*")
 
 set(PUBLIC_HEADERS ${DTTC_HEADERS} ${CCS_HEADERS})
 
@@ -54,7 +51,7 @@ add_library(MSPdtcc ${DTCCSRCS} ${CCSERVICESRCS})
 target_compile_features(MSPdtcc PUBLIC cxx_std_11)
 if (WIN32)
     add_compile_definitions(MSPdtcc PRIVATE LITTLE_ENDIAN=1)
-endif(WIN32)
+endif()
 target_include_directories(MSPdtcc PUBLIC include ${DTTCINCS} ${INCS})
 set_target_properties(MSPdtcc PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 target_link_libraries(MSPdtcc PRIVATE Threads::Threads)
@@ -73,4 +70,4 @@ install(TARGETS MSPdtcc MSPCoordinateConversionService
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-install(DIRECTORY "${GEOTRANS_SRC_DIR}/data/" DESTINATION res)
+install(DIRECTORY "data/" DESTINATION ${CMAKE_INSTALL_DATADIR})

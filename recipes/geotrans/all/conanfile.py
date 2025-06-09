@@ -10,10 +10,10 @@ required_conan_version = ">=2.1"
 
 class GeotransConan(ConanFile):
     name = "geotrans"
+    description = "MSP GEOTRANS is the NGA and DOD approved coordinate converter and datum translator."
     license = "NGA GEOTRANS ToS (https://earth-info.nga.mil/php/download.php?file=wgs-terms)"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://earth-info.nga.mil/"
-    description = "MSP GEOTRANS is the NGA and DOD approved coordinate converter and datum translator."
     topics = ("geotrans", "geodesic", "geographic", "coordinate", "datum", "geodetic", "conversion", "transformation")
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
@@ -28,7 +28,7 @@ class GeotransConan(ConanFile):
     implements = ["auto_shared_fpic"]
 
     def export_sources(self):
-        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=self.export_sources_folder)
+        copy(self, "CMakeLists.txt", src=self.recipe_folder, dst=os.path.join(self.export_sources_folder, "src"))
         export_conandata_patches(self)
 
     def layout(self):
@@ -38,17 +38,16 @@ class GeotransConan(ConanFile):
         check_min_cppstd(self, 11)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True, filename=f"geotrans-{self.version}.tgz")
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["GEOTRANS_SRC_DIR"] = self.source_folder.replace("\\", "/")
         tc.generate()
 
     def build(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
+        cmake.configure()
         cmake.build()
 
     def package(self):
@@ -60,20 +59,16 @@ class GeotransConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.components["dtcc"].libs = ["MSPdtcc"]
-        self.cpp_info.components["dtcc"].includedirs = [
-            path[0] for path in os.walk("include")
-        ]
-        self.cpp_info.components["dtcc"].res = ["res"]
+        self.cpp_info.components["dtcc"].includedirs = [path[0] for path in os.walk("include")]
+        self.cpp_info.components["dtcc"].resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["dtcc"].system_libs.append("pthread")
             self.cpp_info.components["dtcc"].system_libs.append("m")
 
         self.cpp_info.components["ccs"].libs = ["MSPCoordinateConversionService"]
         self.cpp_info.components["ccs"].requires = ["dtcc"]
-        self.cpp_info.components["ccs"].includedirs = [
-            path[0] for path in os.walk("include")
-        ]
-        self.cpp_info.components["ccs"].res = ["res"]
+        self.cpp_info.components["ccs"].includedirs = [path[0] for path in os.walk("include")]
+        self.cpp_info.components["ccs"].resdirs = ["share"]
 
-        mspccs_data_path = os.path.join(self.package_folder, "res")
+        mspccs_data_path = os.path.join(self.package_folder, "share")
         self.runenv_info.define_path("MSPCCS_DATA", mspccs_data_path)
