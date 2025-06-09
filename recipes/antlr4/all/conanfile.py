@@ -1,8 +1,10 @@
 import os
 import stat
+import textwrap
 
 from conan import ConanFile
 from conan.tools.files import *
+from conan.tools.layout import basic_layout
 
 required_conan_version = ">=2.1"
 
@@ -18,7 +20,7 @@ class Antlr4Conan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     def layout(self):
-        pass
+        basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("openjdk/21.0.1")
@@ -29,47 +31,31 @@ class Antlr4Conan(ConanFile):
         del self.info.settings.build_type
 
     def source(self):
-        v = self.conan_data["sources"][self.version]
-        download(
-                self,
-                url=v["jar"]["url"],
-                filename=os.path.join(self.source_folder, "antlr-complete.jar"),
-                sha256=v["jar"]["sha256"],
-                )
-        download(
-                self,
-                url=v["license"]["url"],
-                filename=os.path.join(self.source_folder, "LICENSE.txt"),
-                sha256=v["license"]["sha256"],
-                )
+        info = self.conan_data["sources"][self.version]
+        download(self, **info["jar"], filename=os.path.join(self.source_folder, "antlr-complete.jar"))
+        download(self, **info["license"], filename=os.path.join(self.source_folder, "LICENSE.txt"))
 
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(self, pattern="antlr-complete.jar", dst=os.path.join(self.package_folder, "res"), src=self.source_folder)
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "antlr-complete.jar", dst=os.path.join(self.package_folder, "share", "java"), src=self.source_folder)
         if self.settings.os == "Windows":
-            save(self,
-                 path=os.path.join(self.package_folder, "bin", "antlr4.bat"),
-                 content="""\
-                         java -classpath %CLASSPATH% org.antlr.v4.Tool %*
-                         """
-                 )
+            save(self, os.path.join(self.package_folder, "bin", "antlr4.bat"), textwrap.dedent("""\
+                 java -classpath %CLASSPATH% org.antlr.v4.Tool %*
+             """))
         else:
             bin_path = os.path.join(self.package_folder, "bin", "antlr4")
-            save(self,
-                 path=bin_path,
-                 content="""\
-                         #!/bin/bash
-                         java -classpath $CLASSPATH org.antlr.v4.Tool $@
-                         """
-                 )
+            save(self, bin_path, textwrap.dedent("""\
+                 #!/bin/bash
+                 java -classpath $CLASSPATH org.antlr.v4.Tool $@
+             """))
             st = os.stat(bin_path)
             os.chmod(bin_path, st.st_mode | stat.S_IEXEC)
 
     def package_info(self):
         self.cpp_info.frameworkdirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = []
         self.cpp_info.includedirs = []
+        self.cpp_info.resdirs = ["share"]
 
-        jar = os.path.join(self.package_folder, "res", "antlr-complete.jar")
+        jar = os.path.join(self.package_folder, "share", "java", "antlr-complete.jar")
         self.runenv_info.prepend_path("CLASSPATH", jar)
