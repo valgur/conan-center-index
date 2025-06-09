@@ -8,7 +8,7 @@ required_conan_version = ">=2.1"
 
 
 class PackageConan(ConanFile):
-    name = "fmi3"
+    name = "fmi"
     description = "Functional Mock-up Interface (FMI)"
     license = "BSD-2-Clause"
     url = "https://github.com/conan-io/conan-center-index"
@@ -27,25 +27,16 @@ class PackageConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=False)
 
-    def build(self):
-        pass
-
     def package(self):
-        copy(self, pattern="LICENSE.txt", dst=path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            pattern="*.h",
-            src=path.join(self.source_folder, "headers"),
-            dst=path.join(self.package_folder, "include"),
-        )
-        copy(
-            self,
-            pattern="*.xsd",
-            src=path.join(self.source_folder, "schema"),
-            dst=path.join(self.package_folder, "res"),
-        )
+        copy(self, "LICENSE.txt", dst=path.join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "*.h",
+             path.join(self.source_folder, "headers"),
+             path.join(self.package_folder, "include"))
+        copy(self, "*.xsd",
+             path.join(self.source_folder, "schema"),
+             path.join(self.package_folder, "share", self.name))
 
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share/fmi"]

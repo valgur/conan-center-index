@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(test_package LANGUAGES C CXX)
 
-find_package(fmi3 REQUIRED CONFIG)
+find_package(fmi REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} test_package.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE fmi3::fmi3)
+target_link_libraries(${PROJECT_NAME} PRIVATE fmi::cosim)
