@@ -112,7 +112,7 @@ class ICUConan(ConanFile):
             tc.extra_defines.append("_DARWIN_C_SOURCE")
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args.extend([
-            "--datarootdir=${prefix}/lib", # do not use share
+            "--datarootdir=${prefix}/share",
             f"--enable-release={yes_no(self.settings.build_type != 'Debug')}",
             f"--enable-debug={yes_no(self.settings.build_type == 'Debug')}",
             f"--enable-dyload={yes_no(self.options.with_dyload)}",
@@ -157,12 +157,9 @@ class ICUConan(ConanFile):
     def _patch_sources(self):
         if not self._with_unit_tests:
             # Prevent any call to python during configuration, it's only needed for unit tests
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "source", "configure"),
-                "if test -z \"$PYTHON\"",
-                "if true",
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "source", "configure"),
+                            'if test -z "$PYTHON"',
+                            "if true")
 
         if self.settings_build.os == "Windows":
             # https://unicode-org.atlassian.net/projects/ICU/issues/ICU-20545
@@ -207,12 +204,14 @@ class ICUConan(ConanFile):
         return self._data_stem + ".dat"
 
     @property
-    def _data_path(self):
-        data_dir_name = "icu"
+    def _data_dir_name(self):
         if self.settings.os == "Windows" and self.settings.build_type == "Debug":
-            data_dir_name += "d"
-        data_dir = os.path.join(self.package_folder, "lib", data_dir_name, str(self.version))
-        return os.path.join(data_dir, self._data_filename)
+            return "icud"
+        return "icu"
+
+    @property
+    def _data_path(self):
+        return os.path.join(self.package_folder, "share", self._data_dir_name, str(self.version), self._data_filename)
 
     def package(self):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
@@ -225,19 +224,14 @@ class ICUConan(ConanFile):
             rm(self, dll.name, bin_dir)
             rename(self, dll, bin_dir / dll.name)
 
-        if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
-            mkdir(self, os.path.join(self.package_folder, "res"))
-            rename(self, src=self._data_path, dst=os.path.join(self.package_folder, "res", self._data_filename))
-
         # Copy some files required for cross-compiling
         config_dir = os.path.join(self.package_folder, "config")
         copy(self, "icucross.mk", src=os.path.join(self.build_folder, "config"), dst=config_dir)
         copy(self, "icucross.inc", src=os.path.join(self.build_folder, "config"), dst=config_dir)
 
-        rmdir(self, os.path.join(self.package_folder, "lib", "icu"))
         rmdir(self, os.path.join(self.package_folder, "lib", "man"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     @property
     def _unicode_version(self):
@@ -262,7 +256,7 @@ class ICUConan(ConanFile):
             ICUPREFIX=icu
             ICULIBSUFFIX={suffix}
             LIBICU=libicu
-            pkglibdir=${{prefix}}/res
+            pkglibdir=${{prefix}}/share
             ICUDATA_NAME = {self._data_stem}
             ICUDESC=International Components for Unicode
         """)
@@ -284,6 +278,7 @@ class ICUConan(ConanFile):
         self.cpp_info.components["icu-uc"].set_property("pkg_config_name", "icu-uc")
         self.cpp_info.components["icu-uc"].set_property("pkg_config_custom_content", pkg_config_extra)
         self.cpp_info.components["icu-uc"].libs = [f"{prefix}icuuc{suffix}"]
+        self.cpp_info.components["icu-uc"].resdirs = [os.path.join("lib", self._data_dir_name)]
         self.cpp_info.components["icu-uc"].requires = ["icu-data"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["icu-uc"].system_libs = ["m", "pthread"]
@@ -312,8 +307,8 @@ class ICUConan(ConanFile):
             self.cpp_info.components["icu-io"].requires = ["icu-i18n", "icu-uc"]
 
         if self.settings.os != "Windows" and self.options.data_packaging in ["files", "archive"]:
-            self.cpp_info.components["icu-data"].resdirs = ["res"]
-            data_path = os.path.join(self.package_folder, "res", self._data_filename).replace("\\", "/")
+            self.cpp_info.components["icu-data"].resdirs = ["share"]
+            data_path = self._data_path.replace("\\", "/")
             self.runenv_info.prepend_path("ICU_DATA", data_path)
             if self._enable_icu_tools or self.options.with_extras:
                 self.buildenv_info.prepend_path("ICU_DATA", data_path)
