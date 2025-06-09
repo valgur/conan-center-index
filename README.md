@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-08:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-09:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -394,6 +394,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - perf/6.11
 - piex/0.27
 - pipewire/1.4.2
+- pistache/0.4.26
+- pixman/0.46.0
+- pkgconf/2.4.3
 - plf_list/2.77
 - poco/1.14.1
 - polyscope/2.3.0
@@ -547,6 +550,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.4.313.0
 - wuffs/0.3.4
 - wxwidgets/3.2.8
+- x86simdsortcpp/7.0
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
 - xcb-util-errors/1.0.1
