@@ -30,7 +30,6 @@ class IfcopenshellConan(ConanFile):
         "use_mmap": [True, False],
         "with_cgal": [True, False],
         "with_hdf5": [True, False],
-        "with_opencascade": [True, False],
     }
     options.update({f"schema_{schema}": [True, False] for schema in IFC_SCHEMAS})
     default_options = {
@@ -42,7 +41,6 @@ class IfcopenshellConan(ConanFile):
         "use_mmap": True,
         "with_cgal": False,
         "with_hdf5": False,
-        "with_opencascade": False,
 
         "boost/*:with_system": True,
         "boost/*:with_program_options": True,
@@ -66,8 +64,6 @@ class IfcopenshellConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if not self.options.build_ifcgeom and not self.options.build_convert:
-            del self.options.with_opencascade
         if not self.options.build_ifcgeom:
             del self.options.with_cgal
         if not self.options.build_convert:
@@ -81,8 +77,6 @@ class IfcopenshellConan(ConanFile):
 
         if self.options.build_convert and not self.options.build_ifcgeom:
             raise ConanInvalidConfiguration("build_convert requires build_ifcgeom to be enabled")
-        if self.options.build_convert and not self.options.with_opencascade:
-            raise ConanInvalidConfiguration("build_convert requires with_opencascade to be enabled")
 
     def requirements(self):
         self.requires("boost/[^1.71]", transitive_headers=True, transitive_libs=True)
@@ -90,6 +84,7 @@ class IfcopenshellConan(ConanFile):
             # Used in public serializers/HdfSerializer.h, ifcgeom/kernels/opencascade/IfcGeomTree.h
             self.requires("hdf5/[^1.8]", transitive_headers=True, transitive_libs=True)
         if self.options.build_ifcgeom:
+            self.requires("opencascade/[^7.5]", transitive_headers=True, transitive_libs=True)
             # ifcgeom/taxonomy.h
             self.requires("eigen/3.4.0", transitive_headers=True)
             if self.options.with_cgal:
@@ -97,8 +92,6 @@ class IfcopenshellConan(ConanFile):
                 self.requires("cgal/[>=5.6]", transitive_headers=True, transitive_libs=True)
                 self.requires("gmp/[^6.3.0]")
                 self.requires("mpfr/[^4.2.1]")
-        if (self.options.build_ifcgeom or self.options.build_convert) and self.options.with_opencascade:
-            self.requires("opencascade/[^7.5]", transitive_headers=True, transitive_libs=True)
         if self.options.build_ifcgeom or self.options.ifcxml_support:
             self.requires("libxml2/[^2.12.5]")
 
@@ -125,7 +118,7 @@ class IfcopenshellConan(ConanFile):
         tc.variables["IFCXML_SUPPORT"] = self.options.ifcxml_support
         tc.variables["USE_MMAP"] = self.options.use_mmap
         tc.variables["SCHEMA_VERSIONS"] = ";".join(self._selected_ifc_schemas)
-        tc.variables["WITH_OPENCASCADE"] = self.options.get_safe("with_opencascade")
+        tc.variables["WITH_OPENCASCADE"] = self.options.build_ifcgeom
         tc.variables["WITH_CGAL"] = self.options.get_safe("with_cgal")
         tc.variables["HDF5_SUPPORT"] = self.options.get_safe("with_hdf5")
         tc.variables["COLLADA_SUPPORT"] = False
@@ -200,42 +193,34 @@ class IfcopenshellConan(ConanFile):
                 simple.defines.append("IFOPSH_SIMPLE_KERNEL")
                 ifcgeom.requires.append("geometry_kernel_cgal_simple")
 
-            if self.options.with_opencascade:
-                _add_component("geometry_kernel_opencascade", requires=[
-                    "opencascade::occt_tkernel",
-                    "opencascade::occt_tkmath",
-                    "opencascade::occt_tkbrep",
-                    "opencascade::occt_tkgeombase",
-                    "opencascade::occt_tkgeomalgo",
-                    "opencascade::occt_tkg3d",
-                    "opencascade::occt_tkg2d",
-                    "opencascade::occt_tkshhealing",
-                    "opencascade::occt_tktopalgo",
-                    "opencascade::occt_tkmesh",
-                    "opencascade::occt_tkprim",
-                    "opencascade::occt_tkbool",
-                    "opencascade::occt_tkbo",
-                    "opencascade::occt_tkfillet",
-                    "opencascade::occt_tkxsbase",
-                    "opencascade::occt_tkoffset",
-                    "opencascade::occt_tkhlr",
-                    "eigen::eigen",
-                ])
-                ifcgeom.requires.append("geometry_kernel_opencascade")
-                ifcgeom.defines.append("IFOPSH_WITH_OPENCASCADE")
+            _add_component("geometry_kernel_opencascade", requires=[
+                "opencascade::occt_tkernel",
+                "opencascade::occt_tkmath",
+                "opencascade::occt_tkbrep",
+                "opencascade::occt_tkgeombase",
+                "opencascade::occt_tkgeomalgo",
+                "opencascade::occt_tkg3d",
+                "opencascade::occt_tkg2d",
+                "opencascade::occt_tkshhealing",
+                "opencascade::occt_tktopalgo",
+                "opencascade::occt_tkmesh",
+                "opencascade::occt_tkprim",
+                "opencascade::occt_tkbool",
+                "opencascade::occt_tkbo",
+                "opencascade::occt_tkfillet",
+                "opencascade::occt_tkxsbase",
+                "opencascade::occt_tkoffset",
+                "opencascade::occt_tkhlr",
+                "eigen::eigen",
+            ])
+            ifcgeom.requires.append("geometry_kernel_opencascade")
+            ifcgeom.defines.append("IFOPSH_WITH_OPENCASCADE")
 
             for schema in self._selected_ifc_schemas:
                 _add_component(f"geometry_mapping_ifc{schema}", requires=["IfcParse"])
                 ifcgeom.requires.append(f"geometry_mapping_ifc{schema}")
 
         if self.options.build_convert:
-            if self.options.with_opencascade:
-                geometry_serializer = _add_component("geometry_serializer")
-                for schema in self._selected_ifc_schemas:
-                    component_name = f"geometry_serializer_ifc{schema}"
-                    _add_component(component_name, requires=["opencascade::occt_tkbrep"])
-                    geometry_serializer.requires.append(component_name)
-
             serializers = _add_component("Serializers", requires=["IfcGeom"])
             if self.options.with_hdf5:
                 serializers.requires.append("hdf5::hdf5_cpp")
@@ -244,3 +229,9 @@ class IfcopenshellConan(ConanFile):
                 component_name = f"Serializers_ifc{schema}"
                 _add_component(component_name)
                 self.cpp_info.components["Serializers"].requires.append(component_name)
+
+            geometry_serializer = _add_component("geometry_serializer")
+            for schema in self._selected_ifc_schemas:
+                component_name = f"geometry_serializer_ifc{schema}"
+                _add_component(component_name, requires=["opencascade::occt_tkbrep"])
+                geometry_serializer.requires.append(component_name)
