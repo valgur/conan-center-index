@@ -1,0 +1,22 @@
+We are using a pre-built mesa-clc, so idep_mesaclc is not defined.
+
+--- a/src/microsoft/clc/meson.build
++++ b/src/microsoft/clc/meson.build
+@@ -4,14 +4,15 @@
+ files_libclc_compiler = files(
+   'clc_compiler.c',
+   'clc_nir.c',
++  '../../compiler/clc/nir_load_libclc.c'
+ )
+ 
+ libclc_compiler = shared_library(
+   'clon12compiler',
+   [files_libclc_compiler, sha1_h],
+   vs_module_defs : 'clon12compiler.def',
+-  include_directories : [inc_include, inc_src, inc_spirv],
+-  dependencies: [idep_mesaclc, idep_nir_headers, dep_version, idep_mesautil,
++  include_directories : [inc_include, inc_src, inc_spirv, '../../compiler/clc'],
++  dependencies: [idep_nir_headers, dep_version, idep_mesautil,
+                  idep_libdxil_compiler, idep_nir, idep_vtn],
+   install : true,
+   name_prefix : ''  # otherwise mingw will create libclon12compiler.dll

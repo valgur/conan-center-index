@@ -59,7 +59,6 @@ class MesaConan(ConanFile):
         "gles2": [True, False],
         "glx": [False, "dri", "xlib"],
         "imagination_srv": [True, False],
-        "intel_clc": [True, "system"],
         "microsoft_clc": [True, False],
         "min_windows_version": ["7", "8", "10", "11"],
         "opencl_spirv": [True, False],
@@ -70,7 +69,6 @@ class MesaConan(ConanFile):
         "sse2": [True, False],
         "vmware_mks_stats": [True, False],
         "vulkan_beta": [True, False],
-        "with_expat": [True, False],
         "with_libelf": [True, False],
         "with_libglvnd": [True, False],
         "with_libudev": ["eudev", "systemd"],
@@ -107,7 +105,6 @@ class MesaConan(ConanFile):
         "gles2": True,
         "glx": "dri",
         "imagination_srv": False,
-        "intel_clc": True,
         "microsoft_clc": True,
         "min_windows_version": "8",
         "opencl_spirv": False,
@@ -118,7 +115,6 @@ class MesaConan(ConanFile):
         "sse2": True,
         "vmware_mks_stats": False,
         "vulkan_beta": False,
-        "with_expat": True,
         "with_libelf": True,
         "with_libglvnd": True,
         "with_libudev": "systemd",
@@ -180,7 +176,7 @@ class MesaConan(ConanFile):
 
     @cached_property
     def _requires_expat(self):
-        return self.options.get_safe("with_expat") or self.options.tool_intel or self.options.xmlconfig
+        return self.options.get_safe("xmlconfig") or self.options.tool_intel
 
     @cached_property
     def _requires_moltenvk(self):
@@ -225,11 +221,7 @@ class MesaConan(ConanFile):
 
     @cached_property
     def _requires_libclc(self):
-        return (
-            self.options.get_safe("gallium_rusticl")
-            or self.options.get_safe("intel_clc")
-            or self.options.get_safe("microsoft_clc")
-        )
+        return self.options.get_safe("gallium_rusticl") or self.options.get_safe("microsoft_clc")
 
     @cached_property
     def _is_arm_arch(self):
@@ -259,8 +251,6 @@ class MesaConan(ConanFile):
             self.options.rm_safe("dri3")
         if not self._system_has_kms_drm:
             self.options.rm_safe("gbm")
-        if self.settings.arch != "x86_64":
-            self.options.rm_safe("intel_clc")
         if self.settings.os not in ["Linux", "Windows"]:
             self.options.rm_safe("microsoft_clc")
         if self.settings.os != "Windows":
@@ -277,7 +267,7 @@ class MesaConan(ConanFile):
             self.options.rm_safe("with_libudev")
         if self.settings.os not in ["FreeBSD", "Linux"]:
             self.options.rm_safe("with_libunwind")
-        if self.settings.os not in ["FreeBSD", "Linux"]:
+        if self.settings.os in ["Android", "Windows"]
             self.options.rm_safe("xmlconfig")
 
         if is_apple_os(self):
@@ -329,7 +319,6 @@ class MesaConan(ConanFile):
 
         self.options.opencl_spirv = bool(
             self.options.get_safe("gallium_rusticl")
-            or self.options.get_safe("intel_clc")
             or self.options.get_safe("microsoft_clc")
         )
 
@@ -372,9 +361,6 @@ class MesaConan(ConanFile):
             if self.options.get_safe("egl"):
                 self.provides.append("egl-headers")
 
-        if self.options.get_safe("tool_intel") or self.options.get_safe("xmlconfig"):
-            self.options.rm_safe("with_expat")
-
         if self.options.get_safe("egl") and self.options.get_safe("with_libglvnd"):
             self.options["libglvnd"].egl = True
         if ("amd" in self._vulkan_drivers and not "windows" in self._platforms) or "radeonsi" in self._gallium_drivers:
@@ -395,7 +381,7 @@ class MesaConan(ConanFile):
         if self.options.get_safe("gallium_d3d12_video"):
             self.options.gallium_driver_d3d12.value = True
 
-        if self.options.get_safe("gallium_rusticl") or self.options.get_safe("intel_clc") or self.options.get_safe("microsoft_clc"):
+        if self.options.get_safe("gallium_rusticl") or self.options.get_safe("microsoft_clc"):
             self.options.opencl_spirv.value = True
 
         if ({"amd", "intel"} & self._vulkan_drivers) or "overlay" in self._vulkan_layers:
@@ -420,7 +406,7 @@ class MesaConan(ConanFile):
         if self._with_libdrm:
             self.requires("libdrm/[~2.4.119]")
 
-        if self._requires_expat:
+        if self.options.get_safe("xmlconfig"):
             self.requires("expat/[>=2.6.2 <3]")
 
         if "wayland" in self._platforms:
@@ -448,6 +434,7 @@ class MesaConan(ConanFile):
         if self.options.get_safe("with_llvm"):
             self.requires("llvm-core/[>=19]")
             self.requires("spirv-llvm-translator/[>=19]")
+        if "rusticl" in self._gallium_drivers:
             self.requires("clang/[>=19]")
         if self._requires_libclc:
             self.requires("libclc/[>=19]")
@@ -496,6 +483,9 @@ class MesaConan(ConanFile):
             if not llvm_opts.target_AMDGPU and not llvm_opts.target_NVPTX:
                 raise ConanInvalidConfiguration("-o llvm-core/*:target_AMDGPU=True -o llvm-core/*:target_NVPTX=True is required to build Mesa with LLVM support")
 
+        if "rusticl" in self._gallium_drivers:
+            raise ConanInvalidConfiguration("'gallium_rusticl' option is not yet supported")
+
         # Not validating option and setting combinations due to the complexity of the project.
 
     def validate_build(self):
@@ -515,15 +505,13 @@ class MesaConan(ConanFile):
         if {"amd", "intel", "overlay"} & self._vulkan_layers:
             self.tool_requires("glslang/[^1.3.239.0]")
         if self.options.get_safe("with_llvm"):
-            self.tool_requires("llvm-core/<host_version>", options={
-                "target_AMDGPU": True,
-                "target_NVPTX": True,
-            })
+            self.tool_requires("llvm-core/<host_version>")
         if self._requires_libclc and self.options.with_zstd:
             self.tool_requires("zstd/[^1.5]")
         if "rusticl" in self._gallium_drivers or "nouveau" in self._vulkan_drivers or "etnaviv" in self._tools:
             self.tool_requires("rust/[*]")
             self.tool_requires("rust-bindgen/[*]")
+        self.tool_requires(f"mesa-clc/{self.version}")
         # Python is required for mako
 
     def source(self):
@@ -569,9 +557,10 @@ class MesaConan(ConanFile):
         tc.project_options["glx"] = combo("glx")
         tc.project_options["imagination-srv"] = boolean("imagination_srv")
         tc.project_options["install-intel-gpu-tests"] = False
-        tc.project_options["intel-clc"] = "system" if self.options.get_safe("intel_clc") == "system" else "enabled"
+        tc.project_options["intel-clc"] = "system"  # mesa-clc is actually used instead
         tc.project_options["llvm"] = feature("with_llvm")
         tc.project_options["libunwind"] = feature("with_libunwind")
+        tc.project_options["mesa-clc"] = "system"
         tc.project_options["microsoft-clc"] = feature("microsoft_clc")
         if self.options.get_safe("min_windows_version"):
             tc.project_options["min-windows-version"] = self.options.min_windows_version
@@ -675,112 +664,225 @@ class MesaConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        def _pc_variables(vars):
-            return "\n".join(f"{key}={value}" for key, value in vars.items())
-
         if "d3d12" in self._gallium_drivers:
-            self.cpp_info.components["d3d"].set_property("pkg_config_name", "d3d")
+            d3d = self.cpp_info.components["d3d"]
+            d3d.set_property("pkg_config_name", "d3d")
             if self._with_libdrm:
-                self.cpp_info.components["d3d"].requires.append("libdrm::libdrm")
-            self.cpp_info.components["d3d"].set_property("pkg_config_custom_content", _pc_variables({
-                # todo Use `libdir` when Conan V1 no longer needs to be supported.
-                # 'moduledir': '${libdir}/d3d',
-                'moduledir': '${prefix}/lib/d3d',
-            }))
-            self.cpp_info.components["d3d"].set_property("component_version", self._load_pkg_config_version("d3d"))
+                d3d.requires.append("libdrm::libdrm")
+            d3d.set_property("pkg_config_custom_content", "moduledir=${libdir}/d3d")
+            d3d.set_property("component_version", self._load_pkg_config_version("d3d"))
 
-        self.cpp_info.components["dri"].set_property("pkg_config_name", "dri")
+        dri = self.cpp_info.components["dri"]
+        dri.set_property("pkg_config_name", "dri")
         if self._with_libdrm:
-            self.cpp_info.components["dri"].requires.append("libdrm::libdrm")
-        self.cpp_info.components["dri"].set_property("component_version", self.version)
-        self.cpp_info.components["dri"].set_property("pkg_config_custom_content", _pc_variables({
-            # todo Use `libdir` when Conan V1 no longer needs to be supported.
-            # "dridriverdir": "${libdir}/dri",
-            "dridriverdir": "${prefix}/lib/dri",
-        }))
+            dri.requires.append("libdrm::libdrm")
+        dri.set_property("component_version", self.version)
+        dri.set_property("pkg_config_custom_content", "dridriverdir=${libdir}/dri")
 
         if self.options.get_safe("egl"):
+            egl = self.cpp_info.components["egl"]
             if self.options.get_safe("with_libglvnd"):
-                suffix = "_mesa"
+                egl.libs = ["EGL_mesa"]
+                egl.requires.append("libglvnd::egl")
             else:
-                suffix = ""
-                self.cpp_info.components["egl"].set_property("pkg_config_name", "egl")
-            self.cpp_info.components["egl"].libs = [f"EGL{suffix}"]
-            if self.options.get_safe("with_libglvnd"):
-                self.cpp_info.components["egl"].requires.append("libglvnd::egl")
-            if self.settings.os == "Windows":
-                self.cpp_info.components["egl"].system_libs.append("opengl32")
+                egl.libs = ["EGL"]
+                egl.set_property("pkg_config_name", "egl")
+            if "x11" in self._platforms and self.options.glx == "dri":
+                egl.requires.extend([
+                    "xorg::x11-xcb",
+                    "xorg::xcb",
+                    "xorg::xcb-dri3",
+                    "xorg::xcb-present",
+                    "xorg::xcb-randr",
+                    "xorg::xcb-shm",
+                    "xorg::xcb-xfixes"
+                ])
+            if "wayland" in self._platforms:
+                egl.requires.extend([
+                    "wayland::wayland-client",
+                    "wayland::wayland-server",
+                    "wayland::wayland-egl-backend",
+                ])
+            if self._with_libdrm:
+                egl.requires.append("libdrm::libdrm")
+            if self.options.get_safe("gbm") and "android" not in self._platforms:
+                egl.requires.append("gbm::gbm")
+            if self.options.get_safe("with_perfetto"):
+                egl.requires.append("perfetto::perfetto")
 
         if self.options.get_safe("gbm"):
-            self.cpp_info.components["gbm"].libs = ["gbm"]
-            if self._requires_expat:
-                self.cpp_info.components["gbm"].requires.append("expat::expat")
-                self.cpp_info.components["gbm"].requires.append("libdrm::libdrm")
-                self.cpp_info.components["gbm"].requires.append("wayland::wayland-server")
-            self.cpp_info.components["gbm"].set_property("pkg_config_name", "gbm")
-            self.cpp_info.components["gbm"].set_property("component_version", self.version)
-            self.cpp_info.components["gbm"].set_property("pkg_config_custom_content", _pc_variables({
-                # todo Use `libdir` when Conan V1 no longer needs to be supported.
-                # "gbmbackendspath": "${libdir}/gbm",
-                "gbmbackendspath": "${prefix}/lib/gbm",
-            }))
+            gbm = self.cpp_info.components["gbm"]
+            gbm.libs = ["gbm"]
+            if self._with_libdrm:
+                gbm.requires.append("libdrm::libdrm")
+            if self.options.get_safe("xmlconfig"):
+                gbm.requires.append("expat::expat")
+            gbm.set_property("pkg_config_name", "gbm")
+            gbm.set_property("component_version", self.version)
+            gbm.set_property("pkg_config_custom_content", "gbmbackendspath=${libdir}/gbm")
 
         if self.options.get_safe("gles1") and not self.options.get_safe("with_libglvnd"):
-            self.cpp_info.components["gles1"].libs = ["GLESv1_CM"]
-            self.cpp_info.components["gles1"].set_property("pkg_config_name", "glesv1_cm")
-            if self.settings.os in ["FreeBSD", "Linux"]:
-                self.cpp_info.components["gles1"].system_libs = ["m", "pthread"]
+            gles1 = self.cpp_info.components["gles1"]
+            gles1.libs = ["GLESv1_CM"]
+            gles1.set_property("pkg_config_name", "glesv1_cm")
+            if self._with_libdrm:
+                gles1.requires.append("libdrm::libdrm")
 
         if self.options.get_safe("gles2") and not self.options.get_safe("with_libglvnd"):
-            self.cpp_info.components["gles2"].libs = ["GLESv2"]
-            self.cpp_info.components["gles2"].set_property("pkg_config_name", "glesv1")
-            if self.settings.os in ["FreeBSD", "Linux"]:
-                self.cpp_info.components["gles2"].system_libs = ["m", "pthread"]
+            gles2 = self.cpp_info.components["gles2"]
+            gles2.libs = ["GLESv2"]
+            gles2.set_property("pkg_config_name", "glesv1")
+            if self._with_libdrm:
+                gles2.requires.append("libdrm::libdrm")
 
         if self.options.get_safe("glx"):
-            glx_lib_name = "GLX_mesa" if self.options.get_safe("with_libglvnd") else "GLX"
-            self.cpp_info.components["glx"].libs = [glx_lib_name]
-            if self.options.get_safe("with_libglvnd"):
-                self.cpp_info.components["glx"].requires.append("libglvnd::glx")
-
+            glx = self.cpp_info.components["glx"]
             gl_lib_name = "GLX_mesa" if self.options.get_safe("with_libglvnd") else "GL"
-            self.cpp_info.components["gl"].libs = [gl_lib_name]
-            if not self.options.get_safe("with_libglvnd"):
-                self.cpp_info.components["gl"].set_property("pkg_config_custom_content", _pc_variables({
-                    "glx_tls": "yes",
-                }))
-                self.cpp_info.components["gl"].set_property("pkg_config_name", "gl")
-            if self.options.get_safe("with_xorg"):
-                self.cpp_info.components["gl"].requires.extend([
-                    "xorg::x11",
-                    "xorg::xcb",
-                    "xorg::xcb-glx",
-                    "xorg::xcb-shm",
-                    "xorg::x11-xcb",
-                    "xorg::xcb-dri2",
-                    "xorg::xext",
-                    "xorg::xfixes",
-                ])
-                self.cpp_info.components["glx"].requires.append("libxshmfence::libxshmfence")
-                if self.options.get_safe("glx") == "dri":
-                    self.cpp_info.components["gl"].requires.append("xorg::xxf86vm")
-            if self.settings.os in ["Linux", "FreeBSD"]:
-                self.cpp_info.components["gl"].system_libs.extend(["m", "pthread"])
-            if self.settings.os == "Windows":
-                self.cpp_info.components["gl"].system_libs.extend(["gdi32", "opengl32"])
+            glx.libs = [gl_lib_name]
 
-        self.cpp_info.components["glapi"].libs = ["glapi"]
-        if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.components["glapi"].system_libs.extend(["pthread"])
+            # Basic dependencies from the meson.build file
+            if self.options.get_safe("with_libglvnd"):
+                glx.requires.append("libglvnd::glx")
+
+            # Platform specific dependencies
+            if self._with_libdrm:
+                glx.requires.append("libdrm::libdrm")
+
+            if self.settings.os in ["FreeBSD", "Linux"]:
+                # Dependencies from libglx and libgl in meson.build
+                glx.requires.extend([
+                    "libdrm::libdrm",
+                    "xorg::x11",
+                    "xorg::xext",
+                    "xorg::xxf86vm",
+                    "xorg::xfixes",
+                    "xorg::xshmfence",
+                    "xorg::xcb-shm",
+                    "xorg::xcb",
+                    "xorg::xcb-dri2",
+                    "xorg::xcb-glx",
+                    "xorg::x11-xcb",
+                ])
+
+                # Add xmlconfig if needed, matches idep_xmlconfig in meson.build
+                if self.options.get_safe("xmlconfig"):
+                    glx.requires.append("expat::expat")
+
+                # System libraries
+                glx.system_libs.extend(["dl", "m", "pthread"])
+
+                # DRI-specific dependencies
+                if self.options.get_safe("with_x11_dri2"):
+                    # No additional deps needed, already included above
+                    pass
+
+            elif self.settings.os == "Windows":
+                # Windows platform dependencies
+                glx.system_libs.extend(["gdi32", "opengl32"])
+
+            # GL component now uses same libs as GLX, matching meson.build's approach
+            gl = self.cpp_info.components["gl"]
+            gl.libs = [gl_lib_name]
+
+            # If not using libglvnd, set pkg_config_name
+            if not self.options.get_safe("with_libglvnd"):
+                gl.set_property("pkg_config_name", "gl")
+                gl.set_property("pkg_config_custom_content", "glx_tls=yes")
+
+                # Add all the glx dependencies to gl as well
+                gl.requires = glx.requires.copy()
+                gl.system_libs = glx.system_libs.copy()
+
+        glapi = self.cpp_info.components["glapi"]
+        glapi.libs = ["glapi"]
+
+        # Add gallium dependency with proper requirements
+        if self._gallium_drivers and self.settings.os in ["Linux", "FreeBSD"]:
+            gallium = self.cpp_info.components["gallium"]
+            gallium.libs = [f"gallium-{self.version}"]
+            gallium.requires.extend([
+                "libdrm::libdrm",
+                "expat::expat",
+                "xorg::x11-xcb",
+                "xorg::xcb",
+                "xorg::xcb-dri3",
+                "xorg::xcb-present",
+                "xorg::xcb-randr",
+                "xorg::xcb-sync",
+                "xorg::xcb-xfixes",
+                "libxshmfence::libxshmfence"
+            ])
+            if self.options.get_safe("with_llvm"):
+                gallium.requires.append("llvm-core::llvm-core")
+            if self.options.get_safe("with_perfetto"):
+                gallium.requires.append("perfetto::perfetto")
+            if self.options.get_safe("opencl_spirv"):
+                gallium.requires.append("spirv-tools::spirv-tools")
+            if self.options.with_zlib:
+                gallium.requires.append("zlib-ng::zlib-ng")
+            if self.options.with_zstd:
+                gallium.requires.append("zstd::zstd")
 
         if self.settings.os == "Windows" and self.options.get_safe("with_opengl"):
-            self.cpp_info.components["gallium_wgl"].libs = ["libgallium_wgl"]
-            self.cpp_info.components["gallium_wgl"].system_libs.append("ws2_32")
-            self.cpp_info.components["opengl32"].libs = ["opengl32"]
-            self.cpp_info.components["opengl32"].requires = ["gallium_wgl"]
-            self.cpp_info.components["opengl32"].system_libs.append("opengl32")
+            gallium_wgl = self.cpp_info.components["gallium_wgl"]
+            gallium_wgl.libs = ["libgallium_wgl"]
+            opengl32 = self.cpp_info.components["opengl32"]
+            opengl32.libs = ["opengl32"]
+            opengl32.requires = ["gallium_wgl"]
 
-        if self.options.get_safe("with_expat") or self.options.get_safe("tool_intel") or self.options.get_safe("xmlconfig"):
+        # Add Vulkan driver dependencies
+        if self._vulkan_drivers and self.settings.os in ["Linux", "FreeBSD"]:
+            vulkan_components = ["vulkan_intel", "vulkan_intel_hasvk", "vulkan_radeon", "vulkan_asahi"]
+            for comp in vulkan_components:
+                if comp.replace("vulkan_", "") in self._vulkan_drivers:
+                    vulkan_component = self.cpp_info.components[comp]
+                    vulkan_component.libs = [f"lib{comp}"]
+                    vulkan_component.requires.extend([
+                        "libdrm::libdrm",
+                        "expat::expat",
+                        "wayland::wayland-client",
+                        "xorg::x11-xcb",
+                        "xorg::xcb",
+                        "xorg::xcb-dri3",
+                        "xorg::xcb-keysyms",
+                        "xorg::xcb-present",
+                        "xorg::xcb-randr",
+                        "xorg::xcb-shm",
+                        "xorg::xcb-sync",
+                        "xorg::xcb-xfixes",
+                        "libxshmfence::libxshmfence"
+                    ])
+                    if self.options.get_safe("with_libudev"):
+                        vulkan_component.requires.append("libudev::libudev")
+                    if self.options.get_safe("with_perfetto"):
+                        vulkan_component.requires.append("perfetto::perfetto")
+                    if self.options.get_safe("opencl_spirv"):
+                        vulkan_component.requires.append("spirv-tools::spirv-tools")
+                    if self.options.with_zlib:
+                        vulkan_component.requires.append("zlib-ng::zlib-ng")
+                    if self.options.with_zstd:
+                        vulkan_component.requires.append("zstd::zstd")
+                    if comp == "vulkan_radeon" and self.options.with_libelf:
+                        vulkan_component.requires.append("libelf::libelf")
+
+        # Add vulkan layer dependencies
+        if "device_select" in self._vulkan_layers and self.settings.os in ["Linux", "FreeBSD"]:
+            vulkan_device_select = self.cpp_info.components["vulkan_device_select"]
+            vulkan_device_select.libs = ["libVkLayer_MESA_device_select"]
+            vulkan_device_select.requires.extend([
+                "libdrm::libdrm",
+                "wayland::wayland-client",
+                "xorg::xcb",
+                "xorg::xcb-dri3"
+            ])
+
+        if "screenshot" in self._vulkan_layers:
+            vulkan_screenshot = self.cpp_info.components["vulkan_screenshot"]
+            vulkan_screenshot.libs = ["libVkLayer_MESA_screenshot"]
+            vulkan_screenshot.requires.append("libpng::libpng")
+
+        # Add general dependencies
+        if self.options.get_safe("tool_intel") or self.options.get_safe("xmlconfig"):
             self.cpp_info.requires.append("expat::expat")
 
         if "wayland" in self._platforms:
