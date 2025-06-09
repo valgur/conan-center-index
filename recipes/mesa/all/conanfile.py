@@ -63,7 +63,6 @@ class MesaConan(ConanFile):
         "min_windows_version": ["7", "8", "10", "11"],
         "opencl_spirv": [True, False],
         "opengl": [True, False],
-        "platform_sdk_version": ["ANY"],
         "shader_cache": [True, False],
         "spirv_to_dxil": [True, False],
         "sse2": [True, False],
@@ -109,7 +108,6 @@ class MesaConan(ConanFile):
         "min_windows_version": "8",
         "opencl_spirv": False,
         "opengl": True,
-        "platform_sdk_version": "25",
         "spirv_to_dxil": False,
         "shader_cache": True,
         "sse2": True,
@@ -255,8 +253,6 @@ class MesaConan(ConanFile):
             self.options.rm_safe("microsoft_clc")
         if self.settings.os != "Windows":
             self.options.rm_safe("min_windows_version")
-        if self.settings.os != "Android":
-            self.options.rm_safe("platform_sdk_version")
         if False:
             self.options.rm_safe("spirv_to_dxil")
         if self.settings.os == "Windows":
@@ -569,8 +565,8 @@ class MesaConan(ConanFile):
         tc.project_options["opencl-spirv"] = boolean("opencl_spirv")
         tc.project_options["opengl"] = boolean("opengl")
         tc.project_options["perfetto"] = boolean("with_perfetto")
-        if "sdk_version" in self._platforms:
-            tc.project_options["platform-sdk-version"] = self.options.platform_sdk_version
+        if self.settings.os == "Android":
+            tc.project_options["platform-sdk-version"] = str(self.settings.os.api_level)
         tc.project_options["platforms"] = sorted(self._platforms)
         tc.project_options["spirv-to-dxil"] = boolean("spirv_to_dxil")
         tc.project_options["shader-cache"] = feature("shader_cache")
