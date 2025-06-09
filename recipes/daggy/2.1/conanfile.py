@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -52,10 +51,6 @@ class DaggyConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, 17)
-        # TODO: can be removed after https://github.com/conan-io/conan-center-index/pull/23683 is merged
-        if self.options.with_ssh2 and self.settings.os == "Windows":
-            if self.options.shared != self.dependencies["libssh2"].options.shared:
-                raise ConanInvalidConfiguration("Daggy and libssh2 must have the same shared option on Windows.")
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.27 <5]")
@@ -67,17 +62,20 @@ class DaggyConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["SSH2_SUPPORT"] = self.options.with_ssh2
-        tc.variables["YAML_SUPPORT"] = self.options.with_yaml
-        tc.variables["CONSOLE"] = self.options.with_console
-        tc.variables["PACKAGE_DEPS"] = False
-        tc.variables["VERSION"] = self.version
-        tc.variables["CONAN_BUILD"] = True
-        tc.variables["BUILD_TESTING"] = False
+        tc.cache_variables["SSH2_SUPPORT"] = self.options.with_ssh2
+        tc.cache_variables["YAML_SUPPORT"] = self.options.with_yaml
+        tc.cache_variables["CONSOLE"] = self.options.with_console
+        tc.cache_variables["PACKAGE_DEPS"] = False
+        tc.cache_variables["VERSION"] = self.version
+        tc.cache_variables["CONAN_BUILD"] = True
+        tc.cache_variables["BUILD_TESTING"] = False
+        # Set version without git
+        tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Git"] = True
+        tc.cache_variables["VERSION"] = f"{self.version}.0"
         if self.options.shared:
-            tc.variables["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
-            tc.variables["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
-            tc.variables["CMAKE_VISIBILITY_INLINES_HIDDEN"] = 1
+            tc.cache_variables["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
+            tc.cache_variables["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
+            tc.cache_variables["CMAKE_VISIBILITY_INLINES_HIDDEN"] = 1
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
@@ -93,4 +91,11 @@ class DaggyConan(ConanFile):
         cmake.install()
 
     def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "DaggyCore")
+        self.cpp_info.set_property("cmake_target_name", "daggy::DaggyCore")
         self.cpp_info.libs = ["DaggyCore"]
+        self.cpp_info.requires = ["qt::qtCore", "qt::qtNetwork", "kainjow-mustache::kainjow-mustache"]
+        if self.options.with_yaml:
+            self.cpp_info.requires.append("yaml-cpp::yaml-cpp")
+        if self.options.with_ssh2:
+            self.cpp_info.requires.append("libssh2::libssh2")

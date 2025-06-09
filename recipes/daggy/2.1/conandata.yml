@@ -1,16 +1,12 @@
 sources:
+  "2.2.3":
+    url: "https://github.com/synacker/daggy/archive/refs/tags/v2.2.3.tar.gz"
+    sha256: "fed4a56d970f37a858a80c2ef1f0fc8d928cd8b1daead166141a538782030864"
   "2.1.3":
     url: "https://github.com/synacker/daggy/archive/refs/tags/v2.1.3.tar.gz"
     sha256: "f96419b2199402eef31dd5fc8b4d15f64948bbdd350728549c890fdb8f0d2805"
-  "2.1.2":
-    url: "https://github.com/synacker/daggy/archive/refs/tags/2.1.2.tar.gz"
-    sha256: "d3b244fcb06cf5b749d19ca9d678aebbaa43a7e8c8208d99c15a58e140e49493"
 patches:
   "2.1.3":
-    - patch_file: "patches/001-fix-disabled-yaml.patch"
-      patch_description: "Fix compilation error when YAML is disabled"
-      patch_type: "bugfix"
-  "2.1.2":
     - patch_file: "patches/001-fix-disabled-yaml.patch"
       patch_description: "Fix compilation error when YAML is disabled"
       patch_type: "bugfix"
