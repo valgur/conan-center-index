@@ -5,7 +5,7 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.files import *
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibYangConan(ConanFile):
@@ -22,7 +22,11 @@ class LibYangConan(ConanFile):
         "shared": False,
         "fPIC": True
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
+    def requirements(self):
+        self.requires("pcre2/[^10.42]", transitive_headers=True)
 
     def validate(self):
         # TODO For Windows support: https://github.com/CESNET/libyang?tab=readme-ov-file#windows-build-requirements
@@ -32,21 +36,18 @@ class LibYangConan(ConanFile):
             raise ConanInvalidConfiguration(
                 f"{self.ref} Conan recipe is not prepared to work on Windows. Contributions are welcome.")
 
-    def requirements(self):
-        self.requires("pcre2/[^10.42]", transitive_headers=True)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.22 <5]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version],
-            destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 2.8.12)",
+                        "cmake_minimum_required(VERSION 3.22.0)")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -64,19 +65,15 @@ class LibYangConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE", self.source_folder,
-             os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        # move *.yang files from /share to /res
-        copy(self, "*.yang", os.path.join(self.package_folder, "share"),
-             os.path.join(self.package_folder, "res", "share"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "LibYANG")
         self.cpp_info.libs = ["yang"]
-        self.cpp_info.resdirs = ["res"]
+        self.cpp_info.resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["pthread", "dl", "m"])
