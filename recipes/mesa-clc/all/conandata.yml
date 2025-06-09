@@ -1,0 +1,4 @@
+sources:
+  "25.1.2":
+    url: "https://archive.mesa3d.org/mesa-25.1.2.tar.xz"
+    sha256: "c29c93fd35119b949a589463d1feb61b4000c0daad04e8d543d7f909f119bd97"
