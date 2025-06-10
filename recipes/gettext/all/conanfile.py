@@ -66,6 +66,14 @@ class GettextConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if self.settings.os == "Windows" and self.options.tools:
+            # Shared build on Windows with tools tries to build woe32dll and fails.
+            # The file paths passed through libtool and automake wrapper get mangled.
+            # Also requires --enable-c++.
+            del self.options.shared
+            self.package_type = "static-library"
+        if not self.options.libintl:
+            self.package_type = "application"
 
     def layout(self):
         basic_layout(self, src_folder="src")
