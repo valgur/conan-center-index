@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-09:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-10:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -105,6 +105,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cub/2.7.0
 - cuda-samples/12.5
 - daggy/2.1.3
+- daggy/2.2.3
 - dawn/cci.20240726
 - debugbreak/1.0
 - diligent-engine/2.5.6.8
@@ -129,6 +130,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - firebird/5.0.0
 - flite/2.2
 - fltk/1.4.3
+- fmi/1.0.1
+- fmi/2.0.5
+- fmi/3.0.2
 - fortran/cci.latest
 - freeglut/3.6.0
 - freertos-kernel/11.1.0
@@ -226,6 +230,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - hscpp/1.0.0-alpha
 - icu4x/1.4.1
 - icu4x/1.5.1
+- ifcopenshell/0.8.0.cci.20250501
 - imagemagick/7.1.1.38
 - imgui/1.91.9
 - imgui/1.91.9b
@@ -373,11 +378,23 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
+- opentelemetry-proto/0.11.0
+- opentelemetry-proto/0.16.0
+- opentelemetry-proto/0.17.0
+- opentelemetry-proto/0.18.0
+- opentelemetry-proto/0.19.0
+- opentelemetry-proto/0.20.0
+- opentelemetry-proto/1.0.0
+- opentelemetry-proto/1.1.0
+- opentelemetry-proto/1.2.0
+- opentelemetry-proto/1.3.0
+- opentelemetry-proto/1.3.1
 - openucx/1.18.1
 - openusd/25.02
 - openxr/1.1.47
 - or-tools/9.10
 - osgearth/3.7
+- osqp/1.0.0
 - osrm/5.27.1
 - ozz-animation/0.14.3
 - ozz-animation/0.15.0
