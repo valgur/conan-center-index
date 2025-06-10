@@ -1,31 +1,28 @@
 sources:
-  "3.13.1":
-    url: "https://www.python.org/ftp/python/3.13.1/Python-3.13.1.tgz"
-    sha256: "1513925a9f255ef0793dbf2f78bb4533c9f184bdd0ad19763fd7f47a400a7c55"
-  "3.12.10":
-    url: "https://www.python.org/ftp/python/3.12.10/Python-3.12.10.tgz"
-    sha256: "15d9c623abfd2165fe816ea1fb385d6ed8cf3c664661ab357f1782e3036a6dac"
-  "3.12.7":
-    url: "https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tgz"
-    sha256: "73ac8fe780227bf371add8373c3079f42a0dc62deff8d612cd15a618082ab623"
-  "3.11.12":
-    url: "https://www.python.org/ftp/python/3.11.12/Python-3.11.12.tgz"
-    sha256: "379c9929a989a9d65a1f5d854e011f4872b142259f4fc0a8c4062d2815ed7fba"
-  "3.10.17":
-    url: "https://www.python.org/ftp/python/3.10.17/Python-3.10.17.tgz"
-    sha256: "8fcda0fbdc131859a4a4223abb925fd522a77e3fb3b52c46cea5f3bc2ae0cd9f"
-  "3.9.22":
-    url: "https://www.python.org/ftp/python/3.9.22/Python-3.9.22.tgz"
-    sha256: "76f4daef4ffce6fd107280a0db8d108b1f896c1c22f09d8300efd90a69c4298b"
+  "3.13.4":
+    url: "https://www.python.org/ftp/python/3.13.4/Python-3.13.4.tgz"
+    sha256: "2666038f1521b7a8ec34bf2997b363778118d6f3979282c93723e872bcd464e0"
+  "3.12.11":
+    url: "https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz"
+    sha256: "7b8d59af8216044d2313de8120bfc2cc00a9bd2e542f15795e1d616c51faf3d6"
+  "3.11.13":
+    url: "https://www.python.org/ftp/python/3.11.13/Python-3.11.13.tgz"
+    sha256: "0f1a22f4dfd34595a29cf69ee7ea73b9eff8b1cc89d7ab29b3ab0ec04179dad8"
+  "3.10.18":
+    url: "https://www.python.org/ftp/python/3.10.18/Python-3.10.18.tgz"
+    sha256: "1b19ab802518eb36a851f5ddef571862c7a31ece533109a99df6d5af0a1ceb99"
+  "3.9.23":
+    url: "https://www.python.org/ftp/python/3.9.23/Python-3.9.23.tgz"
+    sha256: "9a69aad184dc1d06f6819930741da3a328d34875a41f8ba33875774dbfc51b51"
 patches:
-  "3.13.1":
+  "3.13.4":
     - patch_file: "patches/3.13/3.13.0-0002-remove-module-deps.patch"
       patch_description: "Remove section of solution file forcing projects to be built that might not be used for this recipe"
       patch_type: "conan"
     - patch_file: "patches/3.13/3.13.0-0003-relocatable-python-config.patch"
       patch_description: "Allow package to be relocatable"
       patch_type: "conan"
-  "3.12.10":
+  "3.12.11":
     - patch_file: "patches/3.9/3.9.7-0002-_msi-vcxproj.patch"
       patch_description: "Fix ARM/ARM64 mismatch in project file"
       patch_type: "bugfix"
@@ -38,20 +35,7 @@ patches:
     - patch_file: "patches/3.12/3.12.2-0003-disable-nis.patch"
       patch_description: "Avoid libnsl dependency, which is missing from newer glibc versions"
       patch_type: "conan"
-  "3.12.7":
-    - patch_file: "patches/3.9/3.9.7-0002-_msi-vcxproj.patch"
-      patch_description: "Fix ARM/ARM64 mismatch in project file"
-      patch_type: "bugfix"
-    - patch_file: "patches/3.x-0001-relocatable-python-config.patch"
-      patch_description: "Allow package to be relocatable"
-      patch_type: "conan"
-    - patch_file: "patches/3.12/3.12.1-0002-remove-module-deps.patch"
-      patch_description: "Remove section of solution file forcing projects to be built that might not be used for this recipe"
-      patch_type: "conan"
-    - patch_file: "patches/3.12/3.12.2-0003-disable-nis.patch"
-      patch_description: "Avoid libnsl dependency, which is missing from newer glibc versions"
-      patch_type: "conan"
-  "3.11.12":
+  "3.11.13":
     - patch_file: "patches/3.9/3.9.7-0002-_msi-vcxproj.patch"
       patch_description: "Fix ARM/ARM64 mismatch in project file"
       patch_type: "bugfix"
@@ -64,7 +48,7 @@ patches:
     - patch_file: "patches/3.11/3.11.9-0002-disable-nis.patch"
       patch_description: "Avoid libnsl dependency, which is missing from newer glibc versions"
       patch_type: "conan"
-  "3.10.17":
+  "3.10.18":
     - patch_file: "patches/3.9/3.9.7-0002-_msi-vcxproj.patch"
       patch_description: "Fix ARM/ARM64 mismatch in project file"
       patch_type: "bugfix"
@@ -80,7 +64,7 @@ patches:
     - patch_file: "patches/3.10/3.10.14-0002-disable-nis.patch"
       patch_description: "Avoid libnsl dependency, which is missing from newer glibc versions"
       patch_type: "conan"
-  "3.9.22":
+  "3.9.23":
     - patch_file: "patches/3.9/3.9.7-0002-_msi-vcxproj.patch"
       patch_description: "Fix ARM/ARM64 mismatch in project file"
       patch_type: "bugfix"
