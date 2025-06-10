@@ -111,6 +111,7 @@ class GLibConan(ConanFile):
         tc.project_options["dtrace"] = "disabled"
         tc.project_options["systemtap"] = "disabled"
         tc.project_options["sysprof"] = "disabled"
+        tc.project_options["man-pages"] = "disabled"
 
         if self.settings.os == "Neutrino":
             tc.cross_build["host"]["system"] = "qnx"
