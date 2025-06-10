@@ -96,7 +96,7 @@ class WaylandConan(ConanFile):
             env = Environment()
             env.define_path("PKG_CONFIG_FOR_BUILD", self.conf.get("tools.gnu:pkg_config", default="pkgconf", check_type=str))
             env.define_path("PKG_CONFIG_PATH_FOR_BUILD", os.path.join(self.generators_folder, "build"))
-            env.vars(self).save_script("pkg_config_for_build_env.sh")
+            env.vars(self).save_script("pkg_config_for_build_env")
 
     def _patch_sources(self):
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"),

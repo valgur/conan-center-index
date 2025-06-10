@@ -50,7 +50,7 @@ class TestPackageConan(ConanFile):
             env = Environment()
             env.define("__VSCMD_ARG_NO_LOGO", "1")
             env.define("VSCMD_SKIP_SENDTELEMETRY", "1")
-            env.vars(self, scope="build").save_script("conanbuild_vcvars_options.bat")
+            env.vars(self, scope="build").save_script("conanbuild_vcvars_options")
 
         # Use two instances of AutotoolsToolchain with namespaceas,
         # as we have two different projects with different settings.
