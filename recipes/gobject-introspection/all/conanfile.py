@@ -96,6 +96,7 @@ class GobjectIntrospectionConan(ConanFile):
         tc.project_options["gi_cross_use_prebuilt_gi"] = "false"
         tc.project_options["build_introspection_data"] = self.options.build_introspection_data
         tc.project_options["cairo"] = "disabled"  # only used for tests
+        tc.project_options["doctool"] = "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
