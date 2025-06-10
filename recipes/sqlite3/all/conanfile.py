@@ -149,6 +149,8 @@ class Sqlite3Conan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        download(self, **self.conan_data["icon"], filename="art/sqlite370.ico")
+        replace_in_file(self, "sqlite3.rc", r'..\\art\\', r'art\\')
 
     @property
     def _public_defines(self):

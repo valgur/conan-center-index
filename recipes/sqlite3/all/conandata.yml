@@ -17,3 +17,6 @@ sources:
   "3.44.2":
     url: "https://sqlite.org/2023/sqlite-autoconf-3440200.tar.gz"
     sha256: "1c6719a148bc41cf0f2bbbe3926d7ce3f5ca09d878f1246fcc20767b175bb407"
+icon:
+  url: "https://raw.githubusercontent.com/sqlite/sqlite/refs/tags/version-3.50.1/art/sqlite370.ico"
+  sha256: "8d1976b86205bd357f1d03e5df3d5e435c7978c0eaa40c3b48a732fcccf3800b"
