@@ -391,9 +391,10 @@ class CPythonConan(ConanFile):
                             "<Target Name=\"RebuildImportLib\" AfterTargets=\"AfterBuild\" Condition=\"False\"")
 
         # Remove vendored openssl file
-        replace_in_file(self, self._msvc_project_path("_ssl"),
-                        r'<ClCompile Include="$(opensslIncludeDir)\applink.c">',
-                        r'<ClCompile Include="$(opensslIncludeDir)\applink.c" Condition="False">')
+        if Version(self.version) < "3.12":
+            replace_in_file(self, self._msvc_project_path("_ssl"),
+                            r'<ClCompile Include="$(opensslIncludeDir)\applink.c">',
+                            r'<ClCompile Include="$(opensslIncludeDir)\applink.c" Condition="False">')
 
         self._inject_conan_props_file("_bz2", "bzip2", self.options.get_safe("with_bz2"))
         self._inject_conan_props_file("_elementtree", "expat", self._supports_modules)
@@ -402,9 +403,9 @@ class CPythonConan(ConanFile):
         self._inject_conan_props_file("_ssl", "openssl", self._supports_modules)
         self._inject_conan_props_file("_sqlite3", "sqlite3", self.options.get_safe("with_sqlite3"))
         self._inject_conan_props_file("_tkinter", "tk", self.options.get_safe("with_tkinter"))
-        self._inject_conan_props_file("pythoncore", "zlib")
-        self._inject_conan_props_file("python", "zlib")
-        self._inject_conan_props_file("pythonw", "zlib")
+        self._inject_conan_props_file("pythoncore", "zlib-ng")
+        self._inject_conan_props_file("python", "zlib-ng")
+        self._inject_conan_props_file("pythonw", "zlib-ng")
         self._inject_conan_props_file("_ctypes", "libffi", self._supports_modules)
         self._inject_conan_props_file("_decimal", "mpdecimal", self._supports_modules)
         self._inject_conan_props_file("_lzma", "xz_utils", self.options.get_safe("with_lzma"))
