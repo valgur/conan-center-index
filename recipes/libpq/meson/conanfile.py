@@ -25,6 +25,7 @@ class LibpqConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "build_psql": [True, False],
         "build_server": [True, False],
         "build_tools": [True, False],
@@ -37,7 +38,6 @@ class LibpqConan(ConanFile):
         "with_libxslt": [True, False],
         "with_llvm": [True, False],
         "with_lz4": [True, False],
-        "with_nls": [True, False],
         "with_openssl": [True, False],
         "with_pam": [True, False],
         "with_readline": ["readline", "editline", False],
@@ -50,6 +50,7 @@ class LibpqConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "build_psql": False,
         "build_server": False,
         "build_tools": False,
@@ -64,7 +65,6 @@ class LibpqConan(ConanFile):
         # module dependencies
         "with_libxml": False,
         "with_libxslt": False,
-        "with_nls": False,
         "with_selinux": False,
         "with_uuid": False,
         # psql executable dependencies
@@ -77,6 +77,7 @@ class LibpqConan(ConanFile):
         "with_systemd": True,
     }
     options_description = {
+        "i18n": "Internationalization support",
         "build_psql": "Build the psql command line tool",
         "build_server": "Build the PostgreSQL server executable",
         "build_tools": "Build all other tools",
@@ -88,7 +89,6 @@ class LibpqConan(ConanFile):
         "with_libxslt": "XSLT support in contrib/xml2",
         "with_llvm": "Add LLVM JIT compilation support",
         "with_lz4": "LZ4 support",
-        "with_nls": "Native language support",
         "with_openssl": "Use OpenSSL for SSL/TLS support",
         "with_pam": "PAM support",
         "with_readline": "Use GNU Readline or BSD Libedit for editing in the psql command line tool",
@@ -147,7 +147,7 @@ class LibpqConan(ConanFile):
             self.requires("llvm-core/[>=10]")
         if self.options.get_safe("with_lz4"):
             self.requires("lz4/[^1.9.4]")
-        if self.options.with_nls:
+        if self.options.i18n and self.settings.os != "Linux":
             self.requires("gettext/[>=0.21 <1]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
@@ -178,6 +178,8 @@ class LibpqConan(ConanFile):
         else:
             self.tool_requires("flex/[^2.6.4]")
             self.tool_requires("bison/[^3.8.2]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_llvm:
             self.tool_requires("llvm-core/<host_version>")
             if self.settings.compiler not in ["clang", "apple-clang"]:
@@ -213,7 +215,7 @@ class LibpqConan(ConanFile):
         tc.project_options["libxslt"] = feature(self.options.with_libxslt)
         tc.project_options["llvm"] = feature(self.options.with_llvm)
         tc.project_options["lz4"] = feature(self.options.get_safe("with_lz4"))
-        tc.project_options["nls"] = feature(self.options.with_nls)
+        tc.project_options["nls"] = feature(self.options.i18n)
         tc.project_options["pam"] = feature(self.options.get_safe("with_pam"))
         tc.project_options["plperl"] = "disabled"
         tc.project_options["plpython"] = "disabled"
@@ -341,7 +343,7 @@ class LibpqConan(ConanFile):
         self.cpp_info.components["ecpg_compat"].requires = ["_common", "ecpg", "pgtypes"]
 
         mod_requires = []
-        if self.options.with_nls:
+        if self.options.i18n:
             mod_requires.append("gettext::gettext")
         if self.options.get_safe("with_selinux"):
             mod_requires.append("libselinux::libselinux")
@@ -354,7 +356,7 @@ class LibpqConan(ConanFile):
         self.cpp_info.components["_modules"].requires = mod_requires
 
         tool_requires = []
-        if self.options.with_nls:
+        if self.options.i18n:
             tool_requires.append("gettext::gettext")
         if self.options.with_gssapi:
             tool_requires.append("krb5::krb5-gssapi")
