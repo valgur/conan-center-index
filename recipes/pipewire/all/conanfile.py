@@ -22,6 +22,7 @@ class PipeWireConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "i18n": [True, False],
         "flatpak": [True, False],
         "gsettings": [True, False],
         "raop": [True, False],
@@ -41,37 +42,37 @@ class PipeWireConan(ConanFile):
         "with_xfixes": [True, False],
     }
     default_options = {
+        "i18n": False,
         "flatpak": True,
         "gsettings": True,
         "raop": True,
-        "with_avahi": True,
-        "with_dbus": True,
-        "with_ffmpeg": True,
+        "with_avahi": False,
+        "with_dbus": False,
+        "with_ffmpeg": False,
         "with_libalsa": True,
-        "with_libsndfile": True,
-        "with_libudev": True,
-        "with_ncurses": True,
-        "with_opus": True,
+        "with_libsndfile": False,
+        "with_libudev": False,
+        "with_ncurses": False,
+        "with_opus": False,
         "with_pulseaudio": True,
-        "with_readline": True,
-        "with_selinux": True,
-        "with_vulkan": True,
-        "with_x11": True,
+        "with_readline": False,
+        "with_selinux": False,
+        "with_vulkan": False,
+        "with_x11": False,
         "with_xfixes": False,
     }
     languages = ["C"]
 
     def configure(self):
-        if self.options.with_libalsa:
-            del self.options.with_libudev
         if not self.options.with_x11:
             del self.options.with_xfixes
+        if self.options.with_libalsa:
+            self.options.with_libudev.value = True
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("linux-headers-generic/[^6.5]")
         if self.options.flatpak or self.options.gsettings:
             self.requires("glib/[^2.70.0]")
         if self.options.raop:
@@ -86,7 +87,7 @@ class PipeWireConan(ConanFile):
             self.requires("libalsa/[~1.2.10]")
         if self.options.with_libsndfile:
             self.requires("libsndfile/[^1.2.2]")
-        if self.options.get_safe("with_libudev", True):
+        if self.options.with_libudev:
             self.requires("libudev/[^255]")
         if self.options.with_ncurses:
             self.requires("ncurses/[^6.4]")
@@ -99,10 +100,11 @@ class PipeWireConan(ConanFile):
         if self.options.with_selinux:
             self.requires("libselinux/3.6")
         if self.options.with_vulkan:
+            self.requires("linux-headers-generic/[^6.5]")
             self.requires("libdrm/[~2.4.119]")
             self.requires("vulkan-headers/[^1.3.239.0]")
             self.requires("vulkan-loader/[^1.3.239.0]")
-        if self.options.with_x11 or self.options.with_xfixes:
+        if self.options.with_x11:
             self.requires("xorg/system")
 
     def validate(self):
@@ -113,6 +115,8 @@ class PipeWireConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -161,7 +165,7 @@ class PipeWireConan(ConanFile):
         tc.project_options["pipewire-alsa"] = feature("with_libalsa")
         tc.project_options["pipewire-jack"] = "disabled"
         tc.project_options["pipewire-v4l2"] = "disabled"
-        tc.project_options["pw-cat"] = "enabled"
+        tc.project_options["pw-cat"] = feature("with_libsndfile")
         tc.project_options["pw-cat-ffmpeg"] = feature("with_ffmpeg")
         tc.project_options["raop"] = feature("raop")
         tc.project_options["readline"] = feature("with_readline")
@@ -176,6 +180,7 @@ class PipeWireConan(ConanFile):
         tc.project_options["systemd-user-service"] = "disabled"
         tc.project_options["tests"] = "disabled"
         tc.project_options["udev"] = feature("with_libudev", True)
+        tc.project_options["udevrulesdir"] = "lib/udev/rules.d"
         tc.project_options["vulkan"] = feature("with_vulkan")
         tc.project_options["v4l2"] = "disabled"
         tc.project_options["x11"] = feature("with_x11")
@@ -185,14 +190,17 @@ class PipeWireConan(ConanFile):
         tc.extra_cflags.append("-Wno-error=strict-prototypes")
         # This appears to be an issue that crops up when using Avahi and libpulse involving the malloc_info and malloc_trim functions.
         tc.extra_cflags.append("-Wno-error=implicit-function-declaration")
-        for includedir in self.dependencies["linux-headers-generic"].cpp_info.includedirs:
-            tc.extra_cflags.append(f"-I{includedir}")
+        if self.options.with_vulkan:
+            for includedir in self.dependencies["linux-headers-generic"].cpp_info.includedirs:
+                tc.extra_cflags.append(f"-I{includedir}")
         tc.generate()
 
         deps = PkgConfigDeps(self)
         deps.generate()
 
     def build(self):
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -262,7 +270,8 @@ class PipeWireConan(ConanFile):
             self.cpp_info.components["libpipewire"].requires.append("libselinux::selinux")
         if self.options.with_x11:
             self.cpp_info.components["libpipewire"].requires.append("xorg::x11-xcb")
-            self.cpp_info.components["libpipewire"].requires.append("xorg::xfixes")
+            if self.options.with_xfixes:
+                self.cpp_info.components["libpipewire"].requires.append("xorg::xfixes")
 
         self.cpp_info.components["libspa"].set_property("pkg_config_name", f"libspa-{libspa_api_version}")
         self.cpp_info.components["libspa"].includedirs = [os.path.join(self.package_folder, "include", f"spa-{libspa_api_version}")]
@@ -276,7 +285,7 @@ class PipeWireConan(ConanFile):
             self.cpp_info.components["libspa"].requires.append("ffmpeg::avcodec")
         if self.options.with_libsndfile:
             self.cpp_info.components["libspa"].requires.append("libsndfile::libsndfile")
-        if self.options.get_safe("with_libudev", True):
+        if self.options.with_libudev:
             self.cpp_info.components["libspa"].requires.append("libudev::libudev")
         if self.options.with_vulkan:
             self.cpp_info.components["libspa"].requires.extend([
