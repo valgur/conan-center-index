@@ -311,7 +311,8 @@ class GStPluginsGoodConan(ConanFile):
         tc.project_options["wavpack"] = "disabled"  # TODO: libwavpack
 
         # HLS plugin options
-        tc.project_options["hls-crypto"] = "openssl"
+        if self.options.adaptivedemux2:
+            tc.project_options["hls-crypto"] = "openssl"
 
         # Qt plugin options
         tc.project_options["qt-method"] = "pkg-config"
