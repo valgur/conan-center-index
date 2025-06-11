@@ -23,6 +23,7 @@ class LibGphoto2(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "i18n": [True, False],
         "with_libusb": [True, False],
         "with_libcurl": [True, False],
         "with_libxml2": [True, False],
@@ -30,6 +31,7 @@ class LibGphoto2(ConanFile):
         "with_libjpeg": [True, False],
     }
     default_options = {
+        "i18n": False,
         "with_libusb": True,
         "with_libcurl": True,
         "with_libxml2": True,
@@ -62,6 +64,10 @@ class LibGphoto2(ConanFile):
             raise ConanInvalidConfiguration("Visual Studio not supported yet")
 
     def build_requirements(self):
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
+
+    def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings_build.os == "Windows":
@@ -84,7 +90,7 @@ class LibGphoto2(ConanFile):
             f"--with-libcurl={auto_no(self.options.with_libcurl)}",
             f"--with-libexif={auto_no(self.options.with_libexif)}",
             f"--with-libxml-2.0={auto_no(self.options.with_libxml2)}",
-            "--disable-nls",
+            "--enable-nls" if self.options.i18n else "--disable-nls",
             "utilsdir=${prefix}/bin",
         ])
         if not self.options.with_libjpeg:
