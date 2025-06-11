@@ -26,6 +26,7 @@ class GStreamerConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "enable_backtrace": [True, False],
         "with_introspection": [True, False],
         "tools": [True, False],
@@ -33,6 +34,7 @@ class GStreamerConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "enable_backtrace": False,
         "with_introspection": False,
         "tools": True,  # required for gst-plugin-scanner
@@ -70,7 +72,8 @@ class GStreamerConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
         if self.settings_build.os == "Windows":
@@ -99,7 +102,7 @@ class GStreamerConan(ConanFile):
         tc.project_options["examples"] = "disabled"
         tc.project_options["benchmarks"] = "disabled"
         tc.project_options["tests"] = "disabled"
-        tc.project_options["nls"] = "enabled"
+        tc.project_options["nls"] = feature(self.options.i18n)
         tc.project_options["bash-completion"] = "disabled"
         tc.project_options["ptp-helper"] = "disabled"  # requires rustc and libcap
         if is_msvc(self) and not check_min_vs(self, 190, raise_invalid=False):
