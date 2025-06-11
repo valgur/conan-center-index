@@ -25,6 +25,7 @@ class LibcupsConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_dbus": [True, False],
         "with_dnssd": ["avahi", "mdnsresponder"],
         "with_gssapi": [True, False],
@@ -34,6 +35,7 @@ class LibcupsConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": True,
         "with_dbus": True,
         "with_dnssd": "avahi",
         "with_gssapi": False,
@@ -78,6 +80,8 @@ class LibcupsConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -135,16 +139,22 @@ class LibcupsConan(ConanFile):
             env.vars(self).save_script("conanbuild_msvc")
 
     def build(self):
+        autotools = Autotools(self)
         with chdir(self, self.source_folder):
-            autotools = Autotools(self)
             autotools.configure()
             autotools.make()
+        if self.options.i18n:
+            with chdir(self, os.path.join(self.source_folder, "locale")):
+                autotools.make()
 
     def package(self):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        autotools = Autotools(self)
         with chdir(self, self.source_folder):
-            autotools = Autotools(self)
             autotools.install()
+        if self.options.i18n:
+            with chdir(self, os.path.join(self.source_folder, "locale")):
+                autotools.install()
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rm(self, "cups-config", os.path.join(self.package_folder, "bin"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
