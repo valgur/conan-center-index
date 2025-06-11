@@ -2,40 +2,33 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, unix_path
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class BisonConan(ConanFile):
     name = "bison"
+    description = "Bison is a general-purpose parser generator"
+    license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org/software/bison/"
-    description = "Bison is a general-purpose parser generator"
     topics = ("bison", "parser")
-    license = "GPL-3.0-or-later"
+    package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
     options = {
-        "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
-        "fPIC": True,
+        "i18n": False,
     }
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -59,19 +52,18 @@ class BisonConan(ConanFile):
             self.tool_requires("automake/1.16.5")
         if self.settings.os != "Windows":
             self.tool_requires("flex/[^2.6.4]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
+            "--enable-nls" if self.options.i18n else "--disable-nls",
             "--enable-relocatable",
-            "--disable-nls",
         ])
         if self.settings.compiler == "apple-clang":
             tc.configure_args.append("gl_cv_compiler_check_decl_option=")
@@ -136,13 +128,13 @@ class BisonConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        if is_msvc(self):
-            rename(self, os.path.join(self.package_folder, "lib", "liby.a"),
-                         os.path.join(self.package_folder, "lib", "y.lib"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         self.cpp_info.includedirs = []
-        self.cpp_info.libs = ["y"]
         self.cpp_info.resdirs = ["share"]
 
         bison_root = self.package_folder.replace("\\", "/")
@@ -151,6 +143,9 @@ class BisonConan(ConanFile):
         pkgdir = os.path.join(self.package_folder, "share", "bison")
         self.buildenv_info.define_path("BISON_PKGDATADIR", pkgdir)
 
+        aclocal_dir = os.path.join(self.package_folder, "share", "aclocal")
+        self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_dir)
+
         # yacc is a shell script, so requires a shell (such as bash)
         yacc = os.path.join(self.package_folder, "bin", "yacc").replace("\\", "/")
-        self.conf_info.define("user.bison:yacc", yacc)
+        self.conf_info.define_path("user.bison:yacc", yacc)
