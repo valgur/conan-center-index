@@ -29,6 +29,7 @@ class GtkConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "i18n": [True, False],
         "enable_broadway_backend": [True, False],
         "with_wayland": [True, False],
         "with_x11": [True, False],
@@ -45,6 +46,7 @@ class GtkConan(ConanFile):
         "with_ffmpeg": [True, False],
     }
     default_options = {
+        "i18n": False,
         "enable_broadway_backend": False,
         "with_wayland": True,
         "with_x11": True,
@@ -181,7 +183,8 @@ class GtkConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         self.tool_requires("libxml2/[^2.12.5]")  # for xmllint
         self.tool_requires("sassc/3.6.2")
         if self.options.with_vulkan:
@@ -269,6 +272,8 @@ class GtkConan(ConanFile):
         return output.getvalue().strip()
 
     def build(self):
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()

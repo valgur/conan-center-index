@@ -29,6 +29,7 @@ class GtkConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "enable_broadway_backend": [True, False],
         "with_wayland": [True, False],
         "with_x11": [True, False],
@@ -42,6 +43,7 @@ class GtkConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "enable_broadway_backend": False,
         "with_wayland": True,
         "with_x11": True,
@@ -148,7 +150,8 @@ class GtkConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gdk-pixbuf/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
         if self.options.with_introspection:
@@ -223,6 +226,8 @@ class GtkConan(ConanFile):
         return output.getvalue().strip()
 
     def build(self):
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()
