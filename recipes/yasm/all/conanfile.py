@@ -3,13 +3,12 @@ import os
 from conan import ConanFile
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class YASMConan(ConanFile):
@@ -21,13 +20,10 @@ class YASMConan(ConanFile):
     topics = ("yasm", "installer", "assembler")
     license = "BSD-2-Clause"
     settings = "os", "arch", "compiler", "build_type"
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         if is_msvc(self):
@@ -49,9 +45,6 @@ class YASMConan(ConanFile):
         apply_conandata_patches(self)
 
     def _generate_autotools(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = AutotoolsToolchain(self)
         enable_debug = "yes" if self.settings.build_type == "Debug" else "no"
         tc.configure_args.extend([
@@ -72,6 +65,7 @@ class YASMConan(ConanFile):
         # 1. autotools doesn't build shared libs either
         # 2. the shared libs don't support static libc runtime (MT and such)
         tc.cache_variables["BUILD_SHARED_LIBS"] = False
+        tc.cache_variables["ENABLE_NLS"] = False
         tc.generate()
 
     def generate(self):
@@ -91,18 +85,17 @@ class YASMConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(self, pattern="BSD.txt", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, pattern="COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
+        copy(self, "BSD.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         if is_msvc(self):
             cmake = CMake(self)
             cmake.install()
-            rmdir(self, os.path.join(self.package_folder, "include"))
-            rmdir(self, os.path.join(self.package_folder, "lib"))
         else:
             autotools = Autotools(self)
             autotools.install()
-            rmdir(self, os.path.join(self.package_folder, "share"))
-            rmdir(self, os.path.join(self.package_folder, "lib"))
+        rmdir(self, os.path.join(self.package_folder, "include"))
+        rmdir(self, os.path.join(self.package_folder, "lib"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.includedirs = []
