@@ -156,7 +156,6 @@ class LibcurlConan(ConanFile):
 
         # Default options
         self.options.with_ssl = "darwinssl" if is_apple_os(self) else "openssl"
-        self.options.build_executable = self.settings_target is not None
 
     def configure(self):
         if self.options.shared:
