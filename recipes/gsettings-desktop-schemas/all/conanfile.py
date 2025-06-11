@@ -20,9 +20,11 @@ class GsettingsDesktopSchemasConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "with_introspection": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "with_introspection": False,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -46,7 +48,8 @@ class GsettingsDesktopSchemasConan(ConanFile):
         self.tool_requires("meson/[^1.2.3]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[^2.2]")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/<host_version>")
 
@@ -62,6 +65,8 @@ class GsettingsDesktopSchemasConan(ConanFile):
         deps.generate()
 
     def build(self):
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()
