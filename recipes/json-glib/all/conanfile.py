@@ -24,11 +24,13 @@ class JsonGlibConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_introspection": False,
     }
     languages = ["C"]
@@ -50,7 +52,8 @@ class JsonGlibConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
 
@@ -58,14 +61,18 @@ class JsonGlibConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
+        def feature(value):
+            return "enabled" if value else "disabled"
+
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
         tc.project_options["tests"] = "false"
         tc.project_options["documentation"] = "disabled"
         tc.project_options["man"] = "false"
-        tc.project_options["nls"] = "enabled"
-        tc.project_options["introspection"] = "enabled" if self.options.with_introspection else "disabled"
+        tc.project_options["nls"] = feature(self.options.i18n)
+        tc.project_options["introspection"] = feature(self.options.with_introspection)
         tc.generate()
+
         deps = PkgConfigDeps(self)
         deps.generate()
 
@@ -90,7 +97,8 @@ class JsonGlibConan(ConanFile):
         self.cpp_info.libs = ["json-glib-1.0"]
         self.cpp_info.includedirs = [os.path.join("include", "json-glib-1.0")]
         self.cpp_info.requires = ["glib::gio-2.0"]
-        self.cpp_info.resdirs = ["share"]
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
         if self.options.with_introspection:
             self.cpp_info.requires.append("glib-gir::glib-gir")
             self.buildenv_info.append_path("GI_GIR_PATH", os.path.join(self.package_folder, "share", "gir-1.0"))
