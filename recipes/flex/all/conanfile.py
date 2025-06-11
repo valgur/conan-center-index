@@ -31,6 +31,7 @@ class FlexConan(ConanFile):
         "i18n": False,
     }
     implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
