@@ -24,6 +24,7 @@ class GrassConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "i18n": [True, False],
         "with_bzlib": [True, False],
         "with_cairo": [True, False],
         "with_cblas": [True, False],
@@ -35,7 +36,6 @@ class GrassConan(ConanFile):
         "with_libpng": [True, False],
         "with_mysql": [False, "libmysqlclient", "mariadb-connector-c"],
         "with_netcdf": [True, False],
-        "with_nls": [True, False],
         "with_odbc": [True, False],
         "with_opengl": [True, False],
         "with_openmp": [True, False],
@@ -48,6 +48,7 @@ class GrassConan(ConanFile):
         "with_zstd": [True, False],
     }
     default_options = {
+        "i18n": False,
         "with_bzlib": False,
         "with_cairo": False,
         "with_cblas": False,
@@ -59,7 +60,6 @@ class GrassConan(ConanFile):
         "with_libpng": True,
         "with_mysql": False,
         "with_netcdf": False,
-        "with_nls": False,
         "with_odbc": False,
         "with_opengl": False,
         "with_openmp": True,
@@ -106,7 +106,7 @@ class GrassConan(ConanFile):
             self.requires("mariadb-connector-c/[^3.3.3]")
         if self.options.with_netcdf:
             self.requires("netcdf/[^4.9.3]")
-        if self.options.with_nls:
+        if self.options.i18n:
             self.requires("gettext/[^0.21]", transitive_headers=True, transitive_libs=True)
         if self.options.with_odbc:
             self.requires("odbc/[^2.3.11]")
@@ -136,6 +136,8 @@ class GrassConan(ConanFile):
         self.tool_requires("cmake/[>=3.22 <5]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -174,7 +176,7 @@ class GrassConan(ConanFile):
         tc.cache_variables["WITH_READLINE"] = self.options.with_readline
         # Language options
         tc.cache_variables["WITH_FREETYPE"] = self.options.with_freetype
-        tc.cache_variables["WITH_NLS"] = self.options.with_nls
+        tc.cache_variables["WITH_NLS"] = self.options.i18n
         # Computing options
         tc.cache_variables["WITH_FFTW"] = self.options.with_fftw
         tc.cache_variables["WITH_CBLAS"] = self.options.with_cblas
