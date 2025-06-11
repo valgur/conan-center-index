@@ -156,6 +156,9 @@ class wxWidgetsConan(ConanFile):
         if self.options.get_safe("private_fonts"):
             self.requires("fontconfig/[^2.15.0]")
 
+        if self.options.webview and self._toolkit.startswith("gtk"):
+            self.requires("libsoup/[^3]")
+
         if self.settings.os != "Windows":
             if self.options.get_safe("glcanvas_egl"):
                 self.requires("wayland/[^1.22.0]")
@@ -177,9 +180,9 @@ class wxWidgetsConan(ConanFile):
         if self.options.webview and self._toolkit.startswith("gtk"):
             # webkit2 is also used in a gtk/private/webkit.h public header
             apt = package_manager.Apt(self)
-            apt.install(["libsoup3.0-dev", "libwebkit2gtk-4.0-dev"])
+            apt.install_substitutes(["libwebkit2gtk-4.1-dev"], ["libwebkit2gtk-4.0-dev"])
             yum = package_manager.Yum(self)
-            yum.install(["libsoup3-devel", "webkit2gtk4.1-devel"])
+            yum.install_substitutes(["webkit2gtk4.1-devel"], ["webkit2gtk4.0-devel"])
 
     def validate(self):
         if self.options.toolkit == "native" and not (is_apple_os(self) or self.settings.os == "Windows"):
