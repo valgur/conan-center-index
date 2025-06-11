@@ -35,6 +35,7 @@ class GStPluginsBadConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_cuda_nvmm": [True, False],
         "with_introspection": [True, False],
         "with_libdrm": [True, False],
@@ -46,6 +47,7 @@ class GStPluginsBadConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_cuda_nvmm": False,
         "with_introspection": False,
         "with_libdrm": False,
@@ -175,7 +177,7 @@ class GStPluginsBadConan(ConanFile):
 
         # Remove options not used by the current version
         for opt, _ in self.options.items():
-            if not opt.startswith("with_") and opt not in ["shared", "fPIC"]:
+            if not opt.startswith("with_") and opt not in ["shared", "fPIC", "i18n"]:
                 if opt not in self._all_options:
                     self.options.rm_safe(opt)
 
@@ -355,7 +357,8 @@ class GStPluginsBadConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
         if "gst-orc" in self._all_reqs:
@@ -460,7 +463,7 @@ class GStPluginsBadConan(ConanFile):
         tc.project_options["doc"] = "disabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
-        tc.project_options["nls"] = "enabled"
+        tc.project_options["nls"] = feature(self.options.i18n)
         tc.project_options["orc"] = feature("gst-orc" in self._all_reqs)
         tc.project_options["introspection"] = "disabled"  # TODO
 
