@@ -25,12 +25,14 @@ class LibsecretConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "crypto": [False, "libgcrypt", "gnutls"],
         "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "crypto": "libgcrypt",
         "with_introspection": False,
     }
@@ -65,7 +67,8 @@ class LibsecretConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
 
@@ -88,6 +91,8 @@ class LibsecretConan(ConanFile):
         deps.generate()
 
     def build(self):
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -102,8 +107,9 @@ class LibsecretConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libsecret-1")
         self.cpp_info.includedirs = [os.path.join("include", "libsecret-1")]
-        self.cpp_info.resdirs = ["share"]
         self.cpp_info.libs = ["secret-1"]
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
         self.cpp_info.requires = ["glib::glib-2.0", "glib::gobject-2.0", "glib::gio-2.0"]
         if self.options.get_safe("crypto") == "libgcrypt":
             self.cpp_info.requires.append("libgcrypt::libgcrypt")
