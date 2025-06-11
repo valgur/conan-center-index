@@ -2,7 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv, Environment
+from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import *
 from conan.tools.gnu import AutotoolsToolchain, Autotools, AutotoolsDeps
 from conan.tools.layout import basic_layout
@@ -24,11 +24,13 @@ class LibIdnConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "threads": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "threads": True,
     }
     implements = ["auto_shared_fpic"]
@@ -50,15 +52,14 @@ class LibIdnConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -68,10 +69,10 @@ class LibIdnConan(ConanFile):
             tc.extra_defines.append("LIBIDN_STATIC")
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
-            "--enable-threads={}".format(yes_no(self.options.threads)),
-            "--with-libiconv-prefix={}".format(unix_path(self, self.dependencies["libiconv"].package_folder)),
+            f"--enable-threads={yes_no(self.options.threads)}",
+            f"--with-libiconv-prefix={unix_path(self, self.dependencies['libiconv'].package_folder)}",
+            f"--enable-nls={yes_no(self.options.i18n)}",
             "--disable-csharp",
-            "--disable-nls",
             "--disable-rpath",
         ]
         tc.generate()
@@ -131,7 +132,6 @@ class LibIdnConan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
 
         if is_msvc(self) and self.options.shared:
@@ -139,11 +139,12 @@ class LibIdnConan(ConanFile):
                       os.path.join(self.package_folder, "lib", "idn-12.lib"))
 
     def package_info(self):
+        self.cpp_info.set_property("pkg_config_name", "libidn")
         if is_msvc(self) and self.options.shared:
             self.cpp_info.libs = ["idn-12"]
         else:
             self.cpp_info.libs = ["idn"]
-        self.cpp_info.set_property("pkg_config_name", "libidn")
+        self.cpp_info.resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             if self.options.threads:
                 self.cpp_info.system_libs = ["pthread"]
