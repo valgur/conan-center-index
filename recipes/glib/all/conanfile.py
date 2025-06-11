@@ -133,6 +133,10 @@ class GLibConan(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
                             "dependency('intl'",
                             "dependency('gettext'")
+            # Don't look for transitive libintl deps
+            replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
+                            "if cc.has_function('ngettext', dependencies : libintl, prefix: libintl_prefix)",
+                            "if true")
         meson = Meson(self)
         meson.configure()
         meson.build()
