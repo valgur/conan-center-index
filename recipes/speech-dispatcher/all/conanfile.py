@@ -26,7 +26,7 @@ class SpeechDispatcherConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "nls": [True, False],
+        "i18n": [True, False],
         "with_alsa": [True, False],
         "with_pulseaudio": [True, False],
         "with_pipewire": [True, False],
@@ -35,7 +35,7 @@ class SpeechDispatcherConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "nls": True,
+        "i18n": False,
         "with_alsa": False,
         "with_pulseaudio": False,
         "with_pipewire": False,
@@ -76,7 +76,7 @@ class SpeechDispatcherConan(ConanFile):
         self.tool_requires("libtool/[^2.4.7]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[^2.2]")
-        if self.options.nls:
+        if self.options.i18n:
             self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
@@ -107,7 +107,7 @@ class SpeechDispatcherConan(ConanFile):
             opt_enable("alsa", self.options.with_alsa),
             opt_enable("oss", False),
             opt_enable("nas", False),
-            opt_enable("nls", self.options.nls),
+            opt_enable("nls", self.options.i18n),
         ])
         tc.generate()
 
