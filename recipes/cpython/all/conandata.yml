@@ -1,4 +1,7 @@
 sources:
+  "3.14.0-b2":
+    url: "https://www.python.org/ftp/python/3.14.0/Python-3.14.0b2.tgz"
+    sha256: "395e0daf993ddd6010dddef9ac6851996f69c2681a88c20190fa0dfe3e633930"
   "3.13.4":
     url: "https://www.python.org/ftp/python/3.13.4/Python-3.13.4.tgz"
     sha256: "2666038f1521b7a8ec34bf2997b363778118d6f3979282c93723e872bcd464e0"
@@ -15,6 +18,13 @@ sources:
     url: "https://www.python.org/ftp/python/3.9.23/Python-3.9.23.tgz"
     sha256: "9a69aad184dc1d06f6819930741da3a328d34875a41f8ba33875774dbfc51b51"
 patches:
+  "3.14.0-b2":
+    - patch_file: "patches/3.14/3.14.0-0002-remove-module-deps.patch"
+      patch_description: "Remove section of solution file forcing projects to be built that might not be used for this recipe"
+      patch_type: "conan"
+    - patch_file: "patches/3.13/3.13.0-0003-relocatable-python-config.patch"
+      patch_description: "Allow package to be relocatable"
+      patch_type: "conan"
   "3.13.4":
     - patch_file: "patches/3.13/3.13.0-0002-remove-module-deps.patch"
       patch_description: "Remove section of solution file forcing projects to be built that might not be used for this recipe"
