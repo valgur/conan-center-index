@@ -13,33 +13,30 @@ required_conan_version = ">=2.1"
 
 class AvahiConan(ConanFile):
     name = "avahi"
-    # --enable-compat-libdns_sd means that this recipe provides the mdnsresponder compile interface
-    provides = "mdnsresponder"
     description = "Avahi - Service Discovery for Linux using mDNS/DNS-SD -- compatible with Bonjour"
     topics = ("bonjour", "dns", "dns-sd", "mdns")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/lathiat/avahi"
     license = "LGPL-2.1-only"
+    # --enable-compat-libdns_sd means that this recipe provides the mdnsresponder compile interface
+    provides = "mdnsresponder"
 
     package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -61,6 +58,8 @@ class AvahiConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -82,6 +81,7 @@ class AvahiConan(ConanFile):
         tc.configure_args.append("--disable-qt5")
         tc.configure_args.append("--with-systemdsystemunitdir=/lib/systemd/system")
         tc.configure_args.append("--with-distro=none")
+        tc.configure_args.append("--enable-nls" if self.options.i18n else "--disable-nls")
         tc.configure_args.append("ac_cv_func_strlcpy=no")
         tc.configure_args.append("ac_cv_func_setproctitle=no")
         tc.generate()
@@ -104,7 +104,7 @@ class AvahiConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "etc"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "run"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
