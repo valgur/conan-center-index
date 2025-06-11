@@ -60,12 +60,14 @@ class GStPluginsUglyConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
 
         **{_get_option(name): [True, False] for name in _plugins},
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
 
         **{_get_option(name): True for name in _plugins},
     }
@@ -98,7 +100,8 @@ class GStPluginsUglyConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -132,7 +135,7 @@ class GStPluginsUglyConan(ConanFile):
         tc.project_options["gpl"] = "enabled"
         tc.project_options["doc"] = "disabled"
         tc.project_options["tests"] = "disabled"
-        tc.project_options["nls"] = "enabled"
+        tc.project_options["nls"] = feature(self.options.i18n)
         tc.project_options["orc"] = "disabled"
 
         tc.generate()
