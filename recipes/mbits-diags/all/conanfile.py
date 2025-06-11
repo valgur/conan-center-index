@@ -59,4 +59,4 @@ class MBitsDiagsConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "mbits-diags")
         self.cpp_info.set_property("cmake_target_name", "mbits::diags")
         self.cpp_info.libs = ["diags"]
-        self.cpp_info.requires = ["fmt::fmt", "mbits-semver::semver"]
+        self.cpp_info.requires = ["fmt::fmt", "mbits-semver::mbits-semver"]
