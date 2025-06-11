@@ -23,10 +23,12 @@ class CriterionConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -55,6 +57,8 @@ class CriterionConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("nanopb/<host_version>")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -63,6 +67,7 @@ class CriterionConan(ConanFile):
     def generate(self):
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
+        tc.project_options["i18n"] = "enabled" if self.options.i18n else "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
