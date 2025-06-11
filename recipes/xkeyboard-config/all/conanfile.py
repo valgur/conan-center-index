@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -35,13 +36,6 @@ class XkeyboardConfigConan(ConanFile):
 
     def package_id(self):
         self.info.clear()
-
-    def requirements(self):
-        pass
-
-    # def validate(self):
-    #     if is_msvc(self):
-    #         raise ConanInvalidConfiguration("MSVC is not supported.")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
