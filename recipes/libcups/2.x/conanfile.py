@@ -35,7 +35,7 @@ class LibcupsConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "i18n": True,
+        "i18n": False,
         "with_dbus": True,
         "with_dnssd": "avahi",
         "with_gssapi": False,
