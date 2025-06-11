@@ -27,6 +27,7 @@ class LibvipsConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "deprecated": [True, False],
         "cpp": [True, False],
         "with_introspection": [True, False],
@@ -67,6 +68,7 @@ class LibvipsConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "deprecated": True,
         "cpp": True,
         "with_introspection": False,
@@ -223,7 +225,8 @@ class LibvipsConan(ConanFile):
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
         self.tool_requires("glib/[^2.70.0]")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -302,8 +305,10 @@ class LibvipsConan(ConanFile):
         # workaround https://github.com/conan-io/conan/issues/14213
         replace_in_file(self, meson_build,
                         "cfg_var.set_quoted('VIPS_PREFIX', prefix_dir)",
-                        "cfg_var.set_quoted('VIPS_PREFIX', prefix_dir.replace('\\\\', '/'))"
-                        )
+                        r"cfg_var.set_quoted('VIPS_PREFIX', prefix_dir.replace('\\', '/'))")
+
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
 
     def build(self):
         self._patch_sources()
