@@ -66,7 +66,7 @@ class BinutilsConan(ConanFile):
         self.tool_requires("bison/[^3.8.2]")
         self.tool_requires("flex/[^2.6.4]")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
 
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")

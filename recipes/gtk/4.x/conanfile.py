@@ -186,7 +186,7 @@ class GtkConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
         self.tool_requires("libxml2/[^2.12.5]")  # for xmllint
         self.tool_requires("sassc/3.6.2")
         if self.options.with_vulkan:

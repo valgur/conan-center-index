@@ -153,7 +153,7 @@ class GtkConan(ConanFile):
         self.tool_requires("glib/<host_version>")
         self.tool_requires("gdk-pixbuf/<host_version>")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
         if self.options.with_introspection:

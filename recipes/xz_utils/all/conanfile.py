@@ -74,7 +74,7 @@ class XZUtilsConan(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
         if self.options.get_safe("i18n"):
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

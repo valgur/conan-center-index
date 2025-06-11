@@ -360,7 +360,7 @@ class GStPluginsBadConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
         if "gst-orc" in self._all_reqs:

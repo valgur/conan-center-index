@@ -41,7 +41,7 @@ class MakeConan(ConanFile):
 
     def build_requirements(self):
         if self.options.get_safe("i18n"):
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
 
     def package_id(self):
         del self.info.settings.compiler

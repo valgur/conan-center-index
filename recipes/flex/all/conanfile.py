@@ -52,7 +52,7 @@ class FlexConan(ConanFile):
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
         if cross_building(self):
             self.tool_requires(f"{self.name}/{self.version}")
 

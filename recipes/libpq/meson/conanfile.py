@@ -180,7 +180,7 @@ class LibpqConan(ConanFile):
             self.tool_requires("flex/[^2.6.4]")
             self.tool_requires("bison/[^3.8.2]")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
         if self.options.with_llvm:
             self.tool_requires("llvm-core/<host_version>")
             if self.settings.compiler not in ["clang", "apple-clang"]:

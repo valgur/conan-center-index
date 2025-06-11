@@ -199,7 +199,7 @@ class wxWidgetsConan(ConanFile):
         if self._toolkit == "qt":
             self.tool_requires("qt/<host_version>")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
 
     def layout(self):
         cmake_layout(self, src_folder="src")

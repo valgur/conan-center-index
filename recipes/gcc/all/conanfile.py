@@ -67,7 +67,7 @@ class GccConan(ConanFile):
             self.tool_requires("binutils/[^2.42]")
         self.tool_requires("flex/[^2.6.4]")
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
 
     def validate_build(self):
         if is_msvc(self):

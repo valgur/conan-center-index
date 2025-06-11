@@ -39,8 +39,9 @@ class GettextConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "libintl": True,
+        "tools": False,
         "with_openmp": True,
-        # Handle default values for `threads`, `libintl` and `tools` in `config_options` method
     }
     languages = ["C"]
 
@@ -58,12 +59,6 @@ class GettextConan(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
         self.options.threads = {"Solaris": "solaris", "Windows": "windows"}.get(str(self.settings.os), "posix")
-        # Build only the library when building for host context and vice versa.
-        # This will cause the package to be built twice if both are used,
-        # but it's still better than always building the tools, which is significantly slower.
-        is_build_context = self.settings_target is not None
-        self.options.libintl = True
-        self.options.tools = is_build_context
 
     def configure(self):
         if self.options.shared:

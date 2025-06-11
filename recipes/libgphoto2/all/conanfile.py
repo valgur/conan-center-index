@@ -65,7 +65,7 @@ class LibGphoto2(ConanFile):
 
     def build_requirements(self):
         if self.options.i18n:
-            self.tool_requires("gettext/[>=0.21 <1]")
+            self.tool_requires("gettext/[>=0.21 <1]", options={"tools": True})
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
