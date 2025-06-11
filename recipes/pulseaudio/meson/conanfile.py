@@ -23,6 +23,7 @@ class PulseAudioConan(ConanFile):
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
+        "i18n": [True, False],
         "with_glib": [True, False],
         "with_fftw": [True, False],
         "with_x11": [True, False],
@@ -30,6 +31,7 @@ class PulseAudioConan(ConanFile):
         "with_dbus": [True, False],
     }
     default_options = {
+        "i18n": False,
         "with_glib": True,
         "with_fftw": False,
         "with_x11": True,
@@ -51,9 +53,10 @@ class PulseAudioConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("gettext/[>=0.21 <1]")
         self.requires("libiconv/[^1.17]")
         self.requires("libsndfile/[^1.2.2]")
+        if self.settings.os != "Linux":
+            self.requires("gettext/[>=0.21 <1]")
         if self.options.with_glib:
             self.requires("glib/[^2.70.0]")
         if self.options.get_safe("with_fftw"):
@@ -81,7 +84,8 @@ class PulseAudioConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("gettext/<host_version>")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -135,6 +139,8 @@ class PulseAudioConan(ConanFile):
         pkg.generate()
 
     def build(self):
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()

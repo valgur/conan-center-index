@@ -24,6 +24,7 @@ class PulseAudioConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_alsa": [True, False],
         "with_glib": [True, False],
         "with_fftw": [True, False],
@@ -34,6 +35,7 @@ class PulseAudioConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_alsa": True,
         "with_glib": False,
         "with_fftw": False,
@@ -87,10 +89,11 @@ class PulseAudioConan(ConanFile):
                 )
 
     def build_requirements(self):
-        self.tool_requires("gettext/[>=0.21 <1]")
         self.tool_requires("libtool/[^2.4.7]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -107,6 +110,7 @@ class PulseAudioConan(ConanFile):
         tc.configure_args.extend([
             f"--enable-shared={yes_no(self.options.shared)}",
             f"--enable-static={yes_no(not self.options.shared)}",
+            f"--enable-nls={yes_no(self.options.i18n)}",
             f"--enable-glib2={yes_no(self.options.with_glib)}",
             f"--with-fftw={yes_no(self.options.get_safe('with_fftw'))}",
             "--with-udev-rules-dir=${prefix}/bin/udev/rules.d",
@@ -118,7 +122,6 @@ class PulseAudioConan(ConanFile):
             tc.configure_args.append("ax_cv_check_cflags__pedantic__Werror__std_gnu11=yes")
         for lib in ["alsa", "x11", "openssl", "dbus"]:
             tc.configure_args.append(f"--enable-{lib}={yes_no(getattr(self.options, f'with_{lib}'))}")
-        # TODO: to remove when automatically handled by AutotoolsToolchain
         tc.configure_args.append("--libexecdir=${prefix}/bin")
         tc.generate()
         deps = AutotoolsDeps(self)
@@ -135,8 +138,10 @@ class PulseAudioConan(ConanFile):
         copy(self, "LICENSE", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "etc"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "bash-completion"))
+        rmdir(self, os.path.join(self.package_folder, "share", "zsh"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)

@@ -3,7 +3,5 @@ versions:
     folder: meson
   "14.2":
     folder: all
-  "14.0":
-    folder: all
   "13.0":
     folder: all
