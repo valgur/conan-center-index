@@ -57,9 +57,6 @@ class XZUtilsConan(ConanFile):
                            and self.settings.get_safe("compiler.runtime") is not None)
         return is_msvc(self) or assume_clang_cl
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -71,7 +68,6 @@ class XZUtilsConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
 
     def generate(self):
         if self._use_msbuild:
