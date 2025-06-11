@@ -22,6 +22,7 @@ class LibSoupConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "gssapi": [True, False],
         "with_brotli": [True, False],
         "with_introspection": [True, False],
@@ -29,6 +30,7 @@ class LibSoupConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "gssapi": False,
         "with_brotli": True,
         "with_introspection": False,
@@ -60,7 +62,8 @@ class LibSoupConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
 
@@ -95,6 +98,8 @@ class LibSoupConan(ConanFile):
             # the disabled gssapi dep is not handled correctly in libsoup/meson.build
             replace_in_file(self, os.path.join(self.source_folder, "libsoup", "meson.build"),
                             "gssapi_dep,", "")
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()
