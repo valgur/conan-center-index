@@ -30,6 +30,7 @@ class GStPluginsBaseConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_libdrm": [True, False],
         "with_libpng": [True, False],
         "with_libjpeg": [True, False],
@@ -43,6 +44,7 @@ class GStPluginsBaseConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_libdrm": False,
         "with_libpng": False,
         "with_libjpeg": False,
@@ -211,7 +213,8 @@ class GStPluginsBaseConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         self.tool_requires("gst-orc/<host_version>")
         if self.options.get_safe("with_wayland"):
             self.tool_requires("wayland/<host_version>")
@@ -294,7 +297,7 @@ class GStPluginsBaseConan(ConanFile):
         tc.project_options["tests"] = "disabled"
         tc.project_options["tools"] = "disabled"
         tc.project_options["introspection"] = feature(self.options.with_introspection)
-        tc.project_options["nls"] = "enabled"
+        tc.project_options["nls"] = feature(self.options.i18n)
         tc.project_options["orc"] = "enabled"
         tc.project_options["iso-codes"] = "disabled"  # requires iso-codes package
 
