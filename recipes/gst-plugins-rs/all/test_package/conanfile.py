@@ -29,5 +29,6 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
+            # self.run("gst-inspect-1.0 rsrtp", env="conanrun")
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")

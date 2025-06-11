@@ -42,13 +42,13 @@ int main(int argc, char * argv[])
 
     list_plugins();
 
-    GstElement * rsrtp = gst_element_factory_make("rsrtp", NULL);
-    if (!rsrtp) {
-        std::cerr << "failed to create rsrtp element" << std::endl;
+    GstElement * element = gst_element_factory_make("rtprecv", NULL);
+    if (!element) {
+        std::cerr << "failed to create rtprecv element" << std::endl;
         return -1;
     } else {
-        std::cout << "rsrtp has been created successfully" << std::endl;
+        std::cout << "rtprecv has been created successfully" << std::endl;
     }
-    gst_object_unref(GST_OBJECT(rsrtp));
+    gst_object_unref(GST_OBJECT(element));
     return 0;
 }
