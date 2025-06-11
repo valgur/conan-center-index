@@ -1,7 +1,6 @@
 import os
 
 from conan import ConanFile
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -20,6 +19,12 @@ class XkeyboardConfigConan(ConanFile):
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "i18n": [True, False],
+    }
+    default_options = {
+        "i18n": False,
+    }
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -42,13 +47,13 @@ class XkeyboardConfigConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
         tc.generate()
@@ -58,6 +63,8 @@ class XkeyboardConfigConan(ConanFile):
     def _patch_sources(self):
         replace_in_file(self, os.path.join(self.source_folder, "meson.build"),
                         "enable_pytest = ", "enable_pytest = false #")
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
 
     def build(self):
         self._patch_sources()
