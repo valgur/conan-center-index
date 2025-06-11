@@ -5,7 +5,7 @@ from pathlib import Path
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.files import *
-from conan.tools.gnu import PkgConfigDeps, AutotoolsDeps
+from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.microsoft import is_msvc
@@ -30,13 +30,15 @@ class GLibConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_elf": [True, False],
-        "with_selinux": [True, False],
         "with_mount": [True, False],
+        "with_selinux": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_elf": True,
         "with_mount": True,
         "with_selinux": True,
@@ -79,7 +81,8 @@ class GLibConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -102,7 +105,7 @@ class GLibConan(ConanFile):
             tc.project_options["xattr"] = "false"
         tc.project_options["tests"] = "false"
         tc.project_options["libelf"] = feature(self.options.get_safe("with_elf"))
-        tc.project_options["nls"] = "enabled"
+        tc.project_options["nls"] = feature(self.options.i18n)
         # introspection support is handled by glib-gir package
         tc.project_options["introspection"] = "disabled"
 
