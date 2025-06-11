@@ -39,7 +39,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _py_version(self):
-        return Version(self.dependencies["cpython"].ref.version)
+        return Version(str(self.dependencies["cpython"].ref.version).split("-")[0])
 
     @property
     def _test_setuptools(self):
@@ -128,9 +128,7 @@ class TestPackageConan(ConanFile):
             self.output.info(buffer.getvalue())
             version_detected = buffer.getvalue().splitlines()[-1].strip()
             if self._py_version != version_detected:
-                raise ConanException(
-                    f"python reported wrong version. Expected {self._py_version}. Got {version_detected}."
-                )
+                raise ConanException(f"python reported wrong version. Expected {self._py_version}. Got {version_detected}.")
 
             if self._supports_modules:
                 self._test_module("gdbm", self._cpython_option("with_gdbm"))
