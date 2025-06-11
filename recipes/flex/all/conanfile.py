@@ -23,20 +23,17 @@ class FlexConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
+    implements = ["auto_shared_fpic"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -53,6 +50,8 @@ class FlexConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("m4/1.4.19")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if cross_building(self):
             self.tool_requires(f"{self.name}/{self.version}")
 
@@ -62,7 +61,7 @@ class FlexConan(ConanFile):
 
     def generate(self):
         tc = GnuToolchain(self)
-        tc.configure_args["--disable-nls"] = None
+        tc.configure_args["--enable-nls"] = "yes" if self.options.i18n else "no"
         tc.configure_args["--disable-bootstrap"] = None
         tc.configure_args["HELP2MAN"] = "/bin/true"
         tc.configure_args["M4"] = "m4"
@@ -86,7 +85,9 @@ class FlexConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
 
