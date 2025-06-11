@@ -21,6 +21,12 @@ class M4Conan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-only"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "i18n": [True, False],
+    }
+    default_options = {
+        "i18n": False,
+    }
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -36,6 +42,8 @@ class M4Conan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -43,6 +51,9 @@ class M4Conan(ConanFile):
 
     def generate(self):
         tc = AutotoolsToolchain(self)
+        tc.configure_args.extend([
+            "--enable-nls" if self.options.i18n else "--disable-nls",
+        ])
         if is_msvc(self):
             # Avoid a `Assertion Failed Dialog Box` during configure with build_type=Debug
             # Visual Studio does not support the %n format flag:
@@ -113,11 +124,14 @@ class M4Conan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.libdirs = []
         self.cpp_info.includedirs = []
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
 
         # M4 environment variable is used by a lot of scripts as a way to override a hard-coded embedded m4 path
         bin_ext = ".exe" if self.settings.os == "Windows" else ""
