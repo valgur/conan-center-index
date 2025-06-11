@@ -1,5 +1,5 @@
-import glob
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -131,13 +131,10 @@ class AravisConan(ConanFile):
         meson.build()
 
     def _fix_library_names(self, path):
-        # https://github.com/mesonbuild/meson/issues/1412
-        if not self.options.shared and is_msvc(self):
-            with chdir(self, path):
-                for filename_old in glob.glob("*.a"):
-                    filename_new = filename_old[3:-2] + ".lib"
-                    self.output.info(f"rename {filename_old} into {filename_new}")
-                    rename(self, filename_old, filename_new)
+        if is_msvc(self):
+            for filename_old in Path(path).glob("*.a"):
+                filename_new = str(filename_old)[3:-2] + ".lib"
+                rename(self, filename_old, filename_new)
 
     def package(self):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

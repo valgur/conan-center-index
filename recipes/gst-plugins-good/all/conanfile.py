@@ -1,6 +1,5 @@
 import os
 import re
-import shutil
 from functools import cached_property, lru_cache
 from pathlib import Path
 
@@ -347,8 +346,8 @@ class GStPluginsGoodConan(ConanFile):
     def _fix_library_names(self, path):
         if is_msvc(self):
             for filename_old in Path(path).glob("*.a"):
-                filename_new = str(filename_old)[:-2] + ".lib"
-                shutil.move(filename_old, filename_new)
+                filename_new = str(filename_old)[3:-2] + ".lib"
+                rename(self, filename_old, filename_new)
 
     def package(self):
         copy(self, pattern="COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)

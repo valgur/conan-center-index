@@ -117,7 +117,7 @@ class GStreamerConan(ConanFile):
     def _fix_library_names(self, path):
         if is_msvc(self):
             for filename_old in Path(path).glob("*.a"):
-                filename_new = str(filename_old)[:-2] + ".lib"
+                filename_new = str(filename_old)[3:-2] + ".lib"
                 rename(self, filename_old, filename_new)
 
     def package(self):

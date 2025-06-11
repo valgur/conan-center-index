@@ -1,5 +1,4 @@
 import os
-import shutil
 from pathlib import Path
 
 from conan import ConanFile
@@ -63,8 +62,8 @@ class GStOrcConan(ConanFile):
     def _fix_library_names(self, path):
         if is_msvc(self):
             for filename_old in Path(path).glob("*.a"):
-                filename_new = str(filename_old)[:-2] + ".lib"
-                shutil.move(filename_old, filename_new)
+                filename_new = str(filename_old)[3:-2] + ".lib"
+                rename(self, filename_old, filename_new)
 
     def package(self):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)

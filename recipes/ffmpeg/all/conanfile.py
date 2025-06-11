@@ -733,6 +733,12 @@ class FFMpegConan(ConanFile):
         autotools.configure()
         autotools.make()
 
+    def _fix_library_names(self, path):
+        if is_msvc(self):
+            for filename_old in Path(path).glob("*.a"):
+                filename_new = str(filename_old)[3:-2] + ".lib"
+                rename(self, filename_old, filename_new)
+
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
@@ -747,8 +753,7 @@ class FFMpegConan(ConanFile):
                 rm(self, "*.def", os.path.join(self.package_folder, "lib"))
             else:
                 # ffmpeg produces `.a` files that are actually `.lib` files
-                for path in Path(self.package_folder, "lib").glob("*.a"):
-                    rename(self, path, path.parent / f"{path.stem[3:]}.lib")
+                self._fix_library_names(os.path.join(self.package_folder, "lib"))
 
     def _get_component_version(self, component):
         includedir = Path(self.package_folder, "include", f"lib{component}")
