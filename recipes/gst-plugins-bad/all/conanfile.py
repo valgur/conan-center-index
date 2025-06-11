@@ -177,6 +177,11 @@ class GStPluginsBadConan(ConanFile):
         if self.settings.os != "Android":
             del self.options.androidmedia
 
+        if is_msvc(self):
+            # dvbsubenc/libimagequant/libimagequant.c(1188): error C3016:
+            # 'row': index variable in OpenMP 'for' statement must have signed integral type
+            self.options.dvbsubenc = False
+
         # Remove options not used by the current version
         for opt, _ in self.options.items():
             if not opt.startswith("with_") and opt not in ["shared", "fPIC", "i18n"]:
