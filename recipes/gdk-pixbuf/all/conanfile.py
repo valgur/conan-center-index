@@ -5,7 +5,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import can_run
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -29,6 +29,7 @@ class GdkPixbufConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_libpng": [True, False],
         "with_libtiff": [True, False],
         "with_libjpeg": [True, False],
@@ -37,6 +38,7 @@ class GdkPixbufConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_libpng": True,
         "with_libtiff": True,
         "with_libjpeg": True,
@@ -77,9 +79,8 @@ class GdkPixbufConan(ConanFile):
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
-        # FIXME: unify libgettext and gettext??
-        # INFO: gettext provides msgfmt, which is required to build the .mo files
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
@@ -94,8 +95,6 @@ class GdkPixbufConan(ConanFile):
         return self.settings.compiler == "clang" and Version(self.settings.compiler.version) <= "12" and self.settings.build_type == "Debug"
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         if can_run(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -161,6 +160,9 @@ class GdkPixbufConan(ConanFile):
             # custom_target admits also an "env" parameter, but it's not working as expected
             replace_in_file(self, gdk_meson_build, "build_by_default: true", "build_by_default: false")
 
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
+
     def build(self):
         self._patch_sources()
         meson = Meson(self)
@@ -189,6 +191,8 @@ class GdkPixbufConan(ConanFile):
             ldflags = ["-rtlib=compiler-rt"]
             self.cpp_info.exelinkflags = ldflags
             self.cpp_info.sharedlinkflags = ldflags
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
 
         self.cpp_info.requires = [
             "glib::gobject-2.0",
