@@ -21,10 +21,12 @@ class FontconfigConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -44,7 +46,8 @@ class FontconfigConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -53,12 +56,10 @@ class FontconfigConan(ConanFile):
     def generate(self):
         tc = MesonToolchain(self)
         tc.project_options["auto_features"] = "enabled"
-        tc.project_options.update({
-            "doc": "disabled",
-            "nls": "disabled",
-            "tests": "disabled",
-            "tools": "disabled",
-        })
+        tc.project_options["doc"] = "disabled"
+        tc.project_options["nls"] = "enabled" if self.options.i18n else "disabled"
+        tc.project_options["tests"] = "disabled"
+        tc.project_options["tools"] = "disabled"
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.generate()
@@ -85,7 +86,7 @@ class FontconfigConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", "Fontconfig::Fontconfig")
         self.cpp_info.set_property("pkg_config_name", "fontconfig")
         self.cpp_info.libs = ["fontconfig"]
-        self.cpp_info.resdirs = [os.path.join("etc"), os.path.join("share")]
+        self.cpp_info.resdirs = ["etc", "share"]
         if self.settings.os in ("Linux", "FreeBSD"):
             self.cpp_info.system_libs.extend(["m", "pthread"])
 
