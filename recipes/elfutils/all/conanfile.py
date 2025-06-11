@@ -2,7 +2,6 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -25,6 +24,7 @@ class ElfutilsConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "debuginfod": [True, False],
         "libdebuginfod": [True, False],
         "with_bzlib": [True, False],
@@ -35,6 +35,7 @@ class ElfutilsConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "debuginfod": False,
         "libdebuginfod": False,
         "with_bzlib": True,
@@ -78,11 +79,12 @@ class ElfutilsConan(ConanFile):
             self.requires("libmicrohttpd/0.9.75")
 
     def build_requirements(self):
-        self.tool_requires("gettext/[>=0.21 <1]")
         self.tool_requires("automake/1.16.5")
         self.tool_requires("m4/1.4.19")
         self.tool_requires("flex/[^2.6.4]")
         self.tool_requires("bison/[^3.8.2]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.settings_build.os == "Windows":
@@ -113,8 +115,6 @@ class ElfutilsConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
             "--disable-werror",
@@ -140,6 +140,9 @@ class ElfutilsConan(ConanFile):
         deps.generate()
 
     def _patch_sources(self):
+        if not self.options.i18n:
+            replace_in_file(self, os.path.join(self.source_folder, "configure.ac"), "AM_GNU_GETTEXT", "# AM_GNU_GETTEXT")
+            replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"), " po ", " ")
         replace_in_file(self, os.path.join(self.source_folder, "config", "eu.am"),
                         "-Werror", "", strict=False)
 
@@ -154,20 +157,20 @@ class ElfutilsConan(ConanFile):
         copy(self, pattern="COPYING*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "etc"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         if self.options.shared:
             rm(self, "*.a", os.path.join(self.package_folder, "lib"))
         else:
-            rm(self, "*.so", os.path.join(self.package_folder, "lib"))
-            rm(self, "*.so.1", os.path.join(self.package_folder, "lib"))
+            rm(self, "*.so*", os.path.join(self.package_folder, "lib"))
 
     def package_info(self):
         # library components
-        self.cpp_info.components["libelf"].libs = ["elf"]
-        self.cpp_info.components["libelf"].requires = ["zlib-ng::zlib-ng"]
         self.cpp_info.components["libelf"].set_property("pkg_config_name", "libelf")
+        self.cpp_info.components["libelf"].libs = ["elf"]
+        if self.options.i18n:
+            self.cpp_info.components["libelf"].resdirs = ["share"]
+        self.cpp_info.components["libelf"].requires = ["zlib-ng::zlib-ng"]
         if self.options.with_bzlib:
             self.cpp_info.components["libelf"].requires.append("bzip2::bzip2")
         if self.options.with_lzma:
@@ -177,9 +180,9 @@ class ElfutilsConan(ConanFile):
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libelf"].system_libs.append("pthread")
 
+        self.cpp_info.components["libdw"].set_property("pkg_config_name", "libdw")
         self.cpp_info.components["libdw"].libs = ["dw"]
         self.cpp_info.components["libdw"].requires = ["libelf"]
-        self.cpp_info.components["libdw"].set_property("pkg_config_name", "libdw")
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libdw"].system_libs.extend(["dl"])
 
@@ -188,9 +191,9 @@ class ElfutilsConan(ConanFile):
         self.cpp_info.components["libasm"].requires = ["libelf", "libdw"]
 
         if self.options.get_safe("libdebuginfod"):
+            self.cpp_info.components["libdebuginfod"].set_property("pkg_config_name", "libdebuginfod")
             self.cpp_info.components["libdebuginfod"].libs = ["debuginfod"]
             self.cpp_info.components["libdebuginfod"].requires = ["libcurl::curl"]
-            self.cpp_info.components["libdebuginfod"].set_property("pkg_config_name", "libdebuginfod")
 
         if self.settings_target is not None:
             bin_ext = ".exe" if self.settings.os == "Windows" else ""
