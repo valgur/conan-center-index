@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -25,6 +26,8 @@ class PackageConan(ConanFile):
     default_options = {
         "with_dri2": False,
     }
+
+    python_requires = "conan-meson/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -65,6 +68,8 @@ class PackageConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.libs = ["vdpau"]

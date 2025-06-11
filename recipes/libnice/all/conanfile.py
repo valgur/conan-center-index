@@ -36,6 +36,8 @@ class LibniceConan(ConanFile):
         "with_introspection": False,
     }
 
+    python_requires = "conan-meson/latest"
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -114,6 +116,7 @@ class LibniceConan(ConanFile):
                 with chdir(self, os.path.join(self.package_folder, "lib")):
                     rename(self, "libnice.a", "nice.lib")
         fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.components["libnice"].set_property("pkg_config_name", "nice")

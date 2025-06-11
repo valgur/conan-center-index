@@ -1,4 +1,3 @@
-import glob
 import os
 
 from conan import ConanFile
@@ -36,6 +35,8 @@ class GrapheneConan(ConanFile):
         "with_glib": True,
         "with_introspection": False,
     }
+
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -126,7 +127,7 @@ class GrapheneConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
         fix_apple_shared_install_name(self)
-        fix_msvc_libname(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def _get_simd_config(self):
         config = load(self, os.path.join(self.package_folder, "lib", "graphene-1.0", "include", "graphene-config.h"))
@@ -170,17 +171,3 @@ class GrapheneConan(ConanFile):
             # https://salsa.debian.org/gnome-team/graphene/-/blob/1.10.0/src/meson.build?ref_type=tags#L79-93
             simd_info = "\n".join(f"graphene_has_{k}={int(v)}" for k, v in simd.items())
             self.cpp_info.components["graphene-gobject-1.0"].set_property("pkg_config_custom_content", simd_info)
-
-def fix_msvc_libname(conanfile, remove_lib_prefix=True):
-    """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
-        return
-    libdirs = getattr(conanfile.cpp.package, "libdirs")
-    for libdir in libdirs:
-        for ext in [".dll.a", ".dll.lib", ".a"]:
-            full_folder = os.path.join(conanfile.package_folder, libdir)
-            for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
-                if remove_lib_prefix and libname[0:3] == "lib":
-                    libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

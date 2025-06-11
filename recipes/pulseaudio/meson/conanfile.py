@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
@@ -38,6 +39,8 @@ class PulseAudioConan(ConanFile):
         "with_openssl": True,
         "with_dbus": False,
     }
+
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
@@ -155,6 +158,8 @@ class PulseAudioConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "bash-completion"))
         rmdir(self, os.path.join(self.package_folder, "share", "zsh"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.components["pulse"].set_property("pkg_config_name", "libpulse")

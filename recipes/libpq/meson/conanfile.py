@@ -7,7 +7,6 @@ from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import MesonToolchain, Meson
-from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -98,6 +97,8 @@ class LibpqConan(ConanFile):
         "with_zlib": "Enable zlib",
         "with_zstd": "Enable zstd",
     }
+
+    python_requires = "conan-meson/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -238,17 +239,6 @@ class LibpqConan(ConanFile):
         meson.configure()
         meson.build()
 
-    def _fix_static_library_names(self):
-        # Meson outputs static libraries with a .a extension on Windows,
-        # which is not compatible with Conan and CMake.
-        # The .lib files are empty import libs and need to be removed.
-        if self.settings.os == "Windows" and not self.options.shared:
-            lib_folder = Path(self.package_folder, "lib")
-            for import_lib in lib_folder.glob("*.lib"):
-                import_lib.unlink()
-            for static_lib in lib_folder.glob("*.a"):
-                static_lib.rename(static_lib.with_suffix(".lib"))
-
     def _remove_unused_libraries_from_package(self):
         # Meson always builds both static and shared libraries.
         # Remove the incorrect ones from the package.
@@ -284,25 +274,22 @@ class LibpqConan(ConanFile):
         copy(self, "*.h",
              os.path.join(self.build_folder, "src", "backend", "catalog"),
              os.path.join(self.package_folder, "include", "catalog"))
-        fix_apple_shared_install_name(self)
-        self._fix_static_library_names()
         self._remove_unused_libraries_from_package()
         self._remove_executables()
         rm(self, "*.pdb", self.package_folder, recursive=True)
-        # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
-
-    def _libname(self, name):
-        return "lib" + name if is_msvc(self) else name
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_find_mode", "both")
         self.cpp_info.set_property("cmake_file_name", "PostgreSQL")
-        self.cpp_info.set_property("pkg_config_name", "libpq-do-not-use")
+        self.cpp_info.set_property("pkg_config_name", "_libpq")
 
         self.cpp_info.components["pq"].set_property("pkg_config_name", "libpq")
         self.cpp_info.components["pq"].set_property("cmake_target_name", "PostgreSQL::PostgreSQL")
-        self.cpp_info.components["pq"].libs = [self._libname("pq")]
+        self.cpp_info.components["pq"].libs = ["pq"]
         self.cpp_info.components["pq"].libdirs.append(os.path.join("lib", "postgresql"))
         self.cpp_info.components["pq"].resdirs = ["share"]
         self.cpp_info.components["pq"].requires = ["_common"]
@@ -314,11 +301,7 @@ class LibpqConan(ConanFile):
         # Private frontend static libs and dependencies
         self.cpp_info.components["_common"].libs = []
         if not self.options.shared:
-            self.cpp_info.components["_common"].libs.extend([
-                self._libname("pgfeutils"),
-                self._libname("pgcommon_shlib"),
-                self._libname("pgport_shlib"),
-            ])
+            self.cpp_info.components["_common"].libs.extend(["pgfeutils", "pgcommon_shlib", "pgport_shlib"])
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["_common"].system_libs.extend(["pthread", "m"])
         elif self.settings.os == "Windows":
@@ -331,15 +314,15 @@ class LibpqConan(ConanFile):
             self.cpp_info.components["_common"].requires.append("zstd::zstd")
 
         self.cpp_info.components["pgtypes"].set_property("pkg_config_name", "libpgtypes")
-        self.cpp_info.components["pgtypes"].libs = [self._libname("pgtypes")]
+        self.cpp_info.components["pgtypes"].libs = ["pgtypes"]
         self.cpp_info.components["pgtypes"].requires = ["_common"]
 
         self.cpp_info.components["ecpg"].set_property("pkg_config_name", "libecpg")
-        self.cpp_info.components["ecpg"].libs = [self._libname("ecpg")]
+        self.cpp_info.components["ecpg"].libs = ["ecpg"]
         self.cpp_info.components["ecpg"].requires = ["_common", "pgtypes", "pq"]
 
         self.cpp_info.components["ecpg_compat"].set_property("pkg_config_name", "libecpg_compat")
-        self.cpp_info.components["ecpg_compat"].libs = [self._libname("ecpg_compat")]
+        self.cpp_info.components["ecpg_compat"].libs = ["ecpg_compat"]
         self.cpp_info.components["ecpg_compat"].requires = ["_common", "ecpg", "pgtypes"]
 
         mod_requires = []

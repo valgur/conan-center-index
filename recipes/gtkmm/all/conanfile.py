@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
@@ -33,6 +34,8 @@ class GtkmmConan(ConanFile):
         "with_atkmm": False,  # TODO: enable when atkmm is available
     }
     implements = ["auto_shared_fpic"]
+
+    python_requires = "conan-meson/latest"
 
     @property
     def _is_gtk4(self):
@@ -108,9 +111,8 @@ class GtkmmConan(ConanFile):
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
-        if is_msvc(self) and not self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", f"libgtkmm-{self._abi_version}.a"),
-                         os.path.join(self.package_folder, "lib", f"gtkmm-{self._abi_version}.lib"))
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         if not self._is_gtk4:

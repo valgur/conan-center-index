@@ -2,6 +2,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd, cross_building
 from conan.tools.env import Environment
 from conan.tools.files import *
@@ -51,6 +52,8 @@ class DpdkConan(ConanFile):
         "with_openssl": True,
         "platform": "generic",
     }
+
+    python_requires = "conan-meson/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -167,6 +170,8 @@ class DpdkConan(ConanFile):
             rm(self, "*.so*", os.path.join(self.package_folder, "lib"), recursive=True)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libdpdk")

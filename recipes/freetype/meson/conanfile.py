@@ -45,6 +45,8 @@ class FreetypeConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    python_requires = "conan-meson/latest"
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -139,10 +141,6 @@ class FreetypeConan(ConanFile):
         meson = Meson(self)
         meson.install()
 
-        # As a workaround to support versions of CMake before 3.29, rename the libfreetype.a static library to freetype.lib on Windows.
-        if self.settings.os == "Windows" and not self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "libfreetype.a"), os.path.join(self.package_folder, "lib", "freetype.lib"))
-
         ver = Version(self.version)
         if self.settings.os == "Windows" and self.options.shared and "2.13.0" <= ver < "2.14.0":
             # Duplicate DLL name for backwards compatibility with earlier recipe revisions
@@ -167,6 +165,7 @@ class FreetypeConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         self._create_cmake_module_variables(os.path.join(self.package_folder, self._module_vars_rel_path))
         fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def _create_cmake_module_variables(self, module_file):
         content = textwrap.dedent(f"""\

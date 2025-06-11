@@ -734,10 +734,10 @@ class FFMpegConan(ConanFile):
         autotools.make()
 
     def _fix_library_names(self, path):
-        if is_msvc(self):
+        if is_msvc(self) or self.settings.os == "Windows" and self.settings.get_safe("compiler.runtime"):
             for filename_old in Path(path).glob("*.a"):
-                filename_new = str(filename_old)[3:-2] + ".lib"
-                rename(self, filename_old, filename_new)
+                filename_new = filename_old.name[3:-2] + ".lib"
+                rename(self, filename_old, filename_old.parent / filename_new)
 
     def package(self):
         copy(self, "LICENSE.md", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))

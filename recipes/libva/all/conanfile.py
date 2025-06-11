@@ -37,6 +37,8 @@ class PackageConan(ConanFile):
         "with_win32": True,
     }
 
+    python_requires = "conan-meson/latest"
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -121,6 +123,7 @@ class PackageConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
         fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.components["va"].libs = ["va"]

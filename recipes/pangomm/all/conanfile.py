@@ -31,6 +31,8 @@ class PangommConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-meson/latest"
+
     @property
     def _abi_version(self):
         return "2.48" if Version(self.version) >= "2.48.0" else "1.4"
@@ -110,9 +112,7 @@ class PangommConan(ConanFile):
         meson.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
-        if is_msvc(self) and not self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", f"libpangomm-{self._abi_version}.a"),
-                         os.path.join(self.package_folder, "lib", f"pangomm-{self._abi_version}.lib"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         pangomm_lib = f"pangomm-{self._abi_version}"

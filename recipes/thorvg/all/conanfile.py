@@ -65,18 +65,7 @@ class ThorvgConan(ConanFile):
         "with_extra": "Enable support for exceptionally advanced features",
     }
 
-    @property
-    def _min_cppstd(self):
-        return 14
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "gcc": "6",
-            "clang": "5",
-            "apple-clang": "10",
-            "msvc": "191",
-        }
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -92,12 +81,7 @@ class ThorvgConan(ConanFile):
         basic_layout(self, src_folder="src")
 
     def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 14)
 
         if is_msvc(self) and self.settings.build_type == "Debug":
             raise ConanInvalidConfiguration(
@@ -185,9 +169,7 @@ class ThorvgConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
-
-        if is_msvc(self) and not self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "libthorvg.a"), os.path.join(self.package_folder, "lib", "thorvg.lib"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.libs = ["thorvg"]

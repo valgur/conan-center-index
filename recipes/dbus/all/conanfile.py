@@ -59,6 +59,8 @@ class DbusConan(ConanFile):
     }
     languages = ["C"]
 
+    python_requires = "conan-meson/latest"
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -162,8 +164,7 @@ class DbusConan(ConanFile):
         # rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
         # rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         fix_apple_shared_install_name(self)
-        if self.settings.os == "Windows" and not self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "libdbus-1.a"), os.path.join(self.package_folder, "lib", "dbus-1.lib"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "DBus1")

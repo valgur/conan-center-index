@@ -3,7 +3,7 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.apple.apple import is_apple_os
+from conan.tools.apple.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import can_run
 from conan.tools.env import VirtualRunEnv, Environment
 from conan.tools.files import *
@@ -62,6 +62,8 @@ class GtkConan(ConanFile):
     }
     languages = ["C"]
     no_copy_source = True
+
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -285,6 +287,8 @@ class GtkConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
         rm(self, "*.pdb", os.path.join(self.package_folder, "lib"), recursive=True)
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         # https://gitlab.gnome.org/GNOME/gtk/-/blob/4.15.6/meson.build?ref_type=tags#L841-883

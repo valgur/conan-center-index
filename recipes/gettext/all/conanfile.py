@@ -44,6 +44,8 @@ class GettextConan(ConanFile):
     }
     languages = ["C"]
 
+    python_requires = "conan-meson/latest"
+
     @property
     def _is_clang_cl(self):
         return self.settings.os == "Windows" and self.settings.compiler == "clang" and \
@@ -245,7 +247,7 @@ class GettextConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "share", "info"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        fix_msvc_libname(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         if self.options.libintl:
@@ -265,18 +267,3 @@ class GettextConan(ConanFile):
             autopoint = os.path.join(self.package_folder, "bin", "autopoint")
             self.buildenv_info.append_path("ACLOCAL_PATH", aclocal)
             self.buildenv_info.define_path("AUTOPOINT", autopoint)
-
-
-def fix_msvc_libname(conanfile, remove_lib_prefix=True):
-    """remove lib prefix & change extension to .lib in case of cl-like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
-        return
-    libdirs = getattr(conanfile.cpp.package, "libdirs")
-    for libdir in libdirs:
-        folder = Path(conanfile.package_folder, libdir)
-        for ext in [".dll.a", ".dll.lib", ".a"]:
-            for path in folder.glob(f"*{ext}"):
-                libname = path.name[:-len(ext)]
-                if remove_lib_prefix and libname.startswith("lib"):
-                    libname = libname[3:]
-                rename(conanfile, path, folder / f"{libname}.lib")

@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
@@ -27,6 +28,8 @@ class PkgConfConan(ConanFile):
         "fPIC": True,
     }
     languages = ["C"]
+
+    python_requires = "conan-meson/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -85,11 +88,7 @@ class PkgConfConan(ConanFile):
         meson = Meson(self)
         meson.install()
 
-        if is_msvc(self):
-            rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
-            if self.options.enable_lib and not self.options.shared:
-                rename(self, os.path.join(self.package_folder, "lib", "libpkgconf.a"),
-                          os.path.join(self.package_folder, "lib", "pkgconf.lib"),)
+        rm(self, "*.pdb", self.package_folder, recursive=True)
 
         if not self.options.enable_lib:
             rmdir(self, os.path.join(self.package_folder, "lib"))
@@ -98,6 +97,9 @@ class PkgConfConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+
+        fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         if self.options.enable_lib:

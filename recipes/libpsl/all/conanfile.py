@@ -1,4 +1,3 @@
-import glob
 import os
 
 from conan import ConanFile
@@ -33,6 +32,8 @@ class LibPslConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
+
+    python_requires = "conan-meson/latest"
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -95,7 +96,7 @@ class LibPslConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
         fix_apple_shared_install_name(self)
-        fix_msvc_libname(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libpsl")
@@ -104,17 +105,3 @@ class LibPslConan(ConanFile):
             self.cpp_info.system_libs = ["ws2_32"]
         if not self.options.shared:
             self.cpp_info.defines = ["PSL_STATIC"]
-
-def fix_msvc_libname(conanfile, remove_lib_prefix=True):
-    """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
-        return
-    libdirs = getattr(conanfile.cpp.package, "libdirs")
-    for libdir in libdirs:
-        for ext in [".dll.a", ".dll.lib", ".a"]:
-            full_folder = os.path.join(conanfile.package_folder, libdir)
-            for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
-                if remove_lib_prefix and libname[0:3] == "lib":
-                    libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

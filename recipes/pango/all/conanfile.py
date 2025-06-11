@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -8,7 +7,7 @@ from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
+from conan.tools.microsoft import is_msvc_static_runtime
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
@@ -46,6 +45,8 @@ class PangoConan(ConanFile):
         "with_introspection": False,
     }
     languages = ["C"]
+
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -157,17 +158,11 @@ class PangoConan(ConanFile):
         meson.configure()
         meson.build()
 
-    def _fix_library_names(self, path):
-        if is_msvc(self):
-            for filename_old in Path(path).glob("*.a"):
-                filename_new = str(filename_old)[3:-2] + ".lib"
-                rename(self, filename_old, filename_new)
-
     def package(self):
         copy(self, "COPYING", self.source_folder, os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
-        self._fix_library_names(os.path.join(self.package_folder, "lib"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
 

@@ -30,6 +30,8 @@ class PlutoVGConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    python_requires = "conan-meson/latest"
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -69,10 +71,7 @@ class PlutoVGConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
         fix_apple_shared_install_name(self)
-
-        if is_msvc(self) and not self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", "libplutovg.a"),
-                         os.path.join(self.package_folder, "lib", "plutovg.lib"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "plutovg")

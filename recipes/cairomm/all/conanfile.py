@@ -32,6 +32,8 @@ class CairommConan(ConanFile):
         "fPIC": True,
     }
 
+    python_requires = "conan-meson/latest"
+
     @property
     def _abi_version(self):
         return "1.16" if Version(self.version) >= "1.16.0" else "1.0"
@@ -117,9 +119,7 @@ class CairommConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"), recursive=True)
         fix_apple_shared_install_name(self)
-        if is_msvc(self) and not self.options.shared:
-            rename(self, os.path.join(self.package_folder, "lib", f"libcairomm-{self._abi_version}.a"),
-                         os.path.join(self.package_folder, "lib", f"cairomm-{self._abi_version}.lib"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         name = f"cairomm-{self._abi_version}"

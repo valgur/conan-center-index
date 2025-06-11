@@ -32,6 +32,8 @@ class OpenH264Conan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-meson/latest"
+
     @property
     def _is_clang_cl(self):
         return self.settings.os == 'Windows' and self.settings.compiler == 'clang'
@@ -97,10 +99,8 @@ class OpenH264Conan(ConanFile):
                     # INFO: Preserve same old library name as when building with Make on Windows but using Meson
                     rename(self, os.path.join(self.package_folder, "lib", "openh264.lib"),
                            os.path.join(self.package_folder, "lib", "openh264_dll.lib"))
-            if not self.options.shared:
-                rename(self, os.path.join(self.package_folder, "lib", "libopenh264.a"),
-                        os.path.join(self.package_folder, "lib", "openh264.lib"))
         fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         suffix = "_dll" if self._preserve_dll_name else ""

@@ -33,6 +33,8 @@ class LibXMLPlusPlus(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-meson/latest"
+
     @property
     def _lib_version(self):
         return "5.0"
@@ -100,6 +102,7 @@ class LibXMLPlusPlus(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", f"libxml++-{self._lib_version}"))
         fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
         if is_msvc(self):
             rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))

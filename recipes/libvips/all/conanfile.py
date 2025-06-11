@@ -1,4 +1,3 @@
-import glob
 import os
 
 from conan import ConanFile
@@ -106,6 +105,8 @@ class LibvipsConan(ConanFile):
         "with_analyse": True,
         "with_radiance": True,
     }
+
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -324,7 +325,7 @@ class LibvipsConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         fix_apple_shared_install_name(self)
-        fix_msvc_libname(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.components["vips"].set_property("pkg_config_name", "vips")
@@ -392,17 +393,3 @@ class LibvipsConan(ConanFile):
             self.cpp_info.components["vips-cpp"].set_property("pkg_config_name", "vips-cpp")
             self.cpp_info.components["vips-cpp"].libs = ["vips-cpp"]
             self.cpp_info.components["vips-cpp"].requires = ["vips"]
-
-def fix_msvc_libname(conanfile, remove_lib_prefix=True):
-    """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
-        return
-    libdirs = getattr(conanfile.cpp.package, "libdirs")
-    for libdir in libdirs:
-        for ext in [".dll.a", ".dll.lib", ".a"]:
-            full_folder = os.path.join(conanfile.package_folder, libdir)
-            for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
-                if remove_lib_prefix and libname[0:3] == "lib":
-                    libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))

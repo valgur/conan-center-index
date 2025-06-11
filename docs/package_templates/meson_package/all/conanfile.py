@@ -45,6 +45,9 @@ class PackageConan(ConanFile):
     # For plain C projects only.
     languages = ["C"]
 
+    # For fix_msvc_libnames()
+    python_requires = "conan-meson/latest"
+
     # no exports_sources attribute, but export_sources(self) method instead
     def export_sources(self):
         export_conandata_patches(self)
@@ -114,6 +117,8 @@ class PackageConan(ConanFile):
 
         # In shared lib/executable files, meson set install_name (macOS) to lib dir absolute path instead of @rpath, it's not relocatable, so fix it
         fix_apple_shared_install_name(self)
+        # Rename lib*.a files to *.lib on MSVC
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         # if package provides a pkgconfig file (package.pc, usually installed in <prefix>/lib/pkgconfig/)

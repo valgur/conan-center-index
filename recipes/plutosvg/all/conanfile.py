@@ -33,6 +33,8 @@ class PlutoSVGConan(ConanFile):
     languages = "C"
     implements = ["auto_shared_fpic"]
 
+    python_requires = "conan-meson/latest"
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -74,6 +76,7 @@ class PlutoSVGConan(ConanFile):
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
 
         fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "plutosvg")

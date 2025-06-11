@@ -1,6 +1,5 @@
 import os
 import textwrap
-from pathlib import Path
 
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
@@ -45,6 +44,8 @@ class GLibConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
+
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -143,7 +144,7 @@ class GLibConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.pdb", os.path.join(self.package_folder, "bin"))
         fix_apple_shared_install_name(self)
-        fix_msvc_libname(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.components["glib-2.0"].set_property("pkg_config_name", "glib-2.0")
@@ -286,16 +287,3 @@ class GLibConan(ConanFile):
         self.cpp_info.components["glib-2.0"].set_property(
             "pkg_config_custom_content",
             "\n".join(f"{key}={value}" for key, value in pkgconfig_variables.items()))
-
-def fix_msvc_libname(conanfile, remove_lib_prefix=True):
-    """remove lib prefix & change extension to .lib in case of cl like compiler"""
-    if not conanfile.settings.get_safe("compiler.runtime"):
-        return
-    for libdir in getattr(conanfile.cpp.package, "libdirs"):
-        libdir = Path(conanfile.package_folder, libdir)
-        for ext in [".dll.a", ".dll.lib", ".a"]:
-            for path in sorted(libdir.glob(f"*{ext}")):
-                libname = path.name[0:-len(ext)]
-                if remove_lib_prefix and libname.startswith("lib"):
-                    libname = libname[3:]
-                rename(conanfile, path, path.parent / f"{libname}.lib")

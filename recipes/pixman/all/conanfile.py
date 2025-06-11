@@ -30,6 +30,8 @@ class PixmanConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    python_requires = "conan-meson/latest"
+
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -75,9 +77,7 @@ class PixmanConan(ConanFile):
         rmdir(self, os.path.join(lib_folder, "pkgconfig"))
         rm(self, "*.la", lib_folder)
         fix_apple_shared_install_name(self)
-        if is_msvc(self) and not self.options.shared:
-            prefix = "libpixman-1"
-            rename(self, os.path.join(lib_folder, f"{prefix}.a"), os.path.join(lib_folder, f"{prefix}.lib"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.libs = ['libpixman-1'] if self.settings.os == "Windows" and not self.options.shared else ['pixman-1']

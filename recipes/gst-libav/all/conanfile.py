@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -30,6 +29,8 @@ class GStLibAVConan(ConanFile):
         "fPIC": True,
     }
     languages = ["C"]
+
+    python_requires = "conan-meson/latest"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -85,18 +86,11 @@ class GStLibAVConan(ConanFile):
         meson.configure()
         meson.build()
 
-    def _fix_library_names(self, path):
-        if is_msvc(self):
-            for filename_old in Path(path).glob("*.a"):
-                filename_new = str(filename_old)[3:-2] + ".lib"
-                rename(self, filename_old, filename_new)
-
     def package(self):
         copy(self, "COPYING", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         meson = Meson(self)
         meson.install()
-        self._fix_library_names(os.path.join(self.package_folder, "lib"))
-        self._fix_library_names(os.path.join(self.package_folder, "lib", "gstreamer-1.0"))
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "gstreamer-1.0", "pkgconfig"))
         rm(self, "*.pdb", self.package_folder, recursive=True)

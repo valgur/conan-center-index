@@ -34,6 +34,8 @@ class LibproxyConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
+    python_requires = "conan-meson/latest"
+
     def layout(self):
         basic_layout(self, src_folder="src")
 
@@ -82,6 +84,7 @@ class LibproxyConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         fix_apple_shared_install_name(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.components["libproxy-1.0"].set_property("pkg_config_name", "libproxy-1.0")

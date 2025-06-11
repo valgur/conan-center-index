@@ -8,7 +8,6 @@ from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
-from conan.tools.microsoft import is_msvc
 
 required_conan_version = ">=2.1"
 
@@ -21,6 +20,7 @@ class LibSigCppConan(ConanFile):
     description = "libsigc++ implements a typesafe callback system for standard C++."
     topics = ("callback",)
 
+    package_type = "library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "shared": [True, False],
@@ -31,6 +31,8 @@ class LibSigCppConan(ConanFile):
         "fPIC": True,
     }
     implements = ["auto_shared_fpic"]
+
+    python_requires = "conan-meson/latest"
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -76,23 +78,9 @@ class LibSigCppConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "lib", "sigc++-2.0"))
         fix_apple_shared_install_name(self)
-        fix_msvc_libname(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "sigc++-2.0")
         self.cpp_info.includedirs.append(os.path.join("include", "sigc++-2.0"))
         self.cpp_info.libs = ["sigc-2.0"]
-
-def fix_msvc_libname(conanfile, remove_lib_prefix=True):
-    """remove lib prefix & change extension to .lib"""
-    if not is_msvc(conanfile):
-        return
-    libdirs = getattr(conanfile.cpp.package, "libdirs")
-    for libdir in libdirs:
-        for ext in [".dll.a", ".dll.lib", ".a"]:
-            full_folder = os.path.join(conanfile.package_folder, libdir)
-            for filepath in glob.glob(os.path.join(full_folder, f"*{ext}")):
-                libname = os.path.basename(filepath)[0:-len(ext)]
-                if remove_lib_prefix and libname[0:3] == "lib":
-                    libname = libname[3:]
-                rename(conanfile, filepath, os.path.join(os.path.dirname(filepath), f"{libname}.lib"))
