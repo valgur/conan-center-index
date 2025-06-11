@@ -162,6 +162,7 @@ class GStPluginsBadConan(ConanFile):
             del self.options.dc1394
             del self.options.dvb
             del self.options.fbdev
+            del self.options.kms
             del self.options.with_libdrm
             del self.options.with_wayland
             del self.options.with_xorg
