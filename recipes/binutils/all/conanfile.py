@@ -22,6 +22,7 @@ class BinutilsConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
 
     options = {
+        "i18n": [True, False],
         "multilib": [True, False],
         "with_libquadmath": [True, False],
         "target_triplet": [None, "ANY"],
@@ -29,6 +30,7 @@ class BinutilsConan(ConanFile):
         "add_unprefixed_to_path": [True, False],
     }
     default_options = {
+        "i18n": False,
         "multilib": True,
         "with_libquadmath": True,
         "target_triplet": None,
@@ -63,6 +65,8 @@ class BinutilsConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         self.tool_requires("bison/[^3.8.2]")
         self.tool_requires("flex/[^2.6.4]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")
@@ -80,7 +84,7 @@ class BinutilsConan(ConanFile):
     def generate(self):
         def yes_no(opt): return "yes" if opt else "no"
         tc = AutotoolsToolchain(self)
-        tc.configure_args.append("--disable-nls")
+        tc.configure_args.append(f"--enable-nls={yes_no(self.options.i18n)}")
         tc.configure_args.append(f"--target={self.options.target_triplet}")
         tc.configure_args.append(f"--enable-multilib={yes_no(self.options.multilib)}")
         tc.configure_args.append(f"--with-zlib={unix_path(self, self.dependencies['zlib-ng'].package_folder)}")
@@ -96,13 +100,18 @@ class BinutilsConan(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        if not self.options.i18n:
+            rmdir(self, os.path.join(self.package_folder, "share"))
+        else:
+            rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"), recursive=True)
         copy(self, "COPYING*", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False,)
 
     def package_info(self):
         target_bindir = os.path.join(self._exec_prefix, str(self.options.target_triplet), "bin")
         self.cpp_info.bindirs = ["bin", target_bindir]
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
 
         bindir = os.path.join(self.package_folder, "bin")
         absolute_target_bindir = os.path.join(self.package_folder, target_bindir)
