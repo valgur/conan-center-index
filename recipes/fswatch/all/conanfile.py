@@ -23,10 +23,12 @@ class WatcherConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
-        "fPIC": True
+        "fPIC": True,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -45,10 +47,12 @@ class WatcherConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.ref} does not support MSVC due pthread requirement.")
 
     def requirements(self):
-        self.requires("gettext/[>=0.21 <1]")
+        if self.options.i18n and self.settings.os != "Linux":
+            self.requires("gettext/[>=0.21 <1]")
 
     def build_requirements(self):
-        self.tool_requires("gettext/<host_version>")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -59,6 +63,7 @@ class WatcherConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables["USE_NLS"] = self.options.i18n
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
@@ -73,12 +78,13 @@ class WatcherConan(ConanFile):
         copy(self, "COPYING*", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
         cmake = CMake(self)
         cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
-        self.cpp_info.libs = ["fswatch"]
         self.cpp_info.set_property("cmake_file_name", "fswatch")
         self.cpp_info.set_property("cmake_target_name", "fswatch::fswatch")
+        self.cpp_info.libs = ["fswatch"]
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "pthread"]
