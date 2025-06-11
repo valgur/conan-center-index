@@ -245,7 +245,7 @@ class GettextConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         rmdir(self, os.path.join(self.package_folder, "share", "info"))
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
-        self.python_requires["conan-meson"].module.fix_msvc_libnames(self)
+        self.python_requires["conan-meson"].module.fix_msvc_libnames(self, extensions=[".a", ".dll.lib"])
 
     def package_info(self):
         if self.options.libintl:
