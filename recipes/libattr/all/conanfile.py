@@ -21,30 +21,32 @@ class LibAttrConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("libattr is just supported on Linux")
+            raise ConanInvalidConfiguration("libattr is only supported on Linux")
+
+    def build_requirements(self):
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
         tc = AutotoolsToolchain(self)
+        tc.configure_args.append("--enable-nls" if self.options.i18n else "--disable-nls")
         tc.generate()
 
     def build(self):
