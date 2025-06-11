@@ -80,7 +80,7 @@ class LibsndfileConan(ConanFile):
     def build_requirements(self):
         # https://github.com/libsndfile/libsndfile/blob/1.2.2/cmake/SndFileChecks.cmake#L255
         if self.options.shared:
-            self.tool_requires("cpython/[~3.12]")
+            self.tool_requires("cpython/[^3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

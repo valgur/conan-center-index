@@ -58,7 +58,7 @@ class XcbUtilErrorsConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         self.tool_requires("xcb-proto/1.17.0")
         if not self._have_python:
-            self.tool_requires("cpython/[>=3.12 <3.13]")
+            self.tool_requires("cpython/[^3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

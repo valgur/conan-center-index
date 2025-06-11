@@ -47,7 +47,7 @@ class SeasocksConan(ConanFile):
         check_min_cppstd(self, self._min_cppstd)
 
     def build_requirements(self):
-        self.tool_requires("cpython/[~3.12]")
+        self.tool_requires("cpython/[^3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

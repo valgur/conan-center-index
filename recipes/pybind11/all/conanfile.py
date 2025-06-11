@@ -27,7 +27,7 @@ class PyBind11Conan(ConanFile):
         self.info.clear()
 
     def requirements(self):
-        self.requires("cpython/[~3.12]", transitive_headers=True, transitive_libs=True)
+        self.requires("cpython/[^3.12]", transitive_headers=True, transitive_libs=True)
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

@@ -39,7 +39,7 @@ class GodotCppConan(ConanFile):
         check_min_cppstd(self, 14)
 
     def build_requirements(self):
-        self.tool_requires("cpython/[~3.12]")
+        self.tool_requires("cpython/[^3.12]")
 
     @property
     def _godot_headers(self):

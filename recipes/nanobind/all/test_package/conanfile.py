@@ -10,7 +10,7 @@ class TestPackageConan(ConanFile):
 
     def requirements(self):
         self.requires(self.tested_reference_str)
-        self.requires("cpython/[~3.12]")
+        self.requires("cpython/[^3.12]")
 
     def build_requirements(self):
         self.tool_requires("cpython/<host_version>")

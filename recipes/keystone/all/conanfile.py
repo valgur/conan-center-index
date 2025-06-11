@@ -57,7 +57,7 @@ class KeystoneConan(ConanFile):
         check_max_cppstd(self, 14)
 
     def build_requirements(self):
-        self.tool_requires("cpython/[~3.12]")
+        self.tool_requires("cpython/[^3.12]")
 
     def generate(self):
         tc = CMakeToolchain(self)

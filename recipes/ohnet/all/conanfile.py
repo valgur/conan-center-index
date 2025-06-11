@@ -46,7 +46,7 @@ class OhNetConan(ConanFile):
 
     def build_requirements(self):
         # required for thirdparty/python_patch/patch.py
-        self.build_requires("cpython/[~3.12]")
+        self.build_requires("cpython/[^3.12]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
