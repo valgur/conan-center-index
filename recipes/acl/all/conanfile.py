@@ -23,17 +23,14 @@ class AclConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
+    implements = ["auto_shared_fpic"]
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -43,7 +40,11 @@ class AclConan(ConanFile):
 
     def validate(self):
         if self.settings.os != "Linux":
-            raise ConanInvalidConfiguration("libacl is just supported for Linux")
+            raise ConanInvalidConfiguration("libacl is only supported for Linux")
+
+    def build_requirements(self):
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -53,6 +54,7 @@ class AclConan(ConanFile):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
         tc = AutotoolsToolchain(self)
+        tc.configure_args.append("--enable-nls" if self.options.i18n else "--disable-nls")
         tc.generate()
         deps = AutotoolsDeps(self)
         deps.generate()
@@ -68,8 +70,11 @@ class AclConan(ConanFile):
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libacl")
         self.cpp_info.libs = ["acl"]
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
