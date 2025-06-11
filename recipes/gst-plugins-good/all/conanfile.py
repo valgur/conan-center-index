@@ -100,8 +100,10 @@ class GStPluginsGoodConan(ConanFile):
             del self.options.directsound
             del self.options.waveform
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            del self.options.ximagesrc
+            del self.options.oss
+            del self.options.oss4
             del self.options.v4l2
+            del self.options.ximagesrc
             del self.options.with_egl
             del self.options.with_wayland
             del self.options.with_xorg
