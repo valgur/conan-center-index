@@ -29,6 +29,7 @@ class wxWidgetsConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "toolkit": ["native", "gtk3", "gtk4", "qt"],
+        "i18n": [True, False],
         "aui": [True, False],
         "cairo": [True, False],
         "debugreport": [True, False],
@@ -61,6 +62,7 @@ class wxWidgetsConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "toolkit": "native",
+        "i18n": False,
         "aui": True,
         "cairo": True,
         "debugreport": True,
@@ -193,6 +195,8 @@ class wxWidgetsConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self._toolkit == "qt":
             self.tool_requires("qt/<host_version>")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -215,6 +219,7 @@ class wxWidgetsConan(ConanFile):
         # generic build options
         tc.variables["wxBUILD_SHARED"] = self.options.shared
         tc.variables["wxBUILD_MONOLITHIC"] = True
+        tc.variables["wxBUILD_LOCALES"] = "ON" if self.options.i18n else "OFF"
         tc.variables["wxBUILD_SAMPLES"] = False
         tc.variables["wxBUILD_TESTS"] = False
         tc.variables["wxBUILD_DEMOS"] = False
@@ -426,6 +431,9 @@ class wxWidgetsConan(ConanFile):
         lib_includedir = next(Path(self.package_folder, "lib", "wx", "include").iterdir())
         lib_includedir = lib_includedir.relative_to(self.package_folder)
         self.cpp_info.includedirs.append(lib_includedir)
+
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
 
         # https://github.com/wxWidgets/wxWidgets/blob/v3.2.6/build/cmake/functions.cmake
         self.cpp_info.defines.append("_UNICODE")
