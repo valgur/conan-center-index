@@ -2,12 +2,12 @@ import os
 
 from conan import ConanFile
 from conan.tools.build import cross_building, can_run
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class Krb5Conan(ConanFile):
@@ -19,41 +19,42 @@ class Krb5Conan(ConanFile):
     license = "DocumentRef-NOTICE:LicenseRef-"
     url = "https://github.com/conan-io/conan-center-index"
     package_type = "shared-library"
+    settings = "os", "arch", "compiler", "build_type"
     options = {
+        "i18n": [True, False],
         "use_thread": [True, False],
         "use_dns_realms": [True, False],
         "with_tls": [False, "openssl"],
     }
     default_options = {
+        "i18n": False,
         "use_thread": True,
         "use_dns_realms": False,
         "with_tls": "openssl"
     }
     options_description = {
+        "i18n": "Enable internationalization support",
         "use_thread": "Enable thread support",
         "use_dns_realms": "Enable DNS for realms",
         "with_tls": "Enable TLS support with OpenSSL",
     }
-    settings = "os", "arch", "compiler", "build_type"
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
 
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
-
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def build_requirements(self):
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -68,7 +69,7 @@ class Krb5Conan(ConanFile):
             f"--with-crypto-impl={(tls_impl or 'builtin')}",
             f"--with-spake-openssl={yes_no(self.options.with_tls == 'openssl')}",
             f"--with-tls-impl={(tls_impl or 'no')}",
-            "--disable-nls",
+            f"--enable-nls={yes_no(self.options.i18n)}",
             "--disable-rpath",
             "--without-libedit",
             "--without-readline",
@@ -116,7 +117,8 @@ class Krb5Conan(ConanFile):
         autotools = Autotools(self)
         autotools.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "examples"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "var"))
 
     def package_info(self):
