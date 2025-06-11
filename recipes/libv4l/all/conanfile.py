@@ -4,7 +4,6 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import check_min_cppstd
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
@@ -25,6 +24,7 @@ class Libv4lConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "build_plugins": [True, False],
         "build_wrappers": [True, False],
         "build_libdvbv5": [True, False],
@@ -33,6 +33,7 @@ class Libv4lConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "build_plugins": True,
         "build_wrappers": True,
         "build_libdvbv5": False,
@@ -42,6 +43,12 @@ class Libv4lConan(ConanFile):
 
     def layout(self):
         basic_layout(self, src_folder="src")
+
+    def configure(self):
+        if not self.options.shared:
+            self.options.rm_safe("fPIC")
+        if not self.options.build_libdvbv5:
+            del self.options.i18n
 
     def requirements(self):
         if self.options.build_libdvbv5:
@@ -58,14 +65,13 @@ class Libv4lConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.get_safe("i18n"):
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         feature = lambda option: "enabled" if option else "disabled"
         true_false = lambda option: "true" if option else "false"
         tc = MesonToolchain(self)
@@ -97,6 +103,8 @@ class Libv4lConan(ConanFile):
         deps.generate()
 
     def build(self):
+        if not self.options.get_safe("i18n"):
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -141,4 +149,5 @@ class Libv4lConan(ConanFile):
             self.cpp_info.components["libdvbv5"].libs = ["dvbv5"]
             self.cpp_info.components["libdvbv5"].requires = ["libudev::libudev"]
             self.cpp_info.components["libdvbv5"].system_libs = ["m", "rt", "pthread"]
-            self.cpp_info.components["libdvbv5"].resdirs = ["share"]
+            if self.options.i18n:
+                self.cpp_info.components["libdvbv5"].resdirs = ["share"]
