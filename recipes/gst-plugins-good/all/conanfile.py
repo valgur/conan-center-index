@@ -32,6 +32,7 @@ class GStPluginsGoodConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
 
         "with_asm": [True, False],
         "with_jpeg": [True, False],
@@ -42,6 +43,7 @@ class GStPluginsGoodConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
 
         "with_asm": True,
         "with_jpeg": True,
@@ -260,7 +262,8 @@ class GStPluginsGoodConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if "gst-orc" in self._all_reqs:
             self.tool_requires("gst-orc/<host_version>")
         if self.options.get_safe("with_asm"):
@@ -324,7 +327,7 @@ class GStPluginsGoodConan(ConanFile):
         tc.project_options["doc"] = "disabled"
         tc.project_options["examples"] = "disabled"
         tc.project_options["tests"] = "disabled"
-        tc.project_options["nls"] = "enabled"
+        tc.project_options["nls"] = feature(self.options.i18n)
         tc.project_options["orc"] = feature("gst-orc" in self._all_reqs)
         tc.project_options["asm"] = feature(self.options.get_safe("with_asm"))
 
