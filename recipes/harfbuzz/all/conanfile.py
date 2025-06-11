@@ -102,10 +102,6 @@ class HarfbuzzConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if self.options.with_glib:
             self.tool_requires("glib/<host_version>")
-        if self.settings.os == "Macos":
-            # Ensure that the gettext we use at build time is compatible
-            # with the libiconv that is transitively exposed by glib
-            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
 
