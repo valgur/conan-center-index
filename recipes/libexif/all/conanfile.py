@@ -22,10 +22,12 @@ class LibexifConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -41,6 +43,8 @@ class LibexifConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -49,8 +53,8 @@ class LibexifConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
+            "--enable-nls" if self.options.i18n else "--disable-nls",
             "--disable-docs",
-            "--disable-nls",
             "--disable-rpath",
         ])
         env = tc.environment()
@@ -76,11 +80,13 @@ class LibexifConan(ConanFile):
                          os.path.join(self.package_folder, "lib", "exif.lib"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "libexif")
         self.cpp_info.libs = ["exif"]
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
         if self.settings.os in ("FreeBSD", "Linux"):
             self.cpp_info.system_libs = ["m"]
