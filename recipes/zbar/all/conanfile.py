@@ -25,6 +25,7 @@ class ZbarConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_video": [True, False],
         "with_imagemagick": [True, False],
         "with_gtk": [True, False],
@@ -39,6 +40,7 @@ class ZbarConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_video": False,
         "with_imagemagick": False,
         "with_gtk": False,
@@ -83,17 +85,15 @@ class ZbarConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         if Version(self.version) >= "0.22":
-            self.tool_requires("gettext/[>=0.21 <1]")
             self.tool_requires("libtool/[^2.4.7]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         yes_no = lambda v: "yes" if v else "no"
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
@@ -107,6 +107,7 @@ class ZbarConan(ConanFile):
             f"--with-xv={yes_no(self.options.with_xv)}",
             f"--with-jpeg={yes_no(self.options.with_jpeg)}",
             f"--enable-pthread={yes_no(self.options.enable_pthread)}",
+            f"USE_NLS={yes_no(self.options.i18n)}",
         ])
         env = tc.environment()
         compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
@@ -128,6 +129,11 @@ class ZbarConan(ConanFile):
                            src=os.path.dirname(gnu_config),
                            dst=os.path.join(self.source_folder, "config"))
 
+        if not self.options.i18n and Version(self.version) >= "0.22":
+            configure_ac = os.path.join(self.source_folder, "configure.ac")
+            replace_in_file(self, configure_ac, "AM_GNU_GETTEXT", "# AM_GNU_GETTEXT")
+            replace_in_file(self, configure_ac, "po/Makefile.in", "")
+
         autotools = Autotools(self)
         if Version(self.version) >= "0.22":
             autotools.autoreconf()
@@ -138,14 +144,17 @@ class ZbarConan(ConanFile):
         copy(self, "LICENSE*", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "doc"))
+        rmdir(self, os.path.join(self.package_folder, "share", "zbar"))  # JNI bindings
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        self.cpp_info.libs = ["zbar"]
         self.cpp_info.set_property("pkg_config_name", "zbar")
+        self.cpp_info.libs = ["zbar"]
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
         if self.settings.os in ("FreeBSD", "Linux") and self.options.enable_pthread:
             self.cpp_info.system_libs = ["pthread"]
 
