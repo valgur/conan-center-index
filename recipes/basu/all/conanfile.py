@@ -2,13 +2,12 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class BasuConan(ConanFile):
@@ -30,6 +29,8 @@ class BasuConan(ConanFile):
         "fPIC": True,
         "with_libcap": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -37,12 +38,6 @@ class BasuConan(ConanFile):
     def config_options(self):
         if self.settings.os != "Linux":
             del self.options.with_libcap
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -53,8 +48,7 @@ class BasuConan(ConanFile):
 
     def validate(self):
         if self.settings.os not in ["Linux", "FreeBSD"]:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} does not support {self.settings.os}")
+            raise ConanInvalidConfiguration(f"{self.ref} does not support {self.settings.os}")
 
     def build_requirements(self):
         self.tool_requires("meson/[>=1.2.3 <2]")
@@ -75,8 +69,6 @@ class BasuConan(ConanFile):
         tc.generate()
         tc = PkgConfigDeps(self)
         tc.generate()
-        tc = VirtualBuildEnv(self)
-        tc.generate()
 
     def build(self):
         meson = Meson(self)
@@ -84,8 +76,7 @@ class BasuConan(ConanFile):
         meson.build()
 
     def package(self):
-        copy(self, "LICENSE.LGPL2.1", self.source_folder,
-             os.path.join(self.package_folder, "licenses"))
+        copy(self, "LICENSE.LGPL2.1", self.source_folder, os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
         meson.install()
 
