@@ -29,13 +29,21 @@ class XZUtilsConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+        if self._use_msbuild:
+            del self.options.i18n
 
     @property
     def _effective_msbuild_type(self):
@@ -65,6 +73,8 @@ class XZUtilsConan(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+        if self.options.get_safe("i18n"):
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -79,13 +89,14 @@ class XZUtilsConan(ConanFile):
             env.generate()
             tc = AutotoolsToolchain(self)
             tc.configure_args.append("--disable-doc")
+            tc.configure_args.append("--enable-nls" if self.options.i18n else "--disable-nls")
             if self.settings.build_type == "Debug":
                 tc.configure_args.append("--enable-debug")
             tc.generate()
 
     @property
     def _msvc_sln_folder(self):
-        if (str(self.settings.compiler) == "msvc" and Version(self.settings.compiler) >= "191"):
+        if Version(self.settings.compiler) >= 191:
             return "vs2017"
         return "vs2013"
 
@@ -152,7 +163,7 @@ class XZUtilsConan(ConanFile):
             autotools = Autotools(self)
             autotools.install()
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-            rmdir(self, os.path.join(self.package_folder, "share"))
+            rmdir(self, os.path.join(self.package_folder, "share", "man"))
             rm(self, "*.la", os.path.join(self.package_folder, "lib"))
             fix_apple_shared_install_name(self)
 
@@ -188,6 +199,8 @@ class XZUtilsConan(ConanFile):
         self.cpp_info.set_property("cmake_build_modules", [self._module_file_rel_path])
         self.cpp_info.set_property("pkg_config_name", "liblzma")
         self.cpp_info.libs = ["lzma"]
+        if self.options.get_safe("i18n"):
+            self.cpp_info.resdirs = ["share"]
         if not self.options.shared:
             self.cpp_info.defines.append("LZMA_API_STATIC")
         if self.settings.os in ["Linux", "FreeBSD"]:
