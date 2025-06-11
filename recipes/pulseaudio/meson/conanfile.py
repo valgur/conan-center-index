@@ -163,7 +163,9 @@ class PulseAudioConan(ConanFile):
         self.cpp_info.components["pulse"].libs = ["pulse", f"pulsecommon-{self.version}"]
         self.cpp_info.components["pulse"].libdirs.append(os.path.join("lib", "pulseaudio"))
         self.cpp_info.components["pulse"].resdirs = ["share"]
-        self.cpp_info.components["pulse"].requires = ["libiconv::libiconv", "libsndfile::libsndfile", "gettext::gettext"]
+        self.cpp_info.components["pulse"].requires = ["libiconv::libiconv", "libsndfile::libsndfile"]
+        if self.settings.os != "Linux":
+            self.cpp_info.components["pulse"].requires.append("gettext::gettext")
         if self.options.get_safe("with_fftw"):
             self.cpp_info.components["pulse"].requires.append("fftw::fftw")
         if self.options.get_safe("with_x11"):
