@@ -12,7 +12,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibsystemdConan(ConanFile):
@@ -27,30 +27,26 @@ class LibsystemdConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_selinux": [True, False],
         "with_lz4": [True, False],
         "with_xz": [True, False],
         "with_zstd": [True, False],
-        "nls": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_selinux": True,
         "with_lz4": True,
         "with_xz": True,
         "with_zstd": True,
-        "nls": True,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        if self.options.shared:
-            del self.options.fPIC
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -90,7 +86,7 @@ class LibsystemdConan(ConanFile):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("m4/1.4.19")
         self.tool_requires("gperf/3.1")
-        if self.options.nls:
+        if self.options.i18n:
             self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
@@ -127,7 +123,7 @@ class LibsystemdConan(ConanFile):
         tc.project_options["lz4"] = _bool(self.options.with_lz4)
         tc.project_options["xz"] = _bool(self.options.with_xz)
         tc.project_options["zstd"] = _bool(self.options.with_zstd)
-        tc.project_options["translations"] = _bool(self.options.nls)
+        tc.project_options["translations"] = _bool(self.options.i18n)
 
         if self.options.shared:
             tc.project_options["static-libsystemd"] = "false"
@@ -195,7 +191,7 @@ class LibsystemdConan(ConanFile):
         target = ("systemd:shared_library" if self.options.shared
                   else "systemd:static_library")
         meson.build(target=f"version.h {target}")
-        if self.options.nls:
+        if self.options.i18n:
             meson.build(target="systemd-gmo")
 
     def package(self):
@@ -215,7 +211,7 @@ class LibsystemdConan(ConanFile):
             copy(self, "libsystemd.a", self.build_folder,
                  os.path.join(self.package_folder, "lib"))
 
-        if self.options.nls:
+        if self.options.i18n:
             copy(self, "*.mo",
                  os.path.join(self.build_folder, "po"),
                  os.path.join(self.package_folder, "share", "locale"))
@@ -225,5 +221,5 @@ class LibsystemdConan(ConanFile):
         self.cpp_info.set_property("component_version", str(Version(self.version).major))
         self.cpp_info.libs = ["systemd"]
         self.cpp_info.system_libs = ["rt", "pthread", "dl"]
-        if self.options.nls:
+        if self.options.i18n:
             self.cpp_info.resdirs = ["share"]
