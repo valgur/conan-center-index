@@ -63,6 +63,8 @@ class GettextConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
+        if not self.options.tools:
+            del self.options.with_openmp
         if self.settings.os == "Windows" and self.options.tools:
             # Shared build on Windows with tools tries to build woe32dll and fails.
             # The file paths passed through libtool and automake wrapper get mangled.
@@ -77,7 +79,7 @@ class GettextConan(ConanFile):
 
     def requirements(self):
         self.requires("libiconv/[^1.17]")
-        if self.options.with_openmp:
+        if self.options.get_safe("with_openmp"):
             self.requires("openmp/system")
 
     def validate(self):
@@ -128,10 +130,11 @@ class GettextConan(ConanFile):
             "--disable-libasprintf",
             "--disable-curses",
             "--disable-rpath",
-            "--enable-openmp" if self.options.with_openmp else "--disable-openmp",
             f"--enable-threads={self.options.threads}" if self.options.threads != "disabled" else "--disable-threads",
             f"--with-libiconv-prefix={libiconv_root}",
         ]
+        if self.options.tools:
+            tc.configure_args.append("--enable-openmp" if self.options.with_openmp else "--disable-openmp")
 
         env = tc.environment()
         if is_msvc(self) or self._is_clang_cl:
