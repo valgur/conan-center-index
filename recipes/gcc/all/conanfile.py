@@ -26,6 +26,12 @@ class GccConan(ConanFile):
     url = "https://github.com/conan-io/conan-center-index"
     license = "GPL-3.0-only"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "i18n": [True, False],
+    }
+    default_options = {
+        "i18n": False,
+    }
 
     def configure(self):
         if self.settings.compiler in ["clang", "apple-clang"]:
@@ -60,6 +66,8 @@ class GccConan(ConanFile):
             # distributed with msys/mingw
             self.tool_requires("binutils/[^2.42]")
         self.tool_requires("flex/[^2.6.4]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def validate_build(self):
         if is_msvc(self):
@@ -71,7 +79,7 @@ class GccConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.configure_args.append("--enable-languages=c,c++,fortran")
-        tc.configure_args.append("--disable-nls")
+        tc.configure_args.append("--enable-nls" if self.options.i18n else "--disable-nls")
         tc.configure_args.append("--disable-multilib")
         tc.configure_args.append("--disable-bootstrap")
         tc.configure_args.append(f"--with-zlib={self.dependencies['zlib-ng'].package_folder}")
