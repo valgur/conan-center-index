@@ -4,7 +4,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -14,11 +14,10 @@ required_conan_version = ">=2.1"
 
 class GdbmConan(ConanFile):
     name = "gdbm"
-    description = ("gdbm is a library of database functions that uses "
-                   "extensible hashing and work similar to "
-                   "the standard UNIX dbm. "
-                   "These routines are provided to a programmer needing "
-                   "to create and manipulate a hashed database.")
+    description = (
+        "gdbm is a library of database functions that uses extensible hashing and work similar to the standard UNIX dbm. "
+        "These routines are provided to a programmer needing to create and manipulate a hashed database."
+    )
     license = "GPL-3.0-or-later"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://www.gnu.org.ua/software/gdbm/gdbm.html"
@@ -28,20 +27,20 @@ class GdbmConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "libgdbm_compat": [True, False],
         "gdbmtool_debug": [True, False],
         "with_libiconv": [True, False],
         "with_readline": [True, False],
-        "with_nls": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "libgdbm_compat": False,
         "gdbmtool_debug": True,
         "with_libiconv": False,
         "with_readline": False,
-        "with_nls": True,
     }
 
     def export_sources(self):
@@ -52,7 +51,7 @@ class GdbmConan(ConanFile):
             self.options.rm_safe("fPIC")
         self.settings.rm_safe("compiler.libcxx")
         self.settings.rm_safe("compiler.cppstd")
-        if not self.options.with_nls:
+        if not self.options.i18n:
             self.options.rm_safe("with_libiconv")
 
     def layout(self):
@@ -72,14 +71,14 @@ class GdbmConan(ConanFile):
         self.tool_requires("bison/[^3.8.2]")
         self.tool_requires("flex/[^2.6.4]")
         self.tool_requires("gnu-config/cci.20210814")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        virtual_build_env = VirtualBuildEnv(self)
-        virtual_build_env.generate()
         if not cross_building(self):
             virtual_run_env = VirtualRunEnv(self)
             virtual_run_env.generate(scope="build")
@@ -90,7 +89,7 @@ class GdbmConan(ConanFile):
             f"--enable-debug={yes_no(enable_debug)}",
             f"--enable-libgdbm-compat={yes_no(self.options.libgdbm_compat)}",
             f"--enable-gdbmtool-debug={yes_no(self.options.gdbmtool_debug)}",
-            f"--enable-nls={yes_no(self.options.with_nls)}",
+            f"--enable-nls={yes_no(self.options.i18n)}",
             f"--with-readline={yes_no(self.options.with_readline)}",
             f"--with-pic={yes_no(self.options.get_safe('fPIC', True))}",
         ])
@@ -112,8 +111,8 @@ class GdbmConan(ConanFile):
             # See https://github.com/conan-io/conan-center-index/issues/20002
             tc.extra_ldflags.append("-headerpad_max_install_names")
         tc.generate()
-        autotools_deps = AutotoolsDeps(self)
-        autotools_deps.generate()
+        deps = AutotoolsDeps(self)
+        deps.generate()
 
     def _patch_sources(self):
         for gnu_config in [
