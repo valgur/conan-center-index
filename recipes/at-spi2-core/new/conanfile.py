@@ -28,12 +28,14 @@ class AtSpi2CoreConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_x11": [True, False],
         "with_introspection": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_x11": True,
         "with_introspection": False,
     }
@@ -70,7 +72,8 @@ class AtSpi2CoreConan(ConanFile):
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
         self.tool_requires("glib/<host_version>")
-        self.tool_requires("gettext/[>=0.21 <1]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
         if self.options.with_introspection:
             self.tool_requires("gobject-introspection/[^1.82]")
 
@@ -101,6 +104,8 @@ class AtSpi2CoreConan(ConanFile):
         deps.generate()
 
     def build(self):
+        if not self.options.i18n:
+            save(self, os.path.join(self.source_folder, "po", "meson.build"), "")
         meson = Meson(self)
         meson.configure()
         meson.build()
