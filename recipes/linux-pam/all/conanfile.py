@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -25,8 +24,8 @@ class LinuxPamConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
         "with_db": ["db", "gdbm", False],
-        "with_intl": [True, False],
         "with_nis": [True, False],
         "with_openssl": [True, False],
         "with_selinux": [True, False],
@@ -38,16 +37,16 @@ class LinuxPamConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
         "with_db": "gdbm",
-        "with_intl": True,  # cannot currently be disabled due to a build.meson bug
         "with_nis": False,
         "with_openssl": True,
         "with_selinux": True,
         "with_systemd": True,
     }
     options_description = {
+        "i18n": "Enable internationalization support",
         "with_db": "Build pam_userdb module with specified database backend",
-        "with_intl": "Enable i18n support using libintl from libgettext",
         "with_nis": "Enable NIS/YP support in pam_unix using libnsl",
         "with_openssl": "Use OpenSSL crypto libraries in pam_timestamp",
         "with_selinux": "Enable SELinux support",
@@ -55,9 +54,6 @@ class LinuxPamConan(ConanFile):
     }
     languages = ["C"]
     implements = ["auto_shared_fpic"]
-
-    def export_sources(self):
-        export_conandata_patches(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -67,7 +63,7 @@ class LinuxPamConan(ConanFile):
             self.requires("libdb/[^5.3.28]")
         elif self.options.with_db == "gdbm":
             self.requires("gdbm/1.23")
-        if self.options.with_intl:
+        if self.options.i18n and self.settings.os != "Linux":
             self.requires("gettext/[>=0.21 <1]")
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
@@ -84,6 +80,8 @@ class LinuxPamConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -98,7 +96,7 @@ class LinuxPamConan(ConanFile):
         tc.project_options["xtests"] = "false"
         tc.project_options["audit"] = feature(self.options.get_safe("with_audit"))
         tc.project_options["econf"] = feature(self.options.get_safe("with_econf"))
-        tc.project_options["i18n"] = feature(self.options.with_intl)
+        tc.project_options["i18n"] = feature(self.options.i18n)
         tc.project_options["logind"] = feature(self.options.with_systemd)
         tc.project_options["nis"] = feature(self.options.with_nis)
         tc.project_options["openssl"] = feature(self.options.with_openssl)
@@ -120,8 +118,12 @@ class LinuxPamConan(ConanFile):
         deps = PkgConfigDeps(self)
         deps.generate()
 
+    def _patch_sources(self):
+        if not self.options.i18n:
+            replace_in_file(self, os.path.join(self.source_folder, "libpam", "meson.build"), ", libintl", "")
+
     def build(self):
-        apply_conandata_patches(self)
+        self._patch_sources()
         meson = Meson(self)
         meson.configure()
         meson.build()
@@ -139,9 +141,11 @@ class LinuxPamConan(ConanFile):
         self.cpp_info.components["pam"].set_property("pkg_config_name", "pam")
         self.cpp_info.components["pam"].libs = ["pam"]
         self.cpp_info.components["pam"].libdirs.append(os.path.join("lib", "security"))
-        self.cpp_info.components["pam"].resdirs = ["etc", "share", "lib/systemd"]
-        if self.options.with_intl:
-            self.cpp_info.components["pam"].requires.append("gettext::gettext")
+        self.cpp_info.components["pam"].resdirs = ["etc", "lib/systemd"]
+        if self.options.i18n:
+            self.cpp_info.components["pam"].resdirs.append("share")
+            if self.settings.os != "Linux":
+                self.cpp_info.components["pam"].requires.append("gettext::gettext")
 
         self.cpp_info.components["pamc"].set_property("pkg_config_name", "pamc")
         self.cpp_info.components["pamc"].libs = ["pamc"]
