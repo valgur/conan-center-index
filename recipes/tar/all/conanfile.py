@@ -2,14 +2,13 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class TarConan(ConanFile):
@@ -22,13 +21,17 @@ class TarConan(ConanFile):
 
     package_type = "application"
     settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "i18n": [True, False],
+    }
+    default_options = {
+        "i18n": False,
+    }
+
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -46,6 +49,7 @@ class TarConan(ConanFile):
     def build_requirements(self):
         if Version(self.version) == "1.35":
             self.tool_requires("automake/1.16.5")
+        if self.options.i18n:
             self.tool_requires("gettext/[>=0.21 <1]")
 
     def validate(self):
@@ -59,13 +63,10 @@ class TarConan(ConanFile):
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
         tc = AutotoolsToolchain(self)
         tc.generate()
         tc.configure_args += [
             "--disable-acl",
-            "--disable-nls",
             "--disable-rpath",
             "--without-posix-acls",
             "--without-selinux",
@@ -77,16 +78,18 @@ class TarConan(ConanFile):
             "--with-xz=xz",
             "--with-zstd=zstd",
         ]
+        if not self.options.i18n:
+            tc.configure_args.append("--disable-nls")
         tc.generate()
 
     def _patch_sources(self):
         if is_msvc(self):
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "gnu", "faccessat.c"),
-                "_GL_INCLUDING_UNISTD_H",
-                "_GL_INCLUDING_UNISTD_H_NOP",
-            )
+            replace_in_file(self, os.path.join(self.source_folder, "gnu", "faccessat.c"),
+                            "_GL_INCLUDING_UNISTD_H",
+                            "_GL_INCLUDING_UNISTD_H_NOP")
+        if not self.options.i18n and self.version == "1.35":
+            replace_in_file(self, os.path.join(self.source_folder, "configure.ac"), "AM_GNU_GETTEXT", "# AM_GNU_GETTEXT")
+            replace_in_file(self, os.path.join(self.source_folder, "Makefile.am"), " po ", " ")
 
     def build(self):
         self._patch_sources()
@@ -100,7 +103,8 @@ class TarConan(ConanFile):
         copy(self, "COPYING", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
         autotools = Autotools(self)
         autotools.install()
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, os.path.join(self.package_folder, "libexec"))
 
     def package_info(self):
