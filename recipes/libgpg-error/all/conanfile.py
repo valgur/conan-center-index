@@ -6,7 +6,7 @@ from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain
 from conan.tools.layout import basic_layout
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class GPGErrorConan(ConanFile):
@@ -22,20 +22,18 @@ class GPGErrorConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -44,6 +42,10 @@ class GPGErrorConan(ConanFile):
         if self.settings.os != "Linux":
             raise ConanInvalidConfiguration("This recipe only support Linux. You can contribute Windows and/or Macos support.")
 
+    def build_requirements(self):
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
@@ -51,8 +53,8 @@ class GPGErrorConan(ConanFile):
     def generate(self):
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
+            "--enable-nls" if self.options.i18n else "--disable-nls",
             "--disable-dependency-tracking",
-            "--disable-nls",
             "--disable-languages",
             "--disable-doc",
             "--disable-tests",
@@ -72,10 +74,12 @@ class GPGErrorConan(ConanFile):
         autotools.install()
         rm(self, "*la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
 
     def package_info(self):
         self.cpp_info.set_property("pkg_config_name", "gpg-error")
         self.cpp_info.libs = ["gpg-error"]
+        self.cpp_info.resdirs = ["share"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
+        aclocal_path = os.path.join(self.package_folder, "share", "aclocal")
+        self.buildenv_info.append_path("ACLOCAL_PATH", aclocal_path)
