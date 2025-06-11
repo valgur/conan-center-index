@@ -23,10 +23,12 @@ class PoptConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -53,6 +55,8 @@ class PoptConan(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -62,7 +66,7 @@ class PoptConan(ConanFile):
         tc = AutotoolsToolchain(self)
         tc.configure_args.extend([
             "--disable-dependency-tracking",
-            "--disable-nls",
+            "--enable-nls" if self.options.i18n else "--disable-nls",
         ])
         tc.generate()
 
@@ -105,7 +109,7 @@ class PoptConan(ConanFile):
 
         rm(self, "*.la", os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
 
         fix_apple_shared_install_name(self)
 

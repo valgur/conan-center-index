@@ -3,7 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
-from conan.tools.env import Environment, VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import Environment, VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -28,10 +28,12 @@ class LibIdn(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "i18n": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "i18n": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
@@ -52,15 +54,14 @@ class LibIdn(ConanFile):
                 self.tool_requires("msys2/cci.latest")
         if is_msvc(self):
             self.tool_requires("automake/1.16.5")
+        if self.options.i18n:
+            self.tool_requires("gettext/[>=0.21 <1]")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         if not cross_building(self):
             env = VirtualRunEnv(self)
             env.generate(scope="build")
@@ -70,7 +71,7 @@ class LibIdn(ConanFile):
             tc.extra_defines.append("IDN2_STATIC")
         tc.configure_args += [
             f"--with-libiconv-prefix={unix_path(self, self.dependencies['libiconv'].package_folder)}",
-            "--disable-nls",
+            "--enable-nls" if self.options.i18n else "--disable-nls",
             "--disable-rpath",
         ]
         tc.generate()
@@ -110,7 +111,8 @@ class LibIdn(ConanFile):
 
         os.unlink(os.path.join(self.package_folder, "lib", "libidn2.la"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share", "info"))
+        rmdir(self, os.path.join(self.package_folder, "share", "man"))
         fix_apple_shared_install_name(self)
 
         if is_msvc(self) and self.options.shared:
@@ -121,11 +123,13 @@ class LibIdn(ConanFile):
                  os.path.join(self.package_folder, "bin"))
 
     def package_info(self):
+        self.cpp_info.set_property("pkg_config_name", "libidn2")
         if is_msvc(self) and self.options.shared:
             self.cpp_info.libs = ["idn2-0"]
         else:
             self.cpp_info.libs = ["idn2"]
-        self.cpp_info.set_property("pkg_config_name", "libidn2")
+        if self.options.i18n:
+            self.cpp_info.resdirs = ["share"]
         if self.settings.os == "Windows":
             if not self.options.shared:
                 self.cpp_info.defines = ["IDN2_STATIC"]
