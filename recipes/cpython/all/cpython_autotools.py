@@ -34,9 +34,9 @@ class CPythonAutotools(ConanFile):
         tc.update_configure_args({"--enable-static": None, "--disable-static": None})
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
+            f"--enable-optimizations={yes_no(self.options.optimizations)}",
             f"--with-doc-strings={yes_no(self.options.docstrings)}",
             f"--with-pymalloc={yes_no(self.options.pymalloc)}",
-            f"--enable-optimizations={yes_no(self.options.optimizations)}",
             f"--with-lto={yes_no(self.options.lto)}",
             f"--with-pydebug={yes_no(self.settings.build_type == 'Debug')}",
             f"--with-openssl={self.dependencies['openssl'].package_folder}",
@@ -68,6 +68,7 @@ class CPythonAutotools(ConanFile):
                 f"--with-tcltk-includes={' '.join(tcltk_includes)}",
                 f"--with-tcltk-libs={' '.join(tcltk_libs)}",
             ]
+
         if not is_apple_os(self):
             tc.extra_ldflags.append('-Wl,--as-needed')
 
@@ -89,6 +90,7 @@ class CPythonAutotools(ConanFile):
 
         deps = AutotoolsDeps(self)
         deps.generate()
+
         if Version(self.version) >= "3.11":
             pkgdeps = PkgConfigDeps(self)
             pkgdeps.generate()
@@ -142,6 +144,22 @@ class CPythonAutotools(ConanFile):
             replace_in_file(self, os.path.join(self.source_folder, "Makefile.pre.in"),
                             "$(RUNSHARED) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)'",
                             "$(RUNSHARED) CC='$(CC) $(CONFIGURE_CFLAGS) $(CONFIGURE_CPPFLAGS)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)'")
+
+        configure_path = os.path.join(self.source_folder, "configure")
+
+        # ensure disabled dependencies are not autodetected
+        def _disable_dep(var, opt):
+            if not self.options.get_safe(f"with_{opt}"):
+                replace_in_file(self, configure_path, f"{var}=yes", f"{var}=no")
+
+        _disable_dep("have_bzip2", "bz2")
+        _disable_dep("have_curses", "curses")
+        _disable_dep("have_panel", "curses")
+        _disable_dep("have_gdbm", "gdbm")
+        _disable_dep("have_liblzma", "lzma")
+        _disable_dep("have_sqlite3", "sqlite3")
+        _disable_dep("have_libzstd", "zstd")
+        _disable_dep("have_tcltk", "tkinter")
 
     def _autotools_build(self):
         autotools = Autotools(self)

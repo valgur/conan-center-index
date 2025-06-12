@@ -134,6 +134,7 @@ class TestPackageConan(ConanFile):
                 self._test_module("gdbm", self._cpython_option("with_gdbm"))
                 self._test_module("bz2", self._cpython_option("with_bz2"))
                 self._test_module("lzma", self._cpython_option("with_lzma"))
+                self._test_module("zstd", self._cpython_option("with_zstd"))
                 self._test_module("tkinter", self._cpython_option("with_tkinter"))
                 env = Environment()
                 env.define("TERM", "ansi")

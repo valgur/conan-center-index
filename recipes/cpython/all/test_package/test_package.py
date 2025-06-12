@@ -112,6 +112,15 @@ def test_lzma():
 
 
 @add_test
+def test_zstd():
+    import compression.zstd
+
+    data = compression.zstd.compress(b"hello world")
+    if data is None:
+        raise Exception("zstd.compress returned no data")
+
+
+@add_test
 def test_sqlite3():
     import sqlite3
 
