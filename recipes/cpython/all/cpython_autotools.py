@@ -43,6 +43,8 @@ class CPythonAutotools(ConanFile):
             "--with-system-expat",
             "--with-system-libmpdec",
         ]
+        if Version(self.version) >= "3.13":
+            tc.configure_args.append(f"--enable-gil={yes_no(self.options.gil)}")
         if Version(self.version) < "3.12":
             tc.configure_args.append("--with-system-ffi")
         if Version(self.version) >= "3.10":
