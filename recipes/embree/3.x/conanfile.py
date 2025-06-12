@@ -2,7 +2,7 @@ import glob
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration, ConanException
+from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.files import *
@@ -13,11 +13,11 @@ required_conan_version = ">=2.1"
 
 
 class EmbreeConan(ConanFile):
-    name = "embree3"
+    name = "embree"
+    description = "Intel's collection of high-performance ray tracing kernels."
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
     topics = ("embree", "raytracing", "rendering")
-    description = "Intel's collection of high-performance ray tracing kernels."
     homepage = "https://embree.github.io/"
 
     package_type = "library"
@@ -133,7 +133,7 @@ class EmbreeConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tbb:
-            self.requires("onetbb/[^2021]")
+            self.requires("onetbb/[>=2021 <2023]")
 
     def validate(self):
         if not (self._has_sse_avx or (self._embree_has_neon_support and self._has_neon)):
@@ -193,8 +193,6 @@ class EmbreeConan(ConanFile):
         else:
             tc.variables["EMBREE_ISA_AVX512"] = self.options.get_safe("avx512", False)
         tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
-        if Version(self.version) > "1.0.2":
-            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to >3.5, check if new version supports CMake 4")
         tc.generate()
 
         deps = CMakeDeps(self)

@@ -122,7 +122,7 @@ class OpenUSDConan(ConanFile):
             if self.options.with_openvdb:
                 self.requires("openvdb/[^11.0.0]")
             if self.options.with_embree:
-                self.requires("embree3/3.13.5")
+                self.requires("embree/[^3.13.5]")
             if self.options.get_safe("with_openimageio") or self.options.with_openvdb:
                 self.requires("imath/[~3.1.9]")
             if self.settings.os in ["Linux", "FreeBSD"]:
@@ -190,8 +190,8 @@ class OpenUSDConan(ConanFile):
             tc.cache_variables["PXR_ENABLE_VULKAN_SUPPORT"] = self.options.with_vulkan
             tc.cache_variables["OPENVDB_LIBRARY"] = "OpenVDB::openvdb"
             if self.options.with_embree:
-                tc.cache_variables["EMBREE_LIBRARY"] = self.dependencies["embree3"].cpp_info.libdirs[0].replace("\\", "/")
-                tc.cache_variables["EMBREE_INCLUDE_DIR"] = self.dependencies["embree3"].cpp_info.includedirs[0].replace("\\", "/")
+                tc.cache_variables["EMBREE_LIBRARY"] = self.dependencies["embree"].cpp_info.libdirs[0].replace("\\", "/")
+                tc.cache_variables["EMBREE_INCLUDE_DIR"] = self.dependencies["embree"].cpp_info.includedirs[0].replace("\\", "/")
             if self.options.get_safe("with_openimageio"):
                 tc.cache_variables["OIIO_LIBRARIES"] = "OpenImageIO::OpenImageIO"
                 tc.cache_variables["OIIO_INCLUDE_DIRS"] = self.dependencies["openimageio"].cpp_info.includedirs[0].replace("\\", "/")

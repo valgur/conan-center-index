@@ -11,6 +11,7 @@ from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
+
 class EmbreeConan(ConanFile):
     name = "embree"
     description = "Intel's collection of high-performance ray tracing kernels."
@@ -44,7 +45,7 @@ class EmbreeConan(ConanFile):
 
     def requirements(self):
         if self.settings.os != "Emscripten":
-            self.requires("onetbb/[^2021]")
+            self.requires("onetbb/[>=2021 <2023]")
 
     def validate(self):
         check_min_cppstd(self, 14)
@@ -92,12 +93,7 @@ class EmbreeConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(
-            self,
-            "LICENSE.txt",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "cmake"))
