@@ -1,7 +1,7 @@
 sources:
   "2020.3.3":
-    url: "https://github.com/oneapi-src/oneTBB/archive/v2020.3.3.tar.gz"
+    url: "https://github.com/uxlfoundation/oneTBB/archive/v2020.3.3.tar.gz"
     sha256: "494ac15f60e91d95ed7aec04f4e1d389b8a55bffc581d0fe9116b99336401963"
   "2019_u9":
-    url: "https://github.com/oneapi-src/oneTBB/archive/2019_U9.tar.gz"
+    url: "https://github.com/uxlfoundation/oneTBB/archive/2019_U9.tar.gz"
     sha256: "3f5ea81b9caa195f1967a599036b473b2e7c347117330cda99b79cfcf5b77c84"

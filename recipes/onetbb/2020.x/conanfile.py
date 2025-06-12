@@ -25,7 +25,7 @@ class OneTBBConan(ConanFile):
     )
     license = "Apache-2.0"
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/oneapi-src/oneTBB"
+    homepage = "https://github.com/uxlfoundation/oneTBB"
     topics = ("tbb", "threading", "parallelism", "tbbmalloc")
 
     package_type = "library"
