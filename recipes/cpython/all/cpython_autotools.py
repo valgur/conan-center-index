@@ -40,6 +40,7 @@ class CPythonAutotools(ConanFile):
             f"--with-lto={yes_no(self.options.lto)}",
             f"--with-pydebug={yes_no(self.settings.build_type == 'Debug')}",
             f"--with-openssl={self.dependencies['openssl'].package_folder}",
+            f"--with-readline={self.options.with_readline or 'no'}",
             "--with-system-expat",
             "--with-system-libmpdec",
         ]
