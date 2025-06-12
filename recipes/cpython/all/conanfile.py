@@ -368,9 +368,6 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         python_root = self.package_folder
         self.conf_info.define("user.cpython:python_root", python_root)
         if self.options.env_vars:
-            bindir = os.path.join(self.package_folder, "bin")
-            self.runenv_info.append_path("PATH", bindir)
-            self.buildenv_info.append_path("PATH", bindir)
             self.runenv_info.append_path("PYTHON", python_path)
             self.buildenv_info.append_path("PYTHON", python_path)
             self.runenv_info.append_path("PYTHON_ROOT", python_root)
