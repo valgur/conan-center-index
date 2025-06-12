@@ -19,7 +19,7 @@ class OneDplConan(ConanFile):
                    "ISO/IEC 14882:2017 standard, commonly called C++17")
     license = ("Apache-2.0", "LLVM-exception")
     url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/oneapi-src/oneDPL"
+    homepage = "https://github.com/uxlfoundation/oneDPL"
     topics = ("stl", "parallelism")
 
     package_type = "header-library"
