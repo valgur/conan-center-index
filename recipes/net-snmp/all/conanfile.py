@@ -7,7 +7,7 @@ from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, msvc_runtime_flag, NMakeToolchain, unix_path
 
@@ -113,9 +113,6 @@ class NetSnmpConan(ConanFile):
                 tc.extra_ldflags.append("-ldl")
                 tc.extra_ldflags.append("-lpthread")
             tc.generate()
-
-            deps = AutotoolsDeps(self)
-            deps.generate()
 
             deps = PkgConfigDeps(self)
             deps.generate()
