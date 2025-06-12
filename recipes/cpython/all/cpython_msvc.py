@@ -82,12 +82,12 @@ class CPythonMSVC(ConanFile):
     def _remove_vcxproj_include_dir(self, path, include_pattern):
         self.replace_in_vcxproj(path,
                                 f"<AdditionalIncludeDirectories>{include_pattern}",
-                                "</AdditionalIncludeDirectories>")
+                                "<AdditionalIncludeDirectories>")
 
     def _remove_vcxproj_dependency(self, path, dir_pattern):
         self.replace_in_vcxproj(path,
                                 f"<AdditionalDependencies>{dir_pattern}",
-                                "</AdditionalDependencies>")
+                                "<AdditionalDependencies>")
 
     def _inject_vcxproj_element(self, path, elem_pattern, inject, prepend=False):
         self.replace_in_vcxproj(path, elem_pattern, inject + elem_pattern if prepend else elem_pattern + inject)
@@ -97,12 +97,13 @@ class CPythonMSVC(ConanFile):
         content, n = re.subn(pattern, replacement, content)
         if strict and n == 0:
             raise ConanException(f"Pattern '{pattern}' not found in '{filename}'")
+        self.output.debug(f"Pattern '{pattern}' found {n} times in '{filename}'")
         save(self, filename, content)
 
     def _remove_vcxproj_source_files(self, path, glob_pattern):
-        glob_regex = fnmatch.translate(glob_pattern)
-        pattern = f'<(CLCompile|ClInclude) .*?Include="{glob_regex}".*?/>'
-        self._regex_replace_in_file(f"{path}.vcxproj", pattern, "")
+        glob_regex = fnmatch.translate(glob_pattern)[4:-3].replace(".*", '[^"]*')
+        pattern = fr'<(CLCompile|ClInclude|\w+) [^>]*Include="{glob_regex}"[^>]*?(/>|>[\s\S]*?</\1>)'
+        self._regex_replace_in_file(f"{path}.vcxproj", pattern, "", re.DOTALL)
 
     def _patch_msvc(self):
         runtime_library = {
@@ -154,11 +155,8 @@ class CPythonMSVC(ConanFile):
             self.replace_in_vcxproj("_decimal", r"..\Modules\_decimal\windows;$(mpdecimalDir)\libmpdec;", "")
         else:
             self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\*.h")
-            self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\libmpdec\*.c")
+            self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\libmpdec\*")
             self.replace_in_vcxproj("_decimal", r"..\Modules\_decimal\libmpdec;", "")
-        # There is also an assembly file with a complicated build step as part of the mpdecimal build
-        self.replace_in_vcxproj("_decimal", "<CustomBuild", "<!--<CustomBuild")
-        self.replace_in_vcxproj("_decimal", "</CustomBuild>", "</CustomBuild>-->")
 
         # sqlite3
         self._disable_vcxproj_element("_sqlite3", '<ProjectReference Include="sqlite3.vcxproj">')
@@ -177,13 +175,13 @@ class CPythonMSVC(ConanFile):
         self._remove_vcxproj_source_files("_elementtree", r"..\Modules\expat\*")
 
         # zlib
-        if Version(self.version) <= "3.13":
+        if Version(self.version) < "3.14":
             self._remove_vcxproj_source_files("pythoncore", r"$(zlibDir)\*")
 
         # tcl/tk
         self._remove_vcxproj_include_dir("_tkinter", "$(tcltkDir)include;")
         self._remove_vcxproj_dependency("_tkinter", "$(tcltkLib);")
-        self._disable_vcxproj_element("_tkinter", '<PreprocessorDefinitions Condition="\'$(BuildForRelease)\' != \'true\'">Py_TCLTK_DIR')
+        self._disable_vcxproj_element("_tkinter", "<PreprocessorDefinitions Condition=\"'$(BuildForRelease)' != 'true'\">Py_TCLTK_DIR")
         self._remove_vcxproj_source_files("_tkinter", r"$(tcltkdir)\*")
 
         # Inject Conan toolchain
