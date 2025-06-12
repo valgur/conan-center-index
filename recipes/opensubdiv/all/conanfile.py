@@ -2,10 +2,9 @@ import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.build import check_min_cppstd, valid_min_cppstd
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -50,15 +49,6 @@ class OpenSubdivConan(ConanFile):
             return "14"
         return "11"
 
-    @property
-    def _minimum_compilers_version(self):
-        return {
-            "msvc": "191",
-            "gcc": "5",
-            "clang": "11",
-            "apple-clang": "11.0",
-        }
-
     def export_sources(self):
         export_conandata_patches(self)
 
@@ -79,12 +69,7 @@ class OpenSubdivConan(ConanFile):
 
     def requirements(self):
         if self.options.with_tbb:
-            if Version(self.version) >= "3.6.0":
-                self.requires("onetbb/[^2021]", transitive_headers=True)
-            else:
-                # OpenSubdiv < 3.6.0 support only onettbb/2020.x.x
-                # https://github.com/PixarAnimationStudios/OpenSubdiv/pull/1317
-                self.requires("onetbb/[^2020.3]", transitive_headers=True)
+            self.requires("onetbb/[>=2021 <2023]", transitive_headers=True)
         if self.options.with_opengl:
             self.requires("opengl/system")
             self.requires("glfw/[^3.4]")
@@ -93,35 +78,27 @@ class OpenSubdivConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
-        min_version = self._minimum_compilers_version.get(str(self.settings.compiler), False)
-        if min_version and Version(self.settings.compiler.version) < min_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
-
         if self.options.shared and self.settings.os == "Windows":
             raise ConanInvalidConfiguration(f"{self.ref} shared not supported on Windows")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # No warnings as errors
+        replace_in_file(self, "CMakeLists.txt", "/WX", "")
 
     @property
     def _osd_gpu_enabled(self):
-        return any(
-            [
-                self.options.with_opengl,
-                self.options.with_opencl,
-                self.options.with_cuda,
-                self.options.get_safe("with_dx"),
-                self.options.get_safe("with_metal"),
-            ]
-        )
+        return any([
+            self.options.with_opengl,
+            self.options.with_opencl,
+            self.options.with_cuda,
+            self.options.get_safe("with_dx"),
+            self.options.get_safe("with_metal"),
+        ])
 
     def generate(self):
         tc = CMakeToolchain(self)
-        if not valid_min_cppstd(self, self._min_cppstd):
-            tc.variables["CMAKE_CXX_STANDARD"] = self._min_cppstd
         tc.variables["NO_TBB"] = not self.options.with_tbb
         tc.variables["NO_OPENGL"] = not self.options.with_opengl
         tc.variables["BUILD_SHARED_LIBS"] = self.options.get_safe("shared")
@@ -148,8 +125,6 @@ class OpenSubdivConan(ConanFile):
         if self.settings.os == "Macos" and not self._osd_gpu_enabled:
             path = os.path.join(self.source_folder, "opensubdiv", "CMakeLists.txt")
             replace_in_file(self, path, "$<TARGET_OBJECTS:osd_gpu_obj>", "")
-        # No warnings as errors
-        replace_in_file(self, "CMakeLists.txt", "/WX", "")
 
     def build(self):
         self._patch_sources()
