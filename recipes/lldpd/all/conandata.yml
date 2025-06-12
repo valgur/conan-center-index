@@ -1,0 +1,4 @@
+sources:
+  "1.0.19":
+    url: "https://github.com/lldpd/lldpd/releases/download/1.0.19/lldpd-1.0.19.tar.gz"
+    sha256: "4de17fe5137b4d44a7bd57f8dfc80cffe2c8bb3691b4ae3012b5a6ea20d79ee0"
