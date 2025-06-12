@@ -35,6 +35,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         "with_curses": [True, False],
         "with_gdbm": [True, False],
         "with_lzma": [True, False],
+        "with_readline": ["editline", "readline", False],
         "with_sqlite3": [True, False],
         "with_tkinter": [True, False],
         "with_zstd": [True, False],
@@ -54,6 +55,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         "with_curses": True,
         "with_gdbm": True,
         "with_lzma": True,
+        "with_readline": "editline",
         "with_sqlite3": True,
         "with_tkinter": True,
         "with_zstd": True,
@@ -89,6 +91,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             del self.options.pymalloc
             del self.options.with_curses
             del self.options.with_gdbm
+            del self.options.with_readline
         if Version(self.version) < "3.13":
             self.options.rm_safe("gil")
         if Version(self.version) <= "3.13":
@@ -132,6 +135,10 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             self.requires("bzip2/[^1.0.8]")
         if self.options.get_safe("with_gdbm"):
             self.requires("gdbm/1.23")
+        if self.options.get_safe("with_readline") == "readline":
+            self.requires("readline/[^8.2]")
+        elif self.options.get_safe("with_readline") == "editline":
+            self.requires("editline/[^3.1]")
         if self.options.get_safe("with_sqlite3"):
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_tkinter"):
@@ -334,6 +341,10 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
                 hidden_requires.append("bzip2::bzip2")
             if self.options.get_safe("with_gdbm"):
                 hidden_requires.append("gdbm::gdbm")
+            if self.options.with_readline == "readline":
+                hidden_requires.append("readline::readline")
+            elif self.options.with_readline == "editline":
+                hidden_requires.append("editline::editline")
             if self.options.with_sqlite3:
                 hidden_requires.append("sqlite3::sqlite3")
             if self.options.get_safe("with_curses"):
