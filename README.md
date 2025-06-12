@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-10:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-12:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -90,14 +90,16 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - coin-utils/2.11.11
 - colmap/3.10
 - conan-gnu-triplet/latest
+- conan-meson/latest
 - cose-c/cci.20200603
 - cpp-validator/2.1.1
 - cppserver/1.0.4.1
 - cpuinfo/cci.20250522
-- cpython/3.10.17
-- cpython/3.11.12
-- cpython/3.12.10
-- cpython/3.9.22
+- cpython/3.10.18
+- cpython/3.11.13
+- cpython/3.12.11
+- cpython/3.13.4
+- cpython/3.9.23
 - crashpad/cci.20231107
 - criterion/2.4.2
 - crow/1.1.0
@@ -181,7 +183,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - glslang/1.3.290.0
 - glslang/1.3.296.0
 - glslang/1.4.309.0
-- glslang/1.4.313.0
 - gm2calc/2.3.1
 - gn/qt-6.9.0
 - gnsstk/14.3.0
