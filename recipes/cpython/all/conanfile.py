@@ -26,6 +26,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "gil": [True, False],
         "optimizations": [True, False],
         "lto": [True, False],
         "docstrings": [True, False],
@@ -44,6 +45,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
     default_options = {
         "shared": True,
         "fPIC": True,
+        "gil": True,
         "optimizations": False,
         "lto": False,
         "docstrings": True,
