@@ -31,18 +31,29 @@ class NetSnmpConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "with_ipv6": [True, False],
+        "enable_agent": [True, False],
+        "enable_ipv6": [True, False],
+        "install_mibs": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_ipv6": True,
+        "enable_agent": False,
+        "enable_ipv6": True,
+        "install_mibs": False,
     }
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+        if is_msvc(self):
+            del self.options.enable_agent
+            del self.options.install_mibs
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -51,6 +62,8 @@ class NetSnmpConan(ConanFile):
         self.requires("openssl/[>=1.1 <4]")
         self.requires("pcre/[^8.45]")
         self.requires("zlib-ng/[^2.0]")
+        if self.settings.os == "Linux" and self.options.enable_agent:
+            self.requires("libnl/[^3.2]")
 
     def validate(self):
         if is_msvc(self) and self.options.shared:
@@ -90,23 +103,22 @@ class NetSnmpConan(ConanFile):
                 env = VirtualRunEnv(self)
                 env.generate(scope="build")
             tc = AutotoolsToolchain(self)
-            debug_flag = "enable" if self._is_debug else "disable"
-            ipv6_flag = "enable" if self.options.with_ipv6 else "disable"
+            yes_no = lambda v: "yes" if v else "no"
             openssl_path = self.dependencies["openssl"].package_folder
             zlib_path = self.dependencies["zlib-ng"].package_folder
             tc.configure_args += [
                 f"--with-openssl={openssl_path}",
                 f"--with-zlib={zlib_path}",
-                f"--{debug_flag}-debugging",
-                f"--{ipv6_flag}-ipv6",
+                f"--enable-debugging={yes_no(self._is_debug)}",
+                f"--enable-agent={yes_no(self.options.enable_agent)}",
+                f"--enable-ipv6={yes_no(self.options.enable_ipv6)}",
+                f"--enable-mibs={yes_no(self.options.install_mibs)}",
                 "--with-defaults",
                 "--without-rpm",
                 "--without-pcre",
-                "--disable-agent",
                 "--disable-applications",
                 "--disable-manuals",
                 "--disable-scripts",
-                "--disable-mibs",
                 "--disable-embedded-perl",
             ]
             if self.settings.os in ["Linux"]:
@@ -175,7 +187,7 @@ class NetSnmpConan(ConanFile):
             autotools = Autotools(self)
             autotools.autoreconf()
             autotools.configure()
-            autotools.make(target="snmplib", args=["NOAUTODEPS=1"])
+            autotools.make(args=["NOAUTODEPS=1"])
 
     def _dep_config_var(self, name):
         return f"NETSNMP_CONFIG_{name.upper().replace('-', '_')}"
@@ -215,22 +227,41 @@ class NetSnmpConan(ConanFile):
                      src=os.path.join(self.source_folder, "win32"))
         else:
             autotools = Autotools(self)
-            #only install with -j1 as parallel install will break dependencies. Probably a bug in the dependencies
-            #install specific targets instead of just everything as it will try to do perl stuff on you host machine
-            autotools.install(args=["-j1"], target="installsubdirs installlibs installprogs installheaders")
+            # Only install with -j1 as parallel install will break dependencies. Probably a bug in the dependencies.
+            autotools.install(args=["-j1"])
+            suffix = ".a" if not self.options.shared else ".dylib*" if is_apple_os(self) else ".so*"
+            if self.options.enable_agent:
+                # make install fails to install these for some reason
+                for lib in ["netsnmpagent", "netsnmpmibs"]:
+                    copy(self, f"lib{lib}{suffix}",
+                         os.path.join(self.build_folder, "agent", ".libs"),
+                         os.path.join(self.package_folder, "lib"))
             rm(self, "README", self.package_folder, recursive=True)
             rm(self, "*.la", self.package_folder, recursive=True)
+            rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             fix_apple_shared_install_name(self)
             self._fix_up_config()
 
     def package_info(self):
-        self.cpp_info.libs = ["netsnmp"]
+        self.cpp_info.components["netsnmp"].set_property("pkg_config_name", "netsnmp")
+        self.cpp_info.components["netsnmp"].libs = ["netsnmp"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs = ["rt", "pthread", "m"]
+            self.cpp_info.components["netsnmp"].system_libs = ["rt", "pthread", "m"]
         if is_apple_os(self):
-            self.cpp_info.frameworks = ["CoreFoundation", "DiskArbitration", "IOKit"]
+            self.cpp_info.components["netsnmp"].frameworks = ["CoreFoundation", "DiskArbitration", "IOKit"]
+        self.cpp_info.components["netsnmp"].requires = ["openssl::openssl", "pcre::pcre", "zlib-ng::zlib-ng"]
 
         if not is_msvc(self):
+            if self.options.enable_agent:
+                self.cpp_info.components["netsmp-agent"].set_property("pkg_config_name", "netsnmp-agent")
+                self.cpp_info.components["netsmp-agent"].libs = ["netsnmpagent", "netsnmpmibs"]
+                self.cpp_info.components["netsmp-agent"].requires = ["netsnmp"]
+                if self.settings.os == "Linux":
+                    self.cpp_info.components["netsmp-agent"].requires.append("libnl::libnl")
+
+            if self.options.install_mibs:
+                self.cpp_info.components["netsnmp"].resdirs = ["share"]
+
             self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
             for name, package_folder in self._package_folders:
                 self.buildenv_info.define_path(self._dep_config_var(name), unix_path(self, package_folder))
