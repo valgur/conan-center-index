@@ -94,7 +94,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             del self.options.with_readline
         if Version(self.version) < "3.13":
             self.options.rm_safe("gil")
-        if Version(self.version) <= "3.13":
+        if Version(self.version) < "3.14":
             del self.options.with_zstd
 
     def configure(self):
@@ -341,9 +341,9 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
                 hidden_requires.append("bzip2::bzip2")
             if self.options.get_safe("with_gdbm"):
                 hidden_requires.append("gdbm::gdbm")
-            if self.options.with_readline == "readline":
+            if self.options.get_safe("with_readline") == "readline":
                 hidden_requires.append("readline::readline")
-            elif self.options.with_readline == "editline":
+            elif self.options.get_safe("with_readline") == "editline":
                 hidden_requires.append("editline::editline")
             if self.options.with_sqlite3:
                 hidden_requires.append("sqlite3::sqlite3")
