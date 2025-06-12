@@ -83,11 +83,14 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if is_msvc(self):
+            del self.options.gil
             del self.options.lto
             del self.options.docstrings
             del self.options.pymalloc
             del self.options.with_curses
             del self.options.with_gdbm
+        if Version(self.version) < "3.13":
+            self.options.rm_safe("gil")
         if Version(self.version) <= "3.13":
             del self.options.with_zstd
 
@@ -127,19 +130,19 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
                 self.requires("libxcrypt/4.4.36")
         if self.options.get_safe("with_bz2"):
             self.requires("bzip2/[^1.0.8]")
-        if self.options.get_safe("with_gdbm", False):
+        if self.options.get_safe("with_gdbm"):
             self.requires("gdbm/1.23")
         if self.options.get_safe("with_sqlite3"):
             self.requires("sqlite3/[>=3.45.0 <4]")
         if self.options.get_safe("with_tkinter"):
             self.requires("tk/8.6.16")
-        if self.options.get_safe("with_curses", False):
+        if self.options.get_safe("with_curses"):
             # Used in a public header
             # https://github.com/python/cpython/blob/v3.10.13/Include/py_curses.h#L34
             self.requires("ncurses/[^6.4]", transitive_headers=True, transitive_libs=True)
-        if self.options.get_safe("with_lzma", False):
+        if self.options.get_safe("with_lzma"):
             self.requires("xz_utils/[^5.4.5]")
-        if self.options.get_safe("with_zstd", False):
+        if self.options.get_safe("with_zstd"):
             self.requires("zstd/[~1.5]")
 
     def package_id(self):
@@ -150,7 +153,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             self._msvc_validate()
         else:
             self._autotools_validate()
-        if self.options.get_safe("with_curses", False) and not self.dependencies["ncurses"].options.with_widec:
+        if self.options.get_safe("with_curses") and not self.dependencies["ncurses"].options.with_widec:
             raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
 
     def build_requirements(self):
@@ -173,8 +176,6 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         # Remove vendored packages
         rmdir(self, os.path.join(self.source_folder, "Modules", "_decimal", "libmpdec"))
         rmdir(self, os.path.join(self.source_folder, "Modules", "expat"))
-        if Version(self.version) > "3.13":
-            rmdir(self, os.path.join(self.source_folder, "Modules", "_zstd"))
 
         if is_msvc(self):
             self._msvc_patch_sources()
@@ -331,16 +332,18 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
                     hidden_requires.append("libxcrypt::libxcrypt")
             if self.options.with_bz2:
                 hidden_requires.append("bzip2::bzip2")
-            if self.options.get_safe("with_gdbm", False):
+            if self.options.get_safe("with_gdbm"):
                 hidden_requires.append("gdbm::gdbm")
             if self.options.with_sqlite3:
                 hidden_requires.append("sqlite3::sqlite3")
-            if self.options.get_safe("with_curses", False):
+            if self.options.get_safe("with_curses"):
                 hidden_requires.append("ncurses::ncurses")
             if self.options.get_safe("with_lzma"):
                 hidden_requires.append("xz_utils::xz_utils")
             if self.options.get_safe("with_tkinter"):
                 hidden_requires.append("tk::tk")
+            if self.options.get_safe("with_zstd"):
+                hidden_requires.append("zstd::zstd")
             self.cpp_info.components["_hidden"].requires = hidden_requires
             self.cpp_info.components["_hidden"].includedirs = []
             self.cpp_info.components["_hidden"].libdirs = []
