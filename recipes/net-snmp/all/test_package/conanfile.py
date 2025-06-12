@@ -3,6 +3,7 @@ import os
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
+from conan.tools.microsoft import is_msvc
 
 
 class TestPackageConan(ConanFile):
@@ -21,6 +22,8 @@ class TestPackageConan(ConanFile):
         cmake.build()
 
     def test(self):
+        if not is_msvc(self):
+            self.run("net-snmp-config --agent-libs", env="conanbuild")
         if can_run(self):
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")

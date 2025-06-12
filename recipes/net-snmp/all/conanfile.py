@@ -9,7 +9,7 @@ from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import is_msvc, msvc_runtime_flag, NMakeToolchain
+from conan.tools.microsoft import is_msvc, msvc_runtime_flag, NMakeToolchain, unix_path
 
 required_conan_version = ">=2.4"
 
@@ -180,6 +180,26 @@ class NetSnmpConan(ConanFile):
             autotools.configure()
             autotools.make(target="snmplib", args=["NOAUTODEPS=1"])
 
+    def _dep_config_var(self, name):
+        return f"NETSNMP_CONFIG_{name.upper().replace('-', '_')}"
+
+    @property
+    def _package_folders(self):
+        dirs = [(self.name, self.package_folder)]
+        for _, dep in self.dependencies.host.items():
+            dirs.append((dep.ref.name, dep.package_folder))
+        return dirs
+
+    def _fix_up_config(self):
+        # Replace hardcoded paths with environment variables
+        config_path = os.path.join(self.package_folder, "bin", "net-snmp-config")
+        replace_in_file(self, config_path, "prefix=/", "prefix=${%s}" % self._dep_config_var(self.name))
+        for name, package_folder in self._package_folders:
+            replace_in_file(self, config_path,
+                            unix_path(self, package_folder),
+                            "${%s}" % self._dep_config_var(name),
+                            strict=False)
+
     def package(self):
         copy(self, "COPYING",
              dst=os.path.join(self.package_folder, "licenses"),
@@ -202,13 +222,18 @@ class NetSnmpConan(ConanFile):
             #install specific targets instead of just everything as it will try to do perl stuff on you host machine
             autotools.install(args=["-j1"], target="installsubdirs installlibs installprogs installheaders")
             rm(self, "README", self.package_folder, recursive=True)
-            rmdir(self, os.path.join(self.package_folder, "bin"))
             rm(self, "*.la", self.package_folder, recursive=True)
             fix_apple_shared_install_name(self)
+            self._fix_up_config()
 
     def package_info(self):
         self.cpp_info.libs = ["netsnmp"]
         if self.settings.os in ["Linux", "FreeBSD"]:
-            self.cpp_info.system_libs.extend(["rt", "pthread", "m"])
+            self.cpp_info.system_libs = ["rt", "pthread", "m"]
         if is_apple_os(self):
-            self.cpp_info.frameworks.extend(["CoreFoundation", "DiskArbitration", "IOKit"])
+            self.cpp_info.frameworks = ["CoreFoundation", "DiskArbitration", "IOKit"]
+
+        if not is_msvc(self):
+            self.buildenv_info.append_path("PATH", os.path.join(self.package_folder, "bin"))
+            for name, package_folder in self._package_folders:
+                self.buildenv_info.define_path(self._dep_config_var(name), unix_path(self, package_folder))
