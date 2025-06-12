@@ -1,19 +1,20 @@
+import fnmatch
 import os
 import re
 import textwrap
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.build import can_run
 from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsToolchain, AutotoolsDeps, PkgConfigDeps
 from conan.tools.layout import basic_layout
-from conan.tools.microsoft import MSBuildDeps, MSBuildToolchain, MSBuild, is_msvc, is_msvc_static_runtime, msvc_runtime_flag, msvs_toolset, unix_path
+from conan.tools.microsoft import *
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class CPythonConan(ConanFile):
@@ -34,11 +35,12 @@ class CPythonConan(ConanFile):
         "docstrings": [True, False],
         "pymalloc": [True, False],
         "with_bz2": [True, False],
+        "with_curses": [True, False],
         "with_gdbm": [True, False],
+        "with_lzma": [True, False],
         "with_sqlite3": [True, False],
         "with_tkinter": [True, False],
-        "with_curses": [True, False],
-        "with_lzma": [True, False],
+        "with_zstd": [True, False],
 
         # options that don't change package id
         "env_vars": [True, False],  # set environment variables
@@ -51,19 +53,21 @@ class CPythonConan(ConanFile):
         "docstrings": True,
         "pymalloc": True,
         "with_bz2": True,
-        "with_gdbm": False,
-        "with_sqlite3": True,
-        "with_tkinter": False,
-        "with_curses": False,
+        "with_curses": True,
+        "with_gdbm": True,
         "with_lzma": True,
+        "with_sqlite3": True,
+        "with_tkinter": True,
+        "with_zstd": True,
 
         # options that don't change package id
         "env_vars": True,
     }
+    languages = ["C"]
 
     @property
     def _supports_modules(self):
-        return not is_msvc(self) or self.options.shared
+        return self.options.shared or not is_msvc(self)
 
     @property
     def _version_suffix(self):
@@ -83,9 +87,8 @@ class CPythonConan(ConanFile):
             del self.options.pymalloc
             del self.options.with_curses
             del self.options.with_gdbm
-
-        self.settings.compiler.rm_safe("libcxx")
-        self.settings.compiler.rm_safe("cppstd")
+        if Version(self.version) <= "3.13":
+            del self.options.with_zstd
 
     def configure(self):
         if self.options.shared:
@@ -95,6 +98,7 @@ class CPythonConan(ConanFile):
             self.options.rm_safe("with_sqlite3")
             self.options.rm_safe("with_tkinter")
             self.options.rm_safe("with_lzma")
+            self.options.rm_safe("with_zstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -120,18 +124,12 @@ class CPythonConan(ConanFile):
             elif Version(self.version) < "3.13":
                 self.requires("mpdecimal/2.5.1")
             else:
-                self.requires("mpdecimal/4.0.0")
+                self.requires("mpdecimal/[^4.0.0]")
         if self.settings.os != "Windows":
             if not is_apple_os(self):
                 self.requires("util-linux-libuuid/2.41")
             if Version(self.version) < "3.13":
-                # In <3.9 and lower patch versions of 3.9/10/11, crypt.h was exposed in Python.h
-                # This was removed in 3.11 and backported: https://github.com/python/cpython/issues/88914
-                # For the sake of this recipe, we only have later patch versions, so this version check
-                # may be slightly inaccurate if a lower patch version is desired.
-                # This dependency is removed entirely in 3.13.
-                transitive_crypt = Version(self.version) < "3.9"
-                self.requires("libxcrypt/4.4.36", transitive_headers=transitive_crypt, transitive_libs=transitive_crypt)
+                self.requires("libxcrypt/4.4.36")
         if self.options.get_safe("with_bz2"):
             self.requires("bzip2/[^1.0.8]")
         if self.options.get_safe("with_gdbm", False):
@@ -146,21 +144,20 @@ class CPythonConan(ConanFile):
             self.requires("ncurses/[^6.4]", transitive_headers=True, transitive_libs=True)
         if self.options.get_safe("with_lzma", False):
             self.requires("xz_utils/[^5.4.5]")
+        if self.options.get_safe("with_zstd", False):
+            self.requires("zstd/[~1.5]")
 
     def package_id(self):
         del self.info.options.env_vars
 
     def validate(self):
-        if self.options.shared:
-            if is_msvc_static_runtime(self):
-                raise ConanInvalidConfiguration(
-                    "cpython does not support MT(d) runtime when building a shared cpython library"
-                )
         if is_msvc(self):
+            if str(self.settings.arch) not in self._msvc_archs:
+                raise ConanInvalidConfiguration("Visual Studio does not support this architecture")
+            if self.options.shared and is_msvc_static_runtime(self):
+                raise ConanInvalidConfiguration("MT(d) runtime is not supported when building a shared cpython library")
             if self.options.optimizations:
-                raise ConanInvalidConfiguration(
-                    "This recipe does not support optimized MSVC cpython builds (yet)"
-                )
+                raise ConanInvalidConfiguration("This recipe does not support optimized MSVC cpython builds (yet)")
                 # FIXME: should probably throw when cross building
                 # FIXME: optimizations for Visual Studio, before building the final `build_type`:
                 # 1. build the MSVC PGInstrument build_type,
@@ -171,8 +168,6 @@ class CPythonConan(ConanFile):
                     "Building debug cpython requires a debug runtime (Debug cpython requires _CrtReportMode"
                     " symbol, which only debug runtimes define)"
                 )
-            if str(self.settings.arch) not in self._msvc_archs:
-                raise ConanInvalidConfiguration("Visual Studio does not support this architecture")
             if not self.options.shared and Version(self.version) >= "3.10":
                 # Static CPython on Windows is only loosely supported, see https://github.com/python/cpython/issues/110234
                 # 3.10 fails during the test, 3.11 fails during the build (missing symbol that seems to be DLL specific: PyWin_DLLhModule)
@@ -180,14 +175,6 @@ class CPythonConan(ConanFile):
 
         if self.options.get_safe("with_curses", False) and not self.dependencies["ncurses"].options.with_widec:
             raise ConanInvalidConfiguration("cpython requires ncurses with wide character support")
-
-        if self._supports_modules:
-            if self.dependencies["mpdecimal"].ref.version < Version("2.5.0"):
-                raise ConanInvalidConfiguration("cpython requires (at least) mpdecimal 2.5.0")
-
-        # TEMPORARY: Merge https://github.com/conan-io/conan-center-index/pull/25890 first
-        if self.settings.os == "Windows" and self._supports_modules and self.dependencies["mpdecimal"].options.shared:
-            raise ConanInvalidConfiguration("TEMPORARY: Merge https://github.com/conan-io/conan-center-index/pull/25890 first")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -199,23 +186,22 @@ class CPythonConan(ConanFile):
         tc.update_configure_args({"--enable-static": None, "--disable-static": None})
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
-            "--with-doc-strings={}".format(yes_no(self.options.docstrings)),
-            "--with-pymalloc={}".format(yes_no(self.options.pymalloc)),
+            f"--with-doc-strings={yes_no(self.options.docstrings)}",
+            f"--with-pymalloc={yes_no(self.options.pymalloc)}",
             "--with-system-expat",
-            "--enable-optimizations={}".format(yes_no(self.options.optimizations)),
-            "--with-lto={}".format(yes_no(self.options.lto)),
-            "--with-pydebug={}".format(yes_no(self.settings.build_type == "Debug")),
+            f"--enable-optimizations={yes_no(self.options.optimizations)}",
+            f"--with-lto={yes_no(self.options.lto)}",
+            f"--with-pydebug={yes_no(self.settings.build_type == 'Debug')}",
             "--with-system-libmpdec",
-            "--with-openssl={}".format(self.dependencies["openssl"].package_folder),
+            f"--with-openssl={self.dependencies['openssl'].package_folder}",
         ]
         if Version(self.version) < "3.12":
             tc.configure_args.append("--with-system-ffi")
         if Version(self.version) >= "3.10":
             tc.configure_args.append("--disable-test-modules")
         if self.options.get_safe("with_sqlite3"):
-            tc.configure_args.append("--enable-loadable-sqlite-extensions={}".format(
-                yes_no(not self.dependencies["sqlite3"].options.omit_load_extension)
-            ))
+            sqlite3_has_extensions = not self.dependencies["sqlite3"].options.omit_load_extension
+            tc.configure_args.append(f"--enable-loadable-sqlite-extensions={yes_no(sqlite3_has_extensions)}")
         if self.options.with_tkinter and Version(self.version) < "3.11":
             tcltk_includes = []
             tcltk_libs = []
@@ -229,8 +215,8 @@ class CPythonConan(ConanFile):
                 # FIXME: use info from xorg.components (x11, xscrnsaver)
                 tcltk_libs.extend([f"-l{lib}" for lib in ("X11", "Xss")])
             tc.configure_args += [
-                "--with-tcltk-includes={}".format(" ".join(tcltk_includes)),
-                "--with-tcltk-libs={}".format(" ".join(tcltk_libs)),
+                f"--with-tcltk-includes={' '.join(tcltk_includes)}",
+                f"--with-tcltk-libs={' '.join(tcltk_libs)}",
             ]
         if not is_apple_os(self):
             tc.extra_ldflags.append('-Wl,--as-needed')
@@ -271,22 +257,6 @@ class CPythonConan(ConanFile):
         else:
             self._generate_autotools()
 
-    def _msvc_project_path(self, name):
-        return os.path.join(self.source_folder, "PCBuild", f"{name}.vcxproj")
-
-    def _regex_replace_in_file(self, filename, pattern, replacement):
-        content = load(self, filename)
-        content = re.sub(pattern, replacement, content)
-        save(self, filename, content)
-
-    def _inject_conan_props_file(self, project_basename, dep_name, condition=True):
-        if condition:
-            search = '<Import Project="python.props" />'
-            replace_in_file(self,
-                            self._msvc_project_path(project_basename),
-                            search,
-                            search + f'<Import Project="{self.generators_folder}/conan_{dep_name}.props" />')
-
     def _patch_setup_py(self):
         setup_py = os.path.join(self.source_folder, "setup.py")
         if Version(self.version) < "3.10":
@@ -321,104 +291,142 @@ class CPythonConan(ConanFile):
             if Version(self.version) < "3.11":
                 replace_in_file(self, setup_py, "if (MACOS and self.detect_tkinter_darwin())", "if (False)")
 
-    def _patch_msvc_projects(self):
-        # Don't build vendored bz2
-        self._regex_replace_in_file(self._msvc_project_path("_bz2"), r'.*Include=\"\$\(bz2Dir\).*', "")
+    def replace_in_vcxproj(self, path, search, replace, strict=True):
+        return replace_in_file(self, f"{path}.vcxproj", search, replace, strict=strict)
 
-        if self._supports_modules:
-            # Don't import vendored libffi
-            replace_in_file(self, self._msvc_project_path("_ctypes"), '<Import Project="libffi.props" />', "")
-            if Version(self.version) < "3.11":
-                # Don't add this define, it should be added conditionally by the libffi package
-                # Instead, add this define to fix duplicate symbols (goes along with the ffi patches)
-                # See https://github.com/python/cpython/commit/38f331d4656394ae0f425568e26790ace778e076#diff-6f6b7f83e2fb49775efdfa41b4aa4f8fadcf71f43c4f3bcf9f37743acafd3fdfR97
-                replace_in_file(self, self._msvc_project_path("_ctypes"), "FFI_BUILDING;", "USING_MALLOC_CLOSURE_DOT_C=1;")
+    def _inject_conan_props_file(self, path, dep_name, condition=True):
+        if condition:
+            search = '<Import Project="python.props" />'
+            inject = f'<Import Project="{self.generators_folder}/conan_{dep_name}.props" />'
+            self.replace_in_vcxproj(path, search, search + inject)
 
-        # Don't import vendored openssl
-        replace_in_file(self, self._msvc_project_path("_hashlib"), '<Import Project="openssl.props" />', "")
-        replace_in_file(self, self._msvc_project_path("_ssl"), '<Import Project="openssl.props" />', "")
-
-        # For mpdecimal, we need to remove all headers and all c files *except* the main module file, _decimal.c
-        if Version(self.version) < "3.13":
-            self._regex_replace_in_file(self._msvc_project_path("_decimal"), r'.*Include=\"\.\.\\Modules\\_decimal\\.*\.h.*', "")
-            self._regex_replace_in_file(self._msvc_project_path("_decimal"), r'.*Include=\"\.\.\\Modules\\_decimal\\libmpdec\\.*\.c.*', "")
-            # Remove extra include directory
-            replace_in_file(self, self._msvc_project_path("_decimal"), r"..\Modules\_decimal\libmpdec;", "")
+    def _disable_vcxproj_element(self, path, elem_pattern):
+        if "Condition" in elem_pattern:
+            disabled_element, n = re.subn('Condition=".+?"', 'Condition="False"', elem_pattern)
+            assert n == 1
         else:
-            # https://github.com/python/cpython/commit/849e0716d378d6f9f724d1b3c386f6613d52a49d
-            # changed _decimal.vcxproj enough that we need different patching code.
-            self._regex_replace_in_file(self._msvc_project_path("_decimal"), r'.*Include=\"\.\.\\Modules\\_decimal\\windows\\.*\.h.*', "")
-            self._regex_replace_in_file(self._msvc_project_path("_decimal"), r'.*Include=\"\$\(mpdecimalDir\)\\libmpdec\\.*\.h.*', "")
-            self._regex_replace_in_file(self._msvc_project_path("_decimal"), r'.*Include=\"\$\(mpdecimalDir\)\\libmpdec\\.*\.c.*', "")
-            replace_in_file(self, self._msvc_project_path("_decimal"), r"..\Modules\_decimal\windows;$(mpdecimalDir)\libmpdec;", "")
-        # There is also an assembly file with a complicated build step as part of the mpdecimal build
-        replace_in_file(self, self._msvc_project_path("_decimal"), "<CustomBuild", "<!--<CustomBuild")
-        replace_in_file(self, self._msvc_project_path("_decimal"), "</CustomBuild>", "</CustomBuild>-->")
+            disabled_element = elem_pattern.replace('>', ' Condition="False">')
+        self.replace_in_vcxproj(path, elem_pattern, disabled_element)
 
-        # Don't include vendored sqlite3
-        replace_in_file(self, self._msvc_project_path("_sqlite3"),
-                        '<ProjectReference Include="sqlite3.vcxproj">',
-                        '<ProjectReference Include="sqlite3.vcxproj" Condition="False">')
+    def _remove_vcxproj_include_dir(self, path, include_pattern):
+        self.replace_in_vcxproj(path,
+                                f"<AdditionalIncludeDirectories>{include_pattern}",
+                                "</AdditionalIncludeDirectories>")
 
-        # Remove hardcoded reference to lzma library
-        replace_in_file(self, self._msvc_project_path("_lzma"), "<AdditionalDependencies>$(OutDir)liblzma$(PyDebugExt).lib;", "<AdditionalDependencies>")
-        # Don't include vendored lzma
-        replace_in_file(self, self._msvc_project_path("_lzma"),
-                        '<ProjectReference Include="liblzma.vcxproj">',
-                        '<ProjectReference Include="liblzma.vcxproj" Condition="False">')
+    def _remove_vcxproj_dependency(self, path, dir_pattern):
+        self.replace_in_vcxproj(path,
+                                f"<AdditionalDependencies>{dir_pattern}",
+                                "</AdditionalDependencies>")
 
-        # Don't include vendored expat project
-        replace_in_file(self, self._msvc_project_path("pyexpat"),
-                        r"<AdditionalIncludeDirectories>$(PySourcePath)Modules\expat;",
-                        "<AdditionalIncludeDirectories>")
-        # Remove XML_STATIC, this should conditionally be set by the expat library.
-        # TODO: Why HAVE_EXPAT_H? (It is at least removed in later versions)
-        replace_in_file(self, self._msvc_project_path("pyexpat"), ("HAVE_EXPAT_H;" if Version(self.version) < "3.11" else "") + "XML_STATIC;", "")
-        self._regex_replace_in_file(self._msvc_project_path("pyexpat"), r'.*Include=\"\.\.\\Modules\\expat\\.*" />', "")
+    def _inject_vcxproj_element(self, path, elem_pattern, inject, prepend=False):
+        self.replace_in_vcxproj(path, elem_pattern, inject + elem_pattern if prepend else elem_pattern + inject)
 
-        # Don't include vendored expat headers
-        replace_in_file(self, self._msvc_project_path("_elementtree"),
-                        r"<AdditionalIncludeDirectories>..\Modules\expat;",
-                        "<AdditionalIncludeDirectories>")
-        # Remove XML_STATIC, this should conditionally be set by the expat library.
-        replace_in_file(self, self._msvc_project_path("_elementtree"), "XML_STATIC;", "")
-        # Remove vendored expat
-        self._regex_replace_in_file(self._msvc_project_path("_elementtree"), r'.*Include=\"\.\.\\Modules\\expat\\.*" />', "")
+    def _regex_replace_in_file(self, filename, pattern, replacement, strict = True) -> None:
+        content = load(self, filename)
+        content, n = re.subn(pattern, replacement, content)
+        if strict and n == 0:
+            raise ConanException(f"Pattern '{pattern}' not found in '{filename}'")
+        save(self, filename, content)
 
-        # deflate.c has warning 4244 disabled, need special patching else it breaks the regex below
-        # Add an extra space to avoid being picked up by the regex
-        replace_in_file(self, self._msvc_project_path("pythoncore"),
-                        r'<ClCompile Include="$(zlibDir)\deflate.c">',
-                        r'<ClCompile Include= "$(zlibDir)\deflate.c" Condition="False">')
-        # Don't use vendored zlib
-        self._regex_replace_in_file(self._msvc_project_path("pythoncore"), r'.*Include=\"\$\(zlibDir\).*', "")
+    def _remove_vcxproj_source_files(self, path, glob_pattern):
+        glob_regex = fnmatch.translate(glob_pattern)
+        pattern = f'<(CLCompile|ClInclude) .*?Include="{glob_regex}".*?/>'
+        self._regex_replace_in_file(f"{path}.vcxproj", pattern, "")
 
-        # Don't use vendored tcl/tk include dir
-        replace_in_file(self, self._msvc_project_path("_tkinter"), "<AdditionalIncludeDirectories>$(tcltkDir)include;", "<AdditionalIncludeDirectories>")
-        # Don't use hardcoded tcl/tk library
-        replace_in_file(self, self._msvc_project_path("_tkinter"), "<AdditionalDependencies>$(tcltkLib);", "<AdditionalDependencies>")
-        # TODO: Why?
-        replace_in_file(self, self._msvc_project_path("_tkinter"),
-                        "<PreprocessorDefinitions Condition=\"'$(BuildForRelease)' != 'true'\">",
-                        "<PreprocessorDefinitions Condition='False'>")
-        # Don't use vendored tcl/tk
-        self._regex_replace_in_file(self._msvc_project_path("_tkinter"), r'.*Include=\"\$\(tcltkdir\).*', "")
+    def _patch_msvc(self):
+        runtime_library = {
+            "MT": "MultiThreaded",
+            "MTd": "MultiThreadedDebug",
+            "MD": "MultiThreadedDLL",
+            "MDd": "MultiThreadedDebugDLL",
+        }[msvc_runtime_flag(self)]
+        self.output.info("Patching runtime")
+        replace_in_file(self, "pyproject.props", "MultiThreadedDLL", runtime_library)
+        replace_in_file(self, "pyproject.props", "MultiThreadedDebugDLL", runtime_library)
+
+        # Enable static MSVC cpython
+        if not self.options.shared:
+            self.replace_in_vcxproj("pythoncore", "DynamicLibrary", "StaticLibrary")
+            self._inject_vcxproj_element("python", "<Link>", "<AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
+            self._inject_vcxproj_element("pythonw", "<Link>", "<AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
+            self.replace_in_vcxproj("pythoncore", "Py_ENABLE_SHARED", "Py_NO_ENABLE_SHARED")
+            self._inject_vcxproj_element("pythoncore", "<PreprocessorDefinitions>", "Py_NO_BUILD_SHARED;")
+            self._inject_vcxproj_element("python", "<PreprocessorDefinitions>", "Py_NO_ENABLE_SHARED;")
+            self._inject_vcxproj_element("pythonw", "<ItemDefinitionGroup>", "<ClCompile><PreprocessorDefinitions>Py_NO_ENABLE_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>")
 
         # Disable "ValidateUcrtbase" target (TODO: Why?)
-        replace_in_file(self, self._msvc_project_path("python"), "$(Configuration) != 'PGInstrument'", "False")
+        self._disable_vcxproj_element("python", '<Target Name="ValidateUcrtbase" AfterTargets="AfterBuild" Condition="$(Configuration) != \'PGInstrument\' and $(Platform) != \'ARM\' and $(Platform) != \'ARM64\'">')
 
         if Version(self.version) < "3.11":
             # TODO: Why?
-            replace_in_file(self, self._msvc_project_path("_freeze_importlib"),
-                            "<Target Name=\"RebuildImportLib\" AfterTargets=\"AfterBuild\" Condition=\"$(Configuration) == 'Debug' or $(Configuration) == 'Release'\"",
-                            "<Target Name=\"RebuildImportLib\" AfterTargets=\"AfterBuild\" Condition=\"False\"")
+            self._disable_vcxproj_element("_freeze_importlib", '<Target Name="RebuildImportLib" AfterTargets="AfterBuild" Condition="$(Configuration) == \'Debug\' or $(Configuration) == \'Release\'"')
 
-        # Remove vendored openssl file
+        # bz2
+        self._remove_vcxproj_source_files("_bz2", "$(bz2Dir)*")
+
+        # openssl
         if Version(self.version) < "3.12":
-            replace_in_file(self, self._msvc_project_path("_ssl"),
-                            r'<ClCompile Include="$(opensslIncludeDir)\applink.c">',
-                            r'<ClCompile Include="$(opensslIncludeDir)\applink.c" Condition="False">')
+            self._remove_vcxproj_source_files("_ssl", r"$(opensslIncludeDir)\applink.c")
 
+        # libffi
+        if Version(self.version) < "3.11":
+            # Don't add this define, it should be added conditionally by the libffi package
+            # Instead, add this define to fix duplicate symbols (goes along with the ffi patches)
+            # See https://github.com/python/cpython/commit/38f331d4656394ae0f425568e26790ace778e076#diff-6f6b7f83e2fb49775efdfa41b4aa4f8fadcf71f43c4f3bcf9f37743acafd3fdfR97
+            self.replace_in_vcxproj("_ctypes", "FFI_BUILDING;", "USING_MALLOC_CLOSURE_DOT_C=1;")
+
+        # mpdecimal
+        # We need to remove all headers and all c files *except* the main module file, _decimal.c
+        if Version(self.version) >= "3.13":
+            self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\windows\*.h")
+            self._remove_vcxproj_source_files("_decimal", r"$(mpdecimalDir)\libmpdec\*")
+            self.replace_in_vcxproj("_decimal", r"..\Modules\_decimal\windows;$(mpdecimalDir)\libmpdec;", "")
+        else:
+            self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\*.h")
+            self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\libmpdec\*.c")
+            self.replace_in_vcxproj("_decimal", r"..\Modules\_decimal\libmpdec;", "")
+        # There is also an assembly file with a complicated build step as part of the mpdecimal build
+        self.replace_in_vcxproj("_decimal", "<CustomBuild", "<!--<CustomBuild")
+        self.replace_in_vcxproj("_decimal", "</CustomBuild>", "</CustomBuild>-->")
+
+        # sqlite3
+        self._disable_vcxproj_element("_sqlite3", '<ProjectReference Include="sqlite3.vcxproj">')
+
+        # lzma
+        self._remove_vcxproj_dependency("_lzma", "$(OutDir)liblzma$(PyDebugExt).lib;")
+        self._disable_vcxproj_element("_lzma", '<ProjectReference Include="liblzma.vcxproj">')
+
+        # expat
+        self._remove_vcxproj_include_dir("pyexpat", "$(PySourcePath)Modules\expat;")
+        self._remove_vcxproj_include_dir("_elementtree", r"..\Modules\expat;")
+        # Let Conan handle XML_STATIC
+        self.replace_in_vcxproj("pyexpat", "XML_STATIC;", "")
+        self.replace_in_vcxproj("_elementtree", "XML_STATIC;", "")
+        self._remove_vcxproj_source_files("pyexpat", r"..\Modules\expat\*")
+        self._remove_vcxproj_source_files("_elementtree", r"..\Modules\expat\*")
+
+        # zlib
+        if Version(self.version) <= "3.13":
+            self._remove_vcxproj_source_files("pythoncore", r"$(zlibDir)\*")
+
+        # tcl/tk
+        self._remove_vcxproj_include_dir("_tkinter", "$(tcltkDir)include;")
+        self._remove_vcxproj_dependency("_tkinter", "$(tcltkLib);")
+        self._disable_vcxproj_element("_tkinter", '<PreprocessorDefinitions Condition="\'$(BuildForRelease)\' != \'true\'">Py_TCLTK_DIR')
+        self._remove_vcxproj_source_files("_tkinter", r"$(tcltkdir)\*")
+
+        # Inject Conan toolchain
+        conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
+        self._inject_vcxproj_element("pythoncore",
+                                     '<Import Project="python.props" />',
+                                     f'<Import Project="{conantoolchain_props}" />', prepend=True)
+
+        # Don't import vendored libs
+        self.replace_in_vcxproj("_ctypes", '<Import Project="libffi.props" />', "")
+        self.replace_in_vcxproj("_hashlib", '<Import Project="openssl.props" />', "")
+        self.replace_in_vcxproj("_ssl", '<Import Project="openssl.props" />', "")
+
+        # Inject Conan deps
         self._inject_conan_props_file("_bz2", "bzip2", self.options.get_safe("with_bz2"))
         self._inject_conan_props_file("_elementtree", "expat", self._supports_modules)
         self._inject_conan_props_file("pyexpat", "expat", self._supports_modules)
@@ -440,73 +448,32 @@ class CPythonConan(ConanFile):
         # 3.11 is an in awkward transition state where some dependencies use pkgconfig, and others use setup.py
         if Version(self.version) < "3.12":
             self._patch_setup_py()
-        if Version(self.version) >= "3.11":
-            replace_in_file(self, os.path.join(self.source_folder, "configure"),
-                            'OPENSSL_LIBS="-lssl -lcrypto"',
-                            'OPENSSL_LIBS="-lssl -lcrypto -lz"')
-        if is_msvc(self):
-            runtime_library = {
-                "MT": "MultiThreaded",
-                "MTd": "MultiThreadedDebug",
-                "MD": "MultiThreadedDLL",
-                "MDd": "MultiThreadedDebugDLL",
-            }[msvc_runtime_flag(self)]
-            self.output.info("Patching runtime")
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "pyproject.props"),
-                            "MultiThreadedDLL", runtime_library)
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "pyproject.props"),
-                            "MultiThreadedDebugDLL", runtime_library)
 
         # Remove vendored packages
         rmdir(self, os.path.join(self.source_folder, "Modules", "_decimal", "libmpdec"))
         rmdir(self, os.path.join(self.source_folder, "Modules", "expat"))
+        if Version(self.version) > "3.13":
+            rmdir(self, os.path.join(self.source_folder, "Modules", "_zstd"))
+
+        if Version(self.version) >= "3.11":
+            replace_in_file(self, os.path.join(self.source_folder, "configure"),
+                            'OPENSSL_LIBS="-lssl -lcrypto"',
+                            'OPENSSL_LIBS="-lssl -lcrypto -lz"')
 
         if Version(self.version) < "3.12":
             replace_in_file(self, os.path.join(self.source_folder, "Makefile.pre.in"),
                             "$(RUNSHARED) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)'",
                             "$(RUNSHARED) CC='$(CC) $(CONFIGURE_CFLAGS) $(CONFIGURE_CPPFLAGS)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)'")
 
-        # Enable static MSVC cpython
-        if not self.options.shared:
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "pythoncore.vcxproj"),
-                "<PreprocessorDefinitions>",
-                "<PreprocessorDefinitions>Py_NO_BUILD_SHARED;")
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "pythoncore.vcxproj"),
-                "Py_ENABLE_SHARED",
-                "Py_NO_ENABLE_SHARED")
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "pythoncore.vcxproj"),
-                "DynamicLibrary",
-                "StaticLibrary")
-
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "python.vcxproj"),
-                "<Link>",
-                "<Link><AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "python.vcxproj"),
-                "<PreprocessorDefinitions>",
-                "<PreprocessorDefinitions>Py_NO_ENABLE_SHARED;")
-
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "pythonw.vcxproj"),
-                "<Link>",
-                "<Link><AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
-            replace_in_file(self, os.path.join(self.source_folder, "PCbuild", "pythonw.vcxproj"),
-                "<ItemDefinitionGroup>",
-                "<ItemDefinitionGroup><ClCompile><PreprocessorDefinitions>Py_NO_ENABLE_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>")
-
-        conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
-        replace_in_file(
-            self, os.path.join(self.source_folder, "PCbuild", "pythoncore.vcxproj"),
-            '<Import Project="python.props" />',
-            f'<Import Project="{conantoolchain_props}" /><Import Project="python.props" />',
-        )
-
         if is_msvc(self):
-            self._patch_msvc_projects()
+            with chdir(self, os.path.join(self.source_folder, "PCBuild")):
+                self._patch_msvc()
 
     @property
     def _solution_projects(self):
         if self.options.shared:
             solution_path = os.path.join(self.source_folder, "PCbuild", "pcbuild.sln")
-            projects = set(m.group(1) for m in re.finditer('"([^"]+)\\.vcxproj"', open(solution_path).read()))
+            projects = set(re.findall('"([^"]+)\\.vcxproj"', open(solution_path).read()))
 
             def project_build(name):
                 if os.path.basename(name) in self._msvc_discarded_projects:
