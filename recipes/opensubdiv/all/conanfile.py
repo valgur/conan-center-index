@@ -33,7 +33,7 @@ class OpenSubdivConan(ConanFile):
     default_options = {
         "shared": False,
         "fPIC": True,
-        "with_tbb": False,
+        "with_tbb": True,
         "with_opengl": True,
         "with_omp": False,
         "with_cuda": False,

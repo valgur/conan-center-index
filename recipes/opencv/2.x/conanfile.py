@@ -71,7 +71,7 @@ class OpenCVConan(ConanFile):
         "fPIC": True,
         # global options
         "with_eigen": True,
-        "with_tbb": False,
+        "with_tbb": True,
         "world": False,
         # highgui module options
         "with_jpeg": True,

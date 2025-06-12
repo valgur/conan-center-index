@@ -63,7 +63,7 @@ class CCTagConan(ConanFile):
         self.requires("boost/[^1.71.0]", transitive_headers=True, transitive_libs=True,
                       options={f"with_{comp.replace('_c99', '')}": True for comp in self._boost_components + ["stacktrace"]})
         self.requires("eigen/3.4.0", transitive_headers=True)
-        self.requires("onetbb/[^2021]")
+        self.requires("onetbb/[>=2021 <2023]")
         self.requires("opencv/[^4.5]", transitive_headers=True, transitive_libs=True,
                       options={comp: True for comp in self._apps_opencv_components} if self.options.apps else {})
 

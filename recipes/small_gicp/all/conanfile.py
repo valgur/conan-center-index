@@ -28,7 +28,7 @@ class IridescenceConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "with_openmp": True,
-        "with_tbb": True,
+        "with_tbb": False,
     }
     implements = ["auto_shared_fpic"]
 
@@ -42,7 +42,7 @@ class IridescenceConan(ConanFile):
             # Note: native MSVC OpenMP is not compatible
             self.requires("llvm-openmp/18.1.8", transitive_headers=True, transitive_libs=True)
         if self.options.with_tbb:
-            self.requires("onetbb/[^2021]", transitive_headers=True, transitive_libs=True)
+            self.requires("onetbb/[>=2021 <2023]", transitive_headers=True, transitive_libs=True)
 
     def validate(self):
         check_min_cppstd(self, 17)

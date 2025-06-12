@@ -18,8 +18,12 @@ class TinyDnnConan(ConanFile):
 
     package_type = "header-library"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"with_tbb": [True, False]}
-    default_options = {"with_tbb": False}
+    options = {
+        "with_tbb": [True, False],
+    }
+    default_options = {
+        "with_tbb": True,
+    }
 
     def layout(self):
         cmake_layout(self, src_folder="src")

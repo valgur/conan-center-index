@@ -67,7 +67,7 @@ class EmbreeConan(ConanFile):
         "ray_masking": False,
         "backface_culling": False,
         "ignore_invalid_rays": False,
-        "with_tbb": False,
+        "with_tbb": True,
     }
 
     @property

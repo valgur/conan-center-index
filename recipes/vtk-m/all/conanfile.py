@@ -53,10 +53,10 @@ class VtkmConan(ConanFile):
         "with_cuda": False,  # TODO: export CMake modules to handle CUDA dependency
         "with_hdf5": True,
         "with_kokkos": False,  # TODO: not on CCI yet. required for HIP support
-        "with_mpi": False,  # TODO: enable after #18980
-        "with_openmp": False,  # TODO: enable after #22360
-        "with_rendering": False,  # FIXME: missing libglvnd binaries
-        "with_tbb": True,
+        "with_mpi": False,
+        "with_openmp": True,
+        "with_rendering": False,
+        "with_tbb": False,
     }
 
     def export_sources(self):
@@ -85,7 +85,7 @@ class VtkmConan(ConanFile):
         if self.options.with_openmp:
             self.requires("openmp/system")
         if self.options.with_tbb:
-            self.requires("onetbb/[^2021]")
+            self.requires("onetbb/[>=2021 <2023]")
         if self.options.with_rendering:
             self.requires("glew/2.2.0")
             self.requires("opengl/system")

@@ -38,7 +38,7 @@ class Pagmo2Conan(ConanFile):
 
     def requirements(self):
         self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
-        self.requires("onetbb/[^2021]")
+        self.requires("onetbb/[>=2021 <2023]")
         if self.options.with_eigen:
             self.requires("eigen/3.4.0", transitive_headers=True)
         if self.options.with_nlopt:

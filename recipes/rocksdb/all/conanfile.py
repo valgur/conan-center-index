@@ -46,7 +46,7 @@ class RocksDBConan(ConanFile):
         "with_jemalloc": False,
         "with_liburing": False,
         "with_lz4": False,
-        "with_tbb": False,
+        "with_tbb": True,
         "with_zlib": False,
         "with_zstd": False,
         "enable_sse": False,
@@ -93,7 +93,7 @@ class RocksDBConan(ConanFile):
         if self.options.with_zstd:
             self.requires("zstd/[~1.5]")
         if self.options.get_safe("with_tbb"):
-            self.requires("onetbb/[^2021]")
+            self.requires("onetbb/[>=2021 <2023]")
         if self.options.with_jemalloc:
             self.requires("jemalloc/[^5.3.0]")
 
