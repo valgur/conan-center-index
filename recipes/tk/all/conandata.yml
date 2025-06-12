@@ -1,12 +1,12 @@
 sources:
   "8.6.16":
-    url: "https://prdownloads.sourceforge.net/tcl/tk8.6.16-src.tar.gz"
+    url: "https://downloads.sourceforge.net/tcl/tk8.6.16-src.tar.gz"
     sha256: "be9f94d3575d4b3099d84bc3c10de8994df2d7aa405208173c709cc404a7e5fe"
   "8.6.13":
-    url: "https://prdownloads.sourceforge.net/tcl/tk8.6.13-src.tar.gz"
+    url: "https://downloads.sourceforge.net/tcl/tk8.6.13-src.tar.gz"
     sha256: "2e65fa069a23365440a3c56c556b8673b5e32a283800d8d9b257e3f584ce0675"
   "8.6.10":
-    url: "https://prdownloads.sourceforge.net/tcl/tk8.6.10-src.tar.gz"
+    url: "https://downloads.sourceforge.net/tcl/tk8.6.10-src.tar.gz"
     sha256: "63df418a859d0a463347f95ded5cd88a3dd3aaa1ceecaeee362194bc30f3e386"
 patches:
   "8.6.16":
