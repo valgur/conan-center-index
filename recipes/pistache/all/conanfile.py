@@ -8,6 +8,7 @@ from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -25,11 +26,13 @@ class PistacheConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "with_ssl": [True, False],
+        "with_libevent": [True, False]
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "with_ssl": False,
+        "with_libevent": True
     }
     implements = ["auto_shared_fpic"]
 
@@ -39,17 +42,29 @@ class PistacheConan(ConanFile):
     def layout(self):
         basic_layout(self, src_folder="src")
 
+    @property
+    def _supports_libevent(self):
+        return Version(self.version) >= "0.4.25"
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+        if self.settings.os != "Linux" or not self._supports_libevent:
+            del self.options.with_libevent
+
     def requirements(self):
         self.requires("rapidjson/[^1.1.0]")
+        self.requires("date/[^3.0]")
         if self.options.with_ssl:
             self.requires("openssl/[>=1.1 <4]")
-        self.requires("date/[^3.0]")
+        if self.options.get_safe("with_libevent", True):
+            self.requires("libevent/[^2.1.12]")
 
     def validate(self):
-        if self.settings.os not in ["Linux", "FreeBSD"]:
+        if self.settings.os not in ["Linux", "FreeBSD"] and Version(self.version) < "0.4.25":
             raise ConanInvalidConfiguration(f"{self.ref} is only support on Linux.")
 
-        if self.settings.compiler == "clang" and self.version == "0.0.5":
+        if self.settings.compiler == "clang" and Version(self.version) < "0.4.25":
             raise ConanInvalidConfiguration(f"{self.ref}'s clang support is broken. See pistacheio/pistache#835.")
 
         check_min_cppstd(self, 17)
@@ -70,6 +85,8 @@ class PistacheConan(ConanFile):
         tc.project_options["PISTACHE_BUILD_EXAMPLES"] = False
         tc.project_options["PISTACHE_BUILD_TESTS"] = False
         tc.project_options["PISTACHE_BUILD_DOCS"] = False
+        if self._supports_libevent:
+            tc.project_options["PISTACHE_FORCE_LIBEVENT"] = self.options.get_safe("with_libevent", True)
         tc.generate()
         deps = PkgConfigDeps(self)
         deps.set_property("rapidjson", "pkg_config_name", "RapidJSON")

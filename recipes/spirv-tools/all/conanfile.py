@@ -2,10 +2,8 @@ import os
 import re
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import *
 from conan.tools.scm import Version
 
@@ -34,35 +32,19 @@ class SpirvtoolsConan(ConanFile):
     }
     implements = ["auto_shared_fpic"]
 
-    @property
-    def _min_cppstd(self):
-        return "11" if Version(self.version) < "1.3.243" else "17"
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "17": {
-                "apple-clang": "10",
-                "clang": "7" if Version(self.version) >= "1.3.250" else "5",
-                "gcc": "8" if Version(self.version) >= "1.3.250" else "7",
-                "msvc": "191",
-            }
-        }.get(self._min_cppstd, {})
-
     def layout(self):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires(f"spirv-headers/{self.version}")
 
-    def validate(self):
-        check_min_cppstd(self, self._min_cppstd)
+    def validate_build(self):
+        # newer versions of the library require C++17 for internals
+        check_min_cppstd(self, 11 if Version(self.version) < "1.3.243" else 17)
 
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+    def validate(self):
+        # The interface requires C++11
+        check_min_cppstd(self, 11)
 
     def build_requirements(self):
         self.tool_requires("cmake/[>=3.17.2 <5]")
@@ -72,9 +54,6 @@ class SpirvtoolsConan(ConanFile):
         replace_in_file(self, "CMakeLists.txt", "set(CMAKE_POSITION_INDEPENDENT_CODE ON)", "")
 
     def generate(self):
-        env = VirtualBuildEnv(self)
-        env.generate()
-
         tc = CMakeToolchain(self)
         # BUILD_SHARED_LIBS is used if SPIRV_TOOLS_BUILD_STATIC is set to False
         tc.variables["SPIRV_TOOLS_BUILD_STATIC"] = False
