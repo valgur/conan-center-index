@@ -6,7 +6,7 @@ from conan.errors import ConanException
 from conan.tools.apple import is_apple_os
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.env import Environment, VirtualRunEnv
+from conan.tools.env import Environment
 from conan.tools.gnu import AutotoolsDeps
 from conan.tools.microsoft import is_msvc, VCVars
 from conan.tools.scm import Version
@@ -19,13 +19,9 @@ class TestPackageConan(ConanFile):
         self.requires(self.tested_reference_str)
 
     def build_requirements(self):
-        # The main recipe does not require CMake, but we test with it.
-        # The interesting problem that arises here is if you have CMake installed
-        # with your global pip, then it will fail to run in this test package.
-        # To avoid that, just add a requirement on CMake.
+        # These tests can break pip-installed CMake, so add it as a tool_requires.
         self.tool_requires("cmake/[>=3.16 <5]")
-        if not can_run(self):
-            self.tool_requires("cpython/<host_version>")
+        self.tool_requires("cpython/<host_version>")
 
     def layout(self):
         cmake_layout(self)
@@ -61,18 +57,9 @@ class TestPackageConan(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
 
-        # The build also needs access to the run environment to run the python executable
-        VirtualRunEnv(self).generate(scope="run")
-        VirtualRunEnv(self).generate(scope="build")
-
         if self._test_setuptools:
-            try:
-                # CMakeToolchain might generate VCVars, but we need it
-                # unconditionally for the setuptools build.
+            if is_msvc(self):
                 VCVars(self).generate()
-            except ConanException:
-                pass
-
             # Just for the setuptools build
             AutotoolsDeps(self).generate(scope="build")
 
@@ -106,7 +93,7 @@ class TestPackageConan(ConanFile):
 
     def _test_module(self, module, should_work):
         try:
-            self.run(f"{self._python} \"{self.source_folder}/test_package.py\" -b \"{self.build_folder}\" -t {module}", env="conanrun")
+            self.run(f'{self._python} "{self.source_folder}/test_package.py" -b "{self.build_folder}" -t {module}', env="conanrun")
         except ConanException:
             if should_work:
                 self.output.warning(f"Module '{module}' does not work, but should have worked")
@@ -121,10 +108,10 @@ class TestPackageConan(ConanFile):
         if can_run(self):
             self.run(f"{self._python} --version", env="conanrun")
 
-            self.run(f"{self._python} -c \"print('hello world')\"", env="conanrun")
+            self.run(f'{self._python} -c "print(\'hello world\')"', env="conanrun")
 
             buffer = StringIO()
-            self.run(f"{self._python} -c \"import sys; print('.'.join(str(s) for s in sys.version_info[:3]))\"", buffer, env="conanrun")
+            self.run(f'{self._python} -c "import sys; print(\'.\'.join(str(s) for s in sys.version_info[:3]))"', buffer, env="conanrun")
             self.output.info(buffer.getvalue())
             version_detected = buffer.getvalue().splitlines()[-1].strip()
             if self._py_version != version_detected:
