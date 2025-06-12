@@ -8,7 +8,6 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.gnu import PkgConfigDeps
-from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
@@ -66,7 +65,10 @@ class VulkanValidationLayersConan(ConanFile):
         if Version(self.version) >= "1.3.268.0":
             self.requires(f"vulkan-utility-libraries/{self._vulkan_sdk_version}")
 
-        self.requires("robin-hood-hashing/3.11.5")
+        if Version(self.version) >= "1.4.313":
+            self.requires("parallel-hashmap/[^2.0.0]")
+        else:
+            self.requires("robin-hood-hashing/3.11.5")
         if self.options.get_safe("with_wsi_xcb") or self.options.get_safe("with_wsi_xlib"):
             self.requires("xorg/system", libs=False)
         if self.options.get_safe("with_wsi_wayland"):
@@ -103,6 +105,10 @@ class VulkanValidationLayersConan(ConanFile):
         tc.variables["INSTALL_TESTS"] = False
         tc.variables["BUILD_LAYERS"] = True
         tc.variables["BUILD_LAYER_SUPPORT_FILES"] = True
+        if Version(self.version) >= "1.4.313":
+            tc.variables["USE_CUSTOM_HASH_MAP"] = True
+        else:
+            tc.variables["USE_ROBIN_HOOD_HASHING"] = True
         # Suppress overly noisy warnings
         # tc.extra_cxxflags.append("-w")
         tc.generate()
