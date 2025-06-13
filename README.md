@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-12:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-13:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -121,6 +121,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - egl-headers/20250527
 - elfutils/0.191
 - elfutils/0.192
+- embree/3.12.0
+- embree/3.13.1
+- embree/3.13.3
+- embree/3.13.5
 - emsdk/4.0.6
 - f2c/20240312
 - faiss/1.8.0
@@ -328,6 +332,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - litehtml/0.9
 - lld/19.1.7
 - lld/20.1.6
+- lldpd/1.0.19
 - llvm-core/20.1.6
 - llvm-libunwind/19.1.7
 - llvm-libunwind/20.1.6
@@ -363,8 +368,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - nss/3.110
 - numpy/1.26.4
 - nvidia-optical-flow-sdk/5.0.7
+- nvtx/3.2.1
 - odbc/2.3.12
 - ogre/14.3.4
+- onetbb/2022.1.0
 - onnxruntime/1.21.1
 - openblas/0.3.28
 - opencl-clhpp-headers/2024.10.24
@@ -379,17 +386,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openni2/2.2.0.33
 - openpmix/5.0.6
 - openspecfun/0.5.7
-- opentelemetry-proto/0.11.0
-- opentelemetry-proto/0.16.0
-- opentelemetry-proto/0.17.0
-- opentelemetry-proto/0.18.0
-- opentelemetry-proto/0.19.0
-- opentelemetry-proto/0.20.0
-- opentelemetry-proto/1.0.0
-- opentelemetry-proto/1.1.0
-- opentelemetry-proto/1.2.0
-- opentelemetry-proto/1.3.0
-- opentelemetry-proto/1.3.1
 - openucx/1.18.1
 - openusd/25.02
 - openxr/1.1.47
