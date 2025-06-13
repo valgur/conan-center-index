@@ -51,6 +51,11 @@ class CPythonMSVC(ConanFile):
             # 3.10 fails during the test, 3.11 fails during the build (missing symbol that seems to be DLL specific: PyWin_DLLhModule)
             raise ConanInvalidConfiguration("Static msvc build disabled (>=3.10) due to \"AttributeError: module 'sys' has no attribute 'winver'\"")
 
+        if self.options.get_safe("with_bz2") == False:
+            raise ConanInvalidConfiguration("with_bz2 option cannot be disabled when building with MSVC")
+        if self.options.get_safe("with_zstd") == False:
+            raise ConanInvalidConfiguration("with_zstd option cannot be disabled when building with MSVC")
+
     def _msvc_generate(self):
         # The msbuild generator only works with Visual Studio
         deps = MSBuildDeps(self)
@@ -62,14 +67,14 @@ class CPythonMSVC(ConanFile):
 
     ## PATCH
 
-    def replace_in_vcxproj(self, path, search, replace, strict=True):
+    def _replace_in_vcxproj(self, path, search, replace, strict=True):
         return replace_in_file(self, f"{path}.vcxproj", search, replace, strict=strict)
 
     def _inject_conan_props_file(self, path, dep_name, condition=True):
         if condition:
             search = '<Import Project="python.props" />'
             inject = f'<Import Project="{self.generators_folder}/conan_{dep_name}.props" />'
-            self.replace_in_vcxproj(path, search, search + inject)
+            self._replace_in_vcxproj(path, search, search + inject)
 
     def _disable_vcxproj_element(self, path, elem_pattern):
         if "Condition" in elem_pattern:
@@ -77,20 +82,24 @@ class CPythonMSVC(ConanFile):
             assert n == 1
         else:
             disabled_element = elem_pattern.replace('>', ' Condition="False">')
-        self.replace_in_vcxproj(path, elem_pattern, disabled_element)
+        self._replace_in_vcxproj(path, elem_pattern, disabled_element)
 
     def _remove_vcxproj_include_dir(self, path, include_pattern):
-        self.replace_in_vcxproj(path,
-                                f"<AdditionalIncludeDirectories>{include_pattern}",
-                                "<AdditionalIncludeDirectories>")
+        if not include_pattern.endswith(";"):
+            include_pattern += ";"
+        self._regex_replace_in_file(f"{path}.vcxproj",
+                                    f"<AdditionalIncludeDirectories[^>]*>([^<]*){re.escape(include_pattern)}",
+                                    r"<AdditionalIncludeDirectories>\1")
 
     def _remove_vcxproj_dependency(self, path, dir_pattern):
-        self.replace_in_vcxproj(path,
-                                f"<AdditionalDependencies>{dir_pattern}",
-                                "<AdditionalDependencies>")
+        if not dir_pattern.endswith(";"):
+            dir_pattern += ";"
+        self._regex_replace_in_file(f"{path}.vcxproj",
+                                    f"<AdditionalDependencies[^>]*>([^<]*){re.escape(dir_pattern)}",
+                                    r"<AdditionalDependencies>\1")
 
     def _inject_vcxproj_element(self, path, elem_pattern, inject, prepend=False):
-        self.replace_in_vcxproj(path, elem_pattern, inject + elem_pattern if prepend else elem_pattern + inject)
+        self._replace_in_vcxproj(path, elem_pattern, inject + elem_pattern if prepend else elem_pattern + inject)
 
     def _regex_replace_in_file(self, filename, pattern, replacement, strict = True) -> None:
         content = load(self, filename)
@@ -118,10 +127,10 @@ class CPythonMSVC(ConanFile):
 
         # Enable static MSVC cpython
         if not self.options.shared:
-            self.replace_in_vcxproj("pythoncore", "DynamicLibrary", "StaticLibrary")
+            self._replace_in_vcxproj("pythoncore", "DynamicLibrary", "StaticLibrary")
             self._inject_vcxproj_element("python", "<Link>", "<AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
             self._inject_vcxproj_element("pythonw", "<Link>", "<AdditionalDependencies>shlwapi.lib;ws2_32.lib;pathcch.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>")
-            self.replace_in_vcxproj("pythoncore", "Py_ENABLE_SHARED", "Py_NO_ENABLE_SHARED")
+            self._replace_in_vcxproj("pythoncore", "Py_ENABLE_SHARED", "Py_NO_ENABLE_SHARED")
             self._inject_vcxproj_element("pythoncore", "<PreprocessorDefinitions>", "Py_NO_BUILD_SHARED;")
             self._inject_vcxproj_element("python", "<PreprocessorDefinitions>", "Py_NO_ENABLE_SHARED;")
             self._inject_vcxproj_element("pythonw", "<ItemDefinitionGroup>", "<ClCompile><PreprocessorDefinitions>Py_NO_ENABLE_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>")
@@ -145,44 +154,52 @@ class CPythonMSVC(ConanFile):
             # Don't add this define, it should be added conditionally by the libffi package
             # Instead, add this define to fix duplicate symbols (goes along with the ffi patches)
             # See https://github.com/python/cpython/commit/38f331d4656394ae0f425568e26790ace778e076#diff-6f6b7f83e2fb49775efdfa41b4aa4f8fadcf71f43c4f3bcf9f37743acafd3fdfR97
-            self.replace_in_vcxproj("_ctypes", "FFI_BUILDING;", "USING_MALLOC_CLOSURE_DOT_C=1;")
+            self._replace_in_vcxproj("_ctypes", "FFI_BUILDING;", "USING_MALLOC_CLOSURE_DOT_C=1;")
 
         # mpdecimal
         # We need to remove all headers and all c files *except* the main module file, _decimal.c
         if Version(self.version) >= "3.13":
             self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\windows\*.h")
             self._remove_vcxproj_source_files("_decimal", r"$(mpdecimalDir)\libmpdec\*")
-            self.replace_in_vcxproj("_decimal", r"..\Modules\_decimal\windows;$(mpdecimalDir)\libmpdec;", "")
+            self._remove_vcxproj_include_dir("_decimal", r"..\Modules\_decimal\windows;$(mpdecimalDir)\libmpdec")
         else:
             self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\*.h")
             self._remove_vcxproj_source_files("_decimal", r"..\Modules\_decimal\libmpdec\*")
-            self.replace_in_vcxproj("_decimal", r"..\Modules\_decimal\libmpdec;", "")
+            self._remove_vcxproj_include_dir("_decimal", r"..\Modules\_decimal\libmpdec")
 
         # sqlite3
         self._disable_vcxproj_element("_sqlite3", '<ProjectReference Include="sqlite3.vcxproj">')
 
         # lzma
-        self._remove_vcxproj_dependency("_lzma", "$(OutDir)liblzma$(PyDebugExt).lib;")
+        self._remove_vcxproj_dependency("_lzma", "$(OutDir)liblzma$(PyDebugExt).lib")
         self._disable_vcxproj_element("_lzma", '<ProjectReference Include="liblzma.vcxproj">')
 
         # expat
-        self._remove_vcxproj_include_dir("pyexpat", "$(PySourcePath)Modules\expat;")
-        self._remove_vcxproj_include_dir("_elementtree", r"..\Modules\expat;")
+        self._remove_vcxproj_include_dir("pyexpat", "$(PySourcePath)Modules\expat")
+        self._remove_vcxproj_include_dir("_elementtree", r"..\Modules\expat")
         # Let Conan handle XML_STATIC
-        self.replace_in_vcxproj("pyexpat", "XML_STATIC;", "")
-        self.replace_in_vcxproj("_elementtree", "XML_STATIC;", "")
+        self._replace_in_vcxproj("pyexpat", "XML_STATIC;", "")
+        self._replace_in_vcxproj("_elementtree", "XML_STATIC;", "")
         self._remove_vcxproj_source_files("pyexpat", r"..\Modules\expat\*")
         self._remove_vcxproj_source_files("_elementtree", r"..\Modules\expat\*")
 
         # zlib
-        if Version(self.version) < "3.14":
+        if Version(self.version, qualifier=True) >= "3.14":
+            self._remove_vcxproj_dependency("pythoncore", "zlib-ng$(PyDebugExt).lib")
+            self._remove_vcxproj_include_dir("pythoncore", "$(zlibNgDir);$(GeneratedZlibNgDir)")
+            self._remove_vcxproj_source_files("pythoncore", "zlib-ng.vcxproj")
+        else:
             self._remove_vcxproj_source_files("pythoncore", r"$(zlibDir)\*")
 
         # tcl/tk
-        self._remove_vcxproj_include_dir("_tkinter", "$(tcltkDir)include;")
-        self._remove_vcxproj_dependency("_tkinter", "$(tcltkLib);")
+        self._remove_vcxproj_include_dir("_tkinter", "$(tcltkDir)include")
+        self._remove_vcxproj_dependency("_tkinter", "$(tcltkLib)")
         self._disable_vcxproj_element("_tkinter", "<PreprocessorDefinitions Condition=\"'$(BuildForRelease)' != 'true'\">Py_TCLTK_DIR")
         self._remove_vcxproj_source_files("_tkinter", r"$(tcltkdir)\*")
+
+        if Version(self.version, qualifier=True) >= "3.14":
+            self._remove_vcxproj_include_dir("_zstd", r"$(zstdDir)lib\;$(zstdDir)lib\common;$(zstdDir)lib\compress;$(zstdDir)lib\decompress;$(zstdDir)lib\dictBuilder;")
+            self._remove_vcxproj_source_files("_zstd", r"$(zstdDir)*")
 
         # Inject Conan toolchain
         conantoolchain_props = os.path.join(self.generators_folder, MSBuildToolchain.filename)
@@ -191,9 +208,9 @@ class CPythonMSVC(ConanFile):
                                      f'<Import Project="{conantoolchain_props}" />', prepend=True)
 
         # Don't import vendored libs
-        self.replace_in_vcxproj("_ctypes", '<Import Project="libffi.props" />', "")
-        self.replace_in_vcxproj("_hashlib", '<Import Project="openssl.props" />', "")
-        self.replace_in_vcxproj("_ssl", '<Import Project="openssl.props" />', "")
+        self._replace_in_vcxproj("_ctypes", '<Import Project="libffi.props" />', "")
+        self._replace_in_vcxproj("_hashlib", '<Import Project="openssl.props" />', "")
+        self._replace_in_vcxproj("_ssl", '<Import Project="openssl.props" />', "")
 
         # Inject Conan deps
         self._inject_conan_props_file("_bz2", "bzip2", self.options.get_safe("with_bz2"))
@@ -210,6 +227,7 @@ class CPythonMSVC(ConanFile):
         self._inject_conan_props_file("_decimal", "mpdecimal", self._supports_modules)
         self._inject_conan_props_file("_lzma", "xz_utils", self.options.get_safe("with_lzma"))
         self._inject_conan_props_file("_bsddb", "libdb", self.options.get_safe("with_bsddb"))
+        self._inject_conan_props_file("_zstd", "zstd", self.options.get_safe("with_zstd"))
 
     def _msvc_patch_sources(self):
         if is_msvc(self):

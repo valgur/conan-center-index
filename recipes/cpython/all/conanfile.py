@@ -52,12 +52,12 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         "docstrings": True,
         "pymalloc": True,
         "with_bz2": True,
-        "with_curses": True,
-        "with_gdbm": True,
+        "with_curses": False,
+        "with_gdbm": False,
         "with_lzma": True,
-        "with_readline": "editline",
-        "with_sqlite3": True,
-        "with_tkinter": True,
+        "with_readline": False,
+        "with_sqlite3": False,
+        "with_tkinter": False,
         "with_zstd": True,
 
         # options that don't change package id
@@ -94,7 +94,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             del self.options.with_readline
         if Version(self.version) < "3.13":
             self.options.rm_safe("gil")
-        if Version(self.version) < "3.14":
+        if Version(self.version, qualifier=True) < "3.14":
             del self.options.with_zstd
 
     def configure(self):
