@@ -112,13 +112,6 @@ class CPythonMSVC(ConanFile):
         replace_in_file(self, "pyproject.props", "MultiThreadedDLL", runtime_library)
         replace_in_file(self, "pyproject.props", "MultiThreadedDebugDLL", runtime_library)
 
-        # Disable "ValidateUcrtbase" target (TODO: Why?)
-        self._disable_vcxproj_element("python", '<Target Name="ValidateUcrtbase" AfterTargets="AfterBuild" Condition="$(Configuration) != \'PGInstrument\' and $(Platform) != \'ARM\' and $(Platform) != \'ARM64\'">')
-
-        if Version(self.version) < "3.11":
-            # TODO: Why?
-            self._disable_vcxproj_element("_freeze_importlib", '<Target Name="RebuildImportLib" AfterTargets="AfterBuild" Condition="$(Configuration) == \'Debug\' or $(Configuration) == \'Release\'"')
-
         # bz2
         self._remove_vcxproj_source_files("_bz2", "$(bz2Dir)*")
 
@@ -207,9 +200,8 @@ class CPythonMSVC(ConanFile):
         self._inject_conan_props_file("_zstd", "zstd", self.options.get_safe("with_zstd"))
 
     def _msvc_patch_sources(self):
-        if is_msvc(self):
-            with chdir(self, os.path.join(self.source_folder, "PCBuild")):
-                self._patch_msvc()
+        with chdir(self, os.path.join(self.source_folder, "PCBuild")):
+            self._patch_msvc()
 
     ## BUILD
 
@@ -278,25 +270,24 @@ class CPythonMSVC(ConanFile):
         return "bin"
 
     def _copy_essential_dlls(self):
-        if is_msvc(self):
-            # Until MSVC builds support cross building, copy dll's of essential (shared) dependencies to python binary location.
-            # These dll's are required when running the layout tool using the newly built python executable.
-            dest_path = os.path.join(self.build_folder, self._msvc_artifacts_path)
-            for bin_path in self.dependencies["libffi"].cpp_info.bindirs:
-                copy(self, "*.dll", src=bin_path, dst=dest_path)
-            for bin_path in self.dependencies["expat"].cpp_info.bindirs:
-                copy(self, "*.dll", src=bin_path, dst=dest_path)
-            for bin_path in self.dependencies["zlib-ng"].cpp_info.bindirs:
-                copy(self, "*.dll", src=bin_path, dst=dest_path)
-            for bin_path in self.dependencies["openssl"].cpp_info.bindirs:
-                copy(self, "*.dll", src=bin_path, dst=dest_path)
+        # Until MSVC builds support cross building, copy dll's of essential (shared) dependencies to python binary location.
+        # These dll's are required when running the layout tool using the newly built python executable.
+        dest_path = os.path.join(self.build_folder, self._msvc_artifacts_path)
+        for bin_path in self.dependencies["libffi"].cpp_info.bindirs:
+            copy(self, "*.dll", src=bin_path, dst=dest_path)
+        for bin_path in self.dependencies["expat"].cpp_info.bindirs:
+            copy(self, "*.dll", src=bin_path, dst=dest_path)
+        for bin_path in self.dependencies["zlib-ng"].cpp_info.bindirs:
+            copy(self, "*.dll", src=bin_path, dst=dest_path)
+        for bin_path in self.dependencies["openssl"].cpp_info.bindirs:
+            copy(self, "*.dll", src=bin_path, dst=dest_path)
 
     def _msvc_package_layout(self):
-        self._copy_essential_dlls()
         install_prefix = os.path.join(self.package_folder, self._msvc_install_subprefix)
         mkdir(self, install_prefix)
         build_path = self._msvc_artifacts_path
         if can_run(self):
+            self._copy_essential_dlls()
             infix = "_d" if self.settings.build_type == "Debug" else ""
             python_exe = os.path.join(build_path, f"python{infix}.exe")
         else:
