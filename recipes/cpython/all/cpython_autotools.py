@@ -32,10 +32,10 @@ class CPythonAutotools(ConanFile):
         tc.update_configure_args({"--enable-static": None, "--disable-static": None})
         yes_no = lambda v: "yes" if v else "no"
         tc.configure_args += [
-            f"--enable-optimizations={yes_no(self.options.optimizations)}",
+            f"--enable-optimizations={yes_no(self.options.pgo)}",
+            f"--with-lto={yes_no(self.options.lto)}",
             f"--with-doc-strings={yes_no(self.options.docstrings)}",
             f"--with-pymalloc={yes_no(self.options.pymalloc)}",
-            f"--with-lto={yes_no(self.options.lto)}",
             f"--with-pydebug={yes_no(self.settings.build_type == 'Debug')}",
             f"--with-openssl={self.dependencies['openssl'].package_folder}",
             f"--with-readline={self.options.with_readline or 'no'}",
@@ -43,7 +43,7 @@ class CPythonAutotools(ConanFile):
             "--with-system-libmpdec",
         ]
         if Version(self.version) >= "3.13":
-            tc.configure_args.append(f"--enable-gil={yes_no(self.options.gil)}")
+            tc.configure_args.append(f"--disable-gil={yes_no(self.options.freethreaded)}")
         if Version(self.version) < "3.12":
             tc.configure_args.append("--with-system-ffi")
         if Version(self.version) >= "3.10":

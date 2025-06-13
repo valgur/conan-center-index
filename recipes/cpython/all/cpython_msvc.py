@@ -26,7 +26,7 @@ class CPythonMSVC(ConanFile):
 
     def _msvc_validate(self):
         # FIXME: should probably throw when cross building
-        # FIXME: optimizations for Visual Studio, before building the final `build_type`:
+        # TODO: pgo support for Visual Studio, before building the final `build_type`:
         # 1. build the MSVC PGInstrument build_type,
         # 2. run the instrumented binaries, (PGInstrument should have created a `python.bat` file in the PCbuild folder)
         # 3. build the MSVC PGUpdate build_type
@@ -47,6 +47,7 @@ class CPythonMSVC(ConanFile):
     def _msvc_generate(self):
         tc = MSBuildToolchain(self)
         tc.properties["IncludeExternals"] = "true"
+        tc.properties["DisableGil"] = "true" if self.options.get_safe("freethreaded") else "false"
         tc.generate()
         deps = MSBuildDeps(self)
         deps.generate()
@@ -315,6 +316,15 @@ class CPythonMSVC(ConanFile):
             layout_args.append("--include-tcltk")
         if self.settings.build_type == "Debug":
             layout_args.append("-d")
+        if Version(self.version) >= "3.13":
+            # add aliases for python.exe, python3.exe, python3.x.exe
+            layout_args.extend([
+                "--include-alias",
+                "--include-alias3",
+                "--include-alias3x",
+            ])
+            if self.options.freethreaded:
+                layout_args.append("--include-freethreaded")
         python_args = " ".join(f'"{a}"' for a in layout_args)
         self.run(f"{python_exe} {python_args}")
 

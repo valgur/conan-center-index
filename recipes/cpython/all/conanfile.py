@@ -27,8 +27,8 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
-        "gil": [True, False],
-        "optimizations": [True, False],
+        "freethreaded": [True, False],
+        "pgo": [True, False],
         "lto": [True, False],
         "docstrings": [True, False],
         "pymalloc": [True, False],
@@ -47,8 +47,8 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
     default_options = {
         "shared": True,
         "fPIC": True,
-        "gil": True,
-        "optimizations": False,
+        "freethreaded": False,
+        "pgo": False,
         "lto": False,
         "docstrings": True,
         "pymalloc": True,
@@ -63,6 +63,21 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
 
         # options that don't change package id
         "env_vars": True,
+    }
+    options_description = {
+        "freethreaded": "Disable GIL for free-threaded mode (experimental as of v3.14)",
+        "pgo": "Enable profile-guided optimization (PGO)",
+        "lto": "Enable link-time optimization (LTO)",
+        "docstrings": "Enable documentation strings",
+        "pymalloc": "Enable specialized mallocs",
+        "with_bz2": "Add bzip2 dependency for bz2 module",
+        "with_curses": "Add ncurses dependency for curses module",
+        "with_gdbm": "Add gdbm dependency for dbm module",
+        "with_lzma": "Add lzma dependency for lzma module",
+        "with_readline": "Add readline dependency for readline module",
+        "with_sqlite3": "Add sqlite3 dependency for sqlite3 module",
+        "with_tkinter": "Add tk dependency for tkinter module",
+        "with_zstd": "Add zstd dependency for compression.zstd module",
     }
     languages = ["C"]
 
@@ -89,8 +104,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             del self.options.shared
             self.package_type = "shared-library"
         if is_msvc(self):
-            del self.options.gil
-            del self.options.optimizations
+            del self.options.pgo
             del self.options.lto
             del self.options.docstrings
             del self.options.pymalloc
@@ -98,7 +112,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             del self.options.with_gdbm
             del self.options.with_readline
         if Version(self.version) < "3.13":
-            self.options.rm_safe("gil")
+            del self.options.freethreaded
         if Version(self.version, qualifier=True) < "3.14":
             del self.options.with_zstd
 
