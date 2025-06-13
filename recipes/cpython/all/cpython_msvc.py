@@ -307,6 +307,8 @@ class CPythonMSVC(ConanFile):
             layout_args.append("--include-tcltk")
         if self.settings.build_type == "Debug":
             layout_args.append("-d")
+        if Version(self.version) >= "3.12":
+            layout_args.append("--include-stable")
         if Version(self.version) >= "3.13":
             # add aliases for python.exe, python3.exe, python3.x.exe
             layout_args.extend([
