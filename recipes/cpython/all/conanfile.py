@@ -2,6 +2,7 @@ import os
 
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
+from conan.tools.build import can_run
 from conan.tools.files import *
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import *
@@ -69,7 +70,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
 
     @property
     def _supports_modules(self):
-        return self.options.shared or not is_msvc(self)
+        return self.options.get_safe("shared", True)
 
     @property
     def _version_suffix(self):
@@ -85,7 +86,11 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if is_msvc(self):
+            del self.options.shared
+            self.package_type = "shared-library"
+        if is_msvc(self):
             del self.options.gil
+            del self.options.optimizations
             del self.options.lto
             del self.options.docstrings
             del self.options.pymalloc
@@ -98,7 +103,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             del self.options.with_zstd
 
     def configure(self):
-        if self.options.shared:
+        if self.options.get_safe("shared"):
             self.options.rm_safe("fPIC")
         if not self._supports_modules:
             self.options.rm_safe("with_bz2")
@@ -168,6 +173,8 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             self._msvc_build_requirements()
         else:
             self._autotools_build_requirements()
+        if not can_run(self):
+            self.tool_requires(f"cpython/{self.version}")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -302,14 +309,14 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         else:
             comp_python.includedirs = ["include", os.path.join("include", f"python{self._version_suffix}{self._abi_suffix}")]
         comp_python.libdirs = []
-        if self.options.shared:
+        if self.options.get_safe("shared", True):
             comp_python.defines.append("Py_ENABLE_SHARED")
         else:
             comp_python.defines.append("Py_NO_ENABLE_SHARED")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 comp_python.system_libs = ["dl", "m", "pthread", "util"]
             elif self.settings.os == "Windows":
-                comp_python.system_libs = ["pathcch", "shlwapi", "version", "ws2_32"]
+                comp_python.system_libs = ["pathcch", "shlwapi", "version", "ws2_32", "bcrypt"]
         comp_python.requires = ["zlib-ng::zlib-ng"]
         if self.settings.os != "Windows" and Version(self.version) < "3.13":
             comp_python.requires.append("libxcrypt::libxcrypt")

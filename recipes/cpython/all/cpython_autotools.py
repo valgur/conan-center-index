@@ -20,8 +20,6 @@ class CPythonAutotools(ConanFile):
     def _autotools_build_requirements(self):
         if Version(self.version) >= "3.11" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        if not can_run(self):
-            self.tool_requires(f"cpython/{self.version}")
 
     def _autotools_validate(self):
         pass
