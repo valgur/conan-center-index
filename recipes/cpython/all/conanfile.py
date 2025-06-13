@@ -393,3 +393,10 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
             self.buildenv_info.append_path("PYTHON", python_path)
             self.runenv_info.append_path("PYTHON_ROOT", python_root)
             self.buildenv_info.append_path("PYTHON_ROOT", python_root)
+
+        # Add only python3-config to the buildenv PATH by default.
+        # The interpreter itself must be added to PATH via a
+        # tool_requires("cpython/...") or a VirtualRunEnv(self).generate(scope="build"),
+        # to ensure that any shared dependencies are correctly found.
+        if not is_msvc(self):
+            self.buildenv_info.prepend_path("PATH", os.path.join(self.package_folder, "bin", "config"))

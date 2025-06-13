@@ -105,6 +105,9 @@ class TestPackageConan(ConanFile):
         self.output.info("Module worked as expected")
 
     def test(self):
+        if not is_msvc(self):
+            self.run("python3-config --prefix", env="conanbuild")
+
         if can_run(self):
             self.run(f"{self._python} --version", env="conanrun")
 

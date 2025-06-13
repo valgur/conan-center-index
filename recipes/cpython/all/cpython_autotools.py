@@ -210,3 +210,14 @@ class CPythonAutotools(ConanFile):
         if not os.path.exists(self._cpython_symlink):
             os.symlink(f"python{self._version_suffix}", self._cpython_symlink)
         fix_apple_shared_install_name(self)
+
+        # Create symlinks of python3-config in a separate subdir from the interpreter to safely include it in the buildenv $PATH
+        mkdir(self, os.path.join(self.package_folder, "bin", "config"))
+        with chdir(self, os.path.join(self.package_folder, "bin", "config")):
+            os.symlink(f"../python{self._version_suffix}-config", f"python{self._version_suffix}-config")
+            os.symlink(f"../python{self._version_suffix}-config", "python3-config")
+        # Pop an extra directory from the prefix path when inside bin/config.
+        replace_in_file(self, os.path.join(self.package_folder, "bin", f"python{self._version_suffix}-config"),
+                        "    echo $RESULT",
+                        '    [ "$(basename "$RESULT")" = "bin" ] && RESULT=$(dirname "$RESULT")\n'
+                        "    echo $RESULT")
