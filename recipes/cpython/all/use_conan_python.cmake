@@ -1,32 +1,38 @@
-if (DEFINED Python3_VERSION_STRING)
-    set(_CONAN_PYTHON_SUFFIX "3")
-else()
-    set(_CONAN_PYTHON_SUFFIX "")
-endif()
 get_filename_component(_PREFIX_PATH "@PREFIX_PATH@" ABSOLUTE)
-# Allow Python_EXECUTABLE to be overridden for cross-compilation support
-if(NOT DEFINED Python_EXECUTABLE)
-    set(Python${_CONAN_PYTHON_SUFFIX}_EXECUTABLE @PYTHON_EXECUTABLE@)
+
+if(DEFINED Python3_VERSION_STRING)
+    set(_PYTHON "Python3")
+else()
+    set(_PYTHON "Python")
 endif()
-set(Python${_CONAN_PYTHON_SUFFIX}_LIBRARY @PYTHON_LIBRARY@)
 
-# Fails if these are set beforehand
-unset(Python${_CONAN_PYTHON_SUFFIX}_INCLUDE_DIRS)
-unset(Python${_CONAN_PYTHON_SUFFIX}_INCLUDE_DIR)
+# Allow Python_EXECUTABLE to be overridden for cross-compilation support
+if(NOT DEFINED ${_PYTHON}_EXECUTABLE)
+    set(${_PYTHON}_EXECUTABLE @PYTHON_EXECUTABLE@)
+endif()
 
-include(${CMAKE_ROOT}/Modules/FindPython${_CONAN_PYTHON_SUFFIX}.cmake)
+set(${_PYTHON}_LIBRARY @PYTHON_LIBRARY@)
+
+# FindPython fails if these are set beforehand
+unset(${_PYTHON}_INCLUDE_DIRS)
+unset(${_PYTHON}_INCLUDE_DIR)
+
+include(${CMAKE_ROOT}/Modules/Find${_PYTHON}.cmake)
 
 # Sanity check: The former comes from FindPython(3), the latter comes from the injected find module
-if(NOT Python${_CONAN_PYTHON_SUFFIX}_VERSION VERSION_EQUAL Python${_CONAN_PYTHON_SUFFIX}_VERSION_STRING)
-    message(FATAL_ERROR "CMake detected wrong cpython version - this is likely a bug with the cpython Conan package")
+if(NOT ${_PYTHON}_VERSION VERSION_EQUAL ${_PYTHON}_VERSION_STRING)
+    message(FATAL_ERROR "CMake detected wrong cpython version - this is likely a bug with the cpython Conan package: "
+                        "found ${${_PYTHON}_VERSION} but expected ${_PYTHON}_VERSION_STRING}")
 endif()
 
-if (TARGET Python${_CONAN_PYTHON_SUFFIX}::Module)
-    set_target_properties(Python${_CONAN_PYTHON_SUFFIX}::Module PROPERTIES INTERFACE_LINK_LIBRARIES cpython::python)
+if (TARGET ${_PYTHON}::Module)
+    set_target_properties(${_PYTHON}::Module PROPERTIES INTERFACE_LINK_LIBRARIES cpython::python)
 endif()
-if (TARGET Python${_CONAN_PYTHON_SUFFIX}::SABIModule)
-    set_target_properties(Python${_CONAN_PYTHON_SUFFIX}::SABIModule PROPERTIES INTERFACE_LINK_LIBRARIES cpython::python)
+if (TARGET ${_PYTHON}::SABIModule)
+    set_target_properties(${_PYTHON}::SABIModule PROPERTIES INTERFACE_LINK_LIBRARIES cpython::python)
 endif()
-if (TARGET Python${_CONAN_PYTHON_SUFFIX}::Python)
-    set_target_properties(Python${_CONAN_PYTHON_SUFFIX}::Python PROPERTIES INTERFACE_LINK_LIBRARIES cpython::embed)
+if (TARGET ${_PYTHON}::Python)
+    set_target_properties(${_PYTHON}::Python PROPERTIES INTERFACE_LINK_LIBRARIES cpython::embed)
 endif()
+
+unset(_PYTHON)

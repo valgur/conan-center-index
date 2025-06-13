@@ -17,6 +17,20 @@ class CPythonAutotools(ConanFile):
         v = Version(self.version)
         return f"{v.major}.{v.minor}"
 
+    @property
+    def _abi_suffix(self):
+        # https://github.com/python/cpython/blob/v3.13.5/configure.ac#L1728-L1766
+        suffix = ""
+        if self.options.get_safe("freethreaded"):
+            suffix += "t"
+        if self.settings.build_type == "Debug":
+            suffix += "d"
+        return suffix
+
+    @property
+    def _supports_modules(self):
+        return self.options.shared
+
     def _autotools_build_requirements(self):
         if Version(self.version) >= "3.11" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
@@ -37,11 +51,13 @@ class CPythonAutotools(ConanFile):
             f"--with-doc-strings={yes_no(self.options.docstrings)}",
             f"--with-pymalloc={yes_no(self.options.pymalloc)}",
             f"--with-pydebug={yes_no(self.settings.build_type == 'Debug')}",
-            f"--with-openssl={self.dependencies['openssl'].package_folder}",
             f"--with-readline={self.options.with_readline or 'no'}",
             "--with-system-expat",
             "--with-system-libmpdec",
         ]
+        if self._supports_modules:
+            openssl_root = unix_path(self, self.dependencies['openssl'].package_folder)
+            tc.configure_args.append(f"--with-openssl={openssl_root}")
         if Version(self.version) >= "3.13" and self.options.freethreaded:
             tc.configure_args.append("--disable-gil")
         if Version(self.version) < "3.12":
@@ -51,7 +67,7 @@ class CPythonAutotools(ConanFile):
         if self.options.get_safe("with_sqlite3"):
             sqlite3_has_extensions = not self.dependencies["sqlite3"].options.omit_load_extension
             tc.configure_args.append(f"--enable-loadable-sqlite-extensions={yes_no(sqlite3_has_extensions)}")
-        if self.options.with_tkinter and Version(self.version) < "3.11":
+        if self.options.get_safe("with_tkinter") and Version(self.version) < "3.11":
             tcltk_includes = []
             tcltk_libs = []
             # FIXME: collect using some conan util (https://github.com/conan-io/conan/issues/7656)
@@ -210,6 +226,14 @@ class CPythonAutotools(ConanFile):
         if not os.path.exists(self._cpython_symlink):
             os.symlink(f"python{self._version_suffix}", self._cpython_symlink)
         fix_apple_shared_install_name(self)
+
+        # Remove the Stable ABI python3 library, matching the behavior of other major package managers.
+        # As of v3.14 it does not contain any symbols and cannot be meaningfully linked against.
+        # See https://github.com/python/cpython/issues/104612
+        if Version(self.version) >= "3.12" and self.options.shared and self.settings.os != "Windows":
+            ext = ".dylib" if is_apple_os(self) else ".so"
+            sabi_libname = f"libpython3{self._abi_suffix}{ext}"
+            rm(self, sabi_libname, os.path.join(self.package_folder, "lib"))
 
         # Create symlinks of python3-config in a separate subdir from the interpreter to safely include it in the buildenv $PATH
         mkdir(self, os.path.join(self.package_folder, "bin", "config"))

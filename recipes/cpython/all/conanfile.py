@@ -279,19 +279,9 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         return os.path.join(self.package_folder, "bin", self._cpython_interpreter_name)
 
     @property
-    def _abi_suffix(self):
-        res = ""
-        if self.settings.build_type == "Debug":
-            res += "d"
-        return res
-
-    @property
     def _lib_name(self):
         if is_msvc(self):
-            if self.settings.build_type == "Debug":
-                lib_ext = "_d"
-            else:
-                lib_ext = ""
+            lib_ext = "_d" if self.settings.build_type == "Debug" else ""
         else:
             lib_ext = self._abi_suffix
         return f"python{self._version_suffix}{lib_ext}"
@@ -346,7 +336,7 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
 
         if self._supports_modules:
             # hidden components: the C extensions of python are built as dynamically loaded shared libraries.
-            # C extensions or applications with an embedded Python should not need to link to them..
+            # C extensions or applications with an embedded Python should not need to link to them.
             hidden_requires = [
                 "openssl::openssl",
                 "expat::expat",

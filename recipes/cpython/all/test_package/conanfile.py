@@ -20,7 +20,7 @@ class TestPackageConan(ConanFile):
 
     def build_requirements(self):
         # These tests can break pip-installed CMake, so add it as a tool_requires.
-        self.tool_requires("cmake/[>=3.16 <5]")
+        self.tool_requires("cmake/[>=3.26 <5]")
         self.tool_requires("cpython/<host_version>")
 
     def layout(self):
