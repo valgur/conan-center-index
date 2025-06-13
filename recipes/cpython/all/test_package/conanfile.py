@@ -30,8 +30,8 @@ class TestPackageConan(ConanFile):
     def _python(self):
         return self.dependencies["cpython"].conf_info.get("user.cpython:python", check_type=str)
 
-    def _cpython_option(self, name):
-        return self.dependencies["cpython"].options.get_safe(name, False)
+    def _cpython_option(self, name, default=False):
+        return self.dependencies["cpython"].options.get_safe(name, default)
 
     @property
     def _py_version(self):
@@ -45,7 +45,7 @@ class TestPackageConan(ConanFile):
 
     @property
     def _supports_modules(self):
-        return not is_msvc(self) or self._cpython_option("shared")
+        return self._cpython_option("shared", True)
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -131,6 +131,7 @@ class TestPackageConan(ConanFile):
                 self._test_module("sqlite3", self._cpython_option("with_sqlite3"))
                 self._test_module("decimal", True)
                 self._test_module("ctypes", True)
+                self._test_module("readline", self._cpython_option("with_readline"))
                 env = Environment()
                 if self.settings.os != "Windows":
                     env.define_path("OPENSSL_CONF", os.path.join(os.sep, "dev", "null"))

@@ -191,6 +191,13 @@ def test_tkinter():
 
 
 @add_test
+def test_readline():
+    import readline
+
+    readline.set_auto_history(True)
+
+
+@add_test
 def test_ssl():
     import ssl
 
