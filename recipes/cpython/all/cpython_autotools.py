@@ -167,14 +167,16 @@ class CPythonAutotools(ConanFile):
             if not self.options.get_safe(f"with_{opt}"):
                 replace_in_file(self, configure_path, f"{var}=yes", f"{var}=no")
 
-        _disable_dep("have_bzip2", "bz2")
-        _disable_dep("have_curses", "curses")
-        _disable_dep("have_panel", "curses")
-        _disable_dep("have_gdbm", "gdbm")
-        _disable_dep("have_liblzma", "lzma")
-        _disable_dep("have_sqlite3", "sqlite3")
-        _disable_dep("have_libzstd", "zstd")
-        _disable_dep("have_tcltk", "tkinter")
+        if Version(self.version) >= "3.13":
+            _disable_dep("have_bzip2", "bz2")
+            _disable_dep("have_curses", "curses")
+            _disable_dep("have_panel", "curses")
+            _disable_dep("have_gdbm", "gdbm")
+            _disable_dep("have_liblzma", "lzma")
+            _disable_dep("have_sqlite3", "sqlite3")
+            _disable_dep("have_tcltk", "tkinter")
+        if Version(self.version, qualifier=True) >= "3.14":
+            _disable_dep("have_libzstd", "zstd")
 
     def _autotools_build(self):
         autotools = Autotools(self)
