@@ -8,10 +8,10 @@ endif()
 
 # Allow Python_EXECUTABLE to be overridden for cross-compilation support
 if(NOT DEFINED ${_PYTHON}_EXECUTABLE)
-    set(${_PYTHON}_EXECUTABLE @PYTHON_EXECUTABLE@)
+    set(${_PYTHON}_EXECUTABLE "@PYTHON_EXECUTABLE@")
 endif()
 
-set(${_PYTHON}_LIBRARY @PYTHON_LIBRARY@)
+set(${_PYTHON}_LIBRARY "@PYTHON_LIBRARY@")
 
 # FindPython fails if these are set beforehand
 unset(${_PYTHON}_INCLUDE_DIRS)

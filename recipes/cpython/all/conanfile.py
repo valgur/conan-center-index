@@ -84,10 +84,6 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
     exports = ["cpython_autotools.py", "cpython_msvc.py"]
 
     @property
-    def _supports_modules(self):
-        return self.options.get_safe("shared", True)
-
-    @property
     def _version_suffix(self):
         v = Version(self.version)
         joiner = "" if is_msvc(self) else "."
@@ -119,32 +115,25 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
     def configure(self):
         if self.options.get_safe("shared"):
             self.options.rm_safe("fPIC")
-        if not self._supports_modules:
-            self.options.rm_safe("with_bz2")
-            self.options.rm_safe("with_sqlite3")
-            self.options.rm_safe("with_tkinter")
-            self.options.rm_safe("with_lzma")
-            self.options.rm_safe("with_zstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
 
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")
-        if self._supports_modules:
-            # We only actually need this limitation when openssl is shared, but otherwise we get errors when trying to use openssl.
-            # For some extra context, openssl was only updated to 3.0 in cpython 3.11.5
-            openssl_upper_bound = 3 if is_msvc(self) and Version(self.version) < "3.12" else 4
-            self.requires(f"openssl/[>=1.1 <{openssl_upper_bound}]")
-            self.requires("expat/[>=2.6.2 <3]")
-            self.requires("libffi/[^3.4.4]")
-            if Version(self.version) < "3.10" or is_apple_os(self):
-                # FIXME: mpdecimal > 2.5.0 on MacOS causes the _decimal module to not be importable
-                self.requires("mpdecimal/2.5.0")
-            elif Version(self.version) < "3.13":
-                self.requires("mpdecimal/2.5.1")
-            else:
-                self.requires("mpdecimal/[^4.0.0]")
+        # We only actually need this limitation when openssl is shared, but otherwise we get errors when trying to use openssl.
+        # For some extra context, openssl was only updated to 3.0 in cpython 3.11.5
+        openssl_upper_bound = 3 if is_msvc(self) and Version(self.version) < "3.12" else 4
+        self.requires(f"openssl/[>=1.1 <{openssl_upper_bound}]")
+        self.requires("expat/[>=2.6.2 <3]")
+        self.requires("libffi/[^3.4.4]")
+        if Version(self.version) < "3.10" or is_apple_os(self):
+            # FIXME: mpdecimal > 2.5.0 on MacOS causes the _decimal module to not be importable
+            self.requires("mpdecimal/2.5.0")
+        elif Version(self.version) < "3.13":
+            self.requires("mpdecimal/2.5.1")
+        else:
+            self.requires("mpdecimal/[^4.0.0]")
         if self.settings.os != "Windows":
             if not is_apple_os(self):
                 self.requires("util-linux-libuuid/2.41")
@@ -329,64 +318,63 @@ class CPythonConan(CPythonAutotools, CPythonMSVC):
         comp_embed = self.cpp_info.components["embed"]
         comp_embed.set_property("pkg_config_name", f"python-{py_version.major}.{py_version.minor}-embed")
         comp_embed.set_property("pkg_config_aliases", [f"python{py_version.major}-embed"])
-        comp_embed.libs = [self._lib_name]
+        comp_embed.libs = [self._exact_lib_name]
         comp_embed.libdirs = [self._libdir]
         comp_embed.includedirs = []
         comp_embed.requires = ["python"]
 
-        if self._supports_modules:
-            # hidden components: the C extensions of python are built as dynamically loaded shared libraries.
-            # C extensions or applications with an embedded Python should not need to link to them.
-            hidden_requires = [
-                "openssl::openssl",
-                "expat::expat",
-                "mpdecimal::mpdecimal",
-                "libffi::libffi",
-            ]
-            if self.settings.os != "Windows":
-                if not is_apple_os(self):
-                    hidden_requires.append("util-linux-libuuid::util-linux-libuuid")
-                if Version(self.version) < "3.13":
-                    hidden_requires.append("libxcrypt::libxcrypt")
-            if self.options.with_bz2:
-                hidden_requires.append("bzip2::bzip2")
-            if self.options.get_safe("with_gdbm"):
-                hidden_requires.append("gdbm::gdbm")
-            if self.options.get_safe("with_readline") == "readline":
-                hidden_requires.append("readline::readline")
-            elif self.options.get_safe("with_readline") == "editline":
-                hidden_requires.append("editline::editline")
-            if self.options.with_sqlite3:
-                hidden_requires.append("sqlite3::sqlite3")
-            if self.options.get_safe("with_curses"):
-                hidden_requires.append("ncurses::ncurses")
-            if self.options.get_safe("with_lzma"):
-                hidden_requires.append("xz_utils::xz_utils")
-            if self.options.get_safe("with_tkinter"):
-                hidden_requires.append("tk::tk")
-            if self.options.get_safe("with_zstd"):
-                hidden_requires.append("zstd::zstd")
-            self.cpp_info.components["_hidden"].requires = hidden_requires
-            self.cpp_info.components["_hidden"].includedirs = []
-            self.cpp_info.components["_hidden"].libdirs = []
+        # hidden components: the C extensions of python are built as dynamically loaded shared libraries.
+        # C extensions or applications with an embedded Python should not need to link to them.
+        hidden_requires = [
+            "openssl::openssl",
+            "expat::expat",
+            "mpdecimal::mpdecimal",
+            "libffi::libffi",
+        ]
+        if self.settings.os != "Windows":
+            if not is_apple_os(self):
+                hidden_requires.append("util-linux-libuuid::util-linux-libuuid")
+            if Version(self.version) < "3.13":
+                hidden_requires.append("libxcrypt::libxcrypt")
+        if self.options.with_bz2:
+            hidden_requires.append("bzip2::bzip2")
+        if self.options.get_safe("with_gdbm"):
+            hidden_requires.append("gdbm::gdbm")
+        if self.options.get_safe("with_readline") == "readline":
+            hidden_requires.append("readline::readline")
+        elif self.options.get_safe("with_readline") == "editline":
+            hidden_requires.append("editline::editline")
+        if self.options.with_sqlite3:
+            hidden_requires.append("sqlite3::sqlite3")
+        if self.options.get_safe("with_curses"):
+            hidden_requires.append("ncurses::ncurses")
+        if self.options.get_safe("with_lzma"):
+            hidden_requires.append("xz_utils::xz_utils")
+        if self.options.get_safe("with_tkinter"):
+            hidden_requires.append("tk::tk")
+        if self.options.get_safe("with_zstd"):
+            hidden_requires.append("zstd::zstd")
+        self.cpp_info.components["_hidden"].requires = hidden_requires
+        self.cpp_info.components["_hidden"].includedirs = []
+        self.cpp_info.components["_hidden"].libdirs = []
 
         python_path = self._cpython_interpreter_path
         self.conf_info.define("user.cpython:python", python_path)
+        python_root = self.package_folder
+        self.conf_info.define("user.cpython:python_root", python_root)
         pythonhome = os.path.join(self.package_folder, "bin") if is_msvc(self) else self.package_folder
         self.conf_info.define("user.cpython:pythonhome", pythonhome)
         pythonhome_required = is_msvc(self) or is_apple_os(self)
         self.conf_info.define("user.cpython:module_requires_pythonhome", pythonhome_required)
-        python_root = self.package_folder
-        self.conf_info.define("user.cpython:python_root", python_root)
+
         if self.options.env_vars:
-            self.runenv_info.append_path("PYTHON", python_path)
-            self.buildenv_info.append_path("PYTHON", python_path)
-            self.runenv_info.append_path("PYTHON_ROOT", python_root)
-            self.buildenv_info.append_path("PYTHON_ROOT", python_root)
+            self.runenv_info.define_path("PYTHON", python_path)
+            self.runenv_info.define_path("PYTHON_ROOT", python_root)
+            if pythonhome_required:
+                self.runenv_info.define_path("PYTHONHOME", pythonhome)
 
         # Add only python3-config to the buildenv PATH by default.
-        # The interpreter itself must be added to PATH via a
-        # tool_requires("cpython/...") or a VirtualRunEnv(self).generate(scope="build"),
-        # to ensure that any shared dependencies are correctly found.
+        # The interpreter itself must be added to PATH via tool_requires("cpython/..."),
+        # to not inadvertently override the interpreter when used as a transitive dependency.
         if not is_msvc(self):
             self.buildenv_info.prepend_path("PATH", os.path.join(self.package_folder, "bin", "config"))

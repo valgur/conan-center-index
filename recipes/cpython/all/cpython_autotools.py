@@ -28,8 +28,17 @@ class CPythonAutotools(ConanFile):
         return suffix
 
     @property
-    def _supports_modules(self):
-        return self.options.shared
+    def _exact_lib_name(self):
+        prefix = "" if self.settings.os == "Windows" else "lib"
+        if self.settings.os == "Windows":
+            extension = "lib"
+        elif not self.options.shared:
+            extension = "a"
+        elif is_apple_os(self):
+            extension = "dylib"
+        else:
+            extension = "so"
+        return f"{prefix}{self._lib_name}.{extension}"
 
     def _autotools_build_requirements(self):
         if Version(self.version) >= "3.11" and not self.conf.get("tools.gnu:pkg_config", check_type=str):
@@ -42,9 +51,20 @@ class CPythonAutotools(ConanFile):
         VirtualRunEnv(self).generate(scope="build")
 
         tc = AutotoolsToolchain(self, prefix=self.package_folder)
-        # Not necessary, just cleans up the output
-        tc.update_configure_args({"--enable-static": None, "--disable-static": None})
         yes_no = lambda v: "yes" if v else "no"
+
+        # Drop predefined static/shared configure flags
+        tc.update_configure_args({
+            "--enable-static": None,
+            "--disable-static": None,
+            "--enable-shared": None,
+            "--disable-shared": None,
+        })
+        # Always build shared libraries for the interpreter and modules
+        tc.configure_args.append("--enable-shared")
+        # Also build static libs for shared=False
+        tc.configure_args.append(f"--enable-static={yes_no(not self.options.shared)}")
+
         tc.configure_args += [
             f"--enable-optimizations={yes_no(self.options.pgo)}",
             f"--with-lto={yes_no(self.options.lto)}",
@@ -55,9 +75,8 @@ class CPythonAutotools(ConanFile):
             "--with-system-expat",
             "--with-system-libmpdec",
         ]
-        if self._supports_modules:
-            openssl_root = unix_path(self, self.dependencies['openssl'].package_folder)
-            tc.configure_args.append(f"--with-openssl={openssl_root}")
+        openssl_root = unix_path(self, self.dependencies["openssl"].package_folder)
+        tc.configure_args.append(f"--with-openssl={openssl_root}")
         if Version(self.version) >= "3.13" and self.options.freethreaded:
             tc.configure_args.append("--disable-gil")
         if Version(self.version) < "3.12":
@@ -70,14 +89,12 @@ class CPythonAutotools(ConanFile):
         if self.options.get_safe("with_tkinter") and Version(self.version) < "3.11":
             tcltk_includes = []
             tcltk_libs = []
-            # FIXME: collect using some conan util (https://github.com/conan-io/conan/issues/7656)
             for dep in ("tcl", "tk", "zlib"):
                 cpp_info = self.dependencies[dep].cpp_info.aggregated_components()
                 tcltk_includes += [f"-I{d}" for d in cpp_info.includedirs]
                 tcltk_libs += [f"-L{lib}" for lib in cpp_info.libdirs]
                 tcltk_libs += [f"-l{lib}" for lib in cpp_info.libs]
             if self.settings.os in ["Linux", "FreeBSD"] and not self.dependencies["tk"].options.shared:
-                # FIXME: use info from xorg.components (x11, xscrnsaver)
                 tcltk_libs.extend([f"-l{lib}" for lib in ("X11", "Xss")])
             tc.configure_args += [
                 f"--with-tcltk-includes={' '.join(tcltk_includes)}",
@@ -85,7 +102,7 @@ class CPythonAutotools(ConanFile):
             ]
 
         if not is_apple_os(self):
-            tc.extra_ldflags.append('-Wl,--as-needed')
+            tc.extra_ldflags.append("-Wl,--as-needed")
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             # Add -lrt to fix _posixshmem.cpython-312-x86_64-linux-gnu.so: undefined symbol: shm_unlink
@@ -112,36 +129,30 @@ class CPythonAutotools(ConanFile):
 
     def _patch_setup_py(self):
         setup_py = os.path.join(self.source_folder, "setup.py")
-        if Version(self.version) < "3.10":
-            replace_in_file(self, setup_py, ":libmpdec.so.2", "mpdec")
+
+        def override_assignment(key, value):
+            replace_in_file(self, setup_py, f"{key} = ", f"{key} = {repr(value)} #")
 
         if self.options.get_safe("with_curses"):
             libcurses = self.dependencies["ncurses"].cpp_info.components["libcurses"]
             tinfo = self.dependencies["ncurses"].cpp_info.components["tinfo"]
-            libs = libcurses.libs + libcurses.system_libs + tinfo.libs + tinfo.system_libs
-            replace_in_file(self, setup_py,
-                            "curses_libs = ",
-                            f"curses_libs = {repr(libs)} #")
+            curses_libs = libcurses.libs + libcurses.system_libs + tinfo.libs + tinfo.system_libs
         else:
-            replace_in_file(self, setup_py,
-                            "curses_libs = ",
-                            "curses_libs = [] #")
+            curses_libs = []
+        override_assignment("curses_libs", curses_libs)
 
-        openssl = self.dependencies["openssl"].cpp_info.aggregated_components()
-        zlib = self.dependencies["zlib-ng"].cpp_info.aggregated_components()
         if Version(self.version) < "3.11":
-            replace_in_file(self, setup_py,
-                            "openssl_includes = ",
-                            f"openssl_includes = {openssl.includedirs + zlib.includedirs} #")
-            replace_in_file(self, setup_py,
-                            "openssl_libdirs = ",
-                            f"openssl_libdirs = {openssl.libdirs + zlib.libdirs} #")
-            replace_in_file(self, setup_py,
-                            "openssl_libs = ",
-                            f"openssl_libs = {openssl.libs + zlib.libs} #")
+            openssl = self.dependencies["openssl"].cpp_info.aggregated_components()
+            zlib = self.dependencies["zlib-ng"].cpp_info.aggregated_components()
+            override_assignment("openssl_includes", openssl.includedirs + zlib.includedirs)
+            override_assignment("openssl_libdirs", openssl.libdirs + zlib.libdirs)
+            override_assignment("openssl_libs", openssl.libs + zlib.libs)
 
         if Version(self.version) < "3.11":
             replace_in_file(self, setup_py, "if (MACOS and self.detect_tkinter_darwin())", "if (False)")
+
+        if Version(self.version) < "3.10":
+            replace_in_file(self, setup_py, ":libmpdec.so.2", "mpdec")
 
     def _autotools_patch_sources(self):
         # <=3.10 requires a lot of manual injection of dependencies through setup.py
@@ -192,10 +203,10 @@ class CPythonAutotools(ConanFile):
 
     def _autotools_package(self):
         autotools = Autotools(self)
-        if is_apple_os(self):
-            # FIXME: See https://github.com/python/cpython/issues/109796, this workaround is mentioned there
-            autotools.make(target="sharedinstall", args=["DESTDIR="])
-        autotools.install(args=["DESTDIR="])
+        target = "sharedinstall" if is_apple_os(self) else "install"
+        autotools.install(target=target, args=["DESTDIR="])
+        if not self.options.shared:
+            copy(self, self._exact_lib_name, self.build_folder, os.path.join(self.package_folder, "lib"))
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
@@ -232,7 +243,7 @@ class CPythonAutotools(ConanFile):
         # Remove the Stable ABI python3 library, matching the behavior of other major package managers.
         # As of v3.14 it does not contain any symbols and cannot be meaningfully linked against.
         # See https://github.com/python/cpython/issues/104612
-        if Version(self.version) >= "3.12" and self.options.shared and self.settings.os != "Windows":
+        if Version(self.version) >= "3.12" and self.settings.os != "Windows":
             ext = ".dylib" if is_apple_os(self) else ".so"
             sabi_libname = f"libpython3{self._abi_suffix}{ext}"
             rm(self, sabi_libname, os.path.join(self.package_folder, "lib"))
