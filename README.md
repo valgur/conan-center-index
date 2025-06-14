@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-13:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-14:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -99,6 +99,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cpython/3.11.13
 - cpython/3.12.11
 - cpython/3.13.4
+- cpython/3.14.0-b2
 - cpython/3.9.23
 - crashpad/cci.20231107
 - criterion/2.4.2
