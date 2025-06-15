@@ -166,6 +166,11 @@ class OpenTelemetryCppConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        if Version(self.version) < "1.15.0":
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 3.1)",
+                            "cmake_minimum_required(VERSION 3.5)")
+        rmdir(self, os.path.join(self.source_folder, "api", "include", "opentelemetry", "nostd", "absl"))
 
     @property
     def _stl_value(self):
@@ -222,8 +227,6 @@ class OpenTelemetryCppConan(ConanFile):
             replace_in_file(self, protos_cmake_path,
                             '"${CMAKE_CURRENT_SOURCE_DIR}/third_party/opentelemetry-proto")',
                             f'"{protos_path}")')
-
-        rmdir(self, os.path.join(self.source_folder, "api", "include", "opentelemetry", "nostd", "absl"))
 
     def build(self):
         self._patch_sources()
