@@ -1,8 +1,10 @@
 import os
+from io import StringIO
 
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
+from conan.tools.microsoft import is_msvc
 
 
 class TestPackageConan(ConanFile):
@@ -22,5 +24,10 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         if can_run(self):
+            if is_msvc(self):
+                stderr_capture = StringIO()
+                self.run("incbin_tool", env="conanrun", stderr=stderr_capture, ignore_errors=True)
+                assert "-help" in stderr_capture.getvalue()
+
             bin_path = os.path.join(self.cpp.build.bindir, "test_package")
             self.run(bin_path, env="conanrun")
