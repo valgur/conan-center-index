@@ -87,7 +87,6 @@ class OpenTelemetryCppConan(ConanFile):
     def layout(self):
         cmake_layout(self, src_folder="src")
 
-
     @property
     def _needs_proto(self):
         return self.options.with_otlp_grpc or self.options.with_otlp_http or self.options.get_safe("with_otlp_file")
@@ -142,12 +141,7 @@ class OpenTelemetryCppConan(ConanFile):
 
     def build_requirements(self):
         if self._needs_proto:
-            if Version(self.version) >= "1.21.0":
-                self.tool_requires("opentelemetry-proto/1.7.0")
-            elif Version(self.version) >= "1.18.0":
-                self.tool_requires("opentelemetry-proto/1.4.0")
-            else:
-                self.tool_requires("opentelemetry-proto/1.3.2")
+            self.tool_requires("opentelemetry-proto/[^1.3.2]")
             self.tool_requires("protobuf/<host_version>")
 
         if self.options.with_otlp_grpc:
@@ -214,7 +208,6 @@ class OpenTelemetryCppConan(ConanFile):
         tc.generate()
 
         deps = CMakeDeps(self)
-
         deps.generate()
 
     def _patch_sources(self):
