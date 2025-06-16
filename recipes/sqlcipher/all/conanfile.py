@@ -11,7 +11,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime, NMakeToolchain, NMakeDeps
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class SqlcipherConan(ConanFile):
@@ -40,6 +40,8 @@ class SqlcipherConan(ConanFile):
         "temporary_store": "default_memory",
         "enable_column_metadata": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -49,12 +51,6 @@ class SqlcipherConan(ConanFile):
             del self.options.fPIC
         if self.settings.os not in ["Linux", "FreeBSD"]:
             self.options.rm_safe("with_largefile")
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.libcxx")
-        self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -70,7 +66,7 @@ class SqlcipherConan(ConanFile):
             raise ConanInvalidConfiguration("commoncrypto is only supported on Macos")
 
     def build_requirements(self):
-        self.tool_requires("tcl/[^8.6.16]")
+        self.tool_requires("tcl/[>=8.6 <10]")
         if not is_msvc(self):
             self.tool_requires("gnu-config/cci.20210814")
             if self.settings_build.os == "Windows":
