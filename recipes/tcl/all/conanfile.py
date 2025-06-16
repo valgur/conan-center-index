@@ -38,6 +38,10 @@ class TclConan(ConanFile):
     def export_sources(self):
         export_conandata_patches(self)
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def layout(self):
         basic_layout(self, src_folder="src")
         # source folder must be a sub-directory of the build folder
@@ -60,7 +64,9 @@ class TclConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
-        rmdir(self, "compat/zlib")
+        for path in Path("compat/zlib").iterdir():
+            if path.is_file() and path.name not in {"zutil.h", "crc32.h"}:
+                path.unlink()
         rmdir(self, next(Path("pkgs").glob("sqlite*")))
 
     def generate(self):
@@ -78,8 +84,8 @@ class TclConan(ConanFile):
             def yes_no(v): return "yes" if v else "no"
             tc.configure_args.extend([
                 "--enable-threads",
-                "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),
-                "--enable-64bit={}".format(yes_no(self.settings.arch == "x86_64")),
+                f"--enable-symbols={yes_no(self.settings.build_type == 'Debug')}",
+                f"--enable-64bit={yes_no(self.settings.arch == 'x86_64')}",
             ])
             if self.settings.os in ["Linux", "FreeBSD"]:
                 # Ensure the library has a soname, fix https://github.com/conan-io/conan-center-index/issues/27691
@@ -96,15 +102,18 @@ class TclConan(ConanFile):
             replace_in_file(self, macos_configure, "#define HAVE_CPUID 1", "#undef HAVE_CPUID")
 
         unix_config_dir = os.path.join(self.source_folder, "unix")
-        # When disabling 64-bit support (in 32-bit), this test must be 0 in order to use "long long" for 64-bit ints
-        # (${tcl_type_64bit} can be either "__int64" or "long long")
-        replace_in_file(self, os.path.join(unix_config_dir, "configure"),
-                        "(sizeof(${tcl_type_64bit})==sizeof(long))",
-                        "(sizeof(${tcl_type_64bit})!=sizeof(long))")
-
         unix_makefile_in = os.path.join(unix_config_dir, "Makefile.in")
+
+        if Version(self.version) < "9.0.0":
+            # When disabling 64-bit support (in 32-bit), this test must be 0 in order to use "long long" for 64-bit ints
+            # (${tcl_type_64bit} can be either "__int64" or "long long")
+            replace_in_file(self, os.path.join(unix_config_dir, "configure"),
+                            "(sizeof(${tcl_type_64bit})==sizeof(long))",
+                            "(sizeof(${tcl_type_64bit})!=sizeof(long))")
+
         # Avoid building internal libraries as shared libraries
-        replace_in_file(self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads")
+        if Version(self.version) < "9.0.0":
+            replace_in_file(self, unix_makefile_in, "--enable-shared --enable-threads", "--enable-threads")
         # Avoid clearing CFLAGS and LDFLAGS in the makefile
         replace_in_file(self, unix_makefile_in, "\nCFLAGS\t", "\n#CFLAGS\t")
         replace_in_file(self, unix_makefile_in, "\nLDFLAGS\t", "\n#LDFLAGS\t")
