@@ -268,6 +268,9 @@ class TkConan(ConanFile):
                 "xorg::xscrnsaver",
             ]
 
+        # TCL and TK do not set the SONAME attribute in their .so files.
+        self.cpp_info.set_property("nosoname", True)
+
         tk_library = os.path.join(self.package_folder, "lib", f"{self.name}{tk_version.major}.{tk_version.minor}",).replace("\\", "/")
         self.output.info(f"Setting TK_LIBRARY environment variable: {tk_library}")
         self.runenv_info.define("TK_LIBRARY", tk_library)

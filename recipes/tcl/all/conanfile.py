@@ -225,6 +225,9 @@ class TclConan(ConanFile):
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("STATIC_BUILD")
 
+        # TCL and TK do not set the SONAME attribute in their .so files.
+        self.cpp_info.set_property("nosoname", True)
+
         tcl_version = Version(self.version)
         tcl_library = os.path.join(self.package_folder, "lib", f"tcl{tcl_version.major}.{tcl_version.minor}")
         self.runenv_info.define_path("TCL_LIBRARY", tcl_library)
