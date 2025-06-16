@@ -91,33 +91,22 @@ class TkConan(ConanFile):
 
             yes_no = lambda v: "yes" if v else "no"
             tc = AutotoolsToolchain(self)
-            tc.configure_args.append("--enable-threads")
-            tc.configure_args.append(
-                f"--enable-symbols={yes_no(self.settings.build_type == 'Debug')}"
-            )
-            tc.configure_args.append(
-                f"--enable-64bit={yes_no(self.settings.arch == 'x86_64')}"
-            )
-            tc.configure_args.append(f"--enable-aqua={yes_no(is_apple_os(self))}")
-            tc.configure_args.append(
-                f"--with-tcl={os.path.join(self.dependencies['tcl'].package_folder, 'lib')}"
-            )
-            tc.configure_args.append(f"--with-x={yes_no(self.settings.os == 'Linux')}")
-            tc.make_args.append(
-                f"TCL_GENERIC_DIR={os.path.join(self.dependencies['tcl'].package_folder, 'include')}"
-            )
+            tcl_root = self.dependencies['tcl'].package_folder
+            tc.configure_args.extend([
+                "--enable-threads",
+                f"--enable-symbols={yes_no(self.settings.build_type == 'Debug')}",
+                f"--enable-64bit={yes_no(self.settings.arch == 'x86_64')}",
+                f"--enable-aqua={yes_no(is_apple_os(self))}",
+                f"--with-tcl={os.path.join(tcl_root, 'lib')}",
+                f"--with-x={yes_no(self.settings.os == 'Linux')}",
+            ])
+            tc.make_args.append(f"TCL_GENERIC_DIR={os.path.join(tcl_root, 'include')}")
             if self.settings.os in ["Linux", "FreeBSD"]:
                 # Ensure the library has a soname, fix https://github.com/conan-io/conan-center-index/issues/27691
                 # (mirror debian behavior)
                 tc.configure_args.append("TK_SHLIB_LD_EXTRAS=-Wl,-soname,${TK_LIB_FILE}")
             if self.settings.os == "Windows":
-                tc.extra_defines.extend(
-                    [
-                        "UNICODE",
-                        "_UNICODE",
-                        "_ATL_XP_TARGETING",
-                    ]
-                )
+                tc.extra_defines.extend(["UNICODE", "_UNICODE", "_ATL_XP_TARGETING"])
             if not is_apple_os(self):
                 tc.extra_ldflags.append("-Wl,--as-needed")
             tc.generate()
@@ -161,13 +150,12 @@ class TkConan(ConanFile):
         tcl_lib_path = os.path.join(self.dependencies["tcl"].package_folder, "lib")
         tclimplib, tclstublib = None, None
         for lib in os.listdir(tcl_lib_path):
+            suffix = "".join(self.version.split(".")[:2])
             if not lib.endswith(".lib"):
                 continue
-            if lib.startswith("tcl{}".format("".join(self.version.split(".")[:2]))):
+            if lib.startswith(f"tcl{suffix}"):
                 tclimplib = os.path.join(tcl_lib_path, lib)
-            elif lib.startswith(
-                "tclstub{}".format("".join(self.version.split(".")[:2]))
-            ):
+            elif lib.startswith(f"tclstub{suffix}"):
                 tclstublib = os.path.join(tcl_lib_path, lib)
 
         if tclimplib is None or tclstublib is None:
@@ -195,12 +183,7 @@ class TkConan(ConanFile):
             autotools.make()
 
     def package(self):
-        copy(
-            self,
-            pattern="license.terms",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
+        copy(self, "license.terms", self.source_folder, os.path.join(self.package_folder, "licenses"),)
         if is_msvc(self):
             self._build_nmake("install")
         else:
@@ -212,7 +195,7 @@ class TkConan(ConanFile):
                     target="install-private-headers",
                     args=[f"DESTDIR={self.package_folder}"],
                 )
-                rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         rmdir(self, os.path.join(self.package_folder, "man"))
         rmdir(self, os.path.join(self.package_folder, "share"))
 
@@ -273,9 +256,7 @@ class TkConan(ConanFile):
             ]
 
         tk_library = os.path.join(self.package_folder, "lib", f"{self.name}{tk_version.major}.{tk_version.minor}",).replace("\\", "/")
-        self.output.info(f"Setting TK_LIBRARY environment variable: {tk_library}")
         self.runenv_info.define("TK_LIBRARY", tk_library)
 
         tk_root = self.package_folder.replace("\\", "/")
-        self.output.info(f"Setting TK_ROOT environment variable: {tk_root}")
         self.runenv_info.define("TK_ROOT", tk_root)
