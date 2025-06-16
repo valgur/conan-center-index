@@ -106,6 +106,10 @@ class TkConan(ConanFile):
             tc.make_args.append(
                 f"TCL_GENERIC_DIR={os.path.join(self.dependencies['tcl'].package_folder, 'include')}"
             )
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                # Ensure the library has a soname, fix https://github.com/conan-io/conan-center-index/issues/27691
+                # (mirror debian behavior)
+                tc.configure_args.append("TK_SHLIB_LD_EXTRAS=-Wl,-soname,${TK_LIB_FILE}")
             if self.settings.os == "Windows":
                 tc.extra_defines.extend(
                     [
@@ -267,9 +271,6 @@ class TkConan(ConanFile):
                 "xorg::xdmcp",
                 "xorg::xscrnsaver",
             ]
-
-        # TCL and TK do not set the SONAME attribute in their .so files.
-        self.cpp_info.set_property("nosoname", True)
 
         tk_library = os.path.join(self.package_folder, "lib", f"{self.name}{tk_version.major}.{tk_version.minor}",).replace("\\", "/")
         self.output.info(f"Setting TK_LIBRARY environment variable: {tk_library}")
