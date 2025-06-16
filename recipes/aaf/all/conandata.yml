@@ -1,6 +1,6 @@
 sources:
   "1.2.0":
-    url: "https://downloads.sourceforge.net/project/aaf/AAF-src/1.2.0/AAF-src-1.2.0.tar.gz"
+    url: "https://downloads.sourceforge.net/aaf/AAF-src-1.2.0.tar.gz"
     sha256: "02789b22c96a6f0da112ba990967a8b3fe7228b0435db8ea328d88f9e424086d"
 patches:
   "1.2.0":
