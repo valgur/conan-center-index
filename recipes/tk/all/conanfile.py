@@ -70,9 +70,10 @@ class TkConan(ConanFile):
         replace_in_file(self, makefile, "LDFLAGS			= @LDFLAGS_DEFAULT@ @LDFLAGS@", "")
         replace_in_file(self, makefile, " ${CFLAGS}", " ${CFLAGS} ${CPPFLAGS}")
         configure = os.path.join(self.source_folder, "unix", "configure")
-        replace_in_file(self, configure,
-                        "case 1: case (sizeof(${tcl_type_64bit})==sizeof(long)): ;",
-                        "case 1: case (sizeof(${tcl_type_64bit})!=sizeof(long)): ;")
+        if Version(self.version) < "9.0.0":
+            replace_in_file(self, configure,
+                            "case 1: case (sizeof(${tcl_type_64bit})==sizeof(long)): ;",
+                            "case 1: case (sizeof(${tcl_type_64bit})!=sizeof(long)): ;")
 
     def generate(self):
         if is_msvc(self):
@@ -208,10 +209,10 @@ class TkConan(ConanFile):
         fix_apple_shared_install_name(self)
 
     def package_info(self):
-        tk_version = Version(self.version)
-        lib_infix = f"{tk_version.major}.{tk_version.minor}"
+        v = Version(self.version)
+        lib_infix = f"{v.major}.{v.minor}"
         if is_msvc(self):
-            lib_infix = f"{tk_version.major}{tk_version.minor}"
+            lib_infix = f"{v.major}{v.minor}"
             tk_suffix = "t{}{}{}".format(
                 "" if self.options.shared else "s",
                 "g" if self.settings.build_type == "Debug" else "",
@@ -219,13 +220,14 @@ class TkConan(ConanFile):
             )
         else:
             tk_suffix = ""
-        self.cpp_info.libs = [f"tk{lib_infix}{tk_suffix}", f"tkstub{lib_infix}"]
+        if Version(self.version) >= "9.0.0":
+            self.cpp_info.libs = [f"tcl{v.major}tk{lib_infix}{tk_suffix}", "tkstub"]
+        else:
+            self.cpp_info.libs = [f"tk{lib_infix}{tk_suffix}", f"tkstub{lib_infix}"]
         if self.settings.os == "Macos":
-            self.cpp_info.frameworks = ["CoreFoundation", "Cocoa", "Carbon", "IOKit"]
-            if Version(self.version) >= "8.6.13":
-                self.cpp_info.frameworks += ["QuartzCore", "UniformTypeIdentifiers"]
-                self.cpp_info.exelinkflags = ["-ObjC"]
-                self.cpp_info.sharedlinkflags = ["-ObjC"]
+            self.cpp_info.frameworks = ["CoreFoundation", "Cocoa", "Carbon", "IOKit", "QuartzCore", "UniformTypeIdentifiers"]
+            self.cpp_info.exelinkflags = ["-ObjC"]
+            self.cpp_info.sharedlinkflags = ["-ObjC"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = [
                 "netapi32",
@@ -255,7 +257,7 @@ class TkConan(ConanFile):
                 "xorg::xscrnsaver",
             ]
 
-        tk_library = os.path.join(self.package_folder, "lib", f"{self.name}{tk_version.major}.{tk_version.minor}",).replace("\\", "/")
+        tk_library = os.path.join(self.package_folder, "lib", f"{self.name}{v.major}.{v.minor}",).replace("\\", "/")
         self.runenv_info.define("TK_LIBRARY", tk_library)
 
         tk_root = self.package_folder.replace("\\", "/")
