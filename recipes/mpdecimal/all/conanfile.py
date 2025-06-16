@@ -8,7 +8,7 @@ from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, NMakeToolchain
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.4"
+required_conan_version = ">=2.1"
 
 
 class MpdecimalConan(ConanFile):
@@ -31,7 +31,13 @@ class MpdecimalConan(ConanFile):
         "cxx": True,
     }
     implements = ["auto_shared_fpic"]
-    languages = ["C"]
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
+        if not self.options.cxx:
+            self.settings.rm_safe("compiler.libcxx")
+            self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         basic_layout(self, src_folder="src")
