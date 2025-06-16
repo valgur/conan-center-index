@@ -527,7 +527,7 @@ class OpenSSLConan(ConanFile):
         copy(self, "*LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"), keep_path=False)
         if self._use_nmake:
             with chdir(self, self.source_folder):
-                self.run(f"jom -f Makefile install_sw DESTDIR={self.package_folder}")
+                self.run(f"nmake -f Makefile install_sw DESTDIR={self.package_folder}")
             rm(self, "*.pdb", self.package_folder, recursive=True)
         else:
             autotools = Autotools(self)
