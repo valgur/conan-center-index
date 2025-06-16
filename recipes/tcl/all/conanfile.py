@@ -80,6 +80,10 @@ class TclConan(ConanFile):
                 "--enable-symbols={}".format(yes_no(self.settings.build_type == "Debug")),
                 "--enable-64bit={}".format(yes_no(self.settings.arch == "x86_64")),
             ])
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                # Ensure the library has a soname, fix https://github.com/conan-io/conan-center-index/issues/27691
+                # (mirror debian behavior)
+                tc.configure_args.append("TCL_SHLIB_LD_EXTRAS=-Wl,-soname,${TCL_LIB_FILE}")
             tc.generate()
 
             deps = AutotoolsDeps(self)
@@ -224,9 +228,6 @@ class TclConan(ConanFile):
 
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("STATIC_BUILD")
-
-        # TCL and TK do not set the SONAME attribute in their .so files.
-        self.cpp_info.set_property("nosoname", True)
 
         tcl_version = Version(self.version)
         tcl_library = os.path.join(self.package_folder, "lib", f"tcl{tcl_version.major}.{tcl_version.minor}")
