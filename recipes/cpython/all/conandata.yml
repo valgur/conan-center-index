@@ -90,3 +90,7 @@ patches:
     - patch_file: "patches/3.9/3.9.19-0004-disable-nis.patch"
       patch_description: "Avoid libnsl dependency, which is missing from newer glibc versions"
       patch_type: "conan"
+    - patch_file: "patches/3.9/3.9-0005-mpdecimal-2.5.1-support.patch"
+      patch_description: "Backport mpdecimal 2.5.1 support"
+      patch_source: "https://github.com/python/cpython/commit/73b20ae2fb7a5c1374aa5c3719f64c53d29fa0d2"
+      patch_type: "backport"
