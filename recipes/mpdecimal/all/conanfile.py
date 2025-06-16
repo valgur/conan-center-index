@@ -33,9 +33,6 @@ class MpdecimalConan(ConanFile):
     implements = ["auto_shared_fpic"]
     languages = ["C"]
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def layout(self):
         basic_layout(self, src_folder="src")
         self.folders.build = "src"
@@ -57,7 +54,23 @@ class MpdecimalConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
+        # drop tests
+        rmdir(self, "tests")
+        save(self, "tests/Makefile.in", "all:;\ninstall:;\n")
+        rmdir(self, "tests++")
+        save(self, "tests++/Makefile.in", "all:;\ninstall:;\n")
+        # Remove hardcoded MSVC runtime flags
+        for msvc_runtime_flag in ["/MTd", "/MDd", "/MT", "/MD"]:
+            replace_in_file(self, "libmpdec/Makefile.vc", msvc_runtime_flag, "")
+            replace_in_file(self, "libmpdec++/Makefile.vc", msvc_runtime_flag, "")
+        # Use a namespaced DLL define to allow a static consuming libraries to link against a shared mpdecimal library
+        if Version(self.version) >= "2.5.1":
+            for header in [
+                "libmpdec++/decimal.hh",
+                "libmpdec/mpdecimal32vc.h",
+                "libmpdec/mpdecimal64vc.h",
+            ]:
+                replace_in_file(self, header, "defined(_DLL)", "defined(MPDECIMAL_DLL)")
 
     def generate(self):
         if is_msvc(self):

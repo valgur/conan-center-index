@@ -1,29 +1,13 @@
 sources:
+  "4.0.1":
+    url: "http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-4.0.1.tar.gz"
+    sha256: "96d33abb4bb0070c7be0fed4246cd38416188325f820468214471938545b1ac8"
   "4.0.0":
-    sha256: "942445c3245b22730fd41a67a7c5c231d11cb1b9936b9c0f76334fb7d0b4468c"
     url: "http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-4.0.0.tar.gz"
+    sha256: "942445c3245b22730fd41a67a7c5c231d11cb1b9936b9c0f76334fb7d0b4468c"
   "2.5.1":
-    sha256: "9f9cd4c041f99b5c49ffb7b59d9f12d95b683d88585608aa56a6307667b2b21f"
     url: "http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz"
+    sha256: "9f9cd4c041f99b5c49ffb7b59d9f12d95b683d88585608aa56a6307667b2b21f"
   "2.5.0":
-    sha256: "15417edc8e12a57d1d9d75fa7e3f22b158a3b98f44db9d694cfd2acde8dfa0ca"
     url: "http://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.0.tar.gz"
-patches:
-  "4.0.0":
-    - patch_file: "patches/4.0.0-0001-msvc-fixes.patch"
-      patch_description: "Remove hardcoded MSVC runtime flags"
-      patch_type: "portability"
-    - patch_file: "patches/4.0.0-0002-use-MPDECIMAL_DLL.patch"
-      patch_description: "Allow a static lib to use a shared mpdecimal (and vice versa)"
-      patch_type: "portability"
-  "2.5.1":
-    - patch_file: "patches/2.5.1-0001-msvc-fixes.patch"
-      patch_description: "Remove hardcoded MSVC runtime flags"
-      patch_type: "portability"
-    - patch_file: "patches/2.5.1-0002-use-MPDECIMAL_DLL.patch"
-      patch_description: "Allow a static lib to use a shared mpdecimal (and vice versa)"
-      patch_type: "portability"
-  "2.5.0":
-    - patch_file: "patches/2.5.0-0001-msvc-fixes.patch"
-      patch_description: "Remove hardcoded MSVC runtime flags"
-      patch_type: "portability"
+    sha256: "15417edc8e12a57d1d9d75fa7e3f22b158a3b98f44db9d694cfd2acde8dfa0ca"
