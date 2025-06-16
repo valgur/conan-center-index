@@ -35,7 +35,7 @@ if(ENABLE_FTS5 OR ENABLE_MATH_FUNCTIONS)
     # if the compiler can successfully link against the library.
     check_library_exists(m log "" HAVE_MATH_LIBRARY)
     if(HAVE_MATH_LIBRARY)
-        target_link_libraries(sqlite3 PRIVATE m)
+        target_link_libraries(sqlite3 PUBLIC m)
     endif()
 endif()
 
