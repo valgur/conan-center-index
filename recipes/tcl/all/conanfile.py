@@ -212,6 +212,10 @@ class TclConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "TCL")
+        self.cpp_info.set_property("pkg_config_name", "tcl")
+        # Debian also installs a tcl8.6.pc file
+        v = Version(self.version)
+        self.cpp_info.set_property("pkg_config_aliases", [f"tcl{v.major}.{v.minor}"])
 
         # There are other libs in subfolders, but they are only used
         # for TCL extensions and should not be linked against.
