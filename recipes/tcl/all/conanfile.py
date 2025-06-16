@@ -1,10 +1,11 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import fix_apple_shared_install_name, is_apple_os
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.layout import basic_layout
@@ -44,6 +45,9 @@ class TclConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")
+        self.requires("sqlite3/[^3.40]")
+        if not is_apple_os(self):
+            self.requires("libtommath/[^1.3.0]")
 
     def validate(self):
         if self.settings.os not in ("FreeBSD", "Linux", "Macos", "Windows"):
@@ -59,16 +63,27 @@ class TclConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
 
+        rmdir(self, "compat/zlib")
+
+        rmdir(self, "libtommath")
+        replace_in_file(self, "unix/Makefile.in", " $(TOMMATH_SRCS)", "")
+        replace_in_file(self, "unix/Makefile.in", " -I${TOMMATH_DIR}", "")
+        replace_in_file(self, "win/Makefile.in", ' $(TOMMATH_OBJS)', "")
+        replace_in_file(self, "win/Makefile.in", ' -I"${TOMMATH_DIR_NATIVE}"', "")
+        replace_in_file(self, "win/Makefile.in", ':$(TOMMATH_DIR)', "")
+        replace_in_file(self, "win/makefile.vc", 'PRJ_INCLUDES	= -I"$(TOMMATHDIR)"', "")
+        replace_in_file(self, "win/makefile.vc", ' $(TOMMATHOBJS)', "")
+        replace_in_file(self, "win/makefile.vc", ' $(TOMMATHDIR),$$(TOMMATHDIR)', "")
+
+        rmdir(self, next(Path("pkgs").glob("sqlite*")))
+
     def generate(self):
         if is_msvc(self):
             tc = NMakeToolchain(self)
             tc.generate()
-
             deps = NMakeDeps(self)
             deps.generate()
         else:
-            env = VirtualBuildEnv(self)
-            env.generate()
             if not cross_building(self):
                 env = VirtualRunEnv(self)
                 env.generate(scope="build")
@@ -125,10 +140,7 @@ class TclConan(ConanFile):
         replace_in_file(self, win_rules_vc, "cwarn = $(cwarn) -WX", "")
         # disable whole program optimization to be portable across different MSVC versions.
         # See conan-io/conan-center-index#4811 conan-io/conan-center-index#4094
-        replace_in_file(self,
-                        win_rules_vc,
-                        "OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL",
-                        "")
+        replace_in_file(self, win_rules_vc, "OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL", "")
 
     def _build_nmake(self, targets):
         opts = []
@@ -144,14 +156,10 @@ class TclConan(ConanFile):
         if "d" not in msvc_runtime_flag(self):
             opts.append("unchecked")
 
-        win_config_dir = os.path.join(self.source_folder, "win")
-        with chdir(self, win_config_dir):
-            self.run('nmake -nologo -f "{cfgdir}/makefile.vc" INSTALLDIR="{pkgdir}" OPTS={opts} {targets}'.format(
-                cfgdir=win_config_dir,
-                pkgdir=self.package_folder,
-                opts=",".join(opts),
-                targets=" ".join(targets),
-            ))
+        with chdir(self, os.path.join(self.source_folder, "win")):
+            opts = ",".join(opts)
+            targets = " ".join(targets)
+            self.run(f'nmake -nologo -f makefile.vc INSTALLDIR="{self.package_folder}" OPTS={opts} {targets}')
 
     def _get_configure_subdir(self):
         return {
@@ -185,28 +193,31 @@ class TclConan(ConanFile):
             autotools = Autotools(self)
             autotools.install()
             autotools.install(target="install-private-headers")
-
             rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
             rmdir(self, os.path.join(self.package_folder, "man"))
             rmdir(self, os.path.join(self.package_folder, "share"))
             fix_apple_shared_install_name(self)
-
         # Relocatable tclConfig.sh
-        tclConfigShPath = os.path.join(self.package_folder, "lib", "tclConfig.sh")
+        self._fix_tcl_config()
+
+    def _fix_tcl_config(self):
+        tcl_config = os.path.join(self.package_folder, "lib", "tclConfig.sh")
         ## Comment out references to build folder
-        replace_in_file(self, tclConfigShPath, "\nTCL_BUILD_", "\n#TCL_BUILD_")
-        replace_in_file(self, tclConfigShPath, "\nTCL_SRC_DIR", "\n#TCL_SRC_DIR")
+        replace_in_file(self, tcl_config, "\nTCL_BUILD_", "\n#TCL_BUILD_")
+        replace_in_file(self, tcl_config, "\nTCL_SRC_DIR", "\n#TCL_SRC_DIR")
         ## Replace references to package folder by TCL_ROOT env var supposed to be defined by VirtualRunEnv
         if is_msvc(self):
-            replace_in_file(self, tclConfigShPath, self.package_folder, "${TCL_ROOT}")
+            replace_in_file(self, tcl_config, self.package_folder, "${TCL_ROOT}")
         else:
-            replace_in_file(self, tclConfigShPath, "TCL_PREFIX='/'", "TCL_PREFIX='${TCL_ROOT}'")
-            replace_in_file(self, tclConfigShPath, "TCL_EXEC_PREFIX='/'", "TCL_EXEC_PREFIX='${TCL_ROOT}'")
+            replace_in_file(self, tcl_config, "TCL_PREFIX='/'", "TCL_PREFIX='${TCL_ROOT}'")
+            replace_in_file(self, tcl_config, "TCL_EXEC_PREFIX='/'", "TCL_EXEC_PREFIX='${TCL_ROOT}'")
             for to_replace in ["//", "/"]:
-                replace_in_file(self, tclConfigShPath, f"-L{to_replace}lib", "-L${TCL_ROOT}/lib", strict=False)
-                replace_in_file(self, tclConfigShPath, f"{{{to_replace}lib}}", "{${TCL_ROOT}/lib}", strict=False)
-                replace_in_file(self, tclConfigShPath, f"='{to_replace}lib", "='${TCL_ROOT}/lib", strict=False)
-                replace_in_file(self, tclConfigShPath, f"-I{to_replace}include", "-I${TCL_ROOT}/include", strict=False)
+                replace_in_file(self, tcl_config, f"-L{to_replace}lib", "-L${TCL_ROOT}/lib", strict=False)
+                replace_in_file(self, tcl_config, f"{{{to_replace}lib}}", "{${TCL_ROOT}/lib}", strict=False)
+                replace_in_file(self, tcl_config, f"='{to_replace}lib", "='${TCL_ROOT}/lib", strict=False)
+                replace_in_file(self, tcl_config, f"-I{to_replace}include", "-I${TCL_ROOT}/include", strict=False)
+        zlib_root = self.dependencies["zlib-ng"].package_folder
+        replace_in_file(self, tcl_config, zlib_root, "${CONAN_TCL_ZLIB_ROOT}")
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "TCL")
@@ -216,11 +227,11 @@ class TclConan(ConanFile):
         self.cpp_info.libs = collect_libs(self, os.path.join(self.package_folder, "lib"))
 
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs.extend(["ws2_32", "netapi32", "userenv"])
+            self.cpp_info.system_libs = ["ws2_32", "netapi32", "userenv"]
         elif self.settings.os in ("FreeBSD", "Linux"):
-            self.cpp_info.system_libs.extend(["dl", "m", "pthread"])
+            self.cpp_info.system_libs = ["dl", "m", "pthread"]
         elif is_apple_os(self):
-            self.cpp_info.frameworks.append("CoreFoundation")
+            self.cpp_info.frameworks = ["CoreFoundation"]
 
         if is_msvc(self) and not self.options.shared:
             self.cpp_info.defines.append("STATIC_BUILD")
@@ -229,9 +240,8 @@ class TclConan(ConanFile):
         tcl_library = os.path.join(self.package_folder, "lib", f"tcl{tcl_version.major}.{tcl_version.minor}")
         self.runenv_info.define_path("TCL_LIBRARY", tcl_library)
 
-        tcl_root = self.package_folder
-        self.runenv_info.define_path("TCL_ROOT", tcl_root)
+        self.runenv_info.define_path("TCL_ROOT", self.package_folder)
+        self.runenv_info.define_path("CONAN_TCL_ZLIB_ROOT", self.dependencies["zlib-ng"].package_folder)
 
-        tclsh_list = list(filter(lambda fn: fn.startswith("tclsh"), os.listdir(os.path.join(self.package_folder, "bin"))))
-        tclsh = os.path.join(self.package_folder, "bin", tclsh_list[0])
+        tclsh = str(next(Path(self.package_folder, "bin").glob("tclsh*")))
         self.runenv_info.define_path("TCLSH", tclsh)
