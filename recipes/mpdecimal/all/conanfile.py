@@ -15,7 +15,7 @@ class MpdecimalConan(ConanFile):
     name = "mpdecimal"
     description = "mpdecimal is a package for correctly-rounded arbitrary precision decimal floating point arithmetic."
     license = "BSD-2-Clause"
-    topics = ("multiprecision", "library")
+    topics = ("multiprecision", "decimal")
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "http://www.bytereef.org/mpdecimal"
     package_type = "library"
@@ -54,15 +54,18 @@ class MpdecimalConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+
         # drop tests
         rmdir(self, "tests")
         save(self, "tests/Makefile.in", "all:;\ninstall:;\n")
         rmdir(self, "tests++")
         save(self, "tests++/Makefile.in", "all:;\ninstall:;\n")
+
         # Remove hardcoded MSVC runtime flags
         for msvc_runtime_flag in ["/MTd", "/MDd", "/MT", "/MD"]:
             replace_in_file(self, "libmpdec/Makefile.vc", msvc_runtime_flag, "")
             replace_in_file(self, "libmpdec++/Makefile.vc", msvc_runtime_flag, "")
+
         # Use a namespaced DLL define to allow a static consuming libraries to link against a shared mpdecimal library
         if Version(self.version) >= "2.5.1":
             for header in [
@@ -109,11 +112,8 @@ class MpdecimalConan(ConanFile):
         # Replace the default target with just the target we want
         target = "SHARED" if self.options.shared else "STATIC"
         for ext in ["vc", "in"]:
-            replace_in_file(self, os.path.join("libmpdec", f"Makefile.{ext}"), "default:",
-                                f"default: $(LIB{target}) #")
-            if self.options.cxx:
-                replace_in_file(self, os.path.join("libmpdec++", f"Makefile.{ext}"), "default:",
-                                    f"default: $(LIB{target}_CXX) #")
+            replace_in_file(self, f"libmpdec/Makefile.{ext}", "default:", f"default: $(LIB{target}) #")
+            replace_in_file(self, f"libmpdec++/Makefile.{ext}", "default:", f"default: $(LIB{target}_CXX) #")
 
         if is_msvc(self):
             self._build_msvc()
@@ -140,27 +140,29 @@ class MpdecimalConan(ConanFile):
                 copy(self, pattern, src=builddir, dst=os.path.join(self.package_folder, "lib"))
             copy(self, "*.dll", src=builddir, dst=os.path.join(self.package_folder, "bin"))
 
-    def package_info(self):
-        lib_pre_suf = ("", "")
+    @property
+    def _lib_pre_suf(self):
         if is_msvc(self):
             if self.options.shared:
-                lib_pre_suf = ("lib", f"-{self.version}.dll")
+                return "lib", f"-{self.version}.dll"
             else:
-                lib_pre_suf = ("lib", f"-{self.version}")
+                return "lib", f"-{self.version}"
         elif self.settings.os == "Windows":
             if self.options.shared:
-                lib_pre_suf = ("", ".dll")
+                return "", ".dll"
+        return "", ""
 
-        self.cpp_info.components["libmpdecimal"].libs = ["{}mpdec{}".format(*lib_pre_suf)]
+    def package_info(self):
+        prefix, suffix = self._lib_pre_suf
+        self.cpp_info.components["libmpdecimal"].libs = [f"{prefix}mpdec{suffix}"]
         if self.options.shared and is_msvc(self):
             define = "MPDECIMAL_DLL" if Version(self.version) >= "2.5.1" else "USE_DLL"
             self.cpp_info.components["libmpdecimal"].defines = [define]
-
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libmpdecimal"].system_libs = ["m"]
 
         if self.options.cxx:
-            self.cpp_info.components["libmpdecimal++"].libs = ["{}mpdec++{}".format(*lib_pre_suf)]
+            self.cpp_info.components["libmpdecimal++"].libs = [f"{prefix}mpdec++{suffix}"]
             self.cpp_info.components["libmpdecimal++"].requires = ["libmpdecimal"]
             if self.settings.os in ["Linux", "FreeBSD"]:
                 self.cpp_info.components["libmpdecimal++"].system_libs = ["pthread"]

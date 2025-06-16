@@ -5,7 +5,7 @@ from conan.tools.cmake import CMake, cmake_layout
 
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
-    generators = "VirtualRunEnv", "CMakeToolchain", "CMakeDeps"
+    generators = "CMakeToolchain", "CMakeDeps"
 
     def layout(self):
         cmake_layout(self)
