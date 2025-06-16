@@ -64,42 +64,12 @@ class TclConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # unvendor most of zlib
         for path in Path("compat/zlib").iterdir():
             if path.is_file() and path.name not in {"zutil.h", "crc32.h"}:
                 path.unlink()
+        # unvendor sqlite3
         rmdir(self, next(Path("pkgs").glob("sqlite*")))
-
-    def generate(self):
-        if is_msvc(self):
-            tc = NMakeToolchain(self)
-            tc.generate()
-            deps = NMakeDeps(self)
-            deps.generate()
-        else:
-            if not cross_building(self):
-                env = VirtualRunEnv(self)
-                env.generate(scope="build")
-
-            tc = AutotoolsToolchain(self)
-            def yes_no(v): return "yes" if v else "no"
-            tc.configure_args.extend([
-                "--enable-threads",
-                f"--enable-symbols={yes_no(self.settings.build_type == 'Debug')}",
-                f"--enable-64bit={yes_no(self.settings.arch == 'x86_64')}",
-            ])
-            if self.settings.os in ["Linux", "FreeBSD"]:
-                # Ensure the library has a soname, fix https://github.com/conan-io/conan-center-index/issues/27691
-                # (mirror debian behavior)
-                tc.configure_args.append("TCL_SHLIB_LD_EXTRAS=-Wl,-soname,${TCL_LIB_FILE}")
-            tc.generate()
-
-            deps = AutotoolsDeps(self)
-            deps.generate()
-
-    def _patch_sources(self):
-        if is_apple_os(self) and self.settings.arch not in ("x86", "x86_64"):
-            macos_configure = os.path.join(self.source_folder, "macosx", "configure")
-            replace_in_file(self, macos_configure, "#define HAVE_CPUID 1", "#undef HAVE_CPUID")
 
         unix_config_dir = os.path.join(self.source_folder, "unix")
         unix_makefile_in = os.path.join(unix_config_dir, "Makefile.in")
@@ -140,6 +110,38 @@ class TclConan(ConanFile):
         # disable whole program optimization to be portable across different MSVC versions.
         # See conan-io/conan-center-index#4811 conan-io/conan-center-index#4094
         replace_in_file(self, win_rules_vc, "OPTIMIZATIONS  = $(OPTIMIZATIONS) -GL", "")
+
+    def generate(self):
+        if is_msvc(self):
+            tc = NMakeToolchain(self)
+            tc.generate()
+            deps = NMakeDeps(self)
+            deps.generate()
+        else:
+            if not cross_building(self):
+                env = VirtualRunEnv(self)
+                env.generate(scope="build")
+
+            tc = AutotoolsToolchain(self)
+            def yes_no(v): return "yes" if v else "no"
+            tc.configure_args.extend([
+                "--enable-threads",
+                f"--enable-symbols={yes_no(self.settings.build_type == 'Debug')}",
+                f"--enable-64bit={yes_no(self.settings.arch == 'x86_64')}",
+            ])
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                # Ensure the library has a soname, fix https://github.com/conan-io/conan-center-index/issues/27691
+                # (mirror debian behavior)
+                tc.configure_args.append("TCL_SHLIB_LD_EXTRAS=-Wl,-soname,${TCL_LIB_FILE}")
+            tc.generate()
+
+            deps = AutotoolsDeps(self)
+            deps.generate()
+
+    def _patch_sources(self):
+        if is_apple_os(self) and self.settings.arch not in ("x86", "x86_64"):
+            macos_configure = os.path.join(self.source_folder, "macosx", "configure")
+            replace_in_file(self, macos_configure, "#define HAVE_CPUID 1", "#undef HAVE_CPUID")
 
     def _build_nmake(self, targets):
         opts = []
