@@ -5,7 +5,7 @@ import textwrap
 from contextlib import contextmanager
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.apple import is_apple_os, XCRun
 from conan.tools.build import cross_building
 from conan.tools.env import Environment, VirtualBuildEnv
@@ -500,7 +500,11 @@ class OpenSSLConan(ConanFile):
                 self._patch_install_name()
 
                 if self._use_nmake:
-                    self.run("jom /F Makefile")
+                    try:
+                        self.run("jom /F Makefile")
+                    except ConanException:
+                        # Try again with plain nmake instead of jom in case something broke due to parallelization
+                        self.run("nmake /F Makefile")
                 else:
                     autotools.make()
 
