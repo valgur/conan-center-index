@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -44,6 +45,7 @@ class TclConan(ConanFile):
 
     def requirements(self):
         self.requires("zlib-ng/[^2.0]")
+        self.requires("sqlite3/[^3.40]")
 
     def validate(self):
         if self.settings.os not in ("FreeBSD", "Linux", "Macos", "Windows"):
@@ -58,6 +60,8 @@ class TclConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        rmdir(self, "compat/zlib")
+        rmdir(self, next(Path("pkgs").glob("sqlite*")))
 
     def generate(self):
         if is_msvc(self):
