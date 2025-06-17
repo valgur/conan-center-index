@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-15:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-17:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -98,7 +98,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cpython/3.10.18
 - cpython/3.11.13
 - cpython/3.12.11
-- cpython/3.13.4
+- cpython/3.13.5
 - cpython/3.14.0-b2
 - cpython/3.9.23
 - crashpad/cci.20231107
@@ -355,6 +355,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - mlir/20.1.6
 - moltenvk/1.2.11
 - moltenvk/1.2.7
+- mpdecimal/4.0.1
 - mrcal/2.4.1
 - mysql-connector-cpp/9.3.0
 - nanobind/2.4.0
@@ -474,6 +475,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - spirv-tools/1.3.290.0
 - spirv-tools/1.3.296.0
 - splinter/3.0
+- sqlite3/3.50.1
 - stablehlo/1.10.0
 - stablehlo/1.6.3
 - stablehlo/1.8.11
@@ -511,8 +513,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - sundials/7.1.1
 - swig/4.3.1
 - tcl/8.6.16
+- tcl/9.0.1
 - thrust/2.7.0
-- tk/8.6.13
 - tk/8.6.16
 - torch-mlir/cci.20250203
 - tpl/cci.20210302
