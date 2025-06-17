@@ -129,8 +129,9 @@ class PackageConan(ConanFile):
 
         self.runenv_info.define("CC", "icx")
         self.runenv_info.define("CXX", "icpx")
-        self.runenv_info.define("CPP", "icx")
-        self.runenv_info.define("CXXCPP", "icx")
+        # configure: error: C preprocessor "icx" fails sanity check
+        # self.runenv_info.define("CPP", "icx")
+        # self.runenv_info.define("CXXCPP", "icx")
 
         self.conf_info.update("tools.build:compiler_executables", {
             "c": "icx",
