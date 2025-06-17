@@ -39,7 +39,8 @@ class LibTinsConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("libpcap/[^1.10.4]", transitive_headers=True, transitive_libs=True)
+        # pcap.h is largely imported in public headers: tins/packet_writer.h, tins/sniffer.h
+        self.requires("libpcap/[^1.10.4]", transitive_headers=True)
         if self.options.with_ack_tracker or self.options.with_tcp_stream_custom_data:
             # Used in two public headers:
             # - https://github.com/mfontanini/libtins/blob/v4.4/include/tins/tcp_ip/ack_tracker.h#L38
@@ -61,15 +62,15 @@ class LibTinsConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["LIBTINS_BUILD_EXAMPLES"] = False
-        tc.variables["LIBTINS_BUILD_TESTS"] = False
-        tc.variables["LIBTINS_BUILD_SHARED"] = self.options.shared
-        tc.variables["LIBTINS_ENABLE_CXX11"] = True
-        tc.variables["LIBTINS_ENABLE_ACK_TRACKER"] = self.options.with_ack_tracker
-        tc.variables["LIBTINS_ENABLE_TCP_STREAM_CUSTOM_DATA"] = self.options.with_tcp_stream_custom_data
-        tc.variables["LIBTINS_ENABLE_WPA2"] = self.options.with_wpa2
-        tc.variables["LIBTINS_ENABLE_DOT11"] = self.options.with_dot11
-        tc.variables["PCAP_LIBRARY"] = "libpcap::libpcap"
+        tc.cache_variables["LIBTINS_BUILD_EXAMPLES"] = False
+        tc.cache_variables["LIBTINS_BUILD_TESTS"] = False
+        tc.cache_variables["LIBTINS_BUILD_SHARED"] = self.options.shared
+        tc.cache_variables["LIBTINS_ENABLE_CXX11"] = True
+        tc.cache_variables["LIBTINS_ENABLE_ACK_TRACKER"] = self.options.with_ack_tracker
+        tc.cache_variables["LIBTINS_ENABLE_TCP_STREAM_CUSTOM_DATA"] = self.options.with_tcp_stream_custom_data
+        tc.cache_variables["LIBTINS_ENABLE_WPA2"] = self.options.with_wpa2
+        tc.cache_variables["LIBTINS_ENABLE_DOT11"] = self.options.with_dot11
+        tc.cache_variables["PCAP_LIBRARY"] = "libpcap::libpcap"
         tc.generate()
         deps = CMakeDeps(self)
         deps.set_property("libpcap", "cmake_file_name", "PCAP")
@@ -98,3 +99,7 @@ class LibTinsConan(ConanFile):
         if self.settings.os == "Windows" and not self.options.shared:
             self.cpp_info.defines.append("TINS_STATIC")
             self.cpp_info.system_libs.extend(["ws2_32", "iphlpapi"])
+        if self.options.with_tcp_stream_custom_data:
+            self.cpp_info.defines.append("TINS_HAVE_TCP_STREAM_CUSTOM_DATA")
+        if self.options.with_ack_tracker:
+            self.cpp_info.defines.append("TINS_HAVE_ACK_TRACKER")

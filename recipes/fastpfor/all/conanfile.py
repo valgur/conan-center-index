@@ -1,7 +1,7 @@
 import os
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanInvalidConfiguration, ConanException
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
@@ -46,7 +46,7 @@ class FastPFORConan(ConanFile):
     def validate(self):
         check_min_cppstd(self, 11)
         if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "15.0":
-            raise ConanInvalidConfiguration(f"${self.ref} doesn't support ${self.settings.compiler} < 15.0")
+            raise ConanInvalidConfiguration(f"apple-clang < 15.0 not supported")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -58,6 +58,10 @@ class FastPFORConan(ConanFile):
         tc.cache_variables["WITH_TEST"] = False
         if self._has_simde:
             tc.preprocessor_definitions["SIMDE_ENABLE_NATIVE_ALIASES"] = 1
+        if Version(self.version) <= "0.2.0":
+            tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+        else:
+            raise ConanException("CMAKE_POLICY_VERSION_MINIMUM hardcoded to 3.5, check if new version supports CMake 4")
         tc.generate()
         tc = CMakeDeps(self)
         tc.generate()
