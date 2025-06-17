@@ -96,6 +96,10 @@ class PackageConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share", "man"))
         rmdir(self, self._staging_dir)
 
+        # Create a dummy setvars.sh for Conan's IntelCC generator
+        save(self, os.path.join(self.package_folder, "setvars.sh"), "#!/bin/sh\n")
+        os.chmod(os.path.join(self.package_folder, "setvars.sh"), 0o755)
+
     def package_info(self):
         # self.cpp_info.bindirs.append("bin/compiler")
         self.cpp_info.frameworkdirs = []
@@ -132,3 +136,5 @@ class PackageConan(ConanFile):
             "c": "icx",
             "cpp": "icpx",
         })
+
+        self.conf_info.define_path("tools.intel:installation_path", self.package_folder)
