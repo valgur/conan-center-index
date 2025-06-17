@@ -74,10 +74,16 @@ class PackageConan(ConanFile):
             # TODO: add support for `-openmp=experimental`?
             return ["-openmp"]
         elif compiler == "intel-cc":
-            if self.settings.os == "Windows":
-                return ["-Qopenmp"]
+            if self.settings.compiler.mode == "classic":
+                if self.settings.os == "Windows":
+                    return ["-Qopenmp"]
+                else:
+                    return ["-qopenmp"]
             else:
-                return ["-qopenmp"]
+                if self.settings.get_safe("compiler.frontend") == "msvc":
+                    return ["-Qiopenmp"]
+                else:
+                    return ["-fiopenmp"]
         elif compiler == "sun-cc":
             return ["-xopenmp"]
 
@@ -85,11 +91,6 @@ class PackageConan(ConanFile):
         # but are included for completeness.
         elif compiler == "hp":
             return ["+Oopenmp"]
-        elif compiler == "intel-llvm":
-            if self.settings.get_safe("compiler.frontend") == "msvc":
-                return ["-Qiopenmp"]
-            else:
-                return ["-fiopenmp"]
         elif compiler == "pathscale":
             return ["-openmp"]
         elif compiler == "nag":

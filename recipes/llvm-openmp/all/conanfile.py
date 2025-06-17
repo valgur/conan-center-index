@@ -194,7 +194,16 @@ class LLVMOpenMpConan(ConanFile):
         elif compiler == "msvc":
             return ["-openmp:llvm"]
         elif compiler == "intel-cc":
-            return ["-Qopenmp"]
+            if self.settings.compiler.mode == "classic":
+                if self.settings.os == "Windows":
+                    return ["-Qopenmp"]
+                else:
+                    return ["-qopenmp"]
+            else:
+                if self.settings.get_safe("compiler.frontend") == "msvc":
+                    return ["-Qopenmp"]
+                else:
+                    return ["-fopenmp"]
         elif compiler == "sun-cc":
             return ["-xopenmp"]
         return None
