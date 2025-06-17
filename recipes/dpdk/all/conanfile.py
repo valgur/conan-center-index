@@ -43,11 +43,11 @@ class DpdkConan(ConanFile):
         "fPIC": True,
         "build_apps": False,
         "enable_stdatomic": False,
-        "with_jansson": True,
-        "with_libarchive": True,
-        "with_libbpf": True,
+        "with_jansson": False,
+        "with_libarchive": False,
+        "with_libbpf": False,
         "with_libbsd": False,  # FIXME: libbsd on Conan is outdated?
-        "with_libibverbs": True,
+        "with_libibverbs": False,
         "with_libpcap": True,
         "with_openssl": True,
         "platform": "generic",
@@ -89,7 +89,7 @@ class DpdkConan(ConanFile):
         if self.options.with_libibverbs:
             self.requires("rdma-core/52.0")
         if self.options.with_libpcap:
-            self.requires("libpcap/[^1.10.4]")
+            self.requires("libpcap/[^1.10.4]", options={"enable_dpdk": False})
         if self.options.with_openssl:
             self.requires("openssl/[>=1.1 <4]")
         # missing:
@@ -115,7 +115,7 @@ class DpdkConan(ConanFile):
         self.tool_requires("meson/[>=1.2.3 <2]")
         if not self.conf.get("tools.gnu:pkg_config", default=False, check_type=str):
             self.tool_requires("pkgconf/[>=2.2 <3]")
-        self.tool_requires("cpython/[^3.12.7]")
+        # Requires Python during build
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -152,7 +152,7 @@ class DpdkConan(ConanFile):
         return os.path.join(self.build_folder, "site-packages")
 
     def _pip_install(self, packages):
-        self.run(f"python -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}")
+        self.run(f"python3 -m pip install {' '.join(packages)} --no-cache-dir --target={self._site_packages_dir}")
 
     def build(self):
         self._pip_install(["pyelftools"])
