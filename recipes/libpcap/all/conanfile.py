@@ -6,14 +6,13 @@ from conan import ConanFile
 from conan.tools.apple import fix_apple_shared_install_name
 from conan.tools.build import cross_building
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.env import VirtualBuildEnv, VirtualRunEnv
+from conan.tools.env import VirtualRunEnv
 from conan.tools.files import *
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc, is_msvc_static_runtime
-from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class LibPcapConan(ConanFile):
@@ -28,35 +27,38 @@ class LibPcapConan(ConanFile):
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
+        "enable_bluetooth": [True, False],
         "enable_dbus": [True, False],
+        "enable_dpdk": [True, False],
         "enable_libnl": [True, False],
         "enable_libusb": [True, False],
         "enable_rdma": [True, False],
-        "with_snf": [True, False],
+        "enable_remote": [True, False],
+        "enable_snf": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
+        "enable_bluetooth": False,
+        "enable_dpdk": False,
         "enable_dbus": False,
         "enable_libnl": False,
         "enable_libusb": False,
         "enable_rdma": False,
-        "with_snf": False,
+        "enable_remote": False,
+        "enable_snf": False,
     }
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.os != "Linux":
+            del self.options.enable_bluetooth
             del self.options.enable_libusb
             del self.options.enable_libnl
             del self.options.enable_rdma
-
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        self.settings.rm_safe("compiler.cppstd")
-        self.settings.rm_safe("compiler.libcxx")
 
     def layout(self):
         if self.settings.os == "Windows":
@@ -65,6 +67,10 @@ class LibPcapConan(ConanFile):
             basic_layout(self, src_folder="src")
 
     def requirements(self):
+        if self.options.get_safe("enable_bluetooth"):
+            self.requires("bluez/[^5.82]")
+        if self.options.get_safe("enable_dpdk"):
+            self.requires("dpdk/[^24.07]", options={"with_libpcap": False})
         if self.options.get_safe("enable_libusb"):
             self.requires("libusb/[^1.0.26]")
         if self.options.get_safe("enable_libnl"):
@@ -73,7 +79,8 @@ class LibPcapConan(ConanFile):
             self.requires("rdma-core/52.0")
         if self.options.get_safe("enable_dbus"):
             self.requires("dbus/[^1.15]")
-        # TODO: Add libbluetooth when available
+        if self.options.enable_remote:
+            self.requires("openssl/[>=1.1 <4]")
 
     def build_requirements(self):
         if self.settings_build.os == "Windows":
@@ -88,23 +95,19 @@ class LibPcapConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def generate(self):
-        VirtualBuildEnv(self).generate()
-
         if self.settings.os == "Windows":
             tc = CMakeToolchain(self)
-            if not self.options.shared:
-                tc.variables["ENABLE_REMOTE"] = False
+            tc.variables["ENABLE_REMOTE"] = self.options.enable_remote
             if is_msvc(self):
                 tc.variables["USE_STATIC_RT"] = is_msvc_static_runtime(self)
             else:
                 # Don't force -static-libgcc for MinGW, because conan users expect
                 # to inject this compilation flag themselves
                 tc.variables["USE_STATIC_RT"] = False
-            tc.cache_variables["DISABLE_DPDK"] = True
+            tc.cache_variables["DISABLE_DPDK"] = not self.options.enable_dpdk
 
-            if Version(self.version) >= "1.10.5":
-                self.output.warning("PCAP on Windows is currently built with package capture capabilities - only support is for reading/writing capture files")
-                tc.cache_variables["PCAP_TYPE"] = "null"
+            self.output.warning("PCAP on Windows is currently built with package capture capabilities - only support is for reading/writing capture files")
+            tc.cache_variables["PCAP_TYPE"] = "null"
             tc.generate()
         else:
             if not cross_building(self):
@@ -114,15 +117,16 @@ class LibPcapConan(ConanFile):
             yes_no = lambda v: "yes" if v else "no"
             tc.configure_args.extend([
                 "--disable-universal",  # don't build universal binaries on macOS
+                "--enable-bluetooth" if self.options.get_safe("enable_bluetooth") else "--disable-bluetooth",
+                "--enable-dpdk" if self.options.get_safe("enable_dpdk") else "--disable-dpdk",
                 "--enable-usb" if self.options.get_safe("enable_libusb") else "--disable-usb",
                 "--enable-dbus" if self.options.get_safe("enable_dbus") else "--disable-dbus",
                 "--enable-rdma" if self.options.get_safe("enable_rdma") else "--disable-rdma",
+                "--enable-remote" if self.options.enable_remote else "--disable-remote",
                 "--with-libnl" if self.options.get_safe("enable_libnl") else "--without-libnl",
                 "--disable-bluetooth",
-                f"--with-snf={yes_no(self.options.get_safe('with_snf'))}",
+                f"--with-snf={yes_no(self.options.get_safe('enable_snf'))}",
             ])
-            tc.configure_args.append("--disable-packet-ring")
-            tc.configure_args.append("--without-dpdk")
             if cross_building(self):
                 target_os = "linux" if self.settings.os in ["Linux", "Android"] else "null"
                 tc.configure_args.append(f"--with-pcap={target_os}")
@@ -130,7 +134,6 @@ class LibPcapConan(ConanFile):
                 tc.configure_args.append("--host=arm-linux")
             tc.generate()
 
-            AutotoolsDeps(self).generate()
             deps = PkgConfigDeps(self)
             deps.generate()
 
@@ -181,13 +184,20 @@ class LibPcapConan(ConanFile):
         self.cpp_info.libs = [f"pcap{suffix}"]
         if self.settings.os == "Windows":
             self.cpp_info.system_libs = ["ws2_32"]
+        if self.options.get_safe("enable_bluetooth"):
+            self.cpp_info.requires.append("bluez::bluez")
+        if self.options.enable_dpdk:
+            # TODO: use exact components once the DPDK recipe exposes them
+            self.cpp_info.requires.append("dpdk::dpdk")
         if self.options.get_safe("enable_libusb"):
             self.cpp_info.requires.append("libusb::libusb")
         if self.options.get_safe("enable_libnl"):
             self.cpp_info.requires.append("libnl::nl-genl")
         if self.options.get_safe("enable_rdma"):
             self.cpp_info.requires.append("rdma-core::libibverbs")
+        if self.options.enable_remote:
+            self.cpp_info.requires.append("openssl::openssl")
         if self.options.get_safe("enable_dbus"):
             self.cpp_info.requires.append("dbus::dbus")
-        if self.options.get_safe("with_snf"):
+        if self.options.get_safe("enable_snf"):
             self.cpp_info.system_libs.append("snf")
