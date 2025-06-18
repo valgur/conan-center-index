@@ -6,6 +6,7 @@ from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.microsoft import is_msvc
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -36,10 +37,18 @@ class S2GeometryConan(ConanFile):
         self.requires("abseil/[>=20240116.1]", transitive_headers=True, transitive_libs=True)
         self.requires("openssl/[>=1.1 <4]", transitive_headers=True)
 
+    def build_requirements(self):
+        if Version(self.version) >= "0.12.0":
+            self.tool_requires("cmake/[>=3.18 <5]")
+
     def validate(self):
-        check_min_cppstd(self, 14)
+        check_min_cppstd(self, 14 if Version(self.version) < "0.12.0" else 17)
         if is_msvc(self) and self.options.shared:
             raise ConanInvalidConfiguration(f"{self.ref} cannot be built as shared with Visual Studio")
+
+        abseil_cppstd = self.dependencies.host["abseil"].info.settings.compiler.cppstd
+        if abseil_cppstd != self.settings.compiler.cppstd:
+            raise ConanInvalidConfiguration(f"s2geometry and abseil must be built with the same compiler.cppstd setting")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)

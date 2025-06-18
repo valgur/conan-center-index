@@ -32,6 +32,7 @@ class MoldConan(ConanFile):
 
     def export_sources(self):
         copy(self, "conan_deps.cmake", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
+        export_conandata_patches(self)
 
     def configure(self):
         if Version(self.version) < "2.0.0":
@@ -81,6 +82,7 @@ class MoldConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
 
     def generate(self):
         tc = CMakeToolchain(self)

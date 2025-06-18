@@ -1,12 +1,13 @@
+import os
+import shutil
+
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.build import check_min_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
-import os
-import shutil
+from conan.tools.scm import Version
 
 required_conan_version = ">=2.1"
 
@@ -41,7 +42,7 @@ class MongoCxxConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("mongo-c-driver/1.29.2")
+        self.requires("mongo-c-driver/[^1.24]")
         if self.options.polyfill == "boost":
             self.requires("boost/[^1.71.0]", transitive_headers=True, libs=False)
 
