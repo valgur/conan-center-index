@@ -1,10 +1,11 @@
+import json
 import os
+import urllib.parse
 from functools import cached_property
 from pathlib import Path
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
-from conan.tools.env import Environment
 from conan.tools.files import *
 
 required_conan_version = ">=2.1"
@@ -52,40 +53,59 @@ class PackageConan(ConanFile):
             raise ConanInvalidConfiguration("Only x86_64 host architecture is supported")
 
     @cached_property
-    def _extracted_dir(self):
+    def _extracted_installer_dir(self):
         return next(Path(self.build_folder).glob("intel-dpcpp-cpp-compiler-*"))
 
-    @property
-    def _staging_dir(self):
-        return os.path.join(self.build_folder, "staging")
+    def _fix_package_symlinks(self):
+        filelist = json.loads(load(self, "filelist.json"))
+        for file_info in filelist["files"]:
+            if "sha384" not in file_info:
+                dst = file_info["fileName"]
+                src = load(self, dst).strip()
+                os.unlink(dst)
+                # unquote is for clang%2B%2B, etc
+                os.symlink(src, urllib.parse.unquote(dst))
 
-    @property
-    def _enabled_components(self):
-        return ["compiler"] + [component.replace("_", "-") for component, _ in self.options.items() if self.options.get_safe(component)]
+    def _extract_package(self, name):
+        package_dir = next(p for p in Path(self._extracted_installer_dir, "packages").glob(f"{name},*") if p.is_dir())
+        unzip(self, str(package_dir / "cupPayload.cup"), destination=self.build_folder, keep_permissions=True)
+        self._fix_package_symlinks()
 
     def build(self):
         # Download and extract
         download(self, **self.conan_data["sources"][self.version][str(self.settings.os)], filename="installer.sh")
         self.run(f"sh installer.sh -x -f .")
         rm(self, "installer.sh", self.build_folder)
+        self._extract_package("intel.oneapi.lin.compilers-common")
+        self._extract_package("intel.oneapi.lin.compilers-common.runtime")
+        self._extract_package("intel.oneapi.lin.dpcpp-cpp-common")
+        self._extract_package("intel.oneapi.lin.dpcpp-cpp-common.runtime")
+        self._extract_package("intel.oneapi.lin.openmp")
+        if self.options.debugger:
+            self._extract_package("intel.oneapi.lin.dpcpp_dbg")
+        if self.options.dev_utilities:
+            self._extract_package("intel.oneapi.lin.dev-utilities.plugins")
+        if self.options.dpl:
+            self._extract_package("intel.oneapi.lin.dpl")
+        if self.options.tbb:
+            self._extract_package("intel.oneapi.lin.tbb.devel")
+            self._extract_package("intel.oneapi.lin.tbb.runtime")
+        if self.options.tcm:
+            self._extract_package("intel.oneapi.lin.tcm")
+        if self.options.umf:
+            self._extract_package("intel.oneapi.lin.umf")
 
-        env = Environment()
-        # Installer caches files under $HOME/intel and $HOME/.intel
-        env.define_path("HOME", os.path.join(self.build_folder, "home"))
-        # Installer checks $XDG_RUNTIME_DIR/.bootstrapper_lock_file
-        env.define_path("XDG_RUNTIME_DIR", os.path.join(self.build_folder, "xdg_runtime"))
-        with env.vars(self).apply(), chdir(self, self._extracted_dir):
-            self.run(f"sh install.sh --silent --action install --eula accept --install-dir '{self._staging_dir}'")
-        # Clean up a bit
-        rmdir(self, self._extracted_dir)
-        rmdir(self, os.path.join(self.build_folder, "home"))
+    @property
+    def _staging_dir(self):
+        return os.path.join(self.build_folder, "_installdir")
 
     def package(self):
-        copy(self, "license.txt", self._extracted_dir, os.path.join(self.package_folder, "licenses"))
-        # Flatten the components into a single package folder structure
-        for component in self._enabled_components:
-            self.output.info(f"Copying {component} component files")
-            copy(self, "*", os.path.join(self._staging_dir, component, "latest"), self.package_folder)
+        copy(self, "license.txt", self._extracted_installer_dir, os.path.join(self.package_folder, "licenses"))
+        rmdir(self, self._extracted_installer_dir)
+        # Merge all package dirs into one in the package folder
+        for pkg_dir in Path(self._staging_dir).iterdir():
+            subdir = next(pkg_dir.iterdir())
+            move_folder_contents(self, subdir, self.package_folder)
         rmdir(self, os.path.join(self.package_folder, ".toolkit_linking_tool"))
         # Remove env/ and etc/ which contain only vars.sh, which is covered by package_info()
         rmdir(self, os.path.join(self.package_folder, "env"))
