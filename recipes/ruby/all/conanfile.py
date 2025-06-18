@@ -43,9 +43,9 @@ class RubyConan(ConanFile):
         "with_enable_load_relative": True,
         "with_openssl": True,
         "with_libyaml": True,
-        "with_libffi": True,
-        "with_readline": True,
-        "with_gmp": True,
+        "with_libffi": False,
+        "with_readline": False,
+        "with_gmp": False,
     }
 
     @property
