@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-17:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-18:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -23,7 +23,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - arbiter/cci.20231122
 - armadillo/12.6.7
 - armadillo/12.8.1
-- arrow/20.0.0
 - autoconf-archive/2024.10.16
 - aws-cdi-sdk/2.4.1
 - azure-sdk-for-cpp/1.13.0
@@ -31,11 +30,17 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - benchmark/1.9.4
 - binutils/2.44
 - blis/0.9.0
-- bluez/5.82
+- bluez/5.83
 - boost/1.71.0
 - boost/1.74.0
 - boostdep/1.88.0
 - boxfort/0.1.4
+- bullet3/3.06
+- bullet3/3.07
+- bullet3/3.08
+- bullet3/3.09
+- bullet3/3.17
+- bullet3/3.21
 - cairo/1.18.4
 - capnproto/1.0.1.1
 - cargo-c/0.10.12
@@ -79,7 +84,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cmake/3.31.3
 - cmake/3.31.5
 - cmake/3.31.6
-- cmake/4.0.1
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -177,8 +181,9 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gl2ps/1.4.2
 - glib-gir/2.82.4
 - glib-gir/2.84.1
-- glib/2.82.4
-- glib/2.84.1
+- glib/2.82.5
+- glib/2.84.3
+- glibmm/2.84.0
 - glim/1.0.4
 - glim_ext/1.0.0
 - glomap/cci.20240802
@@ -219,10 +224,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gst-plugins-ugly/1.26.0
 - gstreamer/1.24.12
 - gstreamer/1.26.0
-- gtk/3.24.43
 - gtk/3.24.49
-- gtk/4.15.6
-- gtk/4.18.4
+- gtk/4.18.6
 - gtkmm/3.24.9
 - gtkmm/4.16.0
 - gtsam/4.3-a0
@@ -242,6 +245,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - imgui/1.91.9b
 - imlib2/1.12.3
 - influxdb-cxx/0.7.3
+- intel-oneapi-dpcpp-cpp/2025.1.1
 - ios-cmake/4.4.1
 - iridescence/0.1.3
 - isl/0.27
@@ -445,7 +449,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - rust/1.81.0
 - rust/1.84.0
 - rust/1.85.1
-- s2geometry/0.12.0
 - secsipidx/1.3.2
 - serf/1.3.10
 - sfcgal/1.5.0
