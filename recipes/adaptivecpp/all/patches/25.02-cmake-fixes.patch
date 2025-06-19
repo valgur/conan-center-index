@@ -1,0 +1,35 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.10)
++cmake_minimum_required(VERSION 3.15)
+ 
+ if(POLICY CMP0074) # Since CMake 3.12
+   cmake_policy(SET CMP0074 NEW) # Don't complain about using BOOST_ROOT...
+@@ -309,12 +309,12 @@
+ if(BUILD_CLANG_PLUGIN)
+   if(NOT ACPP_LLVM_COMPONENT)
+     set(LLVM_DIR_OLD ${LLVM_DIR})
+-    find_package(LLVM CONFIG)
++    find_package(LLVM CONFIG REQUIRED)
+     if(LLVM_DIR_OLD AND NOT ("${LLVM_DIR_OLD}" STREQUAL "${LLVM_DIR}"))
+       message(WARNING "Could not find LLVM in the requested location LLVM_DIR=${LLVM_DIR_OLD}; using ${LLVM_DIR}.")
+     endif()
+     message(STATUS "Building AdaptiveCpp against LLVM configured from ${LLVM_DIR}")
+-    #find_package(Clang REQUIRED)
++    find_package(Clang REQUIRED)
+ 
+     find_program(CLANG_EXECUTABLE_PATH NAMES clang++-${LLVM_VERSION_MAJOR} clang++-${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR} clang++ HINTS ${LLVM_TOOLS_BINARY_DIR} NO_DEFAULT_PATH CACHE STRING)
+     if(CLANG_EXECUTABLE_PATH MATCHES "-NOTFOUND")
+diff --git a/src/compiler/CMakeLists.txt b/src/compiler/CMakeLists.txt
+--- a/src/compiler/CMakeLists.txt
++++ b/src/compiler/CMakeLists.txt
+@@ -112,6 +112,7 @@
+     ${COMPILER_LIBRARY_SOURCES}
+     frontend/AdaptiveCppClangPlugin.cpp
+   )
++  target_include_directories(${COMPILER_LIBRARY_NAME} PRIVATE ${Clang_INCLUDE_DIRS})
+ else()
+   add_clang_library(acpp-frontend OBJECT
+     frontend/AdaptiveCppClangPlugin.cpp
