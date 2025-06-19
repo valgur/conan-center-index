@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-18:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-19:
 
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
@@ -35,12 +35,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - boost/1.74.0
 - boostdep/1.88.0
 - boxfort/0.1.4
-- bullet3/3.06
-- bullet3/3.07
-- bullet3/3.08
-- bullet3/3.09
-- bullet3/3.17
-- bullet3/3.21
 - cairo/1.18.4
 - capnproto/1.0.1.1
 - cargo-c/0.10.12
@@ -375,8 +369,10 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - numpy/1.26.4
 - nvidia-optical-flow-sdk/5.0.7
 - nvtx/3.2.1
+- ocl-icd/2.3.3
 - odbc/2.3.12
 - ogre/14.3.4
+- onemkl/2025.1.0
 - onetbb/2022.1.0
 - onnxruntime/1.21.1
 - openblas/0.3.28
