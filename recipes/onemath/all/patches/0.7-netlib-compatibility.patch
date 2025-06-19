@@ -1,0 +1,21 @@
+diff --git a/src/blas/backends/netlib/netlib_level1.cpp b/src/blas/backends/netlib/netlib_level1.cpp
+--- a/src/blas/backends/netlib/netlib_level1.cpp
++++ b/src/blas/backends/netlib/netlib_level1.cpp
+@@ -43,7 +43,7 @@
+     return std::abs(val.real()) + std::abs(val.imag());
+ }
+ 
+-int cblas_isamin(int n, const float* x, int incx) {
++CBLAS_INDEX cblas_isamin(int n, const float* x, int incx) {
+     if (n < 1 || incx < 1) {
+         return 0;
+     }
+@@ -65,7 +65,7 @@
+     return min_idx;
+ }
+ 
+-int cblas_idamin(int n, const double* x, int incx) {
++CBLAS_INDEX cblas_idamin(int n, const double* x, int incx) {
+     if (n < 1 || incx < 1) {
+         return 0;
+     }

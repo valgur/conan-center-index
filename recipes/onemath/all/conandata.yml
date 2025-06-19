@@ -1,0 +1,9 @@
+sources:
+  "0.7":
+    url: "https://github.com/uxlfoundation/oneMath/archive/refs/tags/v0.7.tar.gz"
+    sha256: "25ad92ee7d5d18461809aa94d199c93bc14127b4ef8b05b4e4fa45f8a6286a9d"
+patches:
+  "0.7":
+    - patch_file: "patches/0.7-netlib-compatibility.patch"
+      patch_description: "Fix a function signature incompatibility with netlib BLAS"
+    - patch_file: "patches/0.7-adaptivecpp-cmake-support.patch"
