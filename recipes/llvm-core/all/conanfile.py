@@ -165,10 +165,15 @@ class LLVMCoreConan(ConanFile):
         export_conandata_patches(self)
 
     def config_options(self):
-        for target in set(LLVM_TARGETS + EXPERIMENTAL_TARGETS) - self._all_targets:
-            self.options.rm_safe(f"target_{target}")
+        # Build only the host architecture and GPU targets by default.
         if self._host_target:
             setattr(self.options, f"target_{self._host_target}", True)
+        self.options.target_AMDGPU = True
+        self.options.target_NVPTX = True
+
+        # Remove target options not supported by this version of LLVM.
+        for target in set(LLVM_TARGETS + EXPERIMENTAL_TARGETS) - self._all_targets:
+            self.options.rm_safe(f"target_{target}")
 
         if self.settings.os == "Windows":
             del self.options.fPIC
