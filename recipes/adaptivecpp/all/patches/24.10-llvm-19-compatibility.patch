@@ -1,0 +1,81 @@
+Backport LLVM 19 & 20 compatibility fixes from
+https://github.com/AdaptiveCpp/AdaptiveCpp/commit/cfd8c8ba4ed9723d8ad1969914d78c516c85dfbb
+
+diff --git a/src/compiler/cbs/SubCfgFormation.cpp b/src/compiler/cbs/SubCfgFormation.cpp
+--- a/src/compiler/cbs/SubCfgFormation.cpp
++++ b/src/compiler/cbs/SubCfgFormation.cpp
+@@ -1127,6 +1127,11 @@
+   return true;
+ }
+ 
++template <class iterator>
++llvm::IRBuilder<> createLoadBuilder(llvm::BasicBlock *BB, iterator I) {
++  return llvm::IRBuilder{BB, I};
++}
++
+ // Widens the allocas in the entry block to array allocas.
+ // Replace uses of the original alloca with GEP that indexes the new alloca with
+ // \a Idx.
+@@ -1170,9 +1175,9 @@
+     Alloca->setMetadata(hipsycl::compiler::MDKind::Arrayified, MDAlloca);
+ 
+     for (auto &SubCfg : SubCfgs) {
+-      auto *GepIp = SubCfg.getLoadBB()->getFirstNonPHIOrDbgOrLifetime();
++      auto GepIp = SubCfg.getLoadBB()->getFirstNonPHIOrDbgOrLifetime();
+ 
+-      llvm::IRBuilder LoadBuilder{GepIp};
++      llvm::IRBuilder LoadBuilder = createLoadBuilder(SubCfg.getLoadBB(), GepIp);
+       auto *GEP = llvm::cast<llvm::GetElementPtrInst>(LoadBuilder.CreateInBoundsGEP(
+           Alloca->getAllocatedType(), Alloca, SubCfg.getContiguousIdx(), I->getName() + "_gep"));
+       GEP->setMetadata(hipsycl::compiler::MDKind::Arrayified, MDAlloca);
+diff --git a/src/compiler/AdaptiveCppClangPlugin.cpp b/src/compiler/AdaptiveCppClangPlugin.cpp
+--- a/src/compiler/AdaptiveCppClangPlugin.cpp
++++ b/src/compiler/AdaptiveCppClangPlugin.cpp
+@@ -118,15 +118,28 @@
+   "v" HIPSYCL_STRINGIFY(ACPP_VERSION_MAJOR) "." HIPSYCL_STRINGIFY(                              \
+       ACPP_VERSION_MINOR) "." HIPSYCL_STRINGIFY(ACPP_VERSION_PATCH)
+ 
++template <class CallbackF>
++struct LastEPAdapter{
++  LastEPAdapter(CallbackF &&CB) : CB(std::forward<CallbackF>(CB)) {}
++  void operator()(llvm::ModulePassManager &MPM, OptLevel Level, llvm::ThinOrFullLTOPhase) {
++    CB(MPM, Level);
++  }
++  void operator()(llvm::ModulePassManager &MPM, OptLevel Level) {
++    CB(MPM, Level);
++  }
++  CallbackF CB;
++};
++
+ extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo() {
+   return {
+     LLVM_PLUGIN_API_VERSION, "hipSYCL Clang plugin", HIPSYCL_PLUGIN_VERSION_STRING,
+         [](llvm::PassBuilder &PB) {
+           // Note: for Clang < 12, this EP is not called for O0, but the new PM isn't
+           // really used there anyways..
+-          PB.registerOptimizerLastEPCallback([](llvm::ModulePassManager &MPM, OptLevel) {
++
++          PB.registerOptimizerLastEPCallback(LastEPAdapter{[&](llvm::ModulePassManager &MPM, OptLevel) {
+             MPM.addPass(hipsycl::compiler::GlobalsPruningPass{});
+-          });
++          }});
+ #ifdef HIPSYCL_WITH_REFLECTION_BUILTINS
+           PB.registerPipelineStartEPCallback(
+                 [&](llvm::ModulePassManager &MPM, OptLevel Level) {
+@@ -142,12 +155,13 @@
+                 MPM.addPass(MallocToUSMPass{});
+               }
+             });
+-          
+-            PB.registerOptimizerLastEPCallback([&](llvm::ModulePassManager &MPM, OptLevel Level) {
++
++
++          PB.registerOptimizerLastEPCallback(LastEPAdapter{[&](llvm::ModulePassManager &MPM, OptLevel) {
+               MPM.addPass(SyncElisionInliningPass{});
+               MPM.addPass(llvm::AlwaysInlinerPass{});
+               MPM.addPass(SyncElisionPass{});
+-            });
++            }});
+           }
+ #endif
+ 
