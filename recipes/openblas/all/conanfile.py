@@ -130,10 +130,10 @@ class OpenblasConan(ConanFile):
     def configure(self):
         if self.options.shared:
             self.options.rm_safe("fPIC")
-        if not self.options.build_lapack:
-            del self.options.build_relapack
+        if self.options.build_lapack:
+            self.options.build_relapack.value = self.settings.compiler not in ["msvc", "apple-clang"]
         else:
-            self.options.build_relapack = self.settings.compiler in ["gcc", "clang"]
+            del self.options.build_relapack
         if not self.options.use_thread:
             del self.options.max_threads
         if not self.options.use_openmp:
@@ -156,7 +156,7 @@ class OpenblasConan(ConanFile):
             self.requires("openmp/system")
 
     def validate(self):
-        if self.options.get_safe("build_relapack") and self.settings.compiler not in ["gcc", "clang"]:
+        if self.options.get_safe("build_relapack") and self.settings.compiler in ["msvc", "apple-clang"]:
             # ld: unknown option: --allow-multiple-definition on apple-clang
             raise ConanInvalidConfiguration(f'"{self.name}/*:build_relapack=True" option is only supported for GCC and Clang')
         if self.settings.os == "Android" and self.options.build_lapack:
