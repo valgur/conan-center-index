@@ -257,23 +257,17 @@ class OneMKLConan(ConanFile):
             domains = ["blas", "lapack", "dft", "sparse", "rng", "stats", "vm", "data_fitting"]
             sycl_comp = self.cpp_info.components["mkl-sycl"]
             sycl_comp.set_property("cmake_target_name", "MKL::MKL_SYCL")
-            if self.options.get_safe("shared", True):
-                sycl_comp.libs = ["mkl_sycl"]
-            else:
-                sycl_comp.requires = [f"mkl-sycl-{domain}" for domain in domains]
+            sycl_comp.requires = [f"mkl-sycl-{domain}" for domain in domains]
             sycl_comp.requires.append(mkl_lib)
 
             sycl_comp.cflags = ["-fsycl"]
             sycl_comp.cxxflags = ["-fsycl"]
-            sycl_link_flags = ["-fsycl"]
-            if not is_msvc(self):
-                sycl_link_flags.append("-Wl,-export-dynamic")
+            sycl_link_flags = ["-fsycl", "-Wl,-export-dynamic"]
             if not self.options.get_safe("shared", True):
                 if self.settings.os == "Windows":
-                    code_split_flag = "-fsycl-device-code-split:per_kernel"
+                    sycl_link_flags.append("-fsycl-device-code-split:per_kernel")
                 else:
-                    code_split_flag = "-fsycl-device-code-split=per_kernel"
-                sycl_link_flags.append(code_split_flag)
+                    sycl_link_flags.append("-fsycl-device-code-split=per_kernel")
             sycl_comp.sharedlinkflags.extend(sycl_link_flags)
             sycl_comp.exelinkflags.extend(sycl_link_flags)
 
