@@ -50,7 +50,7 @@ class SamariumConan(ConanFile):
         # when using inlined is_key_pressed function
         self.requires("sfml/[^2.6.1]", transitive_headers=True, transitive_libs=True)
         self.requires("range-v3/cci.20240905", transitive_headers=True)
-        self.requires("stb/cci.20250314")
+        self.requires("stb/[*]")
         self.requires("tl-expected/20190710", transitive_headers=True)
 
     def validate(self):

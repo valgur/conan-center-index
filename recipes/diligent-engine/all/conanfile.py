@@ -70,7 +70,7 @@ class DiligentEngineConan(ConanFile):
         self.requires("libpng/[~1.6]")
         self.requires("libtiff/[>=4.5 <5]")
         self.requires("nlohmann_json/[^3.11]")
-        self.requires("stb/cci.20250314")
+        self.requires("stb/[*]")
         self.requires("taywee-args/6.4.6")
         self.requires("tinygltf/2.9.0")
         self.requires("zlib-ng/[^2.0]")

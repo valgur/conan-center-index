@@ -297,7 +297,7 @@ class OgreConanFile(ConanFile):
             self.requires("glslang/[^1.3.239.0]")
             self.requires("spirv-tools/[^1.3.239.0]")
         if self.options.build_plugin_stbi:
-            self.requires("stb/cci.20250314")
+            self.requires("stb/[*]")
         if self.options.build_rendersystem_vulkan:
             self.requires("vulkan-headers/[^1.3.239.0]")
             self.requires("volk/[^1.3.239.0]", transitive_headers=True, transitive_libs=True)

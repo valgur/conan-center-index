@@ -88,7 +88,7 @@ class MicroprofileConan(ConanFile):
         if self.options.enable_timer == "vulkan":
             self.requires("vulkan-loader/[^1.3.239.0]")
         if Version(self.version) >= "4.0":
-            self.requires("stb/cci.20250314")
+            self.requires("stb/[*]")
 
     def build_requirements(self):
         if not self.conf.get("tools.gnu:pkg_config", check_type=str):
