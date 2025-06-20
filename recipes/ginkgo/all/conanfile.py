@@ -29,6 +29,7 @@ class GinkgoConan(ConanFile):
         "openmp": [True, False],
         "cuda": [True, False],
         "half": [True, False],
+        "bfloat16": [True, False],
     }
     default_options = {
         "shared": False,
@@ -36,6 +37,7 @@ class GinkgoConan(ConanFile):
         "openmp": True,
         "cuda": False,
         "half": True,
+        "bfloat16": True,
     }
 
     def export_sources(self):
@@ -51,6 +53,9 @@ class GinkgoConan(ConanFile):
             # option not supported for msvc/mingw (build system forces it to OFF anyway)
             # see https://github.com/ginkgo-project/ginkgo/blob/d7e1450b6ba9ee90dbaa839f4b4b5a5ad59e28cc/CMakeLists.txt#L46-L51
             del self.options.half
+            # option was added in 1.10.0
+            # same reason to force it of as for half
+            del self.options.bfloat16
 
     def configure(self):
         if self.options.shared:
@@ -103,6 +108,8 @@ class GinkgoConan(ConanFile):
         tc.variables["GINKGO_BUILD_MPI"] = False
         if "half" in self.options:
             tc.variables["GINKGO_ENABLE_HALF"] = self.options.half
+        if "bfloat16" in self.options:
+            tc.variables["GINKGO_ENABLE_BFLOAT16"] = self.options.bfloat16
         tc.generate()
 
         deps = CMakeDeps(self)

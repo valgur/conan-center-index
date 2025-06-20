@@ -18,19 +18,9 @@ class ProtopufConan(ConanFile):
     homepage = "https://github.com/PragmaTwice/protopuf"
     topics = ("serialization", "protobuf", "metaprogramming", "header-only")
     settings = "os", "arch", "compiler", "build_type"
-    no_copy_source = True
 
-    @property
-    def _minimum_cpp_standard(self):
-        return 20
-
-    @property
-    def _compilers_minimum_version(self):
-        return {
-            "msvc": "192",
-            "gcc": "10",
-            "clang": "12",
-        }
+    def export_sources(self):
+        export_conandata_patches(self)
 
     def layout(self):
         basic_layout(self, src_folder="src")
@@ -39,32 +29,21 @@ class ProtopufConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.compiler == "apple-clang":
-            raise ConanInvalidConfiguration(
-                f"{self.ref} does not yet support apple-clang."
-            )
-
-        check_min_cppstd(self, self._minimum_cpp_standard)
-        minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
-        if minimum_version and Version(self.settings.get_safe("compiler.version")) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._minimum_cpp_standard}, which your compiler does not support."
-            )
+        check_min_cppstd(self, 20)
+        if self.settings.compiler == "apple-clang" and Version(self.settings.compiler.version) < "17":
+            # there are specific C++20 features used in this library that require apple-clang 17 or higher
+            raise ConanInvalidConfiguration("apple-clang 17 or higher is required")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], destination=self.source_folder, strip_root=True)
+        apply_conandata_patches(self)
 
     def build(self):
         pass
 
     def package(self):
-        copy(self, pattern="LICENSE", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
-        copy(
-            self,
-            pattern="*.h",
-            dst=os.path.join(self.package_folder, "include"),
-            src=os.path.join(self.source_folder, "include"),
-        )
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h", os.path.join(self.source_folder, "include"), os.path.join(self.package_folder, "include"))
 
     def package_info(self):
         self.cpp_info.bindirs = []

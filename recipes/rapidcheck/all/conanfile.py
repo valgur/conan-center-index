@@ -1,4 +1,4 @@
-from os.path import join
+import os
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -57,6 +57,10 @@ class RapidcheckConan(ConanFile):
         if self.options.enable_gmock and not self.dependencies["gtest"].options.build_gmock:
             raise ConanInvalidConfiguration("The option `rapidcheck:enable_gmock` requires `gtest/*:build_gmock=True`")
 
+    def build_requirements(self):
+        if Version(self.version) >= "cci.20231215":
+            self.tool_requires("cmake/[>=3.16 <5]")
+
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
@@ -80,10 +84,11 @@ class RapidcheckConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, pattern="LICENSE*", dst=join(self.package_folder, "licenses"), src=self.source_folder)
+        copy(self, "LICENSE*", self.source_folder, os.path.join(self.package_folder, "licenses"))
         cmake = CMake(self)
         cmake.install()
-        rmdir(self, join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "share"))
+        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "rapidcheck")

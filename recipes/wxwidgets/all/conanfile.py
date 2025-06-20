@@ -280,6 +280,10 @@ class wxWidgetsConan(ConanFile):
         tc.cache_variables["CMAKE_CONFIGURATION_TYPES"] = "Debug;Release;RelWithDebInfo;MinSizeRel"
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
 
+        # Fix for strcpy_s on Apple platforms (fix upstream?)
+        if is_apple_os(self):
+            tc.preprocessor_definitions["__STDC_WANT_LIB_EXT1__"] = ""
+
         for item in str(self.options.custom_enables).split(","):
             item = item.strip()
             if item:

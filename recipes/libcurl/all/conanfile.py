@@ -31,7 +31,7 @@ class LibcurlConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "build_executable": [True, False],
-        "with_ssl": [False, "openssl", "wolfssl", "schannel", "darwinssl", "mbedtls"],
+        "with_ssl": [False, "openssl", "wolfssl", "schannel", "darwinssl", "mbedtls", "libressl"],
         "with_file": [True, False],
         "with_ftp": [True, False],
         "with_http": [True, False],
@@ -172,6 +172,8 @@ class LibcurlConan(ConanFile):
     def requirements(self):
         if self.options.with_ssl == "openssl":
             self.requires("openssl/[>=1.1 <4]")
+        elif self.options.with_ssl == "libressl":
+            self.requires("libressl/[>=3.5 <4]")
         elif self.options.with_ssl == "wolfssl":
             self.requires("wolfssl/[^5.6.6]")
         elif self.options.with_ssl == "mbedtls":
@@ -486,6 +488,9 @@ class LibcurlConan(ConanFile):
         if self.options.with_ssl == "openssl":
             path = unix_path(self, self.dependencies["openssl"].package_folder)
             tc.configure_args.append(f"--with-openssl={path}")
+        elif self.options.with_ssl == "libressl":
+            path = unix_path(self, self.dependencies["libressl"].package_folder)
+            tc.configure_args.append(f"--with-openssl={path}")
         else:
             tc.configure_args.append("--without-openssl")
 
@@ -642,7 +647,7 @@ class LibcurlConan(ConanFile):
         tc.variables["CURL_STATICLIB"] = not self.options.shared
         tc.variables["CMAKE_DEBUG_POSTFIX"] = ""
         tc.variables["CURL_USE_SCHANNEL"] = self.options.with_ssl == "schannel"
-        tc.variables["CURL_USE_OPENSSL"] = self.options.with_ssl == "openssl"
+        tc.variables["CURL_USE_OPENSSL"] = self.options.with_ssl in ("openssl", "libressl")
         tc.variables["CURL_USE_WOLFSSL"] = self.options.with_ssl == "wolfssl"
         tc.variables["CURL_USE_MBEDTLS"] = self.options.with_ssl == "mbedtls"
         tc.variables["USE_NGHTTP2"] = self.options.with_nghttp2
@@ -665,6 +670,8 @@ class LibcurlConan(ConanFile):
         tc.variables["CURL_DISABLE_RTSP"] = not self.options.with_rtsp
         tc.variables["CURL_DISABLE_CRYPTO_AUTH"] = not self.options.with_crypto_auth
         tc.variables["CURL_DISABLE_VERBOSE_STRINGS"] = not self.options.with_verbose_strings
+        if self.options.with_ssl == "libressl":
+            tc.variables["CURL_DISABLE_SRP"] = True
         if "with_form_api" in self.options:
             tc.variables["CURL_DISABLE_FORM_API"] = not self.options.with_form_api
         if "with_websockets" in self.options:
@@ -751,7 +758,7 @@ class LibcurlConan(ConanFile):
             self.cpp_info.components["curl"].system_libs = ["ws2_32", "bcrypt"]
             if self.options.with_ldap:
                 self.cpp_info.components["curl"].system_libs.append("wldap32")
-            if self.options.with_ssl == "schannel":
+            if self.options.with_ssl in ["schannel", "libressl"]:
                 self.cpp_info.components["curl"].system_libs.append("crypt32")
         elif is_apple_os(self):
             self.cpp_info.components["curl"].frameworks.append("CoreFoundation")
@@ -773,6 +780,8 @@ class LibcurlConan(ConanFile):
 
         if self.options.with_ssl == "openssl":
             self.cpp_info.components["curl"].requires.append("openssl::openssl")
+        if self.options.with_ssl == "libressl":
+            self.cpp_info.components["curl"].requires.append("libressl::libressl")
         if self.options.with_ssl == "wolfssl":
             self.cpp_info.components["curl"].requires.append("wolfssl::wolfssl")
         if self.options.with_ssl == "mbedtls":

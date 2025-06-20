@@ -38,6 +38,13 @@ class LibqrencodeConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
         apply_conandata_patches(self)
+        # CMake v4 support
+        replace_in_file(self, "CMakeLists.txt",
+                        "cmake_minimum_required(VERSION 3.1.0)",
+                        "cmake_minimum_required(VERSION 3.5)")
+        # libpng is required by tools only & libiconv is not used at all
+        replace_in_file(self, "CMakeLists.txt", "find_package(PNG)", "")
+        replace_in_file(self, "CMakeLists.txt", "find_package(Iconv)", "")
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -45,14 +52,7 @@ class LibqrencodeConan(ConanFile):
         tc.variables["WITH_TESTS"] = False
         tc.generate()
 
-    def _patch_sources(self):
-        # libpng is required by tools only & libiconv is not used at all
-        cmakelists = os.path.join(self.source_folder, "CMakeLists.txt")
-        replace_in_file(self, cmakelists, "find_package(PNG)", "")
-        replace_in_file(self, cmakelists, "find_package(Iconv)", "")
-
     def build(self):
-        self._patch_sources()
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
