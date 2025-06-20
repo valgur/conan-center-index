@@ -165,6 +165,7 @@ class OneMKLConan(ConanFile):
         # The main target
         mkl_comp = self.cpp_info.components["mkl"]
         mkl_comp.set_property("cmake_target_name", "MKL::MKL")
+        mkl_comp.set_property("pkg_config_name", "mkl")  # unofficial
         if self.options.get_safe("sdl"):
             mkl_comp.requires = ["mkl-sdl"]
         else:
