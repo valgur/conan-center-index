@@ -51,6 +51,8 @@ class PackageConan(ConanFile):
             raise ConanInvalidConfiguration(f"{self.settings.os} is not supported")
         if self.settings.arch != "x86_64":
             raise ConanInvalidConfiguration("Only x86_64 host architecture is supported")
+        if self.settings.os in ["FreeBSD", "Linux"] and self.settings.compiler.libcxx != "libstdc++11":
+            raise ConanInvalidConfiguration("compiler.libcxx=libstdc++11 is required for compatibility with the compiler runtime libraries")
 
     @cached_property
     def _extracted_installer_dir(self):
