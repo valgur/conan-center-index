@@ -1,0 +1,4 @@
+sources:
+  "25.04":
+    url: "https://gitlab.arm.com/libraries/openrng/-/archive/v25.04/openrng-v25.04.tar.bz2"
+    sha256: "ea55d10f8a752e8475739fb5305131f9198425995e85b2c75532510d99407c75"
