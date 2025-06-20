@@ -13,8 +13,10 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-19:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-20:
 
+- adaptivecpp/24.10.0
+- adaptivecpp/25.02.0
 - aeron/1.43.0
 - aerospike-client-c/7.0.4
 - antlr4/4.13.2
