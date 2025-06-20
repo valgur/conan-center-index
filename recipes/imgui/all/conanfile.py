@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 from pathlib import Path
 
 from conan import ConanFile
@@ -27,6 +28,7 @@ class ImguiConan(ConanFile):
         "shared": [True, False],
         "fPIC": [True, False],
         "docking": [True, False],
+        "enable_test_engine": [True, False],
         # Backends
         # See https://github.com/ocornut/imgui/blob/master/docs/BACKENDS.md
         "build_backends": [True, False],
@@ -64,6 +66,7 @@ class ImguiConan(ConanFile):
         "shared": False,
         "fPIC": True,
         "docking": False,
+        "enable_test_engine": False,
         # Backends
         "build_backends": True,
         "backend_android": True,
@@ -92,6 +95,10 @@ class ImguiConan(ConanFile):
         "use_wchar32": False,
         "build_programs": False,
     }
+
+    @property
+    def _base_version(self):
+        return self.version.replace("-docking", "")
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, os.path.join(self.export_sources_folder, "src"))
@@ -152,6 +159,14 @@ class ImguiConan(ConanFile):
         if not self.options.get_safe("backend_osx") and not self.options.get_safe("backend_metal"):
             self.options.rm_safe("enable_metal_cpp")
 
+        if "test-engine" not in self.conan_data["sources"][self._base_version]:
+            self.output.warning("No test engine found for this version, removing enable_test_engine option")
+            del self.options.enable_test_engine
+
+        if self.options.get_safe("enable_test_engine"):
+            # Test engine is free for individuals, educational, open-source and small business uses. Paid for larger businesses.
+            self.license = "MIT AND DocumentRef-LICENSE.imgui_test_engine.txt"
+
     def layout(self):
         cmake_layout(self, src_folder="src")
 
@@ -179,6 +194,8 @@ class ImguiConan(ConanFile):
                 self.requires("lunasvg/2.4.1")
         if self.options.get_safe("enable_metal_cpp"):
             self.requires("metal-cpp/14.2", transitive_headers=bool(self.options.get_safe("backend_metal")))
+        if self.options.get_safe("enable_test_engine"):
+            self.requires("stb/[*]")
 
     def validate(self):
         check_min_cppstd(self, 11)
@@ -193,6 +210,7 @@ class ImguiConan(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
+        tc.cache_variables["IMGUI_TEST_ENGINE"] = self.options.get_safe("enable_test_engine", False)
         tc.cache_variables["IMGUI_IMPL_ALLEGRO5"] = self.options.get_safe("backend_allegro5", False)
         tc.cache_variables["IMGUI_IMPL_ANDROID"] = self.options.get_safe("backend_android", False)
         tc.cache_variables["IMGUI_IMPL_DX9"] = self.options.get_safe("backend_dx9", False)
@@ -223,9 +241,12 @@ class ImguiConan(ConanFile):
         deps.generate()
 
     def _source(self):
-        version = self.version.replace("-docking", "")
         kind = "docking" if self.options.docking else "regular"
-        get(self, **self.conan_data["sources"][version][kind], destination=self.source_folder, strip_root=True)
+        get(self, **self.conan_data["sources"][self._base_version][kind], destination=self.source_folder, strip_root=True)
+        if self.options.get_safe("enable_test_engine"):
+            test_engine = self.conan_data["sources"][self._base_version]["test-engine"]
+            get(self, **test_engine, destination=os.path.join(self.source_folder, "test-engine"), strip_root=True)
+            rmdir(self, os.path.join(self.source_folder, "test-engine", "imgui_test_engine", "thirdparty", "stb"))
 
     def _configure_header(self):
         defines = {}
@@ -271,6 +292,9 @@ class ImguiConan(ConanFile):
 
     def package(self):
         copy(self, "LICENSE.txt", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        if self.options.get_safe("enable_test_engine"):
+            shutil.copy(os.path.join(self.source_folder, "test-engine", "imgui_test_engine", "LICENSE.txt"),
+                        os.path.join(self.package_folder, "licenses", "LICENSE.imgui_test_engine.txt"))
         cmake = CMake(self)
         cmake.install()
 
@@ -302,6 +326,9 @@ class ImguiConan(ConanFile):
             self.cpp_info.components["core"].requires.append("freetype::freetype")
             if self.options.get_safe("enable_freetype_lunasvg"):
                 self.cpp_info.components["core"].requires.append("lunasvg::lunasvg")
+        if self.options.get_safe("enable_test_engine"):
+            self.cpp_info.components["core"].includedirs.append(os.path.join("include", "imgui_test_engine"))
+            self.cpp_info.components["core"].requires.append("stb::stb")
 
         def _add_binding(name, requires=None, system_libs=None, frameworks=None):
             if self.options.get_safe(f"backend_{name}"):

@@ -29,6 +29,27 @@ generate_export_header(imgui
 # Enable __declspec(dllexport) in backend libs as well
 add_compile_definitions(imgui_EXPORTS)
 
+if(IMGUI_TEST_ENGINE)
+    find_package(Stb REQUIRED)
+    target_link_libraries(imgui PRIVATE stb::stb)
+    target_sources(imgui PRIVATE
+        test-engine/imgui_test_engine/imgui_capture_tool.cpp
+        test-engine/imgui_test_engine/imgui_te_context.cpp
+        test-engine/imgui_test_engine/imgui_te_coroutine.cpp
+        test-engine/imgui_test_engine/imgui_te_engine.cpp
+        test-engine/imgui_test_engine/imgui_te_exporters.cpp
+        test-engine/imgui_test_engine/imgui_te_perftool.cpp
+        test-engine/imgui_test_engine/imgui_te_ui.cpp
+        test-engine/imgui_test_engine/imgui_te_utils.cpp
+    )
+    target_compile_definitions(imgui PRIVATE
+        IMGUI_ENABLE_TEST_ENGINE=1
+        IMGUI_TEST_ENGINE_ENABLE_COROUTINE_STDTHREAD_IMPL=1
+    )
+    file(GLOB TEST_ENGINE_HEADERS test-engine/imgui_test_engine/*.h)
+    install(FILES ${TEST_ENGINE_HEADERS} DESTINATION include/imgui_test_engine)
+endif()
+
 if(IMGUI_FREETYPE)
     find_package(freetype CONFIG REQUIRED)
     target_sources(imgui PRIVATE misc/freetype/imgui_freetype.cpp)

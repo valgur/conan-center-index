@@ -40,12 +40,14 @@ class TestPackageConan(ConanFile):
         ]
 
     def generate(self):
-        with_docking = self.dependencies[self.tested_reference_str].conf_info.get("user.imgui:with_docking", False)
+        opts = self.dependencies[self.tested_reference_str].options
         tc = CMakeToolchain(self)
-        if with_docking:
+        if str(opts.get_safe("docking")) == "True":
             tc.preprocessor_definitions["DOCKING"] = ""
+        if str(opts.get_safe("enable_test_engine")) == "True":
+            tc.preprocessor_definitions["ENABLE_TEST_ENGINE"] = ""
         for backend in self._backends:
-            if str(self.dependencies[self.tested_reference_str].options.get_safe(f"backend_{backend}", False)) == "True":
+            if str(opts.get_safe(f"backend_{backend}", False)) == "True":
                 tc.preprocessor_definitions[f"IMGUI_IMPL_{backend.upper()}"] = ""
         tc.generate()
 

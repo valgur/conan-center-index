@@ -4,6 +4,10 @@
     #include <imgui_internal.h>
 #endif
 
+#ifdef ENABLE_TEST_ENGINE
+    #include <imgui_te_engine.h>
+#endif
+
 #ifdef IMGUI_IMPL_ALLEGRO5
     #include <imgui_impl_allegro5.h>
 #endif
@@ -112,6 +116,16 @@ int main() {
 #ifdef DOCKING
     printf("  with docking\n");
 #endif
+#ifdef ENABLE_TEST_ENGINE
+    printf("  with test engine\n");
+    ImGuiTestEngine *engine = ImGuiTestEngine_CreateContext();
+    if (engine == NULL) {
+      printf("  Failed to create test engine context\n");
+      return -1;
+    }
     ImGui::DestroyContext();
-    return 0;
+    ImGuiTestEngine_DestroyContext(engine);
+#else
+    ImGui::DestroyContext();
+#endif
 }
