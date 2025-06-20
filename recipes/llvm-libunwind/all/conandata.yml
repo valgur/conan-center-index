@@ -1,14 +1,14 @@
 sources:
-  "20.1.6":
+  "20.1.7":
     "libunwind":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/libunwind-20.1.6.src.tar.xz"
-      sha256: "bdf90d0428c2cb7b763677c0932509b6dca9f210183e9e73c129ab32d7b658ef"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.7/libunwind-20.1.7.src.tar.xz"
+      sha256: "46081293b2f857caca68a266cf11fad8366315c470a9a6766868ed6c369bac0c"
     "cmake":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/cmake-20.1.6.src.tar.xz"
-      sha256: "b4b3efa5d5b01b3f211f1ba326bb6f0c318331f828202d332c95b7f30fca5f8c"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.7/cmake-20.1.7.src.tar.xz"
+      sha256: "afdab526c9b337a4eacbb401685beb98a18fb576037ecfaa93171d4c644fe791"
     "runtimes":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/runtimes-20.1.6.src.tar.xz"
-      sha256: "fde825adf348b4cb3b778d8d0409a1ecab2ac0d5ae27031a4530756e909db2d8"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.7/runtimes-20.1.7.src.tar.xz"
+      sha256: "9357bba8ec103cfb48a271420251a057636aae346b9bad880801e11d19dcbfc6"
   "19.1.7":
     "libunwind":
       url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/libunwind-19.1.7.src.tar.xz"

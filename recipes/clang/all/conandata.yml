@@ -1,11 +1,11 @@
 sources:
-  "20.1.6":
+  "20.1.7":
     "clang":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/clang-20.1.6.src.tar.xz"
-      sha256: "49a16d6b6878a6bdd9ead2d31ffb94c792675607471afa40096fbd48b3cbab66"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.7/clang-20.1.7.src.tar.xz"
+      sha256: "cb74965a2481008ae405419357a55fda2df6fa3aee262a0a9293a558532a29ae"
     "cmake":
-      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.6/cmake-20.1.6.src.tar.xz"
-      sha256: "b4b3efa5d5b01b3f211f1ba326bb6f0c318331f828202d332c95b7f30fca5f8c"
+      url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.7/cmake-20.1.7.src.tar.xz"
+      sha256: "afdab526c9b337a4eacbb401685beb98a18fb576037ecfaa93171d4c644fe791"
   "19.1.7":
     "clang":
       url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang-19.1.7.src.tar.xz"
@@ -14,7 +14,7 @@ sources:
       url: "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/cmake-19.1.7.src.tar.xz"
       sha256: "11c5a28f90053b0c43d0dec3d0ad579347fc277199c005206b963c19aae514e3"
 patches:
-  "20.1.6":
+  "20.1.7":
     - patch_file: "patches/19/adjust-cmake-config.patch"
   "19.1.7":
     - patch_file: "patches/19/adjust-cmake-config.patch"
