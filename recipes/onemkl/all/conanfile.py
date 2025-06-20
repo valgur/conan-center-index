@@ -190,6 +190,7 @@ class OneMKLConan(ConanFile):
         # Core library
         self.cpp_info.components["mkl-core"].libs = ["mkl_core"]
         self.cpp_info.components["mkl-core"].system_libs = ["pthread", "m", "dl"]
+        self.cpp_info.components["mkl-core"].includedirs.append(os.path.join("include", "oneapi"))
         if not is_msvc(self) and self.options.get_safe("shared", True) and not self.options.sdl:
             # Hacky fix to handle circular dependencies between the shared libraries
             self.cpp_info.components["mkl-core"].sharedlinkflags = ["-Wl,--start-group"]
