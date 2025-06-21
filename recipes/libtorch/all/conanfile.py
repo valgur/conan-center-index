@@ -272,7 +272,7 @@ class LibtorchConan(ConanFile):
         if self.options.with_xnnpack:
             self.requires("xnnpack/cci.20240229")
         if self.options.with_itt:
-            self.requires("ittapi/3.24.4")
+            self.requires("ittapi/[^3.23.0]")
         if self._depends_on_pthreadpool:
             self.requires("pthreadpool/cci.20231129")
         if self.options.get_safe("with_numa"):
