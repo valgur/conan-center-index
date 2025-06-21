@@ -1,0 +1,11 @@
+--- a/src/core/NEON/kernels/NEReductionOperationKernel.cpp
++++ b/src/core/NEON/kernels/NEReductionOperationKernel.cpp
+@@ -39,6 +39,8 @@
+ #include "src/core/NEON/wrapper/wrapper.h"
+ #include "src/cpu/kernels/reduction_layer/generic/neon/list.h"
+ 
++#include <iostream>
++
+ namespace arm_compute
+ {
+ 

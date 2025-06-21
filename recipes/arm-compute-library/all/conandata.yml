@@ -1,0 +1,7 @@
+sources:
+  "52.2.0":
+    url: "https://github.com/ARM-software/ComputeLibrary/archive/refs/tags/v52.2.0.tar.gz"
+    sha256: "8093b9011c8077ae51baf094526f00437c9e3b24d230c9ee55a81db426b716d4"
+patches:
+  "52.2.0":
+    - patch_file: "patches/missing-include.patch"
