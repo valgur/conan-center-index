@@ -10,10 +10,10 @@ from conan.tools.files import *
 
 class LevelZeroConan(ConanFile):
     name = "level-zero"
+    description = "OneAPI Level Zero Specification Headers and Loader"
     license = "MIT"
     homepage = "https://github.com/oneapi-src/level-zero"
     url = "https://github.com/conan-io/conan-center-index"
-    description = "OneAPI Level Zero Specification Headers and Loader"
     topics = ("api-headers", "loader", "level-zero", "oneapi")
     package_type = "shared-library"
     settings = "os", "arch", "compiler", "build_type"
@@ -69,12 +69,13 @@ class LevelZeroConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
+        self.cpp_info.components["level-zero"].set_property("pkg_config_name", "level-zero")
+        self.cpp_info.components["level-zero"].requires = ["ze-loader"]
+
+        self.cpp_info.components["ze-loader"].set_property("pkg_config_name", "libze_loader")
         self.cpp_info.components["ze-loader"].libs = ["ze_loader"]
         self.cpp_info.components["ze-loader"].includedirs = ["include", "include/level_zero"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["ze-loader"].system_libs = ["pthread"]
         elif self.settings.os == "Windows":
             self.cpp_info.components["ze-loader"].system_libs = ["cfgmgr32"]
-            self.cpp_info.components["ze-loader"].set_property("pkg_config_name", "libze_loader")
-            self.cpp_info.components["level-zero"].requires = ["ze-loader"]
-            self.cpp_info.components["level-zero"].set_property("pkg_config_name", "level-zero")
