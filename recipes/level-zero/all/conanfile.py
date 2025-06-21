@@ -16,8 +16,6 @@ class LevelZeroConan(ConanFile):
     description = "OneAPI Level Zero Specification Headers and Loader"
     topics = ("api-headers", "loader", "level-zero", "oneapi")
     package_type = "shared-library"
-
-    # Binary configuration
     settings = "os", "arch", "compiler", "build_type"
 
     def requirements(self):
@@ -36,6 +34,7 @@ class LevelZeroConan(ConanFile):
                         "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, os.path.join(self.source_folder, "source", "loader","ze_loader.cpp"),
                         "#ifdef __linux__", "#if defined(__linux__) || defined(__APPLE__)")
+        rmdir(self, "third_party")
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -44,20 +43,19 @@ class LevelZeroConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def generate(self):
+        tc = CMakeToolchain(self)
+        tc.cache_variables["SYSTEM_SPDLOG"] = True
+        tc.generate()
+
         deps = CMakeDeps(self)
         deps.generate()
-
-        toolchain = CMakeToolchain(self)
-        toolchain.generate()
 
     def validate(self):
         if is_apple_os(self):
             self.output.warning("Level Zero is not known to support Apple platforms")
         if self.settings.os == "Windows" and self.settings.get_safe("subsystem") == "uwp":
             raise ConanInvalidConfiguration(f"{self.ref} does not support UWP on Windows.")
-
-        min_cpp_std = "14"
-        check_min_cppstd(self, min_cpp_std)
+        check_min_cppstd(self, 14)
 
     def build(self):
         cmake = CMake(self)
