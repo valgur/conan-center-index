@@ -6,6 +6,7 @@ from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import *
+from conan.tools.scm import Version
 
 
 class LevelZeroConan(ConanFile):
@@ -26,15 +27,16 @@ class LevelZeroConan(ConanFile):
         get(self, **version_data, strip_root=True)
         apply_conandata_patches(self)
         # CMake v4 support
-        replace_in_file(self, "CMakeLists.txt",
-                        "cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)",
-                        "cmake_minimum_required(VERSION 3.5)")
-        replace_in_file(self, "os_release_info.cmake",
-                        "cmake_minimum_required(VERSION 3.2.0)",
-                        "cmake_minimum_required(VERSION 3.5)")
+        if Version(self.version) < "1.18.5":
+            replace_in_file(self, "CMakeLists.txt",
+                            "cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)",
+                            "cmake_minimum_required(VERSION 3.5)")
+            replace_in_file(self, "os_release_info.cmake",
+                            "cmake_minimum_required(VERSION 3.2.0)",
+                            "cmake_minimum_required(VERSION 3.5)")
         replace_in_file(self, os.path.join(self.source_folder, "source", "loader","ze_loader.cpp"),
                         "#ifdef __linux__", "#if defined(__linux__) || defined(__APPLE__)")
-        rmdir(self, "third_party")
+        rmdir(self, "third_party/spdlog_headers")
 
     def export_sources(self):
         export_conandata_patches(self)

@@ -1,8 +1,15 @@
 sources:
+  "1.22.4":
+    url: "https://github.com/oneapi-src/level-zero/archive/refs/tags/v1.22.4.tar.gz"
+    sha256: "2c76e0c82ddda2674e9b6993e52dd447dc4de08cf8eeef162d13692c3d53c0ae"
   "1.17.39":
     url: "https://github.com/oneapi-src/level-zero/archive/refs/tags/v1.17.39.tar.gz"
     sha256: "70473c7262eee80dbe7c17974684ba9d3e34efc15ecba919b85e3cea7b1e180e"
 patches:
+  "1.22.4":
+    - patch_file: "patches/1.22/001-patch-remove-qspectre.patch"
+      patch_description: "Removed /Qspectre"
+      patch_type: "portability"
   "1.17.39":
     - patch_file: "patches/1.17.39/001-patch-remove-qspectre.patch"
       patch_description: "Removed /Qspectre"
