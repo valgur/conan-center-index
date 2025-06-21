@@ -1,0 +1,69 @@
+import os
+
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import cmake_layout, CMakeToolchain, CMake
+from conan.tools.files import *
+
+required_conan_version = ">=2.1"
+
+
+class XbyakAarch64Conan(ConanFile):
+    name = "xbyak_aarch64"
+    description = ("Xbyak_aarch64 is a C++ library which enables run-time assemble coding "
+                   "with the AArch64 instruction set of Arm(R)v8-A architecture.")
+    license = "Apache-2.0"
+    homepage = "https://github.com/fujitsu/xbyak_aarch64"
+    topics = ("jit", "assembler", "aarch64", "arm")
+    package_type = "library"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "fPIC": True,
+    }
+    implements = ["auto_shared_fpic"]
+
+    def export_sources(self):
+        export_conandata_patches(self)
+
+    def layout(self):
+        cmake_layout(self, src_folder="src")
+
+    def validate(self):
+        if self.settings.arch != "armv8":
+            raise ConanInvalidConfiguration("arch=armv8 is required")
+        check_min_cppstd(self, 11)
+
+    def source(self):
+        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        apply_conandata_patches(self)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.cache_variables["SHARED"] = self.options.shared
+        tc.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
+    def package(self):
+        copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        cmake = CMake(self)
+        cmake.install()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
+
+    def package_info(self):
+        self.cpp_info.set_property("cmake_file_name", "xbyak_aarch64")
+        self.cpp_info.set_property("cmake_target_name", "xbyak_aarch64::xbyak_aarch64")
+        if self.options.shared:
+            self.cpp_info.set_property("cmake_target_aliases", ["xbyak_aarch64::xbyak_aarch64_sh"])
+        self.cpp_info.libs = ["xbyak_aarch64"]
+        if self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["m", "dl"]
