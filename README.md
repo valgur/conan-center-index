@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-20:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-21:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -47,7 +47,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cilantro/cci.20230816
 - cimg/3.3.5
 - clang/19.1.7
-- clang/20.1.6
+- clang/20.1.7
 - cloudini/0.3.0
 - cmake/3.19.8
 - cmake/3.20.6
@@ -56,30 +56,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - cmake/3.23.5
 - cmake/3.24.4
 - cmake/3.25.3
-- cmake/3.26.5
 - cmake/3.26.6
-- cmake/3.27.4
-- cmake/3.27.5
-- cmake/3.27.6
-- cmake/3.27.7
 - cmake/3.27.9
-- cmake/3.28.1
-- cmake/3.28.5
 - cmake/3.28.6
-- cmake/3.29.0
-- cmake/3.29.2
-- cmake/3.29.3
-- cmake/3.29.4
-- cmake/3.29.5
-- cmake/3.29.6
 - cmake/3.29.7
-- cmake/3.30.0
-- cmake/3.30.1
 - cmake/3.30.5
-- cmake/3.31.0
-- cmake/3.31.3
-- cmake/3.31.5
-- cmake/3.31.6
 - coin-buildtools/0.8.11
 - coin-cbc/2.10.11
 - coin-cgl/0.60.8
@@ -228,7 +209,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_gnss/0.0.0.cci.20250213
 - gtsam_points/1.0.6
 - gumbo-parser/0.13.0
-- harfbuzz/11.2.0
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
 - hlslpp/3.5.3
@@ -257,7 +237,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - libbsd/0.12.2
 - libcaca/0.99.beta20
 - libclc/19.1.7
-- libclc/20.1.6
+- libclc/20.1.7
 - libcmaes/0.10.0
 - libcroco/0.6.13
 - libcudacxx/2.7.0
@@ -332,11 +312,11 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - linux-pam/1.6.1
 - litehtml/0.9
 - lld/19.1.7
-- lld/20.1.6
+- lld/20.1.7
 - lldpd/1.0.19
-- llvm-core/20.1.6
+- llvm-core/20.1.7
 - llvm-libunwind/19.1.7
-- llvm-libunwind/20.1.6
+- llvm-libunwind/20.1.7
 - llvm-openmp/10.1.6
 - llvm-openmp/18.1.8
 - llvm-openmp/19.1.7
@@ -352,7 +332,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - metavision-sdk/5.1.1
 - mkfontscale/1.2.3
 - mlir/19.1.7
-- mlir/20.1.6
+- mlir/20.1.7
 - moltenvk/1.2.11
 - moltenvk/1.2.7
 - mpdecimal/4.0.1
@@ -374,6 +354,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ocl-icd/2.3.3
 - odbc/2.3.12
 - ogre/14.3.4
+- onemath/0.7
 - onemkl/2025.1.0
 - onetbb/2022.1.0
 - onnxruntime/1.21.1
@@ -389,6 +370,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - openmvg/2.1
 - openni2/2.2.0.33
 - openpmix/5.0.6
+- openrng/25.04
 - openspecfun/0.5.7
 - openucx/1.18.1
 - openusd/25.02
@@ -421,6 +403,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - poppler/25.01.0
 - portable-file-dialogs/cci.20221111
 - portaudio/19.7.0
+- portfft/0.0.0.cci.20240816
 - premake/5.0.0-beta2
 - protobuf-c/1.5.2
 - protobuf/3.29.4
@@ -567,7 +550,6 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.4.309.0
 - vulkan-validationlayers/1.4.313.0
 - wuffs/0.3.4
-- wxwidgets/3.2.8
 - x86simdsortcpp/7.0
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
