@@ -5,21 +5,21 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
 from conan.tools.scm import Version
 
-required_conan_version = ">=2.1"
+required_conan_version = ">=2.4"
 
 
 class IttApiConan(ConanFile):
     name = "ittapi"
-    license = ("BSD-3-Clause", "GPL-2.0-only")
-    url = "https://github.com/conan-io/conan-center-index"
-    homepage = "https://github.com/intel/ittapi"
     description = (
         "The Instrumentation and Tracing Technology (ITT) API enables your application"
         " to generate and control the collection of trace data during its execution"
         " across different Intel tools."
     )
+    license = "BSD-3-Clause AND GPL-2.0-only"
+    url = "https://github.com/conan-io/conan-center-index"
+    homepage = "https://github.com/intel/ittapi"
     topics = ("itt", "ittapi", "vtune", "profiler", "profiling")
-
+    package_type = "static-library"
     settings = "os", "arch", "compiler", "build_type"
     options = {
         "fPIC": [True, False],
@@ -29,21 +29,8 @@ class IttApiConan(ConanFile):
         "fPIC": True,
         "ptmark": False,
     }
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        # We have no C++ files, so we delete unused options.
-        try:
-            del self.settings.compiler.libcxx
-        except Exception:
-            pass
-        try:
-            del self.settings.compiler.cppstd
-        except Exception:
-            pass
+    implements = ["auto_shared_fpic"]
+    languages = ["C"]
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -77,10 +64,11 @@ class IttApiConan(ConanFile):
 
     def package_info(self):
         # https://github.com/intel/ittapi/blob/03f7260c96d4b437d12dceee7955ebb1e30e85ad/CMakeLists.txt#L176
+        self.cpp_info.set_property("cmake_file_name", "ittapi")
         self.cpp_info.set_property("cmake_target_name", "ittapi::ittnotify")
         self.cpp_info.set_property("cmake_target_aliases", ["ittapi::ittapi"]) # for compatibility with earlier revisions of the recipe
         if self.settings.os == "Windows":
-            self.cpp_info.libs = ['libittnotify']
+            self.cpp_info.libs = ["libittnotify"]
         else:
-            self.cpp_info.libs = ['ittnotify']
-            self.cpp_info.system_libs = ['dl']
+            self.cpp_info.libs = ["ittnotify"]
+            self.cpp_info.system_libs = ["dl"]
