@@ -3,7 +3,6 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.files import *
-from conan.tools.scm import Version
 
 required_conan_version = ">=2.4"
 
@@ -37,15 +36,10 @@ class IttApiConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        # Don't force PIC
-        if Version(self.version) < "3.24.1":
-            replace_in_file(self, "CMakeLists.txt", 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")', "")
 
     def generate(self):
         toolchain = CMakeToolchain(self)
         toolchain.variables["ITT_API_IPT_SUPPORT"] = self.options.ptmark
-        if Version(self.version) < "3.25.1":
-            toolchain.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5"
         toolchain.generate()
 
     def build(self):
