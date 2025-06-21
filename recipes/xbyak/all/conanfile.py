@@ -10,8 +10,8 @@ required_conan_version = ">=2.1"
 
 class XbyakConan(ConanFile):
     name = "xbyak"
-    description = "Xbyak is a C++ header library that enables dynamically to " \
-                  "assemble x86(IA32), x64(AMD64, x86-64) mnemonic."
+    description = ("Xbyak is a C++ header library that enables dynamically to "
+                   "assemble x86(IA32), x64(AMD64, x86-64) mnemonic.")
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/herumi/xbyak"
@@ -27,18 +27,15 @@ class XbyakConan(ConanFile):
         self.info.clear()
 
     def validate(self):
-        if self.settings.arch not in ("x86", "x86_64"):
+        if self.settings.arch not in ["x86", "x86_64"]:
             raise ConanInvalidConfiguration(f"{self.ref} is only available for x86 and x86_64 architecture")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def build(self):
-        pass
-
     def package(self):
-        copy(self, "COPYRIGHT", src=self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        copy(self, "*.h", src=os.path.join(self.source_folder, "xbyak"), dst=os.path.join(self.package_folder, "include", "xbyak"))
+        copy(self, "COPYRIGHT", self.source_folder, os.path.join(self.package_folder, "licenses"))
+        copy(self, "*.h", os.path.join(self.source_folder, "xbyak"), os.path.join(self.package_folder, "include", "xbyak"))
 
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "xbyak")
