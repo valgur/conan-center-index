@@ -94,7 +94,7 @@ class SpdlogConan(ConanFile):
             tc.variables["SPDLOG_BUILD_BENCH"] = False
             if not self.options.get_safe("use_std_fmt"):
                 fmt = self.dependencies["fmt"]
-                tc.variables["SPDLOG_FMT_EXTERNAL"] = not fmt.options.header_only
+                tc.variables["SPDLOG_FMT_EXTERNAL"] = True
                 tc.variables["SPDLOG_FMT_EXTERNAL_HO"] = fmt.options.header_only
             tc.variables["SPDLOG_BUILD_SHARED"] = not self.options.header_only and self.options.shared
             tc.variables["SPDLOG_WCHAR_SUPPORT"] = self.options.get_safe("wchar_support", False)
@@ -146,7 +146,6 @@ class SpdlogConan(ConanFile):
         self.cpp_info.set_property("cmake_target_name", f"spdlog::{target}")
         self.cpp_info.set_property("pkg_config_name", "spdlog")
 
-        self.cpp_info.set_property("cmake_target_name", f"spdlog::{target}")
         if self.options.get_safe("use_std_fmt"):
             self.cpp_info.defines.append("SPDLOG_USE_STD_FORMAT")
         else:
