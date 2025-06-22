@@ -58,9 +58,6 @@ class OnnxConan(ConanFile):
             "apple-clang": "10",
         }
 
-    def export_sources(self):
-        export_conandata_patches(self)
-
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
@@ -95,7 +92,6 @@ class OnnxConan(ConanFile):
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
-        apply_conandata_patches(self)
         if Version(self.version) >= "1.15.0":
             # The project incorrectly tries to add missing Protobuf deps
             replace_in_file(self, "CMakeLists.txt",
