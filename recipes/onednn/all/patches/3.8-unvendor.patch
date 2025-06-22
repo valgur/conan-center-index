@@ -65,6 +65,20 @@ index 75ba8e2705..e3722e259b 100644
      $<TARGET_OBJECTS:${OBJ_LIB}>)
 -
 -add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/xbyak_aarch64 xbyak_aarch64)
+diff --git a/src/cpu/aarch64/cpu_isa_traits.hpp b/src/cpu/aarch64/cpu_isa_traits.hpp
+--- a/src/cpu/aarch64/cpu_isa_traits.hpp
++++ b/src/cpu/aarch64/cpu_isa_traits.hpp
+@@ -31,8 +31,8 @@
+ #define XBYAK_USE_MMAP_ALLOCATOR
+ #endif
+ 
+-#include "xbyak_aarch64/xbyak_aarch64/xbyak_aarch64.h"
+-#include "xbyak_aarch64/xbyak_aarch64/xbyak_aarch64_util.h"
++#include "xbyak_aarch64/xbyak_aarch64.h"
++#include "xbyak_aarch64/xbyak_aarch64_util.h"
+ 
+ namespace dnnl {
+ namespace impl {
 diff --git a/src/cpu/jit_utils/jit_utils.cpp b/src/cpu/jit_utils/jit_utils.cpp
 index d4a5119967..a2c92f253f 100644
 --- a/src/cpu/jit_utils/jit_utils.cpp
