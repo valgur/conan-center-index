@@ -40,13 +40,13 @@ class ArmComputeLibraryConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
+        self.requires("kleidiai/[>=0.5.0 <2]")
         self.requires("opencl-headers/[*]", transitive_headers=True)
         self.requires("half/[>=1.12.0 <3]", transitive_headers=True)
         self.requires("libnpy/[^1.0.1]", transitive_headers=True)
         self.requires("stb/[*]", transitive_headers=True)
         if self.options.threads == "openmp":
             self.requires("openmp/system")
-        # TODO: unvendor https://gitlab.arm.com/kleidi/kleidiai
 
     def validate(self):
         if not str(self.settings.arch).startswith("arm"):
@@ -63,11 +63,13 @@ class ArmComputeLibraryConan(ConanFile):
         rmdir(self, "include/half")
         rmdir(self, "include/libnpy")
         rmdir(self, "include/stb")
+        rmdir(self, "third_party")
         replace_in_file(self, "arm_compute/AclOpenClExt.h", "include/CL/cl.h", "CL/cl.h")
         replace_in_file(self, "support/Half.h", "half/half.hpp", "half.hpp")
         replace_in_file(self, "utils/Utils.h", "libnpy/npy.hpp", "npy.hpp")
         replace_in_file(self, "utils/ImageLoader.h", "stb/stb_image.h", "stb_image.h")
         replace_in_file(self, "utils/Utils.cpp", "stb/stb_image.h", "stb_image.h")
+        replace_in_file(self, "src/CMakeLists.txt", "../third_party/kleidiai", "# ../third_party/kleidiai")
         # Append instead of setting for conan_deps.cmake
         replace_in_file(self, "cmake/compilers/setup.cmake",
                         "ARM_COMPUTE_LINK_LIBS",
