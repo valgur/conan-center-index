@@ -13,7 +13,7 @@ Requires Conan v2.2 or newer.
 
 ## Added recipes and versions
 
-Package versions that are available here but not yet on the main CCI repo as of 2025-06-21:
+Package versions that are available here but not yet on the main CCI repo as of 2025-06-22:
 
 - adaptivecpp/24.10.0
 - adaptivecpp/25.02.0
@@ -23,6 +23,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - apr-util/1.6.3
 - apr/1.7.6
 - arbiter/cci.20231122
+- arm-compute-library/52.2.0
 - armadillo/12.6.7
 - armadillo/12.8.1
 - autoconf-archive/2024.10.16
@@ -209,6 +210,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - gtsam_gnss/0.0.0.cci.20250213
 - gtsam_points/1.0.6
 - gumbo-parser/0.13.0
+- half/2.2.1
 - harfbuzz/8.5.0
 - harfbuzz/9.0.0
 - hlslpp/3.5.3
@@ -225,6 +227,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ios-cmake/4.4.1
 - iridescence/0.1.3
 - isl/0.27
+- ittapi/3.26.1
 - json-glib/1.10.6
 - jsonifier/0.9.98
 - kdsingleapplication/1.1.0
@@ -232,6 +235,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - kokkos/4.3.1
 - lapack/3.12.0
 - laszip/2.0.2
+- level-zero/1.22.4
 - libbasisu/1.16.4
 - libbpf/1.4.6
 - libbsd/0.12.2
@@ -354,6 +358,7 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - ocl-icd/2.3.3
 - odbc/2.3.12
 - ogre/14.3.4
+- onednn/3.8.1
 - onemath/0.7
 - onemkl/2025.1.0
 - onetbb/2022.1.0
@@ -551,6 +556,8 @@ Package versions that are available here but not yet on the main CCI repo as of 
 - vulkan-validationlayers/1.4.313.0
 - wuffs/0.3.4
 - x86simdsortcpp/7.0
+- xbyak/7.26
+- xbyak_aarch64/1.1.3
 - xcb-proto/1.17.0
 - xcb-util-cursor/0.1.5
 - xcb-util-errors/1.0.1
