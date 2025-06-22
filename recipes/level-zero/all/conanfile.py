@@ -37,6 +37,7 @@ class LevelZeroConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "source", "loader","ze_loader.cpp"),
                         "#ifdef __linux__", "#if defined(__linux__) || defined(__APPLE__)")
         rmdir(self, "third_party/spdlog_headers")
+        save(self, "samples/CMakeLists.txt", "")
 
     def export_sources(self):
         export_conandata_patches(self)
