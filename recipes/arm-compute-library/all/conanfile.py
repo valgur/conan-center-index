@@ -106,6 +106,8 @@ class ArmComputeLibraryConan(ConanFile):
         copy(self, "*.h", os.path.join(self.source_folder, "support"), os.path.join(self.package_folder, "include", "arm_compute", "support"))
         copy(self, "*.h", os.path.join(self.source_folder, "utils"), os.path.join(self.package_folder, "include", "arm_compute", "utils"))
         copy(self, "*", os.path.join(self.source_folder, "scripts"), os.path.join(self.package_folder, "share", "arm_compute", "scripts"))
+        # Also include internal headers for OpenVINO
+        copy(self, "*.h", os.path.join(self.source_folder, "src"), os.path.join(self.package_folder, "include", "arm_compute", "src"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
     def package_info(self):
