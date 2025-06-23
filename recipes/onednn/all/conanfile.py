@@ -29,6 +29,7 @@ class OneDNNConan(ConanFile):
         "blas_vendor": ["internal", "accelerate", "armpl", "external"],
         "enable_concurrent_exec": [True, False],
         "enable_experimental_profiling": [True, False],
+        "install_dev_headers": [True, False],
     }
     default_options = {
         "shared": False,
@@ -41,6 +42,7 @@ class OneDNNConan(ConanFile):
         "blas_vendor": "internal",
         "enable_concurrent_exec": False,
         "enable_experimental_profiling": False,
+        "install_dev_headers": False,
     }
     options_description = {
         "workload": ("Specifies a set of functionality to be available at build time. "
@@ -61,6 +63,7 @@ class OneDNNConan(ConanFile):
                                    "This option must be turned on if there is a possibility of executing distinct primitives concurrently. "
                                    "CAUTION: enabling this option increases memory consumption."),
         "enable_experimental_profiling": "Enable experimental profiling capabilities.",
+        "install_dev_headers": "Install internal headers in addition to public ones (for OpenVINO recipe).",
     }
 
     def export_sources(self):
@@ -165,12 +168,26 @@ class OneDNNConan(ConanFile):
         rmdir(self, os.path.join(self.package_folder, "share"))
         rm(self, "*.pdb", self.package_folder, recursive=True)
 
+        # Install dev headers for OpenVINO onednn extensions
+        if self.options.install_dev_headers:
+            subdirs = ["common"]
+            if self.options.cpu_runtime != "none":
+                subdirs.append("cpu")
+            if self.options.gpu_runtime != "none":
+                subdirs.append("gpu")
+            for subdir in subdirs:
+                copy(self, "*.h*",
+                     os.path.join(self.source_folder, "src", subdir),
+                     os.path.join(self.package_folder, "include", "dnnl_dev", subdir))
+
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "dnnl")
         self.cpp_info.set_property("cmake_target_name", "DNNL::dnnl")
         self.cpp_info.libs = ["dnnl"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["m", "pthread", "dl"]
+        if self.options.install_dev_headers:
+            self.cpp_info.includedirs.append(os.path.join("include", "dnnl_dev"))
 
         # For the dnnl C API
         if not self.options.shared and stdcpp_library(self):
