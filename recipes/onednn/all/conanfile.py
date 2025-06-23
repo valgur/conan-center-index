@@ -27,6 +27,8 @@ class OneDNNConan(ConanFile):
         "gpu_runtime": ["none", "ocl", "sycl"],
         "gpu_vendor": ["none", "intel", "nvidia", "amd", "generic"],
         "blas_vendor": ["internal", "accelerate", "armpl", "external"],
+        "enable_concurrent_exec": [True, False],
+        "enable_experimental_profiling": [True, False],
     }
     default_options = {
         "shared": False,
@@ -37,6 +39,8 @@ class OneDNNConan(ConanFile):
         "gpu_runtime": "ocl",
         "gpu_vendor": "intel",
         "blas_vendor": "internal",
+        "enable_concurrent_exec": False,
+        "enable_experimental_profiling": False,
     }
     options_description = {
         "workload": ("Specifies a set of functionality to be available at build time. "
@@ -52,7 +56,11 @@ class OneDNNConan(ConanFile):
                         "- 'internal' (default). Use internal BLAS implementation. Recommended in most situations."
                         "- 'accelerate'. Use Apple Accelerate framework on macOS."
                         "- 'armpl'. Use Arm Performance Libraries on Arm platforms."
-                        "- 'external'. Use an external BLAS library. This vendor is supported for performance analysis purposes only.")
+                        "- 'external'. Use an external BLAS library. This vendor is supported for performance analysis purposes only."),
+        "enable_concurrent_exec": ("Disables sharing a common scratchpad between primitives. "
+                                   "This option must be turned on if there is a possibility of executing distinct primitives concurrently. "
+                                   "CAUTION: enabling this option increases memory consumption."),
+        "enable_experimental_profiling": "Enable experimental profiling capabilities.",
     }
 
     def export_sources(self):
@@ -136,6 +144,8 @@ class OneDNNConan(ConanFile):
         tc.cache_variables["DNNL_GPU_RUNTIME"] = self.options.gpu_runtime.value.upper()
         tc.cache_variables["DNNL_GPU_VENDOR"] = self.options.get_safe("gpu_vendor", "none").value.upper()
         tc.cache_variables["DNNL_BLAS_VENDOR"] = {"internal": "NONE", "accelerate": "ACCELERATE", "external": "ANY"}[self.options.blas_vendor.value]
+        tc.cache_variables["DNNL_ENABLE_CONCURRENT_EXEC"] = self.options.enable_concurrent_exec
+        tc.cache_variables["DNNL_EXPERIMENTAL_PROFILING"] = self.options.enable_experimental_profiling
         tc.generate()
 
         deps = CMakeDeps(self)
